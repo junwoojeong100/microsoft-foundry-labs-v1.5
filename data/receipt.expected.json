@@ -1,0 +1,9 @@
+{
+  "document_id": "HB-2026-0929",
+  "date": "2026-09-29",
+  "currency": "KRW",
+  "items": [{"sku": "KB-01", "quantity": 2, "unit_price": 89000, "amount": 178000}],
+  "total": 178000,
+  "approval_status": "pending",
+  "synthetic": true
+}

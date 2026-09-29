@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="610" viewBox="0 0 1080 610" role="img" aria-labelledby="title desc">
+  <title id="title">한빛 오피스 실습 아키텍처</title>
+  <desc id="desc">사용자 요청을 받은 Prompt 또는 Hosted Agent가 Foundry 모델, 정책 문서 검색, 재고 조회와 구매 초안 도구를 사용한다. 실제 주문은 연결하지 않으며 업무 시스템의 별도 사람 승인이 필요하다. 전체 실행에 평가, 추적, 권한과 안전 통제를 적용한다.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#487488" stroke-width="1.3"/></marker>
+    <style>text{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;fill:#15364b}.title{font-weight:700;font-size:19px}.sub{font-size:14px;fill:#4b6679}.small{font-size:13px;fill:#4b6679}.line{stroke:#487488;stroke-width:2;fill:none;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1080" height="610" rx="20" fill="#f8fbfc"/>
+  <text x="40" y="43" font-size="13" fill="#007568" font-weight="700" letter-spacing="2">ONE SCENARIO / END-TO-END</text>
+  <text x="40" y="81" font-size="28" font-weight="750">근거로 답하고, 도구로 확인하고, 초안에서 멈춥니다.</text>
+  <rect x="260" y="114" width="546" height="355" rx="18" fill="#edf5f7" stroke="#c3d8e0" stroke-dasharray="6 5"/>
+  <text x="284" y="141" class="small" font-weight="700">MICROSOFT FOUNDRY</text>
+  <rect x="39" y="233" width="165" height="112" rx="13" fill="#fff" stroke="#c9dbe3"/>
+  <text x="61" y="268" class="title">사용자</text><text x="61" y="295" class="sub">구매 규정 + 재고</text><text x="61" y="319" class="sub">구매 요청 초안</text>
+  <path d="M204 290H290" class="line"/>
+  <rect x="290" y="220" width="215" height="141" rx="14" fill="#133950"/>
+  <text x="315" y="256" style="fill:#fff" class="title">한빛 도우미 Agent</text>
+  <text x="315" y="286" style="fill:#c5e1eb" class="sub">Instructions + 대화 상태</text>
+  <text x="315" y="313" style="fill:#b0ebd3" class="sub">Prompt → Hosted 확장</text>
+  <text x="315" y="339" style="fill:#c5e1eb" class="small">모델의 제안 ≠ 업무 승인</text>
+  <rect x="566" y="166" width="212" height="83" rx="12" fill="#fff" stroke="#bed3dc"/>
+  <text x="586" y="197" class="title">Foundry Models</text><text x="586" y="226" class="sub">추론 · 도구 선택 · 응답 생성</text>
+  <path d="M505 258H535V207H566" class="line"/>
+  <rect x="566" y="275" width="212" height="82" rx="12" fill="#fff" stroke="#bed3dc"/>
+  <text x="586" y="305" class="title">정책 지식 + 근거</text><text x="586" y="334" class="sub">File search → Search / IQ</text>
+  <path d="M505 296H566" class="line"/>
+  <rect x="566" y="383" width="212" height="61" rx="12" fill="#e2f3e9" stroke="#afd8c2"/>
+  <text x="586" y="409" font-size="16" font-weight="700">도구 / Toolbox</text><text x="586" y="431" class="small">함수 · MCP · OpenAPI</text>
+  <path d="M505 331H535V413H566" class="line"/>
+  <rect x="852" y="165" width="190" height="81" rx="12" fill="#fff" stroke="#bfd9df"/>
+  <text x="873" y="196" class="title">재고 조회</text><text x="873" y="225" class="sub">합성 CSV · 읽기 전용</text>
+  <rect x="852" y="272" width="190" height="94" rx="12" fill="#fff" stroke="#bfd9df"/>
+  <text x="873" y="305" class="title">구매 요청 초안</text><text x="873" y="333" class="sub">검증 · 금액 · 승인 역할</text><text x="873" y="354" class="small">실제 주문·결제 없음</text>
+  <path d="M778 412H821V206H852" class="line"/>
+  <path d="M821 320H852" class="line"/>
+  <rect x="852" y="391" width="190" height="77" rx="12" fill="#fff4dc" stroke="#dfcc98"/>
+  <text x="873" y="422" font-size="17" font-weight="700">사람 + 업무 시스템</text><text x="873" y="449" class="small">별도 승인 · 실습에는 미연결</text>
+  <rect x="39" y="502" width="1003" height="75" rx="13" fill="#e8f1f5" stroke="#c3d7e1"/>
+  <text x="64" y="533" font-size="17" font-weight="700">전체 흐름에 적용</text>
+  <text x="64" y="559" class="sub">평가 · Tracing · Guardrails · Entra / RBAC · 데이터 권한 · 비용 · 버전 · 정리</text>
+  <text x="808" y="549" font-size="13" fill="#006f70">Build → Evaluate → Operate</text>
+</svg>

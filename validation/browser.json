@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "script": "scripts/browser-check.js",
+  "assertions_passed": 71,
+  "viewport_widths_px": [1440, 1024, 768, 390, 320],
+  "checks": [
+    "30 reader sections and 25 labs",
+    "Search results, no-result state, Escape and deep-link navigation",
+    "90-minute route matches instructor schedule",
+    "Progress persistence and reversible completion",
+    "Clipboard success with an in-page test double and denied-clipboard fallback",
+    "Light and dark primary text color pairs meet 4.5:1 contrast",
+    "Body font at least 16px and code font at least 13px across tested viewports",
+    "No document-level horizontal overflow across tested viewports",
+    "Mobile menu and navigation",
+    "All 25 direct lab routes",
+    "91 coverage records",
+    "Current-module and whole-guide print visibility",
+    "Malformed hash fallback",
+    "All 30 sections readable with JavaScript disabled",
+    "No page runtime errors or failed local assets"
+  ],
+  "external_runtime_requests_observed": 0,
+  "azure_calls": 0,
+  "scope": "Chromium, local HTTP preview. This is not an exhaustive accessibility audit or cross-browser certification.",
+  "direct_file_protocol_test": "Not executed: the Playwright MCP server blocks file: URLs. No attempt was made to bypass that restriction. Reader assets are local and the implementation does not fetch content at runtime.",
+  "screenshots": ["validation/desktop.png", "validation/mobile.png", "validation/architecture.png"]
+}

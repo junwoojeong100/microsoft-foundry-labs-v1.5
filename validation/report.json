@@ -1,0 +1,47 @@
+{
+  "status": "passed_with_explicit_scope",
+  "reference_date": "2026-09-29",
+  "content": {
+    "labs": 25,
+    "reference_sections": 5,
+    "coverage_records": 91,
+    "official_source_entries": 76,
+    "core_course_minutes": 320,
+    "evaluation_cases": 20,
+    "development_cases": 10,
+    "held_out_cases": 10,
+    "sft_format_examples": {"training": 16, "validation": 8}
+  },
+  "local_checks": {
+    "unit_tests": {"passed": 26, "failed": 0},
+    "guide_structure": "passed",
+    "broken_internal_links": 0,
+    "duplicate_html_ids": 0,
+    "remote_asset_dependencies": 0,
+    "javascript_syntax": "passed",
+    "source_links": {"passed": 77, "failed": 0, "details": "validation/links.json"},
+    "browser": {"assertions_passed": 71, "details": "validation/browser.json"},
+    "pdf": {"pages": 104, "module_bodies": 30, "details": "validation/pdf.json"},
+    "local_api": {"health": 200, "known_sku": 200, "unknown_sku": 404}
+  },
+  "sdk_contracts": {
+    "main": {"azure-ai-projects": "2.7.0", "azure-identity": "1.25.3", "openai": "3.20.0"},
+    "advanced": {"azure-ai-projects": "2.6.0", "azure-identity": "1.25.3", "openai": "3.20.0", "agent-framework-foundry": "1.13.1"},
+    "dependency_consistency": "pip check passed in both environments",
+    "workflow_execution": "Two real Agent Framework executors run against an offline fixture client; reviewer receives the draft and yields final output.",
+    "credential_probes": 0,
+    "azure_requests": 0,
+    "caution": "SDK payload/signature and offline workflow checks are not Azure integration or model-quality tests."
+  },
+  "not_executed": [
+    "Azure resource provisioning or permission changes",
+    "Foundry model inference, paid evaluations, optimization or training",
+    "Cloud file uploads, managed agent execution or hosted deployment",
+    "Private-network, preview-access or tenant-specific portal validation",
+    "Teams/Microsoft 365 publishing or real business actions",
+    "Direct file: browser navigation, blocked by the MCP tool policy"
+  ],
+  "azure_live_execution": false,
+  "sample_outputs_are_not_claimed_as_real_model_results": true,
+  "human_readiness_note": "Participants must run each live lab in their own approved environment and verify its success criteria. Design/reference coverage does not count as executed cloud functionality."
+}

@@ -1,0 +1,9 @@
+.venv/
+.venv-advanced/
+__pycache__/
+*.pyc
+.env
+.azure/
+results/
+.DS_Store
+.playwright-mcp/

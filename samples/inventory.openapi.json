@@ -1,0 +1,37 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hanbit synthetic inventory (local exercise only)",
+    "version": "1.0.0",
+    "description": "Loopback is not reachable from Foundry. For a cloud connection, deploy a separately approved authenticated service and replace the server URL; never tunnel this unauthenticated sample."
+  },
+  "servers": [{"url": "http://127.0.0.1:8766"}],
+  "paths": {
+    "/inventory/{sku}": {
+      "get": {
+        "operationId": "get_stock",
+        "description": "Read synthetic stock and unit price. Does not mutate inventory.",
+        "parameters": [{
+          "name": "sku", "in": "path", "required": true,
+          "schema": {"type": "string", "enum": ["NB-14", "MON-27", "KB-01"]}
+        }],
+        "responses": {
+          "200": {
+            "description": "Synthetic inventory item",
+            "content": {"application/json": {"schema": {
+              "type": "object",
+              "required": ["sku", "name", "stock", "unit_price_krw", "lead_days", "currency", "synthetic"],
+              "properties": {
+                "sku": {"type": "string"}, "name": {"type": "string"},
+                "stock": {"type": "integer"}, "unit_price_krw": {"type": "integer"},
+                "lead_days": {"type": "integer"}, "currency": {"type": "string", "enum": ["KRW"]},
+                "synthetic": {"type": "boolean"}
+              }
+            }}}
+          },
+          "404": {"description": "Unknown SKU"}
+        }
+      }
+    }
+  }
+}

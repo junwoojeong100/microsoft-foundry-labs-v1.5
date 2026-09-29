@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="220" viewBox="0 0 1080 220" role="img" aria-labelledby="title desc">
+  <title id="title">근거와 평가로 개선하는 학습 루프</title>
+  <desc id="desc">고정된 질문에서 검색 근거를 확인하고 도구의 실제 결과를 대조한다. 답변과 trace를 평가하여 한 가지 원인을 수정한 후 같은 데이터로 다시 비교한다.</desc>
+  <defs><style>text{font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;fill:#173b4c}.t{font-size:19px;font-weight:700}.s{font-size:13px;fill:#4f6b7c}</style></defs>
+  <rect width="1080" height="220" rx="14" fill="#f4f9fa"/>
+  <text x="28" y="35" class="s" font-weight="700">CHANGE ONE THING. MEASURE AGAIN.</text>
+  <g transform="translate(28 60)"><rect width="185" height="89" rx="10" fill="#fff" stroke="#c4d9e1"/><text x="17" y="33" class="t">01 질문</text><text x="17" y="61" class="s">같은 데이터 · 같은 기준</text></g>
+  <text x="225" y="111" font-size="25" fill="#006f70">→</text>
+  <g transform="translate(250 60)"><rect width="185" height="89" rx="10" fill="#fff" stroke="#c4d9e1"/><text x="17" y="33" class="t">02 근거·도구</text><text x="17" y="61" class="s">실제 검색과 실행 결과</text></g>
+  <text x="447" y="111" font-size="25" fill="#006f70">→</text>
+  <g transform="translate(472 60)"><rect width="185" height="89" rx="10" fill="#fff" stroke="#c4d9e1"/><text x="17" y="33" class="t">03 답변·Trace</text><text x="17" y="61" class="s">정확성 · 지연 · 비용</text></g>
+  <text x="669" y="111" font-size="25" fill="#006f70">→</text>
+  <g transform="translate(694 60)"><rect width="357" height="89" rx="10" fill="#e4f5eb" stroke="#a3d5bf"/><text x="17" y="33" class="t">04 평가 → 한 가지 수정</text><text x="17" y="61" class="s">검색 / 지시 / 모델 / 권한 중 원인을 구분</text></g>
+  <path d="M877 158V187H120V158" stroke="#24826e" stroke-width="2" fill="none" stroke-dasharray="5 4"/>
+  <path d="M114 166L120 157L126 166" stroke="#24826e" stroke-width="2" fill="none"/>
+  <rect x="402" y="174" width="276" height="27" rx="6" fill="#f4f9fa"/><text x="423" y="192" class="s">개선 후 같은 기준 + 사용하지 않은 holdout</text>
+</svg>

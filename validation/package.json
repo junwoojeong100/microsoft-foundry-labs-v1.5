@@ -1,0 +1,10 @@
+{
+  "created_at": "2026-09-29T15:34:42.232612+00:00",
+  "archive": "Foundry-Hands-on-2026-09-29.zip",
+  "files": 82,
+  "bytes": 3020851,
+  "sha256": "7b7642de1cb4a6cb9760196bf7e55efd9d38a64af6f3a0023df6bcc7c21c1078",
+  "integrity": "passed",
+  "credential_and_virtualenv_exclusion": "passed",
+  "note": "This archive hash is kept outside the archive to avoid a self-referential checksum."
+}
