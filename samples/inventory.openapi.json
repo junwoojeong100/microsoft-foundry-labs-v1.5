@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Hanbit synthetic inventory (local exercise only)",
+    "title": "Contoso synthetic inventory (local exercise only)",
     "version": "1.0.0",
     "description": "Loopback is not reachable from Foundry. For a cloud connection, deploy a separately approved authenticated service and replace the server URL; never tunnel this unauthenticated sample."
   },

@@ -72,15 +72,36 @@ workflow = WorkflowBuilder(
 
 </details>
 
-### 5. A2A와 사람 승인 설계하기
+### 5. 실제 A2A 위임하기
 
-A2A는 다른 서비스·벤더의 agent를 호출하는 통합입니다. 먼저 테스트 agent의 agent card/skill 계약, 호출 identity, timeout, 재시도, 전달할 최소 데이터, 반환 schema를 합의합니다.
+A2A는 다른 서비스·벤더의 agent를 호출하는 통합입니다. 위의 in-process MAF와 다릅니다.
+이 경로는 **기본/`.venv-live` SDK 환경**에서 실행합니다. A2A 1.0 GA와 0.3 Preview를 혼용하지 않습니다.
+
+```bash
+python samples/a2a_lab.py create
+python samples/a2a_lab.py create --live
+python scripts/runtime_roles.py --agent results/a2a.json의-caller --live
+python samples/a2a_lab.py card --live
+python samples/a2a_lab.py invoke --live
+```
+
+동봉 코드는 새 Contoso 정책 worker와 coordinator를 만들고, incoming A2A agent card 및
+`agentic-identity` connection을 연결합니다. `results/a2a.json`의 worker/caller version을 고정합니다.
+관리자는 새 caller identity가 해당 worker를 호출할 최소 프로젝트 역할을 부여해야 합니다.
+직접 card를 조회할 때 Foundry 1.0 경로는 `agentCard/v1.0`입니다. 일반 `.well-known/agent-card.json`과
+혼동하지 않습니다. 반면 Foundry를 가리키는 `A2ATool`은 `agent_card_path`를 생략해 서비스의
+기본 해석을 사용합니다. 기존 실습 caller의 연결을 보정해야 한다면 `rebind --live`가 이전 버전을
+보존한 채 새 버전을 만듭니다.
+실제 반환 item에 A2A 호출이 없으면 “위임했습니다”라는 문장만으로 성공 처리하지 않습니다.
+서비스가 숨긴 하위 응답은 추측하지 않으며 response/task ID가 실제로 노출된 범위만 기록합니다.
 
 승인 단계에서는 **“승인합니다”라는 모델 문장** 대신 실제 승인 요청 ID와 사람의 결정을 저장하고, 승인된 내용이 변경되지 않았는지 검증합니다. L06 샘플에는 실제 업무 실행이 없으므로 승인 프로세스를 완료한 것으로 가장하지 않습니다.
 
 ## 성공 기준
 
-두 단계가 실제로 실행되고 최종 출력이 reviewer의 결과임을 확인했습니다. 단일 agent 대비 추가 비용이 정당한지 설명할 수 있습니다. A2A/HITL를 설계만 했다면 실행 완료와 구분합니다.
+두 MAF 단계와 A2A 원격 위임은 각각 실행 증거를 확인합니다.
+단일 agent 대비 추가 비용이 정당한지 설명할 수 있습니다.
+HITL는 설계이며 실제 업무 승인 완료를 수행한 것으로 표시하지 않습니다.
 
 ## 막혔을 때
 

@@ -3,9 +3,24 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      acknowledge_cost:
+        description: "Also run the separately approved Contoso Azure deployment/business check"
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
+  azure:
+    if: github.event_name == 'workflow_dispatch' && inputs.acknowledge_cost && github.repository == 'junwoojeong100/foundry-labs-v1.5'
+    needs: [offline, sdk]
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/azure-validation.yml
+    with:
+      acknowledge_cost: true
   offline:
     runs-on: ubuntu-latest
     steps:
@@ -20,3 +35,17 @@ jobs:
       - run: python samples/workshop.py validate-data
       - run: python scripts/build_guide.py
       - run: python scripts/check_guide.py
+      - run: python scripts/build_hosted.py
+      - run: python scripts/check_independence.py
+  sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install -r requirements-hosted.txt -r requirements-tools.txt
+      - run: python -m pip check
+      - run: python scripts/check_sdk.py
+      - run: python samples/toolbox_lab.py call --local --tool get_stock --arguments '{"sku":"NB-14"}' --approve-tool get_stock

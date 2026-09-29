@@ -8,7 +8,8 @@ import unicodedata
 import pymupdf
 
 ROOT = Path(__file__).resolve().parents[1]
-PDF = ROOT / "Foundry-Hands-on-2026-09-29.pdf"
+RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
+PDF = ROOT / (RELEASE["artifact"] + ".pdf")
 
 
 def normalized(text):
@@ -20,6 +21,8 @@ def main():
     with pymupdf.open(PDF) as document:
         texts = [page.get_text() for page in document]
         combined = normalized("\n".join(texts))
+        if "Contoso" not in combined or "한빛" in combined or "Hanbit" in combined:
+            raise ValueError("Current PDF must use the Contoso scenario, not historical branding.")
         missing = [chapter["title"] for chapter in chapters if normalized(chapter["title"]) not in combined]
         if missing:
             raise ValueError(f"PDF is missing module headings: {missing}")
@@ -64,9 +67,10 @@ def main():
             "out_of_bounds_text_blocks": 0, "nearly_blank_pages": [],
             "nonportable_local_links": 0, "korean_text_extractable": "직접만들며이해하기" in combined,
         }
-        document[0].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(ROOT / "validation/pdf-cover.png")
-        document[1].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(ROOT / "validation/pdf-lab.png")
-        target = ROOT / "validation/pdf.json"
+        (ROOT / "validation/current").mkdir(parents=True, exist_ok=True)
+        document[0].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(ROOT / "validation/current/pdf-cover.png")
+        document[1].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(ROOT / "validation/current/pdf-lab.png")
+        target = ROOT / "validation/current/pdf.json"
         target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(report, ensure_ascii=False, indent=2))
 

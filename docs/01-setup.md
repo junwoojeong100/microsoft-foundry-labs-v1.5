@@ -11,7 +11,7 @@
 | Azure | 사용이 승인된 구독과 비운영 리소스 그룹 | 조직 정책을 우회하지 않음 |
 | Foundry | **새 포털의 Foundry 프로젝트** | hub 기반 Classic 프로젝트와 다름 |
 | 모델 | Responses·도구 사용을 지원하는 채팅 모델 | L02에서 지원 여부 확인 |
-| 개발 환경 | Python 3.11+, Azure CLI | 코드 경로를 진행할 때만 필요 |
+| 개발 환경 | Python 3.13, Azure CLI 2.86.0 | 로컬 표준 라이브러리 연습은 3.11+ 가능 |
 | 데이터 | 이 가이드의 합성 데이터 | 실제 고객·직원 자료 업로드 금지 |
 | 예산 | 개인/팀별 한도와 중단 담당자 | 예산 알림은 강제 과금 차단이 아님 |
 
@@ -19,9 +19,26 @@
 
 ### 1. 프로젝트를 준비하기
 
-`https://ai.azure.com`에서 새 Foundry 경험을 사용합니다. 기존 승인된 프로젝트가 있으면 재사용하고, 없으면 담당자가 **Create project**로 만듭니다. 화면의 이름이 달라지면 “Foundry resource 아래의 project”인지 먼저 확인합니다.
+`https://ai.azure.com`에서 새 Foundry 경험을 사용합니다. 기존 승인된 프로젝트가 있으면 학습자가 사용하고,
+없으면 담당자가 새 환경을 준비합니다. 이번 제작 검증은 기존 A/B 자원이 아닌 **새 전용 RG**에서 진행하며,
+제작 실행 결과는 `validation/current/report.json`에서 별도로 확인합니다.
 
-비운영 리소스 그룹, 프로젝트 이름, 지역을 기록하세요. 기본 예시는 `hb-workshop`입니다. 리소스 이름의 실제 유일성 규칙은 포털 안내를 따릅니다. **이 가이드 제작 과정에서는 리소스를 만들지 않았습니다.**
+비운영 리소스 그룹, 프로젝트 이름, 지역을 기록하세요. 기본 예시는 `contoso-workshop`입니다.
+**학습자 경로:** 관리자가 제공한 프로젝트/모델과 최소 데이터 역할을 사용합니다.
+**관리자 경로:** 아래 스크립트가 고유 새 RG만 만들고 기존 자원을 재사용/삭제하지 않습니다.
+
+```bash
+python scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인 금액과 보존 정책" --live
+python scripts/azure_environment.py foundation --chat-model 지원-chat모델 --chat-version 실제버전 --judge-model 지원-judge모델 --judge-version 실제버전 --embedding-model 지원-embedding모델 --embedding-version 실제버전 --model-sku GlobalStandard --capacity 10 --live
+python scripts/azure_environment.py roles --live
+```
+
+명령의 설명값은 실제 값으로 바꿉니다. 모델 catalog·SKU·quota를 먼저 조회하고
+Global/Data Zone/Standard 처리 범위를 승인받습니다. capacity의 단위는 모델별로 다르며 비용 상한이 아닙니다.
+`infra/main.bicep`은 Foundry account/project와 명시한 모델만 배포합니다.
+L13이 필요할 때만 `python scripts/azure_environment.py search --live`로 Search를 추가합니다.
+소유 기록은 `results/azure-environment.json`입니다. RequestConflict 등의 부분 실패는
+원본 deployment operation을 확인하고 **같은 소유 자원에 한해서만** `foundation --resume`로 재개합니다.
 
 ### 2. 역할을 “누가 무엇을 하는지”로 확인하기
 

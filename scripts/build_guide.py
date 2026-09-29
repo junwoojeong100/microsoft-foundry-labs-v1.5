@@ -13,6 +13,7 @@ from markdown.extensions.toc import slugify_unicode
 
 ROOT = Path(__file__).resolve().parents[1]
 TRACKS = {"core": "기본 코스", "advanced": "심화 코스", "reference": "참고 자료"}
+RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
 
 
 def read_json(name: str):
@@ -61,7 +62,8 @@ def coverage_markdown(capabilities, chapters, sources):
 
 def sources_markdown(source_data):
     lines = [
-        "> **확인 기준일: 2026-09-29, Asia/Seoul.** 날짜가 적혀 있다고 영구적으로 최신인 자료는 아닙니다.",
+        "> **기초 출처 확인: 2026-09-29 / 실행 API 재확인·Contoso 보완: 2026-09-30, Asia/Seoul.** "
+        "날짜가 적혀 있다고 영구적으로 최신인 자료는 아닙니다.",
         "",
         "## 최신성을 판단한 방식",
         "",
@@ -86,12 +88,12 @@ def sources_markdown(source_data):
         "",
         "## 검증의 경계",
         "",
-        "**로컬 계약 검증은 cloud 실행 검증이 아닙니다.** 이 배포본을 만드는 동안 사용자 구독의 리소스 생성, "
-        "모델 추론, 유료 평가, 학습, 역할 변경, 외부 업무 실행, 조직 게시를 하지 않았습니다.",
+        "**로컬 계약 검증은 cloud 실행 검증이 아닙니다.** 구현 완료 / 실행 완료 / 품질 통과 / 차단 / 미실행을 "
+        "구분합니다. 이번 실행은 새 전용 RG만 대상으로 하며 과거 A/B 결과를 Contoso 증거로 재사용하지 않습니다.",
         "",
         "로컬 검사 대상으로는 문서 구조·내부 링크·합성 데이터·도구 검증·평가 게이트·SDK 계약·웹 UI가 있습니다. "
-        "구체적인 실행 결과와 미검증 범위는 [`validation/report.json`](validation/report.json)을 확인합니다. "
-        "공식 URL의 도달 결과는 [`validation/links.json`](validation/links.json)에 별도로 기록합니다.",
+        "구체적인 실행 결과와 미검증 범위는 [`validation/current/report.json`](validation/current/report.json)을 확인합니다. "
+        "기존 validation 원본은 과거 자료로 보존하며 새로운 결과로 바꾸지 않습니다.",
         "",
         "전달물은 Microsoft 공식 교육과정이나 보증서가 아닙니다. 시나리오·설명·그림은 이 실습을 위해 작성했습니다. "
         "제품 사실의 근거는 아래 원문이며 전체 문서를 복제하지 않았습니다.",
@@ -170,7 +172,7 @@ def render_chapter(chapter, body, source_map, previous, following):
     <nav class="section-nav" aria-label="이 모듈 안에서 이동">{''.join(headings)}</nav>
   </header>
   <div class="prose">{rendered}</div>
-  <details class="source-notes"><summary>공식 근거 {len(chapter['sources'])}건 · 2026-09-29 확인</summary><ul>{citations}</ul></details>
+  <details class="source-notes"><summary>공식 근거 {len(chapter['sources'])}건 · 항목별 확인 범위는 출처 참조</summary><ul>{citations}</ul></details>
   <div class="completion">{checkbox}<span>진도는 이 브라우저에만 저장됩니다. Azure 실행을 판정하지 않습니다.</span></div>
   <nav class="chapter-pagination" aria-label="모듈 이동">{prev_link}{next_link}</nav>
 </article>
@@ -218,7 +220,7 @@ def build():
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="25개 모듈로 모델부터 에이전트·IQ·도구·평가·안전·운영까지 배우는 한국어 Microsoft Foundry 실습 가이드. 2026-09-29 공식 문서 확인본.">
+<meta name="description" content="Contoso 구매 도우미로 모델·지식·도구·평가·운영까지 배우는 독립형 한국어 Microsoft Foundry 실습 가이드. {RELEASE['edition']} 보완본.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <title>Microsoft Foundry 실습 가이드 | 직접 만들며 이해하기</title>
@@ -232,7 +234,7 @@ def build():
     <span><strong>Foundry <span class="brand-light">Lab Guide</span></strong><small>직접 만들며 이해하기</small></span>
   </a>
   <div class="top-actions">
-    <span class="edition"><span aria-hidden="true"></span>2026.09.29 확인본</span>
+    <span class="edition"><span aria-hidden="true"></span>Contoso · {RELEASE['edition']}</span>
     <button id="theme-toggle" class="icon-button" type="button" aria-label="어두운 화면으로 전환">테마</button>
     <button id="print-one" class="quiet-button" type="button">현재 인쇄</button>
     <button id="print-all" class="quiet-button" type="button">전체 PDF</button>
@@ -267,15 +269,15 @@ def build():
     <p class="eyebrow">MICROSOFT FOUNDRY / HANDS-ON GUIDE</p>
     <h1>Microsoft Foundry,<br>직접 만들며 이해하기.</h1>
     <p>하나의 구매·정책 도우미로 연결하는 모델 · 지식 · 도구 · 평가 · 안전 · 운영</p>
-    <p><strong>2026-09-29 공개 공식 문서 확인본 · 한국어 · 25개 모듈</strong><br>기본 코스 5시간 20분 + 대기·휴식 / 심화는 필요에 따라 선택</p>
-    <p class="print-boundary">GA와 Preview, 직접 실습과 설계를 구분합니다. 이 배포본은 사용자 구독의 Azure 리소스 생성·유료 모델 호출·평가·학습·조직 게시를 대신 실행하지 않았습니다.</p>
+    <p><strong>{RELEASE['edition']} Contoso 독립형 실행 가이드 · 한국어 · 25개 모듈</strong><br>기본 코스 5시간 20분 + 대기·휴식 / 심화는 필요에 따라 선택</p>
+    <p class="print-boundary">GA/Preview 및 구현·실행·품질을 구분합니다. 현재 실행 범위는 validation/current/report.json을 확인하세요. 실제 주문·결제·업무 승인은 수행하지 않습니다.</p>
     <h2>읽는 순서</h2><ol class="print-toc">{print_toc}</ol>
     <p>실행 파일과 데이터는 함께 제공된 실습 키트에 있습니다. 웹 가이드: index.html / 텍스트 판: GUIDE.ko.md</p>
   </section>
   <section id="search-results" class="search-results" aria-labelledby="search-title" hidden><h1 id="search-title">검색 결과</h1><p id="search-count" role="status" aria-live="polite"></p><div id="search-list"></div></section>
   <p id="storage-warning" class="storage-warning" role="status" hidden>이 환경에서는 로컬 저장소를 사용할 수 없어 진도가 현재 페이지에만 유지됩니다.</p>
   {''.join(pages)}
-  <footer class="site-footer"><strong>배우는 것과 검증한 것을 구분합니다.</strong><p>합성 데이터 · 명시적 Azure 실행 · GA/Preview 구분 · 2026-09-29 공개 문서 확인</p><a href="README.md">시작 안내</a><a href="GUIDE.ko.md">전체 Markdown</a><a href="Foundry-Hands-on-2026-09-29.pdf">인쇄용 PDF</a><a href="validation/report.json">검증 범위</a><a href="#sources">출처</a></footer>
+  <footer class="site-footer"><strong>배우는 것과 검증한 것을 구분합니다.</strong><p>Contoso 합성 데이터 · 명시적 Azure 실행 · GA/Preview 구분</p><a href="README.md">시작 안내</a><a href="GUIDE.ko.md">전체 Markdown</a><a href="{RELEASE['artifact']}.pdf">인쇄용 PDF</a><a href="validation/current/report.json">검증 범위</a><a href="#sources">출처</a></footer>
 </main>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -289,11 +291,11 @@ def build():
     book = [
         "# Microsoft Foundry, 직접 만들며 이해하기",
         "",
-        "> 2026-09-29 공개 공식 문서 확인본 · 한국어 · 25개 모듈. "
+        f"> {RELEASE['edition']} Contoso 독립형 실행 가이드 · 한국어 · 25개 모듈. "
         "웹으로는 [index.html](index.html)을 열어 검색·진도·학습 경로를 사용하세요.",
         "",
-        "**검증 경계:** Azure 리소스 생성·유료 추론·평가·학습·조직 게시를 대신 실행하지 않았습니다. "
-        "직접 실습, 조건부 실습, 설계, 참고를 구분합니다.",
+        "**검증 경계:** 구현·실행·품질의 현재 상태는 [실행 보고서](validation/current/report.json)를 확인합니다. "
+        "직접 실습, 조건부 실습, 설계, 참고를 구분하며 과거 결과를 재사용하지 않습니다.",
         "",
         "## 목차",
         "",

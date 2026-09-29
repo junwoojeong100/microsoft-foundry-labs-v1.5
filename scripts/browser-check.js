@@ -1,5 +1,5 @@
 async (page) => {
-  const origin = "http://127.0.0.1:8765";
+  const origin = page.contosoGuideOrigin || "http://127.0.0.1:8765";
   const errors = [];
   const failedRequests = [];
   const checks = [];
@@ -28,6 +28,8 @@ async (page) => {
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "home route");
     check(await page.locator("html").getAttribute("lang") === "ko", "Korean language metadata");
     check(await page.locator('script[src^="http"],link[href^="http"]').count() === 0, "no remote runtime dependencies");
+    const bodyText = await page.locator("body").textContent();
+    check(bodyText.includes("Contoso") && !bodyText.includes("한빛") && !bodyText.includes("Hanbit"), "current scenario is consistently Contoso");
 
     const search = page.getByLabel("가이드 검색", {exact: true});
     await search.fill("Foundry IQ");

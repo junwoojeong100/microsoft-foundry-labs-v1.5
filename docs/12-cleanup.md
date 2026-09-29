@@ -6,7 +6,7 @@
 
 ## 준비
 
-생성한 자원 목록과 `results/hb-lab-....json` receipt를 모읍니다. 강사/다른 학습자와 공유한 자원을 표시합니다.
+생성한 자원 목록과 `results/contoso-lab-....json` receipt를 모읍니다. 강사/다른 학습자와 공유한 자원을 표시합니다.
 
 ## 실행
 
@@ -14,14 +14,26 @@
 
 활성 routine, voice session, hosted agent의 실행/세션, 지속 평가, 학습 작업을 먼저 확인합니다. 삭제를 시작하기 전에 새로운 실행이 발생하지 않게 합니다.
 
+```bash
+python scripts/stop_sessions.py
+python samples/routine_lab.py stop --live
+python scripts/azure_environment.py status --live
+```
+
+각 명령은 해당 실습을 실행해 receipt가 있는 경우에 사용합니다.
+**이번 제작 검증은 생성한 Azure 자원을 삭제하지 않고 보존**합니다.
+routine은 disable, Hosted는 compute stop만 수행합니다. `cleanup --live`, `azd down`,
+resource group 삭제를 자동 실행하지 않습니다. 아래 삭제 경로는 별도 승인이 있는 학습자를 위한 설명입니다.
+
 ### 2. SDK 실습 자원만 정확히 삭제하기
 
-각 Azure 샘플의 마지막 줄에 **자신의 run ID가 들어 있는 cleanup 명령**이 출력됩니다. 해당 명령을 사용하세요.
+각 Azure 샘플의 마지막 줄에 **자신의 run ID가 들어 있는 cleanup 명령**이 출력됩니다.
+자원 보존/삭제 승인을 먼저 확인한 경우에만 해당 명령을 사용하세요.
 
 ```text
 python samples/workshop.py cleanup
-  --receipt results/hb-lab-실제ID.json
-  --confirm hb-lab-실제ID
+  --receipt results/contoso-lab-실제ID.json
+  --confirm contoso-lab-실제ID
   --live
 ```
 
@@ -53,6 +65,10 @@ Cost Management에서 비용 반영 지연을 고려하여 다음 날 다시 확
 ## 성공 기준
 
 생성 자원마다 **삭제 / 공유 유지 / 보존 기한 / 담당자** 중 하나가 기록되어 있고, routine·지속 평가·voice session의 무의도 실행이 남아 있지 않습니다.
+
+삭제 금지 환경은 “명시적 삭제 승인까지 보존”으로 기록합니다.
+Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있습니다.
+다음 확인은 검증 종료 후 24시간 이내를 권장하며, 확인 담당자 없이 “비용 0”이라고 결론내리지 않습니다.
 
 ## 막혔을 때
 

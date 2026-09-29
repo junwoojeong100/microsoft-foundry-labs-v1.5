@@ -30,6 +30,34 @@ Prompt agent는 instructions·함수 description·모델 선택 등을, Hosted a
 
 후보를 무조건 최신 버전으로 승격하지 마세요. 변경 diff·품질·토큰·지연을 확인하고 **사용하지 않은 holdout**으로 다시 평가합니다.
 
+동봉 native Agent Optimizer 경로:
+
+```bash
+python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포
+python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --live
+```
+
+첫 명령에서 제출될 **dev 10건·holdout 0건**, 후보 최대 2개, stall 최대 1회를 확인합니다.
+Hosted native 최적화는 `azd deploy contoso-purchasing-responses --no-prompt`로 준비한
+**Responses adapter**를 대상으로 합니다. Invocations agent를 그대로 제출하면 서비스가 400으로 거절합니다.
+optimizer 모델은 서비스가 요구하는 모델 계열을 별도 확인합니다.
+이번 API는 `gpt-5-mini`를 reflection 모델로 허용하지 않았으며, 지원 목록을 확인한
+`gpt-5.1` 배포로 구분했습니다. 추론 모델 지원과 optimizer reflection 모델 지원은 다릅니다.
+Hosted 패키지는 `azure-ai-agentserver-optimization==1.0.0b1`의 `load_config()`와
+`.agent_configs/baseline/`을 포함합니다. baseline model은 패키징 시 승인된 배포 이름으로 고정하며,
+환경이 없을 때 만든 오프라인 패키지는 실행 전에 다시 생성해야 합니다.
+client-side 함수를 서버가 실행할 수 없는 agent를 대상으로 삼지 않습니다.
+최대 10분 대기 후 작업 중지/상태 확인 경로를 사용하고, 원본 job/candidate 결과를 보존합니다.
+새 후보가 0개이거나 partial이면 개선 완료가 아닙니다. 후보는 자동 배포/승격하지 않습니다.
+
+서비스 접근이 차단되면 **native optimizer 차단**으로 기록합니다. 별도 사람이/개발자가 dev의
+실제 실패를 보고 수정한 후보를 native optimizer 결과처럼 표시하지 않습니다.
+후보 파일과 변경 사유를 남기고 L08의 같은 dev 기준으로 비교한 뒤 holdout을 한 번 확인합니다.
+
+azd의 자동 suite 생성은 최소 15 samples를 요구할 수 있습니다. A의 고정 dev 10건을
+억지로 복제하거나 holdout을 넣어 수를 맞추지 않습니다. 동봉 SDK runner는 dev 10건만
+직접 제출하며, 자동 생성 CLI의 지원 범위와 구분합니다.
+
 ### 3. 로컬 SFT 데이터 준비하기
 
 이번 추가 과제는 응답 내용을 외우게 하는 것이 아니라 문의를 `POLICY`, `STOCK`, `DRAFT`, `CLARIFY`로 분류하는 간단한 행동 학습입니다.

@@ -7,7 +7,7 @@ from pathlib import Path
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-NAME = "Foundry-Hands-on-2026-09-29"
+NAME = json.loads((ROOT / "content/release.json").read_text())["artifact"]
 
 
 def main():
@@ -16,13 +16,15 @@ def main():
             "README.md", "index.html", "GUIDE.ko.md", f"{NAME}.pdf",
             ".env.example", ".gitignore", "requirements.txt",
             "requirements-docs.txt", "requirements-advanced.txt", "requirements-qa.txt",
+            "requirements-hosted.txt", "requirements-tools.txt", "requirements-live.lock.txt",
+            "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
         )
     ]
-    for name in ("assets", "content", "data", "docs", "samples", "scripts", "tests", "validation", ".github/workflows"):
+    for name in ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", ".github/workflows"):
         files.extend(
             path for path in (ROOT / name).rglob("*")
             if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".tmp"}
-            and path != ROOT / "validation/package.json"
+            and path != ROOT / "validation/current/package.json"
         )
     if not all(path.is_file() and not path.is_symlink() for path in files):
         raise ValueError("Package inputs must be existing regular files.")
@@ -36,7 +38,7 @@ def main():
         names = archive.namelist()
         for name in names:
             parts = Path(name).parts
-            if any(part in {".venv", ".venv-advanced", "__pycache__", "results"} for part in parts) or parts[-1] == ".env":
+            if any(part.startswith(".venv") or part in {"__pycache__", "results", ".azure", ".git", ".foundry", "node_modules"} for part in parts) or parts[-1] == ".env":
                 raise ValueError(f"Private or generated cloud data in archive: {name}")
         for essential in ("index.html", "GUIDE.ko.md", f"{NAME}.pdf", "samples/workshop.py", "data/evaluation/cases.jsonl"):
             if f"{NAME}/{essential}" not in names:
@@ -49,7 +51,7 @@ def main():
         "integrity": "passed", "credential_and_virtualenv_exclusion": "passed",
         "note": "This archive hash is kept outside the archive to avoid a self-referential checksum.",
     }
-    (ROOT / "validation/package.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    (ROOT / "validation/current/package.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

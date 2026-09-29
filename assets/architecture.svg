@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="610" viewBox="0 0 1080 610" role="img" aria-labelledby="title desc">
-  <title id="title">한빛 오피스 실습 아키텍처</title>
+  <title id="title">Contoso 실습 아키텍처</title>
   <desc id="desc">사용자 요청을 받은 Prompt 또는 Hosted Agent가 Foundry 모델, 정책 문서 검색, 재고 조회와 구매 초안 도구를 사용한다. 실제 주문은 연결하지 않으며 업무 시스템의 별도 사람 승인이 필요하다. 전체 실행에 평가, 추적, 권한과 안전 통제를 적용한다.</desc>
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#487488" stroke-width="1.3"/></marker>
@@ -14,7 +14,7 @@
   <text x="61" y="268" class="title">사용자</text><text x="61" y="295" class="sub">구매 규정 + 재고</text><text x="61" y="319" class="sub">구매 요청 초안</text>
   <path d="M204 290H290" class="line"/>
   <rect x="290" y="220" width="215" height="141" rx="14" fill="#133950"/>
-  <text x="315" y="256" style="fill:#fff" class="title">한빛 도우미 Agent</text>
+  <text x="309" y="256" style="fill:#fff" class="title">Contoso Agent</text>
   <text x="315" y="286" style="fill:#c5e1eb" class="sub">Instructions + 대화 상태</text>
   <text x="315" y="313" style="fill:#b0ebd3" class="sub">Prompt → Hosted 확장</text>
   <text x="315" y="339" style="fill:#c5e1eb" class="small">모델의 제안 ≠ 업무 승인</text>

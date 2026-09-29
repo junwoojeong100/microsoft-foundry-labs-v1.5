@@ -1,5 +1,10 @@
 .venv/
 .venv-advanced/
+.venv-live/
+.venv-clean/
+.build/
+.foundry/
+node_modules/
 __pycache__/
 *.pyc
 .env

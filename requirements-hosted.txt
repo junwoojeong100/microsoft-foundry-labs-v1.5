@@ -1,0 +1,6 @@
+-r requirements.txt
+azure-ai-agentserver-core==2.2.0
+azure-ai-agentserver-invocations==1.2.0
+azure-ai-agentserver-responses==2.2.0
+httpx==0.28.1
+azure-ai-agentserver-optimization==1.0.0b1

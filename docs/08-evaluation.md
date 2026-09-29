@@ -45,17 +45,53 @@ python samples/workshop.py evaluate --split dev
 python samples/workshop.py evaluate --split dev --live
 ```
 
-검토할 결과는 `results/hb-lab-...-responses.jsonl`에 생성됩니다. query·실제 response·실제 retrieved context·citation·함수 인수/결과·토큰·지연을 보존합니다. 매 case는 새 conversation에서 실행됩니다.
+검토할 결과는 `results/contoso-lab-...-responses.jsonl`에 생성됩니다.
+query·실제 response·실제 retrieved context·citation·함수 인수/결과·call ID·
+정확한 agent version·response ID·모델·prompt/corpus/dataset/rubric hash·토큰·지연을 보존합니다.
+실패 행과 빈 응답도 원본으로 남습니다. 매 case는 새 conversation에서 실행됩니다.
 
 최종 평가:
 
 ```bash
-python samples/workshop.py evaluate --split all --live
+python samples/workshop.py evaluate --split holdout --live
 ```
 
-20개 case가 모두 수행되었는지 확인합니다. 부분 실패한 파일은 완성된 결과로 취급하지 않습니다. 샘플은 새 agent를 만들므로 **포털 agent를 수정한 결과와 동일한 버전이라고 비교하지 마세요.** 비교하려면 같은 instructions 파일·모델·데이터·도구 구성을 기록해야 합니다.
+최종 holdout 10개가 모두 수행되었는지 확인합니다. 부분 실패한 파일은 완성된 결과로 취급하지 않습니다.
+샘플은 새 agent를 만들므로 **포털 agent를 수정한 결과와 동일한 버전이라고 비교하지 마세요.**
+`--prompt data/prompts/검토한-후보.txt`로 후보를 선택할 수 있습니다. dataset/rubric을 바꾸지 않습니다.
 
-### 4. 사람의 판정을 채우기
+Hosted 실행은 동일 버전과 패키지 hash로 고정합니다.
+
+```bash
+python samples/hosted_client.py evaluate --split dev --version 실제숫자 --live
+python samples/hosted_client.py evaluate --split holdout --version 실제숫자 --live
+```
+
+동일 package contract의 holdout 재실행은 기본 거부합니다.
+실패 원본을 지우고 “첫 실행”처럼 재시도하지 말고, 새 실험과 사유를 명시합니다.
+
+### 4. Native judge와 calibration을 분리하기
+
+`.env`에 target과 다른 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`을 설정합니다.
+
+```bash
+python samples/evaluation_lab.py calibrate
+python samples/evaluation_lab.py calibrate --live
+python samples/evaluation_lab.py prepare --input results/실제-responses.jsonl --split dev
+python samples/evaluation_lab.py run --input results/실제-responses.jsonl --split dev --live
+```
+
+동봉 native runner는 Foundry custom evaluator와 built-in relevance를 사용합니다.
+업무 judge 문구·dataset/rubric hash·threshold 4/5·90% 게이트·safety/access 0건 기준을 고정합니다.
+서비스 score와 passed가 모순이면 판정 불일치로 실패합니다. 누락된 trace/citation을 채우지 않습니다.
+judge용 `ground_truth`와 실제 retrieved context는 별개 필드입니다.
+
+`calibration.jsonl`의 6건은 **정답/오답을 의도적으로 만든 judge 대조군**입니다.
+target agent 실행 증거가 아니며, 6건 모두 기대 판정과 일치해야 calibration 통과입니다.
+이 자동 대조군도 사람의 검토를 대신하지 않습니다. 최소 5개 실제 실행을 사람이 검토하고
+불일치를 기록하기 전에는 `human_review_completed`를 true로 바꾸지 않습니다.
+
+### 5. 사람의 판정을 채우기
 
 각 결과 행의 `manual_pass`를 `true` 또는 `false`, `review_note`를 실제 근거로 채웁니다.
 
@@ -74,9 +110,10 @@ python samples/workshop.py evaluate --split all --live
 python samples/workshop.py score --input results/실제-검토파일.jsonl
 ```
 
-dev 10개만 검토했다면 `--split dev`를 명시합니다.
+dev 10개만 검토했다면 `--split dev`, 최종 10개는 `--split holdout`을 명시합니다.
+raw 응답은 수정하지 않고 별도 검토 파일을 만듭니다.
 
-### 5. 게이트 결과 읽기
+### 6. 게이트 결과 읽기
 
 | 조건 | 통과 기준 |
 | --- | --- |

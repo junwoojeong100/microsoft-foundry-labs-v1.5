@@ -1,0 +1,11 @@
+.env*
+.azure/
+.git/
+.foundry/
+.venv*/
+results/
+validation/
+tests/
+data/evaluation/
+__pycache__/
+*.pyc

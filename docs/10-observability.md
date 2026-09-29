@@ -8,6 +8,11 @@
 
 L05 또는 L06 실행 결과, 프로젝트에 연결 가능한 Application Insights, 로그 읽기 권한이 필요합니다. 로그 수집·보존에도 비용이 있습니다.
 
+새 전용 환경의 관리자는 `python scripts/azure_environment.py monitoring --live`로
+Log Analytics/App Insights와 프로젝트 연결을 만듭니다.
+동봉 Bicep의 연결 비밀은 Azure 내부에서만 참조하고 출력·Git·패키지에 넣지 않습니다.
+30일 로그 보존과 일일 수집 제한은 총 과금의 강제 차단 장치가 아닙니다.
+
 ## 실행
 
 ### 1. 서버 측 추적부터 연결하기
@@ -37,6 +42,17 @@ trace에서 다음을 찾습니다.
 **느린 답변:** 전체 지연을 모델, 검색, 도구, 네트워크/대기 단계로 나눕니다. 도구가 느린데 모델을 바꾸는 처방을 하지 않습니다.
 
 **함수는 성공했는데 답변이 실패:** 도구 출력이 같은 conversation/call ID에 반영됐는지, final output이 완료됐는지 봅니다.
+
+동봉 CLI는 실제 응답 파일의 response/trace ID로 App Insights를 조회합니다.
+
+```bash
+python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name
+python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name --live
+```
+
+먼저 KQL을 출력해 범위를 검토합니다. 최근 24시간, 최대 200행이며 token/본문 전체를 조회하지 않습니다.
+`app-id`는 계측 키나 connection string이 아닙니다. 조회 결과 0행은 **상관관계 미확인**으로 실패하며,
+request ID를 trace ID로 바꾸어 채우지 않습니다. Hosted 응답의 `contract.sha256`과 version도 함께 대조합니다.
 
 ### 4. 선택: 클라이언트 추적 추가하기
 

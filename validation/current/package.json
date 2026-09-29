@@ -1,0 +1,10 @@
+{
+  "created_at": "2026-09-29T23:41:21.945891+00:00",
+  "archive": "Contoso-Foundry-Hands-on-2026-09-30.zip",
+  "files": 131,
+  "bytes": 3197911,
+  "sha256": "a07557f588bcb6f927f57fc4360658ffc753b59a6feb582517441a72f47a740b",
+  "integrity": "passed",
+  "credential_and_virtualenv_exclusion": "passed",
+  "note": "This archive hash is kept outside the archive to avoid a self-referential checksum."
+}

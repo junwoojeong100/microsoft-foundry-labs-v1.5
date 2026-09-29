@@ -1,10 +1,10 @@
 async (page) => {
-  const base = "http://127.0.0.1:8765";
+  const base = page.contosoGuideOrigin || "http://127.0.0.1:8765";
   await page.goto(`${base}/index.html#l00`);
   await page.reload();
   await page.waitForLoadState("networkidle");
   await page.evaluate(() => {
-    document.title = "Microsoft Foundry 실습 가이드 | 2026-09-29";
+    document.title = "Contoso Microsoft Foundry 실습 가이드 | 2026-09-30";
     document.body.dataset.print = "all";
     window.dispatchEvent(new Event("beforeprint"));
   });
@@ -20,7 +20,7 @@ async (page) => {
   }
   try {
     const output = await page.pdf({
-      path: "Foundry-Hands-on-2026-09-29.pdf",
+      path: "Contoso-Foundry-Hands-on-2026-09-30.pdf",
       format: "A4",
       preferCSSPageSize: true,
       printBackground: true,
@@ -28,9 +28,9 @@ async (page) => {
       tagged: true,
       outline: true,
       headerTemplate: '<div style="width:100%;font-family:Arial;font-size:8px;color:#536976;padding:0 13mm;">MICROSOFT FOUNDRY · HANDS-ON GUIDE</div>',
-      footerTemplate: '<div style="width:100%;font-family:Arial;font-size:8px;color:#536976;display:flex;justify-content:space-between;padding:0 13mm;"><span>2026-09-29 · Public documentation edition</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
+      footerTemplate: '<div style="width:100%;font-family:Arial;font-size:8px;color:#536976;display:flex;justify-content:space-between;padding:0 13mm;"><span>2026-09-30 · Contoso independent edition</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
     });
-    return {pdf: "Foundry-Hands-on-2026-09-29.pdf", bytes: output.length};
+    return {pdf: "Contoso-Foundry-Hands-on-2026-09-30.pdf", bytes: output.length};
   } finally {
     await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
     await page.emulateMedia({media: null});

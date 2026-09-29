@@ -6,15 +6,15 @@ Prompt Agent는 **모델 + instructions + tools**로 선언하는 관리형 agen
 
 ## 준비
 
-프로젝트 `Foundry User`, 호출 가능한 모델, `data/prompts/agent-v1.txt`가 필요합니다.
+프로젝트 `Foundry User`, 호출 가능한 모델, `data/prompts/agent-v4.txt`가 필요합니다.
 
 ## 실행
 
 ### 1. 포털에서 만들기
 
-**Build → Agents → Build an agent** 또는 현재 포털의 동등한 생성 동작을 선택합니다. 이름은 `hb-procurement`, 모드는 **Text**, 모델은 L02의 배포로 지정합니다.
+**Build → Agents → Build an agent** 또는 현재 포털의 동등한 생성 동작을 선택합니다. 이름은 `contoso-procurement`, 모드는 **Text**, 모델은 L02의 배포로 지정합니다.
 
-Instructions에 `data/prompts/agent-v1.txt`의 내용을 붙여 넣습니다. 아직 File search와 함수 도구를 붙이지 않았으므로 **없는 도구를 사용했다고 주장하면 안 됩니다.**
+Instructions에 `data/prompts/agent-v4.txt`의 내용을 붙여 넣습니다. 아직 File search와 함수 도구를 붙이지 않았으므로 **없는 도구를 사용했다고 주장하면 안 됩니다.**
 
 ### 2. 기준 질문으로 한계 확인하기
 
@@ -62,7 +62,7 @@ python samples/workshop.py agent
 python samples/workshop.py agent --live
 ```
 
-SDK 샘플은 충돌을 피하기 위해 `hb-lab-...`라는 **새로운 agent**를 만듭니다. 포털에서 만든 `hb-procurement`를 수정하지 않습니다. 생성 ID는 `results/hb-lab-....json`에 저장됩니다.
+SDK 샘플은 충돌을 피하기 위해 `contoso-lab-...`라는 **새로운 agent**를 만듭니다. 포털에서 만든 `contoso-procurement`를 수정하지 않습니다. 생성 ID는 `results/contoso-lab-....json`에 저장됩니다.
 
 ## 성공 기준
 

@@ -16,6 +16,8 @@ from typing import Any
 from urllib.parse import urlparse
 from uuid import uuid4
 
+from evidence import Budget, Evidence, digest
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 RESULTS = ROOT / "results"
@@ -53,8 +55,14 @@ def save_json(path: Path, value: Any) -> None:
     temporary.replace(path)
 
 
-def read_config(path: Path = ROOT / ".env") -> tuple[str, str]:
+def config_values(path: Path = ROOT / ".env") -> dict[str, str]:
     values: dict[str, str] = {}
+    allowed = {
+        ENDPOINT_KEY, MODEL_KEY, "FOUNDRY_SEARCH_ENDPOINT", "FOUNDRY_SEARCH_INDEX",
+        "FOUNDRY_KNOWLEDGE_BASE", "FOUNDRY_EMBEDDING_DEPLOYMENT_NAME",
+        "FOUNDRY_JUDGE_DEPLOYMENT_NAME", "FOUNDRY_AUTH_MODE", "FOUNDRY_MANAGED_IDENTITY_CLIENT_ID",
+        "FOUNDRY_EMBEDDING_ENDPOINT",
+    }
     if path.exists():
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             line = line.strip()
@@ -63,11 +71,16 @@ def read_config(path: Path = ROOT / ".env") -> tuple[str, str]:
             if "=" not in line:
                 raise ValueError(f".env:{number}: expected KEY=value")
             key, value = line.split("=", 1)
-            if key.strip() not in (ENDPOINT_KEY, MODEL_KEY):
-                raise ValueError(f".env:{number}: only project endpoint and deployment name are allowed")
+            if key.strip() not in allowed:
+                raise ValueError(f".env:{number}: unknown setting; credentials are not allowed")
             values[key.strip()] = value.strip().strip("'\"")
-    endpoint = os.environ.get(ENDPOINT_KEY, values.get(ENDPOINT_KEY, "")).rstrip("/")
-    model = os.environ.get(MODEL_KEY, values.get(MODEL_KEY, ""))
+    return {key: os.environ.get(key, values.get(key, "")) for key in allowed}
+
+
+def read_config(path: Path = ROOT / ".env") -> tuple[str, str]:
+    values = config_values(path)
+    endpoint = values[ENDPOINT_KEY].rstrip("/")
+    model = values[MODEL_KEY]
     parsed = urlparse(endpoint)
     if (
         parsed.scheme != "https"
@@ -216,10 +229,10 @@ def score_reviews(rows: list[dict[str, Any]], split: str = "all") -> dict[str, A
 
 class Receipt:
     def __init__(self, endpoint: str, mode: str) -> None:
-        run_id = "hb-lab-" + uuid4().hex[:12]
+        run_id = "contoso-lab-" + uuid4().hex[:12]
         self.path = RESULTS / f"{run_id}.json"
         self.data: dict[str, Any] = {
-            "schema": "hb-lab-resources-v1", "run_id": run_id,
+            "schema": "contoso-lab-resources-v1", "run_id": run_id,
             "endpoint": endpoint, "mode": mode, "resources": [],
         }
         self.persist()
@@ -238,10 +251,11 @@ def read_receipt(path: Path, endpoint: str) -> dict[str, Any]:
     if resolved.parent != RESULTS.resolve():
         raise ValueError("Cleanup receipts must be direct children of this workshop's results directory.")
     data = json.loads(resolved.read_text(encoding="utf-8"))
-    if not isinstance(data, dict) or data.get("schema") != "hb-lab-resources-v1":
+    if not isinstance(data, dict) or data.get("schema") not in {"contoso-lab-resources-v1", "hb-lab-resources-v1"}:
         raise ValueError("Unrecognized receipt schema.")
     run_id = data.get("run_id", "")
-    if not isinstance(run_id, str) or not re.fullmatch(r"hb-lab-[0-9a-f]{12}", run_id):
+    prefix = "hb" if data["schema"] == "hb-lab-resources-v1" else "contoso"
+    if not isinstance(run_id, str) or not re.fullmatch(rf"{prefix}-lab-[0-9a-f]{{12}}", run_id):
         raise ValueError("Invalid workshop run ID.")
     if resolved.stem != run_id or data.get("endpoint") != endpoint:
         raise ValueError("Receipt name or project endpoint mismatch; cleanup stopped.")
@@ -288,7 +302,12 @@ def index_file(client: Any, file_id: str, vector_store_id: str, timeout_seconds:
         raise RuntimeError(f"File ingestion did not complete: {file_id}, status={indexed.status}")
 
 
-def run_turn(client: Any, agent_name: str, query: str, receipt: Receipt) -> dict[str, Any]:
+def run_turn(
+    client: Any, agent_name: str, query: str, receipt: Receipt, *,
+    version: str | None = None, budget: Budget | None = None, evidence: Evidence | None = None,
+) -> dict[str, Any]:
+    budget = budget or Budget(max_requests=MAX_ROUNDS + 1, max_seconds=360)
+    budget.before_request()
     conversation = client.conversations.create()
     receipt.add("conversation", conversation.id)
     observed_calls: list[dict[str, Any]] = []
@@ -299,15 +318,28 @@ def run_turn(client: Any, agent_name: str, query: str, receipt: Receipt) -> dict
     total_calls = 0
     input_tokens = 0
     output_tokens = 0
+    response_ids: list[str] = []
+    request_ids: list[str] = []
     for _ in range(MAX_ROUNDS):
+        budget.before_request(token_reservation=2048 + len(str(current_input)))
+        reference = {"name": agent_name, "type": "agent_reference"}
+        if version is not None:
+            reference["version"] = version
         response = client.responses.create(
             conversation=conversation.id, input=current_input,
-            extra_body={"agent_reference": {"name": agent_name, "type": "agent_reference"}},
+            extra_body={"agent_reference": reference},
             include=["file_search_call.results"], max_output_tokens=2048,
         )
+        if evidence is not None:
+            evidence.append("response", response)
+        response_ids.append(response.id)
+        request_id = getattr(response, "_request_id", None)
+        if request_id:
+            request_ids.append(request_id)
         if response.usage:
             input_tokens += response.usage.input_tokens
             output_tokens += response.usage.output_tokens
+            budget.record_tokens(response.usage.input_tokens + response.usage.output_tokens)
         calls = []
         for item in response.output:
             if item.type == "function_call":
@@ -326,6 +358,9 @@ def run_turn(client: Any, agent_name: str, query: str, receipt: Receipt) -> dict
             return {
                 "query": query, "response": ensure_response(response), "context": "\n\n".join(retrieved),
                 "response_id": response.id, "conversation_id": conversation.id,
+                "response_ids": response_ids, "request_ids": request_ids,
+                "trace_id": None, "trace_status": "not_yet_correlated",
+                "agent_version": version, "model": getattr(response, "model", None),
                 "tool_calls": observed_calls, "citations": citations,
                 "latency_seconds": round(time.monotonic() - started, 3),
                 "input_tokens": input_tokens, "output_tokens": output_tokens,
@@ -341,7 +376,9 @@ def run_turn(client: Any, agent_name: str, query: str, receipt: Receipt) -> dict
             except ToolInputError as exc:
                 print(f"TOOL_REJECTED {call.name}: {exc}", file=sys.stderr)
                 value = {"ok": False, "error": {"code": "invalid_tool_request", "message": str(exc)}}
-            observed_calls.append({"name": call.name, "arguments": call.arguments, "output": value})
+            observed_calls.append({"call_id": call.call_id, "name": call.name, "arguments": call.arguments, "output": value})
+            if evidence is not None:
+                evidence.append("tool_result", observed_calls[-1])
             current_input.append({
                 "type": "function_call_output", "call_id": call.call_id,
                 "output": json.dumps(value, ensure_ascii=False),
@@ -349,7 +386,10 @@ def run_turn(client: Any, agent_name: str, query: str, receipt: Receipt) -> dict
     raise RuntimeError("Turn limit exceeded; stopped instead of claiming completion.")
 
 
-def create_lab_agent(project: Any, client: Any, model: str, mode: str, receipt: Receipt) -> str:
+def create_lab_agent(
+    project: Any, client: Any, model: str, mode: str, receipt: Receipt,
+    prompt: Path = DATA / "prompts/agent-v4.txt",
+) -> str:
     from azure.ai.projects.models import FileSearchTool, FunctionTool, PromptAgentDefinition
 
     tools = []
@@ -370,7 +410,7 @@ def create_lab_agent(project: Any, client: Any, model: str, mode: str, receipt: 
         agent_name=receipt.data["run_id"],
         definition=PromptAgentDefinition(
             model=model,
-            instructions=(DATA / "prompts/agent-v1.txt").read_text(encoding="utf-8"),
+            instructions=prompt.read_text(encoding="utf-8"),
             tools=tools,
         ),
         description="Synthetic workshop agent; never submit real orders.",
@@ -421,6 +461,8 @@ def run_live(args: argparse.Namespace) -> None:
         if args.confirm != data["run_id"]:
             raise ValueError("--confirm must equal the run_id in the receipt.")
     receipt = None if args.command in {"model", "cleanup"} else Receipt(endpoint, args.command)
+    evidence = Evidence(args.command)
+    budget = Budget(max_requests=60, max_tokens=150_000, max_seconds=900)
     try:
         with (
             AzureCliCredential(process_timeout=30) as credential,
@@ -430,16 +472,19 @@ def run_live(args: argparse.Namespace) -> None:
             if args.command == "cleanup":
                 cleanup(project, client, args.receipt, endpoint, args.confirm)
             elif args.command == "model":
+                budget.before_request(token_reservation=4096)
                 response = client.responses.create(
                     model=model, input=args.query or "회사 내부 규정이 제공되지 않았을 때 어떻게 답해야 하나요?",
                     max_output_tokens=2048, store=False,
                 )
+                evidence.append("response", response)
                 print(ensure_response(response))
                 print(f"response_id={response.id}")
             else:
                 if receipt is None:
                     raise RuntimeError("Missing resource receipt.")
-                agent_name = create_lab_agent(project, client, model, args.command, receipt)
+                agent_name = create_lab_agent(project, client, model, args.command, receipt, args.prompt)
+                agent_version = next(r["version"] for r in receipt.data["resources"] if r["kind"] == "agent")
                 cases = (
                     [c for c in validate_data() if args.split == "all" or c["split"] == args.split]
                     if args.command == "evaluate" else
@@ -449,22 +494,50 @@ def run_live(args: argparse.Namespace) -> None:
                     )}]
                 )
                 path = RESULTS / f"{receipt.data['run_id']}-responses.jsonl"
+                configuration = {
+                    "agent_name": agent_name, "agent_version": agent_version, "model_deployment": model,
+                    "prompt_sha256": hashlib.sha256(args.prompt.read_bytes()).hexdigest(),
+                    "corpus_sha256": digest({p.name: p.read_text(encoding="utf-8") for p in sorted((DATA / "policies").glob("*.md"))}),
+                    "dataset_sha256": hashlib.sha256((DATA / "evaluation/cases.jsonl").read_bytes()).hexdigest(),
+                    "rubric_sha256": hashlib.sha256((DATA / "evaluation/rubric.json").read_bytes()).hexdigest(),
+                }
+                evidence.append("configuration", configuration)
                 with path.open("x", encoding="utf-8") as output:
                     for case in cases:
-                        row = run_turn(client, agent_name, case["query"], receipt)
+                        if args.command == "evaluate":
+                            time.sleep(args.case_delay)
+                        try:
+                            row = run_turn(
+                                client, agent_name, case["query"], receipt, version=agent_version,
+                                budget=budget, evidence=evidence,
+                            )
+                        except (AzureError, OpenAIError, RuntimeError) as exc:
+                            evidence.failure(exc)
+                            output.write(json.dumps({
+                                "id": case["id"], "query": case["query"], "status": "failed",
+                                "response": "", "manual_pass": None, "error_type": type(exc).__name__,
+                                "configuration": configuration, "evidence_file": evidence.path.name,
+                            }, ensure_ascii=False) + "\n")
+                            output.flush()
+                            raise
                         row["id"] = case["id"]
+                        row["status"] = "completed"
                         row["agent_name"] = agent_name
+                        row["configuration"] = configuration
+                        row["evidence_file"] = evidence.path.name
                         output.write(json.dumps(row, ensure_ascii=False) + "\n")
                         output.flush()
                         print(f"[{case['id']}] {row['response']}\n")
                 print(f"Responses: {path.relative_to(ROOT)}")
     except (AzureError, OpenAIError) as exc:
+        evidence.failure(exc)
         status = getattr(exc, "status_code", None)
         raise RuntimeError(
             f"Azure call failed ({type(exc).__name__}, status={status}). "
             "See troubleshooting. Resources may remain; inspect the receipt and portal before retrying."
         ) from exc
     finally:
+        print(f"Private evidence: {evidence.path.relative_to(ROOT)}")
         if receipt is not None:
             print("Resources are retained for inspection; vector stores expire after one inactive day, files do not.")
             print(
@@ -491,6 +564,8 @@ def main(argv: list[str] | None = None) -> int:
         child.add_argument("--split", choices=["all", "dev", "holdout"], default="dev")
         child.add_argument("--receipt", type=Path)
         child.add_argument("--confirm")
+        child.add_argument("--prompt", type=Path, default=DATA / "prompts/agent-v4.txt")
+        child.add_argument("--case-delay", type=float, default=10.0, help="Seconds between evaluation cases; 0..60.")
     args = parser.parse_args(argv)
     if args.command == "doctor":
         print(f"Python {sys.version.split()[0]} | Offline inspection only")
@@ -521,6 +596,8 @@ def main(argv: list[str] | None = None) -> int:
                 print("Creates an isolated agent/conversations and, for retrieval, uploads the three synthetic policy files.")
                 print("Created IDs are saved in results/. Cleanup is explicit, not automatic.")
         return 0
+    if not 0 <= args.case_delay <= 60:
+        raise ValueError("--case-delay must be 0..60 seconds.")
     run_live(args)
     return 0
 

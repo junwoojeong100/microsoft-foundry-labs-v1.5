@@ -40,9 +40,42 @@ python samples/workshop.py score --input results/실제-검토파일.jsonl
 
 ### 3. 조건부: Hosted CI/CD 연결하기
 
-공식 Hosted Agent CI/CD template을 자신의 **이미 provision/deploy된** hosted 프로젝트에 맞춥니다. GitHub OIDC를 사용하고 장기 Azure secret을 저장하지 않습니다. environment 승인, branch 보호, 최소 workflow permissions를 적용합니다.
+동봉 `.github/workflows/azure-validation.yml`은 **수동 dispatch / 명시적 재사용 호출 전용**입니다.
+일반 push·PR에는 유료 Azure job이 없습니다. `acknowledge_cost=true`와
+`contoso-validation` GitHub Environment 승인을 통과한 실행만 배포합니다.
+기존 `.github/workflows/validate.yml`은 계속 자동 로컬 검사를 수행합니다.
 
-기본 template의 deploy+smoke 흐름에 L08의 실제 평가 게이트를 추가합니다. production에 먼저 배포하고 품질을 평가하는 순서를 만들지 않습니다.
+관리자는 새 테스트 RG의 workload identity에 최소 역할을 부여하고,
+federated credential의 subject를
+`repo:junwoojeong100/foundry-labs-v1.5:environment:contoso-validation`로 제한합니다.
+audience는 `api://AzureADTokenExchange`입니다. client secret을 만들지 않습니다.
+identity는 프로젝트 Foundry User, 필요한 배포/읽기 권한만 받으며 CI가 RBAC를 스스로 확대하지 않습니다.
+
+관리자용 동봉 명령은 `python scripts/setup_oidc.py --branch 실제-feature-branch --live`입니다.
+새 RG의 user-assigned identity, environment-bound federated credential,
+새 GitHub Environment와 해당 branch policy를 함께 기록합니다.
+기존 환경/identity가 있으면 충돌로 중단하며, tenant 전체 앱 권한을 부여하지 않습니다.
+
+Environment variables는 workflow `env` 목록의 client/tenant/subscription/project ID 및
+모델·Search endpoint/index/KB입니다. 비밀이 아닌 구성값만 등록하고 인증 토큰·전체 `.env`·
+원시 실행 결과를 artifact로 올리지 않습니다.
+
+```bash
+gh workflow run validate.yml --ref 승인된-작업브랜치 -f acknowledge_cost=true
+```
+
+`validate.yml`은 기존 기본 브랜치에 있는 수동 진입점입니다. 승인한 작업 브랜치의
+동일 파일이 로컬 검사를 마친 뒤 재사용 Azure workflow를 호출하므로,
+새 workflow를 main에 먼저 merge할 필요가 없습니다.
+GitHub 정책으로 수동 브랜치 실행이 막히면 차단으로 기록하며 main을 임의 merge하지 않습니다.
+`scripts/ci_live.py`는 OIDC 주체와 RG/project 일치를 확인하고 Hosted를 배포하여
+**290만원 초안·두 승인 역할·미주문**을 실제 tool result로 검사합니다.
+이후 judge 대조군과, 제공된 실제 holdout 응답의 native 평가를 수행합니다.
+holdout은 환경 fingerprint·runtime hash·실제 모델이 현재 테스트 환경과 같아야 사용합니다.
+다른 환경의 제작자 결과를 자신의 CI 품질 근거로 재사용할 수 없습니다.
+calibration 실패 후에도 독립적인 holdout 증거를 수집할 수 있지만 **릴리스 게이트는 실패**입니다.
+smoke 성공은 전체 holdout 품질 게이트와 별개입니다. `always()` 단계는 기록된 세션만 stop합니다.
+원시 증거는 `results/`, 공유 가능한 최소 요약은 `validation/current/ci.json`으로 분리합니다.
 
 ### 4. 모델 업그레이드와 지식 변경 검사하기
 
