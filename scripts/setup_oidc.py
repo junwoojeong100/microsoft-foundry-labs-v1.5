@@ -13,7 +13,7 @@ from search_lab import configuration
 from workshop import config_values, save_json
 from azure_environment import az, owned, persist
 
-REPO = "junwoojeong100/foundry-labs-v1.5"
+REPOSITORY_ID = "1396573688"
 ENVIRONMENT = "contoso-validation"
 
 
@@ -39,12 +39,13 @@ def main():
         return
     if args.branch in {"main", "master"} or not args.branch.startswith("feat/"):
         raise ValueError("Setup is restricted to an explicit feature branch, never main.")
-    repository = gh("api", f"repos/{REPO}")
+    repository = gh("api", f"repositories/{REPOSITORY_ID}")
+    repo = repository["full_name"]
     if not repository["private"]:
         raise ValueError("Repository A must remain private.")
-    owner, name = REPO.split("/")
+    owner, name = repo.split("/")
     supported_subjects = {
-        f"repo:{REPO}:environment:{ENVIRONMENT}",
+        f"repo:{repo}:environment:{ENVIRONMENT}",
         f"repo:{owner}@{repository['owner']['id']}/{name}@{repository['id']}:environment:{ENVIRONMENT}",
     }
     if args.subject not in supported_subjects:
@@ -68,7 +69,7 @@ def main():
         return
     if state.get("oidc"):
         raise ValueError("OIDC is already recorded; inspect existing identity/environment, do not overwrite.")
-    environments = gh("api", f"repos/{REPO}/environments")
+    environments = gh("api", f"repos/{repo}/environments")
     if any(item["name"] == ENVIRONMENT for item in environments["environments"]):
         raise ValueError("Test environment already exists without this ownership receipt; setup refused.")
     evidence = Evidence("oidc-setup")
@@ -103,11 +104,11 @@ def main():
                    "--role", role, "--scope", scope)
         state.setdefault("role_assignments", []).append({"id": grant["id"], "role": role, "scope": scope, "purpose": "oidc"})
         persist(state)
-    environment = gh("api", "--method", "PUT", f"repos/{REPO}/environments/{ENVIRONMENT}", "--input", "-", body={
+    environment = gh("api", "--method", "PUT", f"repos/{repo}/environments/{ENVIRONMENT}", "--input", "-", body={
         "deployment_branch_policy": {"protected_branches": False, "custom_branch_policies": True},
     })
     evidence.append("environment_created", {"id": environment["id"], "name": environment["name"]})
-    branch_policy = gh("api", "--method", "POST", f"repos/{REPO}/environments/{ENVIRONMENT}/deployment-branch-policies",
+    branch_policy = gh("api", "--method", "POST", f"repos/{repo}/environments/{ENVIRONMENT}/deployment-branch-policies",
                        "--input", "-", body={"name": args.branch, "type": "branch"})
     evidence.append("branch_policy", branch_policy)
     search, config = configuration(), config_values()
@@ -127,11 +128,11 @@ def main():
     for key, value in variables.items():
         if not value:
             raise ValueError(f"Missing nonsecret CI configuration: {key}")
-        gh("variable", "set", key, "--repo", REPO, "--env", ENVIRONMENT, "--body", value)
+        gh("variable", "set", key, "--repo", repo, "--env", ENVIRONMENT, "--body", value)
     state["oidc"]["resources_created"].append("github_environment_and_variables")
     persist(state)
     evidence.append("configured", {"subject": subject, "branch": args.branch, "variables": list(variables), "client_secret_created": False})
-    print(f"Configured OIDC for {REPO}/{ENVIRONMENT}; only branch {args.branch}. Repository remains private.")
+    print(f"Configured OIDC for {repo}/{ENVIRONMENT}; only branch {args.branch}. Repository remains private.")
 
 
 if __name__ == "__main__":

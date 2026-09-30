@@ -9,7 +9,7 @@ from evidence import digest
 from workshop import DATA, load_jsonl, validate_data
 
 DEFAULT_SUITE = "automated-v3"
-SUITES = ("legacy-v1", "automated-v2", DEFAULT_SUITE)
+SUITES = ("legacy-v1", "basic-learning", "automated-v2", DEFAULT_SUITE)
 V2 = DATA / "evaluation/v2"
 
 
@@ -22,6 +22,8 @@ def suite_dir(suite: str) -> Path:
 def policy(suite: str = DEFAULT_SUITE) -> dict[str, Any]:
     if suite not in SUITES:
         raise ValueError("Unknown evaluation suite.")
+    if suite == "basic-learning":
+        return json.loads((DATA / "evaluation/basic-learning.json").read_text(encoding="utf-8"))
     path = DATA / "evaluation/rubric.json" if suite == "legacy-v1" else suite_dir(suite) / "rubric.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -29,6 +31,10 @@ def policy(suite: str = DEFAULT_SUITE) -> dict[str, Any]:
 def load_cases(suite: str = DEFAULT_SUITE, split: str | None = None) -> list[dict]:
     if suite not in SUITES or split not in {None, "dev", "holdout"}:
         raise ValueError("Use a supported suite and dev/holdout split.")
+    if suite == "basic-learning":
+        if split == "holdout":
+            raise ValueError("The basic learning path has no release holdout; use an automated suite after Hosted preparation.")
+        return [row for row in validate_data() if row["split"] == "dev"]
     if suite == "legacy-v1":
         return [row for row in validate_data() if split is None or row["split"] == split]
     required = policy(suite)
@@ -69,7 +75,7 @@ def load_cases(suite: str = DEFAULT_SUITE, split: str | None = None) -> list[dic
 def calibration_cases(suite: str = DEFAULT_SUITE) -> list[dict]:
     if suite not in SUITES:
         raise ValueError("Unknown evaluation suite.")
-    path = DATA / "evaluation/calibration.jsonl" if suite == "legacy-v1" else suite_dir(suite) / "calibration.jsonl"
+    path = DATA / "evaluation/calibration.jsonl" if suite in {"legacy-v1", "basic-learning"} else suite_dir(suite) / "calibration.jsonl"
     values = load_jsonl(path)
     if any(type(row.get("expected_pass")) is not bool for row in values):
         raise ValueError("Calibration controls require boolean expected verdicts.")
@@ -77,6 +83,10 @@ def calibration_cases(suite: str = DEFAULT_SUITE) -> list[dict]:
 
 
 def suite_hash(suite: str = DEFAULT_SUITE) -> str:
+    if suite == "basic-learning":
+        return digest({"suite": suite, "cases": load_cases(suite, "dev"), "policy": policy(suite),
+                       "calibration": calibration_cases(suite),
+                       "judge": hashlib.sha256((DATA / "evaluation/judge.txt").read_bytes()).hexdigest()})
     if suite == "legacy-v1":
         files = ["cases.jsonl", "rubric.json", "calibration.jsonl", "judge.txt"]
         return digest({name: hashlib.sha256((DATA / "evaluation" / name).read_bytes()).hexdigest() for name in files})

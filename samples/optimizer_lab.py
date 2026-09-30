@@ -343,7 +343,23 @@ def stop_new_sessions(agent: str, version: str, before: set[str], job_id: str,
         raise RuntimeError("Optimizer cleanup is incomplete: " + "; ".join(errors))
 
 
-def cancel_verified(operations, job_id: str, evidence: Evidence) -> dict:
+def time_limit(value: int = 600, receipt: dict | None = None) -> int:
+    if type(value) is not int or not 60 <= value <= 1800:
+        raise ValueError("--max-seconds must be an integer between 60 and 1800.")
+    if receipt is not None:
+        recorded = receipt.get("max_seconds", 600)
+        if type(recorded) is not int or not 60 <= recorded <= 1800:
+            raise ValueError("Recorded optimizer time budget is invalid; preserve the receipt.")
+        if value != recorded:
+            raise ValueError(
+                f"Recorded job budget is {recorded}s; resume with --max-seconds {recorded}. "
+                "An existing job's budget cannot be changed."
+            )
+    return value
+
+
+def cancel_verified(operations, job_id: str, evidence: Evidence, *, max_seconds: int = 600) -> dict:
+    evidence.append("cancellation_budget", {"job_id": job_id, "max_seconds": time_limit(max_seconds)})
     try:
         evidence.append("cancel_requested", operations.cancel_optimization_job(job_id))
     except Exception as exc:
@@ -358,16 +374,21 @@ def cancel_verified(operations, job_id: str, evidence: Evidence) -> dict:
     raise RuntimeError(f"Optimizer {job_id} cancellation is not confirmed; operations may still be active.")
 
 
-def monitor(operations, job_id: str, evidence: Evidence) -> dict:
+def monitor(operations, job_id: str, evidence: Evidence, *, max_seconds: int = 600) -> dict:
+    max_seconds = time_limit(max_seconds)
     job = serializable(operations.get_optimization_job(job_id))
     created = job.get("created_at")
     if isinstance(created, str):
         created = datetime.fromisoformat(created.replace("Z", "+00:00")).timestamp()
     if not isinstance(created, (int, float)):
-        raise ValueError("Missing optimizer creation time; cannot enforce the ten-minute bound.")
-    remaining = max(0, min(600, 600 - (datetime.now(timezone.utc).timestamp() - created)))
+        raise ValueError("Missing optimizer creation time; cannot enforce the recorded time budget.")
+    remaining = max(0, min(max_seconds, max_seconds - (datetime.now(timezone.utc).timestamp() - created)))
     deadline = time.monotonic() + remaining
-    for _ in range(60):
+    evidence.append("monitor_budget", {
+        "job_id": job_id, "max_seconds": max_seconds, "created_at": created,
+        "deadline_at": created + max_seconds, "remaining_seconds": remaining,
+    })
+    for _ in range(math.ceil(max_seconds / 10)):
         evidence.append("job_status", job)
         if job.get("status") in TERMINAL:
             return job
@@ -382,7 +403,7 @@ def monitor(operations, job_id: str, evidence: Evidence) -> dict:
         job = serializable(operations.get_optimization_job(
             job_id, read_timeout=min(60, remaining), connection_timeout=min(15, remaining),
         ))
-    raise TimeoutError("Optimizer ten-minute limit reached; cancellation is required.")
+    raise TimeoutError(f"Optimizer {max_seconds}-second limit reached; cancellation is required.")
 
 
 def evaluation_evidence(client, result: dict, evidence: Evidence) -> list[dict]:
@@ -468,9 +489,11 @@ def outcome(job: dict, evaluations: list[dict], expected_items: int | None) -> d
 
 
 def run(args: argparse.Namespace, evidence: Evidence) -> dict:
+    max_seconds = time_limit(getattr(args, "max_seconds", 600))
     endpoint, _ = read_config()
     environment = owned_endpoint(endpoint)
     receipt = recorded_job(args.resume, endpoint, args.agent, args.version) if args.resume else None
+    max_seconds = time_limit(max_seconds, receipt)
     if not args.resume and args.suite == "legacy-v1":
         raise ValueError("Legacy suites are diagnostic-only; use --resume for an existing legacy job.")
     if not args.resume and getattr(args, "prompt_file", None) is None:
@@ -500,27 +523,31 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
                 evidence.append("submitted_config", {
                     "payload": request, "suite": args.suite, "dev_ids": [c["id"] for c in cases],
                     "dev_sha256": digest(cases), "configuration_sha256": digest(request),
+                    "max_seconds": max_seconds,
                     "holdout_submitted": False, "human_review_completed": False,
                 })
                 operation_id = str(uuid4())
-                evidence.append("submission_intent", {"operation_id": operation_id, "endpoint": endpoint})
+                evidence.append("submission_intent", {
+                    "operation_id": operation_id, "endpoint": endpoint, "max_seconds": max_seconds,
+                })
                 poller = project.beta.agents.begin_create_optimization_job(
                     job=request, operation_id=operation_id, polling=False,
                 )
                 job_id = poller.details["job_id"]
                 cleanup_needed = True
                 evidence.append("job_submitted", {"job_id": job_id, "poller_details": poller.details})
-                print(json.dumps({"job_id": job_id, "max_seconds": 600, "evidence": str(evidence.path)}), flush=True)
+                print(json.dumps({"job_id": job_id, "max_seconds": max_seconds, "evidence": str(evidence.path)}), flush=True)
                 receipt = {
                     "job_id": job_id, "status": "submitted", "endpoint": endpoint,
                     "agent": args.agent, "version": args.version, "suite": args.suite,
                     "dev_items": len(cases), "session_ids_before": sorted(before),
                     "operation_id": operation_id, "configuration_sha256": digest(request),
+                    "max_seconds": max_seconds,
                 }
                 write_new(RESULTS / (evidence.run_id + "-job.json"), receipt)
             else:
                 cleanup_needed = True
-            job = monitor(project.beta.agents, job_id, evidence)
+            job = monitor(project.beta.agents, job_id, evidence, max_seconds=max_seconds)
             target = (job.get("inputs") or {}).get("agent")
             if target and (target.get("agent_name") != args.agent or target.get("agent_version") != args.version):
                 raise ValueError("Service job inputs do not match the recorded target version.")
@@ -536,6 +563,7 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
             summary = outcome(job, reports, receipt.get("dev_items"))
             summary["suite"] = receipt.get("suite", "legacy-v1")
             summary["diagnostic_only"] = bool(args.resume)
+            summary["max_seconds"] = max_seconds
             evidence.append("optimizer_outcome", summary)
             write_new(RESULTS / (evidence.run_id + "-outcome.json"), summary)
             return summary
@@ -545,7 +573,7 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
         finally:
             try:
                 if cleanup_needed and job_id and (job is None or job.get("status") not in TERMINAL):
-                    job = cancel_verified(project.beta.agents, job_id, evidence)
+                    job = cancel_verified(project.beta.agents, job_id, evidence, max_seconds=max_seconds)
             finally:
                 if cleanup_needed and before is not None and (not args.resume or "session_ids_before" in receipt):
                     verify_session_context(args.agent, endpoint, evidence)
@@ -560,6 +588,10 @@ def main() -> None:
     parser.add_argument("--version")
     parser.add_argument("--optimizer-deployment", required=True)
     parser.add_argument("--suite", choices=SUITES, default=DEFAULT_SUITE)
+    parser.add_argument(
+        "--max-seconds", type=int, default=600,
+        help="Job budget from creation, 60..1800 seconds (default: 600). Resume must match the recorded budget.",
+    )
     parser.add_argument("--prompt-file", type=Path, help="Required for new live jobs: matching baseline in data/prompts/*.txt.")
     parser.add_argument("--require-oidc", action="store_true", help="Require the existing CI identity in the ownership ledger.")
     parser.add_argument("--live", action="store_true")
@@ -567,6 +599,10 @@ def main() -> None:
     mode.add_argument("--resume", help="Resume monitoring only an optimization job recorded in this checkout.")
     mode.add_argument("--probe-reflection", action="store_true", help="One bounded model call; no dataset or optimization job.")
     args = parser.parse_args()
+    try:
+        time_limit(args.max_seconds)
+    except ValueError as exc:
+        parser.error(str(exc))
     if not args.probe_reflection and (not args.agent or not args.version):
         parser.error("--agent and --version are required for an optimizer job.")
     if not args.live:
@@ -582,7 +618,7 @@ def main() -> None:
             "plan_only": True, "suite": args.suite, "resume": args.resume,
             "reflection_probe": args.probe_reflection, "require_owned_oidc": args.require_oidc,
             "dev_items": len(cases), "holdout_items": 0, "max_candidates": 2,
-            "max_stalls": 1, "max_seconds": 600, "auto_promote": False,
+            "max_stalls": 1, "max_seconds": args.max_seconds, "auto_promote": False,
             "prompt_file": str(args.prompt_file or DATA / "prompts/agent-v4.txt"),
             "prompt_selection_required": args.prompt_file is None and not args.resume,
             "dev_ids": [case["id"] for case in cases],

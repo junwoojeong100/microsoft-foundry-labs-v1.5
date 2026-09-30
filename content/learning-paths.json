@@ -1,0 +1,14 @@
+{
+  "l13": {"mode": "independent", "label": "독립 선택", "requires": "기본 L01 프로젝트·모델. 이 장에서 Search/embedding/index를 준비하며 L14의 기반이 됩니다."},
+  "l14": {"mode": "sequence", "label": "선행 실습 필요", "requires": "L13의 Search/index 또는 관리자가 제공한 동일 자원이 필요합니다. L20 Hosted Optimizer와 L22 CI/CD의 기반입니다."},
+  "l15": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·모델과 별도 MAF 환경. MAF/A2A는 다른 심화 장 없이 실행하며 Hosted 배포를 선택할 때만 L14가 필요합니다."},
+  "l16": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·chat/embedding 배포 및 Memory 지원 조건. 다른 심화 장 완료는 필요하지 않습니다."},
+  "l17": {"mode": "mixed", "label": "기능별 분기", "requires": "Routine은 기본 L05의 서버 Prompt Agent로 독립 실행할 수 있습니다. Hosted 장기 실행 분기는 L14가 필요합니다."},
+  "l18": {"mode": "independent", "label": "독립 선택", "requires": "기본 환경과 선택한 Content Understanding/Code Interpreter의 모델·권한. 합성 영수증 준비는 로컬에서도 가능합니다."},
+  "l19": {"mode": "independent", "label": "독립 선택", "requires": "기본 환경과 Voice/Speech 지원 모델·리전·장치 권한. 다른 심화 장은 선행하지 않습니다."},
+  "l20": {"mode": "mixed", "label": "기능별 분기", "requires": "Hosted Optimizer는 L14의 Responses agent를 먼저 배포합니다. Fine-tuning 데이터 준비·조건부 학습은 해당 모델 준비 후 독립 실행합니다."},
+  "l21": {"mode": "independent", "label": "독립 선택", "requires": "기본 개념과 관리자 권한·네트워크 정책. 설계 경로는 독립이며 실제 조직 변경은 별도 승인 대상입니다."},
+  "l22": {"mode": "sequence", "label": "선행 실습 필요", "requires": "L13 → L14 배포와 L08의 Hosted 자동 평가 경로가 필요합니다. L20 Optimizer 완료는 필요하지 않습니다."},
+  "l23": {"mode": "independent", "label": "독립 선택", "requires": "Foundry Local 장치 조건 또는 Fabric/Work IQ 라이선스·권한. 다른 심화 장과 독립적인 선택 경로입니다."},
+  "l24": {"mode": "independent", "label": "독립 선택", "requires": "기본 코스 개념. 비교·설계는 독립이며 실제 이관은 승인된 Classic 환경이 있을 때만 진행합니다."}
+}

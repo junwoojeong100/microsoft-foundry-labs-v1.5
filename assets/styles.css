@@ -106,6 +106,7 @@ progress::-moz-progress-bar { background: var(--accent); border-radius: 10px; }
 .chapter-link[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 750; }
 .nav-number { font: 12px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--muted); min-width: 19px; }
 .nav-title { flex: 1; }
+.nav-learning { display: block; color: var(--muted); font-size: 11px; font-weight: 500; margin-top: 3px; }
 .nav-done { opacity: 0; font-size: 12px; color: var(--accent); }
 .chapter-link.done .nav-done { opacity: 1; }
 .text-button { border: 0; background: transparent; text-decoration: underline; text-underline-offset: 3px; font-size: 12px; color: var(--muted); padding: 5px 10px; }
@@ -144,6 +145,8 @@ main { padding: 38px 48px 48px; min-width: 0; max-width: 1220px; margin: 0 auto;
 .eyebrow { font-weight: 750; letter-spacing: .7px; color: var(--accent); }
 .status-badge { font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--surface-soft); border: 1px solid var(--border); }
 .status-badge.preview { background: var(--amber-soft); border-color: #a3761d35; color: var(--amber); }
+.learning-badge { font-size: 11px; padding: 3px 8px; border-radius: 5px; border: 1px solid var(--border); color: var(--accent); background: var(--accent-soft); }
+.learning-badge[data-learning-mode="sequence"], .learning-badge[data-learning-mode="mixed"] { color: var(--amber); background: var(--amber-soft); }
 .chapter-header h1 { color: var(--heading); margin: 14px 0 12px; font-size: clamp(26px, 2.9vw, 34px); letter-spacing: -1.3px; line-height: 1.35; outline: none; }
 .chapter-summary { font-size: 16px; margin: 0 0 20px; color: var(--muted); }
 .section-nav { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }

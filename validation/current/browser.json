@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "checks": 93,
+  "checks": 98,
   "widths": [
     1440,
     1024,
@@ -10,6 +10,11 @@
   ],
   "assertions": [
     "30 generated pages",
+    "all advanced modules show execution dependency labels",
+    "Hosted prerequisite is explicit",
+    "Memory is marked independently selectable",
+    "Optimizer and fine-tuning paths are distinguished",
+    "advanced navigation exposes dependency labels",
     "25 trackable labs",
     "home route",
     "Korean language metadata",

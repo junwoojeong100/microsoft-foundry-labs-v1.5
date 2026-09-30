@@ -31,10 +31,10 @@ L08의 평가 게이트, L14의 hosted 프로젝트 또는 버전 관리되는 p
 ```bash
 python -m unittest discover -s tests -v
 python samples/workshop.py validate-data
-python samples/evaluation_lab.py prepare --suite automated-v2 --split dev --input results/실제-dev-responses.jsonl
+python samples/evaluation_lab.py prepare --suite automated-v3 --split dev --input results/실제-dev-responses.jsonl
 ```
 
-마지막 명령은 실제 v2 dev 응답 20건이 있을 때 실행합니다. dummy 응답이나 수동 판정값으로 자동 게이트를 대신하지 않습니다.
+마지막 명령은 실제 v3 dev 응답 30건이 있을 때 실행합니다. dummy 응답이나 수동 판정값으로 자동 게이트를 대신하지 않습니다.
 
 이 폴더의 `.github/workflows/validate.yml`은 문서와 로컬 테스트만 검사합니다. **Azure 배포·유료 추론을 자동 실행하지 않습니다.**
 
@@ -75,8 +75,8 @@ gh workflow run validate.yml --ref 같은-동결브랜치 -f acknowledge_cost=tr
 GitHub 정책으로 수동 브랜치 실행이 막히면 차단으로 기록하며 main을 임의 merge하지 않습니다.
 `scripts/ci_live.py`는 OIDC 주체와 RG/project 일치를 확인하고 Hosted를 배포하여
 **290만원 초안·두 승인 역할·미주문**을 실제 tool result로 검사합니다.
-dev 단계는 20개 회귀와 8개 judge 대조군만 실행하며 holdout 질문을 읽거나 호출하지 않습니다.
-성공한 dev의 `contoso-ci-summary` artifact를 `validation/automated-v2/`에 받아 보존한 뒤
+dev 단계는 현재 v3의 30개 회귀와 8개 judge 대조군만 실행하며 holdout 질문을 모델에 전달하거나 호출하지 않습니다.
+성공한 dev의 `contoso-ci-summary` artifact를 `validation/automated-v3/`에 받아 보존한 뒤
 같은 runtime·모델·suite hash로 release를 실행합니다. 성공한 dev 증거가 없거나 코드가 달라지면
 release는 holdout을 열기 전에 중단합니다.
 release 단계는 봉인된 새 holdout을 최초 수집하거나 동일 환경/코드의 보존된 원본을 평가합니다.
@@ -85,8 +85,12 @@ holdout은 환경 fingerprint·runtime hash·실제 모델이 현재 테스트 �
 다른 환경의 제작자 결과를 자신의 CI 품질 근거로 재사용할 수 없습니다.
 calibration 실패 후에도 독립적인 holdout 증거를 수집할 수 있지만 **릴리스 게이트는 실패**입니다.
 smoke 성공은 전체 holdout 품질 게이트와 별개입니다. `always()` 단계는 기록된 세션만 stop합니다.
-원시 증거는 `results/`, 공유 가능한 v2 결과는 `validation/automated-v2/ci-dev.json`과
+원시 증거는 `results/`, 공유 가능한 v3 결과는 `validation/automated-v3/ci-dev.json`과
 `ci-release.json` 및 합성 응답 파일로 분리합니다. 이전 v1 CI/실패는 history로 보존합니다.
+
+운영 진단용 `validation_phase=optimizer`는 고정된 이전 Responses 버전과 dev 데이터만 대상으로
+동일한 OIDC 주체의 제한된 비교를 수행합니다. 새 holdout이나 품질 릴리스와 별개이며,
+후보를 자동 적용·승격하지 않습니다.
 
 ### 4. 모델 업그레이드와 지식 변경 검사하기
 

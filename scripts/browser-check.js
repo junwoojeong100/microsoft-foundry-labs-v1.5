@@ -24,6 +24,11 @@ async (page) => {
     await page.reload();
     await page.waitForLoadState("networkidle");
     check(await page.locator("article.chapter").count() === 30, "30 generated pages");
+    check(await page.locator('.chapter[data-track="advanced"] .learning-badge').count() === 12, "all advanced modules show execution dependency labels");
+    check(await page.locator('#l14 .learning-badge').innerText() === "선행 실습 필요", "Hosted prerequisite is explicit");
+    check(await page.locator('#l16 .learning-badge').innerText() === "독립 선택", "Memory is marked independently selectable");
+    check(await page.locator('#l20 .learning-badge').innerText() === "기능별 분기", "Optimizer and fine-tuning paths are distinguished");
+    check(await page.locator(".nav-learning").count() === 12, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === 25, "25 trackable labs");
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "home route");
     check(await page.locator("html").getAttribute("lang") === "ko", "Korean language metadata");

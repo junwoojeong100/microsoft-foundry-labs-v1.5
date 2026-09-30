@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-30T00:36:40.700149+00:00",
+  "checked_at": "2026-09-30T05:43:58.473590+00:00",
   "scope": "Unauthenticated GET requests to public Microsoft Learn source URLs. HTTP reachability is not feature or Azure execution validation.",
   "checked": 80,
   "passed": 80,

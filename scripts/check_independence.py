@@ -13,10 +13,10 @@ def check(root: Path = ROOT) -> dict:
         *root.glob("requirements*.txt"),
         *[path for folder in ("samples", "scripts", "infra", "hosted", ".github") for path in (root / folder).rglob("*") if path.suffix in TEXT],
     ]
-    forbidden_repo = "microsoft-" + "foundry-labs-v1.5"
+    forbidden_references = ("microsoft-" + "foundry-labs-v1.3", "eda75fa7f8a8d3548d21" + "c919d5c0b836c7d818e4")
     for path in executable:
         text = path.read_text(encoding="utf-8")
-        if forbidden_repo in text:
+        if any(reference in text for reference in forbidden_references):
             raise ValueError(f"Reference repository appears in executable surface: {path.relative_to(root)}")
         if re.search(r"/Users/[A-Za-z0-9_.-]+/|\.{2}/\.{2}/.*foundry-labs", text):
             raise ValueError(f"Personal/external filesystem dependency: {path.relative_to(root)}")

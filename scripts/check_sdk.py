@@ -50,7 +50,14 @@ async def check_workflow_execution():
 
 
 def main(advanced=False):
-    versions = {package: importlib.metadata.version(package) for package in ("azure-ai-projects", "azure-identity", "openai")}
+    packages = ["azure-ai-projects", "azure-identity", "openai"]
+    if advanced:
+        packages.append("agent-framework-foundry")
+    try:
+        versions = {package: importlib.metadata.version(package) for package in packages}
+    except importlib.metadata.PackageNotFoundError as exc:
+        requirements = "requirements-advanced.txt" if advanced else "requirements.txt"
+        raise SystemExit(f"SDK dependencies missing: {exc.name}. In the intended virtual environment, run: python -m pip install -r {requirements}") from None
     workflow_result = None
     with patch("socket.socket.connect", side_effect=AssertionError("Network is forbidden in SDK contract checks.")):
         from azure.ai.projects import AIProjectClient

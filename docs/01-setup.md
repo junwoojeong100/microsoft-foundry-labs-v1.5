@@ -28,9 +28,9 @@
 **관리자 경로:** 아래 스크립트가 고유 새 RG만 만들고 기존 자원을 재사용/삭제하지 않습니다.
 
 ```bash
-python scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인 금액과 보존 정책" --live
-python scripts/azure_environment.py foundation --chat-model 지원-chat모델 --chat-version 실제버전 --judge-model 지원-judge모델 --judge-version 실제버전 --embedding-model 지원-embedding모델 --embedding-version 실제버전 --model-sku GlobalStandard --capacity 10 --live
-python scripts/azure_environment.py roles --live
+python3.13 scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인 금액과 보존 정책" --live
+python3.13 scripts/azure_environment.py foundation --chat-model 지원-chat모델 --chat-version 실제버전 --judge-model 지원-judge모델 --judge-version 실제버전 --embedding-model 지원-embedding모델 --embedding-version 실제버전 --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py roles --live
 ```
 
 명령의 설명값은 실제 값으로 바꿉니다. 모델 catalog·SKU·quota를 먼저 조회하고
@@ -59,6 +59,7 @@ L13이 필요할 때만 `python scripts/azure_environment.py search --live`로 S
 ### 3. 지역·배포·비용 확인하기
 
 L02의 모델을 1개만 준비합니다. 합성 데이터이고 조직 정책이 허용하면 사용량 기반 배포부터 시작합니다. **PTU, 유료 Search tier, GPU managed compute, 대규모 Batch, fine-tuning은 기본 코스에 불필요**합니다.
+L08의 native 자동 평가를 진행할 때는 별도 judge 배포도 필요합니다. 관리자가 이미 제공했다면 다시 만들지 않습니다. **PTU, 유료 Search tier, GPU managed compute, 대규모 Batch, fine-tuning은 기본 코스에 불필요**합니다.
 
 프로젝트 지역, 모델 지원 지역, 배포 유형, quota는 서로 다른 조건입니다. “Korea Central 프로젝트”라는 사실만으로 모든 추론이 한국에서 처리된다고 가정하지 마세요. Global / Data Zone / geography 처리 범위는 L02에서 다룹니다.
 
@@ -78,18 +79,18 @@ python3 samples/workshop.py validate-data
 코드로 Azure를 호출할 때만 패키지를 설치합니다.
 
 ```bash
-python3 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-cp .env.example .env
+cp -n .env.example .env
 ```
 
 Windows PowerShell 대안:
 
 ```powershell
-py -3 -m venv .venv
+py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-Copy-Item .env.example .env
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
 이후 `python` 명령은 해당 환경의 Python을 뜻합니다. PowerShell에서 활성화가 제한되면 `.venv\Scripts\python.exe`를 직접 사용하세요.
@@ -104,6 +105,8 @@ FOUNDRY_MODEL_DEPLOYMENT_NAME=실제-모델-배포이름
 ```
 
 위 예시의 한글 설명을 그대로 사용하지 않습니다. **프로젝트 endpoint에 `/openai/v1`을 추가하지 않습니다.** SDK가 올바른 경로를 구성합니다. API key는 넣지 않습니다.
+
+L08 전에 `.env`의 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`도 관리자가 제공한 실제 judge 배포 이름으로 설정합니다. **프로젝트 endpoint에 `/openai/v1`을 추가하지 않습니다.** SDK가 올바른 경로를 구성합니다. API key는 넣지 않습니다.
 
 ```bash
 az login

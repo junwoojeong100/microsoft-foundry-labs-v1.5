@@ -88,6 +88,17 @@ def sources_markdown(source_data):
         "",
         "## 검증의 경계",
         "",
+        "### 현재 자동 검증 결과",
+        "",
+        "**automated-v3의 실제 릴리스 게이트는 통과했습니다.** dev 29/30, 독립 holdout 9/10, "
+        "critical 실패 0건, calibration 8/8입니다. 비중대 미통과 사례도 원본으로 남겼으며 "
+        "사람 검토는 선택 안내로 구분합니다.",
+        "",
+        "Routine은 실제 예약 응답과 trace 및 disabled 상태를 확인했습니다. Optimizer는 "
+        "지시문만 바뀌는 후보의 누락 모델을 명시적으로 상속하도록 보완한 뒤 정상 실행됐습니다. "
+        "별도 Optimizer dev 20건의 baseline/best 점수는 1.0/1.0으로 추가 개선이 없어 승격하지 않았습니다. "
+        "검증 세부 자료는 `validation/current/`와 `validation/automated-v3/`에 있습니다.",
+        "",
         "### 이전 v1 결과와 현재 자동 검증 경로",
         "",
         "**아래 수치는 보존한 v1 결과입니다.** 새 RG에서 Hosted·Search/IQ·"
@@ -104,9 +115,9 @@ def sources_markdown(source_data):
         "판정 기준이나 safety 0건 규칙을 낮추지 않았고, holdout을 본 뒤 지시를 다시 조정하지 않았습니다. "
         "judge 대조군은 6/6 일치했지만 실제 사용자에 의한 검토와 동일하지 않습니다.",
         "",
-        "**현재 automated-v2는 사람 검토를 선택 안내로 분리했습니다.** 기존 시험지는 dev 회귀로 보존하고 "
+        "**현재 automated-v3는 사람 검토를 선택 안내로 분리했습니다.** 기존 v1/v2 시험지는 dev 회귀로 보존하고 "
         "새 봉인 holdout과 검색·인용·도구 자동 검사를 사용합니다. 전체 90%·safety/access 실패 0건은 유지합니다. "
-        "v2의 실제 통과 여부는 최신 `validation/current/report.json` 및 `validation/automated-v2/` 결과를 확인하세요.",
+        "v3의 실제 통과 여부는 최신 `validation/current/report.json` 및 `validation/automated-v3/` 결과를 확인하세요.",
         "",
         "Routine은 생성·dispatch 요청까지 수행했으며 disabled 상태로 보존했습니다. "
         "Optimizer의 서비스 job 완료는 새 후보 생성/품질 개선을 뜻하지 않습니다. "
@@ -148,7 +159,11 @@ def source_body(chapter, chapters, capabilities, source_data):
         return coverage_markdown(capabilities, chapters, sources)
     if chapter.get("generated") == "sources":
         return sources_markdown(source_data)
-    return (ROOT / chapter["file"]).read_text(encoding="utf-8").replace("../assets/", "assets/").replace("../data/", "data/")
+    body = (ROOT / chapter["file"]).read_text(encoding="utf-8").replace("../assets/", "assets/").replace("../data/", "data/")
+    if chapter.get("learning"):
+        learning = chapter["learning"]
+        body = f"> **학습 순서: {learning['label']}** — {learning['requires']}\n\n" + body
+    return body
 
 
 def render_chapter(chapter, body, source_map, previous, following):
@@ -180,6 +195,12 @@ def render_chapter(chapter, body, source_map, previous, following):
     label = f'L{chapter["number"]}' if chapter["track"] != "reference" else chapter["number"]
     time_label = f'<span>{chapter["minutes"]}분</span>' if chapter["minutes"] else ""
     badge = "preview" if "Preview" in chapter["status"] else "neutral"
+    learning = chapter.get("learning")
+    learning_badge = (
+        f'<span class="learning-badge" data-learning-mode="{escape(learning["mode"])}">{escape(learning["label"])}</span>'
+        if learning else '<span class="learning-badge" data-learning-mode="core">기본 순차</span>'
+        if chapter["track"] == "core" else ""
+    )
     checkbox = (
         f'<button class="complete-button" type="button" data-complete="{chapter_id}" aria-pressed="false">'
         '<span class="check-icon" aria-hidden="true">✓</span><span class="complete-label">성공 기준을 확인했어요</span></button>'
@@ -190,7 +211,7 @@ def render_chapter(chapter, body, source_map, previous, following):
     return f"""
 <article class="chapter" id="{chapter_id}" data-track="{chapter['track']}" aria-labelledby="{chapter_id}-title">
   <header class="chapter-header">
-    <div class="chapter-meta"><span class="eyebrow">{label} / {TRACKS[chapter['track']]}</span>{time_label}<span class="status-badge {badge}">{escape(chapter['status'])}</span></div>
+    <div class="chapter-meta"><span class="eyebrow">{label} / {TRACKS[chapter['track']]}</span>{time_label}{learning_badge}<span class="status-badge {badge}">{escape(chapter['status'])}</span></div>
     <h1 id="{chapter_id}-title" tabindex="-1">{escape(chapter['title'])}</h1>
     <p class="chapter-summary">{escape(chapter['summary'])}</p>
     <nav class="section-nav" aria-label="이 모듈 안에서 이동">{''.join(headings)}</nav>
@@ -205,6 +226,8 @@ def render_chapter(chapter, body, source_map, previous, following):
 
 def build():
     chapters = read_json("chapters.json")
+    learning_paths = read_json("learning-paths.json")
+    chapters = [{**chapter, "learning": learning_paths.get(chapter["id"])} for chapter in chapters]
     source_data = read_json("sources.json")
     sources = {s["id"]: s for s in source_data["sources"]}
     capabilities = read_json("capabilities.json")
@@ -227,9 +250,10 @@ def build():
         links = []
         for c in chapters:
             if c["track"] == track:
+                mode_label = f'<small class="nav-learning">{escape(c["learning"]["label"])}</small>' if c.get("learning") else ""
                 links.append(
                     f'<a class="chapter-link" href="#{c["id"]}" data-chapter="{c["id"]}" data-track="{track}">'
-                    f'<span class="nav-number">{c["number"]}</span><span class="nav-title">{escape(c["title"])}</span>'
+                    f'<span class="nav-number">{c["number"]}</span><span class="nav-title">{escape(c["title"])}{mode_label}</span>'
                     '<span class="nav-done" aria-hidden="true">✓</span></a>'
                 )
         nav.append(f'<div class="nav-group" data-group="{track}"><h2>{title}</h2>{"".join(links)}</div>')

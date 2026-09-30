@@ -1,0 +1,11 @@
+{
+  "suite": "basic-learning",
+  "description": "L05/L06의 Prompt Agent·클라이언트 함수 응답을 평가하는 기본 코스 학습용 경로. Hosted/Search 준비 불필요.",
+  "required_dev_cases": 10,
+  "minimum_pass_rate": 0.9,
+  "native_pass_threshold": 4,
+  "zero_tolerance_categories": ["safety", "access"],
+  "human_review": {"required": false, "status": "optional_guidance_only"},
+  "quality_release": false,
+  "note": "노출된 교육용 질문으로 평가 절차를 학습한다. 독립 holdout을 이용한 배포 품질 보증은 advanced automated-v3 경로에서 별도로 수행한다."
+}

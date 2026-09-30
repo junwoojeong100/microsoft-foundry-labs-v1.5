@@ -172,9 +172,9 @@ Microsoft의 capability map/reference를 기준으로 기능군을 빠짐없이 
 **관리자 경로:** 아래 스크립트가 고유 새 RG만 만들고 기존 자원을 재사용/삭제하지 않습니다.
 
 ```bash
-python scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인 금액과 보존 정책" --live
-python scripts/azure_environment.py foundation --chat-model 지원-chat모델 --chat-version 실제버전 --judge-model 지원-judge모델 --judge-version 실제버전 --embedding-model 지원-embedding모델 --embedding-version 실제버전 --model-sku GlobalStandard --capacity 10 --live
-python scripts/azure_environment.py roles --live
+python3.13 scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인 금액과 보존 정책" --live
+python3.13 scripts/azure_environment.py foundation --chat-model 지원-chat모델 --chat-version 실제버전 --judge-model 지원-judge모델 --judge-version 실제버전 --embedding-model 지원-embedding모델 --embedding-version 실제버전 --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py roles --live
 ```
 
 명령의 설명값은 실제 값으로 바꿉니다. 모델 catalog·SKU·quota를 먼저 조회하고
@@ -203,6 +203,7 @@ L13이 필요할 때만 `python scripts/azure_environment.py search --live`로 S
 ### 3. 지역·배포·비용 확인하기
 
 L02의 모델을 1개만 준비합니다. 합성 데이터이고 조직 정책이 허용하면 사용량 기반 배포부터 시작합니다. **PTU, 유료 Search tier, GPU managed compute, 대규모 Batch, fine-tuning은 기본 코스에 불필요**합니다.
+L08의 native 자동 평가를 진행할 때는 별도 judge 배포도 필요합니다. 관리자가 이미 제공했다면 다시 만들지 않습니다. **PTU, 유료 Search tier, GPU managed compute, 대규모 Batch, fine-tuning은 기본 코스에 불필요**합니다.
 
 프로젝트 지역, 모델 지원 지역, 배포 유형, quota는 서로 다른 조건입니다. “Korea Central 프로젝트”라는 사실만으로 모든 추론이 한국에서 처리된다고 가정하지 마세요. Global / Data Zone / geography 처리 범위는 L02에서 다룹니다.
 
@@ -222,18 +223,18 @@ python3 samples/workshop.py validate-data
 코드로 Azure를 호출할 때만 패키지를 설치합니다.
 
 ```bash
-python3 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-cp .env.example .env
+cp -n .env.example .env
 ```
 
 Windows PowerShell 대안:
 
 ```powershell
-py -3 -m venv .venv
+py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-Copy-Item .env.example .env
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
 이후 `python` 명령은 해당 환경의 Python을 뜻합니다. PowerShell에서 활성화가 제한되면 `.venv\Scripts\python.exe`를 직접 사용하세요.
@@ -248,6 +249,8 @@ FOUNDRY_MODEL_DEPLOYMENT_NAME=실제-모델-배포이름
 ```
 
 위 예시의 한글 설명을 그대로 사용하지 않습니다. **프로젝트 endpoint에 `/openai/v1`을 추가하지 않습니다.** SDK가 올바른 경로를 구성합니다. API key는 넣지 않습니다.
+
+L08 전에 `.env`의 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`도 관리자가 제공한 실제 judge 배포 이름으로 설정합니다. **프로젝트 endpoint에 `/openai/v1`을 추가하지 않습니다.** SDK가 올바른 경로를 구성합니다. API key는 넣지 않습니다.
 
 ```bash
 az login
@@ -812,7 +815,9 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 
 Python 기본 환경에 `requirements-tools.txt`를 설치합니다.
 클라우드 단계는 L13의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
-아직 준비되지 않았다면 **로컬 단계만 실행 완료**로 남깁니다.
+**기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
+3–4단계의 클라우드 Toolbox/Skills는 L13 자원 준비 후 선택하는 확장입니다.
+기본 코스 학습자가 L13을 먼저 진행할 필요는 없습니다.
 
 ```bash
 python -m pip install -r requirements-tools.txt
@@ -845,7 +850,7 @@ stdio child process가 서버를 실행하고 initialize → tools/list → tool
 재고 8개, 단가 1,450,000원, 초안 총액 2,900,000원과 `order_submitted=false`를 확인합니다.
 `--approve-tool`을 빼면 **호출 전에** 멈춥니다. 승인도 실제 주문 승인으로 해석하지 않습니다.
 
-### 3. 버전 고정 Toolbox와 Skill 생성
+### 3. 선택 확장: 버전 고정 Toolbox와 Skill 생성
 
 ```bash
 python samples/toolbox_lab.py create
@@ -868,7 +873,7 @@ python samples/toolbox_lab.py inspect --live
 `require_approval` metadata를 받은 **호출 runtime이 승인 정책을 집행**해야 합니다.
 동봉 client는 모든 도구에 정확한 이름·인수의 1회 승인을 요구합니다.
 
-### 4. 목록의 정확한 이름으로 클라우드 도구 호출
+### 4. 선택 확장: 목록의 정확한 이름으로 클라우드 도구 호출
 
 `inspect`에서 반환된 이름을 복사합니다. 예시는 실제 이름을 추측해서 사용하지 마세요.
 
@@ -887,8 +892,8 @@ Skill은 resources/list에 있어야 하며 resources/read의 본문까지 확�
 
 ## 성공 기준
 
-로컬 MCP 2종의 실제 결과, 클라우드 tools/list·call·Skill read,
-version·caller·backend identity·승인 기록을 각각 확보했습니다.
+기본 코스는 로컬 HTTP 응답과 MCP 2종의 실제 결과, 도구별 승인 차단을 확인하면 이 장을 완료합니다.
+클라우드 확장을 수행했다면 tools/list·call·Skill read, version·caller·backend identity·승인 기록까지 별도로 확보합니다.
 Tool search Preview나 외부 업무 시스템 연결을 실행한 것으로 합산하지 않습니다.
 
 ## 막혔을 때
@@ -917,60 +922,81 @@ Toolbox/Skill version은 소유 receipt와 함께 보존하며, 삭제는 별도
 
 **기본 코스 · GA / 일부 Preview** · 약 35분
 
-> **완성할 결과:** 실제 검색·인용·도구 결과를 검사하고, 독립 holdout으로 자동 품질 게이트를 판정합니다.
+> **완성할 결과:** 기본에서는 실제 응답 평가를 배우고, 심화에서는 독립 holdout으로 자동 품질 게이트를 판정합니다.
 
 ## 목표
 
 **실행 성공, 자동 품질 통과, 사람 검토는 서로 다른 상태**입니다.
-이 합성 실습의 `automated-v2`는 사람이 없어도 코드 검사·native 평가로 완료할 수 있습니다.
+이 합성 실습의 현재 `automated-v3`는 사람이 없어도 코드 검사·native 평가로 완료할 수 있습니다.
 사람 검토는 실제 운영 전 권장 사항으로만 안내하며, 하지 않은 검토를 완료로 표시하지 않습니다.
 
 ## 준비
 
-L13/L14의 실제 Search와 Hosted agent, target과 다른
-`FOUNDRY_JUDGE_DEPLOYMENT_NAME`을 준비합니다.
+**기본 순차 경로:** L05/L06의 프로젝트·Prompt Agent·클라이언트 함수 준비만 필요합니다.
+L13 Search나 L14 Hosted를 먼저 끝낼 필요가 없습니다. Target과 별도의 judge 배포를 L02에서 준비합니다.
+
+**심화 자동 릴리스 경로:** L13/L14의 실제 Search·Hosted agent와
+`FOUNDRY_JUDGE_DEPLOYMENT_NAME`을 준비합니다. 아래 `automated-v3`는 이 경로입니다.
 
 | 자료 | 용도 |
 | --- | --- |
 | `data/evaluation/cases.jsonl`, `rubric.json` | 원본 v1. 과거 실패와 기존 명령 재현용으로 보존 |
-| `data/evaluation/v2/dev.jsonl` | 이미 노출된 v1 20건을 dev 회귀로 전환. 개선에 사용 |
-| `data/evaluation/v2/holdout.jsonl` | 독립적으로 작성하고 hash를 봉인한 새 10건. 개선에 사용하지 않음 |
-| `data/evaluation/v2/calibration.jsonl` | 정답·오답 8건으로 judge 자체를 검사. target 실행 증거가 아님 |
-| `data/evaluation/v2/rubric.json` | 사람 검토는 선택, 90%·safety/access 실패 0건은 그대로 |
+| `data/evaluation/v2/` | 첫 자동 검증의 dev/holdout/기준을 그대로 보존 |
+| `data/evaluation/v3/dev.jsonl` | 이미 노출된 v1/v2 총 30건을 dev 회귀로 전환 |
+| `data/evaluation/v3/holdout.jsonl` | 독립적으로 작성하고 hash를 봉인한 새 10건. 개선에 사용하지 않음 |
+| `data/evaluation/v3/calibration.jsonl` | 정답·오답 8건으로 judge 자체를 검사. target 실행 증거가 아님 |
+| `data/evaluation/v3/rubric.json` | 사람 검토는 선택, 90%·safety/access 실패 0건은 그대로 |
 
 `context`는 출제자의 참고 정답 맥락입니다. 실제 검색 결과 대신 넣어 groundedness를 높이지 않습니다.
 새 runner는 실제 `retrieved_sources`, 도구 인수/결과, citation, response/trace ID를 사용합니다.
 
 ## 실행
 
+### 기본 코스: L05/L06 결과를 학습용으로 자동 평가
+
+```bash
+python samples/workshop.py evaluate --split dev --live
+python samples/evaluation_lab.py calibrate --suite basic-learning --live
+python samples/evaluation_lab.py run --suite basic-learning --split dev --input results/앞-명령이-출력한-responses.jsonl --live
+```
+
+원본 SDK 경로의 노출된 dev 10건으로 평가 절차를 학습합니다. 사람 판정값을 채울 필요는 없습니다.
+모델 품질이 미달하면 평가 명령은 실패 상태를 표시하며, 이를 보고 원인과 다음 개선을 설명하는 것이 기본 학습 목표입니다.
+`basic-learning` 결과는 독립 holdout을 통과한 배포 품질 증거가 아닙니다.
+이 단계를 마쳤으면 L09로 진행하고, 아래 내용은 Hosted를 준비한 뒤 심화 연결로 실행합니다.
+
 ### 1. 로컬 자동 검사
 
 ```bash
-python scripts/prepare_eval_v2.py
+python scripts/prepare_eval_v3.py
 python -m unittest discover -s tests -v
 ```
 
-첫 명령은 원본 20건을 dev 회귀로 만들며 holdout을 읽거나 만들지 않습니다.
-이미 준비된 파일이 다르면 덮어쓰지 않습니다. 원본 v1의 holdout은 더 이상 v2의 최종 시험지가 아닙니다.
+첫 명령은 원본 및 노출된 v2 사례 30건을 dev 회귀로 만들며 v3 holdout을 읽거나 만들지 않습니다.
+이미 준비된 파일이 다르면 덮어쓰지 않습니다. 이전 v1/v2 holdout은 v3의 최종 시험지가 아닙니다.
 단위 테스트 통과만으로 실제 모델 품질을 주장하지 않습니다.
 
 ### 2. 모델이 검색을 생략하지 못하게 실행
 
-Hosted v2는 질문을 받으면 서버가 먼저 Search를 조회합니다.
-적용 범위와 보안 통제 조항도 실제 Search에서 함께 조회한 뒤 모델에 제공합니다.
+Hosted는 질문을 받으면 서버가 먼저 Search를 조회합니다.
+작은 합성 정책 집합 13절 전체를 실제 Search에서 함께 조회하여 복합 질문의 필요한 조항이 빠지지 않게 합니다.
+질문에 명시된 SKU의 읽기 전용 재고 조회도 서버가 먼저 수행하여, '조회가 필요하다'는 계획만 답하지 않게 합니다.
+수량 제한이 회사 정책이 아닌 도구 입력 제약임을 검증할 수 있도록 실제 함수 정의도 실행 증거에 포함합니다.
 모델이 반환하는 `answer`와 `citation_ids`를 엄격한 JSON 계약으로 검사합니다.
 
 빈 citation, 반환되지 않은 출처, 잘못된 문서명, 변조된 본문은 실패합니다.
 서버가 파일명을 추측해 덧붙이지 않습니다. **모델이 선택한 실제 출처만** 표시 형식으로 렌더링합니다.
 재고·초안의 숫자와 상태는 별도 실제 도구 결과와 대조합니다.
+초안 수량이 실제 사용자 문장에 없으면 모델이 유효한 숫자를 제안해도 실행하지 않습니다.
+출처 대응 확인 단계의 `raw_attribution`과 response ID도 원본으로 보존하여 근거 선택을 검증합니다.
 
 ### 3. dev에서 개선하고 설정 동결
 
 ```bash
-python samples/hosted_client.py evaluate --suite automated-v2 --split dev --version 실제숫자 --live
-python samples/evaluation_lab.py prepare --suite automated-v2 --split dev --input results/실제-dev-responses.jsonl
-python samples/evaluation_lab.py calibrate --suite automated-v2 --live
-python samples/evaluation_lab.py run --suite automated-v2 --split dev --input results/실제-dev-responses.jsonl --live
+python samples/hosted_client.py evaluate --suite automated-v3 --split dev --version 실제숫자 --live
+python samples/evaluation_lab.py prepare --suite automated-v3 --split dev --input results/실제-dev-responses.jsonl
+python samples/evaluation_lab.py calibrate --suite automated-v3 --live
+python samples/evaluation_lab.py run --suite automated-v3 --split dev --input results/실제-dev-responses.jsonl --live
 ```
 
 원본 응답은 append-only 증거와 함께 보존합니다. 재시도는 새 run으로 기록합니다.
@@ -980,8 +1006,8 @@ native 평가의 인증 주체가 달라 실패한다면 L22의 승인된 OIDC d
 ### 4. 새 holdout은 최종 한 번만 사용
 
 ```bash
-python samples/hosted_client.py evaluate --suite automated-v2 --split holdout --version 동결한숫자 --live
-python samples/evaluation_lab.py run --suite automated-v2 --split holdout --input results/실제-holdout-responses.jsonl --live
+python samples/hosted_client.py evaluate --suite automated-v3 --split holdout --version 동결한숫자 --live
+python samples/evaluation_lab.py run --suite automated-v3 --split holdout --input results/실제-holdout-responses.jsonl --live
 ```
 
 봉인된 suite fingerprint별로 실행 표식을 남겨 무심코 다시 샘플링하지 않게 합니다.
@@ -1012,6 +1038,11 @@ JSON 파서/전송 문제를 보정할 때도 원래 응답은 바꾸지 않고 
 사람 검토는 완료 조건이 아닙니다. 향후 실제 운영에 적용할 때 업무 담당자의 표본 검토를 권장합니다.
 과거 v1의 9/10 실패는 `validation/history/v1/`에 보존하며 새 결과로 바꾸지 않습니다.
 
+v2의 새 시험지는 복합 질문 누락과 근거 선택 문제를 드러냈으므로 원본 실패를 보존하고 v3 dev로 전환했습니다.
+한 개발 사례의 실제 계약서 사용 거절은 SEC1 또는 PROC5가 같은 주장에 유효한 근거임을 원문으로 대조했습니다.
+v3에는 이 주장에 한해서만 명시적 근거 대체 그룹을 기록하며, 권한 SEC2·노트북 상한 PROC2와 원래 기대 행동은 유지합니다.
+이는 답을 바꾸거나 출처를 자동으로 끼워 넣는 방식이 아닙니다. 원래의 엄격한 v2 판정과 v3 최초 dev 초안도 보존합니다.
+
 ## 막혔을 때
 
 검색 결과 없음, JSON/citation 계약 오류, 업무 검사 실패, native judge 오류를 분리합니다.
@@ -1021,7 +1052,7 @@ JSON 파서/전송 문제를 보정할 때도 원래 응답은 바꾸지 않고 
 ## 정리
 
 Hosted compute와 평가 작업 상태를 확인합니다. 원시 결과/환경은 `results/`에 보존하고
-검토한 합성 최소 증거만 `validation/automated-v2/`로 공유합니다.
+검토한 합성 최소 증거만 `validation/automated-v3/`로 공유합니다.
 실제 주문·결제·업무 승인 기능은 계속 사용하지 않습니다.
 
 
@@ -1419,6 +1450,8 @@ Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있�
 
 **심화 코스 · IQ 부분 GA / 포털 Preview** · 약 45분
 
+> **학습 순서: 독립 선택** — 기본 L01 프로젝트·모델. 이 장에서 Search/embedding/index를 준비하며 L14의 기반이 됩니다.
+
 > **완성할 결과:** 동봉한 Contoso 정책을 Search에 넣고 keyword·hybrid·Foundry IQ 검색의 실제 근거를 비교합니다.
 
 ## 목표
@@ -1494,9 +1527,9 @@ L14의 동봉 Hosted 코드가 `search_policies`로 같은 Search를 호출합�
 모델은 반환된 절 ID만 인용할 수 있으며, 실제로 검색되지 않은 ID를 답하면 검증이 실패합니다.
 재고는 문서에서 추측하지 않고 별도 `get_stock`을 호출합니다.
 
-Hosted에서는 관련도 상위 검색 결과 외에 **적용 범위·없는 정보 처리 조항(구매 정책 1·5절)**을
-같은 Search에서 실제로 추가 조회합니다. 해외 지사 질문에 일반 승인 금액을 잘못 적용한 dev 실패를
-수정하기 위한 지식 범위 통제입니다. 로컬 정답을 검색 결과로 끼워 넣는 방식이 아닙니다.
+Hosted 실습은 작은 공용 합성 정책 **13절 전체**를 같은 Search에서 실제로 추가 조회합니다.
+관련도 상위 몇 절만으로 복합 질문을 답하면서 승인·권한·정보 부재 조항을 빠뜨리지 않기 위한 교육용 선택입니다.
+로컬 정답을 검색 결과로 끼워 넣는 방식이 아니며, 큰 실제 데이터 전체를 무조건 읽거나 문서 ACL을 우회하라는 의미도 아닙니다.
 
 ### 4. 권한 검증은 별도 경로로 구분하기
 
@@ -1540,6 +1573,8 @@ embedding 차원을 확인합니다. Preview 문자열로 바꾸어 우회하지
 
 **심화 코스 · 핵심 GA / 세부별 확인** · 약 45분
 
+> **학습 순서: 선행 실습 필요** — L13의 Search/index 또는 관리자가 제공한 동일 자원이 필요합니다. L20 Hosted Optimizer와 L22 CI/CD의 기반입니다.
+
 > **완성할 결과:** A에 들어 있는 같은 구매 도우미 코드를 패키징하고 로컬·Azure에서 호출합니다.
 
 ## 목표
@@ -1574,6 +1609,8 @@ python scripts/build_hosted.py
 ```
 
 `.build/contoso/`와 `.build/contoso-code.zip`을 만듭니다.
+Optimizer용 Responses 프로필은 `.build/contoso-responses/`에 별도로 생성합니다.
+이 분리 덕분에 Optimizer의 설정 로딩을 고쳐도 이미 검증한 기본 Invocations 런타임을 바꾸지 않습니다.
 구매 정책·재고·instructions·실행 코드·고정 의존성만 포함하고,
 `.env`, 인증, 평가 정답, 기존 결과, 개인 환경은 포함하지 않습니다.
 `package-manifest.json`의 파일별 hash와 runtime contract를 확인합니다.
@@ -1598,12 +1635,26 @@ python samples/hosted_client.py invoke --local --live
 
 **로컬 서버도 실제 Azure 모델·검색을 사용하므로 호출에는 비용이 발생합니다.**
 기본 bind는 loopback이며 인증 없는 개발 서버를 외부에 노출하지 않습니다.
-한 요청당 모델 최대 5회·도구 최대 8회·출력 2048토큰, SDK 재시도 0으로 제한합니다.
+한 요청은 도구 계획 → 근거 답변 → 출처 대응 확인으로 나눕니다.
+앞의 두 모델 출력은 각각 2048토큰, 출처 확인은 512토큰으로 제한합니다.
+도구 최대 8회, SDK 재시도 0을 유지합니다.
 
-현재 v2 엔진은 모델 실행 **전에** 서버가 질문별 정책과 보안 통제 조항을 실제 검색합니다.
+현재 엔진은 모델 실행 **전에** 서버가 질문별 검색과 작은 합성 정책 13절의 실제 조회를 수행합니다.
 모델의 검색 함수 선택을 기다리지 않습니다. 응답은 내부적으로 `answer`·`citation_ids` JSON이며,
 인용은 실제 반환된 절 중 모델이 선택한 것만 렌더링합니다. 검색/인용 누락은 성공이 아니라 오류입니다.
 `tool_calls`의 `execution=server_required`는 실제 서버 검색이며 모델이 호출했다고 가장한 기록이 아닙니다.
+명시된 SKU의 `get_stock`도 읽기 전용 서버 선행 작업으로 기록합니다. 초안 생성은 여전히 별도 함수이며
+실제 주문·결제를 수행하지 않습니다. 수량 제한의 근거는 실행에 사용한 `tool_definitions`로 대조합니다.
+
+도구 실행 단계에는 답변 JSON 형식을 강제하지 않고 필요한 함수를 실행하게 합니다.
+그 다음 답변 전용 단계에서 실제 결과와 문서에 근거한 엄격한 JSON을 생성합니다.
+도구를 호출하겠다는 계획 문장은 답변이나 실행 증거로 게시하지 않습니다.
+
+초안 도구 인수는 사용자가 명시한 SKU와 하나의 명확한 정수 수량에 연결돼야 합니다.
+모델이 빠진 수량을 1로 채우거나 11개를 10개로 줄여 제안해도 코드가 실행 전에 거절합니다.
+답변 단계에도 실제 함수 정의를 전달하여 도구의 1~10 입력 제약을 회사 정책으로 혼동하지 않게 합니다.
+마지막 출처 확인 단계는 실제 검색 자료와 작성된 답변만 보고 근거를 선택하며,
+두 모델의 실제 선택을 합쳐 표시합니다. 원문 답변과 출처 선택 응답 ID는 각각 보존합니다.
 
 ### 3. 준비된 프로젝트에만 배포하기
 
@@ -1618,8 +1669,12 @@ python scripts/runtime_roles.py --agent contoso-purchasing --live
 
 학습자에게 별도로 provision된 프로젝트를 제공했다면 `azd env new`와 `azd env set`으로
 `AZURE_AI_PROJECT_ID`, `AZURE_AI_PROJECT_ENDPOINT`, `AZURE_SUBSCRIPTION_ID`,
-`AZURE_TENANT_ID`, `AZURE_RESOURCE_GROUP` 및 위의 모델/Search 값을 설정합니다.
+`AZURE_TENANT_ID`, `AZURE_RESOURCE_GROUP`, **`AZURE_LOCATION`** 및 모델/Search 값을 설정합니다.
 이는 자격 증명이 아니라 환경 바인딩입니다. `azd env get-values` 전체를 공개 로그에 출력하지 마세요.
+
+`AZURE_LOCATION`은 프로젝트의 실제 리전 이름입니다. 코드 배포에서 이 값이 없으면 실패합니다.
+`scripts/configure_hosted.py` 경로는 동봉 관리 스크립트가 만든 소유 receipt를 사용하며,
+강사가 제공한 별도 프로젝트를 사용할 때는 그 프로젝트의 실제 값으로 azd 환경을 구성해야 합니다.
 
 동봉 `azure.yaml`은 **code deployment**이며 Docker/ACR가 필수는 아닙니다.
 이 파일로 무심코 `azd provision`을 실행하지 않습니다. 리소스 생성은 L01 관리 경로입니다.
@@ -1698,6 +1753,8 @@ Hosted의 `/app`은 읽기 전용입니다. 원격 원시 증거는 세션의 `$
 # 15. 멀티에이전트·A2A·사람 개입
 
 **심화 코스 · MAF 사용 / 도구별 확인** · 약 40분
+
+> **학습 순서: 독립 선택** — 기본 프로젝트·모델과 별도 MAF 환경. MAF/A2A는 다른 심화 장 없이 실행하며 Hosted 배포를 선택할 때만 L14가 필요합니다.
 
 > **완성할 결과:** 초안 작성자와 검토자가 역할을 나누되, 실제 승인은 모델이 대신하지 않는 2단계 흐름.
 
@@ -1829,6 +1886,8 @@ SDK import 오류는 환경 혼용부터 확인합니다. 이 샘플은 core `Wo
 
 **심화 코스 · Preview** · 약 25분
 
+> **학습 순서: 독립 선택** — 기본 프로젝트·chat/embedding 배포 및 Memory 지원 조건. 다른 심화 장 완료는 필요하지 않습니다.
+
 > **완성할 결과:** 실제 Memory item을 저장·검색하고, 사용자 격리 및 승인된 item 삭제 후 부재를 확인합니다.
 
 ## 목표
@@ -1921,6 +1980,8 @@ API가 실패하면 원본 오류를 보존하고 로컬 dict로 대체한 것�
 # 17. Routines·장기 실행·Autopilot
 
 **심화 코스 · Routines GA / 혼합** · 약 35분
+
+> **학습 순서: 기능별 분기** — Routine은 기본 L05의 서버 Prompt Agent로 독립 실행할 수 있습니다. Hosted 장기 실행 분기는 L14가 필요합니다.
 
 > **완성할 결과:** Contoso 정책 요약의 실제 예약 실행을 응답/trace로 검증하고 disabled 상태를 확인합니다.
 
@@ -2025,6 +2086,12 @@ response는 `resp_07018918263947dc006abc3deaaf34819787a318905a8318ad`입니다.
 직접 response 조회의 404도 보존했으며, 조회 불가를 응답 부재로 바꾸지 않았습니다.
 이 증거는 다른 File search·Hosted·A2A 실행의 성공으로 대체한 것이 아닙니다.
 
+수정한 runner의 별도 v2 검증에서는 `contoso-policy-timer-v2-9a3154d0`을 한 번만 예약했습니다.
+`2026-09-30T01:58:35Z`의 trace `ebd60144b61d68788cb939b085f6c308`과
+response `resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2`에서
+고유 표식이 일치하는 완료 출력을 확인했습니다. 수동 dispatch는 하지 않았고 `enabled=false`를 재확인했습니다.
+원본은 `results/contoso-routine-04519d0f6e86.jsonl`과 `results/routine-v2-scheduled.json`에 보존합니다.
+
 ## 막혔을 때
 
 CLI JSON decode 오류는 서비스 작업이 이미 성공한 뒤 발생할 수도 있습니다.
@@ -2052,6 +2119,8 @@ Hosted를 대상으로 사용했다면 agent session compute도 별도로 stop�
 # 18. 멀티모달·Content Understanding
 
 **심화 코스 · 서비스·API별 확인** · 약 40분
+
+> **학습 순서: 독립 선택** — 기본 환경과 선택한 Content Understanding/Code Interpreter의 모델·권한. 합성 영수증 준비는 로컬에서도 가능합니다.
 
 > **완성할 결과:** 가상 영수증에서 구조화된 값을 추출하고, 지출 CSV를 계산하여 원본과 대조합니다.
 
@@ -2160,6 +2229,8 @@ CSV에 없는 데이터는 추가하지 마.
 
 **심화 코스 · Voice Agent Preview** · 약 30분
 
+> **학습 순서: 독립 선택** — 기본 환경과 Voice/Speech 지원 모델·리전·장치 권한. 다른 심화 장은 선행하지 않습니다.
+
 > **완성할 결과:** 짧은 구매 안내를 말로 듣고, 끼어들기·침묵·세션 종료까지 검증한 음성 agent.
 
 ## 목표
@@ -2250,6 +2321,8 @@ Voice 모드가 없으면 preview 접근·지원 지역을 먼저 확인합니�
 
 **심화 코스 · Fine-tuning GA / Optimizer 제한 Preview** · 약 45분
 
+> **학습 순서: 기능별 분기** — Hosted Optimizer는 L14의 Responses agent를 먼저 배포합니다. Fine-tuning 데이터 준비·조건부 학습은 해당 모델 준비 후 독립 실행합니다.
+
 > **완성할 결과:** 개선할 대상을 올바르게 선택하고, 학습 가능한 데이터와 과적합을 막는 비교 절차를 준비합니다.
 
 ## 목표
@@ -2274,7 +2347,7 @@ L08의 baseline과 실패 사례, 별도 dev/holdout, 학습/평가/배포 비�
 
 ### 2. Prompt / Agent Optimizer 실험
 
-Agent의 **Optimize** 경험이 제공되면 baseline version, dev 데이터, 평가 기준, judge/optimizer 모델, 후보 수와 예상 비용을 확인합니다. **Agent Optimizer는 GA 표 기준 Limited preview**입니다. 접근이 없으면 실패 3개를 보고 사람이 prompt를 수정하는 같은 비교 루프를 수행합니다.
+Agent의 **Optimize** 경험이 제공되면 baseline version, dev 데이터, 평가 기준, judge/optimizer 모델, 후보 수와 예상 비용을 확인합니다. **Agent Optimizer는 GA 표 기준 Limited preview**입니다. 접근이 없으면 차단으로 기록합니다. dev 실패를 바탕으로 prompt를 수동 수정하는 별도 비교 루프는 선택 안내입니다.
 
 Prompt agent는 instructions·함수 description·모델 선택 등을, Hosted agent는 optimizer-ready 구성에 따라 instructions·skills·tool description·모델 등을 개선합니다. 모델 가중치를 학습하는 fine-tuning과 다릅니다.
 
@@ -2285,41 +2358,62 @@ Prompt agent는 instructions·함수 description·모델 선택 등을, Hosted a
 동봉 native Agent Optimizer 경로:
 
 ```bash
-python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --suite automated-v2
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --suite automated-v2 --live
+python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --prompt-file data/prompts/해당버전의지시.txt
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --prompt-file data/prompts/해당버전의지시.txt --live
 ```
 
-첫 명령에서 제출될 **automated-v2 dev 20건·holdout 0건**, 후보 최대 2개, stall 최대 1회를 확인합니다.
-기존에 노출된 20건은 v2 dev이고, 새로 봉인된 holdout은 optimizer가 파일을 열거나 제출하지 않습니다.
+첫 명령에서 제출될 **현재 suite의 전체 dev 건수·holdout 0건**, 후보 최대 2개, stall 최대 1회를 확인합니다.
+`DEFAULT_SUITE`가 기본값이며 `--suite`로 명시적으로 선택할 수도 있습니다. dev 건수를 하드코딩하지 않습니다.
+새로 봉인된 holdout은 optimizer가 파일을 열거나 제출하지 않습니다.
 `load_cases(suite, split="dev")`로 dev 파일만 읽습니다. 전체 split을 읽은 뒤 필터링하지 않습니다.
 suite·dev ID/hash·실제 제출 설정을 원본 evidence에 기록하며, holdout 기반의 품질 통과를 주장하지 않습니다.
+`payload(...)`와 CLI 모두 `DEFAULT_SUITE`를 따릅니다. legacy 데이터의 진단은
+`suite="legacy-v1"`을 명시해야 하며, 새 legacy job은 제출하지 않습니다.
 
 Hosted native 최적화는 `AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing-responses --no-prompt`로 준비한
 **Responses adapter**를 대상으로 합니다. Invocations agent를 그대로 제출하면 서비스가 400으로 거절합니다.
+현재 optimizer 전용 진입점은 **`hosted/optimizer_responses.py`**, 별도 빌드 경로는
+**`.build/contoso-responses`**입니다. 검증된 primary runtime과 빌드 hash는 변경하지 않았습니다.
 optimizer 모델은 서비스가 요구하는 모델 계열을 별도 확인합니다.
 이번 API는 `gpt-5-mini`를 reflection 모델로 허용하지 않았으며, 지원 목록을 확인한
 `gpt-5.1` 배포로 구분했습니다. 추론 모델 지원과 optimizer reflection 모델 지원은 다릅니다.
 Hosted 패키지는 `azure-ai-agentserver-optimization==1.0.0b1`의 `load_config()`와
 `.agent_configs/baseline/`을 포함합니다. baseline model은 패키징 시 승인된 배포 이름으로 고정하며,
 환경이 없을 때 만든 오프라인 패키지는 실행 전에 다시 생성해야 합니다.
+전용 adapter는 resolver에 credential을 전달하고, 쓰기 가능한 **HOME 아래**에 config를 캐시합니다.
+모델 상속은 **정상적으로 해석된 instruction-only optimizer overlay가 `model`을 생략하거나 `null`로 둔 경우**에만
+패키징된 baseline model을 명시적으로 사용하는 동작입니다. baseline 답변을 복사하거나 임의의 환경 기본 모델로
+오류를 덮는 fallback이 아닙니다. 잘못된 명시적 모델, 유효하지 않은 config, resolver 해석 실패는 거절합니다.
 client-side 함수를 서버가 실행할 수 없는 agent를 대상으로 삼지 않습니다.
-동봉 runner의 명시적 `optimization_config.system_prompt`는 `agent-v4.txt`이며,
-이번 실험의 대상은 이를 포함한 `contoso-purchasing-responses` version `2`입니다.
-다른 baseline을 대상으로 바꿀 때는 원본 지시와 optimizer 입력이 같은지 먼저 확인합니다.
+기존 실험은 `agent-v4.txt`를 포함한 `contoso-purchasing-responses` version `2`가 대상이었습니다.
+현재 성공한 native 실행은 전용 Responses **version `3` / `agent-v6.txt`** 조합입니다.
+다른 baseline에는 `--prompt-file data/prompts/해당버전의지시.txt`로 **배포된 지시와 같은 파일**을 지정합니다.
+새 `--live` job은 `--prompt-file`이 필수입니다. 함수/plan의 v4 기본값은 기존 진단용이며,
+이를 생략한 채 새 버전으로 job을 제출할 수 없습니다. 최신 지시를 자동 추측하지 않습니다.
+prompt 인자는 `data/prompts/*.txt`만 허용하며 데이터셋을 지시 파일로 읽지 않습니다.
 inline 학습 데이터의 wire 필드는 `train_dataset.items`입니다(`dataset_items`가 아닙니다).
 
-최대 10분은 **job 생성 시각부터** 계산합니다. 모니터링을 재개해도 시간을 다시 주지 않습니다.
+기본 시간 제한은 **600초(10분), job 생성 시각부터**입니다. `--max-seconds`는 60–1800의 정수만 허용합니다.
+실측한 full-model 3단계 실행이 더 오래 걸리면 새 job에 `--max-seconds 1200`을 명시할 수 있습니다.
+무제한 대기/자동 재시도가 아니며 후보 수·점수·평가 기준·dev/holdout 경계는 바꾸지 않습니다.
+시간 제한은 새 job receipt에 저장합니다. `--resume`에는 **기록된 것과 같은** `--max-seconds`를 사용해야 하며,
+예를 들어 1200초 job은 재개 시에도 `--max-seconds 1200`이 필요합니다. 기존 필드가 없는 receipt는 600초입니다.
+재개는 원래 생성 시각의 deadline을 유지합니다. 취소된 600초 job을 더 긴 예산으로 되살리거나,
+기존 job의 제한을 조용히 연장하지 않습니다.
 SDK 자동 LRO polling 대신 `polling=False`로 제출하고 API 버전이 포함된 명시적 GET으로 조회합니다.
 이 서비스의 `Operation-Location`에 API 버전이 없어 자동 polling이 실패했던 원본 기록도 보존합니다.
 timeout·조회 실패·중단에서는 `finally`로 cancel하고 terminal 상태를 확인합니다.
-이 job 이후 만들어진 해당 version의 세션만 stop하고 `stopped_at`을 다시 읽습니다.
+native 세션은 azd 목록에 누락될 수 있어, 소유 App Insights에서 같은 agent/version과 job 시간 범위의
+session ID도 수집합니다. `show`로 생성 시각과 version을 검증한 새 세션만 stop합니다.
+성공한 stop 호출 뒤 같은 ID의 `idle`/`stopped`를 다시 읽습니다.
+현재 CLI가 `stopped_at`을 생략한다는 사실도 기록하며, 그 값을 만들어 채우지 않습니다.
 취소/중지 확인이 실패하면 **아직 실행 중일 수 있음**으로 보고합니다.
 기존 job/receipt를 덮어쓰거나 리소스를 삭제하지 않습니다. 후보는 자동 배포/승격하지 않습니다.
 
 | 관측 결과 | 기록할 판정 |
 | --- | --- |
 | `succeeded`지만 reflection failure/authentication/timeout 경고 | **operational_failure** — 성공으로 바꾸지 않음 |
-| reflection 사용과 모든 native evaluation 완료가 확인되지만 점수 향상 없음 | **executed_no_improvement** — 운영 실행과 품질 개선을 구분 |
+| reflection/evaluation이 정상 실행되고 `max_stalls`에 따라 개선 없이 종료 | **executed_no_improvement** — 정상 실행이며, 품질 개선을 주장하지 않음 |
 | baseline만 있고 reflection 실행 증거 없음 | **reflection_unverified** |
 | 후보의 변경 내용 누락, 평가 행 누락/오류, partial 결과 | 불완전한 증거 또는 운영 실패 — 개선 완료가 아님 |
 
@@ -2327,12 +2421,12 @@ timeout·조회 실패·중단에서는 `finally`로 cancel하고 terminal 상�
 서비스 상태나 baseline 점수 하나만으로 정상 최적화/품질 통과를 판단하지 않습니다.
 사람의 후보 검토는 선택 안내이며 `human_review_completed=false`를 사실대로 유지합니다.
 
-서비스 접근이 차단되면 **native optimizer 차단**으로 기록합니다. 별도 사람이/개발자가 dev의
-실제 실패를 보고 수정한 후보를 native optimizer 결과처럼 표시하지 않습니다.
+서비스 접근이 차단되면 **native optimizer 차단**으로 기록합니다. 선택적으로 dev의
+실제 실패를 보고 별도 작성한 후보를 native optimizer 결과처럼 표시하지 않습니다.
 후보 파일과 변경 사유를 남기고 L08의 같은 dev 기준으로 비교한 뒤 holdout을 한 번 확인합니다.
 
 azd의 자동 suite 생성은 최소 15 samples를 요구할 수 있습니다. 수를 맞추려고 사례를
-복제하거나 봉인된 holdout을 넣지 않습니다. 동봉 SDK runner는 승인된 v2 dev 20건만
+복제하거나 봉인된 holdout을 넣지 않습니다. 동봉 SDK runner는 선택한 suite의 전체 dev만
 직접 제출하며, 자동 생성 CLI의 지원 범위와 구분합니다.
 기존 legacy-v1 작업은 원래 receipt로 조회만 재개할 수 있고 새 legacy 작업 제출은 거절합니다.
 이 경로는 데이터 파일을 다시 읽거나 작업을 재제출하지 않습니다.
@@ -2379,6 +2473,27 @@ job status, training/validation curve, checkpoints를 확인합니다. 마지막
 
 로컬 데이터 형식과 split을 검증했습니다. 실제 학습을 진행했다면 **품질·지연·토큰·총비용**을 baseline과 비교하고 선택 이유를 기록합니다. 데이터 준비만 했다면 학습 완료로 표시하지 않습니다.
 
+### 현재 native 결과: 정상 실행, 개선 없음
+
+최종 job **`opt_428b84f689964bb793f83b93b8d34de5`**는 **`succeeded`**로 완료됐습니다.
+
+| 항목 | 확인한 결과 |
+| --- | --- |
+| 대상 | `contoso-purchasing-responses` version `3`, `hosted/optimizer_responses.py` |
+| 입력 | `agent-v6.txt`, `automated-v2` dev 20건, holdout 0건 |
+| 제한 | `--max-seconds 1200`, 후보 최대 2개, `max_stalls=1` |
+| native baseline / best | **1.0 / 1.0** |
+| reflection | 실제 실행 확인 |
+| 종료 이유 | 개선 없음으로 `max_stalls=1` 도달 — 인증/reflection 실패가 아님 |
+| 새로 채택한 후보 / 승격 | **0 / 0** |
+| 판정 | **정상 실행 완료(`executed_no_improvement`)**, 개선 주장 없음 |
+
+새 후보를 채택하지 않았다고 운영 실패로 처리하거나, 성공 상태를 만들기 위해 평가 기준을 낮추지 않습니다.
+이 1.0은 해당 **v2 dev의 native composite score**이며, 별도 v3 holdout이나 primary runtime의 품질 통과를
+대신 증명하지 않습니다. 사람이 검토했다는 주장도 하지 않으며, 사람의 검토는 선택 안내입니다.
+
+### 보존한 과거 실패와 복구 과정
+
 **기존 native optimizer job `opt_f732793c2d284a4f874966ed2caca4bf`는 서비스 상태 `succeeded`였지만 baseline만 반환했습니다.**
 새 후보는 0개이고 reflection 모델 오류/timeout 관련 경고가 있었습니다.
 baseline의 별도 점수 0.95를 holdout 품질 통과로 사용하지 않았으며 후보를 승격하지 않았습니다.
@@ -2387,6 +2502,76 @@ baseline의 별도 점수 0.95를 holdout 품질 통과로 사용하지 않았�
 `gpt-5.1-2025-11-13` 응답과 종료를 반환했습니다. 기존 baseline 평가도 10건 완료·오류 0건입니다.
 따라서 포괄적인 reflection 경고만으로 권한/토큰/timeout 중 정확한 원인을 단정하거나
 Owner/광범위 역할을 추가하지 않았습니다. 직접 모델 접근 성공과 native 서비스 내부 호출 성공은 별개입니다.
+
+별도 v2 로컬 job `opt_15ea242beb4e4e4f945fac6b5abfa868`도 5분 안에
+`succeeded`/`stopped_early`로 끝났지만 같은 reflection 경고와 baseline만 반환했습니다.
+native 평가 `evalrun_da4f0442f71049ba868dd677b15e310d`는 20건 중 19건 통과·1건 오류이며,
+output item `13`의 evaluator 상태는 `error`지만 상세 원인은 서비스 응답에 없었습니다.
+0.91875라는 원본 composite score를 품질 통과로 사용하지 않습니다.
+suite가 다른 기존 0.95와도 직접 성능 비교하지 않습니다.
+두 native 세션은 CLI 목록에 보이지 않아 해당 job의 trace로 찾은 뒤 stop/idle readback을 확인했습니다.
+job·오류·세션 중지 기록은 `results/contoso-optimizer-ea97bd8ba694*.json*`와
+`results/contoso-optimizer-3cf33582e7d6.jsonl`에 보존합니다.
+
+후속 소유 리소스의 metrics에서 reflection **HTTP 429 3회**를 확인했습니다.
+당시 `contoso-reflection`의 10k TPM 제한은 동일 GPT-5.1/version/SKU의 capacity 100으로 완화했습니다.
+작은 직접 probe의 HTTP 200만으로 native 부하나 인증 경로 전체가 정상이라고 판단하지 않았습니다.
+
+이후 `opt_04988b29201c4eb79f79d2be1261f986`는 baseline 0.928125 이후 같은 draft의
+두 평가 시도에서 각각 3건의 빈 출력을 만들었고, `AllEvaluatorsFailedError`로 실패했습니다.
+확인된 원인은 **성공적으로 resolve된 candidate의 `model=null`을 이전 runtime이 거절한 것**입니다.
+resolver 401로 확정된 문제가 아니며, SDK의 디스크 캐시 저장 `OSError` 자체도 config 반환을 막는 치명적 오류가 아니었습니다.
+전용 adapter에서 위의 제한된 모델 상속을 적용한 뒤, **같은 candidate**의 캐시 존재/부재 로컬 경로 모두
+비어 있지 않은 응답을 반환했고 remote baseline version 3도 성공했습니다.
+
+`opt_a78e46ee3f0b4e4a8c98c1fe64c28f13`는 baseline 0.96875와 경고 없는 정상 진행 중
+기존 600초 제한 때문에 전체 후보 평가 전에 취소됐습니다. 이 기록을 성공으로 덮어쓰거나
+기존 job의 예산을 연장하지 않았습니다. 별도 1200초 예산의 최종 job이 위의 정상 실행 결과입니다.
+이전 오류·취소·점수는 역사적 증거로 보존하며 서로 다른 실행의 점수를 개선 증거로 바꾸지 않습니다.
+
+### 선택: 현재 OIDC native 실행 재현과 조회
+
+먼저 데이터셋을 전혀 읽지 않는 단일 모델 probe를 실행합니다. probe 통과도 native optimizer 성공이나
+새 Invocations 버전의 품질 통과를 뜻하지 않습니다. 이어지는 비교는 원래 지시와 일치하는
+**현재 Responses 버전**을 대상으로 하며, Invocations 버전을 optimizer에 제출하지 않습니다.
+아래는 이번에 확인한 version 3 / v6 지시 / **명시적 v2 dev** 조합입니다.
+일반 runner의 `DEFAULT_SUITE` 선택과 구분하며, 봉인된 holdout을 제출하지 않습니다.
+새 live 실행은 별도 비용 승인과 소유 ledger가 있는 OIDC CI 환경에서만 선택적으로 수행합니다.
+
+```bash
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
+python samples/optimizer_lab.py --probe-reflection --optimizer-deployment contoso-reflection --require-oidc --live
+
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
+python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 3 \
+  --suite automated-v2 --prompt-file data/prompts/agent-v6.txt \
+  --optimizer-deployment contoso-reflection --max-seconds 1200 --require-oidc --live
+```
+
+이미 완료된 job을 조회하려면 **원래 job receipt가 있는 checkout**에서 새 job을 만들지 않고 재개합니다.
+이 명령은 데이터셋을 다시 읽거나 후보를 승격하지 않으며, 기록된 1200초 제한을 그대로 검증합니다.
+
+```bash
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
+python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 3 \
+  --suite automated-v2 --optimizer-deployment contoso-reflection \
+  --resume opt_428b84f689964bb793f83b93b8d34de5 --max-seconds 1200 --require-oidc --live
+```
+
+probe는 모델 요청 1회, completion 최대 256 tokens, 모델 응답 timeout 45초, 재시도 0회입니다.
+`--require-oidc`는 모델 호출/새 job 제출 전에 `results/azure-environment.json`의
+`tenant`, `oidc.principal_id`, `oidc.client_id`와 토큰의 안전한 주체 메타데이터를 비교합니다.
+원본 토큰·키·connection string을 출력하거나 저장하지 않습니다.
+
+CI가 전달할 안전한 필드는 프로젝트 endpoint·계정/프로젝트명·subscription/RG ID,
+위 OIDC 식별자, `monitoring.appId.value`와 `monitoring.appInsightsId.value`입니다.
+일반 환경 변수는 `FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat`,
+`FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`이며 azd도 같은 소유 프로젝트로 해석되어야 합니다.
+프로젝트 guard는 `azd env get-value AZURE_AI_PROJECT_ENDPOINT`의 값을 소유 endpoint와 정확히 비교합니다.
+별도의 SDK 조회에서 agent 이름·버전·Responses protocol을 확인하며, 해석되지 않거나 다른 프로젝트인 값은 거절합니다.
+probe evidence에서 `identity.owned_ci_principal=true`, HTTP 200, 실제 response/request ID,
+지원 model 이름과 `finish_reason=stop`을 확인합니다. job의 경고·오류는 별도로 보존하고,
+이 선택 진단의 결과로 dev/calibration/release 품질 gate를 대체하거나 완화하지 않습니다.
 
 ## 막혔을 때
 
@@ -2413,6 +2598,8 @@ training job, checkpoint/model, inference deployment, uploaded training file은 
 # 21. 기업 보안·Control Plane·Gateway
 
 **심화 코스 · GA / Preview 혼합** · 약 45분
+
+> **학습 순서: 독립 선택** — 기본 개념과 관리자 권한·네트워크 정책. 설계 경로는 독립이며 실제 조직 변경은 별도 승인 대상입니다.
 
 > **완성할 결과:** 여러 agent를 운영할 때 identity·데이터·네트워크·정책·비용의 통제 책임을 한 장으로 설명합니다.
 
@@ -2508,6 +2695,8 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 **심화 코스 · 구성 요소별 확인** · 약 40분
 
+> **학습 순서: 선행 실습 필요** — L13 → L14 배포와 L08의 Hosted 자동 평가 경로가 필요합니다. L20 Optimizer 완료는 필요하지 않습니다.
+
 > **완성할 결과:** 코드 변경이 곧 운영 변경이 되지 않도록 검사·평가·승인·롤백을 연결합니다.
 
 ## 목표
@@ -2541,10 +2730,10 @@ L08의 평가 게이트, L14의 hosted 프로젝트 또는 버전 관리되는 p
 ```bash
 python -m unittest discover -s tests -v
 python samples/workshop.py validate-data
-python samples/evaluation_lab.py prepare --suite automated-v2 --split dev --input results/실제-dev-responses.jsonl
+python samples/evaluation_lab.py prepare --suite automated-v3 --split dev --input results/실제-dev-responses.jsonl
 ```
 
-마지막 명령은 실제 v2 dev 응답 20건이 있을 때 실행합니다. dummy 응답이나 수동 판정값으로 자동 게이트를 대신하지 않습니다.
+마지막 명령은 실제 v3 dev 응답 30건이 있을 때 실행합니다. dummy 응답이나 수동 판정값으로 자동 게이트를 대신하지 않습니다.
 
 이 폴더의 `.github/workflows/validate.yml`은 문서와 로컬 테스트만 검사합니다. **Azure 배포·유료 추론을 자동 실행하지 않습니다.**
 
@@ -2585,15 +2774,22 @@ gh workflow run validate.yml --ref 같은-동결브랜치 -f acknowledge_cost=tr
 GitHub 정책으로 수동 브랜치 실행이 막히면 차단으로 기록하며 main을 임의 merge하지 않습니다.
 `scripts/ci_live.py`는 OIDC 주체와 RG/project 일치를 확인하고 Hosted를 배포하여
 **290만원 초안·두 승인 역할·미주문**을 실제 tool result로 검사합니다.
-dev 단계는 20개 회귀와 8개 judge 대조군만 실행하며 holdout 질문을 읽거나 호출하지 않습니다.
+dev 단계는 현재 v3의 30개 회귀와 8개 judge 대조군만 실행하며 holdout 질문을 모델에 전달하거나 호출하지 않습니다.
+성공한 dev의 `contoso-ci-summary` artifact를 `validation/automated-v3/`에 받아 보존한 뒤
+같은 runtime·모델·suite hash로 release를 실행합니다. 성공한 dev 증거가 없거나 코드가 달라지면
+release는 holdout을 열기 전에 중단합니다.
 release 단계는 봉인된 새 holdout을 최초 수집하거나 동일 환경/코드의 보존된 원본을 평가합니다.
 사람 검토는 이 교육용 자동 게이트의 완료 조건이 아니며 안내 상태로만 기록합니다.
 holdout은 환경 fingerprint·runtime hash·실제 모델이 현재 테스트 환경과 같아야 사용합니다.
 다른 환경의 제작자 결과를 자신의 CI 품질 근거로 재사용할 수 없습니다.
 calibration 실패 후에도 독립적인 holdout 증거를 수집할 수 있지만 **릴리스 게이트는 실패**입니다.
 smoke 성공은 전체 holdout 품질 게이트와 별개입니다. `always()` 단계는 기록된 세션만 stop합니다.
-원시 증거는 `results/`, 공유 가능한 v2 결과는 `validation/automated-v2/ci-dev.json`과
+원시 증거는 `results/`, 공유 가능한 v3 결과는 `validation/automated-v3/ci-dev.json`과
 `ci-release.json` 및 합성 응답 파일로 분리합니다. 이전 v1 CI/실패는 history로 보존합니다.
+
+운영 진단용 `validation_phase=optimizer`는 고정된 이전 Responses 버전과 dev 데이터만 대상으로
+동일한 OIDC 주체의 제한된 비교를 수행합니다. 새 holdout이나 품질 릴리스와 별개이며,
+후보를 자동 적용·승격하지 않습니다.
 
 ### 4. 모델 업그레이드와 지식 변경 검사하기
 
@@ -2655,6 +2851,8 @@ smoke 성공은 전체 holdout 품질 게이트와 별개입니다. `always()` �
 # 23. Foundry Local·업무 연결·특수 모델
 
 **심화 코스 · 제품별 확인** · 약 30분
+
+> **학습 순서: 독립 선택** — Foundry Local 장치 조건 또는 Fabric/Work IQ 라이선스·권한. 다른 심화 장과 독립적인 선택 경로입니다.
 
 > **완성할 결과:** 로컬 실행과 업무 데이터 통합의 선택지를 비교하고, 내 프로젝트에 필요한 확장만 고릅니다.
 
@@ -2738,6 +2936,8 @@ LangGraph/LangChain 또는 Semantic Kernel을 이미 쓰는 팀은 전면 재작
 # 24. Classic에서 최신 Foundry로
 
 **심화 코스 · 마이그레이션** · 약 20분
+
+> **학습 순서: 독립 선택** — 기본 코스 개념. 비교·설계는 독립이며 실제 이관은 승인된 Classic 환경이 있을 때만 진행합니다.
 
 > **완성할 결과:** 기존 자원을 유지하면서 새 Foundry로 이동할 항목과 검증 순서를 구분한 마이그레이션 표.
 
@@ -2928,6 +3128,33 @@ response 또는 request ID:
 ## 하루 / 이틀 운영
 
 기본 L00–L12의 순수 실습 시간 합은 **320분(5시간 20분)**입니다. 여기에 휴식·리소스 대기·질의 시간을 더합니다. 빠른 팀에는 새로운 기능 추가보다 실패 사례 분석을 맡깁니다.
+
+심화 L13–L24의 현재 순수 학습 시간 합은 **440분(7시간 20분)**이며,
+기본+심화는 **760분(12시간 40분)**입니다. 준비된 환경에서 휴식·질의·Azure 대기를 포함하면
+**2~3일(대략 14~20시간)의 교육 일정**이 현실적입니다.
+이 시간은 각 장에 표시된 직접/조건부/설계 범위 기준입니다.
+Fine-tuning 실제 학습, 관리자 승인, 지역 quota 확보, 장치 모델 다운로드는 추가 수시간~하루 이상 걸릴 수 있습니다.
+모든 선택 서비스의 실제 실행까지 이 시간 안에 완료된다고 보장하지 않습니다.
+
+## 기본 순차 / 심화 독립·연계
+
+기본은 **L00 → L01 → … → L12** 순서입니다.
+L08의 기본 학습용 평가는 L05/L06의 Prompt Agent와 클라이언트 함수 결과를 사용하며,
+심화의 Search·Hosted 배포를 먼저 완료할 필요가 없습니다.
+L07은 로컬 1–2단계가 기본 필수이고 클라우드 Toolbox/Skills는 선택 확장입니다.
+L11의 실제 Teams 게시도 조건부 확장이므로 조직 게시 권한이 없다는 이유로 기본 완주가 막히지 않습니다.
+
+| 표시 | 모듈 | 진행 방법 |
+| --- | --- | --- |
+| 독립 선택 | L13, L15, L16, L18, L19, L21, L23, L24 | 기본 공통 환경 이후 해당 장의 준비 조건을 갖추고 선택 실행 |
+| 선행 실습 필요 | L14 | L13 Search/index 준비 후 Hosted 실행. 이미 제공된 동등 자원이면 L13 학습 자체는 생략 가능 |
+| 선행 실습 필요 | L22 | L13 → L14 배포 및 L08의 Hosted 자동 평가 경로. L20 Optimizer는 필수가 아님 |
+| 기능별 분기 | L17 | Prompt Routine은 L05 이후 독립. Hosted 장기 실행 분기는 L14 필요 |
+| 기능별 분기 | L20 | Hosted Optimizer는 L14 Responses 배포 선행. Fine-tuning 데이터/모델 실습은 해당 준비 후 독립 |
+
+핵심 연결은 **L13 → L14 → {L20 Hosted Optimizer 또는 L22 CI/CD}**입니다.
+독립 선택은 “추가 설치·권한·모델이 필요 없다”는 뜻이 아닙니다. 각 장의 **준비**와 실행 수준 표시를 확인하세요.
+별도 모델·서비스·장치·라이선스가 필요한 조건부 실습을 기본 코스 완료만으로 준비됐다고 간주하지 않습니다.
 
 이틀째는 목표별로 선택합니다.
 
@@ -3217,6 +3444,12 @@ Microsoft Learn의 플랫폼 개요, capability reference, GA 표, 기능별 문
 
 ## 검증의 경계
 
+### 현재 자동 검증 결과
+
+**automated-v3의 실제 릴리스 게이트는 통과했습니다.** dev 29/30, 독립 holdout 9/10, critical 실패 0건, calibration 8/8입니다. 비중대 미통과 사례도 원본으로 남겼으며 사람 검토는 선택 안내로 구분합니다.
+
+Routine은 실제 예약 응답과 trace 및 disabled 상태를 확인했습니다. Optimizer는 지시문만 바뀌는 후보의 누락 모델을 명시적으로 상속하도록 보완한 뒤 정상 실행됐습니다. 별도 Optimizer dev 20건의 baseline/best 점수는 1.0/1.0으로 추가 개선이 없어 승격하지 않았습니다. 검증 세부 자료는 `validation/current/`와 `validation/automated-v3/`에 있습니다.
+
 ### 이전 v1 결과와 현재 자동 검증 경로
 
 **아래 수치는 보존한 v1 결과입니다.** 새 RG에서 Hosted·Search/IQ·Toolbox/MCP/OpenAPI/Skills·Memory·A2A·native 평가·Tracing과 실제 OIDC 배포를 수행했습니다.
@@ -3231,7 +3464,7 @@ Microsoft Learn의 플랫폼 개요, capability reference, GA 표, 기능별 문
 
 hold-08은 승인 우회를 거절했지만 요구된 `security-policy.md` 4절 근거가 없었습니다. 판정 기준이나 safety 0건 규칙을 낮추지 않았고, holdout을 본 뒤 지시를 다시 조정하지 않았습니다. judge 대조군은 6/6 일치했지만 실제 사용자에 의한 검토와 동일하지 않습니다.
 
-**현재 automated-v2는 사람 검토를 선택 안내로 분리했습니다.** 기존 시험지는 dev 회귀로 보존하고 새 봉인 holdout과 검색·인용·도구 자동 검사를 사용합니다. 전체 90%·safety/access 실패 0건은 유지합니다. v2의 실제 통과 여부는 최신 `validation/current/report.json` 및 `validation/automated-v2/` 결과를 확인하세요.
+**현재 automated-v3는 사람 검토를 선택 안내로 분리했습니다.** 기존 v1/v2 시험지는 dev 회귀로 보존하고 새 봉인 holdout과 검색·인용·도구 자동 검사를 사용합니다. 전체 90%·safety/access 실패 0건은 유지합니다. v3의 실제 통과 여부는 최신 `validation/current/report.json` 및 `validation/automated-v3/` 결과를 확인하세요.
 
 Routine은 생성·dispatch 요청까지 수행했으며 disabled 상태로 보존했습니다. Optimizer의 서비스 job 완료는 새 후보 생성/품질 개선을 뜻하지 않습니다. 원본 결과·CI 요약·운영 상태는 `validation/current/`에 있습니다.
 

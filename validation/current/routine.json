@@ -1,0 +1,15 @@
+{
+  "name": "contoso-policy-timer-v2-9a3154d0",
+  "scheduled_at": "2026-09-30T01:58:34Z",
+  "observed_at": "2026-09-30T01:58:35.1295525Z",
+  "trace_id": "ebd60144b61d68788cb939b085f6c308",
+  "response_id": "resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2",
+  "routine_run_id": null,
+  "verification": "completed_action_trace",
+  "enabled": false,
+  "new_routines_created": 1,
+  "new_manual_dispatches": 0,
+  "legacy_receipt_preserved": true,
+  "routine_sdk_rest_crud_used": false,
+  "root_cause": "azd history decoder expects value/nextPageToken while official service list uses data/next_link; completed agent traces prove execution despite CLI value:null."
+}

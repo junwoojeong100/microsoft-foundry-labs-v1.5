@@ -92,5 +92,34 @@ def build() -> dict:
     return manifest
 
 
+def build_responses(primary: dict) -> dict:
+    target = ROOT / ".build/contoso-responses"
+    target.mkdir(parents=True, exist_ok=True)
+    receipt = target / "package-manifest.json"
+    if receipt.exists():
+        previous = json.loads(receipt.read_text())
+        if previous.get("schema") != "contoso-package-v1" or previous.get("profile") != "optimizer-responses":
+            raise ValueError("Unrecognized Responses package ownership.")
+        for name in previous["files"]:
+            path = target / name
+            if not path.resolve().is_relative_to(target.resolve()) or path.is_symlink():
+                raise ValueError("Invalid Responses package path.")
+            path.unlink(missing_ok=True)
+    elif any(target.iterdir()):
+        raise ValueError("Responses package directory is not empty and has no ownership manifest.")
+    for name in primary["files"]:
+        destination = target / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(TARGET / name, destination)
+    shutil.copy2(ROOT / "hosted/optimizer_responses.py", target / "main.py")
+    entries = {name: hashlib.sha256((target / name).read_bytes()).hexdigest() for name in primary["files"]}
+    manifest = {"schema": "contoso-package-v1", "profile": "optimizer-responses",
+                "files": entries, "runtime_contract": runtime_contract(root=target)}
+    receipt.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
+    print(json.dumps({"profile": manifest["profile"], "files": len(entries),
+                      "contract": manifest["runtime_contract"]["sha256"], "path": ".build/contoso-responses"}))
+    return manifest
+
+
 if __name__ == "__main__":
-    build()
+    build_responses(build())

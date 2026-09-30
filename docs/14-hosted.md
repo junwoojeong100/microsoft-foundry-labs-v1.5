@@ -32,6 +32,8 @@ python scripts/build_hosted.py
 ```
 
 `.build/contoso/`와 `.build/contoso-code.zip`을 만듭니다.
+Optimizer용 Responses 프로필은 `.build/contoso-responses/`에 별도로 생성합니다.
+이 분리 덕분에 Optimizer의 설정 로딩을 고쳐도 이미 검증한 기본 Invocations 런타임을 바꾸지 않습니다.
 구매 정책·재고·instructions·실행 코드·고정 의존성만 포함하고,
 `.env`, 인증, 평가 정답, 기존 결과, 개인 환경은 포함하지 않습니다.
 `package-manifest.json`의 파일별 hash와 runtime contract를 확인합니다.
@@ -56,12 +58,26 @@ python samples/hosted_client.py invoke --local --live
 
 **로컬 서버도 실제 Azure 모델·검색을 사용하므로 호출에는 비용이 발생합니다.**
 기본 bind는 loopback이며 인증 없는 개발 서버를 외부에 노출하지 않습니다.
-한 요청당 모델 최대 5회·도구 최대 8회·출력 2048토큰, SDK 재시도 0으로 제한합니다.
+한 요청은 도구 계획 → 근거 답변 → 출처 대응 확인으로 나눕니다.
+앞의 두 모델 출력은 각각 2048토큰, 출처 확인은 512토큰으로 제한합니다.
+도구 최대 8회, SDK 재시도 0을 유지합니다.
 
-현재 v2 엔진은 모델 실행 **전에** 서버가 질문별 정책과 보안 통제 조항을 실제 검색합니다.
+현재 엔진은 모델 실행 **전에** 서버가 질문별 검색과 작은 합성 정책 13절의 실제 조회를 수행합니다.
 모델의 검색 함수 선택을 기다리지 않습니다. 응답은 내부적으로 `answer`·`citation_ids` JSON이며,
 인용은 실제 반환된 절 중 모델이 선택한 것만 렌더링합니다. 검색/인용 누락은 성공이 아니라 오류입니다.
 `tool_calls`의 `execution=server_required`는 실제 서버 검색이며 모델이 호출했다고 가장한 기록이 아닙니다.
+명시된 SKU의 `get_stock`도 읽기 전용 서버 선행 작업으로 기록합니다. 초안 생성은 여전히 별도 함수이며
+실제 주문·결제를 수행하지 않습니다. 수량 제한의 근거는 실행에 사용한 `tool_definitions`로 대조합니다.
+
+도구 실행 단계에는 답변 JSON 형식을 강제하지 않고 필요한 함수를 실행하게 합니다.
+그 다음 답변 전용 단계에서 실제 결과와 문서에 근거한 엄격한 JSON을 생성합니다.
+도구를 호출하겠다는 계획 문장은 답변이나 실행 증거로 게시하지 않습니다.
+
+초안 도구 인수는 사용자가 명시한 SKU와 하나의 명확한 정수 수량에 연결돼야 합니다.
+모델이 빠진 수량을 1로 채우거나 11개를 10개로 줄여 제안해도 코드가 실행 전에 거절합니다.
+답변 단계에도 실제 함수 정의를 전달하여 도구의 1~10 입력 제약을 회사 정책으로 혼동하지 않게 합니다.
+마지막 출처 확인 단계는 실제 검색 자료와 작성된 답변만 보고 근거를 선택하며,
+두 모델의 실제 선택을 합쳐 표시합니다. 원문 답변과 출처 선택 응답 ID는 각각 보존합니다.
 
 ### 3. 준비된 프로젝트에만 배포하기
 
@@ -76,8 +92,12 @@ python scripts/runtime_roles.py --agent contoso-purchasing --live
 
 학습자에게 별도로 provision된 프로젝트를 제공했다면 `azd env new`와 `azd env set`으로
 `AZURE_AI_PROJECT_ID`, `AZURE_AI_PROJECT_ENDPOINT`, `AZURE_SUBSCRIPTION_ID`,
-`AZURE_TENANT_ID`, `AZURE_RESOURCE_GROUP` 및 위의 모델/Search 값을 설정합니다.
+`AZURE_TENANT_ID`, `AZURE_RESOURCE_GROUP`, **`AZURE_LOCATION`** 및 모델/Search 값을 설정합니다.
 이는 자격 증명이 아니라 환경 바인딩입니다. `azd env get-values` 전체를 공개 로그에 출력하지 마세요.
+
+`AZURE_LOCATION`은 프로젝트의 실제 리전 이름입니다. 코드 배포에서 이 값이 없으면 실패합니다.
+`scripts/configure_hosted.py` 경로는 동봉 관리 스크립트가 만든 소유 receipt를 사용하며,
+강사가 제공한 별도 프로젝트를 사용할 때는 그 프로젝트의 실제 값으로 azd 환경을 구성해야 합니다.
 
 동봉 `azure.yaml`은 **code deployment**이며 Docker/ACR가 필수는 아닙니다.
 이 파일로 무심코 `azd provision`을 실행하지 않습니다. 리소스 생성은 L01 관리 경로입니다.

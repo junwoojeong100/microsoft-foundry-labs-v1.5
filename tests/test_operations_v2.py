@@ -39,6 +39,7 @@ class OperationalFiles(unittest.TestCase):
         values = {
             "agent": "contoso-agent", "version": "2", "optimizer_deployment": "reflection",
             "suite": "automated-v2", "resume": None, "command": "scheduled-test",
+            "max_seconds": 600,
             "prompt_file": optimizer_lab.DATA / "prompts/agent-v4.txt",
             "receipt": self.directory / "routine-v2.json", "delay_seconds": 120, "wait_seconds": 360,
         }
@@ -103,6 +104,27 @@ class OptimizerInputTests(OperationalFiles):
         load.assert_called_once_with(optimizer_lab.DEFAULT_SUITE, split="dev")
         client.assert_not_called()
         self.assertEqual(json.loads(output.getvalue())["suite"], optimizer_lab.DEFAULT_SUITE)
+        self.assertEqual(json.loads(output.getvalue())["max_seconds"], 600)
+
+    def test_cli_exposes_explicit_bounded_budget(self):
+        output = io.StringIO()
+        with patch.object(sys, "argv", [
+            "optimizer_lab.py", "--agent", "agent", "--version", "2", "--optimizer-deployment", "reflection",
+            "--max-seconds", "1200",
+        ]), patch.object(optimizer_lab, "load_cases", return_value=[dev_case()]), contextlib.redirect_stdout(output):
+            optimizer_lab.main()
+        self.assertEqual(json.loads(output.getvalue())["max_seconds"], 1200)
+
+    def test_cli_rejects_invalid_budgets_before_reading_data(self):
+        for value in ("59", "1801", "1200.5"):
+            with patch.object(sys, "argv", [
+                "optimizer_lab.py", "--agent", "agent", "--version", "2", "--optimizer-deployment", "reflection",
+                "--max-seconds", value,
+            ]), patch.object(optimizer_lab, "load_cases") as load, \
+                    contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as raised:
+                optimizer_lab.main()
+            self.assertEqual(raised.exception.code, 2)
+            load.assert_not_called()
 
     def test_selected_prompt_is_passed_without_changing_the_dev_dataset(self):
         path = optimizer_lab.DATA / "prompts/current-approved.txt"
@@ -315,6 +337,31 @@ class OptimizerOutcomeTests(unittest.TestCase):
 
 
 class OptimizerLifecycleTests(OperationalFiles):
+    def test_budget_bounds_and_legacy_receipt_default(self):
+        for value in (60, 600, 1200, 1800):
+            self.assertEqual(optimizer_lab.time_limit(value), value)
+        for value in (59, 1801, True, 1200.5, "1200", None):
+            with self.assertRaises(ValueError):
+                optimizer_lab.time_limit(value)
+        self.assertEqual(optimizer_lab.time_limit(600, {}), 600)
+        with self.assertRaisesRegex(ValueError, "Recorded job budget is 600s"):
+            optimizer_lab.time_limit(1200, {})
+
+    def test_resume_rejects_budget_changes_before_cloud_access(self):
+        optimizer_lab.write_new(self.directory / "contoso-optimizer-budget-job.json", {
+            "job_id": "opt_unit", "endpoint": ENDPOINT, "agent": "contoso-agent", "version": "2",
+            "max_seconds": 1200,
+        })
+        for value in (600, 1800):
+            with patch.object(optimizer_lab, "RESULTS", self.directory), \
+                    patch.object(optimizer_lab, "read_config", return_value=(ENDPOINT, "model")), \
+                    patch.object(optimizer_lab, "load_cases") as load, \
+                    patch.object(optimizer_lab, "project_client") as client, \
+                    self.assertRaisesRegex(ValueError, "resume with --max-seconds 1200"):
+                optimizer_lab.run(self.args(resume="opt_unit", max_seconds=value), self.evidence)
+            load.assert_not_called()
+            client.assert_not_called()
+
     def test_context_guard_retains_redacted_cli_reason_not_agent_secrets(self):
         output = json.dumps({"name": "a", "definition": {"environment_variables": {"API_KEY": "do-not-log"}}})
         result = SimpleNamespace(returncode=1, stdout=output,
@@ -372,6 +419,31 @@ class OptimizerLifecycleTests(OperationalFiles):
             optimizer_lab.monitor(operations, "opt_unit", self.evidence)
         self.assertEqual(operations.get_optimization_job.call_count, 1)
 
+    def test_extended_budget_can_poll_beyond_the_old_sixty_poll_limit(self):
+        operations = Mock()
+        job = native_job()
+        operations.get_optimization_job.side_effect = [{**job, "status": "in_progress"}] * 65 + [job]
+        clock = {"now": 0.0}
+        def sleep(seconds):
+            clock["now"] += seconds
+        with patch.object(optimizer_lab.time, "monotonic", side_effect=lambda: clock["now"]), \
+                patch.object(optimizer_lab.time, "sleep", side_effect=sleep):
+            actual = optimizer_lab.monitor(operations, "opt_unit", self.evidence, max_seconds=1200)
+        self.assertEqual(actual["status"], "succeeded")
+        self.assertEqual(operations.get_optimization_job.call_count, 66)
+        self.assertEqual(clock["now"], 650)
+
+    def test_expired_extended_budget_does_not_restart_on_resume(self):
+        operations = Mock()
+        operations.get_optimization_job.return_value = {
+            **native_job(), "status": "in_progress",
+            "created_at": datetime.now(timezone.utc).timestamp() - 1201,
+        }
+        with patch.object(optimizer_lab.time, "sleep") as sleep, self.assertRaisesRegex(TimeoutError, "1200-second"):
+            optimizer_lab.monitor(operations, "opt_unit", self.evidence, max_seconds=1200)
+        operations.get_optimization_job.assert_called_once()
+        sleep.assert_not_called()
+
     def test_cancellation_requires_terminal_readback(self):
         operations = Mock()
         operations.get_optimization_job.return_value = {"status": "in_progress"}
@@ -396,26 +468,28 @@ class OptimizerLifecycleTests(OperationalFiles):
             stack.enter_context(patch.object(optimizer_lab, "preflight"))
             stack.enter_context(patch.object(optimizer_lab, "verify_session_context"))
             stack.enter_context(patch.object(optimizer_lab, "sessions", return_value=[{"agent_session_id": "prior"}]))
-            stack.enter_context(patch.object(optimizer_lab, "monitor", side_effect=OSError("lost polling transport")))
+            monitor = stack.enter_context(patch.object(optimizer_lab, "monitor", side_effect=OSError("lost polling transport")))
             cancel = stack.enter_context(patch.object(optimizer_lab, "cancel_verified"))
             stop = stack.enter_context(patch.object(optimizer_lab, "stop_new_sessions"))
             with self.assertRaises(OSError):
-                optimizer_lab.run(self.args(), self.evidence)
+                optimizer_lab.run(self.args(max_seconds=1200), self.evidence)
         load.assert_called_once_with("automated-v2", split="dev")
         create = project.beta.agents.begin_create_optimization_job
         create.assert_called_once()
         self.assertIs(create.call_args.kwargs["polling"], False)
-        cancel.assert_called_once_with(project.beta.agents, "opt_unit", self.evidence)
+        monitor.assert_called_once_with(project.beta.agents, "opt_unit", self.evidence, max_seconds=1200)
+        cancel.assert_called_once_with(project.beta.agents, "opt_unit", self.evidence, max_seconds=1200)
         stop.assert_called_once()
         self.assertEqual(stop.call_args.args, ("contoso-agent", "2", {"prior"}, "opt_unit", self.evidence))
         self.assertEqual(stop.call_args.kwargs["environment"], self.environment)
         receipt = json.loads((self.directory / "contoso-optimizer-unit-job.json").read_text())
         self.assertEqual(receipt["dev_items"], 1)
+        self.assertEqual(receipt["max_seconds"], 1200)
 
     def test_resume_does_not_load_or_resubmit_any_dataset(self):
         optimizer_lab.write_new(self.directory / "contoso-optimizer-old-job.json", {
             "job_id": "opt_unit", "endpoint": ENDPOINT, "agent": "contoso-agent", "version": "2",
-            "suite": "legacy-v1", "dev_items": 10,
+            "suite": "legacy-v1", "dev_items": 10, "max_seconds": 1200,
         })
         project = Mock()
         @contextlib.contextmanager
@@ -426,13 +500,15 @@ class OptimizerLifecycleTests(OperationalFiles):
                 patch.object(optimizer_lab, "config_values", return_value={"FOUNDRY_JUDGE_DEPLOYMENT_NAME": "judge"}), \
                 patch.object(optimizer_lab, "project_client", client), \
                 patch.object(optimizer_lab, "load_cases", side_effect=AssertionError("dataset must stay closed")) as load, \
-                patch.object(optimizer_lab, "monitor", return_value=native_job(reflection=False)), \
+                patch.object(optimizer_lab, "monitor", return_value=native_job(reflection=False)) as monitor, \
                 patch.object(optimizer_lab, "evaluation_evidence", return_value=[]):
-            report = optimizer_lab.run(self.args(resume="opt_unit"), self.evidence)
+            report = optimizer_lab.run(self.args(resume="opt_unit", max_seconds=1200), self.evidence)
         load.assert_not_called()
         project.beta.agents.begin_create_optimization_job.assert_not_called()
         self.assertEqual(report["suite"], "legacy-v1")
         self.assertTrue(report["diagnostic_only"])
+        self.assertEqual(report["max_seconds"], 1200)
+        monitor.assert_called_once_with(project.beta.agents, "opt_unit", self.evidence, max_seconds=1200)
 
     def test_cleanup_does_not_stop_prior_or_other_version_sessions(self):
         def row(name, version):

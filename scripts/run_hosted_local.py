@@ -32,8 +32,8 @@ def main():
         "CONTOSO_EVIDENCE_DIRECTORY": str(ROOT / "results"),
         "CONTOSO_LOCAL_PORT": str(args.port),
     }
-    entry = "responses_main.py" if args.protocol == "responses" else "main.py"
-    subprocess.run([sys.executable, str(ROOT / ".build/contoso" / entry)], env=environment, cwd=ROOT / ".build/contoso", check=True)
+    project = ROOT / ".build" / ("contoso-responses" if args.protocol == "responses" else "contoso")
+    subprocess.run([sys.executable, str(project / "main.py")], env=environment, cwd=project, check=True)
 
 
 if __name__ == "__main__":

@@ -1,13 +1,13 @@
 {
-  "checked_at": "2026-09-30T00:30:18.411502+00:00",
+  "checked_at": "2026-09-30T05:48:45.833788+00:00",
   "resource_group": "rg-contoso-a-26092979bea5",
   "retention": "Keep Azure resources until explicit deletion approval; no expiry date authorized.",
-  "next_check_by": "2026-10-01T00:30:18.411508+00:00",
+  "next_check_by": "2026-10-01T05:48:45.833793+00:00",
   "resources_deleted": false,
   "hosted": [
     {
       "name": "contoso-purchasing",
-      "latest_version": "5",
+      "latest_version": "9",
       "sessions": [
         {
           "id": "0defd445ae24913f00vohn2xlIPCvNCBoAGu4PCrrvWiB6zaS4",
@@ -63,13 +63,73 @@
           "id": "0294e343fc27217e00w2qFseQ5zfjz2FqAVGbsKX835LLRht6r",
           "status": "idle",
           "stopped_at": "2026-09-30T00:19:51+00:00"
+        },
+        {
+          "id": "039c13a275fb559300uhRDM0tEN2qpCjyK4FIJLS7OIIFBIUqZ",
+          "status": "idle",
+          "stopped_at": "2026-09-30T02:03:46+00:00"
+        },
+        {
+          "id": "0d0e1bde3d92935900P8dF44Ssnehr5Osi7YwOwPzRl8esFwOc",
+          "status": "idle",
+          "stopped_at": "2026-09-30T02:07:47+00:00"
+        },
+        {
+          "id": "09a002bffb10f5f500RPKq49DX3rMfngInfIevIHLjEs9n0vpf",
+          "status": "idle",
+          "stopped_at": "2026-09-30T02:16:36+00:00"
+        },
+        {
+          "id": "063c468d8bb3db7000cVzYunQpzYv8MHE9VsUjR2DvyRxBnfwu",
+          "status": "idle",
+          "stopped_at": "2026-09-30T02:19:23+00:00"
+        },
+        {
+          "id": "0d228d7e40f27b7800mClP0AH2K6r30qUPguS3zAGWy4Xc771v",
+          "status": "idle",
+          "stopped_at": "2026-09-30T02:57:26+00:00"
+        },
+        {
+          "id": "0ea692a75e37f90d00tvJ7oNWOj8fBUwoDJK7pKXcmMPNu79YI",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:11:52+00:00"
+        },
+        {
+          "id": "07effddf6b3d9e4500sa2S3jqAVW0hx5FxqiZ3kqVViuplotbb",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:17:50+00:00"
+        },
+        {
+          "id": "0e774e94f2d5a95f000JB3UDQxAURPz0HmRJNVAEwyFkHMyJqS",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:44:17+00:00"
+        },
+        {
+          "id": "0f84350eb93bdbb100NAEIxNYc6cBYfvfB7Zz4iRXqi3SMAToH",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:54:26+00:00"
+        },
+        {
+          "id": "0269b118b4311e72002d3Uipbjz4NhKiZzFtIRqkTuc9dorKE2",
+          "status": "idle",
+          "stopped_at": "2026-09-30T04:00:31+00:00"
+        },
+        {
+          "id": "009fbcb9daf9d69600Htj77jdoCAZYTYwMslzfCEn19GZeuhJP",
+          "status": "idle",
+          "stopped_at": "2026-09-30T04:06:51+00:00"
+        },
+        {
+          "id": "001ffc73bd12f3b600mcGEz2ES3ZfcKBImUZm7ggM24NtAlKmU",
+          "status": "idle",
+          "stopped_at": "2026-09-30T04:10:05+00:00"
         }
       ],
       "active_sessions": 0
     },
     {
       "name": "contoso-purchasing-responses",
-      "latest_version": "2",
+      "latest_version": "3",
       "sessions": [
         {
           "id": "0527149423ded93a00YIAuv0wPFETLVesUy6GvgX3Ebf6sayMz",
@@ -90,6 +150,116 @@
           "id": "s-b83e3ac7-9325-41e8-b034-32ebf3cd5227",
           "status": "idle",
           "stopped_at": "2026-09-30T00:04:04+00:00"
+        },
+        {
+          "id": "s-5d5b68e4-3834-4b24-8d8f-a09db431da97",
+          "status": "idle",
+          "stopped_at": "2026-09-30T02:05:27+00:00"
+        },
+        {
+          "id": "s-fc5e37b0-5070-4239-8902-3dc01a784de5",
+          "status": "idle",
+          "stopped_at": "2026-09-30T02:06:58+00:00"
+        },
+        {
+          "id": "s-3ee8d5cf-b7ec-47b5-a3a3-71a1105203a6",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:29:06+00:00"
+        },
+        {
+          "id": "s-f79349a8-301a-4a97-afb9-4eb53c68ce9f",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:29:14+00:00"
+        },
+        {
+          "id": "s-3689cc0d-4370-4cb3-bacd-554523f2d25e",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:44:15+00:00"
+        },
+        {
+          "id": "s-8b0d8d12-029c-48ac-a8d4-e691278977c3",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:44:52+00:00"
+        },
+        {
+          "id": "s-dd5c6ac9-7d94-4cd1-abf9-b7e0fac68216",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:45:52+00:00"
+        },
+        {
+          "id": "s-42616c33-8fea-467a-b758-3bf591fa69fd",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:48:52+00:00"
+        },
+        {
+          "id": "s-f619a7fd-e92b-4a99-906a-f254a18b8966",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:49:52+00:00"
+        },
+        {
+          "id": "s-55d7b015-993a-411f-8da0-cbd3086b5b1a",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:51:25+00:00"
+        },
+        {
+          "id": "s-f377ac9f-038d-4134-a923-e71b965308c0",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:53:10+00:00"
+        },
+        {
+          "id": "s-83d29232-7ee3-4a78-8b1a-4fb0cca836c9",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:55:52+00:00"
+        },
+        {
+          "id": "s-216da74e-5b88-4d47-8729-1c5fe0df9b8e",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:58:14+00:00"
+        },
+        {
+          "id": "s-cd1971ce-c226-418e-842d-08de4444f68a",
+          "status": "idle",
+          "stopped_at": "2026-09-30T03:57:23+00:00"
+        },
+        {
+          "id": "0bdc67e3a140ce4f00hABlaRPWGl7imluH4TjVEuWQ5xSHjnGG",
+          "status": "idle",
+          "stopped_at": "2026-09-30T04:46:06+00:00"
+        },
+        {
+          "id": "01270b2ace08663e00oKEwoN4qLarrerWB3o6Bxy6V82Kz9xdV",
+          "status": "idle",
+          "stopped_at": "2026-09-30T04:48:14+00:00"
+        },
+        {
+          "id": "s-cc067341-619f-45b6-9321-8bbfdb7209e5",
+          "status": "idle",
+          "stopped_at": "2026-09-30T04:58:46+00:00"
+        },
+        {
+          "id": "s-4265c2ce-d867-4dc9-8e57-84adce46925f",
+          "status": "idle",
+          "stopped_at": "2026-09-30T04:58:39+00:00"
+        },
+        {
+          "id": "s-ecf90081-a6d1-4208-84ab-aebd28bcbb74",
+          "status": "idle",
+          "stopped_at": "2026-09-30T05:14:22+00:00"
+        },
+        {
+          "id": "s-af688f90-509f-4b04-803e-ef1af387bb7c",
+          "status": "idle",
+          "stopped_at": "2026-09-30T05:29:55+00:00"
+        },
+        {
+          "id": "s-10046386-7638-4891-94c3-ed9e89b85e38",
+          "status": "idle",
+          "stopped_at": "2026-09-30T05:29:50+00:00"
+        },
+        {
+          "id": "s-35c6a466-cdcf-4901-917f-c032bbf0e7ae",
+          "status": "idle",
+          "stopped_at": "2026-09-30T05:44:17+00:00"
         }
       ],
       "active_sessions": 0
@@ -101,9 +271,41 @@
     "history_observed": false,
     "scheduled_execution_verified": false
   },
+  "routines": [
+    {
+      "name": "contoso-policy-timer-f653f6a6",
+      "enabled": false,
+      "history_observed": false,
+      "scheduled_execution_verified": false
+    },
+    {
+      "name": "contoso-policy-timer-v2-9a3154d0",
+      "enabled": false,
+      "scheduled_execution_verified": true,
+      "verification_source": "retained actual completed action trace, not an invented run-history ID",
+      "response_id": "resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2",
+      "trace_id": "ebd60144b61d68788cb939b085f6c308"
+    }
+  ],
   "voice_sessions": "not_created",
   "full_quality_release": false,
   "optimization_jobs": [
+    {
+      "id": "opt_428b84f689964bb793f83b93b8d34de5",
+      "status": "succeeded"
+    },
+    {
+      "id": "opt_a78e46ee3f0b4e4a8c98c1fe64c28f13",
+      "status": "cancelled"
+    },
+    {
+      "id": "opt_04988b29201c4eb79f79d2be1261f986",
+      "status": "failed"
+    },
+    {
+      "id": "opt_15ea242beb4e4e4f945fac6b5abfa868",
+      "status": "succeeded"
+    },
     {
       "id": "opt_f732793c2d284a4f874966ed2caca4bf",
       "status": "succeeded"

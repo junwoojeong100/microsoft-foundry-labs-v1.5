@@ -18,7 +18,7 @@ on:
         default: false
       validation_phase:
         type: choice
-        options: [dev, release, optimizer]
+        options: [dev, release, optimizer, auth]
         default: dev
 permissions:
   contents: read
@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   approved-test:
-    if: github.repository == 'junwoojeong100/foundry-labs-v1.5' && inputs.acknowledge_cost
+    if: github.repository_id == '1396573688' && inputs.acknowledge_cost
     environment: contoso-validation
     timeout-minutes: 30
     runs-on: ubuntu-latest

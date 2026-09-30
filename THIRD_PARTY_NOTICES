@@ -1,8 +1,14 @@
 One-time implementation reference
 =================================
 
-Repository: https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5
+Reference repository ID: 1390444066
+Original reference name: junwoojeong100/microsoft-foundry-labs-v1.5
+Current archived reference: https://github.com/junwoojeong100/microsoft-foundry-labs-v1.3
 Inspected commit: eda75fa7f8a8d3548d21c919d5c0b836c7d818e4
+
+This is a different repository from the independently maintained workshop
+(repository ID 1396573688), even if the workshop later uses the former name.
+The repository IDs and inspected commit identify the one-time reference.
 
 The ownership ledger, immutable runtime-contract, explicit approval, calibration,
 and opt-in OIDC patterns informed this implementation. The implementation,

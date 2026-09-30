@@ -21,8 +21,8 @@ def main():
         "checked_at": datetime.now(timezone.utc).isoformat(), "resource_group": state["resource_group"],
         "retention": "Keep Azure resources until explicit deletion approval; no expiry date authorized.",
         "next_check_by": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
-        "resources_deleted": False, "hosted": [], "routine": None,
-        "voice_sessions": "not_created", "full_quality_release": False,
+        "resources_deleted": False, "hosted": [], "routine": None, "routines": [],
+        "voice_sessions": "not_created", "quality_status_source": "validation/automated-v3/quality.json",
     }
     with project_client(evidence) as (project, _, endpoint, _):
         if endpoint != state["project_endpoint"]:
@@ -58,11 +58,23 @@ def main():
                 "history_observed": bool(history.get("value")),
                 "scheduled_execution_verified": False,
             }
+            report["routines"].append(report["routine"])
+        retained = ROOT / "validation/current/routine.json"
+        if retained.exists():
+            proof = json.loads(retained.read_text())
+            if not report["routine"] or proof["name"] != report["routine"]["name"]:
+                current = azd(endpoint, evidence, "show", proof["name"])
+                report["routines"].append({
+                    "name": current["name"], "enabled": current["enabled"],
+                    "scheduled_execution_verified": proof.get("verification") == "completed_action_trace" and bool(proof.get("response_id")) and bool(proof.get("trace_id")),
+                    "verification_source": "retained actual completed action trace, not an invented run-history ID",
+                    "response_id": proof.get("response_id"), "trace_id": proof.get("trace_id"),
+                })
     active = (
         any(item["active_sessions"] for item in report["hosted"])
         or any(item["status"] in {"queued", "in_progress"} for item in report["optimization_jobs"])
         or report["enabled_evaluation_schedules"] or report["insight_monitors"]
-        or report["routine"] and report["routine"]["enabled"]
+        or any(routine["enabled"] for routine in report["routines"])
     )
     report["active_work_observed"] = bool(active)
     save_json(ROOT / "validation/current/operations.json", report)

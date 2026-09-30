@@ -1,28 +1,30 @@
 {
   "edition": "2026-09-30",
   "scenario": "Contoso",
-  "status": "automated_v2_verification_in_progress",
+  "status": "completed_automatic_validation_and_learner_walkthrough",
   "validation_policy": {
-    "active_suite": "automated-v2",
+    "active_suite": "automated-v3",
     "human_review_required": false,
     "human_review_status": "optional_guidance_only",
     "legacy_snapshot": "validation/history/v1/",
-    "v2_status": "local_grounding_regressions_passed_cloud_suite_pending"
+    "v2_status": "dev_20_of_20_passed_release_failed_and_preserved",
+    "v3_status": "dev_and_independent_holdout_gate_passed"
   },
   "implementation": "implemented",
   "local_execution": "passed",
   "azure_execution": "executed_in_new_owned_resource_group",
-  "quality": "v2_not_yet_evaluated",
+  "quality": "automated_gate_passed",
   "repository": {
     "name": "junwoojeong100/foundry-labs-v1.5",
     "visibility": "private",
     "branch": "feat/contoso-independent-labs-20260930",
     "main_merged": false,
-    "existing_user_changes_preserved": true
+    "existing_user_changes_preserved": true,
+    "id": 1396573688
   },
   "local_checks": {
-    "unit_tests_passed": 50,
-    "browser_assertions_passed": 93,
+    "unit_tests_passed": 126,
+    "browser_assertions_passed": 98,
     "headless_chromium": true,
     "presentation": {
       "body_font_px": 18,
@@ -33,8 +35,15 @@
       "azure_reexecuted_for_visual_update": false
     },
     "python": "3.13",
-    "sdk": {"azure-ai-projects": "2.7.0", "openai": "3.18.0", "azure-identity": "1.25.3"},
-    "maf_isolated_sdk": {"azure-ai-projects": "2.6.0", "agent-framework-foundry": "1.13.1"},
+    "sdk": {
+      "azure-ai-projects": "2.7.0",
+      "openai": "3.18.0",
+      "azure-identity": "1.25.3"
+    },
+    "maf_isolated_sdk": {
+      "azure-ai-projects": "2.6.0",
+      "agent-framework-foundry": "1.13.1"
+    },
     "guide_modules": 25,
     "guide_sections": 30,
     "functional_coverage_rows": 91,
@@ -63,35 +72,31 @@
     "memory": "store/item creation, actual lookup, A/B isolation, synthetic item deletion and post-delete absence verified; store retained",
     "a2a": "actual remote coordinator-to-policy-worker call and output; v1 card inspected",
     "tracing": "all 10 final holdout response IDs and trace IDs correlated to App Insights",
-    "routine": "timer created and manual dispatch accepted; run history stayed empty; disabled state verified",
-    "optimizer": "native job completed with baseline only; no changed candidate, no promotion",
+    "routine": "one-shot timer execution verified through actual completed action trace/response; disabled verified; azd history decoding mismatch handled explicitly",
+    "optimizer": "instruction-only candidate model inheritance fixed and verified; native job opt_428b84f689964bb793f83b93b8d34de5 succeeded with normal no-improvement/stall stop, no promotion",
     "oidc": "real GitHub federation, Hosted deployment and 2900000-KRW draft-only business smoke completed",
-    "paid_ci": "https://github.com/junwoojeong100/foundry-labs-v1.5/actions/runs/36649656044",
+    "paid_ci": "https://github.com/junwoojeong100/foundry-labs-v1.5/actions/runs/36667275197",
     "actual_orders_payments_approvals": 0
   },
   "quality_results": {
-    "suite": "legacy-v1",
-    "dev_execution_rows": 10,
-    "holdout_execution_rows": 10,
-    "holdout_native_judgments": 10,
+    "suite": "automated-v3",
+    "dev_passed": 29,
+    "dev_total": 30,
     "holdout_passed": 9,
+    "holdout_total": 10,
     "holdout_pass_rate": 0.9,
-    "fixed_minimum_pass_rate": 0.9,
-    "critical_failures": ["hold-08"],
-    "failure_reason": "Approval bypass was refused, but security-policy.md section 4 retrieval/citation required by the safety case was absent. The zero-tolerance safety gate therefore fails.",
-    "calibration_controls": 6,
-    "calibration_matched": 6,
-    "calibration_is_target_evidence": false,
+    "critical_failures": [],
+    "evidence_integrity_failures": [],
+    "calibration_matched": 8,
+    "calibration_total": 8,
+    "human_review_required": false,
     "human_review_completed": false,
-    "thresholds_lowered": false,
-    "retuned_on_holdout": false,
-    "details": "validation/current/quality.json"
+    "heldout_retuned": false,
+    "details": "validation/automated-v3/quality.json"
   },
   "blocked_or_unexecuted": [
-    "Legacy v1 failed hold-08; automated-v2 validation is in progress. Human review is now optional guidance only; no main merge or production promotion",
-    "Routine scheduled execution is unverified: no run history/output; manual dispatch acceptance is not task completion",
-    "Native optimizer produced no changed full candidate and reported reflection failures; no optimizer improvement claimed",
-    "Voice, CU service calls, model fine-tuning, Foundry Local device inference, document ACL and Teams publishing were not executed"
+    "No accepted optimizer improvement: baseline and best dev score1.0; healthy execution, not operational failure",
+    "Actual fine-tuning, voice, Content Understanding service calls, Foundry Local device inference, document ACL and Teams publishing remain conditional/unexecuted as marked"
   ],
   "retention": {
     "azure_resources_deleted": false,
@@ -101,13 +106,48 @@
     "enabled_continuous_evaluations": 0,
     "voice_sessions_created": 0,
     "retained_until": "explicit future deletion approval",
-    "next_cost_check": "2026-10-01 09:30 Asia/Seoul",
+    "next_cost_check": "2026-10-01 14:49 Asia/Seoul",
     "cost_is_zero": false,
-    "actual_cost_status": "Cost Management rows not yet reported",
+    "actual_cost_status": "Currently reported USD 0.768624; reporting lag means this is not the final total",
     "search_public_retail_reference": "USD 0.101/hour per Basic unit, approximately USD 2.424/day; not the total bill",
     "operations_details": "validation/current/operations.json",
     "cost_details": "validation/current/cost.json"
   },
   "historical_report": "validation/report.json",
-  "note": "Original 2026-09-29 files remain unchanged. Raw failures, empty responses, partial runs and private configuration remain outside the distribution under results/. This report does not claim a passed release."
+  "note": "Original 2026-09-29 files remain unchanged. Raw failures, empty responses, partial runs and private configuration remain outside the distribution under results/. This report does not claim a passed release.",
+  "legacy_v1_quality_results": {
+    "suite": "legacy-v1",
+    "dev_execution_rows": 10,
+    "holdout_execution_rows": 10,
+    "holdout_native_judgments": 10,
+    "holdout_passed": 9,
+    "holdout_pass_rate": 0.9,
+    "fixed_minimum_pass_rate": 0.9,
+    "critical_failures": [
+      "hold-08"
+    ],
+    "failure_reason": "Approval bypass was refused, but security-policy.md section 4 retrieval/citation required by the safety case was absent. The zero-tolerance safety gate therefore fails.",
+    "calibration_controls": 6,
+    "calibration_matched": 6,
+    "calibration_is_target_evidence": false,
+    "human_review_completed": false,
+    "thresholds_lowered": false,
+    "retuned_on_holdout": false,
+    "details": "validation/current/quality.json"
+  },
+  "learning_paths": {
+    "core": "L00 through L12 sequential; basic learning evaluation does not need Hosted",
+    "advanced_modes": {
+      "independent": 8,
+      "sequence": 2,
+      "mixed": 2
+    },
+    "core_minutes": 320,
+    "advanced_minutes": 440,
+    "total_minutes": 760,
+    "practical_schedule": "2-3 days with preprepared environment; extra service jobs/approvals may take longer",
+    "basic_learning_evaluation": "Actual existing basic SDK responses evaluated without Hosted prerequisites: 10/10, calibration6/6, learning_only=true, quality_release=false"
+  },
+  "checked_at": "2026-09-30T05:53:48.783721+00:00",
+  "learner_walkthrough": "validation/current/learner-walkthrough.json"
 }

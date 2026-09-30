@@ -49,7 +49,7 @@ def native_evidence() -> list[dict]:
 
 
 def run(phase: str) -> None:
-    if required("GITHUB_REPOSITORY") != "junwoojeong100/foundry-labs-v1.5":
+    if required("GITHUB_REPOSITORY_ID") != "1396573688":
         raise ValueError("Live workflow is restricted to repository A, not forks.")
     subscription, tenant = required("AZURE_SUBSCRIPTION_ID"), required("AZURE_TENANT_ID")
     project_id, rg = required("AZURE_AI_PROJECT_ID"), required("AZURE_RESOURCE_GROUP")
@@ -70,6 +70,17 @@ def run(phase: str) -> None:
         "FOUNDRY_EMBEDDING_ENDPOINT",
     ):
         azd("env", "set", key, required(key))
+    if phase == "auth":
+        from cloud import project_client
+        with project_client() as (project, _, endpoint, _):
+            agent = project.agents.get("contoso-purchasing")
+        save_json(ROOT / "validation/automated-v3/ci-auth.json", {
+            "status": "passed", "phase": "auth", "repository_id": required("GITHUB_REPOSITORY_ID"),
+            "repository": required("GITHUB_REPOSITORY"), "workflow_run_id": os.environ["GITHUB_RUN_ID"],
+            "agent_read": agent.name, "environment_sha256": digest(endpoint),
+            "model_calls": 0, "deployments": 0, "resource_changes": 0,
+        })
+        return
     if phase == "optimizer":
         from azure_environment import az
         group = az("group", "show", "--subscription", subscription, "--name", rg)
@@ -87,7 +98,7 @@ def run(phase: str) -> None:
             raise ValueError("Optimizer CI identity is not the owned federated identity.")
         save_json(RESULTS / "azure-environment.json", {
             "schema": "contoso-environment-v1", "subscription": subscription, "tenant": tenant,
-            "repository": "junwoojeong100/foundry-labs-v1.5", "location": required("AZURE_LOCATION"),
+            "repository": required("GITHUB_REPOSITORY"), "repository_id": "1396573688", "location": required("AZURE_LOCATION"),
             "resource_group": rg, "resource_group_id": group["id"], "run_id": run_id,
             "project_endpoint": required("FOUNDRY_PROJECT_ENDPOINT"),
             "account_name": account_id.rsplit("/", 1)[-1], "project_name": project_id.rsplit("/", 1)[-1],
@@ -240,5 +251,5 @@ def run(phase: str) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--phase", choices=["dev", "release", "optimizer"], default="release")
+    parser.add_argument("--phase", choices=["dev", "release", "optimizer", "auth"], default="release")
     run(parser.parse_args().phase)

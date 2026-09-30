@@ -34,7 +34,7 @@ services:
         memory: 1Gi
   contoso-purchasing-responses:
     host: azure.ai.agent
-    project: .build/contoso
+    project: .build/contoso-responses
     language: python
     kind: hosted
     name: contoso-purchasing-responses
@@ -42,7 +42,7 @@ services:
     description: The same bounded Contoso engine with a Responses adapter for native optimization.
     codeConfiguration:
       runtime: python_3_13
-      entryPoint: responses_main.py
+      entryPoint: main.py
       dependencyResolution: remote_build
     protocols:
       - protocol: responses

@@ -9,7 +9,9 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 
 Python 기본 환경에 `requirements-tools.txt`를 설치합니다.
 클라우드 단계는 L13의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
-아직 준비되지 않았다면 **로컬 단계만 실행 완료**로 남깁니다.
+**기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
+3–4단계의 클라우드 Toolbox/Skills는 L13 자원 준비 후 선택하는 확장입니다.
+기본 코스 학습자가 L13을 먼저 진행할 필요는 없습니다.
 
 ```bash
 python -m pip install -r requirements-tools.txt
@@ -42,7 +44,7 @@ stdio child process가 서버를 실행하고 initialize → tools/list → tool
 재고 8개, 단가 1,450,000원, 초안 총액 2,900,000원과 `order_submitted=false`를 확인합니다.
 `--approve-tool`을 빼면 **호출 전에** 멈춥니다. 승인도 실제 주문 승인으로 해석하지 않습니다.
 
-### 3. 버전 고정 Toolbox와 Skill 생성
+### 3. 선택 확장: 버전 고정 Toolbox와 Skill 생성
 
 ```bash
 python samples/toolbox_lab.py create
@@ -65,7 +67,7 @@ python samples/toolbox_lab.py inspect --live
 `require_approval` metadata를 받은 **호출 runtime이 승인 정책을 집행**해야 합니다.
 동봉 client는 모든 도구에 정확한 이름·인수의 1회 승인을 요구합니다.
 
-### 4. 목록의 정확한 이름으로 클라우드 도구 호출
+### 4. 선택 확장: 목록의 정확한 이름으로 클라우드 도구 호출
 
 `inspect`에서 반환된 이름을 복사합니다. 예시는 실제 이름을 추측해서 사용하지 마세요.
 
@@ -84,8 +86,8 @@ Skill은 resources/list에 있어야 하며 resources/read의 본문까지 확�
 
 ## 성공 기준
 
-로컬 MCP 2종의 실제 결과, 클라우드 tools/list·call·Skill read,
-version·caller·backend identity·승인 기록을 각각 확보했습니다.
+기본 코스는 로컬 HTTP 응답과 MCP 2종의 실제 결과, 도구별 승인 차단을 확인하면 이 장을 완료합니다.
+클라우드 확장을 수행했다면 tools/list·call·Skill read, version·caller·backend identity·승인 기록까지 별도로 확보합니다.
 Tool search Preview나 외부 업무 시스템 연결을 실행한 것으로 합산하지 않습니다.
 
 ## 막혔을 때
