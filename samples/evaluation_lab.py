@@ -13,7 +13,7 @@ from cloud import project_client
 from evidence import Evidence, digest, serializable
 from business_checks import check_business_evidence
 from evaluation_data import DEFAULT_SUITE, SUITES, calibration_cases, load_cases, policy, suite_hash
-from workshop import DATA, RESULTS, config_values, load_jsonl, save_json, validate_data
+from workshop import DATA, RESULTS, ROOT, config_values, load_jsonl, save_json, validate_data
 
 STATE = RESULTS / "native-evaluation.json"
 FIELDS = ("id", "query", "response", "ground_truth", "expected_behavior", "evidence")
@@ -55,11 +55,19 @@ def prepare_rows(path: Path, split: str, suite: str = "legacy-v1") -> list[dict]
 
 def setup(project, client, endpoint: str, model: str, evidence: Evidence, suite: str) -> dict:
     from azure.ai.projects.models import TestingCriterionAzureAIEvaluator
+    from openai import NotFoundError
 
     judge = config_values()["FOUNDRY_JUDGE_DEPLOYMENT_NAME"]
     if not judge or judge == model:
         raise ValueError("Use an explicit judge deployment distinct from the target.")
     state_path = STATE if suite == "legacy-v1" else RESULTS / f"native-evaluation-{suite}.json"
+    binding_path = ROOT / "validation" / suite / "evaluation-binding.json"
+    if not state_path.exists() and binding_path.exists():
+        binding = json.loads(binding_path.read_text())
+        if binding["environment_sha256"] == digest(endpoint):
+            if binding["settings_hash"] != settings_hash(suite) or binding["judge"] != judge:
+                raise ValueError("Shared evaluator binding differs from the frozen suite/judge; preserve it and start a new experiment.")
+            save_json(state_path, {**binding, "endpoint": endpoint})
     if state_path.exists():
         state = json.loads(state_path.read_text())
         if state["endpoint"] != endpoint or state["settings_hash"] != settings_hash(suite) or state["judge"] != judge:
@@ -102,13 +110,21 @@ def setup(project, client, endpoint: str, model: str, evidence: Evidence, suite:
             data_mapping={"query": "{{item.query}}", "response": "{{item.response}}"},
         ),
     ]
-    evaluation = client.evals.create(
-        name="Contoso fixed business and relevance evaluation",
-        data_source_config={"type": "custom", "item_schema": {
-            "type": "object", "properties": {key: {"type": "string"} for key in FIELDS}, "required": list(FIELDS),
-        }, "include_sample_schema": True},
-        testing_criteria=criteria,
-    )
+    for attempt in range(3):
+        try:
+            evaluation = client.evals.create(
+                name="Contoso fixed business and relevance evaluation",
+                data_source_config={"type": "custom", "item_schema": {
+                    "type": "object", "properties": {key: {"type": "string"} for key in FIELDS}, "required": list(FIELDS),
+                }, "include_sample_schema": True},
+                testing_criteria=criteria,
+            )
+            break
+        except NotFoundError as exc:
+            evidence.failure(exc)
+            if evaluator.name not in str(exc) or "evaluator" not in str(exc).lower() or attempt == 2:
+                raise
+            time.sleep(5)
     state["eval_id"] = evaluation.id
     state["criteria"] = serializable(criteria)
     save_json(state_path, state)

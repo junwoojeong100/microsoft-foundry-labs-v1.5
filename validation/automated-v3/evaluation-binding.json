@@ -1,0 +1,11 @@
+{
+  "suite": "automated-v3",
+  "environment_sha256": "01b7da0bf036f47cd34600919d005bd070fe3cb3f7716b83289f7d88e5eb6fc8",
+  "settings_hash": "b5047d5e15461817639700f9e9ef7ca8fc10802f0e10a163008da7d7043fea76",
+  "judge": "contoso-judge",
+  "evaluator_name": "contoso-business-ba745a52",
+  "evaluator_version": "1",
+  "definition_hash": "3707d49d371c39502ff906113f887dc797f7030f1babeac78943a7e2158c7aee",
+  "eval_id": "eval_a396a0f3bc684917aa0fa0f04fa83f7f",
+  "source": "verified existing v3 evaluator and immutable evaluation configuration"
+}
