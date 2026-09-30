@@ -58,7 +58,10 @@ class GroundingTests(unittest.TestCase):
         )
         client = Obj(responses=Obj(create=Mock(side_effect=lambda **kw: order.append("model") or response)))
         row = execute_turn(client, search, "unit", {"query": "검토 메모가 승인인가요?"}, Obj(append=Mock()), Budget())
-        self.assertEqual(order, ["search", "scope", "model"])
+        self.assertEqual(order, ["search", "scope", "model", "model"])
+        first, final = client.responses.create.call_args_list
+        self.assertNotIn("text", first.kwargs)
+        self.assertNotIn("tools", final.kwargs)
         self.assertEqual(row["tool_calls"][0]["execution"], "server_required")
         self.assertTrue(row["citations"])
         self.assertEqual(row["human_review_status"], "optional_not_performed")

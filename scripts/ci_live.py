@@ -81,6 +81,10 @@ def run(phase: str) -> None:
         insights_id = group["id"] + "/providers/Microsoft.Insights/components/appi-" + run_id
         app_id = az("rest", "--method", "get", "--url", insights_id + "?api-version=2020-02-02",
                     "--query", "properties.AppId")
+        identity = az("identity", "show", "--subscription", subscription, "--resource-group", rg,
+                      "--name", "id-" + run_id)
+        if identity["clientId"] != required("AZURE_CLIENT_ID"):
+            raise ValueError("Optimizer CI identity is not the owned federated identity.")
         save_json(RESULTS / "azure-environment.json", {
             "schema": "contoso-environment-v1", "subscription": subscription, "tenant": tenant,
             "repository": "junwoojeong100/foundry-labs-v1.5", "location": required("AZURE_LOCATION"),
@@ -90,11 +94,18 @@ def run(phase: str) -> None:
             "foundation": {"accountId": {"value": account_id}, "projectId": {"value": project_id},
                            "projectPrincipalId": {"value": project["identity"]["principalId"]}},
             "monitoring": {"appId": {"value": app_id}, "appInsightsId": {"value": insights_id}},
+            "oidc": {"client_id": identity["clientId"], "principal_id": identity["principalId"]},
         })
+        probe = subprocess.run([
+            sys.executable, "samples/optimizer_lab.py", "--probe-reflection",
+            "--optimizer-deployment", "contoso-reflection", "--require-oidc", "--live",
+        ], cwd=ROOT, check=False, timeout=90)
+        if probe.returncode:
+            raise RuntimeError("Same-principal reflection probe failed; no optimizer job submitted.")
         result = subprocess.run([
             sys.executable, "samples/optimizer_lab.py", "--agent", "contoso-purchasing-responses",
             "--version", "2", "--optimizer-deployment", "contoso-reflection",
-            "--suite", "automated-v2", "--live",
+            "--suite", "automated-v2", "--prompt-file", "data/prompts/agent-v4.txt", "--require-oidc", "--live",
         ], cwd=ROOT, check=False, timeout=840)
         terminal = []
         for path in RESULTS.glob("contoso-optimizer-*-terminal.json"):
