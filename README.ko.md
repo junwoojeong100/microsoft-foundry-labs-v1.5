@@ -70,7 +70,7 @@ python scripts/package_guide.py
 각 명령은 두 언어를 함께 생성·검사합니다. 문서 검사·패키지 보고서의 기본 저장 위치는 `validation/docs/`입니다.
 기존 Azure 검증은 재실행 없이 보존하고, 재현·회귀에 필요한 버전별 프롬프트와 시험지는 유지합니다.
 
-Pages는 **`docs/english-live-validation` 브랜치의 루트**에서 게시합니다. `.nojekyll`을 유지하고 해당 브랜치에 재생성한 산출물을 푸시하면 사이트가 갱신됩니다. 게시 원본 브랜치를 삭제하면 Pages가 해제될 수 있으므로, 병합 후 삭제 전 유지할 게시 브랜치를 설정하세요. `main` 병합과 리포 공개 범위 변경은 별도 승인 대상입니다.
+Pages는 PR 브랜치와 분리한 **`gh-pages` 브랜치의 루트**에서 게시합니다. PR 병합 후 기능 브랜치를 삭제해도 사이트는 유지됩니다. `.nojekyll`을 유지하고 산출물 재생성·검사 후 `git push origin HEAD:gh-pages`로 검토한 커밋을 게시하세요. 게시 브랜치를 강제 푸시하거나 삭제하지 않습니다. `main` 병합과 리포 공개 범위 변경은 별도 승인 대상입니다.
 모든 가이드 HTML은 위의 GitHub Pages 링크로 열 수 있으며, 파일 간 상대 링크는 Pages의 리포 경로와 압축 해제한 오프라인 키트에서 모두 동작합니다.
 게시 후 `python scripts/check_pages.py`로 모든 공개 HTML과 연결 파일이 로컬 원본과 일치하는지 확인합니다. 이 검사는 해당 리포의 GitHub Pages만 비인증 조회하며 Azure는 호출하지 않습니다.
 

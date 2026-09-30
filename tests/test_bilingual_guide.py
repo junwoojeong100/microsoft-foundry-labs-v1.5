@@ -103,7 +103,7 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["edition"], "2026-09-30")
         self.assertEqual(release["artifact"], "Contoso-Foundry-Hands-on-2026-09-30")
         self.assertEqual(release["default_language"], "en")
-        self.assertEqual(release["pages_branch"], "docs/english-live-validation")
+        self.assertEqual(release["pages_branch"], "gh-pages")
         expected = {
             "en": ("index.html", "GUIDE.en.md", release["artifact"] + ".en.pdf",
                    "portal-screenshots.en.json", 18, 59, 124,

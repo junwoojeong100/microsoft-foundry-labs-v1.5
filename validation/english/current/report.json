@@ -19,7 +19,8 @@
     "visibility_changed": false,
     "original_korean_sources_preserved": true,
     "historical_validation_changed": false,
-    "pages_source_branch": "docs/english-live-validation",
+    "pages_source_branch": "gh-pages",
+    "pages_independent_of_pull_request_branch_deletion": true,
     "pages_restore_reason": "The previous publishing branch was deleted after its user-approved merge and the repository's Pages site was disabled."
   },
   "azure": {

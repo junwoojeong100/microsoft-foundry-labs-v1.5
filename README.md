@@ -76,7 +76,7 @@ The test-process-only `ko` setting preserves Korean-baseline assertions; the sui
 
 ## GitHub Pages
 
-Pages publishes the **root of the `docs/english-live-validation` branch**. Keep `.nojekyll` and push regenerated artifacts to that branch to update the site. Merging into `main` and changing repository visibility require separate approval. If a publishing branch is deleted after a merge, select a retained branch in Pages settings; deleting its source branch can remove the published site.
+Pages publishes the **root of the `gh-pages` branch**, kept separately from pull-request branches so merging and deleting a feature branch does not remove the site. Keep `.nojekyll`; after regenerating and checking the artifacts, publish the reviewed commit with `git push origin HEAD:gh-pages`. Never force-push or delete the publishing branch. Merging into `main` and changing repository visibility require separate approval.
 
 Every guide HTML file is listed in the format table above. Relative links work under the repository's GitHub Pages path and in the extracted offline kit. English and Korean retain the same module fragments—for example, `#l13`—for deep links and language switching.
 
