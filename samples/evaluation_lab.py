@@ -43,7 +43,7 @@ def prepare_rows(path: Path, split: str, suite: str = "legacy-v1") -> list[dict]
             row.get("evaluation_suite") != suite or row.get("evaluation_suite_sha256") != suite_hash(suite)
         ):
             raise ValueError("Response evidence belongs to another evaluation suite.")
-        evidence = {key: row.get(key) for key in ("tool_calls", "tool_definitions", "citations", "context", "retrieved_sources", "response_ids", "trace_id", "configuration", "contract", "raw_answer", "grounding_contract")}
+        evidence = {key: row.get(key) for key in ("tool_calls", "tool_definitions", "citations", "context", "retrieved_sources", "response_ids", "trace_id", "configuration", "contract", "raw_answer", "raw_attribution", "attribution_response_id", "grounding_contract")}
         items.append({
             "id": row["id"], "query": row["query"], "response": row["response"],
             "ground_truth": case["ground_truth"], "expected_behavior": case["expected_behavior"],

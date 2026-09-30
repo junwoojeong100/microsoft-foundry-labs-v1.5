@@ -2,9 +2,10 @@
 
 import json
 
-from grounding import parse_answer
+from grounding import attribute_answer, parse_answer
 from search_lab import validate_hits
 from workshop import ToolInputError, dispatch_tool, function_schemas
+from request_contract import validate_draft_request
 
 
 def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: bool = False) -> dict:
@@ -29,7 +30,11 @@ def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: 
         calls = []
     try:
         validate_hits(sources)
-        rendered, selected = parse_answer(row.get("raw_answer", ""), {s["id"]: s for s in sources})
+        source_map = {s["id"]: s for s in sources}
+        rendered, selected = (
+            attribute_answer(row.get("raw_answer", ""), row["raw_attribution"], source_map)
+            if row.get("raw_attribution") is not None else parse_answer(row.get("raw_answer", ""), source_map)
+        )
         if rendered != row.get("response") or [s["id"] for s in selected] != [s.get("id") for s in citations]:
             failures.append("unchanged_model_selected_citations")
     except (ValueError, RuntimeError, KeyError, TypeError):
@@ -51,7 +56,7 @@ def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: 
             query_arguments = None
         if returned != sources or query_arguments != {"query": row.get("query")}:
             failures.append("server_search_result_link")
-    names = {call.get("name") for call in calls}
+    names = {call.get("name") for call in calls if call.get("execution") != "rejected_before_execution"}
     if not set(case.get("required_tools", [])) <= names:
         failures.append("required_tool_execution")
     if set(case.get("forbidden_tools", [])) & names:
@@ -65,6 +70,8 @@ def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: 
             continue
         try:
             arguments = json.loads(call["arguments"])
+            if call["name"] == "prepare_purchase_request":
+                validate_draft_request(row["query"], arguments)
             if call["name"] in expected_arguments and arguments != expected_arguments[call["name"]]:
                 failures.append("tool_arguments")
             expected = dispatch_tool(call["name"], call["arguments"])

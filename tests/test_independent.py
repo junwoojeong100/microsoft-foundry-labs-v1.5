@@ -204,7 +204,9 @@ class HostedTurnTests(unittest.TestCase):
         final = Obj(id="resp_unit2", status="completed", output=[], output_text=json.dumps({
             "answer": "초안이며 승인·주문은 하지 않았습니다.", "citation_ids": ["CONTOSO-PROC-2026-09-s3"],
         }), usage=Obj(input_tokens=30, output_tokens=10), model="unit-model-version")
-        client = Obj(responses=Obj(create=Mock(side_effect=[first, final])))
+        attribution = Obj(id="attr-unit", status="completed", output=[], usage=None,
+                          output_text='{"citation_ids":["CONTOSO-PROC-2026-09-s3"]}')
+        client = Obj(responses=Obj(create=Mock(side_effect=[first, final, attribution])))
         sink = Obj(append=Mock())
         row = hosted_runtime.execute_turn(client, self.search(), "unit-model", {"query": "NB-14 2대 초안"}, sink, evidence.Budget())
         self.assertEqual(row["model"], "unit-model-version")

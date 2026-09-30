@@ -44,7 +44,7 @@ def build() -> dict:
         ROOT / "data/prompts/agent-v4.txt",
         ROOT / "data/prompts/agent-v5.txt",
         ROOT / "data/prompts/agent-v6.txt",
-        *[ROOT / "samples" / name for name in ("workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "hosted_runtime.py")],
+        *[ROOT / "samples" / name for name in ("workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
         ROOT / "requirements-hosted.txt", ROOT / "THIRD_PARTY_NOTICES",
     ]
     TARGET.mkdir(parents=True, exist_ok=True)

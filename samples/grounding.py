@@ -54,3 +54,16 @@ def parse_answer(raw: str, sources: dict[str, dict]) -> tuple[str, list[dict]]:
         raise RuntimeError("Answer names a document outside its selected retrieval evidence.")
     references = "; ".join(f"{item['filename']} {item['section']}절 [{item['id']}]" for item in cited)
     return answer.strip() + "\n\n근거: " + references, cited
+
+
+def attribute_answer(raw_answer: str, raw_attribution: str, sources: dict[str, dict]) -> tuple[str, list[dict]]:
+    parse_answer(raw_answer, sources)
+    value = json.loads(raw_answer)
+    attribution = json.loads(raw_attribution)
+    if not isinstance(attribution, dict) or set(attribution) != {"citation_ids"}:
+        raise RuntimeError("Citation attribution must return only citation_ids.")
+    ids = attribution["citation_ids"]
+    if not isinstance(ids, list) or any(not isinstance(key, str) for key in ids) or not set(ids) <= sources.keys():
+        raise RuntimeError("Attribution selected a source outside actual retrieval.")
+    value["citation_ids"] = list(dict.fromkeys([*value["citation_ids"], *ids]))
+    return parse_answer(json.dumps(value, ensure_ascii=False), sources)

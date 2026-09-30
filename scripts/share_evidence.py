@@ -21,6 +21,7 @@ FIELDS = {
     "environment_sha256", "execution_location",
     "raw_answer", "grounding_contract", "human_review_status", "evaluation_suite", "evaluation_suite_sha256",
     "tool_definitions",
+    "raw_attribution", "attribution_response_id",
 }
 
 

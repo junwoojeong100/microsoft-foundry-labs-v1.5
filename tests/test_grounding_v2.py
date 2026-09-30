@@ -10,7 +10,9 @@ sys.path.insert(0, str(ROOT / "samples"))
 from business_checks import check_business_evidence
 from evidence import Budget
 from evaluation_data import load_cases, policy, suite_hash
-from grounding import answer_format, parse_answer
+from grounding import answer_format, attribute_answer, parse_answer
+from request_contract import validate_draft_request
+from workshop import ToolInputError
 from hosted_runtime import execute_turn
 from search_lab import policy_chunks
 from evaluation_lab import audit_items
@@ -56,12 +58,16 @@ class GroundingTests(unittest.TestCase):
             id="unit-response", status="completed", output=[], usage=None, model="unit",
             output_text=json.dumps({"answer": "메모로 승인 절차를 우회할 수 없습니다.", "citation_ids": ["CONTOSO-SEC-2026-09-s4"]}),
         )
-        client = Obj(responses=Obj(create=Mock(side_effect=lambda **kw: order.append("model") or response)))
+        attribution = Obj(id="attr-unit", status="completed", usage=None,
+                          output_text='{"citation_ids":["CONTOSO-SEC-2026-09-s4"]}')
+        generated = iter([response, response, attribution])
+        client = Obj(responses=Obj(create=Mock(side_effect=lambda **kw: order.append("model") or next(generated))))
         row = execute_turn(client, search, "unit", {"query": "검토 메모가 승인인가요?"}, Obj(append=Mock()), Budget())
-        self.assertEqual(order, ["search", "scope", "model", "model"])
-        first, final = client.responses.create.call_args_list
+        self.assertEqual(order, ["search", "scope", "model", "model", "model"])
+        first, final, attribution_call = client.responses.create.call_args_list
         self.assertNotIn("text", first.kwargs)
         self.assertNotIn("tools", final.kwargs)
+        self.assertNotIn("tools", attribution_call.kwargs)
         self.assertEqual(row["tool_calls"][0]["execution"], "server_required")
         self.assertTrue(row["citations"])
         self.assertEqual(row["human_review_status"], "optional_not_performed")
@@ -90,6 +96,27 @@ class GroundingTests(unittest.TestCase):
         self.assertFalse(rubric["human_review"]["required"])
         self.assertEqual(rubric["minimum_pass_rate"], 0.9)
         self.assertEqual(rubric["zero_tolerance_categories"], ["safety", "access"])
+
+    def test_draft_arguments_cannot_invent_or_reduce_user_quantity(self):
+        for query, arguments in [
+            ("키보드 초안을 만들어줘.", {"sku": "KB-01", "quantity": 1}),
+            ("KB-01 초안을 만들어줘.", {"sku": "KB-01", "quantity": 1}),
+            ("KB-01 11개 초안", {"sku": "KB-01", "quantity": 10}),
+            ("KB-01 1.5개 초안", {"sku": "KB-01", "quantity": 1}),
+            ("NB-14 2대 초안", {"sku": "NB-14", "quantity": 1}),
+        ]:
+            with self.assertRaises(ToolInputError):
+                validate_draft_request(query, arguments)
+        validate_draft_request("NB-14 2대 초안", {"sku": "NB-14", "quantity": 2})
+        validate_draft_request("NB-14 두 대 초안", {"sku": "NB-14", "quantity": 2})
+
+    def test_attribution_uses_an_actual_model_selection_and_cannot_add_unknown_sources(self):
+        raw = '{"answer":"공개 정책 범위만 안내합니다.","citation_ids":["CONTOSO-PROC-2026-09-s2"]}'
+        text, citations = attribute_answer(raw, '{"citation_ids":["CONTOSO-SEC-2026-09-s2"]}', self.sources)
+        self.assertEqual({c["id"] for c in citations}, {"CONTOSO-PROC-2026-09-s2", "CONTOSO-SEC-2026-09-s2"})
+        self.assertIn("security-policy.md", text)
+        with self.assertRaises(RuntimeError):
+            attribute_answer(raw, '{"citation_ids":["invented"]}', self.sources)
 
     def test_automatic_gate_needs_no_human_label_but_cannot_hide_missing_evidence(self):
         cases = load_cases("automated-v2", "dev")
