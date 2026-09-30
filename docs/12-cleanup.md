@@ -4,6 +4,16 @@
 
 **브라우저를 닫는 것은 과금 중지가 아닙니다.** agent 삭제만으로 Search·로그·업로드 파일·PTU·게시 채널이 모두 사라지는 것도 아닙니다.
 
+## 개념과 실습 지도
+
+**경험할 기능:** 실행 중지, 객체 삭제, 보존, 비용 조회의 서로 다른 수명주기입니다.
+
+**무엇이며 왜 중요한가요?** Compute를 멈춰도 Search·파일·로그 같은 저장/상시 자원은 남습니다. 반대로 agent를 삭제하면 필요한 실행 증거를 잃을 수 있어 비용만 보고 무조건 지우는 것도 안전하지 않습니다. Receipt는 이 실습이 만든 이름·ID·프로젝트를 기록한 소유 명세이며, 공유 자원과 자기 실습을 구분하는 출발점입니다.
+
+**어떻게 사용하나요?** 먼저 반복 실행을 막고, 기록된 세션의 중지 상태를 확인한 다음 자원별 보존 담당자와 기한을 정합니다. 삭제는 별도 승인을 받은 정확한 객체만 대상으로 합니다. 마지막으로 청구 반영 지연을 감안해 비용을 다시 볼 담당자를 정하세요.
+
+**어디서 실행하나요?** 포털의 상태/비용 화면과 [세션 중지 코드](../scripts/stop_sessions.py)를 비교합니다. 아래 관리 스크립트 중에는 `--live` 없이도 Azure를 호출하는 것이 있습니다. 명령 이름만 보고 읽기 전용·무과금이라고 판단하지 않습니다.
+
 ## 준비
 
 생성한 자원 목록과 `results/contoso-lab-....json` receipt를 모읍니다. 강사/다른 학습자와 공유한 자원을 표시합니다.
@@ -21,6 +31,20 @@ python scripts/azure_environment.py status --live
 python scripts/operations_status.py
 python scripts/cost_status.py
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — 실행한 실습의 소유 receipt가 있는 관리자 경로입니다.**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `stop_sessions.py` | 기록된 Hosted client 세션에 실제 stop을 보내고 같은 ID를 다시 조회합니다. 이 스크립트에는 `--live` 안전 스위치가 없습니다. | 세션 compute 상태를 변경합니다. agent/RG/receipt 삭제는 하지 않으며 미확인 중지는 오류입니다. |
+| 2. `routine_lab.py stop --live` | 기본 `results/routine.json`에 기록된 예약을 disable합니다. 다른 receipt를 썼다면 L17처럼 `--receipt`를 명시합니다. | 실제 예약 상태 변경. 다른 예약이나 RG를 삭제하지 않습니다. |
+| 3. `azure_environment.py status --live` | 소유 receipt의 Azure 환경 상태를 읽어 확인합니다. | Azure 읽기 요청 및 상태 기록. 모델 추론은 하지 않습니다. |
+| 4. `operations_status.py` | 소유 환경의 세션·optimizer·평가 schedule·routine을 읽습니다. `--live` 없이 실행되며 남은 작업은 실패 상태로 알립니다. | Azure는 읽기 전용이지만 로컬 `validation/current/operations.json`은 갱신합니다. 보존된 제작 증거 checkout에서는 재실행하지 않고 포털로 확인합니다. |
+| 5. `cost_status.py` | 소유 RG의 생성 시각부터 현재까지 ActualCost를 서비스별로 조회합니다. `--live` 없이 실제 청구 API를 읽습니다. | 로컬 `validation/current/cost.json`을 갱신하는 제작자용 도구입니다. 보존본에서는 재실행하지 않습니다. 빈 청구 행은 비용 0의 증거가 아닙니다. |
+
+</div>
 
 각 명령은 해당 실습을 실행해 receipt가 있는 경우에 사용합니다.
 마지막 두 명령은 **소유 receipt로 범위를 제한한 읽기 전용 Azure 조회**입니다.
@@ -43,6 +67,8 @@ python samples/workshop.py cleanup
 ```
 
 위 블록은 자리표시자 설명용입니다. 실제로는 샘플이 출력한 **한 줄짜리 명령**을 사용합니다. `--live`가 없으면 삭제하지 않습니다. receipt의 프로젝트와 `.env`의 프로젝트가 다르면 중단합니다.
+
+**옵션 해설:** `cleanup`은 삭제 경로, `--receipt`는 본인이 만든 정확한 소유 기록 파일, `--confirm`은 그 기록의 run ID를 사람이 대조했다는 확인값입니다. `--live`는 실제 삭제를 허용합니다. 다른 사람의 receipt·스크린샷의 예시 ID를 복사해서 실행하지 마세요. 이 설명을 읽는 것만으로 삭제 승인이 주어지는 것은 아닙니다.
 
 cleanup은 기록된 conversation → 실습 전용 agent → vector store → file 순서로 처리합니다. 이미 없어진 항목은 `already_absent`로 기록합니다. 권한 오류 등 다른 오류를 삭제 성공으로 숨기지 않습니다.
 

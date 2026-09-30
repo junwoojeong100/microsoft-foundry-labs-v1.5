@@ -4,6 +4,16 @@
 
 **Control Plane의 화면이 보이는 것과 정책이 실제로 강제되는 것은 다릅니다.** Operate의 Overview/Assets/Compliance와 Foundry AI Gateway 경험에는 Preview 범위가 있습니다.
 
+## 개념과 실습 지도
+
+**경험할 기능:** identity·RBAC scope·Control Plane·AI Gateway·private network의 책임 분리입니다.
+
+**무엇이며 왜 중요한가요?** RBAC는 특정 주체가 특정 범위에서 할 수 있는 일을 정하고, 네트워크는 연결 가능한 경로를 정합니다. Gateway는 요청을 라우팅하거나 한도를 적용하는 진입점이며 원본 데이터 권한을 대신하지 않습니다. 직원 A에게 허용된 문서를 공용 캐시에 넣어 B에게 주는 문제는 네트워크가 private여도 생길 수 있습니다. 그래서 화면의 녹색 상태보다 실제 인증·데이터 흐름을 이해해야 합니다.
+
+**어떻게 사용하나요?** 요청 하나가 사용자→agent→도구→데이터를 지날 때 각 단계의 identity·권한·네트워크를 그립니다. 포털에서는 현재 프로젝트 Manage와 여러 자산을 보는 Operate의 범위를 구분합니다. 정책을 바꾸는 대신 먼저 허용/거절 조건과 감사 담당자를 설계하세요.
+
+**어디서 실행하나요?** 기본은 포털 읽기와 설계입니다. [infra/main.bicep](../infra/main.bicep), [runtime_roles.py](../scripts/runtime_roles.py)는 이 키트가 다루는 범위를 이해하는 참고 코드이며, 열어 읽는 것과 실제 실행하여 역할을 부여하는 것은 다릅니다.
+
 ## 준비
 
 기본 과제는 설계·읽기 전용 확인입니다. 실제 role assignment, gateway, private endpoint, 정책 변경은 관리자와 별도 승인 후 진행합니다.

@@ -4,12 +4,22 @@
 
 **Evaluation은 좋았는지, Trace는 무슨 일이 있었는지, Monitoring은 시간이 지나며 어떻게 변하는지**를 보여줍니다.
 
+## 개념과 실습 지도
+
+**경험할 기능:** Trace/span, Application Insights 연결, 응답과 로그의 상관관계, 시간에 따른 Monitoring입니다.
+
+**무엇이며 왜 중요한가요?** Trace는 한 요청이 지나간 경로이고 span은 그 안의 모델·검색·도구 같은 개별 작업입니다. 느린 답변이 검색 때문인지 모델 때문인지 알려면 전체 시간만 봐서는 부족합니다. 응답 ID와 trace ID도 서로 다른 식별자이므로 실제 연결을 찾아야 합니다. 로그가 없다는 것은 오류가 없다는 뜻이 아니라 아직 관찰하지 못했다는 뜻일 수 있습니다.
+
+**어떻게 사용하나요?** 프로젝트의 수집 연결과 읽기 권한을 확인하고, 이미 가진 합성 실행의 시간·agent·response ID로 범위를 좁힙니다. 부모/자식 span의 순서·시간·상태를 보고 가장 먼저 실패한 지점을 설명하세요. 품질 점수는 L08, 개별 실행 원인은 이 장, 장기 변화는 Monitoring으로 나눠 읽습니다.
+
+**어디서 실행하나요?** 포털의 agent Traces와 [trace_lab.py](../samples/trace_lab.py)를 함께 사용합니다. 자동 수집이 로컬 함수 내부까지 모두 보여 주지는 않습니다. 로그 원문을 늘리기 전에 개인정보와 비용을 확인하세요.
+
 ## 준비
 
 L05 또는 L06 실행 결과, 프로젝트에 연결 가능한 Application Insights, 로그 읽기 권한이 필요합니다. 로그 수집·보존에도 비용이 있습니다.
 
 새 전용 환경의 관리자는 `python scripts/azure_environment.py monitoring --live`로
-Log Analytics/App Insights와 프로젝트 연결을 만듭니다.
+Log Analytics/App Insights와 프로젝트 연결을 만듭니다. `monitoring`은 소유 receipt의 환경에 관측 자원을 추가하는 단계이며 `--live`가 실제 생성·연결을 허용합니다. 로그 보관 비용이 생길 수 있으므로 이미 연결된 프로젝트를 쓰는 학습자는 다시 실행하지 않습니다. 정의는 [observability.bicep](../infra/observability.bicep)에 있습니다.
 동봉 Bicep의 연결 비밀은 Azure 내부에서만 참조하고 출력·Git·패키지에 넣지 않습니다.
 30일 로그 보존과 일일 수집 제한은 총 과금의 강제 차단 장치가 아닙니다.
 
@@ -24,6 +34,10 @@ Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 �
 ### 2. 새 실행을 만들고 찾기
 
 합성 질문을 한 번 더 실행하고 response ID·시간을 기록합니다. 수집에 시간이 걸릴 수 있으므로 잠시 후 Traces에서 검색합니다. 현재 선택된 프로젝트와 시간 범위를 함께 확인하세요.
+
+![실제 Prompt Agent의 Traces 화면. Trace/Conversation/Response 보기, ID 검색, 버전·상태·기간 필터와 실행 시간·토큰·예상 비용 열이 보인다. trace ID는 가렸다.](../assets/portal/06-traces.png)
+
+**화면 따라 읽기:** **Build → Agents → 자신의 agent → Traces**에서 **Date range**와 **Version**을 먼저 맞춥니다. 검색창에는 자신의 trace/conversation/response ID를 넣고, 행을 열어 개별 작업을 확인합니다. **Completed**는 실행 완료 상태이지 답변 정답 여부가 아닙니다. 이 사진은 보존된 과거 실습 trace의 목록이며 촬영을 위해 새 요청을 실행하지 않았습니다.
 
 trace에서 다음을 찾습니다.
 
@@ -49,6 +63,17 @@ trace에서 다음을 찾습니다.
 python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name
 python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name --live
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `trace_lab.py` | `--input`은 실제 응답 JSONL, `--app-id`는 해당 Application Insights의 앱 ID, `--agent`는 조회할 agent 이름입니다. 파일에서 식별자를 읽고 KQL 계획을 출력합니다. | Azure 조회 없음. 시간 범위와 ID 조건이 자신의 실행만 가리키는지 확인합니다. |
+| 2. 같은 명령에 `--live` | 확인한 KQL로 실제 로그를 읽습니다. 최근 24시간·최대 200행으로 제한되며 새 모델 추론을 실행하지 않습니다. | Azure 읽기 요청과 조회 결과 기록. 0행이면 상관관계 미확인이며 임의 ID로 채우지 않습니다. 로그 서비스의 이용 조건은 별도입니다. |
+
+</div>
 
 먼저 KQL을 출력해 범위를 검토합니다. 최근 24시간, 최대 200행이며 token/본문 전체를 조회하지 않습니다.
 `app-id`는 계측 키나 connection string이 아닙니다. 조회 결과 0행은 **상관관계 미확인**으로 실패하며,

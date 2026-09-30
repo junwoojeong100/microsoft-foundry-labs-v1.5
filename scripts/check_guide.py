@@ -1,6 +1,8 @@
 """Offline structural checks for the generated guide and source metadata."""
 
 from collections import Counter
+from datetime import datetime, timezone
+import hashlib
 from html.parser import HTMLParser
 import json
 from pathlib import Path
@@ -9,6 +11,51 @@ from urllib.parse import unquote, urlparse
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def command_coverage(text: str, source: str) -> dict:
+    blocks = commands = 0
+    for block in re.finditer(r"^```(bash|powershell)\n(.*?)^```[^\S\n]*(?:\n|$)", text, re.M | re.S):
+        lines = [line.strip() for line in block[2].splitlines() if line.strip() and not line.lstrip().startswith("#")]
+        if lines and lines[-1].endswith("\\"):
+            raise ValueError(f"{source}: unfinished command continuation")
+        count = sum(not line.endswith("\\") for line in lines)
+        note = re.match(
+            r'\s*<div class="command-explanation" markdown="1">(.*?)\n</div>',
+            text[block.end():], re.S,
+        )
+        if not count or not note or "명령 해설" not in note[1]:
+            raise ValueError(f"{source}: every shell block needs an adjacent command explanation")
+        rows = re.findall(r"^\|\s*(\d+)\.\s*([^|]+)\|([^|]+)\|([^|]+)\|\s*$", note[1], re.M)
+        if [int(row[0]) for row in rows] != list(range(1, count + 1)):
+            raise ValueError(f"{source}: each logical command needs its own ordered explanation row")
+        if any(not cell.strip() for row in rows for cell in row[1:]):
+            raise ValueError(f"{source}: empty command explanation")
+        blocks += 1
+        commands += count
+    return {"blocks": blocks, "commands": commands}
+
+
+def check_portal_captures(parser) -> int:
+    manifest = json.loads((ROOT / "content/portal-screenshots.json").read_text(encoding="utf-8"))
+    if manifest["capture_method"] != "playwright-mcp-headless" or manifest["synthetic_ui"]:
+        raise ValueError("Portal screenshots must be genuine headless MCP captures.")
+    paths = [item["path"] for item in manifest["captures"]]
+    used = {image["src"] for image in parser.images if image["src"].startswith("assets/portal/")}
+    if len(paths) != len(set(paths)) or set(paths) != used:
+        raise ValueError("Portal capture manifest and guide images differ.")
+    for item in manifest["captures"]:
+        path = ROOT / item["path"]
+        if path.parent != ROOT / "assets/portal" or path.suffix != ".png" or path.is_symlink():
+            raise ValueError("Unexpected portal screenshot path.")
+        data = path.read_bytes()
+        if data[:8] != b"\x89PNG\r\n\x1a\n" or hashlib.sha256(data).hexdigest() != item["sha256"]:
+            raise ValueError(f"Portal screenshot signature/hash mismatch: {path.name}")
+        if datetime.fromisoformat(item["captured_at"].replace("Z", "+00:00")).tzinfo is None:
+            raise ValueError("Portal capture time must include timezone.")
+        if not item["route"] or not item["masked"] or not item["purpose"]:
+            raise ValueError(f"Portal screenshot lacks provenance/caption: {path.name}")
+    return len(paths)
 
 
 class GuideParser(HTMLParser):
@@ -49,6 +96,7 @@ def check() -> dict:
     if len(ids) != len(chapters) or len(source_ids) != len(sources):
         raise ValueError("Duplicate chapter or source IDs.")
     labs = [chapter for chapter in chapters if chapter["track"] != "reference"]
+    shell_blocks = shell_commands = 0
     core_minutes = sum(c["minutes"] for c in labs if c["track"] == "core")
     duration = f"{core_minutes // 60}시간 {core_minutes % 60}분"
     for path in ("README.md", "docs/00-start.md", "docs/instructor.md"):
@@ -61,11 +109,17 @@ def check() -> dict:
             raise ValueError(f"{chapter['id']}: unresolved official source")
         if chapter["track"] != "reference":
             text = (ROOT / chapter["file"]).read_text(encoding="utf-8")
-            for heading in ("목표", "준비", "실행", "성공 기준", "막혔을 때", "정리"):
+            for heading in ("목표", "개념과 실습 지도", "준비", "실행", "성공 기준", "막혔을 때", "정리"):
                 if not re.search(rf"^## {heading}$", text, re.M):
                     raise ValueError(f"{chapter['id']}: missing {heading} section")
             if len(text) < 1000:
                 raise ValueError(f"{chapter['id']}: unexpectedly thin lab")
+            for label in ("경험할 기능", "무엇이며 왜 중요한가요?", "어떻게 사용하나요?", "어디서 실행하나요?"):
+                if f"**{label}" not in text:
+                    raise ValueError(f"{chapter['id']}: missing learner explanation: {label}")
+            coverage = command_coverage(text, chapter["file"])
+            shell_blocks += coverage["blocks"]
+            shell_commands += coverage["commands"]
     for item in capabilities:
         if item["lab"] not in ids or item["source"] not in source_ids:
             raise ValueError(f"Unresolved capability: {item['name']}")
@@ -99,6 +153,7 @@ def check() -> dict:
             raise ValueError("Image missing alt text.")
         if not (ROOT / image["src"]).is_file():
             raise ValueError(f"Missing image: {image['src']}")
+    portal_captures = check_portal_captures(parser)
     for path in (ROOT / "assets").glob("*.svg"):
         ET.parse(path)
     for needle in ("2026-12-01", "부분 GA", "클라우드", "2.7.0", "1.13.1"):
@@ -109,10 +164,16 @@ def check() -> dict:
         if f'<a id="{chapter_id}"></a>' not in book:
             raise ValueError("Markdown book missing an anchor.")
     result = {
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+        "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
+        "guide_sha256": hashlib.sha256(html.encode("utf-8")).hexdigest(),
         "pages": len(chapters), "labs": len(labs),
         "coverage_rows": len(capabilities), "official_sources": len(sources),
         "core_minutes": core_minutes,
         "duplicate_ids": 0, "broken_local_links": 0, "remote_asset_dependencies": 0,
+        "modules_with_concept_maps": len(labs),
+        "explained_shell_blocks": shell_blocks, "explained_commands": shell_commands,
+        "portal_screenshots": portal_captures,
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return result

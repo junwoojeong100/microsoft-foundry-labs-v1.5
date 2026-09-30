@@ -1,0 +1,15 @@
+{
+  "checked_at": "2026-09-30T09:38:03.784300+00:00",
+  "pdf_sha256": "d5db8e40837677c1080f0bad1a0ad5fd625fddd107edde36a59ac2d8138a3dd5",
+  "status": "passed",
+  "pages": 166,
+  "chapter_headings": 30,
+  "internal_links": 181,
+  "bookmarks": 356,
+  "module_destinations": 30,
+  "out_of_bounds_text_blocks": 0,
+  "nearly_blank_pages": [],
+  "nonportable_local_links": 0,
+  "korean_text_extractable": true,
+  "portal_screenshots_with_matching_pixels": 17
+}

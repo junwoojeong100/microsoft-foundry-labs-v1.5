@@ -4,6 +4,16 @@
 
 **Speech STT/TTS, 실시간 Voice Live, 음성 Prompt Agent는 같은 말이 아닙니다.** Speech의 GA 기능과 Voice Agent의 Preview 경험을 구분합니다.
 
+## 개념과 실습 지도
+
+**경험할 기능:** 음성 인식·음성 합성·실시간 turn detection·사용자 끼어들기·세션 종료입니다.
+
+**무엇이며 왜 중요한가요?** STT는 소리를 글로, TTS는 글을 소리로 바꾸며 Voice Agent는 그 사이의 대화 상태와 응답 시점을 함께 다룹니다. 텍스트에서 맞는 답도 음성으로는 금액을 잘못 듣거나 수정된 수량을 놓칠 수 있습니다. 내용 정확도뿐 아니라 언제 듣고 말하고 멈추는지까지 검사해야 실제 사용성이 생깁니다.
+
+**어떻게 사용하나요?** 짧은 합성 문장으로 시작해 수량 인식→확인 질문→끼어들기→수량 수정→종료를 차례로 시험합니다. 마이크 권한은 사용자가 브라우저에서 직접 허용합니다. 설정을 바꾸기 전 세션을 끝내고 결과 transcript와 지연을 비교하세요.
+
+**어디서 실행하나요?** 음성 입력은 실제 마이크·스피커가 있는 브라우저에서 진행합니다. 이 가이드의 Headless 포털 캡처는 설정 위치를 보여 줄 뿐 실제 음성 대화 성공 증거가 아닙니다. 제공 지시는 이 장의 합성 시나리오이며 실제 고객 통화나 custom voice 학습은 포함하지 않습니다.
+
 ## 준비
 
 지원 지역·프로젝트의 voice preview 접근, 호환 voice 모델, 마이크/스피커와 승인된 브라우저가 필요합니다. 사용량·세션 비용을 확인하고 짧게 테스트합니다.
@@ -12,7 +22,13 @@
 
 ### 1. Voice Agent 만들기
 
-**Agents → Build an agent → Interaction mode: Voice**를 선택합니다. text agent를 그 자리에서 voice로 바꾸는 것이 아니라 별도 agent로 만듭니다. 현재 UI의 model·언어·voice·turn detection 기본값을 기록합니다.
+**Build → Agents → New agent → Build an agent → Interaction mode: Voice**를 선택합니다. 생성 창은 interaction mode를 생성 후 변경할 수 없다고 안내하므로 별도 음성 실습 agent를 사용합니다. 현재 UI의 model·언어·voice·turn detection 기본값을 기록합니다.
+
+![실제 Create an agent 창에서 합성 이름 contoso-voice-lab과 Voice Preview를 선택한 모습. 생성 후 interaction mode 변경 불가 안내와 생성·취소 버튼이 있다.](../assets/portal/15-voice-setup.png)
+
+**화면 따라 읽기:** **Agent name**은 다른 실습과 구분되는 합성 이름, **Interaction mode**는 **Voice Preview**입니다. 촬영에서는 이 두 입력만 선택하고 **Cancel**로 닫았습니다. **Create agent and open playground**를 누르지 않았으며 음성 agent·마이크 세션·유료 음성 호출을 만들지 않았습니다. Preview 선택 화면을 봤다는 사실과 실제 음성 대화 완료는 구분합니다.
+
+실제로 진행하는 학습자는 **Voice agent goal**에 “합성 Contoso 구매 규정을 한국어로 짧게 안내하고 실제 주문·승인은 수행하지 않는다”처럼 목표를 입력합니다. 캡처에서는 이 칸을 비워 생성 버튼이 비활성입니다. 승인된 환경에서 생성한 뒤 Playground의 instructions·모델·음성·언어 설정을 검토하며, 자동으로 채워진 설정을 확인 없이 사용하지 않습니다.
 
 Instructions:
 

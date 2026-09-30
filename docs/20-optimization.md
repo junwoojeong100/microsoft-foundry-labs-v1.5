@@ -4,6 +4,16 @@
 
 **새로운 사실은 RAG, 지시 문제는 prompt, 반복적으로 학습할 행동은 fine-tuning**부터 검토합니다. 기본 모델이 최신이라고 모든 학습 방식을 지원하지는 않습니다.
 
+## 개념과 실습 지도
+
+**경험할 기능:** 실패 원인 분류, prompt/Agent Optimizer 후보 비교, SFT 데이터 형식, 조건부 fine-tuning입니다.
+
+**무엇이며 왜 중요한가요?** Prompt 최적화는 모델에 주는 지시·도구 설명 등을 바꾸고, fine-tuning은 예시나 보상으로 모델의 행동을 학습합니다. 둘 다 없던 회사 사실을 안전하게 최신화하는 RAG의 대체물이 아닙니다. 또 optimizer는 후보 생성과 평가를 여러 번 수행하므로 보통 단일 질문보다 비용이 큽니다. “job 성공”과 “기존보다 좋아진 후보”를 구분해야 불필요한 승격을 피할 수 있습니다.
+
+**어떻게 사용하나요?** 먼저 실패가 검색·지시·형식·반복 행동 중 어디에 있는지 분류합니다. 같은 dev 기준으로 baseline과 후보를 비교하고, 개선이 확인된 후보만 별도 독립 시험의 대상으로 삼습니다. Fine-tuning은 작은 로컬 seed 파일을 읽어 형식을 배우는 단계와 실제 유료 training job을 명확히 나눕니다.
+
+**어디서 실행하나요?** [optimizer_lab.py](../samples/optimizer_lab.py), [optimizer 전용 adapter](../hosted/optimizer_responses.py), [prepare_tuning.py](../samples/prepare_tuning.py)가 실제 코드입니다. 지시 원본은 [agent-v6.txt](../data/prompts/agent-v6.txt)처럼 배포 버전과 일치하는 파일을 선택합니다. 포털은 Optimize/Fine-tune 설정·진행·결과 비교에 사용합니다.
+
 ## 준비
 
 L08의 baseline과 실패 사례, 별도 dev/holdout, 학습/평가/배포 비용 승인이 필요합니다. 실제 training job 제출은 선택이며 수십 분~수시간 이상 대기할 수 있습니다.
@@ -37,6 +47,17 @@ python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --op
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --prompt-file data/prompts/해당버전의지시.txt --live
 ```
 
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — 새 최적화 job은 별도의 실행 비용 승인 후에만 제출합니다.**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `optimizer_lab.py` | `--agent/--version`은 baseline, `--optimizer-deployment`는 reflection 모델 배포, `--prompt-file`은 그 baseline과 같은 지시 파일입니다. `--live` 없이 제출 계획을 읽습니다. | Azure job 생성 없음. suite·dev 건수·후보/시간 제한·holdout 0건을 확인합니다. |
+| 2. 같은 명령에 `--live` | 검토한 설정으로 native optimizer를 실제 제출하고 제한 시간 동안 결과를 관찰합니다. `AZURE_DEV_USER_AGENT`는 명령 프로세스 식별값이지 인증 토큰이 아닙니다. | 여러 model/agent/evaluator 호출과 Hosted 비용 가능. 결과·경고·취소/세션 중지까지 확인하며 후보를 자동 승격하지 않습니다. |
+
+</div>
+
 첫 명령에서 제출될 **현재 suite의 전체 dev 건수·holdout 0건**, 후보 최대 2개, stall 최대 1회를 확인합니다.
 `DEFAULT_SUITE`가 기본값이며 `--suite`로 명시적으로 선택할 수도 있습니다. dev 건수를 하드코딩하지 않습니다.
 새로 봉인된 holdout은 optimizer가 파일을 열거나 제출하지 않습니다.
@@ -47,6 +68,7 @@ suite·dev ID/hash·실제 제출 설정을 원본 evidence에 기록하며, hol
 
 Hosted native 최적화는 `AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing-responses --no-prompt`로 준비한
 **Responses adapter**를 대상으로 합니다. Invocations agent를 그대로 제출하면 서비스가 400으로 거절합니다.
+이 명령의 `contoso-purchasing-responses`는 `azure.yaml`의 별도 서비스 이름입니다. `deploy`는 실제 원격 버전을 생성하고 `--no-prompt`는 확인 질문만 생략하므로, L14에서 이미 배포한 올바른 버전이 있으면 반복 배포하지 않습니다.
 현재 optimizer 전용 진입점은 **`hosted/optimizer_responses.py`**, 별도 빌드 경로는
 **`.build/contoso-responses`**입니다. 검증된 primary runtime과 빌드 hash는 변경하지 않았습니다.
 optimizer 모델은 서비스가 요구하는 모델 계열을 별도 확인합니다.
@@ -110,6 +132,16 @@ azd의 자동 suite 생성은 최소 15 samples를 요구할 수 있습니다. �
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 2 --optimizer-deployment contoso-reflection --suite legacy-v1 --resume 실제-기록된-job-id --live
 ```
 
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — 과거 소유 receipt가 있을 때만 쓰는 조회/정리 경로입니다.**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--suite legacy-v1 --resume ...` | `--resume`의 job ID는 기존 receipt와 같아야 합니다. agent·버전·optimizer 배포도 원래 기록과 대조합니다. | 새 job·새 데이터 제출은 없지만 원격 상태를 읽고 필요 시 제한된 취소/세션 정리를 수행합니다. 다른 사람의 job ID를 복사하지 않습니다. |
+
+</div>
+
 ### 3. 로컬 SFT 데이터 준비하기
 
 이번 추가 과제는 응답 내용을 외우게 하는 것이 아니라 문의를 `POLICY`, `STOCK`, `DRAFT`, `CLARIFY`로 분류하는 간단한 행동 학습입니다.
@@ -117,6 +149,16 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --a
 ```bash
 python samples/prepare_tuning.py
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `prepare_tuning.py` | 합성 분류 예시로 train 16건·validation 8건의 SFT 형식 파일을 새 결과 폴더에 만듭니다. | 로컬 파일 생성만 수행합니다. Azure 업로드·학습·모델 배포·학습 비용은 발생하지 않습니다. |
+
+</div>
 
 `results/tuning-.../train.jsonl`과 `validation.jsonl`이 생성됩니다. 샘플은 각각 16건/8건의 **형식 학습용 seed**입니다. 서비스의 최소 10건 조건을 만족하는 것과 유의미한 품질 개선은 다릅니다. 실제 학습에는 수십~수백 건 이상의 대표성 있는 고품질 데이터를 검토하세요.
 
@@ -140,7 +182,11 @@ Vision fine-tuning, tool calling, distillation, open-model training도 모델별
 
 ### 5. 조건부: 실제 training job 실행
 
-**Build → Fine-tune → Fine-tune a model**에서 지원 base model·method·training tier를 선택합니다. train/validation을 분리 업로드하고 auto-deploy는 처음에는 끕니다. 비용·데이터 처리 위치를 확인한 후 담당자가 Submit합니다.
+![실제 Build → Fine-tune의 시작 화면. Start fine-tuning 진입점과 제품이 제공하는 예시 비교가 표시된다.](../assets/portal/14-fine-tuning.png)
+
+**화면 따라 읽기:** **Build → Fine-tune**에서 촬영 시점에는 **Start fine-tuning** 진입점이 표시됐습니다. 화면의 가격·점수·Clone training 예시는 제품의 설명용 사례이며 **Contoso 실습의 학습 결과나 비용 절감 증거가 아닙니다.** 촬영 중 학습을 복제·제출하거나 모델을 배포하지 않았습니다.
+
+**Start fine-tuning** 또는 해당 UI의 **Fine-tune a model**에서 지원 base model·method·training tier를 선택합니다. train/validation을 분리 업로드하고 auto-deploy는 처음에는 끕니다. 비용·데이터 처리 위치를 확인한 후 담당자가 Submit합니다.
 
 job status, training/validation curve, checkpoints를 확인합니다. 마지막 checkpoint가 항상 최선은 아닙니다. 승인된 임시 deployment에 배포하고, baseline과 같은 held-out 데이터·judge 설정으로 비교합니다.
 
@@ -166,6 +212,9 @@ job status, training/validation curve, checkpoints를 확인합니다. 마지막
 새 후보를 채택하지 않았다고 운영 실패로 처리하거나, 성공 상태를 만들기 위해 평가 기준을 낮추지 않습니다.
 이 1.0은 해당 **v2 dev의 native composite score**이며, 별도 v3 holdout이나 primary runtime의 품질 통과를
 대신 증명하지 않습니다. 사람이 검토했다는 주장도 하지 않으며, 사람의 검토는 선택 안내입니다.
+
+<details markdown="1">
+<summary>보존한 과거 실패와 복구 과정 — 처음 학습할 때는 건너뛰어도 됩니다</summary>
 
 ### 보존한 과거 실패와 복구 과정
 
@@ -204,6 +253,8 @@ resolver 401로 확정된 문제가 아니며, SDK의 디스크 캐시 저장 `O
 기존 job의 예산을 연장하지 않았습니다. 별도 1200초 예산의 최종 job이 위의 정상 실행 결과입니다.
 이전 오류·취소·점수는 역사적 증거로 보존하며 서로 다른 실행의 점수를 개선 증거로 바꾸지 않습니다.
 
+</details>
+
 ### 선택: 현재 OIDC native 실행 재현과 조회
 
 먼저 데이터셋을 전혀 읽지 않는 단일 모델 probe를 실행합니다. probe 통과도 native optimizer 성공이나
@@ -223,6 +274,17 @@ python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 3
   --optimizer-deployment contoso-reflection --max-seconds 1200 --require-oidc --live
 ```
 
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — OIDC CI 환경의 선택 진단이며 일반 사용자 로그인과 다릅니다.**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--probe-reflection` | 줄 끝 `\`는 다음 줄까지 같은 명령이라는 뜻입니다. `FOUNDRY_AUTH_MODE=cli`로 CLI 자격 증명을 선택하되 `--require-oidc`가 소유 ledger의 실제 CI 주체인지 검사합니다. | reflection 모델 요청 1회, 최대 출력 256토큰·45초·재시도 0. 모델 비용은 있지만 데이터셋이나 optimizer job은 만들지 않습니다. |
+| 2. `--suite automated-v2 ... --max-seconds 1200` | 명시한 v2 dev, version 3, v6 지시를 원래 조합 그대로 선택합니다. 1200은 job 생성부터의 최대 초이며 후보 수나 평가 기준을 낮추지 않습니다. | 실제 새 유료 job입니다. 개인 CLI 로그인만으로 `--require-oidc`를 통과할 수 없으며 이를 빼서 우회하지 않습니다. |
+
+</div>
+
 이미 완료된 job을 조회하려면 **원래 job receipt가 있는 checkout**에서 새 job을 만들지 않고 재개합니다.
 이 명령은 데이터셋을 다시 읽거나 후보를 승격하지 않으며, 기록된 1200초 제한을 그대로 검증합니다.
 
@@ -232,6 +294,16 @@ python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 3
   --suite automated-v2 --optimizer-deployment contoso-reflection \
   --resume opt_428b84f689964bb793f83b93b8d34de5 --max-seconds 1200 --require-oidc --live
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--resume ... --max-seconds 1200` | 보존된 해당 job을 조회합니다. `--max-seconds`는 원래 receipt의 1200과 같아야 하고 원래 생성 시각 기준 deadline을 유지합니다. | 새 job·holdout 제출·후보 승격 없음. 자기 checkout에 그 소유 receipt가 없으면 실행하지 않습니다. 원격 조회와 필요한 종료 확인만 수행합니다. |
+
+</div>
 
 probe는 모델 요청 1회, completion 최대 256 tokens, 모델 응답 timeout 45초, 재시도 0회입니다.
 `--require-oidc`는 모델 호출/새 job 제출 전에 `results/azure-environment.json`의

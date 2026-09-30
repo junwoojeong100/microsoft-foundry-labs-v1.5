@@ -1,0 +1,181 @@
+{
+  "capture_method": "playwright-mcp-headless",
+  "source_origin": "https://ai.azure.com",
+  "synthetic_ui": false,
+  "scope": {
+    "repository_id": 1396573688,
+    "project": "contoso-workshop",
+    "resource_group": "rg-contoso-a-26092979bea5",
+    "ownership_receipt": "results/azure-environment.json"
+  },
+  "route_note": "Readable navigation locations; identifiers are replaced by placeholders. These are not reusable deep links.",
+  "privacy": "Account, key and identifying fields were masked, or excluded by dialog crops. Authentication state was transferred locally in a private temporary directory and deleted. No credentials or browser storage are included.",
+  "execution_boundary": {
+    "resource_creation_submissions": 0,
+    "agent_or_policy_saves": 0,
+    "routine_dispatches": 0,
+    "evaluation_or_training_submissions": 0,
+    "voice_sessions_started": 0,
+    "historical_quality_gates_rerun": false,
+    "note": "Existing configuration, evaluation, trace, metric and routine screens were observed. The fine-tuning landing page contains Microsoft's product example, not a Contoso training result. A Voice form was canceled without creation. Only the separate model-playground demonstration below submitted a question."
+  },
+  "model_probe": {
+    "status": "one_answer_observed_in_actual_portal",
+    "authorization": "User explicitly allowed necessary paid calls on 2026-09-30",
+    "deployment": "contoso-chat",
+    "model": "gpt-4.1-mini",
+    "model_version": "2025-04-14",
+    "sent_at": "2026-09-30T07:37:29.583Z",
+    "ui_send_count": 1,
+    "automation_resubmissions": 0,
+    "ui_max_completion_tokens": 256,
+    "tools_in_playground": 0,
+    "web_search_enabled": false,
+    "query": "다음 합성 Contoso 규칙만 사용해 한 문장으로 답해줘. 총액 200만 원 이하는 팀장 승인, 초과는 팀장과 구매 담당자 승인이다. 총액이 정확히 200만 원이면 누구의 승인이 필요한가? 실제 주문이나 승인은 수행하지 마.",
+    "answer": "총액이 정확히 200만 원이면 팀장 승인이 필요하다.",
+    "response_id": "resp_037be73bcc3b128b006abcbc3b9ed08190871c651503bf6d04",
+    "portal_usage": {"input_tokens": 91, "output_tokens": 18, "total_tokens": 109},
+    "http_status": null,
+    "transport_request_count": null,
+    "transport_observation": "A direct responses/chat-completions URL listener timed out after 45 seconds and did not intercept the portal transport. The displayed answer, response ID and usage were then read without resending. Backend retry count and raw HTTP status are unverified.",
+    "quality_boundary": "One supplied-rule model example only; not RAG, agent tool execution, holdout evaluation, deployment validation or a new release-quality claim."
+  },
+  "captures": [
+    {
+      "path": "assets/portal/01-home.png",
+      "captured_at": "2026-09-30T07:06:35.278Z",
+      "route": "/home",
+      "masked": ["personal greeting", "profile button", "endpoint values"],
+      "purpose": "Locate Home, Discover, Build, Operate and Manage; distinguish project and model endpoints.",
+      "sha256": "4353975829e269e0442ffde8caad95e9cbf2239e1e50f518ffe714468add7666"
+    },
+    {
+      "path": "assets/portal/02-model-catalog.png",
+      "captured_at": "2026-09-30T07:10:01.006Z",
+      "route": "/discover/models",
+      "masked": ["profile button"],
+      "purpose": "Read availability, supported-feature and deployment filters before choosing a model.",
+      "sha256": "93d4d5160db226177e01845d8cb04a35368ba03f9507882d14a2ac4b89e22e58"
+    },
+    {
+      "path": "assets/portal/03-agents.png",
+      "captured_at": "2026-09-30T07:10:33.199Z",
+      "route": "/build/agents",
+      "masked": ["profile button"],
+      "purpose": "Distinguish Hosted and Prompt agents, definition versions and listing status.",
+      "sha256": "211f41329df17c59e1cd2143dd55b7bc98f761000c342fcac165f0911939fd0d"
+    },
+    {
+      "path": "assets/portal/04-prompt-playground.png",
+      "captured_at": "2026-09-30T07:13:18.179Z",
+      "route": "/build/agents/{prompt-agent}/build",
+      "masked": ["profile button", "vector store identifier"],
+      "purpose": "Locate model, instructions, chat, version and trace controls in an existing Prompt Agent.",
+      "sha256": "43ab6669a6440c3565b72cac578ca64f84a6558072e6f8d6069b3c047760f7f1"
+    },
+    {
+      "path": "assets/portal/05-agent-tools.png",
+      "captured_at": "2026-09-30T07:13:18.247Z",
+      "route": "/build/agents/{prompt-agent}/build",
+      "masked": ["profile button", "vector store identifier"],
+      "purpose": "Read File search separately from stock lookup and purchase-draft functions.",
+      "sha256": "d846e1f7649ba69c0f254dd3c249c351e91052d55167ba27bbb69bc0c44e6dda"
+    },
+    {
+      "path": "assets/portal/06-traces.png",
+      "captured_at": "2026-09-30T07:15:37.864Z",
+      "route": "/build/agents/{prompt-agent}/traces",
+      "masked": ["profile button", "trace identifiers"],
+      "purpose": "Find an existing execution using time, version, status and ID filters; distinguish completion from quality.",
+      "sha256": "b8be65d01a978a4827094c6a32fdd778350a51ef257bba8087252fe279398337"
+    },
+    {
+      "path": "assets/portal/07-monitor.png",
+      "captured_at": "2026-09-30T07:17:57.461Z",
+      "route": "/build/agents/{prompt-agent}/monitor",
+      "masked": ["profile button"],
+      "purpose": "Read time-bounded agent metrics and estimated cost without enabling new monitoring or evaluations.",
+      "sha256": "7e7f51f688da1d97c12cae6947d30cc62c9be6a90409b834cdd6c62ce6511e92"
+    },
+    {
+      "path": "assets/portal/08-evaluations.png",
+      "captured_at": "2026-09-30T07:32:21.096Z",
+      "route": "/build/evaluations",
+      "masked": ["profile button", "creator display names and principal identifiers"],
+      "purpose": "Observe completed, canceled and partial historical runs without changing or rerunning them.",
+      "sha256": "7989ae4d99da5933f9cbdc069e1b3ef8c840919ee0e89f7ff4d52e1c53122d3d"
+    },
+    {
+      "path": "assets/portal/09-knowledge.png",
+      "captured_at": "2026-09-30T07:20:31.940Z",
+      "route": "/build/knowledge",
+      "masked": ["profile button"],
+      "purpose": "Show the separate portal Search connection prerequisite; Connect/Create were not pressed.",
+      "sha256": "48d14d6b1b27058836bc52d222ee46c78bb428cd186062f8bdeae74ae7e97cb6"
+    },
+    {
+      "path": "assets/portal/10-memory.png",
+      "captured_at": "2026-09-30T07:24:04.010Z",
+      "route": "/build/memory/{store}/details",
+      "masked": ["profile button"],
+      "purpose": "Read an existing profile-only memory store, model choices and 3600-second TTL without saving or changing items.",
+      "sha256": "14503dd62d87e957bbd735708b930a93e1fcab4b11e7c53b506527174f4aeba7"
+    },
+    {
+      "path": "assets/portal/11-guardrails.png",
+      "captured_at": "2026-09-30T07:25:10.501Z",
+      "route": "/build/guardrails",
+      "masked": ["profile button"],
+      "purpose": "Inspect default model guardrail type and applied deployments; no policies were edited.",
+      "sha256": "e850465df9ecd3bf4f98c43276c798e77df8a3d328939689ed2be6b0916963be"
+    },
+    {
+      "path": "assets/portal/12-routines.png",
+      "captured_at": "2026-09-30T07:26:15.914Z",
+      "route": "/build/agents/routines",
+      "masked": ["profile button"],
+      "purpose": "Observe retained Paused timers and their target/last-run fields without dispatching or changing state.",
+      "sha256": "93f4d3b751a64b307ce9af8a38ac9ff57c8479c3ed3521156e414f912f6d9d8f"
+    },
+    {
+      "path": "assets/portal/13-project-settings.png",
+      "captured_at": "2026-09-30T07:28:49.547Z",
+      "route": "/manage/project-details",
+      "masked": ["profile button", "endpoint values", "subscription and tenant identifiers", "subscription display name", "personal permission summary", "connection-key fields", "connection creator accounts"],
+      "purpose": "Locate project context, region and connected resources without exposing credentials or modifying connections/roles.",
+      "sha256": "8fcdb4a47ff212f6e85528b51f924098cca5a7ab5a9e224cb215b3f70db6cd7e"
+    },
+    {
+      "path": "assets/portal/14-fine-tuning.png",
+      "captured_at": "2026-09-30T07:30:08.887Z",
+      "route": "/build/fine-tune",
+      "masked": ["profile button"],
+      "purpose": "Locate Start fine-tuning; the product's example scores/prices are not workshop training evidence.",
+      "sha256": "7704db26c5dbad1c9ff85d30d85782017d586f94c7b7dba06f905d3bf805844b"
+    },
+    {
+      "path": "assets/portal/15-voice-setup.png",
+      "captured_at": "2026-09-30T07:31:46.072Z",
+      "route": "/build/agents -> New agent -> Build an agent",
+      "masked": ["dialog crop excludes account and project identifiers"],
+      "purpose": "Select a synthetic name and Voice Preview to explain the form, then cancel without creating an agent.",
+      "sha256": "01cea0d080fe6d926ca36a30157e6952b7e3886c86c19963cb2d78185ac7dfff"
+    },
+    {
+      "path": "assets/portal/16-model-response.png",
+      "captured_at": "2026-09-30T07:39:29.051Z",
+      "route": "/build/models/deployments/contoso-chat/playground",
+      "masked": ["profile button"],
+      "purpose": "Show the one actual model-playground answer to the synthetic approval-boundary question described in model_probe.",
+      "sha256": "e42731af8dc0b727d78251ea3bb406f8f121ee8ef54c1f7a84a4f4cd59f94615"
+    },
+    {
+      "path": "assets/portal/17-model-parameters.png",
+      "captured_at": "2026-09-30T07:39:55.405Z",
+      "route": "/build/models/deployments/contoso-chat/playground -> Parameters",
+      "masked": ["dialog crop excludes account and project identifiers"],
+      "purpose": "Confirm the UI Max Completion Tokens value of 256; no further model request was sent.",
+      "sha256": "2d3ddd808f17c9c95b7aa16807e220d8f6b40ec663ce37adc04164566bbafd08"
+    }
+  ]
+}

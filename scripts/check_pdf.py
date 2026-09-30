@@ -1,5 +1,8 @@
 """Check PDF text, module coverage, page bounds and portable links."""
 
+import argparse
+from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -16,8 +19,26 @@ def normalized(text):
     return re.sub(r"\s+", "", unicodedata.normalize("NFC", text))
 
 
+def image_digest(pixmap):
+    if pixmap.alpha:
+        pixmap = pymupdf.Pixmap(pixmap, 0)
+    if pixmap.colorspace is None:
+        raise ValueError("Cannot verify a screenshot without a color space.")
+    if pixmap.colorspace.n != 3:
+        pixmap = pymupdf.Pixmap(pymupdf.csRGB, pixmap)
+    return hashlib.sha256(pixmap.samples).hexdigest()
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
+    args = parser.parse_args()
+    report_dir = (ROOT / args.report_dir).resolve()
+    if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
+        raise ValueError("Reports must be inside validation/.")
     chapters = json.loads((ROOT / "content/chapters.json").read_text(encoding="utf-8"))
+    captures = json.loads((ROOT / "content/portal-screenshots.json").read_text(encoding="utf-8"))["captures"]
+    expected_images = {image_digest(pymupdf.Pixmap(ROOT / item["path"])): item["path"] for item in captures}
     with pymupdf.open(PDF) as document:
         texts = [page.get_text() for page in document]
         combined = normalized("\n".join(texts))
@@ -37,7 +58,13 @@ def main():
         internal_links = 0
         destinations = set()
         sparse_pages = []
+        seen_images = set()
+        checked_xrefs = set()
         for number, page in enumerate(document, 1):
+            for image in page.get_images(full=True):
+                if image[0] not in checked_xrefs:
+                    seen_images.add(image_digest(pymupdf.Pixmap(document, image[0])))
+                    checked_xrefs.add(image[0])
             if len(normalized(texts[number - 1])) < 70:
                 sparse_pages.append(number)
             for block in page.get_text("blocks"):
@@ -56,21 +83,27 @@ def main():
             raise ValueError(json.dumps({
                 "out_of_bounds": out_of_bounds, "nonportable_links": local_links, "nearly_blank_pages": sparse_pages,
             }, ensure_ascii=False))
+        missing_images = [path for fingerprint, path in expected_images.items() if fingerprint not in seen_images]
+        if missing_images:
+            raise ValueError(f"PDF is missing original portal screenshot pixels: {missing_images}")
         if internal_links < 30 or not {chapter["id"] + "-title" for chapter in chapters} <= destinations:
             raise ValueError("The PDF must preserve a usable internal table of contents.")
         if "직접만들며이해하기" not in combined:
             raise ValueError("Korean text was not extracted correctly.")
         report = {
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+            "pdf_sha256": hashlib.sha256(PDF.read_bytes()).hexdigest(),
             "status": "passed", "pages": len(document), "chapter_headings": len(chapters),
             "internal_links": internal_links, "bookmarks": len(document.get_toc()),
             "module_destinations": len({chapter["id"] + "-title" for chapter in chapters} & destinations),
             "out_of_bounds_text_blocks": 0, "nearly_blank_pages": [],
             "nonportable_local_links": 0, "korean_text_extractable": "직접만들며이해하기" in combined,
+            "portal_screenshots_with_matching_pixels": len(expected_images),
         }
-        (ROOT / "validation/current").mkdir(parents=True, exist_ok=True)
-        document[0].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(ROOT / "validation/current/pdf-cover.png")
-        document[1].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(ROOT / "validation/current/pdf-lab.png")
-        target = ROOT / "validation/current/pdf.json"
+        report_dir.mkdir(parents=True, exist_ok=True)
+        document[0].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(report_dir / "pdf-cover.png")
+        document[1].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(report_dir / "pdf-lab.png")
+        target = report_dir / "pdf.json"
         target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(report, ensure_ascii=False, indent=2))
 

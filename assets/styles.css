@@ -166,7 +166,13 @@ main { padding: 38px 48px 48px; min-width: 0; max-width: 1220px; margin: 0 auto;
 .prose img { max-width: 100%; height: auto; display: block; border: 1px solid var(--border); border-radius: 12px; margin: 26px auto; background: #fff; }
 .prose figure { margin: 26px 0; }
 .prose figure img { margin-bottom: 8px; }
-.prose figcaption { text-align: right; font-size: 12px; color: var(--muted); }
+.prose figcaption { text-align: left; font-size: 14px; line-height: 1.7; color: var(--muted); }
+.prose figcaption > span { display: block; margin-bottom: 6px; }
+.prose figcaption a { display: inline-block; padding: 4px 0; }
+.capture-note { font-size: 13px; }
+.command-explanation { border-left: 3px solid var(--accent); padding-left: 16px; margin: 16px 0 28px; }
+.command-explanation > p:first-child { font-size: 16px; margin-bottom: 8px; }
+.command-explanation .table-wrap { margin-top: 8px; }
 .table-wrap { overflow-x: auto; width: 100%; border: 1px solid var(--border); border-radius: 9px; margin: 22px 0; scrollbar-width: thin; }
 table { width: 100%; border-collapse: collapse; line-height: 1.7; font-size: 15px; }
 th { text-align: left; background: var(--surface-soft); color: var(--heading); font-weight: 750; font-size: 14px; vertical-align: top; }
@@ -298,6 +304,7 @@ details .table-wrap { background: var(--surface); }
   .chapter-summary { font-size: 12pt; }
   .chapter-meta { font-size: 9pt; }
   .prose { font-size: 11pt; line-height: 1.65; }
+  .prose p { orphans: 3; widows: 3; }
   .prose h2 { font-size: 16pt; margin-top: 23pt; }
   .prose h3 { font-size: 12.5pt; margin-top: 17pt; }
   h1, h2, h3, summary { break-after: avoid; }
@@ -310,6 +317,12 @@ details .table-wrap { background: var(--surface); }
   pre { white-space: pre-wrap; overflow: visible; background: #f3f6f8; color: #102c40; border: 1px solid #c9d6df; padding: 10pt; break-inside: avoid; }
   pre code { font-size: 9pt; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
   .prose img { max-height: 165mm; width: 100%; object-fit: contain; break-inside: avoid; }
+  .prose figure { break-inside: avoid; }
+  .prose figcaption { font-size: 9pt; }
+  .prose figcaption a { display: none; }
+  .capture-note { font-size: 8pt; }
+  .command-explanation { padding-left: 8pt; break-inside: auto; }
+  .command-explanation > p:first-child { font-size: 10pt; break-after: avoid; }
   details { background: #fff; break-inside: auto; }
   details summary { font-size: 10pt; }
   .source-notes { break-inside: avoid; margin-top: 18pt; }

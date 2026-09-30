@@ -30,6 +30,25 @@ async (page) => {
     check(await page.locator('#l20 .learning-badge').innerText() === "기능별 분기", "Optimizer and fine-tuning paths are distinguished");
     check(await page.locator(".nav-learning").count() === 12, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === 25, "25 trackable labs");
+    check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: "개념과 실습 지도"}).count() === 25, "all 25 labs explain feature, purpose, method and execution surface");
+    check(await page.locator(".command-explanation").count() === 55, "all 55 shell blocks have visible command explanations");
+    check(await page.locator(".command-explanation tbody tr").count() === 120, "all 120 logical CLI commands have individual explanation rows");
+    const captures = await page.evaluate(async () => {
+      const manifest = await (await fetch("content/portal-screenshots.json")).json();
+      const images = [...document.querySelectorAll(".portal-capture img")];
+      return {
+        declared: manifest.captures.map(item => item.path).sort(),
+        rendered: [...new Set(images.map(image => image.getAttribute("src")))].sort(),
+        loaded: images.every(image => image.complete && image.naturalWidth > 0),
+        captioned: images.every(image => image.closest("figure").textContent.includes("배포·품질 검증과 구분")),
+      };
+    });
+    check(captures.declared.length >= 8 && JSON.stringify(captures.declared) === JSON.stringify(captures.rendered), "genuine portal capture manifest matches the rendered guide");
+    check(captures.loaded && captures.captioned, "all offline portal images load with provenance and execution boundaries");
+    for (const source of ["samples/workshop.py", "azure.yaml", ".env.example", ".github/workflows/validate.yml"]) {
+      const response = await page.request.get(`${origin}/${source}`);
+      check(response.ok() && response.headers()["content-type"].startsWith("text/plain"), `source is readable as text: ${source}`);
+    }
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "home route");
     check(await page.locator("html").getAttribute("lang") === "ko", "Korean language metadata");
     check(await page.locator('script[src^="http"],link[href^="http"]').count() === 0, "no remote runtime dependencies");
@@ -130,6 +149,13 @@ async (page) => {
       check(measure.navigation >= 14, `navigation text >= 14px at ${width}px`);
       check(measure.table >= 14, `table text >= 14px at ${width}px`);
       check(measure.brandRight <= measure.actionsLeft, `brand and header controls do not overlap at ${width}px`);
+      await page.goto(`${origin}/index.html#l04`);
+      const imageBounds = await page.locator("#l04 .portal-capture img").evaluateAll(images => images.map(image => ({
+        width: image.getBoundingClientRect().width,
+        container: image.closest("figure").getBoundingClientRect().width,
+        loaded: image.complete && image.naturalWidth > 0,
+      })));
+      check(imageBounds.length > 0 && imageBounds.every(image => image.loaded && image.width <= image.container + 1), `portal screenshots fit the reader at ${width}px`);
     }
     await page.setViewportSize({width: 390, height: 844});
     await page.locator("#menu-toggle").click();

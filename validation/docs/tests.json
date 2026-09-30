@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-09-30T09:38:00.128605+00:00",
+  "status": "passed",
+  "scope": "Offline unit and contract tests; not a live Azure evaluation.",
+  "tests": 138,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0
+}

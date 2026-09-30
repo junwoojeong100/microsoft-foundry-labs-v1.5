@@ -99,7 +99,13 @@ def sources_markdown(source_data):
         "별도 Optimizer dev 20건의 baseline/best 점수는 1.0/1.0으로 추가 개선이 없어 승격하지 않았습니다. "
         "검증 세부 자료는 `validation/current/`와 `validation/automated-v3/`에 있습니다.",
         "",
+        f"최신 문서·브라우저·PDF·패키지 검사는 `{RELEASE['documentation_validation']}/`에 따로 둡니다. "
+        "이는 문서 검사이며 Azure를 새로 실행한 증거가 아닙니다.",
+        "",
         "### 이전 v1 결과와 현재 자동 검증 경로",
+        "",
+        f"이전 검증 파일은 [정리 전 Git 커밋의 원본]({RELEASE['historical_validation']})에서 확인합니다. "
+        "현재 파일 목록에서는 중복·이전 실행을 정리했으며 과거 기록의 내용이나 판정을 바꾸지 않았습니다.",
         "",
         "**아래 수치는 보존한 v1 결과입니다.** 새 RG에서 Hosted·Search/IQ·"
         "Toolbox/MCP/OpenAPI/Skills·Memory·A2A·native 평가·Tracing과 실제 OIDC 배포를 수행했습니다.",
@@ -121,14 +127,14 @@ def sources_markdown(source_data):
         "",
         "Routine은 생성·dispatch 요청까지 수행했으며 disabled 상태로 보존했습니다. "
         "Optimizer의 서비스 job 완료는 새 후보 생성/품질 개선을 뜻하지 않습니다. "
-        "원본 결과·CI 요약·운영 상태는 `validation/current/`에 있습니다.",
+        f"이 v1 실행의 원본 결과·CI 요약·운영 상태는 [과거 검증 원본]({RELEASE['historical_validation']})에 있습니다.",
         "",
         "**로컬 계약 검증은 cloud 실행 검증이 아닙니다.** 구현 완료 / 실행 완료 / 품질 통과 / 차단 / 미실행을 "
         "구분합니다. 이번 실행은 새 전용 RG만 대상으로 하며 과거 A/B 결과를 Contoso 증거로 재사용하지 않습니다.",
         "",
         "로컬 검사 대상으로는 문서 구조·내부 링크·합성 데이터·도구 검증·평가 게이트·SDK 계약·웹 UI가 있습니다. "
         "구체적인 실행 결과와 미검증 범위는 [`validation/current/report.json`](validation/current/report.json)을 확인합니다. "
-        "기존 validation 원본은 과거 자료로 보존하며 새로운 결과로 바꾸지 않습니다.",
+        "과거 검증 원본은 위의 고정된 Git 커밋에 보존하며 새로운 결과로 바꾸지 않습니다.",
         "",
         "전달물은 Microsoft 공식 교육과정이나 보증서가 아닙니다. 시나리오·설명·그림은 이 실습을 위해 작성했습니다. "
         "제품 사실의 근거는 아래 원문이며 전체 문서를 복제하지 않았습니다.",
@@ -159,14 +165,15 @@ def source_body(chapter, chapters, capabilities, source_data):
         return coverage_markdown(capabilities, chapters, sources)
     if chapter.get("generated") == "sources":
         return sources_markdown(source_data)
-    body = (ROOT / chapter["file"]).read_text(encoding="utf-8").replace("../assets/", "assets/").replace("../data/", "data/")
+    body = (ROOT / chapter["file"]).read_text(encoding="utf-8")
+    body = re.sub(r"(\]\()\.\./", r"\1", body)
     if chapter.get("learning"):
         learning = chapter["learning"]
         body = f"> **학습 순서: {learning['label']}** — {learning['requires']}\n\n" + body
     return body
 
 
-def render_chapter(chapter, body, source_map, previous, following):
+def render_chapter(chapter, body, source_map, previous, following, captures):
     chapter_id = chapter["id"]
     engine = markdown.Markdown(
         extensions=["tables", "fenced_code", "toc", "md_in_html", "sane_lists"],
@@ -178,11 +185,22 @@ def render_chapter(chapter, body, source_map, previous, following):
     rendered = re.sub(
         r"<table>", '<div class="table-wrap" tabindex="0" role="region" aria-label="가로로 스크롤할 수 있는 표"><table>', rendered,
     ).replace("</table>", "</table></div>")
-    rendered = re.sub(
-        r'<p>(<img[^>]+src="([^"]+)"[^>]*>)</p>',
-        r'<figure>\1<figcaption><a href="\2" target="_blank" rel="noopener noreferrer">다이어그램 크게 보기 ↗</a></figcaption></figure>',
-        rendered,
-    )
+    def figure(match):
+        image, source = match.groups()
+        description = re.search(r'\balt="([^"]+)"', image).group(1)
+        capture = captures.get(source)
+        note = (
+            f'<span class="capture-note">실제 포털 · {escape(capture["captured_at"][:10])} · '
+            'Playwright MCP Headless · 식별 정보 가림 · 배포·품질 검증과 구분</span>'
+            if capture else ""
+        )
+        kind = ' class="portal-capture"' if capture else ""
+        return (
+            f'<figure{kind}>{image}<figcaption><span>{description}</span>{note}'
+            f'<a href="{source}" target="_blank" rel="noopener noreferrer">원본 크게 보기 ↗</a></figcaption></figure>'
+        )
+
+    rendered = re.sub(r'<p>(<img[^>]+src="([^"]+)"[^>]*>)</p>', figure, rendered)
     rendered = re.sub(r"<a href=\"(https?://[^\"]+)\"", r'<a href="\1" target="_blank" rel="noopener noreferrer"', rendered)
     headings = [
         f'<a href="#{escape(token["id"])}">{escape(token["name"])}</a>'
@@ -231,6 +249,7 @@ def build():
     source_data = read_json("sources.json")
     sources = {s["id"]: s for s in source_data["sources"]}
     capabilities = read_json("capabilities.json")
+    captures = {item["path"]: item for item in read_json("portal-screenshots.json")["captures"]}
     bodies = {c["id"]: source_body(c, chapters, capabilities, source_data) for c in chapters}
     pages = []
     search_data = []
@@ -238,7 +257,7 @@ def build():
         pages.append(render_chapter(
             chapter, bodies[chapter["id"]], sources,
             chapters[index - 1] if index else None,
-            chapters[index + 1] if index + 1 < len(chapters) else None,
+            chapters[index + 1] if index + 1 < len(chapters) else None, captures,
         ))
         plain = re.sub(r"<[^>]+>", " ", markdown.markdown(bodies[chapter["id"]], extensions=["tables", "fenced_code"]))
         search_data.append({

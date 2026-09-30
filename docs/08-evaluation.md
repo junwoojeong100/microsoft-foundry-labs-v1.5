@@ -6,6 +6,16 @@
 이 합성 실습의 현재 `automated-v3`는 사람이 없어도 코드 검사·native 평가로 완료할 수 있습니다.
 사람 검토는 실제 운영 전 권장 사항으로만 안내하며, 하지 않은 검토를 완료로 표시하지 않습니다.
 
+## 개념과 실습 지도
+
+**경험할 기능:** 실제 응답 수집, 코드 기반 업무 검사, native evaluator, judge calibration, dev/holdout 품질 게이트입니다.
+
+**무엇이며 왜 중요한가요?** 평가는 정해 둔 질문과 기준으로 결과를 비교하는 절차입니다. Target은 평가받는 도우미, judge는 답을 판정하는 별도 모델입니다. Calibration은 정답·오답 대조군으로 그 judge의 판단부터 점검하는 일입니다. Dev는 개선하며 반복해서 보는 연습 문제, holdout은 동결된 후보의 마지막 독립 시험입니다. 시험지를 보면서 프롬프트를 고치거나 쉬운 행만 평균내면 숫자는 좋아져도 신뢰할 수 없습니다.
+
+**어떻게 사용하나요?** 기본 코스에서는 L05/L06의 응답을 모아 “어떤 이유로 통과·실패했는가”를 읽습니다. 심화에서는 같은 질문·모델·코드·기준을 고정해 dev를 검사하고 마지막에만 독립 holdout을 사용합니다. 서비스의 `completed`는 작업 종료일 뿐, 품질 게이트 통과 여부는 개별 결과와 필수 조건으로 따로 판단합니다.
+
+**어디서 실행하나요?** 수집·자동 검사는 CLI/SDK, 결과 탐색은 포털 Evaluations에서 합니다. [평가 runner](../samples/evaluation_lab.py), [suite 선택 코드](../samples/evaluation_data.py), [v3 판정 기준](../data/evaluation/v3/rubric.json)을 먼저 읽습니다. 봉인된 holdout을 미리 열거나 스크린샷을 위해 재실행하지 않습니다.
+
 ## 준비
 
 **기본 순차 경로:** L05/L06의 프로젝트·Prompt Agent·클라이언트 함수 준비만 필요합니다.
@@ -30,11 +40,27 @@ L13 Search나 L14 Hosted를 먼저 끝낼 필요가 없습니다. Target과 별�
 
 ### 기본 코스: L05/L06 결과를 학습용으로 자동 평가
 
+![실제 Build → Evaluations의 Runs 목록. 평가 이름·마지막 실행·횟수와 Completed, Canceled, Partial 상태가 함께 표시된다. 작성자 이름은 가렸다.](../assets/portal/08-evaluations.png)
+
+**화면 따라 읽기:** **Build → Evaluations → Runs**에서 자신이 실행한 평가 이름과 시각을 찾습니다. **Status of last run**은 서비스 작업 상태이며, 개별 run을 열어 사례별 점수·오류·누락을 확인해야 품질을 판단할 수 있습니다. **Evaluator catalog**는 평가 기준 탐색, **Recurring configs**는 지속 실행 설정이므로 기본 실습에서 무심코 예약을 만들지 않습니다. 이미 있던 실패·취소를 숨기지 않고 촬영했으며 새 평가를 제출하지 않았습니다.
+
 ```bash
 python samples/workshop.py evaluate --split dev --live
 python samples/evaluation_lab.py calibrate --suite basic-learning --live
 python samples/evaluation_lab.py run --suite basic-learning --split dev --input results/앞-명령이-출력한-responses.jsonl --live
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — 기본 코스에서는 이 세 단계만 수행하고 L09로 진행합니다.**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `workshop.py evaluate --split dev --live` | 기본 SDK 도우미를 dev 질문들에 실제 실행하여 응답·도구·인용을 모읍니다. `--split dev`는 개발용 질문만 선택합니다. | 모델·검색 호출 비용과 새 응답 JSONL이 생깁니다. 출력된 실제 파일 경로를 3번 명령에 넣습니다. |
+| 2. `calibrate --suite basic-learning --live` | `--suite`로 학습용 평가 정책을 선택하고 정답/오답 대조군을 judge에 전달합니다. | judge 호출 비용이 발생합니다. 판정 일치는 평가자 검사이며 target의 품질 통과가 아닙니다. |
+| 3. `run --suite basic-learning ...` | `--input`의 실제 응답 파일을 같은 dev 기준으로 평가합니다. `run`은 새 target 응답을 꾸며 만드는 명령이 아닙니다. | native 평가·judge 비용이 발생합니다. 점수·오류·실패 이유를 확인하며, 학습용 결과를 독립 릴리스 증거로 쓰지 않습니다. |
+
+</div>
 
 원본 SDK 경로의 노출된 dev 10건으로 평가 절차를 학습합니다. 사람 판정값을 채울 필요는 없습니다.
 모델 품질이 미달하면 평가 명령은 실패 상태를 표시하며, 이를 보고 원인과 다음 개선을 설명하는 것이 기본 학습 목표입니다.
@@ -47,6 +73,17 @@ python samples/evaluation_lab.py run --suite basic-learning --split dev --input 
 python scripts/prepare_eval_v3.py
 python -m unittest discover -s tests -v
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `prepare_eval_v3.py` | 이미 공개된 v1/v2 사례를 v3 dev 회귀 데이터로 준비합니다. 동일 파일은 확인하고, 다른 기존 파일은 덮어쓰지 않습니다. | 로컬 데이터 준비/일치 검사. v3 holdout을 읽거나 새 Azure 응답을 만들지 않습니다. |
+| 2. `python -m unittest discover -s tests -v` | `unittest` 모듈이 `tests/` 아래 테스트를 찾습니다. `-s`는 시작 폴더, `-v`는 각 테스트 이름을 표시합니다. | 로컬 계약·회귀 검사를 수행합니다. 통과해도 실제 Azure 품질 증거는 아닙니다. |
+
+</div>
 
 첫 명령은 원본 및 노출된 v2 사례 30건을 dev 회귀로 만들며 v3 holdout을 읽거나 만들지 않습니다.
 이미 준비된 파일이 다르면 덮어쓰지 않습니다. 이전 v1/v2 holdout은 v3의 최종 시험지가 아닙니다.
@@ -75,6 +112,19 @@ python samples/evaluation_lab.py calibrate --suite automated-v3 --live
 python samples/evaluation_lab.py run --suite automated-v3 --split dev --input results/실제-dev-responses.jsonl --live
 ```
 
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — L13/L14를 끝낸 심화 경로입니다.**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `hosted_client.py evaluate ... --version` | `--suite automated-v3 --split dev`의 30건을 정확한 숫자 버전의 Hosted agent에 보냅니다. `실제숫자`를 배포 결과로 바꾸며 `latest`는 쓰지 않습니다. | 실제 Hosted·모델·검색 비용과 새 응답 JSONL 생성. 끝나면 해당 세션 compute 중지를 확인합니다. |
+| 2. `evaluation_lab.py prepare ... --input` | 앞 명령의 실제 파일을 읽어 ID·질문·검색·도구·인용과 판정 입력을 검사합니다. `--live` 없이 로컬에서 수행됩니다. | 행 수·해시·evidence 실패 목록을 읽습니다. 점수나 모델 응답을 새로 생성하지 않습니다. |
+| 3. `calibrate --suite automated-v3 --live` | v3의 대조군 8건으로 judge의 기대 판정을 확인합니다. | judge 비용 발생. 불일치하면 기준을 낮추지 말고 평가자·설정을 진단합니다. |
+| 4. `run --suite automated-v3 --split dev` | 수집한 같은 dev 원본과 고정 기준으로 native 평가·업무 게이트를 판정합니다. | 원격 평가 비용 발생. 코드 검사와 judge 양쪽의 실패를 보존합니다. |
+
+</div>
+
 원본 응답은 append-only 증거와 함께 보존합니다. 재시도는 새 run으로 기록합니다.
 같은 데이터·rubric·judge·모델·runtime hash를 비교하고, 검증할 후보를 동결합니다.
 native 평가의 인증 주체가 달라 실패한다면 L22의 승인된 OIDC dev 경로로 동일 평가를 실행할 수 있습니다.
@@ -85,6 +135,17 @@ native 평가의 인증 주체가 달라 실패한다면 L22의 승인된 OIDC d
 python samples/hosted_client.py evaluate --suite automated-v3 --split holdout --version 동결한숫자 --live
 python samples/evaluation_lab.py run --suite automated-v3 --split holdout --input results/실제-holdout-responses.jsonl --live
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — dev 승인·설정 동결 후 최종 시험으로만 실행합니다.**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `evaluate --split holdout --version` | 독립 holdout 10건을 동결한 정확한 버전에 한 번 수집합니다. suite 실행 표식이 재수집을 제한합니다. | 실제 Hosted·검색·모델 비용과 원본 응답 생성. 실패했다고 통과할 때까지 재실행하지 않습니다. |
+| 2. `run --split holdout --input` | 방금 보존한 원본을 같은 suite·judge로 판정합니다. `--input`에는 dev 파일이 아닌 해당 holdout 응답 파일을 지정합니다. | 원격 평가 비용 발생. 전체 90%뿐 아니라 safety/access 실패 0건 등 모든 게이트를 확인합니다. |
+
+</div>
 
 봉인된 suite fingerprint별로 실행 표식을 남겨 무심코 다시 샘플링하지 않게 합니다.
 모델 응답이 실패했다고 같은 시험지가 통과할 때까지 재실행하지 않습니다.
@@ -112,7 +173,7 @@ JSON 파서/전송 문제를 보정할 때도 원래 응답은 바꾸지 않고 
 
 실제 응답·도구·인용과 native 판정이 연결되고, dev와 봉인 holdout의 결과를 구분해 기록했습니다.
 사람 검토는 완료 조건이 아닙니다. 향후 실제 운영에 적용할 때 업무 담당자의 표본 검토를 권장합니다.
-과거 v1의 9/10 실패는 `validation/history/v1/`에 보존하며 새 결과로 바꾸지 않습니다.
+과거 v1의 9/10 실패는 [정리 전 커밋의 v1 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation/history/v1)에서 확인합니다. 현재 파일 목록에서는 이전 기록을 정리하지만 과거 판정은 바꾸지 않습니다.
 
 v2의 새 시험지는 복합 질문 누락과 근거 선택 문제를 드러냈으므로 원본 실패를 보존하고 v3 dev로 전환했습니다.
 한 개발 사례의 실제 계약서 사용 거절은 SEC1 또는 PROC5가 같은 주장에 유효한 근거임을 원문으로 대조했습니다.
