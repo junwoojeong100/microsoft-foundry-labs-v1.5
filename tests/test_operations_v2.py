@@ -39,6 +39,7 @@ class OperationalFiles(unittest.TestCase):
         values = {
             "agent": "contoso-agent", "version": "2", "optimizer_deployment": "reflection",
             "suite": "automated-v2", "resume": None, "command": "scheduled-test",
+            "prompt_file": optimizer_lab.DATA / "prompts/agent-v4.txt",
             "receipt": self.directory / "routine-v2.json", "delay_seconds": 120, "wait_seconds": 360,
         }
         return SimpleNamespace(**{**values, **changes})
@@ -87,21 +88,34 @@ class OptimizerInputTests(OperationalFiles):
         self.assertEqual(inputs["options"]["max_candidates"], 2)
         self.assertEqual(inputs["options"]["max_stalls"], 1)
 
-    def test_payload_default_is_a_legacy_diagnostic_contract(self):
+    def test_payload_default_tracks_the_current_suite(self):
         with patch.object(optimizer_lab, "load_cases", return_value=[dev_case()]) as load:
             optimizer_lab.payload("agent", "2", "judge", "reflection")
-        load.assert_called_once_with("legacy-v1", split="dev")
+        load.assert_called_once_with(optimizer_lab.DEFAULT_SUITE, split="dev")
 
-    def test_cli_default_stays_on_the_approved_optimizer_suite(self):
+    def test_cli_default_tracks_the_current_suite(self):
         output = io.StringIO()
         with patch.object(sys, "argv", [
             "optimizer_lab.py", "--agent", "agent", "--version", "2", "--optimizer-deployment", "reflection",
         ]), patch.object(optimizer_lab, "load_cases", return_value=[dev_case()]) as load, \
                 patch.object(optimizer_lab, "project_client") as client, contextlib.redirect_stdout(output):
             optimizer_lab.main()
-        load.assert_called_once_with("automated-v2", split="dev")
+        load.assert_called_once_with(optimizer_lab.DEFAULT_SUITE, split="dev")
         client.assert_not_called()
-        self.assertEqual(json.loads(output.getvalue())["suite"], "automated-v2")
+        self.assertEqual(json.loads(output.getvalue())["suite"], optimizer_lab.DEFAULT_SUITE)
+
+    def test_selected_prompt_is_passed_without_changing_the_dev_dataset(self):
+        path = optimizer_lab.DATA / "prompts/current-approved.txt"
+        with patch.object(optimizer_lab, "load_cases", return_value=[dev_case()]), \
+                patch.object(optimizer_lab, "prompt_text", return_value="Matching deployed instructions") as prompt:
+            request = optimizer_lab.payload("agent", "3", "judge", "reflection", prompt_path=path)
+        prompt.assert_called_once_with(path)
+        self.assertEqual(request["inputs"]["options"]["optimization_config"]["system_prompt"], "Matching deployed instructions")
+
+    def test_prompt_argument_cannot_open_a_dataset(self):
+        with patch.object(Path, "read_text") as read, self.assertRaisesRegex(ValueError, "never a dataset"):
+            optimizer_lab.prompt_text(self.directory / "holdout.jsonl")
+        read.assert_not_called()
 
     def test_holdout_and_duplicate_rows_are_rejected(self):
         for rows in ([{**dev_case(), "split": "holdout"}], [dev_case(), dev_case()], []):
@@ -118,9 +132,20 @@ class OptimizerInputTests(OperationalFiles):
             optimizer_lab.run(self.args(suite="legacy-v1"), self.evidence)
         load.assert_not_called()
 
+    def test_new_live_job_requires_explicit_prompt_before_loading_cases(self):
+        with patch.object(optimizer_lab, "RESULTS", self.directory), \
+                patch.object(optimizer_lab, "read_config", return_value=(ENDPOINT, "model")), \
+                patch.object(optimizer_lab, "load_cases") as load, \
+                patch.object(optimizer_lab, "project_client") as client, \
+                self.assertRaisesRegex(ValueError, "require --prompt-file"):
+            optimizer_lab.run(self.args(prompt_file=None), self.evidence)
+        load.assert_not_called()
+        client.assert_not_called()
+
     def test_preflight_rejects_invocations_and_unsupported_reflection(self):
         project = Mock()
         project.agents.get_version.return_value.as_dict.return_value = {
+            "name": "a", "version": "2",
             "definition": {"kind": "hosted", "protocol_versions": [{"protocol": "invocations"}]},
         }
         with self.assertRaisesRegex(ValueError, "Responses"):
@@ -132,6 +157,17 @@ class OptimizerInputTests(OperationalFiles):
         project.deployments.get.return_value.as_dict.return_value = {"modelName": "gpt-5-mini"}
         with self.assertRaisesRegex(ValueError, "not supported"):
             optimizer_lab.preflight(project, "a", "2", "reflection", self.evidence)
+
+    def test_preflight_requires_the_exact_sdk_agent_and_version(self):
+        for name, version in (("another-agent", "2"), ("a", "3")):
+            project = Mock()
+            project.agents.get_version.return_value.as_dict.return_value = {
+                "name": name, "version": version,
+                "definition": {"kind": "hosted", "protocol_versions": [{"protocol": "responses"}]},
+            }
+            with self.assertRaisesRegex(ValueError, "identity/version"):
+                optimizer_lab.preflight(project, "a", "2", "reflection", self.evidence)
+            project.deployments.get.assert_not_called()
 
     def test_scope_and_receipt_mismatches_are_rejected(self):
         with patch.object(optimizer_lab, "RESULTS", self.directory):
@@ -279,6 +315,44 @@ class OptimizerOutcomeTests(unittest.TestCase):
 
 
 class OptimizerLifecycleTests(OperationalFiles):
+    def test_context_guard_retains_redacted_cli_reason_not_agent_secrets(self):
+        output = json.dumps({"name": "a", "definition": {"environment_variables": {"API_KEY": "do-not-log"}}})
+        result = SimpleNamespace(returncode=1, stdout=output,
+                                 stderr="ERROR: azure.ai.projects context failed; Bearer unit-secret")
+        with patch.object(optimizer_lab.subprocess, "run", return_value=result), \
+                self.assertRaisesRegex(RuntimeError, "azd exit 1:.*azure.ai.projects") as raised:
+            optimizer_lab.verify_session_context("a", ENDPOINT, self.evidence)
+        event, diagnostic = self.evidence.append.call_args.args
+        self.assertEqual(event, "session_management_probe")
+        self.assertEqual(diagnostic["returncode"], 1)
+        self.assertIn("azure.ai.projects", diagnostic["stderr"])
+        self.assertNotIn("unit-secret", str(raised.exception))
+        self.assertNotIn("do-not-log", json.dumps(diagnostic))
+
+    def test_context_guard_accepts_only_the_exact_named_env_value(self):
+        with patch.object(optimizer_lab.subprocess, "run", return_value=SimpleNamespace(
+            returncode=0, stdout=ENDPOINT + "\n", stderr="",
+        )) as cli:
+            optimizer_lab.verify_session_context("a", ENDPOINT, self.evidence)
+        self.assertEqual(cli.call_args.args[0], [
+            "azd", "env", "get-value", "AZURE_AI_PROJECT_ENDPOINT", "--no-prompt",
+        ])
+        self.assertEqual(self.evidence.append.call_args.args[1]["endpoint"], ENDPOINT)
+
+    def test_context_guard_rejects_unresolved_or_malformed_values(self):
+        for value in ("", "not an endpoint", json.dumps({"endpoint": ENDPOINT})):
+            with patch.object(optimizer_lab.subprocess, "run", return_value=SimpleNamespace(
+                returncode=0, stdout=value, stderr="",
+            )), self.assertRaisesRegex(ValueError, "unresolved or does not match"):
+                optimizer_lab.verify_session_context("a", ENDPOINT, self.evidence)
+            self.assertFalse(self.evidence.append.call_args.args[1]["matches_owned_endpoint"])
+
+    def test_context_guard_still_rejects_another_project(self):
+        with patch.object(optimizer_lab.subprocess, "run", return_value=SimpleNamespace(
+            returncode=0, stdout="https://other.services.ai.azure.com/api/projects/other\n", stderr="",
+        )), self.assertRaisesRegex(ValueError, "does not match the owned target"):
+            optimizer_lab.verify_session_context("a", ENDPOINT, self.evidence)
+
     def test_monitor_uses_explicit_get_and_finishes(self):
         operations = Mock()
         job = native_job()

@@ -14,12 +14,11 @@ import time
 from uuid import uuid4
 
 from cloud import project_client
-from evidence import Evidence, digest, serializable
-from evaluation_data import SUITES, load_cases
+from evidence import Evidence, digest, redacted, serializable
+from evaluation_data import DEFAULT_SUITE, SUITES, load_cases
 from workshop import DATA, RESULTS, config_values, read_config
 
 TERMINAL = {"succeeded", "failed", "cancelled"}
-OPTIMIZER_SUITE = "automated-v2"
 REFLECTION_MODELS = {
     "gpt-5", "gpt-5.1", "gpt-5.2", "gpt-5.4", "gpt-5.5", "deepseek-v4-pro", "deepseek-v-3.2",
 }
@@ -35,8 +34,19 @@ def dev_cases(suite: str) -> list[dict]:
     return cases
 
 
+def prompt_text(path: Path | None = None) -> str:
+    path = (path or DATA / "prompts/agent-v4.txt").resolve()
+    if path.parent != (DATA / "prompts").resolve() or path.suffix != ".txt":
+        raise ValueError("Optimizer prompts must be .txt instructions inside data/prompts, never a dataset.")
+    text = path.read_text(encoding="utf-8")
+    if not text.strip():
+        raise ValueError("Optimizer system prompt cannot be empty.")
+    return text
+
+
 def payload(agent: str, version: str, judge: str, optimizer: str,
-            suite: str = "legacy-v1", *, cases: list[dict] | None = None) -> dict:
+            suite: str = DEFAULT_SUITE, *, cases: list[dict] | None = None,
+            prompt_path: Path | None = None) -> dict:
     dev = dev_cases(suite) if cases is None else cases
     if not dev or any(case.get("split") != "dev" for case in dev):
         raise ValueError("Holdout rows cannot enter an optimization request.")
@@ -49,7 +59,7 @@ def payload(agent: str, version: str, judge: str, optimizer: str,
         "evaluators": [{"name": "builtin.task_adherence"}],
         "options": {"max_candidates": 2, "max_stalls": 1, "eval_model": judge,
                     "optimization_model": optimizer,
-                    "optimization_config": {"system_prompt": (DATA / "prompts/agent-v4.txt").read_text(encoding="utf-8")}},
+                    "optimization_config": {"system_prompt": prompt_text(prompt_path)}},
     }}
 
 
@@ -162,6 +172,8 @@ def recorded_job(job_id: str, endpoint: str, agent: str, version: str) -> dict:
 
 def preflight(project, agent: str, version: str, optimizer: str, evidence: Evidence) -> None:
     target = project.agents.get_version(agent, version).as_dict()
+    if target.get("name") != agent or str(target.get("version")) != version:
+        raise ValueError("SDK agent identity/version does not match the requested owned target.")
     definition = target.get("definition", {})
     protocols = definition.get("protocol_versions", definition.get("container_protocol_versions", []))
     if definition.get("kind") != "hosted" or not any(p.get("protocol") == "responses" for p in protocols):
@@ -190,18 +202,31 @@ def session_command(agent: str, evidence: Evidence, *args: str, json_output: boo
 
 
 def verify_session_context(agent: str, endpoint: str, evidence: Evidence) -> None:
+    command = ["azd", "env", "get-value", "AZURE_AI_PROJECT_ENDPOINT", "--no-prompt"]
     result = subprocess.run(
-        ["azd", "ai", "agent", "show", agent, "--output", "json", "--no-prompt"],
-        text=True, capture_output=True, timeout=90, check=False,
+        command, text=True, capture_output=True, timeout=90, check=False,
     )
+    actual = result.stdout.strip()
+    matches = bool(actual) and actual == endpoint
+    diagnostic = {
+        "command": command, "expected_project_endpoint": endpoint, "returncode": result.returncode,
+        "stderr": redacted(result.stderr), "stdout_digest": digest(result.stdout),
+        "stdout_length": len(result.stdout), "value_present": bool(actual),
+        "matches_owned_endpoint": matches, "resolved_project_endpoint": actual if matches else None,
+    }
+    # Read only the named endpoint, without an agent-status command or a fallback to another context.
+    evidence.append("session_management_probe", diagnostic)
     if result.returncode:
-        raise RuntimeError("Cannot confirm the azd session-management project; no optimizer job submitted.")
-    target = json.loads(result.stdout)
-    expected = f"{endpoint}/agents/{agent}/endpoint/protocols/openai/responses"
-    actual = target.get("agent_endpoints", {}).get("responses", "").split("?")[0]
-    if target.get("name") != agent or actual != expected:
-        raise ValueError("azd session-management context is not the owned target project.")
-    evidence.append("session_management_scope", {"agent": agent, "endpoint": actual})
+        detail = diagnostic["stderr"].strip()[:1600] or "No stderr; inspect the recorded context probe."
+        raise RuntimeError(
+            f"Cannot confirm the azd session-management project; no optimizer job submitted. "
+            f"azd exit {result.returncode}: {detail}"
+        )
+    if not matches:
+        raise ValueError("azd AZURE_AI_PROJECT_ENDPOINT is unresolved or does not match the owned target project.")
+    evidence.append("session_management_scope", {
+        "agent": agent, "endpoint": actual, "source": "azd env get-value AZURE_AI_PROJECT_ENDPOINT",
+    })
 
 
 def sessions(agent: str, evidence: Evidence) -> list[dict]:
@@ -448,6 +473,8 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
     receipt = recorded_job(args.resume, endpoint, args.agent, args.version) if args.resume else None
     if not args.resume and args.suite == "legacy-v1":
         raise ValueError("Legacy suites are diagnostic-only; use --resume for an existing legacy job.")
+    if not args.resume and getattr(args, "prompt_file", None) is None:
+        raise ValueError("New live jobs require --prompt-file matching the selected deployed Responses version.")
     cases = None if args.resume else dev_cases(args.suite)
     judge = config_values()["FOUNDRY_JUDGE_DEPLOYMENT_NAME"]
     if not args.resume and not judge:
@@ -466,7 +493,10 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
                 preflight(project, args.agent, args.version, args.optimizer_deployment, evidence)
                 verify_session_context(args.agent, endpoint, evidence)
                 before = {row["agent_session_id"] for row in sessions(args.agent, evidence)}
-                request = payload(args.agent, args.version, judge, args.optimizer_deployment, args.suite, cases=cases)
+                request = payload(
+                    args.agent, args.version, judge, args.optimizer_deployment, args.suite, cases=cases,
+                    prompt_path=getattr(args, "prompt_file", None),
+                )
                 evidence.append("submitted_config", {
                     "payload": request, "suite": args.suite, "dev_ids": [c["id"] for c in cases],
                     "dev_sha256": digest(cases), "configuration_sha256": digest(request),
@@ -529,7 +559,8 @@ def main() -> None:
     parser.add_argument("--agent")
     parser.add_argument("--version")
     parser.add_argument("--optimizer-deployment", required=True)
-    parser.add_argument("--suite", choices=SUITES, default=OPTIMIZER_SUITE)
+    parser.add_argument("--suite", choices=SUITES, default=DEFAULT_SUITE)
+    parser.add_argument("--prompt-file", type=Path, help="Required for new live jobs: matching baseline in data/prompts/*.txt.")
     parser.add_argument("--require-oidc", action="store_true", help="Require the existing CI identity in the ownership ledger.")
     parser.add_argument("--live", action="store_true")
     mode = parser.add_mutually_exclusive_group()
@@ -552,6 +583,8 @@ def main() -> None:
             "reflection_probe": args.probe_reflection, "require_owned_oidc": args.require_oidc,
             "dev_items": len(cases), "holdout_items": 0, "max_candidates": 2,
             "max_stalls": 1, "max_seconds": 600, "auto_promote": False,
+            "prompt_file": str(args.prompt_file or DATA / "prompts/agent-v4.txt"),
+            "prompt_selection_required": args.prompt_file is None and not args.resume,
             "dev_ids": [case["id"] for case in cases],
         }, ensure_ascii=False, indent=2))
         return

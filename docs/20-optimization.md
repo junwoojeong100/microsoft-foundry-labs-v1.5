@@ -33,17 +33,17 @@ Prompt agent는 instructions·함수 description·모델 선택 등을, Hosted a
 동봉 native Agent Optimizer 경로:
 
 ```bash
-python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --suite automated-v2
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --suite automated-v2 --live
+python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --prompt-file data/prompts/해당버전의지시.txt
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --prompt-file data/prompts/해당버전의지시.txt --live
 ```
 
-첫 명령에서 제출될 **automated-v2 dev 20건·holdout 0건**, 후보 최대 2개, stall 최대 1회를 확인합니다.
-기존에 노출된 20건은 v2 dev이고, 새로 봉인된 holdout은 optimizer가 파일을 열거나 제출하지 않습니다.
+첫 명령에서 제출될 **현재 suite의 전체 dev 건수·holdout 0건**, 후보 최대 2개, stall 최대 1회를 확인합니다.
+`DEFAULT_SUITE`가 기본값이며 `--suite`로 명시적으로 선택할 수도 있습니다. dev 건수를 하드코딩하지 않습니다.
+새로 봉인된 holdout은 optimizer가 파일을 열거나 제출하지 않습니다.
 `load_cases(suite, split="dev")`로 dev 파일만 읽습니다. 전체 split을 읽은 뒤 필터링하지 않습니다.
 suite·dev ID/hash·실제 제출 설정을 원본 evidence에 기록하며, holdout 기반의 품질 통과를 주장하지 않습니다.
-다른 실습의 기본 suite가 바뀌어도 이 비교의 CLI 기본값은 `automated-v2`로 고정합니다.
-기존 함수 호출 `payload(...)`는 진단용 `legacy-v1` 기본값을 유지하지만,
-CLI 실행은 선택한 suite를 명시적으로 전달하며 새 legacy job은 제출하지 않습니다.
+`payload(...)`와 CLI 모두 `DEFAULT_SUITE`를 따릅니다. legacy 데이터의 진단은
+`suite="legacy-v1"`을 명시해야 하며, 새 legacy job은 제출하지 않습니다.
 
 Hosted native 최적화는 `AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing-responses --no-prompt`로 준비한
 **Responses adapter**를 대상으로 합니다. Invocations agent를 그대로 제출하면 서비스가 400으로 거절합니다.
@@ -54,9 +54,11 @@ Hosted 패키지는 `azure-ai-agentserver-optimization==1.0.0b1`의 `load_config
 `.agent_configs/baseline/`을 포함합니다. baseline model은 패키징 시 승인된 배포 이름으로 고정하며,
 환경이 없을 때 만든 오프라인 패키지는 실행 전에 다시 생성해야 합니다.
 client-side 함수를 서버가 실행할 수 없는 agent를 대상으로 삼지 않습니다.
-동봉 runner의 명시적 `optimization_config.system_prompt`는 `agent-v4.txt`이며,
-이번 실험의 대상은 이를 포함한 `contoso-purchasing-responses` version `2`입니다.
-다른 baseline을 대상으로 바꿀 때는 원본 지시와 optimizer 입력이 같은지 먼저 확인합니다.
+기존 실험은 `agent-v4.txt`를 포함한 `contoso-purchasing-responses` version `2`가 대상이었습니다.
+다른 baseline에는 `--prompt-file data/prompts/해당버전의지시.txt`로 **배포된 지시와 같은 파일**을 지정합니다.
+새 `--live` job은 `--prompt-file`이 필수입니다. 함수/plan의 v4 기본값은 기존 진단용이며,
+이를 생략한 채 새 버전으로 job을 제출할 수 없습니다. 최신 지시를 자동 추측하지 않습니다.
+prompt 인자는 `data/prompts/*.txt`만 허용하며 데이터셋을 지시 파일로 읽지 않습니다.
 inline 학습 데이터의 wire 필드는 `train_dataset.items`입니다(`dataset_items`가 아닙니다).
 
 최대 10분은 **job 생성 시각부터** 계산합니다. 모니터링을 재개해도 시간을 다시 주지 않습니다.
@@ -86,7 +88,7 @@ session ID도 수집합니다. `show`로 생성 시각과 version을 검증한 �
 후보 파일과 변경 사유를 남기고 L08의 같은 dev 기준으로 비교한 뒤 holdout을 한 번 확인합니다.
 
 azd의 자동 suite 생성은 최소 15 samples를 요구할 수 있습니다. 수를 맞추려고 사례를
-복제하거나 봉인된 holdout을 넣지 않습니다. 동봉 SDK runner는 승인된 v2 dev 20건만
+복제하거나 봉인된 holdout을 넣지 않습니다. 동봉 SDK runner는 선택한 suite의 전체 dev만
 직접 제출하며, 자동 생성 CLI의 지원 범위와 구분합니다.
 기존 legacy-v1 작업은 원래 receipt로 조회만 재개할 수 있고 새 legacy 작업 제출은 거절합니다.
 이 경로는 데이터 파일을 다시 읽거나 작업을 재제출하지 않습니다.
@@ -154,23 +156,26 @@ job·오류·세션 중지 기록은 `results/contoso-optimizer-ea97bd8ba694*.js
 
 추가 로컬 job은 제출하지 않았습니다. 남은 차등 진단은 이미 승인된 OIDC CI 주체로
 **같은 Responses version 2·dev 20건·task_adherence·judge `contoso-judge`·reflection `contoso-reflection`**
-설정을 한 번 실행하는 것입니다. OIDC가 원인/해결책임을 확인한 것은 아닙니다.
-CI의 Azure CLI와 azd가 같은 소유 환경에 로그인한 뒤 위 `--suite automated-v2 --live` 명령을 사용하고,
+설정을 한 번 실행하는 것이었습니다. OIDC가 원인/해결책임을 확인한 것은 아닙니다.
+현재 baseline 실험은 현재 `DEFAULT_SUITE`와 해당 Responses 버전/지시를 사용합니다.
+CI의 Azure CLI와 azd가 같은 소유 환경에 로그인한 뒤 위 명령을 사용하고,
 후보 최대 2개·stall 1회·10분·승격/배포 없음·봉인 holdout 접근 없음 제한을 유지합니다.
 
 #### 선택: CI dev에서 OIDC 차등 진단
 
 먼저 데이터셋을 전혀 읽지 않는 단일 모델 probe를 실행합니다. probe 통과도 native optimizer 성공이나
 새 Invocations 버전의 품질 통과를 뜻하지 않습니다. 이어지는 비교는 원래 지시와 일치하는
-**기존 Responses version 2**만 대상으로 하며, 새 Invocations 버전을 optimizer에 제출하지 않습니다.
+**현재 Responses 버전**을 대상으로 하며, Invocations 버전을 optimizer에 제출하지 않습니다.
+기존 version 2를 명시적으로 재현할 때만 이전 지시/suite를 선택합니다.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
 python samples/optimizer_lab.py --probe-reflection --optimizer-deployment contoso-reflection --require-oidc --live
 
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
-python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 2 \
-  --optimizer-deployment contoso-reflection --suite automated-v2 --require-oidc --live
+python samples/optimizer_lab.py --agent 실제-Responses-agent --version 해당버전 \
+  --prompt-file data/prompts/해당버전의지시.txt \
+  --optimizer-deployment contoso-reflection --require-oidc --live
 ```
 
 probe는 모델 요청 1회, completion 최대 256 tokens, 모델 응답 timeout 45초, 재시도 0회입니다.
@@ -182,6 +187,8 @@ CI가 전달할 안전한 필드는 프로젝트 endpoint·계정/프로젝트�
 위 OIDC 식별자, `monitoring.appId.value`와 `monitoring.appInsightsId.value`입니다.
 일반 환경 변수는 `FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat`,
 `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`이며 azd도 같은 소유 프로젝트로 해석되어야 합니다.
+프로젝트 guard는 `azd env get-value AZURE_AI_PROJECT_ENDPOINT`의 값을 소유 endpoint와 정확히 비교합니다.
+별도의 SDK 조회에서 agent 이름·버전·Responses protocol을 확인하며, 해석되지 않거나 다른 프로젝트인 값은 거절합니다.
 probe evidence에서 `identity.owned_ci_principal=true`, HTTP 200, 실제 response/request ID,
 지원 model 이름과 `finish_reason=stop`을 확인합니다. job의 경고·오류는 별도로 보존하고,
 이 선택 진단의 결과로 dev/calibration/release 품질 gate를 대체하거나 완화하지 않습니다.
