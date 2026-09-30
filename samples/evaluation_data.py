@@ -55,6 +55,11 @@ def load_cases(suite: str = DEFAULT_SUITE, split: str | None = None) -> list[dic
             for field in ("required_citations", "required_tools", "forbidden_tools"):
                 if not isinstance(row.get(field), list) or any(not isinstance(x, str) for x in row[field]):
                     raise ValueError(f"Case field {field} must be an explicit string list.")
+            groups = row.get("required_citation_groups", [])
+            if not isinstance(groups, list) or any(
+                not isinstance(group, list) or not group or any(not isinstance(x, str) for x in group) for group in groups
+            ):
+                raise ValueError("Citation equivalence groups must be explicit nonempty source-ID lists.")
         rows.extend(values)
     if len({row["id"] for row in rows}) != len(rows) or len({row["scenario"] for row in rows}) != len(rows):
         raise ValueError("Duplicate case IDs/scenarios or scenario overlap across splits.")

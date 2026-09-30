@@ -63,6 +63,7 @@ jobs:
         with:
           version: "1.34.0"
       - run: azd extension install azure.ai.agents --version 1.0.0-beta.10
+      - run: azd extension install azure.ai.projects --version 1.0.0-beta.6
       - uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}

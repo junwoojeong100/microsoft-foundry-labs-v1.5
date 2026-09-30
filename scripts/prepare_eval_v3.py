@@ -17,8 +17,18 @@ def main():
     source = load_jsonl(v2 / "dev.jsonl") + load_jsonl(v2 / "holdout.jsonl")
     rows = []
     for number, row in enumerate(source, 1):
-        rows.append({**row, "id": f"v3-dev-{number:02}", "split": "dev",
-                     "origin": {"suite": "automated-v2", "id": row["id"], "original_split": row["split"]}})
+        prepared = {**row, "id": f"v3-dev-{number:02}", "split": "dev",
+                    "origin": {"suite": "automated-v2", "id": row["id"], "original_split": row["split"]}}
+        if row["id"] == "v2-hold-10":
+            prepared["required_citations"] = ["CONTOSO-SEC-2026-09-s2", "CONTOSO-PROC-2026-09-s2"]
+            prepared["required_citation_groups"] = [["CONTOSO-PROC-2026-09-s5", "CONTOSO-SEC-2026-09-s1"]]
+            prepared["oracle_review"] = (
+                "Independent source review: SEC1 explicitly excludes actual contracts and is valid for that refusal, "
+                "while PROC5 states non-guessing/referral. Permission evidence SEC2 and public cap PROC2 remain mandatory. "
+                "Expected behavior, including non-invention and a legitimate confirmation path, is unchanged. "
+                "The original v2 oracle and failure remain immutable."
+            )
+        rows.append(prepared)
     write_new(v3 / "dev.jsonl", rows)
     target = v3 / "calibration.jsonl"
     if target.exists() and target.read_bytes() != (v2 / "calibration.jsonl").read_bytes():

@@ -37,6 +37,9 @@ def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: 
     selected_ids = {c.get("id") for c in citations}
     if not set(case.get("required_citations", [])) <= selected_ids:
         failures.append("required_policy_evidence")
+    for alternatives in case.get("required_citation_groups", []):
+        if not isinstance(alternatives, list) or not alternatives or not set(alternatives) & selected_ids:
+            failures.append("required_policy_evidence")
     retrievals = [c for c in calls if c.get("name") == "search_policies" and c.get("execution") == "server_required"]
     if len(retrievals) != 1 or not retrievals[0].get("output", {}).get("ok"):
         failures.append("required_server_search")
