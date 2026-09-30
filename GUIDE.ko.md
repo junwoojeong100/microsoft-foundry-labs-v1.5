@@ -3647,7 +3647,7 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 **어떻게 사용하나요?** 먼저 로컬 계약 검사를 통과하고, 승인된 비운영 환경의 dev 검증을 실행합니다. 설정·데이터·기준을 동결한 뒤에만 release 경로를 선택합니다. 실패한 실행은 원본 그대로 남기고 이전 승인 버전으로 돌아갈 조건을 정하세요. 제작자의 결과를 새 학습자 환경의 통과 증거로 재사용하지 않습니다.
 
-**어디서 실행하나요?** [validate.yml](.github/workflows/validate.yml)은 기본 검사, [azure-validation.yml](.github/workflows/azure-validation.yml)은 별도 승인 실행, [ci_live.py](scripts/ci_live.py)는 대상·품질 경계 검사입니다. GitHub Actions 화면에서 실행 브랜치·입력·결과를 확인하고 Foundry 포털에서는 실제 배포 버전을 대조합니다.
+**어디서 실행하나요?** [validate.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/docs/portal-walkthrough-20260930/.github/workflows/validate.yml)은 기본 검사, [azure-validation.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/docs/portal-walkthrough-20260930/.github/workflows/azure-validation.yml)은 별도 승인 실행, [ci_live.py](scripts/ci_live.py)는 대상·품질 경계 검사입니다. GitHub Actions 화면에서 실행 브랜치·입력·결과를 확인하고 Foundry 포털에서는 실제 배포 버전을 대조합니다.
 
 ## 준비
 

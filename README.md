@@ -124,6 +124,7 @@ MAF의 `requirements-advanced.txt`는 충돌 방지를 위해 별도 환경에 �
 
 루트의 `.nojekyll`은 이미 생성된 `index.html`과 로컬 자산을 Jekyll로 다시 처리하지 않고 그대로 게시하도록 합니다.
 공개 사이트의 경로는 `/microsoft-foundry-labs-v1.5/`이며 이미지·모듈 링크는 이 하위 경로에서도 동작합니다.
+Pages에서 제외되는 `.github/`의 workflow 링크는 GitHub 코드 보기로 연결합니다. ZIP에는 원본 workflow 파일도 포함됩니다.
 가이드만 읽을 때 GitHub 로그인이나 Azure 인증은 필요 없고, Azure 실습 실행에는 별도 인증·비용 승인이 필요합니다.
 
 인증 파일·`.env`·`results/`·브라우저 세션은 커밋하지 않습니다. 기존 검증의 저장소 비공개 표시는 그 실행 당시의 기록이므로 고치지 않습니다.
