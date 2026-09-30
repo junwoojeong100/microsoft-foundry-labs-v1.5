@@ -24,37 +24,37 @@ You need voice Preview access for a supported region/project, a compatible voice
 
 Select **Build → Agents → New agent → Build an agent → Interaction mode: Voice**. The creation dialog states that interaction mode cannot be changed after creation, so use a separate voice lab agent. Record the current UI defaults for model, language, voice, and turn detection.
 
-![The actual Create an agent dialog with the synthetic name contoso-voice-lab and Voice Preview selected. It shows the notice that interaction mode cannot be changed after creation, plus create and cancel buttons.](../../assets/portal/15-voice-setup.png)
+![The Voice Preview creation dialog in contoso-workshop-en, using a synthetic lab-agent name. Inspect interaction mode and English-language configuration before creating anything.](../../assets/portal/en/15-voice-setup.png)
 
-**Read the screen:** **Agent name** is a synthetic name distinct from the other labs; **Interaction mode** is **Voice Preview**. During the capture, only these two inputs were selected before closing with **Cancel**. **Create agent and open playground** was not clicked, and no voice agent, microphone session, or paid voice call was created. Viewing the Preview selection screen is different from completing a real voice conversation.
+**Read the screen:** **Agent name** must be a synthetic name distinct from the other labs; **Interaction mode** is **Voice Preview**. The English capture's form was closed with **Cancel**, not **Create agent and open playground**. No voice-session success is claimed from that observation. Consult the [English capture log](../../content/portal-screenshots.en.json) for exact capture actions. A Preview selection screen does not prove agent creation, microphone access, or a successful paid voice conversation.
 
-Learners proceeding with the lab should enter a **Voice agent goal** such as “Provide brief guidance in Korean on synthetic Contoso purchasing policies; do not place real orders or perform approvals.” In the capture, this field was empty and the create button was disabled. After creating the agent in an approved environment, review the Playground's instructions, model, voice, and language settings; do not use automatically filled settings without checking them.
+Learners proceeding with the lab should enter a **Voice agent goal** such as “Provide brief guidance in English on synthetic Contoso purchasing policies; do not place real orders or perform approvals.” After creating the agent in an approved environment, review the Playground's instructions, model, voice, and English-language settings; do not use automatically filled settings without checking them.
 
 Instructions:
 
 ```text
 You are a Contoso purchasing guidance lab assistant.
-Speak briefly in Korean and confirm one thing at a time.
+Speak briefly in English and confirm one thing at a time.
 Reconfirm amounts and quantities.
 Do not place real orders, grant approvals, or make payments.
 If a tool fails, report the failure and do not claim success.
 Do not read long tables or full identification numbers aloud.
 ```
 
-Check whether connecting L05's knowledge is supported. Do not answer as though you remember knowledge that is not available.
+Check whether connecting L05's English knowledge from `data/en/policies/` is supported. Do not answer as though you remember knowledge that is not available.
 
 ### 2. Start a short conversation
 
-After saving, select **Start session** and, if needed, personally allow microphone access in the browser. Say “노트북 두 대를 구매하려고 해요” (“I'd like to buy two laptops”).
+After saving, select **Start session** and, if needed, personally allow microphone access in the browser. Say “I'd like to buy two laptops.”
 
 ### 3. Check conversation quality
 
 | Check | Expected behavior |
 | --- | --- |
-| Recognizing “두 대” (“two units”) | Understands the quantity as 2 and confirms it |
+| Recognizing “two laptops” | Understands the quantity as 2 and confirms it |
 | A brief silence while the user is speaking | Does not cut off the utterance too quickly |
 | The user interrupts the agent's speech | Handles stopping or redirecting the response correctly |
-| “두 대가 아니라 한 대요” (“Not two—one”) | Uses the latest quantity |
+| “Not two—one laptop, please” | Uses the latest quantity |
 | Tool failure | Does not say the order was placed |
 | End session | The microphone and session close correctly |
 
@@ -65,10 +65,10 @@ End the session before changing settings. Inspect the voice transcript, response
 | Capability | Short additional exercise |
 | --- | --- |
 | Speech-to-text | Recognize the same synthetic sentence 3 times and check quantity/amount errors |
-| Text-to-speech | Check natural pronunciation of “1,450,000원” (KRW 1,450,000) |
+| Text-to-speech | Check natural English pronunciation of “KRW 1,450,000” |
 | Language / PII | Compare detection and masking of the synthetic `lab.user@example.invalid` |
 | Language / classification and summarization | Compare 3 labels: purchasing, inventory, and policy inquiries |
-| Translator | Translate the same policy sentence between Korean and English and check that amounts and obligations are preserved |
+| Translator | Translate the same English policy sentence into another supported language and back; check that amounts and obligations are preserved |
 
 Translator's `2026-06-06` GA request/response contract may differ from v3.0. Do not casually mix an existing `text` payload example with the new version; check that version's contract, including fields such as `inputs`/`value`.
 

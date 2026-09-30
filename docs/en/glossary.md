@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | Foundry resource | A parent Azure resource grouping resources related to security, management, and billing | A single agent |
 | Project | A workspace for agents, connections, data, and related work | A Classic hub |
+| Lab language profile | `FOUNDRY_LAB_LANGUAGE=en` selects English synthetic inputs; Hosted packages bind their language in `lab-profile.json` | The guide's browser-language switch or a new quality-pass result |
 | Model ID | A model name defined by its provider | Your deployment name |
 | Model version | A specific version of a model | An agent version |
 | Deployment | A model prepared for invocation through an API | A model catalog card |

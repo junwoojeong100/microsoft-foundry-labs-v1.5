@@ -15,7 +15,7 @@ from hosted_client import azd
 from evaluation_data import DEFAULT_SUITE, policy, suite_hash
 from business_checks import check_business_evidence
 from lab_profile import validation_for
-from workshop import LANGUAGE, RESULTS, save_json
+from workshop import DATA, LANGUAGE, RESULTS, save_json
 
 
 def required(name: str) -> str:
@@ -83,6 +83,11 @@ def run(phase: str) -> None:
         })
         return
     if phase == "optimizer":
+        baseline_version = required("FOUNDRY_OPTIMIZER_AGENT_VERSION") if LANGUAGE == "en" else "2"
+        if not re.fullmatch(r"[1-9]\d*", baseline_version):
+            raise ValueError("Optimizer CI requires an explicitly pinned numeric baseline version.")
+        optimizer_suite = DEFAULT_SUITE if LANGUAGE == "en" else "automated-v2"
+        optimizer_prompt = DATA / ("prompts/agent-v6.txt" if LANGUAGE == "en" else "prompts/agent-v4.txt")
         from azure_environment import az
         group = az("group", "show", "--subscription", subscription, "--name", rg)
         project = az("rest", "--method", "get", "--url", project_id + "?api-version=2025-06-01")
@@ -116,16 +121,16 @@ def run(phase: str) -> None:
             raise RuntimeError("Same-principal reflection probe failed; no optimizer job submitted.")
         result = subprocess.run([
             sys.executable, "samples/optimizer_lab.py", "--agent", "contoso-purchasing-responses",
-            "--version", "2", "--optimizer-deployment", "contoso-reflection",
-            "--suite", "automated-v2", "--prompt-file", "data/prompts/agent-v4.txt", "--require-oidc", "--live",
+            "--version", baseline_version, "--optimizer-deployment", "contoso-reflection",
+            "--suite", optimizer_suite, "--prompt-file", str(optimizer_prompt), "--require-oidc", "--live",
         ], cwd=ROOT, check=False, timeout=840)
         terminal = []
         for path in RESULTS.glob("contoso-optimizer-*-terminal.json"):
             terminal.append(redacted(json.loads(path.read_text())))
         save_json(validation_for(ROOT) / "optimizer-oidc/result.json", {
             "workflow_run_id": os.environ["GITHUB_RUN_ID"], "returncode": result.returncode,
-            "target_agent": "contoso-purchasing-responses", "target_version": "2",
-            "suite": "automated-v2", "purpose": "same-target OIDC differential diagnosis, not a v3 quality claim",
+            "target_agent": "contoso-purchasing-responses", "target_version": baseline_version,
+            "suite": optimizer_suite, "purpose": "dev-only OIDC optimization; not an independent release-quality claim",
             "terminal_results": terminal,
         })
         if result.returncode:

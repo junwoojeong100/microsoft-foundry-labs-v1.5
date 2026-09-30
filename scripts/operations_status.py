@@ -64,11 +64,21 @@ def main():
         retained = validation_for(ROOT) / "current/routine.json"
         if retained.exists():
             proof = json.loads(retained.read_text())
-            if not report["routine"] or proof["name"] != report["routine"]["name"]:
+            verified = (
+                proof.get("verification") == "completed_action_trace"
+                and bool(proof.get("response_id")) and bool(proof.get("trace_id"))
+            )
+            if report["routine"] and proof["name"] == report["routine"]["name"]:
+                report["routine"].update(
+                    scheduled_execution_verified=verified,
+                    verification_source="retained actual completed action trace, not an invented run-history ID",
+                    response_id=proof.get("response_id"), trace_id=proof.get("trace_id"),
+                )
+            else:
                 current = azd(endpoint, evidence, "show", proof["name"])
                 report["routines"].append({
                     "name": current["name"], "enabled": current["enabled"],
-                    "scheduled_execution_verified": proof.get("verification") == "completed_action_trace" and bool(proof.get("response_id")) and bool(proof.get("trace_id")),
+                    "scheduled_execution_verified": verified,
                     "verification_source": "retained actual completed action trace, not an invented run-history ID",
                     "response_id": proof.get("response_id"), "trace_id": proof.get("trace_id"),
                 })

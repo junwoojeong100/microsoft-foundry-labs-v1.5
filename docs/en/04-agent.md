@@ -12,25 +12,25 @@ A Prompt Agent is a managed agent declared through **model + instructions + tool
 
 **How do you use it?** Set the model and instructions in the portal, then test missing knowledge, missing tools, the same conversation, and a new conversation in turn. Record the instruction version separately from conversation context. Observe whether the agent respects the limits of its provided capabilities, not merely whether it produces plausible text.
 
-**Where do you run it?** The portal is the main path; the SDK provides an optional comparison. Read the [instruction source](../../data/prompts/agent-v4.txt) first, then compare it with the [SDK implementation](../../samples/workshop.py). The two paths create separate agents; they do not automatically synchronize the same object.
+**Where do you run it?** The portal is the main path; the SDK provides an optional comparison. Read the [English instruction source](../../data/en/prompts/agent-v4.txt) first, then compare it with the [SDK implementation](../../samples/workshop.py). The two paths create separate agents; they do not automatically synchronize the same object.
 
 ## Prerequisites
 
-You need project `Foundry User` access, a callable model, and `data/prompts/agent-v4.txt`.
+You need project `Foundry User` access, a callable model, and `data/en/prompts/agent-v4.txt`. Keep L01's English profile selected for the SDK path.
 
 ## Steps
 
 ### 1. Create the agent in the portal
 
-Select **Build → Agents → New agent → Build an agent**. At the time of capture, **New agent** opened a menu of Build, Code, template, and other paths. Set the name to `contoso-procurement`, the mode to **Text**, and the model to the deployment from L02. Other UI versions may show a **Build an agent** button directly.
+Select **Build → Agents → New agent → Build an agent**. Depending on the UI version, **New agent** may open a menu of Build, Code, template, and other paths, or the page may show **Build an agent** directly. Set the name to `contoso-procurement`, the mode to **Text**, and the model to the deployment from L02.
 
-Paste the contents of `data/prompts/agent-v4.txt` into Instructions. You have not yet attached File search or function tools, so the agent **must not claim to have used tools it does not have**.
+Paste the contents of `data/en/prompts/agent-v4.txt` into Instructions in your English project. Do not reuse a Korean agent's instructions. You have not yet attached File search or function tools, so the agent **must not claim to have used tools it does not have**.
 
-![The live Contoso Prompt Agent Playground. Model, Instructions, and Tools are on the left; Chat/YAML and the message input are on the right; version controls and Save, Publish, and Traces appear at the top.](../../assets/portal/04-prompt-playground.png)
+![The Prompt Agent Playground in contoso-workshop-en, with English instructions, model/tools settings, conversation input, and version controls.](../../assets/portal/en/04-prompt-playground.png)
 
 **Reading the screen:** Check the deployment name under **Model** and the prompt under **Instructions** on the left, then enter test questions in **Chat** on the right. **Version** at the top identifies the configuration version; **New chat** separates conversation contexts. **Save** changes configuration, while **Send** submits a billable request. Confirm your purpose before clicking either.
 
-The screenshot is a **read-only observation of an existing lab agent that already had knowledge and functions connected**. It is normal for the agent you create in L04 not to have the File search and functions shown in the image yet. No messages were sent, and no instructions or versions were saved during the capture.
+The screenshot concerns the English lab project; its exact agent state and capture actions are recorded in the [English capture log](../../content/portal-screenshots.en.json). If it shows File search or functions already connected, those belong to later integration steps, not the L04 baseline. A visible configuration is not proof that the agent used its tools successfully.
 
 ### 2. Check the limits with baseline questions
 
@@ -84,7 +84,7 @@ python samples/workshop.py agent --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. The default instruction file is `data/prompts/agent-v4.txt`. | No Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
+| 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. With the English profile selected, the default instruction file is `data/en/prompts/agent-v4.txt`. | No Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
 | 2. `agent --live` | Creates a uniquely named `contoso-lab-...` agent and conversation, then obtains a real model response. It does not modify the agent created in the portal. | Incurs inference/service costs and creates new lab objects. Keep the printed receipt path for cleanup in L12. |
 
 </div>

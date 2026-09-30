@@ -12,17 +12,17 @@ Distinguish **Vision model descriptions, OCR/layout, schema extraction with Cont
 
 **How do you use it?** Process the same synthetic receipt once as a free-form description and once as structured extraction, then compare missing values, guesses, and evidence. Next, calculate over the CSV's 9 rows and compare with the known monthly/overall totals. Correct values and source row counts matter more than attractive JSON or charts.
 
-**Where do you run it?** Open [receipt.html](../../data/receipt.html) in a browser and read it alongside the [expected-results file](../../data/receipt.expected.json) and [expense CSV](../../data/monthly-spend.csv). Inference, analyzers, and Code Interpreter each require a supported portal/service and cost approval; simply opening a file does not count as completing a service execution.
+**Where do you run it?** Open the English [receipt.html](../../data/en/receipt.html) in a browser and read it alongside the [expected-results file](../../data/en/receipt.expected.json) and [expense CSV](../../data/en/monthly-spend.csv). Inference, analyzers, and Code Interpreter each require a supported portal/service and cost approval; simply opening a file does not count as completing a service execution.
 
 ## Prerequisites
 
-Use `data/receipt.html`, `receipt.expected.json`, and `monthly-spend.csv`. No real receipts, bank accounts, or identity documents are needed. Content Understanding additionally requires the service, model deployments, permissions, and cost approval.
+Use `data/en/receipt.html`, `data/en/receipt.expected.json`, and `data/en/monthly-spend.csv`. No real receipts, bank accounts, or identity documents are needed. Content Understanding additionally requires the service, model deployments, permissions, and cost approval.
 
 ## Steps
 
 ### 1. Prepare the synthetic receipt
 
-Open `data/receipt.html` in a browser and choose **Print → Save as PDF**. The file is marked as synthetic lab data and has no validity as a real transaction.
+Open `data/en/receipt.html` in a browser and choose **Print → Save as PDF**. Use this English document rather than a Korean receipt image. The file is marked as synthetic lab data and has no validity as a real transaction.
 
 ### 2. Compare Vision with structured extraction
 
@@ -58,7 +58,7 @@ Check field confidence, source grounding, and warnings together. High confidence
 
 ### 4. Analyze numbers with Code Interpreter
 
-Connect Code Interpreter to a supported agent and upload only `monthly-spend.csv`.
+Connect Code Interpreter to a supported agent in the English project and upload only `data/en/monthly-spend.csv`.
 
 ```text
 Calculate monthly expense totals from the CSV and create a bar chart.

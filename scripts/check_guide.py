@@ -10,7 +10,7 @@ import re
 from urllib.parse import unquote, urlparse
 import xml.etree.ElementTree as ET
 
-from build_guide import RELEASE, load_content
+from build_guide import RELEASE, load_content, load_portal_captures
 
 ROOT = Path(__file__).resolve().parents[1]
 LAB_HEADINGS = {
@@ -47,25 +47,12 @@ def command_coverage(text: str, source: str, language: str = "ko") -> dict:
     return {"blocks": blocks, "commands": commands}
 
 
-def check_portal_captures(parser) -> int:
-    manifest = json.loads((ROOT / "content/portal-screenshots.json").read_text(encoding="utf-8"))
-    if manifest["capture_method"] != "playwright-mcp-headless" or manifest["synthetic_ui"]:
-        raise ValueError("Portal screenshots must be genuine headless MCP captures.")
-    paths = [item["path"] for item in manifest["captures"]]
+def check_portal_captures(parser, language) -> int:
+    captures = load_portal_captures(language)
+    paths = {item["path"] for item in captures}
     used = {image["src"] for image in parser.images if image["src"].startswith("assets/portal/")}
-    if len(paths) != len(set(paths)) or set(paths) != used:
-        raise ValueError("Portal capture manifest and guide images differ.")
-    for item in manifest["captures"]:
-        path = ROOT / item["path"]
-        if path.parent != ROOT / "assets/portal" or path.suffix != ".png" or path.is_symlink():
-            raise ValueError("Unexpected portal screenshot path.")
-        data = path.read_bytes()
-        if data[:8] != b"\x89PNG\r\n\x1a\n" or hashlib.sha256(data).hexdigest() != item["sha256"]:
-            raise ValueError(f"Portal screenshot signature/hash mismatch: {path.name}")
-        if datetime.fromisoformat(item["captured_at"].replace("Z", "+00:00")).tzinfo is None:
-            raise ValueError("Portal capture time must include timezone.")
-        if not item["route"] or not item["masked"] or not item["purpose"]:
-            raise ValueError(f"Portal screenshot lacks provenance/caption: {path.name}")
+    if paths != used:
+        raise ValueError(f"{language}: portal capture manifest and guide images differ.")
     return len(paths)
 
 
@@ -140,6 +127,11 @@ def check_language(language) -> dict:
             coverage = command_coverage(text, chapter["file"], language)
             shell_blocks += coverage["blocks"]
             shell_commands += coverage["commands"]
+    if shell_blocks != edition["shell_blocks"] or shell_commands != edition["commands"]:
+        raise ValueError(
+            f"{language}: expected {edition['shell_blocks']} shell blocks / {edition['commands']} commands; "
+            f"found {shell_blocks} / {shell_commands}."
+        )
     for item in capabilities:
         if item["lab"] not in ids or item["source"] not in source_ids:
             raise ValueError(f"Unresolved capability: {item['name']}")
@@ -161,6 +153,9 @@ def check_language(language) -> dict:
         raise ValueError("Generated article set differs from chapter manifest.")
     if parser.remote_assets:
         raise ValueError(f"Guide must not require remote assets: {parser.remote_assets}")
+    for path in (edition["validation"], edition["receipt_html"]):
+        if path not in parser.links:
+            raise ValueError(f"{language}: missing localized evidence/receipt link: {path}")
     for address in parser.links:
         parsed = urlparse(address)
         if parsed.scheme or parsed.netloc:
@@ -180,7 +175,7 @@ def check_language(language) -> dict:
             raise ValueError("Image missing alt text.")
         if not (ROOT / image["src"]).is_file():
             raise ValueError(f"Missing image: {image['src']}")
-    portal_captures = check_portal_captures(parser)
+    portal_captures = check_portal_captures(parser, language)
     for path in (ROOT / "assets").glob("*.svg"):
         ET.parse(path)
     caveats = ("부분 GA", "클라우드") if language == "ko" else ("Partially GA", "cloud")
@@ -188,6 +183,9 @@ def check_language(language) -> dict:
         if needle not in html:
             raise ValueError(f"Missing key caveat: {needle}")
     book = (ROOT / edition["markdown"]).read_text(encoding="utf-8")
+    for address in (edition["validation"], RELEASE["site_url"] + edition["receipt_html"]):
+        if f"]({address})" not in book:
+            raise ValueError(f"{language}: Markdown book missing localized evidence/receipt link: {address}")
     for chapter_id in ids:
         if f'<a id="{chapter_id}"></a>' not in book:
             raise ValueError("Markdown book missing an anchor.")
@@ -203,16 +201,27 @@ def check_language(language) -> dict:
         "modules_with_concept_maps": len(labs),
         "explained_shell_blocks": shell_blocks, "explained_commands": shell_commands,
         "portal_screenshots": portal_captures,
+        "portal_manifest": edition["portal_manifest"],
+        "portal_capture_paths": sorted({
+            image["src"] for image in parser.images if image["src"].startswith("assets/portal/")
+        }),
     }
     return result
 
 
 def check() -> dict:
     languages = {language: check_language(language) for language in RELEASE["languages"]}
-    for key in ("pages", "labs", "coverage_rows", "official_sources", "core_minutes",
-                "explained_shell_blocks", "explained_commands", "portal_screenshots"):
-        if len({result[key] for result in languages.values()}) != 1:
-            raise ValueError(f"Language editions differ in {key}.")
+    for key, expected in {
+        "pages": 30, "labs": 25, "coverage_rows": 91, "official_sources": 80, "core_minutes": 320,
+    }.items():
+        if {result[key] for result in languages.values()} != {expected}:
+            raise ValueError(f"Language editions must each have {expected} {key}.")
+    capture_names = {
+        language: {Path(path).name for path in result["portal_capture_paths"]}
+        for language, result in languages.items()
+    }
+    if capture_names["en"] != capture_names["ko"] | {"18-resource-group.png"}:
+        raise ValueError("English captures must cover the original 17 screens plus the English resource group.")
     result = {
         "scope": "Offline bilingual documentation checks only; no Azure execution.",
         "default_language": RELEASE["default_language"],

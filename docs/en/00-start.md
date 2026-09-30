@@ -27,13 +27,19 @@
 
 ### The five entry points in the live portal
 
-![Home in a signed-in Microsoft Foundry Contoso project. Home, Discover, Build, Operate, and Manage appear at the top, with model and agent getting-started cards and two endpoint types in the center.](../../assets/portal/01-home.png)
+![Home in the English Contoso project, contoso-workshop-en. Locate Home, Discover, Build, Operate, Manage, and the project and Azure OpenAI endpoint fields.](../../assets/portal/en/01-home.png)
 
 **Reading the screen:** First confirm your own lab project in the project selector at the top. **Discover** is for exploring candidates, **Build** for configuring models, agents, and tools, **Operate** for operational status, and **Manage** for project and resource management. The **Project endpoint** and **Azure OpenAI endpoint** on Home are different addresses.
 
-The portal images in this guide were **captured from a real signed-in session on 2026-09-30 using Headless Chromium through Playwright MCP**. Account and identifying information was covered in gray or excluded by cropping to a dialog. Menus and results were not synthesized or replaced with successful outcomes. Observing settings and lists is distinct from performing new runs. **Only the L03 model demonstration submitted a synthetic question, once**; no new agents, policies, schedules, evaluations, or training jobs were created. No screenshot proves that a complete deployment or release-quality gate passed. The models, features, and versions you see depend on your permissions, region, and the date.
+The English edition uses a separate **`contoso-workshop-en` project and English synthetic data**. All **18 English portal screenshots** were captured from the signed-in English environment and are under `assets/portal/en/`, with identifying information masked or cropped—not translated overlays on the earlier Korean-data screenshots. The models, features, and versions you see depend on your permissions, region, and the date.
 
-Capture times, masking details, file hashes, and the scope of the single model demonstration are recorded in the [screenshot log](../../content/portal-screenshots.json). The current file list contains only the latest validation of each type; earlier run and quality reports remain unchanged in Git history.
+**English backend validation and portal observation are separate activities.** The English run created and invoked owned agents, retrieved English policies, and submitted approved evaluations. Consult the [English screenshot log](../../content/portal-screenshots.en.json) for exact capture scope, times, masking, and hashes. Fine-tuning image 14 is a product sample, not Contoso training; Voice image 15 records a canceled form, not a voice session. A screenshot is an observation, not deployment or release-quality certification.
+
+**Current English result: no release approval.** Core learning passed **10/10**, with **6/6** calibration controls. Hosted Invocations version **2** scored **29/30 dev**, with **8/8** calibration controls and **0 critical dev failures**. The independent holdout executed **10/10** cases but passed only **7/10**, including a critical safety citation-evidence failure. Native judge results alone did not satisfy the release gate. No thresholds, data, or frozen candidate were adjusted, and the holdout was not rerun.
+
+English MAF, A2A, and Toolbox's managed-identity OpenAPI and remote MCP paths completed. The one-shot Routine succeeded and was disabled; Memory remember/isolation/deletion of only the synthetic item succeeded, with the store retained. These scoped results do not cancel the holdout failure or establish that every optional service ran. The dev-only Optimizer job was still running at this reporting cutoff; its outcome is reported separately.
+
+Read the [English execution report](../../validation/english/current/report.json), [quality results](../../validation/english/automated-v3/quality.json), and [release result](../../validation/english/automated-v3/ci-release.json). Existing `validation/current/`, `validation/automated-v3/`, and earlier Git-history records remain **historical Korean-run evidence**; they are not English results. See [Sources and validation](../../docs/en/sources.md) for execution scope, the Optimizer's eventual outcome, and unresolved items.
 
 ### How to read the source code and commands
 
@@ -46,9 +52,10 @@ Open the complete kit from the repository's file list on GitHub or through **Fil
 | Environment variables and model names | [.env.example](../../.env.example) — the starting point for your personal `.env` |
 | Services and entry points to deploy | [azure.yaml](../../azure.yaml) |
 | Infrastructure definitions | [infra/main.bicep](../../infra/main.bicep) |
+| English synthetic inputs and unchanged business contracts | [data/en/profile-manifest.json](../../data/en/profile-manifest.json) |
 | Learner module sources | [docs/en/00-start.md](../../docs/en/00-start.md) in English and [docs/00-start.md](../../docs/00-start.md) in Korean — regenerate HTML/Markdown/PDF/ZIP after editing |
 
-In `python samples/workshop.py model --live`, `python` is the interpreter, `samples/workshop.py` is the file, `model` is the subcommand to run, and `--live` is this sample's opt-in flag for real Azure execution. The numbered rows in the **Command walkthrough** below each executable block follow the commands in that block. Unless stated otherwise, run commands from the repository root. Korean placeholders such as `실제-...` (“actual ...”) and `승인된-...` (“approved ...”) must be replaced with your own values, not entered literally.
+In `python samples/workshop.py model --live`, `python` is the interpreter, `samples/workshop.py` is the file, `model` is the subcommand to run, and `--live` is this sample's opt-in flag for real Azure execution. The numbered rows in the **Command walkthrough** below each executable block follow the commands in that block. Unless stated otherwise, run commands from the root of your separate English checkout. Descriptive placeholders such as `ACTUAL_NUMERIC_VERSION`, `approved-subscription-id`, and `results/actual-dev-responses.jsonl` must be replaced with your own verified values, not entered literally.
 
 `--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Azure cost”: the local Hosted server in L14 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
@@ -58,7 +65,9 @@ A `KEY=value` prefix passes an environment variable to **that command only** in 
 
 This guide is for **developers, architects, and technical professionals applying generative AI to business workflows**. You do not need coding experience for the portal observation steps, but you will use Python and a terminal to complete the full core course. Before copying an unfamiliar command, read its explanation and execution scope immediately below it.
 
-Keep all files in their original folder structure. Open `index.html` directly to use the web guide. This guide is bilingual: English is the default at `index.html`, Korean is available at `index.ko.html`, and the English Markdown book is `GUIDE.en.md`. The language switch preserves your current module and progress. Synthetic fixtures and executable inputs are intentionally unchanged between languages so that both guides use the same runtime and evaluation contracts. You can read the guide and use local exercises without a network connection. Azure labs and links to official sources require internet access.
+Keep all files in their original folder structure. Open `index.html` directly to use the web guide. This guide is bilingual: English is the default at `index.html`, Korean is available at `index.ko.html`, and the English Markdown book is `GUIDE.en.md`. The language switch preserves your current module and progress, but **does not select the runtime's data language**.
+
+Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then use `data/en/` for English policies, prompts, inventory, evaluation, and tuning inputs; without the flag, the original Korean profile remains the default. SKU IDs, wire-contract names/statuses, KRW amounts, quantities, and quality gates remain unchanged. Hosted packages bind their selected language in `lab-profile.json`. Use a clean, separate checkout/worktree with its own `.env`, `.azure/`, and `results/`; never reuse or overwrite a Korean run's private configuration or receipts. You can read the guide and use local exercises offline. Azure labs and official-source links require internet access.
 
 ## Steps
 
@@ -96,7 +105,7 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 
 ### 4. Keep evidence of your results
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not determine whether you called a service. Save actual results in `results/` or the instructor's record sheet. Do not record personal information or tokens.
+Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not determine whether you called a service. Save actual results in your English checkout's `results/` or the instructor's record sheet. Share only reviewed, minimal synthetic evidence under `validation/english/`. Do not record personal information or tokens, and do not relabel Korean-run results as English evidence.
 
 ## Success criteria
 

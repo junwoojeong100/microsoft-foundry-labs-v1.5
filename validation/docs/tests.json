@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-09-30T10:09:36.446780+00:00",
+  "checked_at": "2026-09-30T14:12:09.386264+00:00",
   "status": "passed",
-  "scope": "Offline unit and contract tests, including bilingual guide parity; not a live Azure evaluation.",
-  "tests": 147,
+  "scope": "Offline regression, English profile and bilingual guide checks; not Azure quality evidence.",
+  "tests": 173,
   "failures": 0,
   "errors": 0,
   "skipped": 0

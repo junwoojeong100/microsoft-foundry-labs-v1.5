@@ -1,0 +1,10 @@
+{
+  "scope": "Actual English Azure holdout response/trace correlation in the owned Application Insights resource.",
+  "input_rows": 10,
+  "correlated_rows": 10,
+  "missing_case_ids": [],
+  "model_response_spans_observed": 7,
+  "request_trace_ids_observed": 10,
+  "raw_evidence": "results/contoso-trace-5ca64636a775.jsonl",
+  "all_model_response_spans_claimed": false
+}

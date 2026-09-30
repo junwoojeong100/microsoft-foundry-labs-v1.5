@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-30T10:09:36.105Z",
+  "checked_at": "2026-09-30T14:09:43.262Z",
   "scope": "Local bilingual documentation only; no Azure execution.",
   "private_paths_blocked": true,
   "default_language": "en",
@@ -7,7 +7,7 @@
     "en": {
       "status": "passed",
       "language": "en",
-      "checks": 123,
+      "checks": 134,
       "widths": [
         1440,
         1024,
@@ -16,6 +16,8 @@
         320
       ],
       "assertions": [
+        "browser checks use a local origin",
+        "capture manifest is a local content filename",
         "30 generated pages",
         "all advanced modules show execution dependency labels",
         "Hosted prerequisite is explicit",
@@ -24,10 +26,18 @@
         "advanced navigation exposes dependency labels",
         "25 trackable labs",
         "all 25 labs explain feature, purpose, method and execution surface",
-        "all 55 shell blocks have visible command explanations",
-        "all 120 logical CLI commands have individual explanation rows",
-        "genuine portal capture manifest matches the rendered guide",
+        "all 59 shell blocks have visible command explanations",
+        "all 124 logical CLI commands have individual explanation rows",
+        "language-specific portal capture manifest matches the rendered guide",
+        "all portal captures retain genuine scoped provenance and original hashes",
         "all offline portal images load with provenance and execution boundaries",
+        "footer uses localized link: data/en/receipt.html",
+        "print cover uses localized link: data/en/receipt.html",
+        "localized receipt/evidence file is available: data/en/receipt.html",
+        "synthetic receipt matches the reader language",
+        "footer uses localized link: validation/english/current/report.json",
+        "print cover uses localized link: validation/english/current/report.json",
+        "localized receipt/evidence file is available: validation/english/current/report.json",
         "source is readable as text: samples/workshop.py",
         "source is readable as text: azure.yaml",
         "source is readable as text: .env.example",
@@ -138,17 +148,19 @@
         "all content readable without JavaScript",
         "language switching works without JavaScript",
         "no browser runtime errors",
-        "no failed local assets"
+        "no failed local assets",
+        "no remote browser network requests"
       ],
       "errors": [],
       "failedRequests": [],
+      "remoteRequests": [],
       "azure_calls": 0,
-      "guide_sha256": "c4e7182515fc55201228e7c8b9d441748acfddb9bf66731610f8b4e9b27280f0"
+      "guide_sha256": "da80e54ff4d7bc4b6963f6111d08d241ac5204f79a267d95046efd1f1cbcc61a"
     },
     "ko": {
       "status": "passed",
       "language": "ko",
-      "checks": 123,
+      "checks": 134,
       "widths": [
         1440,
         1024,
@@ -157,6 +169,8 @@
         320
       ],
       "assertions": [
+        "browser checks use a local origin",
+        "capture manifest is a local content filename",
         "30 generated pages",
         "all advanced modules show execution dependency labels",
         "Hosted prerequisite is explicit",
@@ -167,8 +181,16 @@
         "all 25 labs explain feature, purpose, method and execution surface",
         "all 55 shell blocks have visible command explanations",
         "all 120 logical CLI commands have individual explanation rows",
-        "genuine portal capture manifest matches the rendered guide",
+        "language-specific portal capture manifest matches the rendered guide",
+        "all portal captures retain genuine scoped provenance and original hashes",
         "all offline portal images load with provenance and execution boundaries",
+        "footer uses localized link: data/receipt.html",
+        "print cover uses localized link: data/receipt.html",
+        "localized receipt/evidence file is available: data/receipt.html",
+        "synthetic receipt matches the reader language",
+        "footer uses localized link: validation/current/report.json",
+        "print cover uses localized link: validation/current/report.json",
+        "localized receipt/evidence file is available: validation/current/report.json",
         "source is readable as text: samples/workshop.py",
         "source is readable as text: azure.yaml",
         "source is readable as text: .env.example",
@@ -279,12 +301,14 @@
         "all content readable without JavaScript",
         "language switching works without JavaScript",
         "no browser runtime errors",
-        "no failed local assets"
+        "no failed local assets",
+        "no remote browser network requests"
       ],
       "errors": [],
       "failedRequests": [],
+      "remoteRequests": [],
       "azure_calls": 0,
-      "guide_sha256": "5f33913b96511dff6e8a2402d2efe147dfa7d11e7cd5112c5628eaf79198b8ca"
+      "guide_sha256": "5e84473f4c7cfa468ba67123607c6b138302b5e85938fb7d2e16933833ea99f4"
     }
   }
 }

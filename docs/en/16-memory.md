@@ -19,7 +19,7 @@ Do not judge memory success merely from a natural-language answer that happens t
 
 Memory is in **Preview** and requires a supported region, chat/embedding deployments, and project roles.
 Current VNet integration limitations mean you must not change a private environment's security settings just to run the lab.
-Prepare the core Python SDK environment and `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME` in `.env`.
+Prepare the core Python SDK environment and `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME` in the English checkout's `.env`, with `FOUNDRY_LAB_LANGUAGE=en` selected.
 
 The only permitted content is fictional user A's “prefers answers in table format.”
 Do not store real personal data, salaries, passwords, or employee information.
@@ -28,9 +28,9 @@ Do not store real personal data, salaries, passwords, or employee information.
 
 ### 1. Create a dedicated store
 
-![The actual Memory store Details screen. It shows the chat and embedding models, a default TTL of 3600 seconds, User profile enabled, and Chat summary and Procedural memory disabled.](../../assets/portal/10-memory.png)
+![The Memories tab in contoso-workshop-en shows the stored English preference for synthetic user A. The scope selector and scope identifier are masked; the preference text remains visible.](../../assets/portal/en/10-memory.png)
 
-**Read the screen:** Under **Build → Memory → your store → Details**, check the models, TTL, and memory types. **Memories** is a separate tab for inspecting stored items. The captured store uses profiles only, and the screen was observed with **Save** disabled. No new item was stored, searched for, or deleted during the capture, so this screen alone is not evidence of successful user isolation or deletion.
+**Read the screen:** The screenshot shows **Build → Memory → your store → Memories** after the remember step below. Enter the exact synthetic scope from your own receipt; the default `{{$userId}}` filter is not this lab's user-A scope. The English preference is visible, while generated scope identifiers are masked. Use **Details** to check the chat/embedding models, 3600-second TTL, and profile-only configuration. The [English capture log](../../content/portal-screenshots.en.json) records the observation scope. The separate API checks—not this screenshot—verify user isolation and later deletion of the synthetic item.
 
 ```bash
 python samples/memory_lab.py create
@@ -89,7 +89,7 @@ Deleting an item is separate from deleting an Azure store/RG. If the environment
 record this step as not executed and report only the storage and isolation results.
 
 ```bash
-python samples/memory_lab.py forget --confirm 실제-memory-id --live
+python samples/memory_lab.py forget --confirm ACTUAL_MEMORY_ID --live
 python samples/memory_lab.py verify --live
 ```
 
@@ -99,7 +99,7 @@ python samples/memory_lab.py verify --live
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `forget --confirm ... --live` | Replace `실제-memory-id` in `--confirm` with the actual item ID matching the receipt. Checks the endpoint, store ownership information, and scope, then deletes only that item. | Deletes remote data, not the store/RG. Permission to incur costs and approval to delete are separate. |
+| 1. `forget --confirm ... --live` | Replace `ACTUAL_MEMORY_ID` in `--confirm` with the exact item ID matching your English receipt. Checks the endpoint, store ownership information, and scope, then deletes only that item. | Deletes remote data, not the store/RG. Permission to incur costs and approval to delete are separate. |
 | 2. `verify --live` | With the deletion recorded, makes a fresh API search to check that the item is absent and scope boundaries remain intact. | A real query. Does not reuse earlier search results or natural-language answers. |
 
 </div>

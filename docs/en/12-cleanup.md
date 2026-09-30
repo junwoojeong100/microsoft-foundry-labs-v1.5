@@ -16,7 +16,7 @@
 
 ## Prerequisites
 
-Collect the list of created resources and `results/contoso-lab-....json` receipts. Mark resources shared with an instructor or other learners.
+Collect the list of created English resources and `results/contoso-lab-....json` receipts from the separate English checkout. Keep `FOUNDRY_LAB_LANGUAGE=en` selected. Do not import Korean-run receipts or use them to stop or delete resources. Mark resources shared with an instructor or other learners.
 
 ## Steps
 
@@ -41,8 +41,8 @@ python scripts/cost_status.py
 | 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
 | 2. `routine_lab.py stop --live` | Disables the schedule recorded in the default `results/routine.json`. If you used another receipt, specify `--receipt` as in L17. | Changes actual schedule state. Does not delete other schedules or resource groups. |
 | 3. `azure_environment.py status --live` | Reads and checks the Azure environment recorded in the ownership receipt. | Sends Azure read requests and records status. No model inference. |
-| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure, but updates local `validation/current/operations.json`. Do not rerun it in a checkout preserving the authoring evidence; check the portal instead. |
-| 5. `cost_status.py` | Queries ActualCost by service from the owned resource group's creation time to the present. Reads the real billing API without `--live`. | An authoring tool that updates local `validation/current/cost.json`. Do not rerun it in a preserved copy. Empty billing rows do not prove zero cost. |
+| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure, but updates local `validation/english/current/operations.json` under the English profile. Do not rerun it in a checkout preserving completed evidence; check the portal instead. |
+| 5. `cost_status.py` | Queries ActualCost by service from the owned English resource group's creation time to the present. Reads the real billing API without `--live`. | An authoring tool that updates local `validation/english/current/cost.json` under the English profile. Do not rerun it in a preserved copy. Empty billing rows do not prove zero cost. |
 
 </div>
 
@@ -50,9 +50,9 @@ Use each command only if you ran the corresponding lab and have its receipt.
 The final two commands are **read-only Azure queries scoped by ownership receipts**.
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
 `cost_status.py` queries only actual costs posted to the new resource group. It does not report empty cost rows as USD 0.
-**The Azure resources created for this guide's authoring validation are retained, not deleted.**
-Routines are disabled; only Hosted compute is stopped. `cleanup --live`, `azd down`,
-and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval.
+**The English validation's default retention policy is to retain owned Azure resources until explicit deletion approval.**
+Disable routines and stop only recorded Hosted compute, then verify those states. The English one-shot Routine succeeded and was confirmed disabled; the dev-only Optimizer was still running at this reporting cutoff, so do not infer that every job has stopped. Consult the [current English report](../../validation/english/current/report.json) for subsequent job/compute status. `cleanup --live`, `azd down`,
+and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Existing `validation/current/` operational and cost records describe the historical Korean environment, not the new English one.
 
 ### 2. Delete only the exact SDK lab resources
 
@@ -61,12 +61,12 @@ Use it only after checking resource-retention/deletion approval.
 
 ```text
 python samples/workshop.py cleanup
-  --receipt results/contoso-lab-실제ID.json
-  --confirm contoso-lab-실제ID
+  --receipt results/contoso-lab-ACTUAL_RUN_ID.json
+  --confirm contoso-lab-ACTUAL_RUN_ID
   --live
 ```
 
-The block above illustrates placeholders; `실제ID` means “actual ID” and is intentionally left unchanged in this command example. Use the actual **single-line command** printed by the sample. Without `--live`, nothing is deleted. Execution stops if the receipt's project differs from the project in `.env`.
+The block above illustrates placeholders; replace `ACTUAL_RUN_ID` with the exact ID from your own English receipt. Use the actual **single-line command** printed by the sample. Without `--live`, nothing is deleted. Execution stops if the receipt's project differs from the project in `.env`.
 
 **Options explained:** `cleanup` selects the deletion path; `--receipt` is the exact ownership-record file you created; and `--confirm` is the run ID that you have personally checked against that record. `--live` permits actual deletion. Do not copy another person's receipt or an example ID from a screenshot. Reading this explanation does not grant deletion approval.
 
@@ -101,9 +101,11 @@ For environments where deletion is prohibited, record “Retain until explicit d
 Search Basic, logs, and storage may continue to incur costs without requests.
 A follow-up within 24 hours of validation completion is recommended. Do not conclude “zero cost” without someone responsible for checking.
 
-The Azure infrastructure and agents/stores used in this validation were retained. Deletion of **1 synthetic item**
-for the Memory lifecycle check was recorded separately from deletion of an Azure store or resource group. Automatic expiration of the validation vector store was also disabled
-to preserve it, so storage costs may continue until a later approved cleanup.
+The English Memory lifecycle verified remember, user isolation, and deletion of **only the synthetic item**. Its store was retained; this result does not authorize store or resource-group deletion.
+
+In the **historical Korean validation**, Azure infrastructure and agents/stores were retained. Deletion of **1 synthetic item**
+for that Memory lifecycle check was recorded separately from deletion of an Azure store or resource group. Automatic expiration of that validation vector store was also disabled
+to preserve it. These are not English-run cleanup results. Record the new English environment's actual retained objects, verified stop states, and ongoing costs separately; storage costs can continue until a later approved cleanup.
 
 ## Troubleshooting
 

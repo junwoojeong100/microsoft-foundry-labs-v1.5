@@ -18,7 +18,7 @@
 
 ## Prerequisites
 
-You need the project, model, and `.env` from L01, plus a separate Python environment. Do not overwrite the core-course environment.
+You need the English project, model, and separate checkout's `.env` from L01, plus a separate Python environment. Keep `FOUNDRY_LAB_LANGUAGE=en` selected when switching Python environments. Do not overwrite the core-course environment.
 
 As checked on 2026-09-29, `agent-framework-foundry==1.13.1` requires `azure-ai-projects<2.7.0`. The core course uses 2.7.0. **Separate environments with compatible dependencies** are provided.
 
@@ -80,7 +80,7 @@ On Windows, use `.venv-advanced\Scripts\python.exe`. Use a package repository al
 
 </div>
 
-This example runs Microsoft Agent Framework locally and calls Foundry models. **It does not deploy a Hosted Agent.** Both roles explicitly receive the same synthetic policies; this is not a RAG example for evaluating retrieval quality.
+This example runs Microsoft Agent Framework locally and calls Foundry models. **It does not deploy a Hosted Agent.** Both roles explicitly receive the same English synthetic policies from `data/en/policies/`; this is not a RAG example for evaluating retrieval quality.
 
 | Role | Input | Result | Not allowed |
 | --- | --- | --- | --- |
@@ -122,7 +122,7 @@ Run this path in the **core/`.venv-live` SDK environment**. Do not mix A2A 1.0 G
 ```bash
 python samples/a2a_lab.py create
 python samples/a2a_lab.py create --live
-python scripts/runtime_roles.py --agent results/a2a.json의-caller --live
+python scripts/runtime_roles.py --agent ACTUAL_CALLER_AGENT --live
 python samples/a2a_lab.py card --live
 python samples/a2a_lab.py invoke --live
 ```
@@ -135,7 +135,7 @@ python samples/a2a_lab.py invoke --live
 | --- | --- | --- |
 | 1. `a2a_lab.py create` | Reads the creation plan for the worker, coordinator, and connection. | No Azure requests. |
 | 2. `create --live` | Actually configures a new policy worker, coordinator, and A2A connection. | Creates remote objects and `results/a2a.json`. Do not assume it reuses an existing agent. |
-| 3. `runtime_roles.py --agent ... --live` | Replace `results/a2a.json의-caller` with the `caller` value in that JSON. Grants the project-scoped invocation role to the owned caller's runtime identity. | An administrator task because it changes real permissions. The JSON file path itself is not the agent name. |
+| 3. `runtime_roles.py --agent ... --live` | Replace `ACTUAL_CALLER_AGENT` with the `caller` value in your English checkout's `results/a2a.json`. Grants the project-scoped invocation role to the owned caller's runtime identity. | An administrator task because it changes real permissions. The JSON file path itself is not the agent name. |
 | 4. `card --live` | Reads the owned worker's actual incoming agent card to check the connection contract. | Reads remote metadata. This is separate from successfully answering a business question. |
 | 5. `invoke --live` | Sends a synthetic request to the coordinator and checks delegation to the remote worker and the returned items. | Real model/agent invocation charges. Do not mark delegation as successful without evidence of an A2A call. |
 

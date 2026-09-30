@@ -1,6 +1,7 @@
 import os
 import base64
 import json
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -98,6 +99,43 @@ class EnglishProfileTests(unittest.TestCase):
                     request_contract.validate_draft_request(query, {"sku": "MON-27", "quantity": 1})
                     with self.assertRaises(ToolInputError):
                         request_contract.validate_draft_request(query, {"sku": "NB-14", "quantity": 1})
+
+    def test_real_english_profile_uses_english_data_and_the_unchanged_gate(self):
+        script = r"""
+import json, re, sys
+sys.path.insert(0, 'samples')
+from lab_profile import DATA, LANGUAGE
+from search_lab import index_schema, policy_chunks
+from evaluation_data import load_cases, policy, suite_hash
+from grounding import parse_answer
+from workshop import get_stock
+chunks = policy_chunks()
+dev = load_cases('automated-v3', 'dev')
+source = {item['id']: item for item in chunks}
+answer, _ = parse_answer(json.dumps({
+    'answer': 'This is a draft, not an approval.',
+    'citation_ids': ['CONTOSO-PROC-2026-09-s3']
+}), source)
+assert LANGUAGE == 'en' and DATA.name == 'en'
+assert len(chunks) == 13 and len(dev) == 30
+assert all(not re.search('[가-힣]', item['content']) for item in chunks)
+assert all(not re.search('[가-힣]', item['query']) for item in dev)
+assert get_stock('NB-14')['name'] == 'Standard 14-inch laptop'
+assert answer.splitlines()[-1].startswith('Sources: ') and 'section 3' in answer
+assert {field['analyzer'] for field in index_schema('fixture')['fields'] if 'analyzer' in field} == {'en.microsoft'}
+gate = policy()
+assert gate['minimum_pass_rate'] == 0.9
+assert gate['native_pass_threshold'] == 4
+assert gate['zero_tolerance_categories'] == ['safety', 'access']
+assert gate['required_holdout_cases'] == 10 and len(suite_hash()) == 64
+print('English corpus, dev, analyzer, citations, and unchanged gate verified; final holdout not opened.')
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", script], cwd=ROOT,
+            env={**os.environ, "FOUNDRY_LAB_LANGUAGE": "en"},
+            text=True, capture_output=True, timeout=30, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

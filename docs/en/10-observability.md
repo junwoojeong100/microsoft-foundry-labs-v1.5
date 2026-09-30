@@ -35,9 +35,9 @@ Server-side tracing for Prompt/Hosted agents can begin after connection without 
 
 Send one more synthetic question and record the response ID and time. Allow time for collection, then search in Traces. Check both the selected project and time range.
 
-![The live Prompt Agent Traces screen. Trace/Conversation/Response views, ID search, version/status/date-range filters, and duration, token, and estimated-cost columns are visible. Trace IDs are masked.](../../assets/portal/06-traces.png)
+![Prompt Agent Traces for the English Contoso project. Locate ID search, version/status/date filters, durations, tokens, and estimated costs without exposing identifying values.](../../assets/portal/en/06-traces.png)
 
-**Reading the screen:** In **Build → Agents → your agent → Traces**, first set **Date range** and **Version**. Search using your own trace/conversation/response ID, then open a row to inspect individual operations. **Completed** means execution finished, not that the answer was correct. This image lists preserved traces from earlier lab runs; no new request was made for the capture.
+**Reading the screen:** In **Build → Agents → your agent → Traces**, first set **Date range** and **Version**. Search using your own English run's trace/conversation/response ID, then open a row to inspect individual operations. **Completed** means execution finished, not that the answer was correct. Use the [English capture log](../../content/portal-screenshots.en.json) for the exact observation scope; do not treat historical Korean trace IDs as evidence for this run.
 
 Find the following in the trace.
 
@@ -60,8 +60,8 @@ Find the following in the trace.
 The bundled CLI queries App Insights using response/trace IDs from an actual response file.
 
 ```bash
-python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name
-python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name --live
+python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME
+python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -70,7 +70,7 @@ python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실�
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `trace_lab.py` | `--input` is the actual response JSONL, `--app-id` is the Application Insights application ID, and `--agent` is the agent name to query. Replace the Korean “actual ...” placeholders with your own values. Reads identifiers from the file and prints a KQL plan. | No Azure query. Check that the time window and ID conditions refer only to your run. |
+| 1. `trace_lab.py` | `--input` is the actual English response JSONL, `--app-id` is the Application Insights application ID, and `--agent` is the agent name to query. Replace the placeholders with values from your owned English environment. Reads identifiers from the file and prints a KQL plan. | No Azure query. Check that the time window and ID conditions refer only to your run. |
 | 2. The same command with `--live` | Reads actual logs using the reviewed KQL. Limited to the last 24 hours and at most 200 rows; does not run new model inference. | Sends an Azure read request and records query results. Zero rows means correlation is unverified; do not fill in arbitrary IDs. Log-service usage terms apply separately. |
 
 </div>
@@ -78,6 +78,8 @@ python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실�
 Print the KQL first and review its scope. It covers the last 24 hours, returns at most 200 rows, and does not retrieve raw tokens or full message bodies.
 `app-id` is not an instrumentation key or connection string. Zero returned rows fail as **unverified correlation**;
 do not relabel a request ID as a trace ID to fill the gap. Also compare the Hosted response's `contract.sha256` and version.
+
+**Current English trace scope:** Request-level trace IDs were correlated for **10/10** requests, but the bounded mixed query returned only **7 model-response spans**. Do not describe this as all 10 model spans being observed or infer missing model-span details from request correlation. The [English execution report](../../validation/english/current/report.json) records that distinction; it is not a reason to resubmit completed or held-out questions.
 
 ### 4. Optional: Add client-side tracing
 

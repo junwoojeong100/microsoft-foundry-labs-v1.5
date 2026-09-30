@@ -12,7 +12,7 @@ Understand who is responsible for executing function calls. **The model proposes
 
 **How do you use it?** First call the functions without a model to verify calculations, inventory, and error behavior. Then pass model requests to those same functions and return the results with the matching `call_id`. Compare the numbers in the final response with the actual function JSON. This sequence lets you distinguish model problems from business-code problems.
 
-**Where do you run it?** The functions in this chapter run in local Python, so you need a terminal. Read `get_stock`, `prepare_purchase_request`, and `dispatch_tool` in [workshop.py](../../samples/workshop.py) alongside the [synthetic inventory CSV](../../data/inventory.csv). Do not connect an external ordering API.
+**Where do you run it?** The functions in this chapter run in local Python, so you need a terminal. Read `get_stock`, `prepare_purchase_request`, and `dispatch_tool` in [workshop.py](../../samples/workshop.py) alongside the [English synthetic inventory CSV](../../data/en/inventory.csv). Keep L01's English profile selected. Do not connect an external ordering API.
 
 ## Prerequisites
 

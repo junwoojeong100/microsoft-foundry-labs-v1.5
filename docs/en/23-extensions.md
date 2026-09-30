@@ -12,7 +12,7 @@
 
 **How do you use it?** First decide whether you need a short on-device inference, a query for analytical measures, or authorized retrieval of business documents. Execute only one path allowed in your environment, and record the support conditions and selection rationale for the others. This chapter does not ask you to install every additional product.
 
-**Where do you run it?** Local requires a supported device and the official SDK; Fabric/M365 requires an approved test environment in the relevant product. Use this repository's [synthetic monthly expenses](../../data/monthly-spend.csv) and [purchasing policy](../../data/policies/procurement-policy.md) as inputs, but do not assume that executors for every separate product are bundled.
+**Where do you run it?** Local requires a supported device and the official SDK; Fabric/M365 requires an approved test environment in the relevant product. Use this repository's English [synthetic monthly expenses](../../data/en/monthly-spend.csv) and [purchasing policy](../../data/en/policies/procurement-policy.md) as inputs, but do not assume that executors for every separate product are bundled.
 
 ## Prerequisites
 

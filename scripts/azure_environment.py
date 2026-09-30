@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
 from uuid import UUID, uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -257,14 +258,72 @@ def throughput(capacity: int) -> None:
     print(f"Owned online deployments now have capacity {capacity}; no PTU or token-spend limit was implied.")
 
 
+def reflection(args: argparse.Namespace) -> None:
+    from optimizer_lab import REFLECTION_MODELS
+
+    if args.reflection_model not in REFLECTION_MODELS or not args.reflection_version or not 1 <= args.capacity <= 100:
+        raise ValueError("Specify a supported reflection model/version and capacity 1..100.")
+    state = owned()
+    name = "contoso-reflection"
+    if state.get("reflection"):
+        raise ValueError("A reflection deployment receipt already exists; inspect it instead of recreating.")
+    catalog = az("cognitiveservices", "model", "list", "--subscription", state["subscription"], "--location", state["location"])
+    if not any(
+        item["model"]["name"] == args.reflection_model and item["model"]["version"] == args.reflection_version
+        and "GlobalStandard" in {sku["name"] for sku in item["model"].get("skus", [])}
+        for item in catalog
+    ):
+        raise ValueError("The selected reflection model/version does not support GlobalStandard here.")
+    quota = az("cognitiveservices", "usage", "list", "--subscription", state["subscription"], "--location", state["location"])
+    usage = next((item for item in quota if item["name"]["value"] == f"OpenAI.GlobalStandard.{args.reflection_model}"), None)
+    if usage is None or usage["limit"] - usage["currentValue"] < args.capacity:
+        raise ValueError("Insufficient verified reflection quota; no deployment was submitted.")
+    existing = az("cognitiveservices", "account", "deployment", "list", "--subscription", state["subscription"],
+                  "--resource-group", state["resource_group"], "--name", state["account_name"])
+    if any(item["name"] == name for item in existing):
+        raise ValueError("An unrecorded reflection deployment already exists; it will not be overwritten.")
+    account_id = state["resource_group_id"] + "/providers/Microsoft.CognitiveServices/accounts/" + state["account_name"]
+    if account_id.lower() != state["foundation"]["accountId"]["value"].lower():
+        raise ValueError("The account ID is outside the owned group.")
+    resource_id = account_id + "/deployments/" + name
+    state["reflection"] = {"id": resource_id, "name": name, "model": args.reflection_model,
+                           "version": args.reflection_version, "capacity": args.capacity, "status": "requested"}
+    persist(state)
+    az("rest", "--method", "put", "--url", resource_id + "?api-version=2025-06-01", "--body", json.dumps({
+        "sku": {"name": "GlobalStandard", "capacity": args.capacity},
+        "properties": {"model": {"format": "OpenAI", "name": args.reflection_model, "version": args.reflection_version},
+                       "versionUpgradeOption": "NoAutoUpgrade"},
+    }), timeout=120)
+    deadline = time.monotonic() + 300
+    for _ in range(15):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        current = az("rest", "--method", "get", "--url", resource_id + "?api-version=2025-06-01",
+                     timeout=max(1, min(60, int(remaining))))
+        state["reflection"]["status"] = current["properties"]["provisioningState"]
+        if state["reflection"]["status"] == "Succeeded":
+            state["operations"].append({"step": "reflection", "status": "Succeeded", "deployment": name})
+            persist(state)
+            print(json.dumps(state["reflection"], indent=2))
+            return
+        if state["reflection"]["status"] in {"Failed", "Canceled"}:
+            persist(state)
+            raise RuntimeError("Reflection deployment failed; its original receipt is retained.")
+        time.sleep(min(5, max(0, deadline - time.monotonic())))
+    persist(state)
+    raise RuntimeError("Reflection deployment was not confirmed within the bounded wait; inspect the receipt.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("step", choices=["create", "foundation", "roles", "search", "monitoring", "status", "throughput"])
+    parser.add_argument("step", choices=["create", "foundation", "roles", "search", "monitoring", "status", "throughput", "reflection"])
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--subscription")
     parser.add_argument("--location")
     parser.add_argument("--cost-authorization", help="Record the user's explicit monetary limit or explicit no-limit authorization.")
-    for field in ("chat-model", "chat-version", "judge-model", "judge-version", "embedding-model", "embedding-version"):
+    for field in ("chat-model", "chat-version", "judge-model", "judge-version", "embedding-model", "embedding-version",
+                  "reflection-model", "reflection-version"):
         parser.add_argument("--" + field)
     parser.add_argument("--model-sku", choices=["GlobalStandard", "DataZoneStandard", "Standard"])
     parser.add_argument("--capacity", type=int, default=10)
@@ -281,6 +340,8 @@ def main() -> None:
         if not 1 <= args.capacity <= 100:
             raise ValueError("Capacity must be 1..100; verify model-specific quota units.")
         foundation(args)
+    elif args.step == "reflection":
+        reflection(args)
     elif args.step == "throughput":
         throughput(args.capacity)
     else:

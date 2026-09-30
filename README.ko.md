@@ -5,7 +5,7 @@
 **[한국어 온라인 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)** · **[English — 기본 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)**
 
 합성 Contoso 구매 도우미로 모델·지식·도구·평가·운영을 배우는 **한·영 25개 모듈과 참고 자료 5개**입니다.
-실제 포털 화면 17장과 CLI 명령 120개의 개별 해설을 제공합니다.
+한국어 판은 기존 실제 포털 화면 17장과 명령 120개를 유지합니다. 영어 판은 새 영어 환경에서 촬영한 화면 18장과 영문 데이터용 명령 124개를 제공합니다.
 기본 언어는 영어이며 상단 언어 전환으로 같은 모듈의 한국어 판을 열 수 있습니다. 학습 진도·테마·학습 경로는 두 언어가 공유합니다.
 
 ## 시작하기
@@ -38,11 +38,13 @@
 
 **합성 데이터만 사용하며 실제 주문·결제·업무 승인은 수행하지 않습니다.**
 명령마다 실행 범위가 다르므로 가이드의 비용·변경 설명을 먼저 읽고, `.env`·인증 정보·개인 실행 결과는 커밋하지 마세요.
-번역은 실습 코드를 변경하지 않습니다. 실행 명령의 한글 입력·자리표시자, 합성 데이터와 원본 포털 화면은 재현성을 위해 보존합니다.
+기존 한글 데이터·명령·포털 화면은 보존합니다. 새 영어 실습은 별도 체크아웃에서 `FOUNDRY_LAB_LANGUAGE=en`을 명시해 `data/en/`과 독립적인 `.env`·`.azure/`·`results/`를 사용합니다. 다른 환경의 소유권 기록을 재사용하지 마세요.
 
 ## 검증 결과
 
 [마지막 Azure 실행 보고서](validation/current/report.json) · [최신 자동 품질 결과](validation/automated-v3/quality.json) · [최신 문서 검사](validation/docs/browser.json)
+
+**새 영어 실행은 별도 결과입니다.** 기본 학습 평가 10/10, Hosted dev 29/30이지만 독립 holdout은 **7/10, 중대 안전 근거 실패 1건으로 릴리스 품질 게이트를 통과하지 못했습니다.** 기준 완화나 holdout을 본 뒤 재조정·재실행은 하지 않았습니다. [영어 실행 보고서](validation/english/current/report.json)와 [영어 품질 결과](validation/english/automated-v3/quality.json)를 확인하세요.
 
 현재 파일 목록에는 종류별 최신 결과만 둡니다. 이전 기록은 [정리 전 Git 커밋](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation)에서 원본 그대로 볼 수 있습니다.
 검증 기록 안의 과거 경로는 해당 실행 당시의 커밋 기준입니다. 문서·로컬 검사 통과를 새로운 Azure 실행이나 품질 통과로 해석하지 않습니다.
@@ -68,7 +70,7 @@ python scripts/package_guide.py
 각 명령은 두 언어를 함께 생성·검사합니다. 문서 검사·패키지 보고서의 기본 저장 위치는 `validation/docs/`입니다.
 기존 Azure 검증은 재실행 없이 보존하고, 재현·회귀에 필요한 버전별 프롬프트와 시험지는 유지합니다.
 
-Pages는 **`docs/bilingual-guide` 브랜치의 루트**에서 게시합니다. `.nojekyll`을 유지하고 해당 브랜치에 재생성한 산출물을 푸시하면 사이트가 갱신됩니다. `main` 병합과 리포 공개 범위 변경은 별도 승인 대상입니다.
+Pages는 **`docs/english-live-validation` 브랜치의 루트**에서 게시합니다. `.nojekyll`을 유지하고 해당 브랜치에 재생성한 산출물을 푸시하면 사이트가 갱신됩니다. 게시 원본 브랜치를 삭제하면 Pages가 해제될 수 있으므로, 병합 후 삭제 전 유지할 게시 브랜치를 설정하세요. `main` 병합과 리포 공개 범위 변경은 별도 승인 대상입니다.
 모든 가이드 HTML은 위의 GitHub Pages 링크로 열 수 있으며, 파일 간 상대 링크는 Pages의 리포 경로와 압축 해제한 오프라인 키트에서 모두 동작합니다.
 게시 후 `python scripts/check_pages.py`로 모든 공개 HTML과 연결 파일이 로컬 원본과 일치하는지 확인합니다. 이 검사는 해당 리포의 GitHub Pages만 비인증 조회하며 Azure는 호출하지 않습니다.
 

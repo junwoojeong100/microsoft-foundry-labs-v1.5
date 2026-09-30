@@ -12,11 +12,11 @@ Start by considering **RAG for new facts, prompts for instruction problems, and 
 
 **How do you use it?** First classify whether a failure involves retrieval, instructions, formatting, or repeated behavior. Compare the baseline and candidates using the same dev criteria, and send only candidates with demonstrated improvement to a separate independent test. Clearly separate learning the format from a small local fine-tuning seed file from submitting a real paid training job.
 
-**Where do you run it?** The implementation is in [optimizer_lab.py](../../samples/optimizer_lab.py), the [optimizer-specific adapter](../../hosted/optimizer_responses.py), and [prepare_tuning.py](../../samples/prepare_tuning.py). Choose an instruction source that matches the deployed version, such as [agent-v6.txt](../../data/prompts/agent-v6.txt). Use the portal for Optimize/Fine-tune settings, progress, and result comparisons.
+**Where do you run it?** The implementation is in [optimizer_lab.py](../../samples/optimizer_lab.py), the [optimizer-specific adapter](../../hosted/optimizer_responses.py), and [prepare_tuning.py](../../samples/prepare_tuning.py). Choose an English instruction source matching the deployed version, such as [agent-v6.txt](../../data/en/prompts/agent-v6.txt). Use the portal for Optimize/Fine-tune settings, progress, and result comparisons.
 
 ## Prerequisites
 
-You need the baseline and failure cases from L08, separate dev/holdout data, and approval for training, evaluation, and deployment costs. Submitting an actual training job is optional and may involve waiting tens of minutes to several hours or longer.
+You need the English baseline and failure cases from L08, separate dev/holdout data, and approval for training, evaluation, and deployment costs. Keep `FOUNDRY_LAB_LANGUAGE=en` selected and use only the English checkout's configuration and receipts. Submitting an actual training job is optional and may involve waiting tens of minutes to several hours or longer.
 
 ## Steps
 
@@ -43,8 +43,8 @@ Do not automatically promote a candidate to the latest version. Inspect the chan
 The bundled native Agent Optimizer path:
 
 ```bash
-python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --prompt-file data/prompts/해당버전의지시.txt
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent 실제-agent --version 실제숫자 --optimizer-deployment 지원-optimizer-배포 --prompt-file data/prompts/해당버전의지시.txt --live
+python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v6.txt
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v6.txt --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -53,13 +53,13 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --a
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `optimizer_lab.py` | `--agent/--version` identify the baseline, `--optimizer-deployment` identifies the reflection model deployment, and `--prompt-file` is the instruction file matching that baseline. Replace the Korean placeholders with the actual agent, numeric version, supported optimizer deployment, and that version's instruction file. Without `--live`, read the submission plan. | No Azure job is created. Check the suite, dev count, candidate/time limits, and 0 holdout cases. |
+| 1. `optimizer_lab.py` | `--agent/--version` identify the English Responses baseline, `--optimizer-deployment` identifies the approved reflection deployment, and `--prompt-file` must match the deployed English instructions. Replace the agent/version/deployment placeholders; use `data/en/prompts/agent-v6.txt` only if that file was deployed. Without `--live`, read the submission plan. | No Azure job is created. Check the suite, dev count, candidate/time limits, and 0 holdout cases. |
 | 2. The same command with `--live` | Submits a real native optimizer job with the reviewed settings and observes results for a bounded time. `AZURE_DEV_USER_AGENT` identifies the command process; it is not an authentication token. | Multiple model/agent/evaluator calls and Hosted charges may apply. Check results, warnings, cancellation, and session stopping; candidates are not automatically promoted. |
 
 </div>
 
-In the first command, check the **full dev count for the current suite and 0 holdout cases**, a maximum of 2 candidates, and at most 1 stall.
-`DEFAULT_SUITE` is the default; you can also select a suite explicitly with `--suite`. Do not hardcode the dev count.
+In the first command, check the **full dev count for the current suite and 0 holdout cases**, a maximum of 2 candidates, and at most 1 stall. For English `automated-v3`, the full dev count is **30**.
+`DEFAULT_SUITE` is the default; you can also select a suite explicitly with `--suite`. Verify the selected suite rather than substituting a smaller or easier sample.
 The optimizer does not open or submit the newly sealed holdout.
 It reads only the dev file through `load_cases(suite, split="dev")`, not all splits followed by filtering.
 Record the suite, dev IDs/hashes, and actual submission settings in the raw evidence; do not claim a holdout-based quality pass.
@@ -71,10 +71,10 @@ Hosted native optimization targets the **Responses adapter** prepared with
 Submitting the Invocations agent as-is causes the service to reject it with 400.
 Here, `contoso-purchasing-responses` is the separate service name in `azure.yaml`. `deploy` creates a real remote version, and `--no-prompt` only skips confirmation questions. If L14 already deployed the correct version, do not deploy it again.
 The current optimizer-specific entry point is **`hosted/optimizer_responses.py`**, and its separate build path is
-**`.build/contoso-responses`**. The validated primary runtime and build hash were not changed.
+**`.build/contoso-responses`**. Build it with the English profile so that its `lab-profile.json` binds `en`; the primary Invocations build remains separate and needs separate validation.
 Check the optimizer model family required by the service separately.
-This API did not accept `gpt-5-mini` as a reflection model; a `gpt-5.1` deployment was used separately
-after checking the supported list. Support for inference models differs from support for optimizer reflection models.
+In the historical Korean run, this API did not accept `gpt-5-mini` as a reflection model; a `gpt-5.1` deployment was used separately
+after checking the supported list. That is historical compatibility evidence, not a guaranteed English deployment choice. Support for inference models differs from support for optimizer reflection models.
 The Hosted package includes `load_config()` from `azure-ai-agentserver-optimization==1.0.0b1`
 and `.agent_configs/baseline/`. At packaging time, the baseline model is pinned to the approved deployment name;
 an offline package built without the environment must be regenerated before execution.
@@ -84,12 +84,12 @@ optimizer overlay omits `model` or sets it to `null`**. It is not a fallback tha
 or hides errors behind an arbitrary default model from the environment. Invalid explicit models, invalid configurations,
 and resolver failures are rejected.
 Do not target an agent whose client-side functions cannot be executed by the server.
-The earlier experiment targeted `contoso-purchasing-responses` version `2`, which included `agent-v4.txt`.
-The current successful native execution uses the dedicated Responses **version `3` / `agent-v6.txt`** combination.
-For a different baseline, use `--prompt-file data/prompts/해당버전의지시.txt` to specify **the same instruction file that was deployed**.
+The historical Korean experiment targeted `contoso-purchasing-responses` version `2`, which included `agent-v4.txt`.
+Its later successful native execution used the dedicated Responses **version `3` / `agent-v6.txt`** combination.
+Neither version number is a value to copy into the new English run. Use the actual English Responses version and `--prompt-file data/en/prompts/agent-v6.txt` only when that is **the same instruction file that was deployed**; otherwise select the matching English prompt file.
 New `--live` jobs require `--prompt-file`. The function/plan's v4 default exists for historical diagnostics;
 you cannot omit this option and submit a job for a new version. The runner does not guess the latest instructions.
-The prompt argument accepts only `data/prompts/*.txt`; it does not read a dataset as an instruction file.
+With the English profile selected, the prompt argument accepts only `data/en/prompts/*.txt`; it does not read a dataset as an instruction file or silently translate a Korean prompt.
 The wire field for inline training data is `train_dataset.items`, not `dataset_items`.
 
 The default time limit is **600 seconds (10 minutes), measured from job creation**. `--max-seconds` accepts only integers from 60–1800.
@@ -128,25 +128,11 @@ azd's automatic suite generation may require at least 15 samples. Do not duplica
 the sealed holdout just to meet the count. The bundled SDK runner directly submits only the selected suite's full dev set;
 distinguish that from the automatic-generation CLI's supported scope.
 For existing legacy-v1 jobs, only query resumption with the original receipt is permitted; new legacy submissions are rejected.
-This path neither rereads data files nor resubmits the job.
-
-```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 2 --optimizer-deployment contoso-reflection --suite legacy-v1 --resume 실제-기록된-job-id --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — A query/cleanup path only for when you have the historical ownership receipt.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `--suite legacy-v1 --resume ...` | Replace `실제-기록된-job-id` with the actual recorded job ID. The `--resume` job ID must match the existing receipt. Check the agent, version, and optimizer deployment against the original record as well. | No new job or data submission, but it reads remote status and performs bounded cancellation/session cleanup if needed. Do not copy someone else's job ID. |
-
-</div>
+Those historical Korean diagnostics belong in their original owner-controlled checkout and are not a step in this English lab. Do not copy their private settings or receipts into the English checkout. The English resumption example below uses only a job actually recorded in the English environment.
 
 ### 3. Prepare local SFT data
 
-This additional exercise teaches a simple behavior—classifying inquiries as `POLICY`, `STOCK`, `DRAFT`, or `CLARIFY`—rather than memorizing answer content.
+This additional exercise uses [data/en/tuning/examples.json](../../data/en/tuning/examples.json) to teach a simple behavior—classifying English inquiries as `POLICY`, `STOCK`, `DRAFT`, or `CLARIFY`—rather than memorizing answer content.
 
 ```bash
 python samples/prepare_tuning.py
@@ -158,7 +144,7 @@ python samples/prepare_tuning.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `prepare_tuning.py` | Creates SFT-format files with 16 training and 8 validation examples for synthetic classification in a new results directory. | Creates local files only. No Azure upload, training, model deployment, or training charges. |
+| 1. `prepare_tuning.py` | Reads `data/en/tuning/examples.json` under the selected English profile and creates SFT-format files with 16 training and 8 validation examples in a new results directory. | Creates local files only. No Azure upload, training, model deployment, or training charges. |
 
 </div>
 
@@ -167,10 +153,10 @@ This generates `results/tuning-.../train.jsonl` and `validation.jsonl`. The 16/8
 The basic SFT structure:
 
 ```json
-{"messages":[{"role":"system","content":"문의 유형을 POLICY, STOCK, DRAFT, CLARIFY 중 하나로만 분류한다."},{"role":"user","content":"노트북 교체 규정을 알려줘."},{"role":"assistant","content":"POLICY"}]}
+{"messages":[{"role":"system","content":"Classify the inquiry using only POLICY, STOCK, DRAFT, or CLARIFY."},{"role":"user","content":"Tell me the laptop replacement policy."},{"role":"assistant","content":"POLICY"}]}
 ```
 
-The literal Korean example instructs the model to classify an inquiry using only `POLICY`, `STOCK`, `DRAFT`, or `CLARIFY`; the user asks for the laptop replacement policy, and the answer is `POLICY`.
+The English example preserves the literal output labels `POLICY`, `STOCK`, `DRAFT`, and `CLARIFY`; the user asks for the laptop replacement policy, so the label is `POLICY`.
 
 The output includes a UTF-8 BOM to meet the encoding requirements in the current fine-tuning documentation. Before uploading through the portal, recheck file validation results and the target model's requirements. Do not upload evaluation query/response JSONL unchanged as SFT data.
 
@@ -186,9 +172,9 @@ For vision fine-tuning, tool calling, distillation, and open-model training, als
 
 ### 5. Conditional: Run an actual training job
 
-![The actual Build → Fine-tune landing screen. It shows the Start fine-tuning entry point and example comparisons supplied by the product.](../../assets/portal/14-fine-tuning.png)
+![Build → Fine-tune in the English Contoso project. Locate the training entry point and distinguish product illustrations from actual lab-job results.](../../assets/portal/en/14-fine-tuning.png)
 
-**Read the screen:** At the time of capture, **Build → Fine-tune** showed the **Start fine-tuning** entry point. The prices, scores, and Clone training examples on the screen are product illustrations, **not training results or evidence of cost savings from the Contoso lab**. No training was cloned or submitted, and no model was deployed during the capture.
+**Read the screen:** Locate **Start fine-tuning** under **Build → Fine-tune**. English screenshot 14 shows a **product sample, not a Contoso training job**. Its prices, scores, or Clone training examples are not lab results or evidence of cost savings. The [English capture log](../../content/portal-screenshots.en.json) records the observation scope. Do not infer that a Contoso training job was submitted, completed, or deployed from that screenshot.
 
 From **Start fine-tuning**, or **Fine-tune a model** in the applicable UI, choose a supported base model, method, and training tier. Upload train/validation files separately and leave auto-deploy off initially. After checking costs and data-processing location, the responsible operator selects Submit.
 
@@ -198,9 +184,13 @@ Check job status, training/validation curves, and checkpoints. The last checkpoi
 
 You have validated the local data format and splits. If you ran actual training, compare **quality, latency, tokens, and total cost** with the baseline and record the reason for your selection. Preparing data alone is not completed training.
 
-### Current native result: Valid execution, no improvement
+**English Optimizer outcome:** The [single dev-only job](../../validation/english/current/optimizer.json), started before the holdout result was known, reached its explicit **1200-second limit** and was verified `cancelled`, with **no promotion or claimed improvement**. The runner initially stopped two baseline sessions; final project-wide closeout found three additional owned baseline/candidate sessions. After recording and stopping their exact identities, a fresh readback confirmed zero active sessions. See the [current report](../../validation/english/current/report.json). Cancellation alone is not proof that every child session stopped.
 
-The final job, **`opt_428b84f689964bb793f83b93b8d34de5`**, completed with **`succeeded`**.
+The Invocations candidate's independent holdout passed only **7/10** with a critical safety citation-evidence failure, so release remains blocked. No threshold, data, or tested candidate was changed and no holdout rerun followed that result. Do not resume this canceled job with a longer budget, use it to override the failure, promote a candidate, or tune against the consumed holdout.
+
+### Historical Korean native result: Valid execution, no improvement
+
+The final job in that **historical Korean run**, **`opt_428b84f689964bb793f83b93b8d34de5`**, completed with **`succeeded`**. The following record is unchanged; it is not an English execution or quality result.
 
 | Item | Verified result |
 | --- | --- |
@@ -215,10 +205,10 @@ The final job, **`opt_428b84f689964bb793f83b93b8d34de5`**, completed with **`suc
 
 Do not classify the absence of an adopted candidate as operational failure, or lower evaluation criteria to produce a successful status.
 This 1.0 is the **native composite score on that v2 dev set**; it does not establish a quality pass
-for a separate v3 holdout or the primary runtime. No human review is claimed; human review remains optional guidance.
+for a separate v3 holdout, the primary runtime, or the new English profile. No human review is claimed; human review remains optional guidance. New English evidence belongs under `validation/english/`; this historical result does not establish English Optimizer success.
 
 <details markdown="1">
-<summary>Preserved historical failures and recovery — you may skip this on your first pass</summary>
+<summary>Preserved Korean-run failures and recovery — you may skip this on your first pass</summary>
 
 ### Preserved historical failures and recovery
 
@@ -259,23 +249,22 @@ Earlier errors, cancellations, and scores remain historical evidence; scores fro
 
 </details>
 
-### Optional: Reproduce and inspect the current OIDC native execution
+### Optional: Run and inspect a separately approved English OIDC comparison
 
 First run a single-model probe that reads no datasets at all. A passing probe does not establish native optimizer success
 or a quality pass for a new Invocations version. The comparison that follows targets the
-**current Responses version** matching the original instructions; do not submit an Invocations version to the optimizer.
-The commands below use the combination verified here: version 3 / v6 instructions / **explicit v2 dev**.
-Distinguish this from the general runner's `DEFAULT_SUITE` selection; do not submit the sealed holdout.
-A new live run is optional and permitted only in an OIDC CI environment with separate cost approval and an ownership ledger.
+**actual English Responses version** matching the supplied English instructions; do not submit an Invocations version to the optimizer.
+The commands below explicitly select **English automated-v3 dev: 30 cases and 0 holdout cases**. Replace the version and reflection deployment placeholders with your verified values; use v6 instructions only if that file is in the deployed baseline.
+Do not submit the sealed holdout. A new live run is optional and permitted only in L22's approved `contoso-validation-en` OIDC CI environment, with separate cost approval and an English ownership ledger. Dispatch from the reviewed `docs/english-live-validation` branch with `language=en`; do not use the old Korean environment.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
-python samples/optimizer_lab.py --probe-reflection --optimizer-deployment contoso-reflection --require-oidc --live
+python samples/optimizer_lab.py --probe-reflection --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --require-oidc --live
 
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
-python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 3 \
-  --suite automated-v2 --prompt-file data/prompts/agent-v6.txt \
-  --optimizer-deployment contoso-reflection --max-seconds 1200 --require-oidc --live
+python samples/optimizer_lab.py --agent contoso-purchasing-responses --version ACTUAL_NUMERIC_VERSION \
+  --suite automated-v3 --prompt-file data/en/prompts/agent-v6.txt \
+  --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --max-seconds 1200 --require-oidc --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -285,18 +274,18 @@ python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 3
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
 | 1. `--probe-reflection` | A trailing `\` continues the same command on the next line. `FOUNDRY_AUTH_MODE=cli` selects CLI credentials, while `--require-oidc` verifies that they belong to the actual CI principal in the ownership ledger. | One reflection model request, at most 256 output tokens, 45 seconds, and 0 retries. Model charges apply, but no dataset or optimizer job is created. |
-| 2. `--suite automated-v2 ... --max-seconds 1200` | Explicitly selects v2 dev, version 3, and v6 instructions in their original combination. The 1200 value is the maximum number of seconds from job creation; it does not lower the candidate count or evaluation criteria. | A real new paid job. A personal CLI login alone cannot pass `--require-oidc`; do not omit it to bypass the check. |
+| 2. `--suite automated-v3 ... --max-seconds 1200` | Explicitly selects the 30 English v3 dev cases and the actual English Responses version with matching instructions. Replace the version/deployment placeholders before execution. The 1200 value bounds seconds from job creation; it does not lower the candidate count or evaluation criteria. | A real new paid job. A personal CLI login alone cannot pass `--require-oidc`; do not omit it to bypass the check. |
 
 </div>
 
-To inspect an already completed job, resume without creating a new job from **a checkout containing the original job receipt**.
-This command neither rereads the dataset nor promotes candidates, and it validates the recorded 1200-second limit unchanged.
+To inspect an already recorded English job, resume without creating a new job from **the same English checkout containing its original receipt**.
+Replace the placeholders below with the exact recorded job, numeric version, and reflection deployment. This example applies only to a job whose receipt records 1200 seconds; otherwise use its exact original limit. Resumption neither rereads the dataset nor promotes candidates. Never substitute the historical Korean job ID.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
-python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 3 \
-  --suite automated-v2 --optimizer-deployment contoso-reflection \
-  --resume opt_428b84f689964bb793f83b93b8d34de5 --max-seconds 1200 --require-oidc --live
+python samples/optimizer_lab.py --agent contoso-purchasing-responses --version RECORDED_NUMERIC_VERSION \
+  --suite automated-v3 --optimizer-deployment RECORDED_OPTIMIZER_DEPLOYMENT \
+  --resume RECORDED_ENGLISH_JOB_ID --max-seconds 1200 --require-oidc --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -305,7 +294,7 @@ python samples/optimizer_lab.py --agent contoso-purchasing-responses --version 3
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `--resume ... --max-seconds 1200` | Queries that preserved job. `--max-seconds` must equal the original receipt's 1200, and the deadline remains based on the original creation time. | No new job, holdout submission, or candidate promotion. Do not run it if your checkout lacks that ownership receipt. Performs only remote queries and necessary termination checks. |
+| 1. `--resume ... --max-seconds 1200` | Queries your recorded English job. Replace all placeholders from its receipt. `--max-seconds` must equal the original receipt's limit, and the deadline remains based on the original creation time. | No new job, holdout submission, or candidate promotion. Do not run it if your English checkout lacks that ownership receipt. Performs only remote queries and necessary termination checks. |
 
 </div>
 
@@ -316,8 +305,8 @@ Raw tokens, keys, and connection strings are neither printed nor saved.
 
 The safe fields CI passes are the project endpoint, account/project names, subscription/RG IDs,
 the OIDC identifiers above, `monitoring.appId.value`, and `monitoring.appInsightsId.value`.
-General environment variables are `FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat`,
-and `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`; azd must resolve to the same owned project.
+General environment variables include `FOUNDRY_LAB_LANGUAGE=en`, `FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat`,
+and `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`; use your actual deployment names, and azd must resolve to the same owned English project.
 The project guard compares the value of `azd env get-value AZURE_AI_PROJECT_ENDPOINT` exactly with the owned endpoint.
 A separate SDK query checks the agent name, version, and Responses protocol; unresolved values or values for another project are rejected.
 In the probe evidence, check `identity.owned_ci_principal=true`, HTTP 200, actual response/request IDs,

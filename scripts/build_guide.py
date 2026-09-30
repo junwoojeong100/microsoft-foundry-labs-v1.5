@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from collections import Counter
+from datetime import datetime
+import hashlib
 from html import escape
 import json
 from pathlib import Path
@@ -18,6 +20,48 @@ RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8")
 
 def read_json(name: str):
     return json.loads((ROOT / "content" / name).read_text(encoding="utf-8"))
+
+
+def load_portal_captures(language):
+    edition = RELEASE["languages"][language]
+    name = edition["portal_manifest"]
+    if Path(name).name != name or not name.endswith(".json"):
+        raise ValueError("Portal manifest must be a JSON filename relative to content/.")
+    manifest_path = ROOT / "content" / name
+    if not manifest_path.is_file() or manifest_path.is_symlink() or manifest_path.parent.is_symlink():
+        raise ValueError(f"Missing or nonregular portal manifest: content/{name}")
+    manifest = read_json(name)
+    if manifest.get("capture_method") != "playwright-mcp-headless" or manifest.get("synthetic_ui") is not False:
+        raise ValueError("Portal screenshots must be genuine headless MCP captures.")
+    scope = manifest.get("scope", {})
+    project = "contoso-workshop-en" if language == "en" else "contoso-workshop"
+    if (
+        scope.get("repository_id") != 1396573688 or scope.get("project") != project
+        or not scope.get("resource_group") or not scope.get("ownership_receipt")
+    ):
+        raise ValueError(f"{language}: portal captures must identify the owned {project} project.")
+    captures = manifest["captures"]
+    paths = [item["path"] for item in captures]
+    if len(paths) != edition["portal_screenshots"] or len(paths) != len(set(paths)):
+        raise ValueError(f"{language}: expected {edition['portal_screenshots']} distinct portal captures.")
+    directory = Path("assets/portal/en" if language == "en" else "assets/portal")
+    for item in captures:
+        relative = Path(item["path"])
+        path = ROOT / relative
+        if relative.parent != directory or relative.suffix != ".png":
+            raise ValueError(f"{language}: unexpected portal screenshot path: {item['path']}")
+        if not path.is_file() or any(
+            part.is_symlink() for part in (path, *path.parents) if part.is_relative_to(ROOT)
+        ):
+            raise ValueError(f"Missing or nonregular portal screenshot: {item['path']}")
+        data = path.read_bytes()
+        if data[:8] != b"\x89PNG\r\n\x1a\n" or hashlib.sha256(data).hexdigest() != item["sha256"]:
+            raise ValueError(f"Portal screenshot signature/hash mismatch: {item['path']}")
+        if datetime.fromisoformat(item["captured_at"].replace("Z", "+00:00")).tzinfo is None:
+            raise ValueError("Portal capture time must include timezone.")
+        if not item["route"] or not item["masked"] or not item["purpose"]:
+            raise ValueError(f"Portal screenshot lacks provenance/caption: {item['path']}")
+    return captures
 
 
 def load_content(language):
@@ -143,6 +187,7 @@ def sources_markdown(source_data, language="ko"):
         return (ROOT / "docs/en/sources.md").read_text(encoding="utf-8").format(
             documentation_validation=RELEASE["documentation_validation"],
             historical_validation=RELEASE["historical_validation"],
+            validation=RELEASE["languages"][language]["validation"],
             source_table="\n".join(table),
         )
     lines = [
@@ -280,6 +325,8 @@ def render_chapter(chapter, body, source_map, previous, following, captures, ui)
         image, source = match.groups()
         description = re.search(r'\balt="([^"]+)"', image).group(1)
         capture = captures.get(source)
+        if source.startswith("assets/portal/") and capture is None:
+            raise ValueError(f"Portal image has no capture in this language's manifest: {source}")
         note = (
             f'<span class="capture-note">{escape(ui["capture"].format(date=capture["captured_at"][:10]))}</span>'
             if capture else ""
@@ -337,7 +384,7 @@ def build_language(language):
     ui = read_json("reader-labels.json")[language]
     edition = RELEASE["languages"][language]
     sources = {s["id"]: s for s in source_data["sources"]}
-    captures = {item["path"]: item for item in read_json("portal-screenshots.json")["captures"]}
+    captures = {item["path"]: item for item in load_portal_captures(language)}
     bodies = {c["id"]: source_body(c, chapters, capabilities, source_data, language) for c in chapters}
     pages = []
     search_data = []
@@ -381,6 +428,9 @@ def build_language(language):
     )
     print_toc = "".join(
         f'<li><a href="#{c["id"]}"><span>{c["number"]}</span> {escape(c["title"])}</a></li>' for c in chapters
+    )
+    cover_boundary = ui["cover_boundary"].format(
+        validation=f'<a href="{escape(edition["validation"])}">{escape(edition["validation"])}</a>',
     )
     html = f"""<!doctype html>
 <html lang="{language}">
@@ -441,14 +491,14 @@ def build_language(language):
     <h1>{ui['cover_title']}</h1>
     <p>{ui['cover_description']}</p>
     <p><strong>{RELEASE['edition']} {ui['cover_edition']}</strong><br>{ui['duration']}</p>
-    <p class="print-boundary">{ui['cover_boundary']}</p>
+    <p class="print-boundary">{cover_boundary}</p>
     <h2>{ui['reading_order']}</h2><ol class="print-toc">{print_toc}</ol>
-    <p>{ui['kit_note']} {ui['web_guide']}: {edition['html']} / {ui['text_edition']}: {edition['markdown']}</p>
+    <p>{ui['kit_note']} {ui['web_guide']}: {edition['html']} / {ui['text_edition']}: {edition['markdown']} / <a href="{edition['receipt_html']}">{ui['receipt']}</a></p>
   </section>
   <section id="search-results" class="search-results" aria-labelledby="search-title" hidden><h1 id="search-title">{ui['search_results']}</h1><p id="search-count" role="status" aria-live="polite"></p><div id="search-list"></div></section>
   <p id="storage-warning" class="storage-warning" role="status" hidden>{ui['storage_warning']}</p>
 {''.join(pages)}
-  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{edition['pdf']}">{ui['pdf']}</a><a href="{RELEASE['site_url']}{RELEASE['artifact']}.zip">{ui['zip']}</a><a href="data/receipt.html">{ui['receipt']}</a><a href="validation/current/report.json">{ui['validation']}</a><a href="#sources">{ui['sources']}</a></footer>
+  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{edition['pdf']}">{ui['pdf']}</a><a href="{RELEASE['site_url']}{RELEASE['artifact']}.zip">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="{edition['validation']}">{ui['validation']}</a><a href="#sources">{ui['sources']}</a></footer>
 </main>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -468,7 +518,9 @@ def build_language(language):
         "",
         " | ".join(f"[{other['label']}]({other['markdown']})" for other in RELEASE["languages"].values()),
         "",
-        ui["book_boundary"],
+        ui["book_boundary"].format(validation=edition["validation"]),
+        "",
+        f"[{ui['receipt']}]({RELEASE['site_url']}{edition['receipt_html']})",
         "",
         f"## {ui['toc']}",
         "",
