@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-30T14:09:43.262Z",
+  "checked_at": "2026-09-30T14:21:22.188Z",
   "scope": "Local bilingual documentation only; no Azure execution.",
   "private_paths_blocked": true,
   "default_language": "en",
@@ -155,7 +155,7 @@
       "failedRequests": [],
       "remoteRequests": [],
       "azure_calls": 0,
-      "guide_sha256": "da80e54ff4d7bc4b6963f6111d08d241ac5204f79a267d95046efd1f1cbcc61a"
+      "guide_sha256": "3a936d4daef52333163eee4adc029c24a17d757c4788b18ed3df7a1bf3da5d89"
     },
     "ko": {
       "status": "passed",

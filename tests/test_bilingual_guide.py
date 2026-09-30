@@ -70,6 +70,7 @@ def reference_links(text, source):
         workflow = next((
             path for path in WORKFLOWS
             if address in {f"{REPOSITORY}/blob/{branch}/{path}" for branch in ("main", EXECUTION_BRANCH)}
+            or re.fullmatch(rf"{re.escape(REPOSITORY)}/blob/[0-9a-f]{{40}}/{re.escape(path)}", address)
         ), None)
         parsed = urlparse(address)
         if not parsed.scheme and not parsed.netloc and parsed.path:
@@ -284,6 +285,13 @@ class BilingualGuideTests(unittest.TestCase):
                     reference_links(english, chapter["file"]),
                     "Only the reviewed workflow/evidence links may differ; official and historical sources must remain exact.",
                 )
+
+    def test_english_workflow_sources_do_not_link_to_pages_hidden_directory(self):
+        text = (ROOT / "docs/en/22-delivery.md").read_text(encoding="utf-8")
+        links = re.findall(r"\]\(([^)]+/\.github/workflows/[^)]+)\)", text)
+        self.assertEqual(len(links), 2)
+        for address in links:
+            self.assertRegex(address, rf"^{re.escape(REPOSITORY)}/blob/[0-9a-f]{{40}}/\.github/workflows/")
 
     def test_source_image_sets_are_english_18_and_korean_17(self):
         paths = {}

@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-09-30T14:15:00.111167+00:00",
+  "checked_at": "2026-09-30T14:21:22.858938+00:00",
   "status": "passed",
   "scope": "Offline regression, English profile and bilingual guide checks; not Azure quality evidence.",
-  "tests": 173,
+  "tests": 174,
   "failures": 0,
   "errors": 0,
   "skipped": 0
