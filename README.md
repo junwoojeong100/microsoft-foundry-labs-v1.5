@@ -112,3 +112,6 @@ MCP나 B는 필요 없습니다. Playwright headless MCP에서도 동봉 함수 
 검증 자원은 삭제 승인 전까지 보존하되 예약과 Hosted compute는 종료합니다. Search 등의 상시 비용은 남을 수 있습니다.
 
 이 자료는 Microsoft 공식 교육과정이나 서비스 보증이 아닌 독립적으로 구성한 실습 자료입니다. 제품 설명의 근거는 Microsoft 공개 문서이며, 시나리오·데이터·그림은 본 가이드용으로 작성했습니다.
+
+상단의 Microsoft Foundry 제품 아이콘은 Microsoft 공식 Azure Icons V24의 SVG 원본을
+로컬 파일로 포함했습니다. 아이콘의 별도 사용 조건과 출처는 `THIRD_PARTY_NOTICES`를 참고하세요.

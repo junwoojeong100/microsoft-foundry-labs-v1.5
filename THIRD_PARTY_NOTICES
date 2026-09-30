@@ -42,3 +42,19 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License; the permission and warranty terms above apply.
 Protocol API patterns were adapted to the independently implemented Contoso
 engine. The example repository is not an operational dependency.
+
+Official Microsoft Foundry product icon
+=======================================
+
+Asset: assets/microsoft-foundry.svg
+Source: Microsoft Azure Architecture Center, Azure_Public_Service_Icons_V24.zip
+Original member: Azure_Public_Service_Icons/Icons/ai + machine learning/035746832-icon-service-AI-Foundry.svg
+Download: https://arch-center.azureedge.net/icons/Azure_Public_Service_Icons_V24.zip
+SHA-256: fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c
+Terms: https://learn.microsoft.com/azure/architecture/icons/
+
+The unmodified icon identifies the Microsoft Foundry product in these training
+materials. Microsoft permits copying, distributing and displaying these icons
+in architectural diagrams, training materials or documentation. All other
+rights are reserved. This icon is not licensed under the MIT notices above.
+It does not imply that Microsoft publishes or endorses this independent guide.

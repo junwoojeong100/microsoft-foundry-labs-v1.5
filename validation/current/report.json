@@ -15,8 +15,16 @@
   },
   "local_checks": {
     "unit_tests_passed": 50,
-    "browser_assertions_passed": 72,
+    "browser_assertions_passed": 93,
     "headless_chromium": true,
+    "presentation": {
+      "body_font_px": 18,
+      "navigation_font_px": 14,
+      "pdf_body_font_pt": 11,
+      "official_icon": "assets/microsoft-foundry.svg",
+      "official_icon_source": "Microsoft Azure Icons V24",
+      "azure_reexecuted_for_visual_update": false
+    },
     "python": "3.13",
     "sdk": {"azure-ai-projects": "2.7.0", "openai": "3.18.0", "azure-identity": "1.25.3"},
     "maf_isolated_sdk": {"azure-ai-projects": "2.6.0", "agent-framework-foundry": "1.13.1"},

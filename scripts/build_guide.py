@@ -242,7 +242,7 @@ def build():
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Contoso 구매 도우미로 모델·지식·도구·평가·운영까지 배우는 독립형 한국어 Microsoft Foundry 실습 가이드. {RELEASE['edition']} 보완본.">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/svg+xml" href="assets/microsoft-foundry.svg">
 <title>Microsoft Foundry 실습 가이드 | 직접 만들며 이해하기</title>
 <style>{css}</style>
 </head>
@@ -250,7 +250,7 @@ def build():
 <a class="skip-link" href="#main">본문으로 건너뛰기</a>
 <header class="topbar">
   <a class="brand" href="#l00" aria-label="Foundry 실습 가이드 시작">
-    <span class="brand-mark" aria-hidden="true">f<span>·</span></span>
+    <img class="brand-mark" src="assets/microsoft-foundry.svg" alt="Microsoft Foundry" width="42" height="42">
     <span><strong>Foundry <span class="brand-light">Lab Guide</span></strong><small>직접 만들며 이해하기</small></span>
   </a>
   <div class="top-actions">

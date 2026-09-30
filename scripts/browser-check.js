@@ -30,6 +30,18 @@ async (page) => {
     check(await page.locator('script[src^="http"],link[href^="http"]').count() === 0, "no remote runtime dependencies");
     const bodyText = await page.locator("body").textContent();
     check(bodyText.includes("Contoso") && !bodyText.includes("한빛") && !bodyText.includes("Hanbit"), "current scenario is consistently Contoso");
+    const icon = await page.locator(".brand img").evaluate(image => ({
+      source: image.getAttribute("src"), loaded: image.complete && image.naturalWidth > 0,
+      fit: getComputedStyle(image).objectFit, width: image.width, height: image.height,
+    }));
+    check(icon.loaded && icon.source === "assets/microsoft-foundry.svg", "official Foundry icon loads from the offline kit");
+    check(icon.fit === "contain" && icon.width === icon.height, "official icon keeps its original aspect ratio");
+    const iconHash = await page.evaluate(async () => {
+      const bytes = await (await fetch("assets/microsoft-foundry.svg")).arrayBuffer();
+      const hash = await crypto.subtle.digest("SHA-256", bytes);
+      return [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, "0")).join("");
+    });
+    check(iconHash === "fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c", "official icon bytes match Microsoft's V24 distribution");
 
     const search = page.getByLabel("가이드 검색", {exact: true});
     await search.fill("Foundry IQ");
@@ -102,10 +114,17 @@ async (page) => {
         document: document.documentElement.scrollWidth,
         prose: parseFloat(getComputedStyle(document.querySelector(".chapter.active .prose")).fontSize),
         code: parseFloat(getComputedStyle(document.querySelector(".chapter.active pre code")).fontSize),
+        navigation: parseFloat(getComputedStyle(document.querySelector(".chapter-link")).fontSize),
+        table: parseFloat(getComputedStyle(document.querySelector(".chapter.active td")).fontSize),
+        brandRight: document.querySelector(".brand").getBoundingClientRect().right,
+        actionsLeft: document.querySelector(".top-actions").getBoundingClientRect().left,
       }));
       check(measure.document <= measure.viewport + 1, `no document overflow at ${width}px`);
-      check(measure.prose >= 16, `body text >= 16px at ${width}px`);
-      check(measure.code >= 13, `code text >= 13px at ${width}px`);
+      check(measure.prose >= 18, `body text >= 18px at ${width}px`);
+      check(measure.code >= 14, `code text >= 14px at ${width}px`);
+      check(measure.navigation >= 14, `navigation text >= 14px at ${width}px`);
+      check(measure.table >= 14, `table text >= 14px at ${width}px`);
+      check(measure.brandRight <= measure.actionsLeft, `brand and header controls do not overlap at ${width}px`);
     }
     await page.setViewportSize({width: 390, height: 844});
     await page.locator("#menu-toggle").click();
@@ -114,6 +133,9 @@ async (page) => {
     await page.locator("#l19.active").waitFor({state: "visible"});
     check(await page.locator(".chapter.active").getAttribute("id") === "l19", "mobile navigation");
     check(await page.locator("#menu-toggle").getAttribute("aria-expanded") === "false", "mobile menu closes after navigation");
+    await page.locator(".brand").click();
+    await page.locator("#l00.active").waitFor({state: "visible"});
+    check(await page.locator(".chapter.active").getAttribute("id") === "l00", "official brand icon still links to the start");
 
     await page.setViewportSize({width: 1440, height: 1000});
     for (let index = 0; index < 25; index += 1) {
@@ -130,6 +152,12 @@ async (page) => {
     check(await page.locator(".chapter:visible").count() === 1, "single-module print");
     await page.evaluate(() => { document.body.dataset.print = "all"; });
     check(await page.locator(".chapter:visible").count() === 30, "complete-book print");
+    const printFonts = await page.evaluate(() => ({
+      prose: parseFloat(getComputedStyle(document.querySelector("#l05 .prose")).fontSize),
+      code: parseFloat(getComputedStyle(document.querySelector("#l05 pre code")).fontSize),
+    }));
+    check(printFonts.prose >= 14.66, "PDF body text >= 11pt");
+    check(printFonts.code >= 12, "PDF code text >= 9pt");
     await page.emulateMedia({media: null});
     await page.evaluate(() => { delete document.body.dataset.print; });
     await page.goto(`${origin}/index.html#%E0%A4%A`);
