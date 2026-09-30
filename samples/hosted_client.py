@@ -9,8 +9,10 @@ import re
 import subprocess
 import time
 from urllib.request import Request, urlopen
+from urllib.parse import urlencode, urlparse
 
-from evidence import Evidence, digest
+from cloud import Rest, credential
+from evidence import Budget, Evidence, digest
 from hosted_runtime import validate_request
 from workshop import RESULTS, ROOT, read_config, save_json, validate_data
 
@@ -71,19 +73,18 @@ def azd(*args: str, timeout: int = 360) -> str:
 
 
 def remote_invoke(payload: dict, session_id: str, evidence: Evidence) -> dict:
-    request_file = RESULTS / (evidence.run_id + "-request.json")
-    save_json(request_file, payload)
-    raw = azd(
-        "ai", "agent", "invoke", "contoso-purchasing", "--protocol", "invocations",
-        "--input-file", str(request_file), "--session-id", session_id, "--timeout", "300", "--output", "raw",
-    )
-    evidence.append("remote_http", raw)
-    value, headers = parse_raw_http(raw)
-    value["transport_headers"] = {key: val for key, val in headers.items() if key in {
-        "x-ms-agent-version", "x-ms-agent-session-id", "x-ms-request-id", "traceparent",
-        "x-agent-version", "x-agent-session-id", "x-agent-invocation-id", "x-request-id", "apim-request-id",
-    }}
-    return value
+    endpoint, _ = read_config()
+    binding = json.loads(azd("ai", "agent", "show", "contoso-purchasing", "--output", "json"))
+    target = urlparse(binding["agent_endpoints"]["invocations"])
+    project = urlparse(endpoint)
+    expected_path = project.path + "/agents/contoso-purchasing/endpoint/protocols/invocations"
+    if target.scheme != "https" or target.netloc != project.netloc or target.path != expected_path or target.query != "api-version=v1":
+        raise ValueError("Service-returned endpoint is outside the approved project/protocol.")
+    path = target.path.removeprefix(project.path) + "?api-version=v1&" + urlencode({"agent_session_id": session_id})
+    with credential() as cred:
+        rest = Rest(endpoint, cred, "https://ai.azure.com/.default", evidence,
+                    Budget(max_requests=1, max_seconds=300))
+        return rest.request("POST", path, payload)
 
 
 def main() -> None:

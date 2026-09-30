@@ -104,6 +104,10 @@ python samples/hosted_client.py invoke --version 실제숫자 --live
 로컬 package contract와 원격 contract가 다르면 실패합니다.
 trace ID가 없으면 추측하지 않고 미수집으로 남깁니다.
 
+배포·session 관리는 azd, 동봉 Invocations client의 본문 수집은 **서비스가 반환한 endpoint에
+Entra-authenticated HTTP JSON 요청**을 사용합니다. CI의 azd stdout에 추가 출력이 섞인 실제 사례를
+수정한 것으로, CLI 화면 출력을 안정적인 API JSON 계약으로 가정하지 않습니다.
+
 ### 5. 기본 도구를 실제로 확인하기
 
 질문은 “NB-14 2대의 정책과 재고를 확인하고 구매 요청 초안만 만들어줘”입니다.

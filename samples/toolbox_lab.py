@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import base64
 from contextlib import asynccontextmanager
 import json
 import sys
@@ -13,9 +14,20 @@ from uuid import uuid4
 from cloud import credential, project_client
 from evidence import Evidence, serializable
 from search_lab import SEARCH_API, configuration
-from workshop import DATA, RESULTS, ROOT, save_json
+from workshop import DATA, RESULTS, ROOT, read_config, save_json
 
 STATE = RESULTS / "toolbox.json"
+
+
+def principal_claims(token: str) -> dict[str, str]:
+    parts = token.split(".")
+    if len(parts) != 3:
+        raise ValueError("Opaque token: principal identity cannot be recorded from claims; inspect Entra logs.")
+    claims = json.loads(base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4)))
+    if not claims.get("oid") or not claims.get("tid"):
+        raise ValueError("Authenticated principal claims are missing; do not claim an identified caller.")
+    return {"tenant_id": claims["tid"], "principal_id": claims["oid"],
+            "application_id": claims.get("appid", claims.get("azp", "")), "audience": claims.get("aud", "")}
 
 
 def policy_openapi(settings: dict[str, str]) -> dict[str, Any]:
@@ -100,8 +112,11 @@ async def session_for(local: bool, evidence: Evidence):
             yield session
     else:
         state = json.loads(STATE.read_text(encoding="utf-8"))
+        if state["project_endpoint"] != read_config()[0]:
+            raise ValueError("Toolbox receipt and current project differ.")
         with credential() as cred:
             token = cred.get_token("https://ai.azure.com/.default").token
+            evidence.append("authenticated_principal", principal_claims(token))
             async with streamablehttp_client(state["endpoint"], headers={"Authorization": f"Bearer {token}"}) as (read, write, _):
                 async with ClientSession(read, write) as session:
                     evidence.append("mcp_initialize", await session.initialize())

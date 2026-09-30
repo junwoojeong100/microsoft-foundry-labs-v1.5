@@ -6,7 +6,7 @@ import sys
 import tempfile
 from types import SimpleNamespace as Obj
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
@@ -117,6 +117,28 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(value["id"], "unit")
         with self.assertRaises(ValueError):
             hosted_client.parse_raw_http(raw.replace("response.completed", "response.output_text.delta"), allow_responses_stream=True)
+
+    def test_remote_transport_uses_http_not_cli_screen_output(self):
+        endpoint = "https://contract.services.ai.azure.com/api/projects/p"
+        target = endpoint + "/agents/contoso-purchasing/endpoint/protocols/invocations?api-version=v1"
+        rest = Mock()
+        rest.request.return_value = {"status": "completed", "fixture_only": True}
+        with patch.object(hosted_client, "read_config", return_value=(endpoint, "model")), \
+                patch.object(hosted_client, "azd", return_value=json.dumps({"agent_endpoints": {"invocations": target}})), \
+                patch.object(hosted_client, "credential", return_value=MagicMock()), \
+                patch.object(hosted_client, "Rest", return_value=rest):
+            result = hosted_client.remote_invoke({"query": "unit"}, "owned-session", Mock())
+        self.assertTrue(result["fixture_only"])
+        self.assertEqual(rest.request.call_args.args[0], "POST")
+        self.assertIn("agent_session_id=owned-session", rest.request.call_args.args[1])
+
+    def test_remote_transport_refuses_another_project(self):
+        endpoint = "https://contract.services.ai.azure.com/api/projects/p"
+        with patch.object(hosted_client, "read_config", return_value=(endpoint, "model")), \
+                patch.object(hosted_client, "azd", return_value=json.dumps({"agent_endpoints": {"invocations": "https://wrong.example/invoke"}})), \
+                patch.object(hosted_client, "credential") as cred, self.assertRaises(ValueError):
+            hosted_client.remote_invoke({"query": "unit"}, "session", Mock())
+        cred.assert_not_called()
 
 class EvaluationContractTests(unittest.TestCase):
     def result(self, case_id, score, passed):

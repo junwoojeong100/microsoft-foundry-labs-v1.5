@@ -14,6 +14,9 @@ async function main() {
   const server = http.createServer(async (request, response) => {
     try {
       const pathname = decodeURIComponent(new URL(request.url, "http://127.0.0.1").pathname);
+      const privatePath = pathname.split("/").some(part =>
+        part.startsWith(".") && part !== ".env.example" || ["results", "node_modules"].includes(part));
+      if (privatePath) { response.writeHead(403).end("Private path"); return; }
       const file = path.resolve(root, "." + (pathname === "/" ? "/index.html" : pathname));
       if (!file.startsWith(root + path.sep)) { response.writeHead(403).end(); return; }
       const data = await fs.readFile(file);
