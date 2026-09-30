@@ -84,7 +84,7 @@ def remote_invoke(payload: dict, session_id: str, evidence: Evidence) -> dict:
     path = target.path.removeprefix(project.path) + "?api-version=v1&" + urlencode({"agent_session_id": session_id})
     with credential() as cred:
         rest = Rest(endpoint, cred, "https://ai.azure.com/.default", evidence,
-                    Budget(max_requests=1, max_seconds=300))
+                    Budget(max_requests=1, max_seconds=330), timeout_seconds=310)
         return rest.request("POST", path, payload)
 
 

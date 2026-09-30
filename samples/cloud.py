@@ -61,9 +61,15 @@ class NoRedirect(HTTPRedirectHandler):
 
 
 class Rest:
-    def __init__(self, endpoint: str, cred: Any, audience: str, evidence: Evidence, budget: Budget):
+    def __init__(
+        self, endpoint: str, cred: Any, audience: str, evidence: Evidence, budget: Budget,
+        *, timeout_seconds: float = 60,
+    ):
+        if not 0 < timeout_seconds <= 310:
+            raise ValueError("HTTP timeout must be positive and at most 310 seconds.")
         self.endpoint, self.cred, self.audience = endpoint.rstrip("/"), cred, audience
         self.evidence, self.budget = evidence, budget
+        self.timeout_seconds = timeout_seconds
         self.opener = build_opener(NoRedirect)
 
     def request(self, method: str, path: str, body: Any = None, *, create_only: bool = False) -> Any:
@@ -79,7 +85,7 @@ class Rest:
             headers["If-None-Match"] = "*"
         req = Request(self.endpoint + path, data=data, headers=headers, method=method)
         try:
-            with self.opener.open(req, timeout=60) as response:
+            with self.opener.open(req, timeout=self.timeout_seconds) as response:
                 raw = response.read(4_000_001)
                 if len(raw) > 4_000_000:
                     raise RuntimeError("Response exceeded the four-megabyte evidence limit.")

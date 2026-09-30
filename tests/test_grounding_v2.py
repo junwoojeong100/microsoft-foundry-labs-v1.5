@@ -66,7 +66,8 @@ class GroundingTests(unittest.TestCase):
         self.assertEqual(order, ["search", "scope", "model", "model", "model"])
         first, final, attribution_call = client.responses.create.call_args_list
         self.assertNotIn("text", first.kwargs)
-        self.assertNotIn("tools", final.kwargs)
+        self.assertEqual(final.kwargs["tools"], [])
+        self.assertEqual(final.kwargs["tool_choice"], "none")
         self.assertNotIn("tools", attribution_call.kwargs)
         self.assertEqual(row["tool_calls"][0]["execution"], "server_required")
         self.assertTrue(row["citations"])
