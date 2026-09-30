@@ -23,14 +23,14 @@ def main():
         raise ValueError("Reports must be inside validation/.")
     files = [
         ROOT / name for name in (
-            "README.md", "index.html", "GUIDE.ko.md", f"{NAME}.pdf",
+            "README.md", "index.html", "GUIDE.ko.md", f"{NAME}.pdf", ".nojekyll",
             ".env.example", ".gitignore", "requirements.txt",
             "requirements-docs.txt", "requirements-advanced.txt", "requirements-qa.txt",
             "requirements-hosted.txt", "requirements-tools.txt", "requirements-live.lock.txt",
             "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
         )
     ]
-    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v2", "validation/automated-v3", ".github/workflows")
+    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v2", "validation/automated-v3", "validation/guide-refresh-20260930", ".github/workflows")
     for directory in {*(ROOT / name for name in directories), report_dir}:
         files.extend(
             path for path in directory.rglob("*")

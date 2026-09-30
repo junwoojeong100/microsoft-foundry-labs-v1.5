@@ -2,6 +2,8 @@
 
 **2026-09-30 Contoso 독립형 실행 가이드 · 한국어 · 25개 실습 모듈**
 
+**온라인 가이드: [GitHub Pages에서 바로 읽기](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)**
+
 **[`index.html`](index.html)을 브라우저에서 여세요.** 설치 없이 목차·검색·학습 경로·진도 체크를 사용할 수 있습니다. 외부 CDN, 로그인, 분석 추적 없이 동작합니다. 인쇄 버튼으로 현재 모듈 또는 전체 가이드를 PDF로 저장할 수 있습니다.
 
 GitHub 또는 텍스트로 읽을 때는 **[`GUIDE.ko.md`](GUIDE.ko.md)** 를 사용하세요. 처음이라면 웹 가이드의 **L00 시작하기**부터 진행합니다.
@@ -113,6 +115,19 @@ Windows PowerShell에서는 `py -3.13 -m venv .venv` 후 `.venv\Scripts\python.e
 각 모듈의 학습 순서 배지와 [강사용 독립·연계 표](docs/instructor.md)를 참고하세요.
 `requirements-hosted.txt`/`requirements-tools.txt`는 기본 환경에 추가할 수 있고,
 MAF의 `requirements-advanced.txt`는 충돌 방지를 위해 별도 환경에 설치합니다.
+
+## GitHub Pages 게시
+
+이 저장소와 가이드 사이트는 공개입니다. Pages의 게시 소스는
+**`docs/portal-walkthrough-20260930` 브랜치의 `/ (root)`**이며, 해당 브랜치에 푸시하면 사이트가 갱신됩니다.
+`main`에 자동 병합하지 않습니다. 향후 게시 브랜치를 바꾸려면 저장소의 **Settings → Pages → Build and deployment**에서 변경합니다.
+
+루트의 `.nojekyll`은 이미 생성된 `index.html`과 로컬 자산을 Jekyll로 다시 처리하지 않고 그대로 게시하도록 합니다.
+공개 사이트의 경로는 `/microsoft-foundry-labs-v1.5/`이며 이미지·모듈 링크는 이 하위 경로에서도 동작합니다.
+가이드만 읽을 때 GitHub 로그인이나 Azure 인증은 필요 없고, Azure 실습 실행에는 별도 인증·비용 승인이 필요합니다.
+
+인증 파일·`.env`·`results/`·브라우저 세션은 커밋하지 않습니다. 기존 검증의 저장소 비공개 표시는 그 실행 당시의 기록이므로 고치지 않습니다.
+가이드 개정의 원본 검사는 `validation/guide-refresh-20260930/`, Pages 준비 이후 새 패키지 기록은 `validation/pages-20260930/`에 구분합니다.
 
 ## 가이드를 수정할 때
 
