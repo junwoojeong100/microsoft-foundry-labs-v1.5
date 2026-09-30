@@ -1,6 +1,7 @@
 """Check PDF text, module coverage, page bounds and portable links."""
 
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
@@ -30,7 +31,7 @@ def image_digest(pixmap):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report-dir", type=Path, default=Path("validation/current"))
+    parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
     args = parser.parse_args()
     report_dir = (ROOT / args.report_dir).resolve()
     if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
@@ -90,6 +91,8 @@ def main():
         if "직접만들며이해하기" not in combined:
             raise ValueError("Korean text was not extracted correctly.")
         report = {
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+            "pdf_sha256": hashlib.sha256(PDF.read_bytes()).hexdigest(),
             "status": "passed", "pages": len(document), "chapter_headings": len(chapters),
             "internal_links": internal_links, "bookmarks": len(document.get_toc()),
             "module_destinations": len({chapter["id"] + "-title" for chapter in chapters} & destinations),

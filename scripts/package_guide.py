@@ -11,12 +11,13 @@ import zipfile
 from check_guide import GuideParser
 
 ROOT = Path(__file__).resolve().parents[1]
-NAME = json.loads((ROOT / "content/release.json").read_text())["artifact"]
+RELEASE = json.loads((ROOT / "content/release.json").read_text())
+NAME = RELEASE["artifact"]
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report-dir", type=Path, default=Path("validation/current"))
+    parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
     args = parser.parse_args()
     report_dir = (ROOT / args.report_dir).resolve()
     if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
@@ -30,12 +31,11 @@ def main():
             "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
         )
     ]
-    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v2", "validation/automated-v3", "validation/guide-refresh-20260930", ".github/workflows")
+    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v3", RELEASE["documentation_validation"], ".github/workflows")
     for directory in {*(ROOT / name for name in directories), report_dir}:
         files.extend(
             path for path in directory.rglob("*")
             if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".tmp"}
-            and path != ROOT / "validation/current/package.json"
             and path != report_dir / "package.json"
         )
     if not all(path.is_file() and not path.is_symlink() for path in files):

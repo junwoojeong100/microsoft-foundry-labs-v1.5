@@ -1,7 +1,7 @@
 """Offline structural checks for the generated guide and source metadata."""
 
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 from html.parser import HTMLParser
 import json
@@ -164,6 +164,9 @@ def check() -> dict:
         if f'<a id="{chapter_id}"></a>' not in book:
             raise ValueError("Markdown book missing an anchor.")
     result = {
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+        "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
+        "guide_sha256": hashlib.sha256(html.encode("utf-8")).hexdigest(),
         "pages": len(chapters), "labs": len(labs),
         "coverage_rows": len(capabilities), "official_sources": len(sources),
         "core_minutes": core_minutes,

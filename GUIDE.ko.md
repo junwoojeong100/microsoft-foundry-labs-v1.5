@@ -80,7 +80,7 @@
 
 이 가이드의 포털 이미지는 **2026-09-30 실제 로그인 화면을 Playwright MCP의 Headless Chromium으로 캡처**한 것입니다. 계정·식별 정보는 회색으로 가리거나 대화상자만 잘라 제외했고, 메뉴·결과를 합성하거나 성공 화면으로 바꾸지 않았습니다. 설정·목록 관찰과 새 실행은 구분합니다. **L03의 모델 시연만 합성 질문을 1회 전송**했고, 새 agent/정책·예약·평가·학습 job은 만들지 않았습니다. 어떤 사진도 전체 배포·릴리스 품질 통과를 대신 증명하지 않습니다. 표시되는 모델·기능·버전은 자신의 권한·지역·시점에 따라 달라집니다.
 
-촬영 시각·마스킹·파일 hash·단일 모델 시연의 관찰 범위는 [스크린샷 기록](content/portal-screenshots.json)에 있습니다. 이전 실행/품질 보고서는 변경하지 않았습니다.
+촬영 시각·마스킹·파일 hash·단일 모델 시연의 관찰 범위는 [스크린샷 기록](content/portal-screenshots.json)에 있습니다. 현재 파일 목록에는 종류별 최신 검증만 두고, 이전 실행/품질 보고서는 Git 기록에 원본 그대로 보존합니다.
 
 ### 소스코드와 명령을 읽는 방법
 
@@ -1465,7 +1465,7 @@ JSON 파서/전송 문제를 보정할 때도 원래 응답은 바꾸지 않고 
 
 실제 응답·도구·인용과 native 판정이 연결되고, dev와 봉인 holdout의 결과를 구분해 기록했습니다.
 사람 검토는 완료 조건이 아닙니다. 향후 실제 운영에 적용할 때 업무 담당자의 표본 검토를 권장합니다.
-과거 v1의 9/10 실패는 `validation/history/v1/`에 보존하며 새 결과로 바꾸지 않습니다.
+과거 v1의 9/10 실패는 [정리 전 커밋의 v1 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation/history/v1)에서 확인합니다. 현재 파일 목록에서는 이전 기록을 정리하지만 과거 판정은 바꾸지 않습니다.
 
 v2의 새 시험지는 복합 질문 누락과 근거 선택 문제를 드러냈으므로 원본 실패를 보존하고 v3 dev로 전환했습니다.
 한 개발 사례의 실제 계약서 사용 거절은 SEC1 또는 PROC5가 같은 주장에 유효한 근거임을 원문으로 대조했습니다.
@@ -3755,7 +3755,7 @@ holdout은 환경 fingerprint·runtime hash·실제 모델이 현재 테스트 �
 calibration 실패 후에도 독립적인 holdout 증거를 수집할 수 있지만 **릴리스 게이트는 실패**입니다.
 smoke 성공은 전체 holdout 품질 게이트와 별개입니다. `always()` 단계는 기록된 세션만 stop합니다.
 원시 증거는 `results/`, 공유 가능한 v3 결과는 `validation/automated-v3/ci-dev.json`과
-`ci-release.json` 및 합성 응답 파일로 분리합니다. 이전 v1 CI/실패는 history로 보존합니다.
+`ci-release.json` 및 합성 응답 파일로 분리합니다. 이전 v1 CI/실패는 [정리 전 Git 커밋](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation/history/v1)에 원본 그대로 보존합니다.
 
 운영 진단용 `validation_phase=optimizer`는 고정된 이전 Responses 버전과 dev 데이터만 대상으로
 동일한 OIDC 주체의 제한된 비교를 수행합니다. 새 holdout이나 품질 릴리스와 별개이며,
@@ -4449,7 +4449,11 @@ Microsoft Learn의 플랫폼 개요, capability reference, GA 표, 기능별 문
 
 Routine은 실제 예약 응답과 trace 및 disabled 상태를 확인했습니다. Optimizer는 지시문만 바뀌는 후보의 누락 모델을 명시적으로 상속하도록 보완한 뒤 정상 실행됐습니다. 별도 Optimizer dev 20건의 baseline/best 점수는 1.0/1.0으로 추가 개선이 없어 승격하지 않았습니다. 검증 세부 자료는 `validation/current/`와 `validation/automated-v3/`에 있습니다.
 
+최신 문서·브라우저·PDF·패키지 검사는 `validation/docs/`에 따로 둡니다. 이는 문서 검사이며 Azure를 새로 실행한 증거가 아닙니다.
+
 ### 이전 v1 결과와 현재 자동 검증 경로
+
+이전 검증 파일은 [정리 전 Git 커밋의 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation)에서 확인합니다. 현재 파일 목록에서는 중복·이전 실행을 정리했으며 과거 기록의 내용이나 판정을 바꾸지 않았습니다.
 
 **아래 수치는 보존한 v1 결과입니다.** 새 RG에서 Hosted·Search/IQ·Toolbox/MCP/OpenAPI/Skills·Memory·A2A·native 평가·Tracing과 실제 OIDC 배포를 수행했습니다.
 
@@ -4465,11 +4469,11 @@ hold-08은 승인 우회를 거절했지만 요구된 `security-policy.md` 4절 
 
 **현재 automated-v3는 사람 검토를 선택 안내로 분리했습니다.** 기존 v1/v2 시험지는 dev 회귀로 보존하고 새 봉인 holdout과 검색·인용·도구 자동 검사를 사용합니다. 전체 90%·safety/access 실패 0건은 유지합니다. v3의 실제 통과 여부는 최신 `validation/current/report.json` 및 `validation/automated-v3/` 결과를 확인하세요.
 
-Routine은 생성·dispatch 요청까지 수행했으며 disabled 상태로 보존했습니다. Optimizer의 서비스 job 완료는 새 후보 생성/품질 개선을 뜻하지 않습니다. 원본 결과·CI 요약·운영 상태는 `validation/current/`에 있습니다.
+Routine은 생성·dispatch 요청까지 수행했으며 disabled 상태로 보존했습니다. Optimizer의 서비스 job 완료는 새 후보 생성/품질 개선을 뜻하지 않습니다. 이 v1 실행의 원본 결과·CI 요약·운영 상태는 [과거 검증 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation)에 있습니다.
 
 **로컬 계약 검증은 cloud 실행 검증이 아닙니다.** 구현 완료 / 실행 완료 / 품질 통과 / 차단 / 미실행을 구분합니다. 이번 실행은 새 전용 RG만 대상으로 하며 과거 A/B 결과를 Contoso 증거로 재사용하지 않습니다.
 
-로컬 검사 대상으로는 문서 구조·내부 링크·합성 데이터·도구 검증·평가 게이트·SDK 계약·웹 UI가 있습니다. 구체적인 실행 결과와 미검증 범위는 [`validation/current/report.json`](validation/current/report.json)을 확인합니다. 기존 validation 원본은 과거 자료로 보존하며 새로운 결과로 바꾸지 않습니다.
+로컬 검사 대상으로는 문서 구조·내부 링크·합성 데이터·도구 검증·평가 게이트·SDK 계약·웹 UI가 있습니다. 구체적인 실행 결과와 미검증 범위는 [`validation/current/report.json`](validation/current/report.json)을 확인합니다. 과거 검증 원본은 위의 고정된 Git 커밋에 보존하며 새로운 결과로 바꾸지 않습니다.
 
 전달물은 Microsoft 공식 교육과정이나 보증서가 아닙니다. 시나리오·설명·그림은 이 실습을 위해 작성했습니다. 제품 사실의 근거는 아래 원문이며 전체 문서를 복제하지 않았습니다.
 

@@ -48,7 +48,8 @@ def main() -> int:
         "scope": "Unauthenticated GET requests to public Microsoft Learn source URLs. HTTP reachability is not feature or Azure execution validation.",
         "checked": len(results), "passed": len(results) - len(failed), "failed": len(failed), "links": results,
     }
-    target = ROOT / "validation/current/links.json"
+    release = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
+    target = ROOT / release["documentation_validation"] / "links.json"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Public source URLs: {report['passed']}/{report['checked']} reachable; report={target.relative_to(ROOT)}")

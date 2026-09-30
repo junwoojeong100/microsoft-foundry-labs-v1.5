@@ -1,4 +1,7 @@
 {
+  "checked_at": "2026-09-30T08:52:02.273953+00:00",
+  "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
+  "guide_sha256": "dc45b8f4690e7b66cd78accdac2dada2a6bd2cfcdc453bb1bae43fe66eee055d",
   "pages": 30,
   "labs": 25,
   "coverage_rows": 91,

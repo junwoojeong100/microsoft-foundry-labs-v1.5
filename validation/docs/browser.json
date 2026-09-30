@@ -125,5 +125,7 @@
   "errors": [],
   "failedRequests": [],
   "azure_calls": 0,
-  "private_paths_blocked": true
+  "private_paths_blocked": true,
+  "checked_at": "2026-09-30T08:52:53.996Z",
+  "guide_sha256": "dc45b8f4690e7b66cd78accdac2dada2a6bd2cfcdc453bb1bae43fe66eee055d"
 }

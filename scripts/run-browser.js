@@ -4,6 +4,7 @@ const fs = require("node:fs/promises");
 const http = require("node:http");
 const path = require("node:path");
 const vm = require("node:vm");
+const { createHash } = require("node:crypto");
 const { parseArgs } = require("node:util");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "..");
@@ -17,8 +18,9 @@ const types = {
 const publicSources = new Set(["/.env.example", "/.github/workflows/validate.yml", "/.github/workflows/azure-validation.yml"]);
 
 async function main() {
+  const release = JSON.parse(await fs.readFile(path.join(root, "content/release.json"), "utf8"));
   const { values, positionals } = parseArgs({
-    options: { "report-dir": { type: "string", default: "validation/current" } },
+    options: { "report-dir": { type: "string", default: release.documentation_validation } },
     allowPositionals: true,
   });
   const [operation] = positionals;
@@ -53,6 +55,8 @@ async function main() {
     const callback = vm.runInThisContext(await fs.readFile(path.join(__dirname, filename), "utf8"), { filename });
     const result = await callback(page);
     result.private_paths_blocked = true;
+    result.checked_at = new Date().toISOString();
+    result.guide_sha256 = createHash("sha256").update(await fs.readFile(path.join(root, "index.html"))).digest("hex");
     if (operation === "check") {
       await fs.mkdir(reportDir, { recursive: true });
       await fs.writeFile(path.join(reportDir, "browser.json"), JSON.stringify(result, null, 2) + "\n");

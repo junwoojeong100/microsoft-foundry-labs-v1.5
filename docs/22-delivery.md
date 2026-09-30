@@ -120,7 +120,7 @@ holdout은 환경 fingerprint·runtime hash·실제 모델이 현재 테스트 �
 calibration 실패 후에도 독립적인 holdout 증거를 수집할 수 있지만 **릴리스 게이트는 실패**입니다.
 smoke 성공은 전체 holdout 품질 게이트와 별개입니다. `always()` 단계는 기록된 세션만 stop합니다.
 원시 증거는 `results/`, 공유 가능한 v3 결과는 `validation/automated-v3/ci-dev.json`과
-`ci-release.json` 및 합성 응답 파일로 분리합니다. 이전 v1 CI/실패는 history로 보존합니다.
+`ci-release.json` 및 합성 응답 파일로 분리합니다. 이전 v1 CI/실패는 [정리 전 Git 커밋](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation/history/v1)에 원본 그대로 보존합니다.
 
 운영 진단용 `validation_phase=optimizer`는 고정된 이전 Responses 버전과 dev 데이터만 대상으로
 동일한 OIDC 주체의 제한된 비교를 수행합니다. 새 holdout이나 품질 릴리스와 별개이며,
