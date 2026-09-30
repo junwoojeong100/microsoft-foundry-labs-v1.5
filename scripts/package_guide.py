@@ -1,16 +1,26 @@
 """Create a portable kit without virtualenvs, generated cloud results, or credentials."""
 
+import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 import zipfile
+
+from check_guide import GuideParser
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = json.loads((ROOT / "content/release.json").read_text())["artifact"]
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report-dir", type=Path, default=Path("validation/current"))
+    args = parser.parse_args()
+    report_dir = (ROOT / args.report_dir).resolve()
+    if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
+        raise ValueError("Reports must be inside validation/.")
     files = [
         ROOT / name for name in (
             "README.md", "index.html", "GUIDE.ko.md", f"{NAME}.pdf",
@@ -20,11 +30,13 @@ def main():
             "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
         )
     ]
-    for name in ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v2", "validation/automated-v3", ".github/workflows"):
+    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v2", "validation/automated-v3", ".github/workflows")
+    for directory in {*(ROOT / name for name in directories), report_dir}:
         files.extend(
-            path for path in (ROOT / name).rglob("*")
+            path for path in directory.rglob("*")
             if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".tmp"}
             and path != ROOT / "validation/current/package.json"
+            and path != report_dir / "package.json"
         )
     if not all(path.is_file() and not path.is_symlink() for path in files):
         raise ValueError("Package inputs must be existing regular files.")
@@ -43,15 +55,32 @@ def main():
         for essential in ("index.html", "GUIDE.ko.md", f"{NAME}.pdf", "samples/workshop.py", "data/evaluation/cases.jsonl"):
             if f"{NAME}/{essential}" not in names:
                 raise ValueError(f"Missing package artifact: {essential}")
+        parser = GuideParser()
+        parser.feed((ROOT / "index.html").read_text(encoding="utf-8"))
+        local_paths = {
+            unquote(parsed.path)
+            for address in [*parser.links, *(image["src"] for image in parser.images)]
+            if not (parsed := urlparse(address)).scheme and not parsed.netloc and parsed.path
+        }
+        for local_path in local_paths:
+            if f"{NAME}/{local_path}" not in names:
+                raise ValueError(f"Portable guide link missing from ZIP: {local_path}")
+        captures = json.loads((ROOT / "content/portal-screenshots.json").read_text(encoding="utf-8"))["captures"]
+        for capture in captures:
+            packed = archive.read(f"{NAME}/{capture['path']}")
+            if hashlib.sha256(packed).hexdigest() != capture["sha256"]:
+                raise ValueError(f"Portal screenshot differs in ZIP: {capture['path']}")
     print(f"Packaged {len(names)} files: {target.name} ({target.stat().st_size / 1_000_000:.2f} MB)")
     report = {
         "created_at": datetime.now(timezone.utc).isoformat(), "archive": target.name,
         "files": len(names), "bytes": target.stat().st_size,
         "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
         "integrity": "passed", "credential_and_virtualenv_exclusion": "passed",
+        "portable_local_paths_checked": len(local_paths), "portal_screenshots": len(captures),
         "note": "This archive hash is kept outside the archive to avoid a self-referential checksum.",
     }
-    (ROOT / "validation/current/package.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    report_dir.mkdir(parents=True, exist_ok=True)
+    (report_dir / "package.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

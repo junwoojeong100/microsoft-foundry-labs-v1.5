@@ -64,3 +64,21 @@ materials. Microsoft permits copying, distributing and displaying these icons
 in architectural diagrams, training materials or documentation. All other
 rights are reserved. This icon is not licensed under the MIT notices above.
 It does not imply that Microsoft publishes or endorses this independent guide.
+
+Microsoft Foundry portal screenshots
+===================================
+
+Assets: assets/portal/*.png
+Source application: https://ai.azure.com/
+Capture provenance: content/portal-screenshots.json
+
+The screenshots show the actual Microsoft Foundry interface in the owned,
+synthetic Contoso workshop project. They were captured using Playwright MCP
+headless browser automation for explanatory training documentation. Account
+and identifying fields are masked; interface content and results are not
+fabricated. The manifest records the observed screens and capture boundaries.
+
+Microsoft product interfaces, names and marks remain the property of Microsoft
+and their respective owners. These screenshots are not relicensed under the
+MIT notices above and do not imply Microsoft endorsement. A screen capture
+does not certify a feature's availability, execution success, or agent quality.

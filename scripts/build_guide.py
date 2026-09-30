@@ -159,14 +159,15 @@ def source_body(chapter, chapters, capabilities, source_data):
         return coverage_markdown(capabilities, chapters, sources)
     if chapter.get("generated") == "sources":
         return sources_markdown(source_data)
-    body = (ROOT / chapter["file"]).read_text(encoding="utf-8").replace("../assets/", "assets/").replace("../data/", "data/")
+    body = (ROOT / chapter["file"]).read_text(encoding="utf-8")
+    body = re.sub(r"(\]\()\.\./", r"\1", body)
     if chapter.get("learning"):
         learning = chapter["learning"]
         body = f"> **학습 순서: {learning['label']}** — {learning['requires']}\n\n" + body
     return body
 
 
-def render_chapter(chapter, body, source_map, previous, following):
+def render_chapter(chapter, body, source_map, previous, following, captures):
     chapter_id = chapter["id"]
     engine = markdown.Markdown(
         extensions=["tables", "fenced_code", "toc", "md_in_html", "sane_lists"],
@@ -178,11 +179,22 @@ def render_chapter(chapter, body, source_map, previous, following):
     rendered = re.sub(
         r"<table>", '<div class="table-wrap" tabindex="0" role="region" aria-label="가로로 스크롤할 수 있는 표"><table>', rendered,
     ).replace("</table>", "</table></div>")
-    rendered = re.sub(
-        r'<p>(<img[^>]+src="([^"]+)"[^>]*>)</p>',
-        r'<figure>\1<figcaption><a href="\2" target="_blank" rel="noopener noreferrer">다이어그램 크게 보기 ↗</a></figcaption></figure>',
-        rendered,
-    )
+    def figure(match):
+        image, source = match.groups()
+        description = re.search(r'\balt="([^"]+)"', image).group(1)
+        capture = captures.get(source)
+        note = (
+            f'<span class="capture-note">실제 포털 · {escape(capture["captured_at"][:10])} · '
+            'Playwright MCP Headless · 식별 정보 가림 · 배포·품질 검증과 구분</span>'
+            if capture else ""
+        )
+        kind = ' class="portal-capture"' if capture else ""
+        return (
+            f'<figure{kind}>{image}<figcaption><span>{description}</span>{note}'
+            f'<a href="{source}" target="_blank" rel="noopener noreferrer">원본 크게 보기 ↗</a></figcaption></figure>'
+        )
+
+    rendered = re.sub(r'<p>(<img[^>]+src="([^"]+)"[^>]*>)</p>', figure, rendered)
     rendered = re.sub(r"<a href=\"(https?://[^\"]+)\"", r'<a href="\1" target="_blank" rel="noopener noreferrer"', rendered)
     headings = [
         f'<a href="#{escape(token["id"])}">{escape(token["name"])}</a>'
@@ -231,6 +243,7 @@ def build():
     source_data = read_json("sources.json")
     sources = {s["id"]: s for s in source_data["sources"]}
     capabilities = read_json("capabilities.json")
+    captures = {item["path"]: item for item in read_json("portal-screenshots.json")["captures"]}
     bodies = {c["id"]: source_body(c, chapters, capabilities, source_data) for c in chapters}
     pages = []
     search_data = []
@@ -238,7 +251,7 @@ def build():
         pages.append(render_chapter(
             chapter, bodies[chapter["id"]], sources,
             chapters[index - 1] if index else None,
-            chapters[index + 1] if index + 1 < len(chapters) else None,
+            chapters[index + 1] if index + 1 < len(chapters) else None, captures,
         ))
         plain = re.sub(r"<[^>]+>", " ", markdown.markdown(bodies[chapter["id"]], extensions=["tables", "fenced_code"]))
         search_data.append({

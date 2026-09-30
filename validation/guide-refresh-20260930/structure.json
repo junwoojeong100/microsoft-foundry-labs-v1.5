@@ -1,0 +1,14 @@
+{
+  "pages": 30,
+  "labs": 25,
+  "coverage_rows": 91,
+  "official_sources": 80,
+  "core_minutes": 320,
+  "duplicate_ids": 0,
+  "broken_local_links": 0,
+  "remote_asset_dependencies": 0,
+  "modules_with_concept_maps": 25,
+  "explained_shell_blocks": 55,
+  "explained_commands": 120,
+  "portal_screenshots": 17
+}

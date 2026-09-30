@@ -4,6 +4,16 @@
 
 모델의 사전 지식 대신 **검색된 문서**로 답하게 합니다. Retrieval-Augmented Generation, 즉 RAG의 가장 짧은 경로입니다.
 
+## 개념과 실습 지도
+
+**경험할 기능:** File search의 파일 업로드·인덱싱·검색·citation입니다.
+
+**무엇이며 왜 중요한가요?** RAG는 질문과 관련된 문서를 먼저 찾고 그 근거로 답하게 하는 방식입니다. 모델을 다시 학습시키는 작업이 아닙니다. Vector store는 검색할 수 있도록 문서를 처리해 보관하는 공간이고, citation은 답변의 근거 위치를 연결하는 정보입니다. 규정이 자주 바뀌는 업무에서는 기억에 의존한 답보다 최신 문서를 확인할 수 있는 답이 중요합니다. 다만 출처 이름을 출력하는 것만으로 실제 검색이 증명되지는 않습니다.
+
+**어떻게 사용하나요?** 원문 세 개를 읽고 정답의 위치를 표시한 뒤 업로드합니다. 인덱싱 완료를 확인하고 단일 문서·교차 문서·없는 정보 질문을 순서대로 보냅니다. 답변 숫자뿐 아니라 클릭한 근거가 실제 문서의 해당 절인지 확인하세요.
+
+**어디서 실행하나요?** 포털에서 File search 연결과 인용을 관찰하고, 선택 SDK로 같은 수명주기를 재현합니다. [구매 정책](../data/policies/procurement-policy.md), [경비 정책](../data/policies/expense-policy.md), [보안 정책](../data/policies/security-policy.md)이 유일한 업무 근거입니다. 구현은 [workshop.py](../samples/workshop.py)에 있습니다.
+
 ## 준비
 
 L04의 agent와 `data/policies/`의 Markdown 파일 3개를 사용합니다. 저장소 업로드 권한과 File search 추가 비용을 확인하세요. 회사 문서를 가져오지 않아도 실습할 수 있습니다.
@@ -25,6 +35,10 @@ L04의 agent와 `data/policies/`의 Markdown 파일 3개를 사용합니다. 저
 Agent builder의 **Tools/Knowledge**에서 **File search**를 추가합니다. UI가 Toolbox 연결을 제시하면 file-search 도구를 담은 Toolbox를 연결합니다. 직접 도구 연결도 지원되지만 재사용·운영 패턴은 Toolbox가 권장됩니다.
 
 새 vector store를 만들고 파일 3개를 업로드합니다. 인덱싱이 **Completed**인지 확인한 후 질문합니다. 업로드가 끝났다는 것과 검색 준비가 끝났다는 것은 다릅니다.
+
+![실제 agent의 Instructions를 접어 Tools와 Knowledge를 펼쳐 볼 수 있게 한 화면. File search 카드와 별도의 get_stock·prepare_purchase_request 함수가 구분되어 있다.](../assets/portal/05-agent-tools.png)
+
+**화면 따라 읽기:** **Tools**의 **File search** 카드에서 연결된 store와 검색 설정을 확인합니다. 식별자는 화면에서 가렸으므로 자신의 store 값을 사용하세요. 그 아래 `get_stock`·`prepare_purchase_request`는 L06에서 설명할 함수이며 파일 검색 자체의 기능이 아닙니다. 사진에 도구가 나열돼 있다는 것만으로 인덱싱 완료·citation 정확도를 판정하지 말고, 아래 질문의 실제 근거를 확인합니다.
 
 ### 3. 정답·교차 문서·모름을 차례로 실험하기
 
@@ -57,6 +71,17 @@ SDK 경로:
 python samples/workshop.py rag
 python samples/workshop.py rag --live
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `rag` | 사용할 합성 정책과 RAG 실행 계획을 표시합니다. `--live`가 없어 업로드하지 않습니다. | 로컬 계획 확인만 수행합니다. |
+| 2. `rag --live` | 파일 업로드 → vector store 연결 → 최대 180초 인덱싱 대기 → 새 agent 생성 → 질문을 실제 수행합니다. | 모델·File search·파일 보관 비용 가능. 답변의 citation과 receipt의 파일/store ID를 대조합니다. 포털 객체를 재사용하는 명령은 아닙니다. |
+
+</div>
 
 실행 파일은 업로드 → vector store 파일 연결 → 최대 180초 인덱싱 대기 → agent 생성 → 질문을 진행합니다. 180초 안에 끝나지 않으면 완료로 가장하지 않고 중단합니다. receipt로 남은 파일과 상태를 확인하세요.
 

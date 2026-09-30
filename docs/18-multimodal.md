@@ -4,6 +4,16 @@
 
 **Vision 모델의 설명, OCR/layout, Content Understanding의 schema 추출, Code Interpreter의 계산**을 목적에 맞게 구분합니다.
 
+## 개념과 실습 지도
+
+**경험할 기능:** 이미지/문서 이해, schema 기반 필드 추출, Code Interpreter의 CSV 계산입니다.
+
+**무엇이며 왜 중요한가요?** Vision은 이미지 내용을 설명하고, OCR/layout은 글자와 위치를 추출하며, Content Understanding은 원하는 필드의 구조로 문서를 해석합니다. Code Interpreter는 제공한 데이터를 코드로 계산하는 별도 도구입니다. 영수증 총액을 자연어로 읽는 것과 각 행을 합산해 검증하는 것은 다르므로, 업무에서는 출력 형식과 원본 대조를 함께 설계해야 합니다.
+
+**어떻게 사용하나요?** 동일한 합성 영수증을 자유 설명과 구조화 추출로 각각 처리해 빠진 값·추측·근거를 비교합니다. 이어 CSV의 9개 행을 계산하고 알려진 월별/전체 합계와 대조합니다. 보기 좋은 JSON이나 그래프보다 실제 값과 원본 행 수가 맞는지가 중요합니다.
+
+**어디서 실행하나요?** [receipt.html](../data/receipt.html)을 브라우저에서 열고 [정답 파일](../data/receipt.expected.json), [지출 CSV](../data/monthly-spend.csv)를 함께 봅니다. 추론·analyzer·Code Interpreter는 각각 지원 포털/서비스와 비용 승인이 필요하며, 파일을 열어 보는 단계만으로 서비스 실행 완료가 되지는 않습니다.
+
 ## 준비
 
 `data/receipt.html`, `receipt.expected.json`, `monthly-spend.csv`를 사용합니다. 실제 영수증·계좌·신분증은 필요 없습니다. Content Understanding에는 해당 서비스·모델 배포·권한과 비용 승인이 추가로 필요합니다.

@@ -4,17 +4,53 @@
 
 모델을 호출하는 가장 작은 단위를 이해합니다. **아직 agent도, RAG도 아닙니다.**
 
+## 개념과 실습 지도
+
+**경험할 기능:** Responses API로 모델에 입력을 보내고 응답 객체를 읽습니다.
+
+**무엇이며 왜 중요한가요?** API는 화면에서 누르는 동작을 코드로 요청하는 계약입니다. Responses의 결과에는 사람이 읽는 문장뿐 아니라 상태·식별자·도구 요청 같은 항목이 들어갈 수 있습니다. HTTP 요청이 성공했거나 글자가 출력됐다는 사실만으로 업무가 끝난 것은 아닙니다. 완료 상태와 실제 내용을 함께 확인하는 습관이 이후 에이전트·평가·추적의 기초가 됩니다.
+
+**어떻게 사용하나요?** 먼저 계획 출력으로 어떤 설정을 쓸지 확인하고, 준비된 모델에 합성 질문 한 번을 보냅니다. 응답 문장과 response ID를 분리해서 읽고, 회사 문서를 주지 않았을 때 정답을 꾸며내지 않는지 봅니다. 포털 Playground는 입력·출력을 이해하는 비교 화면이고, 이 장의 SDK 경로는 재현 가능한 호출을 배우는 단계입니다.
+
+**어디서 실행하나요?** 실행 파일은 [samples/workshop.py](../samples/workshop.py)입니다. 아래 Python 예제는 핵심 코드 설명이며 별도의 셸 명령이 아닙니다. 전체 샘플에는 인증·오류·출력 검사가 함께 들어 있습니다.
+
 ## 준비
 
 L01의 `.env`, 로그인, `requirements.txt` 설치와 L02의 준비된 배포가 필요합니다. 이 경로는 Azure public cloud 프로젝트를 대상으로 합니다. Government 등 sovereign cloud endpoint는 별도 공식 인증·도메인 설정을 적용해야 합니다.
 
 ## 실행
 
+### 포털에서 먼저 입력과 응답을 연결해 보기
+
+**Build → Models → Deployments → 자신의 배포 → Playground**를 엽니다. 사진의 `contoso-chat`은 촬영 환경의 기존 `gpt-4.1-mini` 배포이며 자신의 승인된 배포 이름을 사용합니다. 이 단계는 **Save as agent**를 누르지 않는 모델 실습입니다.
+
+![실제 모델 Playground에 합성 Contoso 승인 경계 질문을 입력하고, 정확히 200만 원일 때 팀장 승인이 필요하다는 응답을 받은 화면. Tools에는 추가 도구가 없다.](../assets/portal/16-model-response.png)
+
+**화면 따라 읽기:** 왼쪽 **Model / Instructions / Tools**가 요청의 조건이고, 오른쪽이 사용자 입력과 모델 응답입니다. 이 시연에서는 질문 안에 합성 규칙을 명시했으므로 RAG나 비공개 회사 지식을 검증한 것이 아닙니다. 재고 조회·구매 초안·실제 승인도 실행하지 않았습니다.
+
+![모델 Playground의 실제 Parameters 대화상자. Max Completion Tokens를 256으로 제한하고 나머지 기본 매개변수를 확인한 모습.](../assets/portal/17-model-parameters.png)
+
+**실행 전 확인:** **Parameters → Max Completion Tokens**에서 출력 한도를 정합니다. 촬영은 256으로 설정하고, 추가 과금/외부 전송이 가능한 **Web search**를 이 모델 Playground에서 제거한 뒤 질문을 한 번만 전송했습니다. 기존 agent의 도구나 정책은 변경하지 않았습니다. Temperature/Top P는 생성의 변동성 관련 옵션이지 비용 금액 상한이 아니며, 지원 모델마다 허용 옵션이 다릅니다.
+
+실제 표시된 답은 **“총액이 정확히 200만 원이면 팀장 승인이 필요하다.”**였습니다. 포털 **Response tokens**에는 입력 91·출력 18·합계 109토큰이 표시됐습니다. 이것은 한 건의 모델 시연 결과이며 평가 점수나 전체 실습 비용이 아닙니다.
+
+직접 API URL을 감시한 자동 대기는 시간 초과였지만 포털에는 응답·response ID가 표시되어 **재전송 없이 화면을 읽어 확인**했습니다. 원시 HTTP 상태나 포털 내부 재시도 횟수는 확인하지 못했으므로 추정하지 않습니다. 아래 CLI 경로는 response 객체·ID를 코드로 읽는 방법을 배우는 별도 실행이며, 똑같은 사진을 만들려고 추가 호출할 필요는 없습니다.
+
 ### 1. 아무 비용 없이 계획 먼저 확인하기
 
 ```bash
 python samples/workshop.py model
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `model` | `workshop.py`의 모델 호출 경로를 선택하지만 `--live`가 없으므로 실행 계획만 보여 줍니다. | `PLAN ONLY`를 읽습니다. Azure 호출·모델 비용 없음. |
+
+</div>
 
 `PLAN ONLY`가 나오고 Azure 요청은 발생하지 않습니다. `--live` 없는 성공 메시지는 모델 호출 성공이 아닙니다.
 
@@ -24,6 +60,16 @@ python samples/workshop.py model
 python samples/workshop.py model --live
 ```
 
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `model --live` | 설정의 프로젝트·배포와 CLI 인증으로 기본 합성 질문을 실제 전송합니다. 출력 토큰은 최대 2048, SDK 자동 재시도는 비활성화되어 있습니다. | 추론 비용이 발생합니다. 응답 텍스트와 `response_id`를 확인하며 agent나 vector store는 만들지 않습니다. |
+
+</div>
+
 응답 텍스트와 `response_id=...`가 나와야 합니다. 질문은 “회사 규정이 제공되지 않았을 때 어떻게 답해야 하는지”입니다. **회사 규정을 만들어내지 않는지** 확인합니다.
 
 내 입력으로 호출하려면:
@@ -31,6 +77,16 @@ python samples/workshop.py model --live
 ```bash
 python samples/workshop.py model --live --query "회사 규정이 없는데 노트북 구매 상한을 단정할 수 있나요?"
 ```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `model --query` | `--query` 뒤 따옴표 전체가 모델에 보낼 한 입력입니다. 기본 질문을 이 문장으로 대체하며 `--live`가 실제 전송을 허용합니다. | 추가 추론 요청입니다. 앞 명령의 결과를 다시 보는 것이 아니므로 비용이 더 발생하고 새 response ID가 생깁니다. |
+
+</div>
 
 `--query`의 내용은 Azure로 전송됩니다. 실습 합성 입력만 사용합니다.
 

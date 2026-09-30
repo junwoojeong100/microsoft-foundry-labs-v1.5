@@ -6,9 +6,14 @@
 
 GitHub 또는 텍스트로 읽을 때는 **[`GUIDE.ko.md`](GUIDE.ko.md)** 를 사용하세요. 처음이라면 웹 가이드의 **L00 시작하기**부터 진행합니다.
 
-현재 완성본은 [`feat/contoso-independent-labs-20260930` 브랜치](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/feat/contoso-independent-labs-20260930)에 있습니다.
-원래 `main`은 별도 병합 승인 전까지 보존합니다. Git을 사용한다면 해당 브랜치를 선택하고,
-Git 없이 참여한다면 아래 완성 ZIP을 사용하세요.
+가이드와 실제 실습 코드·설정은 같은 저장소에 있습니다. 사용할 브랜치의 **전체 폴더**를 받거나 아래 ZIP을 사용하세요.
+GitHub에서는 파일 목록, 로컬에서는 VS Code의 **파일 → 폴더 열기**로 `samples/`, `hosted/`, `.env.example`, `azure.yaml`을 확인합니다.
+HTML만 한 파일 다운로드하면 그림·원본 코드·데이터가 빠집니다.
+
+각 모듈의 **개념과 실습 지도**에서 경험할 기능·뜻·중요성·사용 흐름·실행 위치를 먼저 읽습니다.
+실제 Foundry 포털 화면에는 관찰 순서와 주의점을 붙였고, **55개 실행 블록의 120개 CLI 명령**에는
+각각 동작·옵션·결과·비용/변경을 설명했습니다. 포털만으로 모든 실습이 끝난다는 뜻은 아니며,
+코드가 필요한 단계는 명확히 구분합니다. 명령을 복사하기 전에 바로 아래 **명령 해설**을 읽으세요.
 
 공유·인쇄본은 **[`Contoso-Foundry-Hands-on-2026-09-30.pdf`](Contoso-Foundry-Hands-on-2026-09-30.pdf)**,
 전체 키트는 **[`Contoso-Foundry-Hands-on-2026-09-30.zip`](Contoso-Foundry-Hands-on-2026-09-30.zip)**입니다.
@@ -89,6 +94,8 @@ Windows PowerShell에서는 `py -3.13 -m venv .venv` 후 `.venv\Scripts\python.e
 | `Contoso-Foundry-Hands-on-2026-09-30.pdf` | 표지·목차·책갈피를 포함한 현재 인쇄본 |
 | `docs/` | 모듈별 원문 |
 | `assets/` | 로컬 스타일·스크립트·직접 제작한 다이어그램 |
+| `assets/portal/` | 실제 포털을 Headless Playwright MCP로 촬영한 식별 정보 마스킹 이미지 |
+| `content/portal-screenshots.json` | 촬영 시각·화면·마스킹·파일 hash·실행 범위 |
 | `data/` | 가상 정책·재고·평가·튜닝·문서 이해 데이터 |
 | `samples/` | 안전한 로컬 도구와 명시적으로 실행하는 Azure 예제 |
 | `hosted/`, `azure.yaml`, `infra/` | 동봉 Hosted runtime·code deployment·새 RG용 IaC |
@@ -99,6 +106,7 @@ Windows PowerShell에서는 `py -3.13 -m venv .venv` 후 `.venv\Scripts\python.e
 | `validation/automated-v2/` | 이전 v2 자동 검사·실패와 합성 응답 원본 |
 | `validation/automated-v3/` | 현재 v3 자동 검사·native 평가·CI 및 합성 최소 응답 |
 | `validation/history/v1/` | 공개된 이전 v1 검증 결과의 불변 사본 |
+| `validation/guide-refresh-20260930/` | 이번 가이드 개정의 로컬 브라우저·PDF·패키지 검사; Azure 품질 증거 아님 |
 | `validation/`의 기존 파일 | 2026-09-29 과거 검증 원본, 수정하지 않음 |
 
 심화 전체를 하나의 긴 순서로 실행할 필요는 없습니다.
@@ -109,6 +117,9 @@ MAF의 `requirements-advanced.txt`는 충돌 방지를 위해 별도 환경에 �
 ## 가이드를 수정할 때
 
 `docs/`와 `content/`를 수정한 뒤 재생성합니다. 생성된 HTML/통합 Markdown을 직접 수정하지 마세요.
+새 CLI 블록에는 바로 이어서 `command-explanation` 표를 넣고 **논리적 명령마다 한 행**을 작성합니다.
+포털 이미지는 실제 화면만 사용하고, 계정/식별 정보를 가린 뒤 촬영 출처·시간·hash를 manifest에 기록합니다.
+기존 `validation/current/`와 history는 이전 실행의 기록이므로 아래처럼 별도 보고서 경로를 사용합니다.
 
 ```bash
 python -m pip install -r requirements-docs.txt -r requirements-qa.txt
@@ -119,11 +130,16 @@ python -m unittest discover -s tests -v
 python scripts/check_links.py
 npm ci
 npx playwright install chromium
-npm run guide:browser
+npm run guide:browser -- --report-dir validation/guide-refresh-20260930
 npm run guide:pdf
-python scripts/check_pdf.py
-python scripts/package_guide.py
+python scripts/check_pdf.py --report-dir validation/guide-refresh-20260930
+python scripts/package_guide.py --report-dir validation/guide-refresh-20260930
 ```
+
+`build_guide.py`는 HTML/Markdown, `guide:pdf`는 인쇄본, `package_guide.py`는 전체 ZIP을 생성합니다.
+`check_guide.py`는 25개 개념 설명·명령별 해설·실제 이미지 manifest·링크를 검사하고,
+브라우저/PDF 검사는 화면 크기·그림·한글·인쇄 링크를 확인합니다. `--report-dir`는 **로컬 검사 보고서의 저장 위치**이며 Azure 배포 대상이 아닙니다.
+향후 개정은 새로운 경로를 선택해 이 개정의 결과도 보존하세요.
 
 브라우저/PDF 명령은 **headless Chromium**과 loopback 서버를 사용하고 완료 시 종료합니다.
 MCP나 B는 필요 없습니다. Playwright headless MCP에서도 동봉 함수 파일을 실행할 수 있습니다.
@@ -132,6 +148,8 @@ MCP나 B는 필요 없습니다. Playwright headless MCP에서도 동봉 함수 
 **검증의 경계:** [`validation/current/report.json`](validation/current/report.json)의 실제 상태가 기준입니다.
 로컬/fixture 통과는 Azure 또는 모델 품질 성공이 아닙니다. 실패·빈 응답·부분 실행은 그대로 남기며,
 원시 자료는 배포 패키지에서 제외합니다. Voice·CU·Fine-tuning·Foundry Local의 범위도 각 모듈에 명시합니다.
+포털 사진은 촬영 시점의 UI 관찰입니다. 기존 평가·trace·비용 화면을 촬영했다고 새 품질 검증을 수행한 것이 아니며,
+학습자가 같은 메뉴·모델·버전을 볼 수 있다는 보장도 아닙니다. 이번 촬영의 실제 요청 범위는 `content/portal-screenshots.json`을 확인합니다.
 검증 자원은 삭제 승인 전까지 보존하되 예약과 Hosted compute는 종료합니다. Search 등의 상시 비용은 남을 수 있습니다.
 
 이 자료는 Microsoft 공식 교육과정이나 서비스 보증이 아닌 독립적으로 구성한 실습 자료입니다. 제품 설명의 근거는 Microsoft 공개 문서이며, 시나리오·데이터·그림은 본 가이드용으로 작성했습니다.
