@@ -1,6 +1,25 @@
 {
   "edition": "2026-09-30",
   "artifact": "Contoso-Foundry-Hands-on-2026-09-30",
+  "default_language": "en",
+  "site_url": "https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/",
+  "pages_branch": "docs/bilingual-guide",
+  "languages": {
+    "en": {
+      "label": "English",
+      "html": "index.html",
+      "markdown": "GUIDE.en.md",
+      "pdf": "Contoso-Foundry-Hands-on-2026-09-30.en.pdf",
+      "readme": "README.md"
+    },
+    "ko": {
+      "label": "한국어",
+      "html": "index.ko.html",
+      "markdown": "GUIDE.ko.md",
+      "pdf": "Contoso-Foundry-Hands-on-2026-09-30.pdf",
+      "readme": "README.ko.md"
+    }
+  },
   "scenario": "Contoso purchasing, policy, inventory and purchase-request drafts",
   "python": "3.13",
   "azure_cli": "2.86.0",

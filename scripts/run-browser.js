@@ -27,9 +27,12 @@ async function main() {
   if (positionals.length !== 1 || !["check", "pdf"].includes(operation)) throw new Error("Use check or pdf [--report-dir validation/PATH].");
   const reportDir = path.resolve(root, values["report-dir"]);
   if (!reportDir.startsWith(path.join(root, "validation") + path.sep)) throw new Error("Reports must be inside validation/.");
+  const sitePath = new URL(release.site_url).pathname.replace(/\/$/, "");
   const server = http.createServer(async (request, response) => {
     try {
-      const pathname = decodeURIComponent(new URL(request.url, "http://127.0.0.1").pathname);
+      const requestPath = decodeURIComponent(new URL(request.url, "http://127.0.0.1").pathname);
+      if (!requestPath.startsWith(sitePath + "/")) { response.writeHead(404).end("Unknown site"); return; }
+      const pathname = requestPath.slice(sitePath.length);
       const privatePath = !publicSources.has(pathname) && pathname.split("/").some(part =>
         part.startsWith(".") || ["results", "node_modules"].includes(part));
       if (privatePath) { response.writeHead(403).end("Private path"); return; }
@@ -48,21 +51,34 @@ async function main() {
   try {
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
-    page.contosoGuideOrigin = `http://127.0.0.1:${server.address().port}`;
+    page.contosoGuideOrigin = `http://127.0.0.1:${server.address().port}${sitePath}`;
     const privateResponse = await fetch(`${page.contosoGuideOrigin}/.env`);
     if (privateResponse.status !== 403) throw new Error("Private environment files must never be served.");
     const filename = operation === "check" ? "browser-check.js" : "export-pdf.js";
     const callback = vm.runInThisContext(await fs.readFile(path.join(__dirname, filename), "utf8"), { filename });
-    const result = await callback(page);
-    result.private_paths_blocked = true;
-    result.checked_at = new Date().toISOString();
-    result.guide_sha256 = createHash("sha256").update(await fs.readFile(path.join(root, "index.html"))).digest("hex");
+    const result = {
+      checked_at: new Date().toISOString(),
+      scope: "Local bilingual documentation only; no Azure execution.",
+      private_paths_blocked: true,
+      default_language: release.default_language,
+      languages: {},
+    };
+    for (const [language, edition] of Object.entries(release.languages)) {
+      page.contosoGuideEdition = { ...edition, language, date: release.edition };
+      const checked = await callback(page);
+      checked.guide_sha256 = createHash("sha256").update(await fs.readFile(path.join(root, edition.html))).digest("hex");
+      result.languages[language] = checked;
+      if (operation === "check") {
+        const screenshotDir = language === release.default_language ? reportDir : path.join(reportDir, language);
+        await fs.mkdir(screenshotDir, { recursive: true });
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        await page.screenshot({ path: path.join(screenshotDir, "desktop.png") });
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.screenshot({ path: path.join(screenshotDir, "mobile.png") });
+      }
+    }
     if (operation === "check") {
-      await fs.mkdir(reportDir, { recursive: true });
       await fs.writeFile(path.join(reportDir, "browser.json"), JSON.stringify(result, null, 2) + "\n");
-      await page.screenshot({ path: path.join(reportDir, "desktop.png") });
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.screenshot({ path: path.join(reportDir, "mobile.png") });
     }
     console.log(JSON.stringify(result, null, 2));
   } finally {

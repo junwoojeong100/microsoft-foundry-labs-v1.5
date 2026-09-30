@@ -10,9 +10,10 @@ import unicodedata
 
 import pymupdf
 
+from build_guide import load_content
+
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
-PDF = ROOT / (RELEASE["artifact"] + ".pdf")
 
 
 def normalized(text):
@@ -29,17 +30,13 @@ def image_digest(pixmap):
     return hashlib.sha256(pixmap.samples).hexdigest()
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
-    args = parser.parse_args()
-    report_dir = (ROOT / args.report_dir).resolve()
-    if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
-        raise ValueError("Reports must be inside validation/.")
-    chapters = json.loads((ROOT / "content/chapters.json").read_text(encoding="utf-8"))
+def check_pdf(language, report_dir):
+    edition = RELEASE["languages"][language]
+    pdf = ROOT / edition["pdf"]
+    chapters, _, _ = load_content(language)
     captures = json.loads((ROOT / "content/portal-screenshots.json").read_text(encoding="utf-8"))["captures"]
     expected_images = {image_digest(pymupdf.Pixmap(ROOT / item["path"])): item["path"] for item in captures}
-    with pymupdf.open(PDF) as document:
+    with pymupdf.open(pdf) as document:
         texts = [page.get_text() for page in document]
         combined = normalized("\n".join(texts))
         if "Contoso" not in combined or "한빛" in combined or "Hanbit" in combined:
@@ -47,7 +44,9 @@ def main():
         missing = [chapter["title"] for chapter in chapters if normalized(chapter["title"]) not in combined]
         if missing:
             raise ValueError(f"PDF is missing module headings: {missing}")
-        tracks = {"core": "기본 코스", "advanced": "심화 코스", "reference": "참고 자료"}
+        tracks = json.loads((ROOT / "content/reader-labels.json").read_text(encoding="utf-8"))[language]["tracks"]
+        if len(texts) < 2 or normalized(f"L00 / {tracks['core']}") not in normalized(texts[1]):
+            raise ValueError("The cover and table of contents must fit on one page; L00 must begin on page 2.")
         for chapter in chapters:
             label = chapter["number"] if chapter["track"] == "reference" else "L" + chapter["number"]
             marker = normalized(f"{label} / {tracks[chapter['track']]}")
@@ -88,16 +87,19 @@ def main():
             raise ValueError(f"PDF is missing original portal screenshot pixels: {missing_images}")
         if internal_links < 30 or not {chapter["id"] + "-title" for chapter in chapters} <= destinations:
             raise ValueError("The PDF must preserve a usable internal table of contents.")
-        if "직접만들며이해하기" not in combined:
-            raise ValueError("Korean text was not extracted correctly.")
+        phrase = "직접만들며이해하기" if language == "ko" else "learnbybuilding"
+        if phrase not in combined.lower():
+            raise ValueError(f"{language}: PDF text was not extracted correctly.")
         report = {
             "checked_at": datetime.now(timezone.utc).isoformat(),
-            "pdf_sha256": hashlib.sha256(PDF.read_bytes()).hexdigest(),
+            "language": language, "pdf": edition["pdf"],
+            "pdf_sha256": hashlib.sha256(pdf.read_bytes()).hexdigest(),
             "status": "passed", "pages": len(document), "chapter_headings": len(chapters),
+            "cover_pages": 1, "first_module_page": 2,
             "internal_links": internal_links, "bookmarks": len(document.get_toc()),
             "module_destinations": len({chapter["id"] + "-title" for chapter in chapters} & destinations),
             "out_of_bounds_text_blocks": 0, "nearly_blank_pages": [],
-            "nonportable_local_links": 0, "korean_text_extractable": "직접만들며이해하기" in combined,
+            "nonportable_local_links": 0, "localized_text_extractable": True,
             "portal_screenshots_with_matching_pixels": len(expected_images),
         }
         report_dir.mkdir(parents=True, exist_ok=True)
@@ -105,7 +107,25 @@ def main():
         document[1].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(report_dir / "pdf-lab.png")
         target = report_dir / "pdf.json"
         target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return report
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
+    args = parser.parse_args()
+    report_dir = (ROOT / args.report_dir).resolve()
+    if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
+        raise ValueError("Reports must be inside validation/.")
+    report = {
+        "scope": "Local bilingual PDF checks only; no Azure execution.",
+        "languages": {
+            language: check_pdf(language, report_dir if language == RELEASE["default_language"] else report_dir / language)
+            for language in RELEASE["languages"]
+        },
+    }
+    (report_dir / "pdf.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

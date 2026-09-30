@@ -12,7 +12,7 @@ class RepositoryLayoutTests(unittest.TestCase):
         release = json.loads((ROOT / "content/release.json").read_text())
         self.assertEqual(
             {path.name for path in ROOT.glob("*Foundry*Hands-on*.pdf")},
-            {release["artifact"] + ".pdf"},
+            {edition["pdf"] for edition in release["languages"].values()},
         )
         self.assertLessEqual(
             {path.name for path in ROOT.glob("*Foundry*Hands-on*.zip")},
@@ -44,10 +44,12 @@ class RepositoryLayoutTests(unittest.TestCase):
         self.assertEqual(links, ["https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/"])
         self.assertNotRegex(readme, r"\]\((?:\./)?index\.html(?:[)#])")
 
-    def test_active_documentation_links_use_main(self):
+    def test_pages_branch_is_explicit_and_runtime_workflows_still_use_main(self):
+        release = json.loads((ROOT / "content/release.json").read_text())
         readme = (ROOT / "README.md").read_text()
         delivery = (ROOT / "docs/22-delivery.md").read_text()
-        self.assertIn("**`main` 브랜치의 루트**", readme)
+        self.assertIn(f"**root of the `{release['pages_branch']}` branch**", readme)
+        self.assertIn("Merging into `main`", readme)
         self.assertNotIn("docs/portal-walkthrough-20260930", readme + delivery)
         links = re.findall(r"\]\((https://github\.com/[^)]+/\.github/workflows/[^)]+)\)", delivery)
         self.assertEqual(len(links), 2)

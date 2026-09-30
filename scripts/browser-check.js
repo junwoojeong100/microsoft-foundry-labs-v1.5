@@ -1,5 +1,8 @@
 async (page) => {
   const origin = page.contosoGuideOrigin || "http://127.0.0.1:8765";
+  const edition = page.contosoGuideEdition;
+  const entry = `${origin}/${edition.html}`;
+  const english = edition.language === "en";
   const errors = [];
   const failedRequests = [];
   const checks = [];
@@ -14,7 +17,7 @@ async (page) => {
   page.on("pageerror", onError);
   page.on("response", onResponse);
   await page.setViewportSize({width: 1440, height: 1000});
-  await page.goto(`${origin}/index.html#l00`);
+  await page.goto(`${entry}#l00`);
   await page.waitForLoadState("networkidle");
   const originalState = await page.evaluate(() => localStorage.getItem("foundry-lab-guide-20260929"));
   try {
@@ -25,24 +28,24 @@ async (page) => {
     await page.waitForLoadState("networkidle");
     check(await page.locator("article.chapter").count() === 30, "30 generated pages");
     check(await page.locator('.chapter[data-track="advanced"] .learning-badge').count() === 12, "all advanced modules show execution dependency labels");
-    check(await page.locator('#l14 .learning-badge').innerText() === "선행 실습 필요", "Hosted prerequisite is explicit");
-    check(await page.locator('#l16 .learning-badge').innerText() === "독립 선택", "Memory is marked independently selectable");
-    check(await page.locator('#l20 .learning-badge').innerText() === "기능별 분기", "Optimizer and fine-tuning paths are distinguished");
+    check(await page.locator('#l14 .learning-badge').innerText() === (english ? "Prerequisites required" : "선행 실습 필요"), "Hosted prerequisite is explicit");
+    check(await page.locator('#l16 .learning-badge').innerText() === (english ? "Independent elective" : "독립 선택"), "Memory is marked independently selectable");
+    check(await page.locator('#l20 .learning-badge').innerText() === (english ? "Separate feature paths" : "기능별 분기"), "Optimizer and fine-tuning paths are distinguished");
     check(await page.locator(".nav-learning").count() === 12, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === 25, "25 trackable labs");
-    check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: "개념과 실습 지도"}).count() === 25, "all 25 labs explain feature, purpose, method and execution surface");
+    check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: english ? "Concepts and lab map" : "개념과 실습 지도"}).count() === 25, "all 25 labs explain feature, purpose, method and execution surface");
     check(await page.locator(".command-explanation").count() === 55, "all 55 shell blocks have visible command explanations");
     check(await page.locator(".command-explanation tbody tr").count() === 120, "all 120 logical CLI commands have individual explanation rows");
-    const captures = await page.evaluate(async () => {
+    const captures = await page.evaluate(async english => {
       const manifest = await (await fetch("content/portal-screenshots.json")).json();
       const images = [...document.querySelectorAll(".portal-capture img")];
       return {
         declared: manifest.captures.map(item => item.path).sort(),
         rendered: [...new Set(images.map(image => image.getAttribute("src")))].sort(),
         loaded: images.every(image => image.complete && image.naturalWidth > 0),
-        captioned: images.every(image => image.closest("figure").textContent.includes("배포·품질 검증과 구분")),
+        captioned: images.every(image => image.closest("figure").textContent.includes(english ? "Not deployment or quality evidence" : "배포·품질 검증과 구분")),
       };
-    });
+    }, english);
     check(captures.declared.length >= 8 && JSON.stringify(captures.declared) === JSON.stringify(captures.rendered), "genuine portal capture manifest matches the rendered guide");
     check(captures.loaded && captures.captioned, "all offline portal images load with provenance and execution boundaries");
     for (const source of ["samples/workshop.py", "azure.yaml", ".env.example", ".github/workflows/validate.yml"]) {
@@ -50,8 +53,11 @@ async (page) => {
       check(response.ok() && response.headers()["content-type"].startsWith("text/plain"), `source is readable as text: ${source}`);
     }
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "home route");
-    check(await page.locator("html").getAttribute("lang") === "ko", "Korean language metadata");
-    check(await page.locator('script[src^="http"],link[href^="http"]').count() === 0, "no remote runtime dependencies");
+    check(await page.locator("html").getAttribute("lang") === edition.language, "correct language metadata");
+    check(await page.locator('script[src^="http"],link[rel="stylesheet"][href^="http"]').count() === 0, "no remote runtime dependencies");
+    check(await page.locator('.language-switch a[aria-current="true"]').getAttribute("lang") === edition.language, "current language is accessible");
+    const rootResponse = await page.request.get(`${origin}/`);
+    check((await rootResponse.text()).includes('<html lang="en">'), "site root defaults to English");
     const bodyText = await page.locator("body").textContent();
     check(bodyText.includes("Contoso") && !bodyText.includes("한빛") && !bodyText.includes("Hanbit"), "current scenario is consistently Contoso");
     const icon = await page.locator(".brand img").evaluate(image => ({
@@ -67,7 +73,7 @@ async (page) => {
     });
     check(iconHash === "fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c", "official icon bytes match Microsoft's V24 distribution");
 
-    const search = page.getByLabel("가이드 검색", {exact: true});
+    const search = page.locator("#guide-search");
     await search.fill("Foundry IQ");
     check(await page.locator("#search-results").isVisible(), "search opens a result view");
     check(await page.locator('.search-result[href="#l13"]').count() === 1, "search finds the IQ lab");
@@ -80,16 +86,24 @@ async (page) => {
     await search.press("Escape");
     await page.locator("#l13.active").waitFor({state: "visible"});
     check(await page.locator(".chapter.active").getAttribute("id") === "l13", "Escape restores reading");
-    await page.getByLabel("학습 경로", {exact: true}).selectOption("quick");
+    await page.locator("#learning-path").selectOption("quick");
     const quick = await page.locator(".chapter-link:visible").evaluateAll(nodes => nodes.map(node => node.dataset.chapter));
     check(quick.join(",") === "l00,l01,l04,l05,l08,l12,instructor", "90-minute path matches the instructor schedule");
-    await page.getByLabel("학습 경로", {exact: true}).selectOption("all");
+    await page.locator("#learning-path").selectOption("all");
     await page.locator('.chapter-link[data-chapter="l06"]').click();
     await page.locator('[data-complete="l06"]').click();
     check(await page.locator("#progress-label").innerText() === "1 / 25", "progress increments");
     await page.reload();
     check(await page.locator('[data-complete="l06"]').getAttribute("aria-pressed") === "true", "progress survives reload");
     check(await page.locator(".chapter.active").getAttribute("id") === "l06", "deep-link survives reload");
+    const other = english ? "ko" : "en";
+    await page.locator(`.language-switch [data-language="${other}"]`).click();
+    await page.locator("#l06.active").waitFor({state: "visible"});
+    check(await page.locator("html").getAttribute("lang") === other, "language switch opens the other edition");
+    check(await page.locator('[data-complete="l06"]').getAttribute("aria-pressed") === "true", "progress is shared across languages");
+    check(await page.locator(".chapter.active").getAttribute("id") === "l06", "language switch preserves the current module");
+    await page.locator(`.language-switch [data-language="${edition.language}"]`).click();
+    await page.locator("#l06.active").waitFor({state: "visible"});
     await page.locator('[data-complete="l06"]').click();
 
     await page.evaluate(() => {
@@ -132,7 +146,7 @@ async (page) => {
     const widths = [1440, 1024, 768, 390, 320];
     for (const width of widths) {
       await page.setViewportSize({width, height: 900});
-      await page.goto(`${origin}/index.html#l08`);
+      await page.goto(`${entry}#l08`);
       const measure = await page.evaluate(() => ({
         viewport: innerWidth,
         document: document.documentElement.scrollWidth,
@@ -149,7 +163,8 @@ async (page) => {
       check(measure.navigation >= 14, `navigation text >= 14px at ${width}px`);
       check(measure.table >= 14, `table text >= 14px at ${width}px`);
       check(measure.brandRight <= measure.actionsLeft, `brand and header controls do not overlap at ${width}px`);
-      await page.goto(`${origin}/index.html#l04`);
+      check(await page.locator(`.language-switch [data-language="${other}"]`).isVisible(), `language switch remains available at ${width}px`);
+      await page.goto(`${entry}#l04`);
       const imageBounds = await page.locator("#l04 .portal-capture img").evaluateAll(images => images.map(image => ({
         width: image.getBoundingClientRect().width,
         container: image.closest("figure").getBoundingClientRect().width,
@@ -171,13 +186,13 @@ async (page) => {
     await page.setViewportSize({width: 1440, height: 1000});
     for (let index = 0; index < 25; index += 1) {
       const id = `l${String(index).padStart(2, "0")}`;
-      await page.goto(`${origin}/index.html#${id}`);
+      await page.goto(`${entry}#${id}`);
       await page.locator(`#${id}.active`).waitFor({state: "visible"});
       check(await page.locator(".chapter.active").getAttribute("id") === id, `direct route ${id}`);
     }
-    await page.goto(`${origin}/index.html#coverage`);
+    await page.goto(`${entry}#coverage`);
     check(await page.locator("#coverage tbody tr").count() === 95, "91 coverage rows plus 4 depth definitions");
-    await page.goto(`${origin}/index.html#l05`);
+    await page.goto(`${entry}#l05`);
     await page.emulateMedia({media: "print"});
     await page.evaluate(() => { document.body.dataset.print = "one"; });
     check(await page.locator(".chapter:visible").count() === 1, "single-module print");
@@ -191,23 +206,25 @@ async (page) => {
     check(printFonts.code >= 12, "PDF code text >= 9pt");
     await page.emulateMedia({media: null});
     await page.evaluate(() => { delete document.body.dataset.print; });
-    await page.goto(`${origin}/index.html#%E0%A4%A`);
+    await page.goto(`${entry}#%E0%A4%A`);
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "malformed hash has a safe fallback");
 
     const context = await page.context().browser().newContext({javaScriptEnabled: false});
     try {
       const nojs = await context.newPage();
-      await nojs.goto(`${origin}/index.html`);
+      await nojs.goto(entry);
       check(await nojs.locator(".chapter:visible").count() === 30, "all content readable without JavaScript");
+      await nojs.locator(`.language-switch [data-language="${other}"]`).click();
+      check(await nojs.locator("html").getAttribute("lang") === other, "language switching works without JavaScript");
     } finally {
       await context.close();
     }
     check(errors.length === 0, "no browser runtime errors");
     check(failedRequests.length === 0, "no failed local assets");
-    return {status: "passed", checks: checks.length, widths, assertions: checks, errors, failedRequests, azure_calls: 0};
+    return {status: "passed", language: edition.language, checks: checks.length, widths, assertions: checks, errors, failedRequests, azure_calls: 0};
   } finally {
     await page.emulateMedia({media: null});
-    await page.goto(`${origin}/index.html#l00`);
+    await page.goto(`${entry}#l00`);
     await page.evaluate(saved => {
       if (saved === null) localStorage.removeItem("foundry-lab-guide-20260929");
       else localStorage.setItem("foundry-lab-guide-20260929", saved);

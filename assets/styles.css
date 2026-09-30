@@ -64,6 +64,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .brand-light { font-weight: 450; }
 .brand small { font-size: 12px; color: var(--muted); letter-spacing: 1.2px; }
 .top-actions { display: flex; align-items: center; gap: 8px; }
+.language-switch { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+.language-switch a { padding: 5px 7px; border-radius: 5px; font-size: 12px; font-weight: 650; text-decoration: none; white-space: nowrap; }
+.language-switch a[aria-current="true"] { background: var(--accent-soft); }
 .edition { color: var(--muted); font-size: 13px; margin-right: 15px; white-space: nowrap; }
 .edition > span { display: inline-block; width: 6px; height: 6px; background: #188361; border-radius: 50%; margin-right: 7px; }
 .quiet-button, .icon-button {
@@ -247,7 +250,7 @@ details .table-wrap { background: var(--surface); }
 @media (max-width: 540px) {
   .topbar { padding: 0 14px; gap: 6px; }
   .brand { gap: 9px; }
-  .brand-light, #print-one, .brand small { display: none; }
+  .brand-light, #print-one, #print-all, .brand small, .language-switch [aria-current="true"] { display: none; }
   .brand strong { font-size: 15px; }
   .top-actions { gap: 5px; }
   .quiet-button, .icon-button { padding: 6px 8px; font-size: 12px; }
@@ -295,6 +298,8 @@ details .table-wrap { background: var(--surface); }
   .print-cover h2 { font-size: 16pt; margin-top: 22pt; }
   .print-toc { columns: 2; column-gap: 24pt; list-style: none; padding: 0; margin: 14pt 0; }
   .print-toc li { font-size: 9.5pt; line-height: 1.5; padding: 3pt 0; break-inside: avoid; }
+  html[lang="en"] .print-cover h1 { margin: 18pt 0 12pt; }
+  html[lang="en"] .print-toc li { padding: 2pt 0; }
   .print-toc span { display: inline-block; min-width: 18pt; color: #536976; font-family: monospace; }
   .js .chapter, .chapter { display: block !important; box-shadow: none; border: 0; padding: 0; margin: 0; border-radius: 0; break-before: page; }
   .chapter:first-of-type { break-before: auto; }

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="220" viewBox="0 0 1080 220" role="img" aria-labelledby="title desc">
+  <title id="title">Improve with evidence and evaluation</title>
+  <desc id="desc">Start with fixed questions, inspect retrieved evidence, and compare actual tool results. Evaluate answers and traces, change one root cause, and compare again on the same data. Keep an unused holdout for independent evaluation.</desc>
+  <defs><style>text{font-family:-apple-system,Arial,sans-serif;fill:#173b4c}.t{font-size:18px;font-weight:700}.s{font-size:12px;fill:#4f6b7c}</style></defs>
+  <rect width="1080" height="220" rx="14" fill="#f4f9fa"/>
+  <text x="28" y="35" class="s" font-weight="700">CHANGE ONE THING. MEASURE AGAIN.</text>
+  <g transform="translate(28 60)"><rect width="185" height="89" rx="10" fill="#fff" stroke="#c4d9e1"/><text x="14" y="33" class="t">01 Questions</text><text x="14" y="61" class="s">Same data, same criteria</text></g>
+  <text x="225" y="111" font-size="25" fill="#006f70">→</text>
+  <g transform="translate(250 60)"><rect width="185" height="89" rx="10" fill="#fff" stroke="#c4d9e1"/><text x="14" y="33" class="t">02 Evidence</text><text x="14" y="61" class="s">Retrieval and tool results</text></g>
+  <text x="447" y="111" font-size="25" fill="#006f70">→</text>
+  <g transform="translate(472 60)"><rect width="185" height="89" rx="10" fill="#fff" stroke="#c4d9e1"/><text x="14" y="33" class="t">03 Answer + trace</text><text x="14" y="61" class="s">Accuracy, latency, cost</text></g>
+  <text x="669" y="111" font-size="25" fill="#006f70">→</text>
+  <g transform="translate(694 60)"><rect width="357" height="89" rx="10" fill="#e4f5eb" stroke="#a3d5bf"/><text x="17" y="33" class="t">04 Evaluate → change one thing</text><text x="17" y="61" class="s">Retrieval, instructions, model, or permissions?</text></g>
+  <path d="M877 158V187H120V158" stroke="#24826e" stroke-width="2" fill="none" stroke-dasharray="5 4"/>
+  <path d="M114 166L120 157L126 166" stroke="#24826e" stroke-width="2" fill="none"/>
+  <rect x="342" y="174" width="416" height="27" rx="6" fill="#f4f9fa"/><text x="359" y="192" class="s">After changes: the same criteria + an unused holdout</text>
+</svg>
