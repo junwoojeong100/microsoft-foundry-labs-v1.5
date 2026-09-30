@@ -6,6 +6,10 @@
 
 GitHub 또는 텍스트로 읽을 때는 **[`GUIDE.ko.md`](GUIDE.ko.md)** 를 사용하세요. 처음이라면 웹 가이드의 **L00 시작하기**부터 진행합니다.
 
+현재 완성본은 [`feat/contoso-independent-labs-20260930` 브랜치](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/feat/contoso-independent-labs-20260930)에 있습니다.
+원래 `main`은 별도 병합 승인 전까지 보존합니다. Git을 사용한다면 해당 브랜치를 선택하고,
+Git 없이 참여한다면 아래 완성 ZIP을 사용하세요.
+
 공유·인쇄본은 **[`Contoso-Foundry-Hands-on-2026-09-30.pdf`](Contoso-Foundry-Hands-on-2026-09-30.pdf)**,
 전체 키트는 **[`Contoso-Foundry-Hands-on-2026-09-30.zip`](Contoso-Foundry-Hands-on-2026-09-30.zip)**입니다.
 ZIP을 받은 경우 먼저 압축을 풀고, 그 안의 `index.html`을 여세요. ZIP 안에서 파일 하나만 열지 않습니다.
@@ -22,7 +26,7 @@ ZIP을 받은 경우 먼저 압축을 풀고, 그 안의 `index.html`을 여세�
 출처·라이선스는 [`THIRD_PARTY_NOTICES`](THIRD_PARTY_NOTICES)에 보존합니다.
 
 **보존된 v1 검증 결과:** 새 Azure RG에서 Hosted·Search/IQ·도구·Memory·A2A·평가·Tracing과
-[OIDC 배포·업무 검사](https://github.com/junwoojeong100/foundry-labs-v1.5/actions/runs/36649656044)를 수행했습니다.
+[OIDC 배포·업무 검사](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/actions/runs/36649656044)를 수행했습니다.
 최종 holdout은 **9/10이나 safety 사례의 필수 인용 누락으로 품질 게이트 미통과**입니다.
 실행 성공과 릴리스 품질을 구분하며, Routine history 미확인·optimizer 신규 후보 0도 그대로 기록했습니다.
 

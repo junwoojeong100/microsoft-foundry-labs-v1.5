@@ -15,12 +15,14 @@
   "azure_execution": "executed_in_new_owned_resource_group",
   "quality": "automated_gate_passed",
   "repository": {
-    "name": "junwoojeong100/foundry-labs-v1.5",
+    "name": "junwoojeong100/microsoft-foundry-labs-v1.5",
     "visibility": "private",
     "branch": "feat/contoso-independent-labs-20260930",
     "main_merged": false,
     "existing_user_changes_preserved": true,
-    "id": 1396573688
+    "id": 1396573688,
+    "previous_name": "junwoojeong100/foundry-labs-v1.5",
+    "renamed_at": "2026-09-30T06:24:40.753543+00:00"
   },
   "local_checks": {
     "unit_tests_passed": 126,

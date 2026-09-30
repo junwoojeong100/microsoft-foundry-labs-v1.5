@@ -6,7 +6,7 @@ param projectName string
 param runId string
 
 var ownership = {
-  repository: 'foundry-labs-v1.5'
+  repository: 'microsoft-foundry-labs-v1.5'
   scenario: 'Contoso'
   validationRun: runId
   retention: 'retain-until-explicit-approval'

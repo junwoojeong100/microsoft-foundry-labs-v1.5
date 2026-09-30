@@ -61,7 +61,7 @@ def create(args: argparse.Namespace) -> None:
         raise ValueError("Name collision; no existing RG will be reused.")
     state = {
         "schema": "contoso-environment-v1", "run_id": run_id,
-        "repository": "junwoojeong100/foundry-labs-v1.5",
+        "repository": "junwoojeong100/microsoft-foundry-labs-v1.5", "repository_id": 1396573688,
         "subscription": account["id"], "tenant": account["tenantId"], "location": args.location,
         "resource_group": rg,
         "resource_group_id": f"/subscriptions/{account['id']}/resourceGroups/{rg}",
@@ -74,7 +74,7 @@ def create(args: argparse.Namespace) -> None:
     persist(state)
     group = az(
         "group", "create", "--subscription", account["id"], "--name", rg, "--location", args.location,
-        "--tags", "repository=foundry-labs-v1.5", "scenario=Contoso", f"validationRun={run_id}",
+        "--tags", "repository=microsoft-foundry-labs-v1.5", "scenario=Contoso", f"validationRun={run_id}",
         "retention=retain-until-explicit-approval",
     )
     state["resource_group_id"] = group["id"]
@@ -154,7 +154,7 @@ def search() -> None:
         "--resource-group", state["resource_group"], "--name", state["search_name"],
         "--location", state["location"], "--sku", "basic", "--partition-count", "1", "--replica-count", "1",
         "--identity-type", "SystemAssigned", "--disable-local-auth", "true",
-        "--tags", "repository=foundry-labs-v1.5", "scenario=Contoso", f"validationRun={state['run_id']}",
+        "--tags", "repository=microsoft-foundry-labs-v1.5", "scenario=Contoso", f"validationRun={state['run_id']}",
         "--semantic-search", "free", timeout=600,
     )
     state["search_id"] = resource["id"]

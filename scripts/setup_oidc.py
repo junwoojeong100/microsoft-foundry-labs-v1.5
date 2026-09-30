@@ -43,10 +43,10 @@ def main():
     repo = repository["full_name"]
     if not repository["private"]:
         raise ValueError("Repository A must remain private.")
-    owner, name = repo.split("/")
+    owner, repository_name = repo.split("/")
     supported_subjects = {
         f"repo:{repo}:environment:{ENVIRONMENT}",
-        f"repo:{owner}@{repository['owner']['id']}/{name}@{repository['id']}:environment:{ENVIRONMENT}",
+        f"repo:{owner}@{repository['owner']['id']}/{repository_name}@{repository['id']}:environment:{ENVIRONMENT}",
     }
     if args.subject not in supported_subjects:
         raise ValueError("Supply the exact observed environment-bound subject for A; never guess an OIDC subject.")
@@ -79,7 +79,7 @@ def main():
         raise ValueError("Identity name collision; never overwrite existing access.")
     identity = az("identity", "create", "--subscription", state["subscription"],
                   "--resource-group", state["resource_group"], "--name", name, "--location", state["location"],
-                  "--tags", f"validationRun={state['run_id']}", "repository=foundry-labs-v1.5")
+                  "--tags", f"validationRun={state['run_id']}", f"repository={repository_name}")
     state["oidc"] = {
         "identity_id": identity["id"], "client_id": identity["clientId"], "principal_id": identity["principalId"],
         "environment": ENVIRONMENT, "branch": args.branch, "resources_created": ["identity"],
