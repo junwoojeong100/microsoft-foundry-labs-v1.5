@@ -22,7 +22,9 @@
     "existing_user_changes_preserved": true,
     "id": 1396573688,
     "previous_name": "junwoojeong100/foundry-labs-v1.5",
-    "renamed_at": "2026-09-30T06:24:40.753543+00:00"
+    "renamed_at": "2026-09-30T06:24:40.753543+00:00",
+    "rename_oidc_verified": true,
+    "rename_auth_run": "36678401641"
   },
   "local_checks": {
     "unit_tests_passed": 126,

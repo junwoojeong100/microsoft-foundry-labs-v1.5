@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "phase": "auth",
+  "repository_id": "1396573688",
+  "repository": "junwoojeong100/microsoft-foundry-labs-v1.5",
+  "workflow_run_id": "36678401641",
+  "agent_read": "contoso-purchasing",
+  "environment_sha256": "01b7da0bf036f47cd34600919d005bd070fe3cb3f7716b83289f7d88e5eb6fc8",
+  "model_calls": 0,
+  "deployments": 0,
+  "resource_changes": 0
+}
