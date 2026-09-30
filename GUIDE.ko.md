@@ -6,6 +6,8 @@
 
 **검증 경계:** 구현·실행·품질의 현재 상태는 [실행 보고서](validation/current/report.json)를 확인합니다. 직접 실습, 조건부 실습, 설계, 참고를 구분하며 과거 결과를 재사용하지 않습니다.
 
+[합성 영수증 HTML](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html)
+
 ## 모듈 목차
 
 - [00. Foundry를 한 장으로 이해하기](#l00)

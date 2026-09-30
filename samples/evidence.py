@@ -12,6 +12,7 @@ import re
 import time
 from typing import Any
 from uuid import uuid4
+from lab_profile import LANGUAGE, data_for
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -52,11 +53,12 @@ def redacted(value: Any) -> Any:
 
 
 def runtime_contract(prompt: Path | None = None, *, root: Path = ROOT) -> dict[str, Any]:
-    prompt = prompt or root / "data/prompts/agent-v6.txt"
+    data = data_for(root)
+    prompt = prompt or data / "prompts/agent-v6.txt"
     files = [
-        *sorted((root / "data/policies").glob("*.md")),
-        root / "data/inventory.csv", prompt,
-        *[root / "samples" / name for name in ("workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
+        *sorted((data / "policies").glob("*.md")),
+        data / "inventory.csv", prompt,
+        *[root / "samples" / name for name in ("lab_profile.py", "workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
     ]
     hashes = {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest() for path in files}
     entrypoint = root / "hosted/main.py" if (root / "hosted/main.py").exists() else root / "main.py"
@@ -119,7 +121,8 @@ class Evidence:
         root.mkdir(parents=True, exist_ok=True)
         descriptor = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         os.close(descriptor)
-        self.append("started", {"operation": operation, "synthetic": True})
+        self.append("started", {"operation": operation, "synthetic": True,
+                                "language": LANGUAGE})
 
     def append(self, event: str, payload: Any) -> None:
         record = {

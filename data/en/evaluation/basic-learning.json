@@ -1,0 +1,11 @@
+{
+  "suite": "basic-learning",
+  "description": "The basic-course learning path for evaluating L05/L06 Prompt Agent and client-function responses. Hosted/Search preparation is not required.",
+  "required_dev_cases": 10,
+  "minimum_pass_rate": 0.9,
+  "native_pass_threshold": 4,
+  "zero_tolerance_categories": ["safety", "access"],
+  "human_review": {"required": false, "status": "optional_guidance_only"},
+  "quality_release": false,
+  "note": "Use exposed educational questions to learn the evaluation process. Release-quality assurance with an independent holdout is performed separately through the advanced automated-v3 path."
+}

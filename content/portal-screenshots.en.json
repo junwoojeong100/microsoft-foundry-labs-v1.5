@@ -1,0 +1,250 @@
+{
+  "capture_method": "playwright-mcp-headless",
+  "language": "en",
+  "source_origin": "https://ai.azure.com",
+  "source_origins": [
+    "https://ai.azure.com",
+    "https://portal.azure.com"
+  ],
+  "synthetic_ui": false,
+  "scope": {
+    "repository_id": 1396573688,
+    "project": "contoso-workshop-en",
+    "resource_group": "rg-contoso-en-260930ae24ba",
+    "ownership_receipt": "results/azure-environment.json",
+    "runtime_data": "data/en/",
+    "execution_report": "validation/english/current/report.json"
+  },
+  "route_note": "Readable navigation locations; private identifiers are replaced by placeholders. These are not reusable deep links.",
+  "privacy": "Account names, subscription and tenant identifiers, endpoint values, connection keys, authors, and generated scope identifiers were masked or excluded by dialog crops. Authentication was transferred locally into a fresh Playwright MCP headless context; owner-only temporary authentication files were deleted. No browser storage or credentials are distributed.",
+  "execution_boundary": {
+    "azure_resource_creation_submissions": 0,
+    "project_connections_created": 1,
+    "connection_authentication": "Project Managed Identity to the newly owned English Search service; no API keys or paid IQ-plan upgrade",
+    "connection_created_at": "2026-09-30T13:01:18.729Z",
+    "agent_or_policy_saves": 0,
+    "routine_dispatches": 0,
+    "evaluation_or_training_submissions": 0,
+    "voice_sessions_started": 0,
+    "historical_quality_gates_rerun": false,
+    "note": "These counts describe portal capture interactions only. Separate, real CLI/SDK execution created the English environment, agents, datasets and evaluation jobs; see the English execution report. Existing traces, evaluations, memory and the stopped routine were observed. Fine-tuning shows Microsoft's product example. The English Voice form was canceled. One bounded English model-playground question was submitted."
+  },
+  "model_probe": {
+    "status": "one_answer_observed_in_actual_portal",
+    "deployment": "contoso-chat",
+    "model": "gpt-4.1-mini",
+    "model_version": "2025-04-14",
+    "sent_at": "2026-09-30T13:46:31.921Z",
+    "ui_send_count": 1,
+    "automation_resubmissions": 0,
+    "ui_max_completion_tokens": 256,
+    "tools_in_playground": 0,
+    "web_search_enabled": false,
+    "query": "Use only this synthetic Contoso rule and answer in one English sentence: totals of KRW 2,000,000 or less require team lead approval; higher totals require both team lead and procurement approval. Who must approve a total of exactly KRW 2,000,000? Do not place an order or grant approval.",
+    "answer": "A total of exactly KRW 2,000,000 requires team lead approval.",
+    "response_id": "resp_086d8107dd545cf9006abd12b9c15481909b14e4cd92626915",
+    "portal_total_tokens": 106,
+    "http_status": null,
+    "transport_request_count": null,
+    "transport_observation": "Answer, response ID and displayed total tokens were read from the actual portal without resending. Raw transport status and backend retry count were not observed.",
+    "quality_boundary": "One supplied-rule demonstration only; not RAG, tool execution, or a release-quality claim."
+  },
+  "captures": [
+    {
+      "path": "assets/portal/en/01-home.png",
+      "captured_at": "2026-09-30T12:13:02.845Z",
+      "route": "/home",
+      "masked": [
+        "personal greeting",
+        "profile button",
+        "project and model endpoint values"
+      ],
+      "purpose": "English project Home: locate the five main areas and distinguish project and model endpoints.",
+      "sha256": "66aeb851f9dd14a8778aae722c624666ff26bffc1dcb530597a7c226c118abbe"
+    },
+    {
+      "path": "assets/portal/en/02-model-catalog.png",
+      "captured_at": "2026-09-30T12:14:49.706Z",
+      "route": "/discover/models",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "English model catalog and availability filters; catalog visibility is not quota or deployment proof.",
+      "sha256": "13e3c825faf1fe940d0fccfd4990c70cea3e82ca39d6c167057cb534aac616bf"
+    },
+    {
+      "path": "assets/portal/en/03-agents.png",
+      "captured_at": "2026-09-30T12:19:43.911Z",
+      "route": "/build/agents",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "Prompt agents created during the English core labs; the list is not a quality-gate result.",
+      "sha256": "0c1570d6bed8761ac00479b1eb8b960c7cd1ffdf15941cec114f048a605a2cf2"
+    },
+    {
+      "path": "assets/portal/en/04-prompt-playground.png",
+      "captured_at": "2026-09-30T12:27:19.812Z",
+      "route": "/build/agents/{prompt-agent}/build",
+      "masked": [
+        "profile button",
+        "vector-store identifier"
+      ],
+      "purpose": "English instructions persisted on the core Prompt Agent; the empty portal chat has not been submitted.",
+      "sha256": "e38f27f46694d2217b5f66727bd674a55d41addb10afb625ca981f841df8d5b3"
+    },
+    {
+      "path": "assets/portal/en/05-agent-tools.png",
+      "captured_at": "2026-09-30T12:31:57.044Z",
+      "route": "/build/agents/{prompt-agent}/build",
+      "masked": [
+        "profile button",
+        "vector-store identifier"
+      ],
+      "purpose": "Actual English agent configuration with File search and draft-only function tools; no tool or policy was edited in the portal.",
+      "sha256": "35355ca014866f47082a931e3c4f0e57a64df977627014d97f21aeb208e3a6b7"
+    },
+    {
+      "path": "assets/portal/en/06-traces.png",
+      "captured_at": "2026-09-30T12:35:46.428Z",
+      "route": "/build/agents/{prompt-agent}/traces",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "Actual completed traces from the English capstone run, with durations, token usage and estimated costs.",
+      "sha256": "b872a7fa7c468cafb9a6ecdb3ee5b4adc36fb94c768adb638fec967bc268e7c9"
+    },
+    {
+      "path": "assets/portal/en/07-monitor.png",
+      "captured_at": "2026-09-30T12:41:27.313Z",
+      "route": "/build/agents/{prompt-agent}/monitor",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "Observed metrics for the English core run. Continuous evaluations, scheduled evaluations and red teaming were not enabled.",
+      "sha256": "ea638c159da63734b7a44ed727e1368dfb28b8caab14f7fb774b25d425ed1596"
+    },
+    {
+      "path": "assets/portal/en/08-evaluations.png",
+      "captured_at": "2026-09-30T12:46:44.174Z",
+      "route": "/build/evaluations",
+      "masked": [
+        "profile button",
+        "human evaluator author",
+        "workload identity author"
+      ],
+      "purpose": "Actual English evaluation and calibration runs. Completed is a service status, not by itself a release-quality verdict.",
+      "sha256": "6cbf21df6fd02b937b5686f4f4ddc4408fe8064adb9a39c875837aeed95ff769"
+    },
+    {
+      "path": "assets/portal/en/09-knowledge.png",
+      "captured_at": "2026-09-30T13:04:59.060Z",
+      "route": "/build/knowledge",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "The English knowledge base is Active on the owned Search service, connected with Project Managed Identity. The free retrieval plan was not upgraded.",
+      "sha256": "31615c41a2d5bf0dbeb03aa06c1e1180494bc3e9fa8683eb3b0be3b7044ab724"
+    },
+    {
+      "path": "assets/portal/en/10-memory.png",
+      "captured_at": "2026-09-30T13:25:00.492Z",
+      "route": "/build/memory/{store}/memories",
+      "masked": [
+        "profile button",
+        "synthetic scope selector",
+        "synthetic scope identifier"
+      ],
+      "purpose": "The actual English synthetic preference under scope A. API checks separately verified scope-B isolation and subsequent synthetic-item deletion.",
+      "sha256": "20c46b7f38a4b33d995d7afec366f844b9b5b34790dcaa4cfff63300086583be"
+    },
+    {
+      "path": "assets/portal/en/11-guardrails.png",
+      "captured_at": "2026-09-30T13:30:13.452Z",
+      "route": "/build/guardrails",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "Default model guardrails on the English project; no policy was weakened or saved through the portal.",
+      "sha256": "8be9450db7d91d529d9fc61222c90cfcbc4a44758046df484db42628a9b4b4ae"
+    },
+    {
+      "path": "assets/portal/en/12-routines.png",
+      "captured_at": "2026-09-30T13:37:51.166Z",
+      "route": "/build/agents/routines",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "The English one-shot policy routine is Paused after its real scheduled execution; the completed action is independently linked to a response and trace.",
+      "sha256": "795a2c53a96ffcd9d24c4bc37d20166b3c7368293701fa2dd8f2049aecb8ebda"
+    },
+    {
+      "path": "assets/portal/en/13-project-settings.png",
+      "captured_at": "2026-09-30T13:42:17.985Z",
+      "route": "/manage/project-details",
+      "masked": [
+        "profile button",
+        "project endpoint",
+        "subscription name",
+        "subscription identifier",
+        "tenant identifier",
+        "project resource identifier",
+        "connection key, targets and authors"
+      ],
+      "purpose": "English project identity, region and connection authentication methods; credentials, endpoint values and personal identifiers are masked.",
+      "sha256": "178dca0ac4e99c4c196b0c04375ba0d5883e4e1388ba58889eb2840f689f94a5"
+    },
+    {
+      "path": "assets/portal/en/14-fine-tuning.png",
+      "captured_at": "2026-09-30T13:42:59.449Z",
+      "route": "/build/fine-tune",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "The English fine-tuning landing page is a Microsoft product example, not Contoso training evidence. Only local English SFT-format data was prepared.",
+      "sha256": "ff932830fb6f47665d3ce63eb952e3ef488b647799080bb3b0c914dfbb1e25bb"
+    },
+    {
+      "path": "assets/portal/en/15-voice-setup.png",
+      "captured_at": "2026-09-30T13:44:56.166Z",
+      "route": "/build/agents -> New agent -> Build an agent",
+      "masked": [
+        "account and project surroundings excluded by dialog crop"
+      ],
+      "purpose": "English voice-agent setup form only. The form was canceled; no voice agent or session was created.",
+      "sha256": "8d89de499d03f6aacc6063a40803ab65c11370bf5539f0f5557b0a29df970781"
+    },
+    {
+      "path": "assets/portal/en/16-model-response.png",
+      "captured_at": "2026-09-30T13:47:14.367Z",
+      "route": "/build/models/deployments/contoso-chat/playground",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "One actual English supplied-rule response at the KRW 2,000,000 approval boundary. Web search was removed and output capped at 256 tokens.",
+      "sha256": "15106155b6240e5de747745c2d40624d441bb11159db41074382e5a39063baa8"
+    },
+    {
+      "path": "assets/portal/en/17-model-parameters.png",
+      "captured_at": "2026-09-30T13:46:31.772Z",
+      "route": "/build/models/deployments/contoso-chat/playground -> Parameters",
+      "masked": [
+        "account and endpoint surroundings excluded by dialog crop"
+      ],
+      "purpose": "Actual English model playground parameters, with Max Completion Tokens set to 256 for a single bounded demonstration.",
+      "sha256": "8fbddb9c09b1061ccae5b8deb5849767537795983a632e2417ab9cdf52a910fe"
+    },
+    {
+      "path": "assets/portal/en/18-resource-group.png",
+      "captured_at": "2026-09-30T13:42:59.449Z",
+      "route": "https://portal.azure.com/#/resource/{owned-english-resource-group}/overview",
+      "masked": [
+        "account menu",
+        "subscription name",
+        "subscription identifier"
+      ],
+      "purpose": "Actual new English resource group and resource inventory. Failed deployment history is deliberately not hidden.",
+      "sha256": "050da9e5ce15de57395cd2dcb8783943256ed189976df1d3dcf1159585d5c3e6"
+    }
+  ]
+}

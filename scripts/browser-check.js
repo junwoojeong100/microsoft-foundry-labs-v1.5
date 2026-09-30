@@ -5,6 +5,7 @@ async (page) => {
   const english = edition.language === "en";
   const errors = [];
   const failedRequests = [];
+  const remoteRequests = [];
   const checks = [];
   const check = (condition, name) => {
     if (!condition) throw new Error(`FAIL: ${name}`);
@@ -14,6 +15,17 @@ async (page) => {
   const onResponse = response => {
     if (response.status() >= 400) failedRequests.push(`${response.status()} ${response.url()}`);
   };
+  check(["127.0.0.1", "localhost", "[::1]"].includes(new URL(origin).hostname), "browser checks use a local origin");
+  check(/^[\w.-]+\.json$/.test(edition.portal_manifest), "capture manifest is a local content filename");
+  const localOnly = async route => {
+    if (new URL(route.request().url()).origin !== new URL(origin).origin) {
+      remoteRequests.push(route.request().url());
+      await route.abort("blockedbyclient");
+    } else {
+      await route.continue();
+    }
+  };
+  await page.route("**/*", localOnly);
   page.on("pageerror", onError);
   page.on("response", onResponse);
   await page.setViewportSize({width: 1440, height: 1000});
@@ -34,20 +46,51 @@ async (page) => {
     check(await page.locator(".nav-learning").count() === 12, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === 25, "25 trackable labs");
     check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: english ? "Concepts and lab map" : "개념과 실습 지도"}).count() === 25, "all 25 labs explain feature, purpose, method and execution surface");
-    check(await page.locator(".command-explanation").count() === 55, "all 55 shell blocks have visible command explanations");
-    check(await page.locator(".command-explanation tbody tr").count() === 120, "all 120 logical CLI commands have individual explanation rows");
-    const captures = await page.evaluate(async english => {
-      const manifest = await (await fetch("content/portal-screenshots.json")).json();
-      const images = [...document.querySelectorAll(".portal-capture img")];
+    check(await page.locator(".command-explanation").count() === edition.shell_blocks, `all ${edition.shell_blocks} shell blocks have visible command explanations`);
+    check(await page.locator(".command-explanation tbody tr").count() === edition.commands, `all ${edition.commands} logical CLI commands have individual explanation rows`);
+    const captures = await page.evaluate(async ({english, edition}) => {
+      const response = await fetch(`content/${edition.portal_manifest}`);
+      if (!response.ok) throw new Error(`Missing capture manifest: ${edition.portal_manifest}`);
+      const manifest = await response.json();
+      const directory = english ? "assets/portal/en/" : "assets/portal/";
+      if (!manifest.captures.every(item =>
+        item.path.startsWith(directory) && /^\d{2}-[a-z0-9-]+\.png$/.test(item.path.slice(directory.length))
+      )) throw new Error("Portal captures must use this language's local image directory.");
+      const hashes = await Promise.all(manifest.captures.map(async item => {
+        const response = await fetch(item.path);
+        if (!response.ok) throw new Error(`Missing portal capture: ${item.path}`);
+        const hash = await crypto.subtle.digest("SHA-256", await response.arrayBuffer());
+        return [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, "0")).join("") === item.sha256;
+      }));
+      const images = [...document.querySelectorAll('img[src^="assets/portal/"]')];
       return {
         declared: manifest.captures.map(item => item.path).sort(),
         rendered: [...new Set(images.map(image => image.getAttribute("src")))].sort(),
+        genuine: manifest.capture_method === "playwright-mcp-headless" && manifest.synthetic_ui === false,
+        scoped: manifest.scope?.repository_id === 1396573688 &&
+          manifest.scope?.project === (english ? "contoso-workshop-en" : "contoso-workshop") &&
+          Boolean(manifest.scope?.resource_group && manifest.scope?.ownership_receipt),
+        provenance: manifest.captures.every(item =>
+          item.route && item.purpose && item.masked?.length &&
+          /(?:Z|[+-]\d{2}:\d{2})$/.test(item.captured_at) && Number.isFinite(Date.parse(item.captured_at))
+        ),
+        hashesMatch: hashes.every(Boolean),
         loaded: images.every(image => image.complete && image.naturalWidth > 0),
-        captioned: images.every(image => image.closest("figure").textContent.includes(english ? "Not deployment or quality evidence" : "배포·품질 검증과 구분")),
+        captioned: images.every(image => image.closest(".portal-capture")?.textContent.includes(english ? "Not deployment or quality evidence" : "배포·품질 검증과 구분")),
       };
-    }, english);
-    check(captures.declared.length >= 8 && JSON.stringify(captures.declared) === JSON.stringify(captures.rendered), "genuine portal capture manifest matches the rendered guide");
+    }, {english, edition});
+    check(captures.declared.length === edition.portal_screenshots && JSON.stringify(captures.declared) === JSON.stringify(captures.rendered), "language-specific portal capture manifest matches the rendered guide");
+    check(captures.genuine && captures.scoped && captures.provenance && captures.hashesMatch, "all portal captures retain genuine scoped provenance and original hashes");
     check(captures.loaded && captures.captioned, "all offline portal images load with provenance and execution boundaries");
+    for (const path of [edition.receipt_html, edition.validation]) {
+      check(await page.locator(`.site-footer a[href="${path}"]`).count() === 1, `footer uses localized link: ${path}`);
+      check(await page.locator(`.print-cover a[href="${path}"]`).count() === 1, `print cover uses localized link: ${path}`);
+      const response = await page.request.get(`${origin}/${path}`);
+      check(response.ok(), `localized receipt/evidence file is available: ${path}`);
+      if (path === edition.receipt_html) {
+        check((await response.text()).includes(`<html lang="${edition.language}">`), "synthetic receipt matches the reader language");
+      }
+    }
     for (const source of ["samples/workshop.py", "azure.yaml", ".env.example", ".github/workflows/validate.yml"]) {
       const response = await page.request.get(`${origin}/${source}`);
       check(response.ok() && response.headers()["content-type"].startsWith("text/plain"), `source is readable as text: ${source}`);
@@ -211,6 +254,7 @@ async (page) => {
 
     const context = await page.context().browser().newContext({javaScriptEnabled: false});
     try {
+      await context.route("**/*", localOnly);
       const nojs = await context.newPage();
       await nojs.goto(entry);
       check(await nojs.locator(".chapter:visible").count() === 30, "all content readable without JavaScript");
@@ -221,7 +265,8 @@ async (page) => {
     }
     check(errors.length === 0, "no browser runtime errors");
     check(failedRequests.length === 0, "no failed local assets");
-    return {status: "passed", language: edition.language, checks: checks.length, widths, assertions: checks, errors, failedRequests, azure_calls: 0};
+    check(remoteRequests.length === 0, "no remote browser network requests");
+    return {status: "passed", language: edition.language, checks: checks.length, widths, assertions: checks, errors, failedRequests, remoteRequests, azure_calls: 0};
   } finally {
     await page.emulateMedia({media: null});
     await page.goto(`${entry}#l00`);
@@ -232,5 +277,6 @@ async (page) => {
     await page.reload();
     page.off("pageerror", onError);
     page.off("response", onResponse);
+    await page.unroute("**/*", localOnly);
   }
 }

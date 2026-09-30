@@ -62,11 +62,30 @@ def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: 
     if set(case.get("forbidden_tools", [])) & names:
         failures.append("unrequested_tool_execution")
     expected_arguments = case.get("expected_tool_arguments", {})
+    completed_drafts = {}
     for call in calls:
         if call.get("name") == "search_policies":
             continue
-        if call.get("name") not in {"get_stock", "prepare_purchase_request"} or not call.get("call_id"):
+        if (call.get("name") not in {"get_stock", "prepare_purchase_request"}
+                or not isinstance(call.get("call_id"), str) or not call["call_id"]):
             failures.append("tool_allowlist_and_call_id")
+            continue
+        if call.get("duplicate_of") is not None:
+            original = completed_drafts.get(call["duplicate_of"]) if isinstance(call["duplicate_of"], str) else None
+            output = call.get("output", {})
+            try:
+                same_arguments = original is not None and json.loads(call["arguments"]) == json.loads(original["arguments"])
+            except (KeyError, TypeError, json.JSONDecodeError):
+                same_arguments = False
+            if (
+                call["name"] != "prepare_purchase_request"
+                or call.get("execution") != "rejected_before_execution"
+                or call["call_id"] == call["duplicate_of"] or not same_arguments
+                or not isinstance(output, dict) or set(output) != {"ok", "error"} or output.get("ok") is not False
+                or not isinstance(output.get("error"), dict)
+                or output.get("error", {}).get("code") != "duplicate_tool_request"
+            ):
+                failures.append("duplicate_tool_provenance")
             continue
         try:
             arguments = json.loads(call["arguments"])
@@ -84,6 +103,8 @@ def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: 
         else:
             if call.get("output") != {"ok": True, "result": expected}:
                 failures.append("authentic_business_tool_output")
+            elif call["name"] == "prepare_purchase_request" and call.get("execution") != "rejected_before_execution":
+                completed_drafts[call["call_id"]] = call
     if row.get("execution_location") == "azure" and not row.get("trace_id"):
         failures.append("remote_trace_id")
     return {"type": "deterministic_business_evidence", "passed": not failures, "failures": sorted(set(failures))}

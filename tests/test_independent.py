@@ -137,9 +137,12 @@ class EvidenceTests(unittest.TestCase):
         with patch.object(hosted_client, "read_config", return_value=(endpoint, "model")), \
                 patch.object(hosted_client, "azd", return_value=json.dumps({"agent_endpoints": {"invocations": target}})), \
                 patch.object(hosted_client, "credential", return_value=MagicMock()), \
-                patch.object(hosted_client, "Rest", return_value=rest):
+                patch.object(hosted_client, "Rest", return_value=rest) as transport:
             result = hosted_client.remote_invoke({"query": "unit"}, "owned-session", Mock())
         self.assertTrue(result["fixture_only"])
+        self.assertEqual(transport.call_args.kwargs["timeout_seconds"], 310)
+        self.assertEqual(transport.call_args.args[-1].max_requests, 1)
+        self.assertEqual(transport.call_args.args[-1].max_seconds, 330)
         self.assertEqual(rest.request.call_args.args[0], "POST")
         self.assertIn("agent_session_id=owned-session", rest.request.call_args.args[1])
 
@@ -206,7 +209,8 @@ class HostedTurnTests(unittest.TestCase):
         }), usage=Obj(input_tokens=30, output_tokens=10), model="unit-model-version")
         attribution = Obj(id="attr-unit", status="completed", output=[], usage=None,
                           output_text='{"citation_ids":["CONTOSO-PROC-2026-09-s3"]}')
-        client = Obj(responses=Obj(create=Mock(side_effect=[first, final, attribution])))
+        finished = Obj(id="tools-done", status="completed", output=[], usage=None)
+        client = Obj(responses=Obj(create=Mock(side_effect=[first, finished, final, attribution])))
         sink = Obj(append=Mock())
         row = hosted_runtime.execute_turn(client, self.search(), "unit-model", {"query": "NB-14 2대 초안"}, sink, evidence.Budget())
         self.assertEqual(row["model"], "unit-model-version")
@@ -215,6 +219,10 @@ class HostedTurnTests(unittest.TestCase):
         self.assertEqual(draft["call_id"], "call_unit")
         self.assertFalse(draft["output"]["result"]["order_submitted"])
         self.assertEqual(row["input_tokens"], 50)
+        final_request = client.responses.create.call_args_list[-2].kwargs
+        self.assertEqual(final_request["tools"], [])
+        self.assertEqual(final_request["tool_choice"], "none")
+        self.assertTrue(all(item.get("type") not in {"function_call", "function_call_output"} for item in final_request["input"]))
 
     def test_fabricated_citation_fails(self):
         result = Obj(id="resp_unit", status="completed", output=[], output_text=json.dumps({

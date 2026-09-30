@@ -36,7 +36,7 @@ python samples/workshop.py capstone --live
 
 </div>
 
-Question: “Check the purchasing policy for two laptops and NB-14 inventory, then prepare a purchase request draft.” The executable sample keeps its original Korean synthetic question unchanged.
+Question: “Check the purchasing policy for two laptops and NB-14 inventory, then prepare a purchase request draft.” With `FOUNDRY_LAB_LANGUAGE=en` selected, the executable sample uses an English synthetic request, English instructions, and the policies in `data/en/policies/`.
 
 | Required result | Evidence for judging it |
 | --- | --- |

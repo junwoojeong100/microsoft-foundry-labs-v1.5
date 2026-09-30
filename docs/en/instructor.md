@@ -2,18 +2,20 @@
 
 ## The day before the course
 
-Recheck GA/Preview status, regions, and model support against official sources. The initial source check was on 2026-09-29, and the actual portal captures were taken on 2026-09-30; neither date means the material remains current forever.
+Recheck GA/Preview status, regions, and model support against official sources. The initial source check was on 2026-09-29. Consult [content/portal-screenshots.en.json](../../content/portal-screenshots.en.json) for the English project's actual capture times and scope; do not reuse the old Korean capture date as proof of a new observation. Neither a source date nor a screenshot means the material remains current forever.
 
 Have learners first explain each chapter's **Concepts and lab map** in their own words. After they locate the relevant portal screen, connect it to why the CLI is needed. Allow execution only after they read the **Result / cost or changes** column in the command walkthrough. Encourage pauses between plan → execute → verify instead of copying an entire group of commands at once.
 
 Account and identifying information in the images has been deliberately redacted. Tell learners not to copy example agent names, versions, or trace IDs as their own execution values. **Portal observation / local execution / paid model calls / deployment / permission changes / deletion** involve different approvals and outcomes. If a screen differs, check region, permissions, project, and UI timing; do not create resources just to force a match with the image.
+
+Prepare the English class in a **separate clean checkout/worktree**, with its own `.env`, `.azure/`, and `results/`, and an approved English project such as `contoso-workshop-en`. Have every learner select `FOUNDRY_LAB_LANGUAGE=en` using L01's shell-specific command, and reselect it in every new terminal. The HTML language switch does not choose the runtime corpus. Use only `data/en/` inputs and English-bound Hosted packages; never copy Korean private settings, receipts, or completed results.
 
 | Preparation | Evidence of completion |
 | --- | --- |
 | Test subscription/project/model | First call under **learner permissions**, not the instructor's account |
 | Appropriate roles and quota | Agent creation, file upload, evaluation, and logs checked separately |
 | Cost responsibility and limits | Approver, person responsible for stopping work, and time to verify shutdown |
-| Data | Distribute synthetic files only; real company documents are unnecessary |
+| Data | Distribute the English synthetic files in `data/en/`; verify the selected profile, not just the reader language |
 | PC environment | Separate core/advanced venvs and compliance with internal package policies |
 | Preview permission | Replace disallowed features with design exercises |
 | Network | Approved execution location, DNS, and log access |
@@ -90,6 +92,12 @@ The table below is an **educational completion record**, not service certificati
 
 This record is separate from the web guide's progress checkboxes. Browser progress does not connect to Azure.
 
+Keep the English data scopes distinct: legacy **10 dev / 10 exposed holdout** learning cases, a historical v2 translation with **20 dev / 10 exposed holdout**, and v3 with **30 dev regressions plus a new independent sealed 10-case English holdout**. The v3 judge must match all **8 calibration controls**; the release gate still requires **at least 90% overall and zero safety/access failures**. Do not expose sealed questions/answers or tune against them. A shortened classroom exercise is not independent release evidence.
+
+All 18 English portal captures are complete, but **release is not approved**. Core learning passed 10/10 with 6/6 calibration controls; Hosted version 2 dev passed 29/30 with 8/8 calibration and zero critical dev failures. The independent holdout executed 10/10, passed 7/10, and had a critical safety citation-evidence failure. Native judge results alone did not satisfy the frozen tool/evidence contracts. No post-holdout threshold, data, or tested-candidate adjustment or rerun occurred. Use the [current English report](../../validation/english/current/report.json) and L08 to teach the difference between execution, learning, and release quality.
+
+Reviewed English evidence stays under `validation/english/`; `validation/current/`, `validation/automated-v3/`, and historical Git records remain Korean-run evidence. The dev-only Optimizer outcome is reported separately; do not assume success. Record unexecuted optional services honestly. Lack of a license, device, Teams access, fine-tuning job, or other optional service is not a full-cloud pass.
+
 ## Failure signals instructors should watch for
 
 - Passing an invented policy because the model's wording sounds natural.
@@ -97,6 +105,7 @@ This record is separate from the web guide's progress checkboxes. Browser progre
 - Judging an external action successful based only on natural-language claims such as `approved` or `ordered`.
 - Averaging only the 17 successful cases when 3 out of 20 failed.
 - Repeatedly revising a prompt while looking at the holdout.
+- Running English instructions against Korean data, importing another run's receipts, or labeling Korean results as new English evidence.
 - Presenting all Preview capabilities to customers as production-ready.
 - Teaching new-portal Workflows as the recommended path for new production implementations.
 - Forgetting routine, evaluation, voice, or Search costs after closing the browser.

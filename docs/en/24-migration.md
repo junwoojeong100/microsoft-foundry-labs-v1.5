@@ -45,7 +45,7 @@ Do not assume that an API migration tool moving definitions has also moved all u
 
 ### 3. Check regressions in the new environment
 
-With the same synthetic data, repeat L03's model call, L05's citations, L06's functions, L08's evaluation, and L10's traces. Record differences in endpoints/token audiences, response/tool schemas, retries, and storage/retention policies.
+With the same English synthetic data in `data/en/` and L01's English profile selected, repeat L03's model call, L05's citations, L06's functions, L08's evaluation, and L10's traces in the separate new environment. Do not copy a Korean run's private settings or receipts. Record differences in endpoints/token audiences, response/tool schemas, retries, and storage/retention policies; historical Korean validation is not evidence that the new English environment passed.
 
 ### 4. Remove dependencies on retiring features first
 

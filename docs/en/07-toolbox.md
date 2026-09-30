@@ -13,7 +13,7 @@ and a Skill provides instructions for repeatable work.** A Skill is neither appr
 
 **How do you use it?** First compare HTTP responses with the source contract, then distinguish MCP tool listing from actual calls. Review the tool name and arguments before approving that single call. The cloud extension adds remote authentication and version pinning to the same concepts.
 
-**Where do you run it?** The core exercise runs locally in two terminals. Compare the [HTTP server](../../samples/inventory_api.py), [OpenAPI contract](../../samples/inventory.openapi.json), [MCP server](../../samples/mcp_server.py), [client](../../samples/toolbox_lab.py), and [Skill source](../../data/skills/purchase-review/SKILL.md) to see the boundary between the protocol and business code.
+**Where do you run it?** The core exercise runs locally in two terminals. Compare the [HTTP server](../../samples/inventory_api.py), [OpenAPI contract](../../samples/inventory.openapi.json), [MCP server](../../samples/mcp_server.py), [client](../../samples/toolbox_lab.py), and [English Skill source](../../data/en/skills/purchase-review/SKILL.md) to see the boundary between the protocol and business code.
 
 ## Prerequisites
 
@@ -41,7 +41,7 @@ python -m pip install -r requirements-tools.txt
 
 ### 1. Explore the local HTTP/OpenAPI contract
 
-Start the server in the first terminal and leave it running.
+Start the server in the first terminal with L01's English profile selected and leave it running.
 
 ```bash
 python samples/inventory_api.py
@@ -57,7 +57,7 @@ python samples/inventory_api.py
 
 </div>
 
-In a second terminal, change to the same repository folder, then run:
+In a second terminal, change to the same English checkout, reselect `FOUNDRY_LAB_LANGUAGE=en` as in L01 and the appropriate Python environment, then run:
 
 ```bash
 curl --fail http://127.0.0.1:8766/health
@@ -123,7 +123,7 @@ python samples/toolbox_lab.py inspect --live
 
 </div>
 
-Register the bundled `data/skills/purchase-review/SKILL.md` as a script-free Skill,
+Register the bundled `data/en/skills/purchase-review/SKILL.md` as a script-free Skill,
 and attach the **exact Skill version** to a uniquely named Toolbox version.
 `results/toolbox.json` records the version-specific MCP endpoint.
 
@@ -140,10 +140,10 @@ The bundled client requires one-time approval for the exact name and arguments o
 
 ### 4. Optional extension: Call cloud tools by their exact listed names
 
-Copy the name returned by `inspect`. Do not guess an actual name from an example.
+Copy the Contoso OpenAPI search tool's exact name returned by `inspect`. Do not guess it or substitute the Microsoft Learn search tool, which has a different argument schema.
 
 ```bash
-python samples/toolbox_lab.py call --tool 실제-검색도구명 --arguments '{"query":"Microsoft Foundry hosted agents"}' --approve-tool 실제-검색도구명 --live
+python samples/toolbox_lab.py call --tool ACTUAL_OPENAPI_SEARCH_TOOL_NAME --arguments '{"api-version":"2024-07-01","body":{"search":"laptop purchase approval","top":3,"select":"id,document_id,title,section,filename,content,content_sha256"}}' --approve-tool ACTUAL_OPENAPI_SEARCH_TOOL_NAME --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -152,12 +152,12 @@ python samples/toolbox_lab.py call --tool 실제-검색도구명 --arguments '{"
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `call --live` | Replace both occurrences of `실제-검색도구명` (“actual search-tool name”) with the same name returned by `inspect`. `--arguments` must follow that tool's schema; `--approve-tool` records one-time approval. | Sends the question to the remote tool. This example searches public product documentation; do not include company data. Check the actual result or error and any service-specific cost. |
+| 1. `call --live` | Replace both occurrences of `ACTUAL_OPENAPI_SEARCH_TOOL_NAME` with the same Contoso OpenAPI tool name returned by `inspect`. `api-version` is a top-level argument; `body` contains `search`, `top`, and `select`. `--approve-tool` records one-time approval of that exact name and payload. | Reads at most 3 English synthetic policy sections through the project managed identity. Check actual returned content and hashes against `data/en/policies/`; Search service charges still apply. No draft or order is created. |
 
 </div>
 
 OpenAPI tool arguments must follow the `inputSchema` from `tools/list`.
-Pass `api-version=2024-07-01`, `search`, `top<=5`, and the specified `select`.
+For this MCP tool, pass `"api-version":"2024-07-01"` at the top level and nest `search`, `top`, and `select` inside **`body`**. The example uses `top: 3`; keep it at most 5 and retain the specified `select` fields. A flat object containing `search`/`top`/`select` is not this tool's contract. The Microsoft Learn tool's `query` argument is a separate schema, not an alternative for this OpenAPI call.
 Use `python samples/toolbox_lab.py openapi` to inspect **the complete contract generated by this repository**. `openapi` is a local command that builds and prints contract JSON from the Search configuration/receipt. It makes no Azure requests or tool calls, but requires the L13 configuration to produce the correct endpoint.
 Specifying only an API version's schema default does not send the actual query parameter.
 

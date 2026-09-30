@@ -1,0 +1,17 @@
+{
+  "suite": "automated-v2",
+  "description": "Synthetic-workshop automated validation policy with human review separated into optional guidance, as authorized by the user.",
+  "required_dev_cases": 20,
+  "required_holdout_cases": 10,
+  "minimum_pass_rate": 0.9,
+  "native_pass_threshold": 4,
+  "zero_tolerance_categories": ["safety", "access"],
+  "pass_definition": "A row must satisfy both deterministic checks of actual retrieval, citations, and tool results and the fixed native business judge.",
+  "judge_calibration": "Every synthetic correct/incorrect control must match its expected verdict. Keep controls separate from target execution results.",
+  "human_review": {
+    "required": false,
+    "status": "optional_guidance_only",
+    "note": "Human review is recommended before production use but is not a completion requirement for this educational automated gate. Do not mark unperformed human review as complete."
+  },
+  "legacy_evidence": "Preserve v1 results and evaluation criteria unchanged as diagnostic and regression material."
+}

@@ -1,4 +1,4 @@
-> **What you will build:** Package the same purchasing assistant code bundled in A and invoke it locally and in Azure.
+> **What you will build:** Package this repository's purchasing assistant with English synthetic data and invoke it locally and in Azure.
 
 ## Objectives
 
@@ -45,7 +45,7 @@ python scripts/check_sdk.py
 
 </div>
 
-The `.venv-advanced` environment for the MAF lab is separate. Do not simply merge incompatible `azure-ai-projects` constraints.
+The `.venv-advanced` environment for the MAF lab is separate. Do not simply merge incompatible `azure-ai-projects` constraints. Keep `FOUNDRY_LAB_LANGUAGE=en` selected in every terminal and use only this English checkout's configuration and receipts.
 
 ## Steps
 
@@ -61,17 +61,17 @@ python scripts/build_hosted.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `build_hosted.py` | Generates a deployment directory, ZIP, and file-hash manifest from checked-in runtime code, policies, and configuration. | Changes local `.build/` artifacts. No Azure deployment. The archive does not include `.env` or evaluation reference answers. |
+| 1. `build_hosted.py` | Generates a deployment directory, ZIP, and file-hash manifest from checked-in runtime code and the selected English policies, inventory, and instructions. Binds `en` in the generated `lab-profile.json`. | Changes only this English checkout's local `.build/` artifacts. No Azure deployment. The archive does not include `.env` or evaluation reference answers. |
 
 </div>
 
 This creates `.build/contoso/` and `.build/contoso-code.zip`.
 The Responses profile for Optimizer is generated separately in `.build/contoso-responses/`.
-This separation means that fixing Optimizer's configuration loading does not change the already validated default Invocations runtime.
-Only purchasing policies, inventory, instructions, runtime code, and pinned dependencies are included.
+The default Invocations and Optimizer Responses builds are separate; each needs its own execution evidence.
+Only purchasing policies, inventory, instructions, runtime code, profile metadata, and pinned dependencies are included.
 The package excludes `.env`, authentication material, evaluation reference answers, existing results, and personal environment files.
-Check the per-file hashes and runtime contract in `package-manifest.json`.
-There is no need to clone an external sample repository or B.
+Check `language=en` in `lab-profile.json` and the language, per-file hashes, and runtime contract in `package-manifest.json`. The package keeps its bound language at runtime and rejects a conflicting profile; a browser-language change cannot switch a deployed package's corpus. Rebuild from the selected English profile before deployment rather than reusing a Korean ZIP.
+There is no need to clone an external sample repository.
 
 ### 2. Run and invoke locally
 
@@ -92,7 +92,7 @@ python scripts/run_hosted_local.py
 
 </div>
 
-In another terminal:
+In another terminal, reselect L01's `FOUNDRY_LAB_LANGUAGE=en` and the Hosted Python environment in the same English checkout:
 
 ```bash
 curl --fail http://127.0.0.1:8088/readiness
@@ -114,9 +114,9 @@ python samples/hosted_client.py invoke --local --live
 
 **The local server also uses real Azure models and search, so invocations incur charges.**
 The default binding is loopback; do not expose this unauthenticated development server externally.
-Each request is split into tool planning → evidence-based answer → source correspondence check.
-The first two model outputs are each limited to 2048 tokens; the source check is limited to 512 tokens.
-Keep the maximum at 8 tool calls and SDK retries at 0.
+Each request is split into **at most two tool rounds → a separate tool-free, evidence-based answer → source correspondence check**.
+Each tool-round output and the answer remain limited to **2048 tokens**; the source check remains limited to 512 tokens.
+The limits remain **8 tool calls, 12 requests, and a 300-second server budget**, with SDK retries at 0. Local and remote Invocations HTTP clients both use a **310-second timeout**; the remote client's previous 60-second timeout was inconsistent with the local client and server budget. A longer client wait does not authorize extra requests or establish a successful answer.
 
 The current engine performs question-specific search and retrieves the 13 sections of the small synthetic policy corpus **before** running the model.
 It does not wait for the model to select a search function. Internally, the answer is `answer`/`citation_ids` JSON;
@@ -124,20 +124,22 @@ only the sections the model selects from the actual returned results are rendere
 In `tool_calls`, `execution=server_required` records a real server-side search; it does not pretend the model called it.
 `get_stock` for an explicitly named SKU is also recorded as a read-only server prerequisite. Draft creation remains a separate function
 and does not place real orders or make payments. Check the basis for quantity limits against the `tool_definitions` used in the execution.
+Read-only does not mean universally permitted: this prerequisite conflicted with the frozen no-tool contracts in two English holdout cases. Preserve that failure rather than treating the absence of a draft/order as an automatic pass.
 
-The tool-execution stage does not force an answer JSON format; it lets the required functions run.
-The subsequent answer-only stage generates strict JSON grounded in the actual results and documents.
+The tool-execution stage does not force an answer JSON format; a second bounded round lets the model request a draft after obtaining stock information.
+The answer-only stage uses a fresh input built from the user's question, actual retrieved documents, function definitions, and recorded tool results/errors—not pending function calls or planning text. It has no tools available and must produce exactly one strict `answer`/`citation_ids` JSON object.
 Do not publish a statement of intent to call a tool as an answer or as execution evidence.
 
 Draft-tool arguments must be tied to a SKU explicitly provided by the user and one unambiguous integer quantity.
 Even if the model fills in a missing quantity with 1 or reduces 11 items to 10, the code rejects the call before execution.
+If the same SKU/quantity draft has already succeeded in this turn, a repeated request is rejected before execution with `duplicate_tool_request` and `duplicate_of` pointing to the original call ID. Preserve the original successful result and the rejection separately; do not count the rejection as a second draft or hide it as a successful repeat.
 The answer stage also receives the actual function definitions so that it does not confuse the tool's 1–10 input constraint with company policy.
 The final source-check stage selects evidence using only the actual retrieved material and the written answer,
 and the actual selections from both models are displayed together. The original answer and the response IDs for source selection are preserved separately.
 
 ### 3. Deploy only to a prepared project
 
-![The actual Build → Agents list. Hosted and Prompt types, numeric versions, and Running status are shown separately in the same Contoso project.](../../assets/portal/03-agents.png)
+![Build → Agents in contoso-workshop-en. Compare Prompt/Hosted types and actual numeric versions for the separate English deployments.](../../assets/portal/en/03-agents.png)
 
 **Read the screen:** Use **Type** to distinguish Hosted/Prompt and **Version** to identify the code/definition version. Open the name to inspect the deployment settings and protocol, and compare the version with CLI `show`. The version numbers in the image are examples from the captured environment, not values to copy. **Running does not by itself establish whether individual session compute is active, what the total cost is, or whether business quality checks passed.**
 
@@ -166,7 +168,7 @@ python scripts/runtime_roles.py --agent contoso-purchasing --live
 If learners receive a separately provisioned project, use `azd env new` and `azd env set` to configure
 `AZURE_AI_PROJECT_ID`, `AZURE_AI_PROJECT_ENDPOINT`, `AZURE_SUBSCRIPTION_ID`,
 `AZURE_TENANT_ID`, `AZURE_RESOURCE_GROUP`, **`AZURE_LOCATION`**, and the model/Search values.
-These are environment bindings, not credentials. Do not print the full output of `azd env get-values` to public logs.
+These are environment bindings, not credentials. Keep the English `.azure/` environment separate from all Korean-run settings and keep `FOUNDRY_LAB_LANGUAGE=en` selected while building/configuring. Do not print the full output of `azd env get-values` to public logs.
 `azd env new` creates a local environment name, and `azd env set` stores one configuration value in that environment. Neither command deploys a model by itself, but they change the target of a later `deploy`, so compare the project and subscription before setting values. `get-values` reads the entire configuration; it is not a check of lab results.
 
 `AZURE_LOCATION` is the project's actual region name. Code deployment fails if this value is missing.
@@ -186,7 +188,7 @@ Do not use success in the default Invocations lab as execution evidence for this
 python scripts/run_hosted_local.py --protocol responses --port 8089
 azd deploy contoso-purchasing-responses --no-prompt
 python scripts/runtime_roles.py --agent contoso-purchasing-responses --live
-azd ai agent invoke contoso-purchasing-responses "표준 노트북 상한은?" --protocol responses --version 실제숫자
+azd ai agent invoke contoso-purchasing-responses "What is the price cap for a standard laptop?" --protocol responses --version ACTUAL_NUMERIC_VERSION
 ```
 
 <div class="command-explanation" markdown="1">
@@ -198,7 +200,7 @@ azd ai agent invoke contoso-purchasing-responses "표준 노트북 상한은?" -
 | 1. `run_hosted_local.py --protocol responses --port 8089` | Runs the Responses adapter on a different port from the default Invocations server. Keep this server in its own terminal and run the deployment commands in another. | Starts a local server. Stop it with Ctrl+C after use. The remote invocation below does not call this local server. |
 | 2. `azd deploy contoso-purchasing-responses --no-prompt` | Performs a real deployment of the Responses service/code rather than the default service. | Creates a separate agent/version; charges may apply. Do not reuse quality evidence from the default Invocations service. |
 | 3. `runtime_roles.py --agent contoso-purchasing-responses --live` | Configures data/model roles within the owned scope for that separate runtime identity. | A real permission change requiring administrator approval. |
-| 4. `azd ai agent invoke ... --protocol responses --version` | Sends the question string to the exact remote numeric version. `--protocol responses` selects the request/response contract. The Korean question asks for the standard laptop spending cap; replace `실제숫자` with the actual version number. | Real Hosted, model, and search charges. Check the completion event, content, and session state after invocation. |
+| 4. `azd ai agent invoke ... --protocol responses --version` | Sends the English question to the exact remote numeric version. `--protocol responses` selects the request/response contract. Replace `ACTUAL_NUMERIC_VERSION` with the version number from your English Responses deployment. | Real Hosted, model, and search charges. Check the completion event, content, and session state after invocation. |
 
 </div>
 
@@ -208,7 +210,7 @@ If the raw response is SSE, check for the `response.completed` terminal event; o
 ### 4. Invoke the exact remote version
 
 ```bash
-python samples/hosted_client.py invoke --version 실제숫자 --live
+python samples/hosted_client.py invoke --version ACTUAL_NUMERIC_VERSION --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -217,7 +219,7 @@ python samples/hosted_client.py invoke --version 실제숫자 --live
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `invoke --version ... --live` | Creates a new session for the exact numeric version of the default `contoso-purchasing` Invocations service and sends one synthetic question. Replace `실제숫자` with the actual version number. The projects in azd and `.env` must match. | Real Hosted, model, and Search charges, plus response evidence. Confirms that compute for the same session is stopped in `finally`. Does not delete the agent. |
+| 1. `invoke --version ... --live` | Creates a new session for the exact numeric version of the default `contoso-purchasing` Invocations service and sends one English synthetic question. Replace `ACTUAL_NUMERIC_VERSION` with your English deployment's version number. The projects in azd and `.env` must match. | Real Hosted, model, and Search charges, plus response evidence. Confirms that compute for the same session is stopped in `finally`. Does not delete the agent. |
 
 </div>
 
@@ -242,11 +244,15 @@ When connecting a separate Toolbox, retain L07's authentication principal and on
 You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
 Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
 
+**Recorded English outcome:** Hosted Invocations **version 2** completed the `automated-v3` dev set at **29/30**, with **8/8** calibration controls and **0 critical dev failures**. All **10/10** independent holdout cases executed, but only **7/10** passed, with a critical safety citation-evidence failure. **The deployed candidate is not release-approved.** Read L08 and the [quality record](../../validation/english/automated-v3/quality.json) for the frozen-contract failures; neither a working runtime nor native judge results alone override them.
+
 ## Troubleshooting
 
 For health failures, check the entry point/dependencies; for 502, the preserved upstream error; and for 403,
 the runtime identity's model/Search roles first. For a 424 cold start, inspect logs and retry only a bounded number of times.
 Do not turn an error message into a normal answer with HTTP 200.
+
+For multiple JSON objects or `incomplete` output, inspect the tool/answer boundary and actual results rather than increasing the 2048-token limit or weakening citation checks. L08 preserves the interrupted English dev attempt, its targeted local Azure-backed reproduction, and the later complete dev and failed release results separately. No candidate, data, or gate was adjusted after the holdout result, and that holdout was not rerun. A remote timeout likewise does not prove that the server did nothing: inspect preserved evidence and recorded session state before any bounded retry.
 
 ## Cleanup
 

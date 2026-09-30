@@ -7,10 +7,11 @@ import json
 from pathlib import Path
 import re
 import unicodedata
+from urllib.parse import urlparse
 
 import pymupdf
 
-from build_guide import load_content
+from build_guide import load_content, load_portal_captures
 
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
@@ -34,8 +35,8 @@ def check_pdf(language, report_dir):
     edition = RELEASE["languages"][language]
     pdf = ROOT / edition["pdf"]
     chapters, _, _ = load_content(language)
-    captures = json.loads((ROOT / "content/portal-screenshots.json").read_text(encoding="utf-8"))["captures"]
-    expected_images = {image_digest(pymupdf.Pixmap(ROOT / item["path"])): item["path"] for item in captures}
+    captures = load_portal_captures(language)
+    expected_images = [(item["path"], image_digest(pymupdf.Pixmap(ROOT / item["path"]))) for item in captures]
     with pymupdf.open(pdf) as document:
         texts = [page.get_text() for page in document]
         combined = normalized("\n".join(texts))
@@ -54,6 +55,7 @@ def check_pdf(language, report_dir):
                 raise ValueError(f"PDF contains a TOC entry but no actual module body: {chapter['id']}")
         out_of_bounds = []
         local_links = []
+        broken_internal_links = []
         internal_links = 0
         destinations = set()
         sparse_pages = []
@@ -71,18 +73,29 @@ def check_pdf(language, report_dir):
                 if text.strip() and (x0 < -1 or y0 < -1 or x1 > page.rect.width + 1 or y1 > page.rect.height + 1):
                     out_of_bounds.append({"page": number, "text": text[:70], "bounds": [x0, y0, x1, y1]})
             for link in page.get_links():
-                if link["kind"] in {pymupdf.LINK_GOTO, pymupdf.LINK_NAMED} and 0 <= link.get("page", -1) < len(document):
-                    internal_links += 1
-                    if link.get("nameddest"):
-                        destinations.add(link["nameddest"])
+                if link["kind"] in {pymupdf.LINK_GOTO, pymupdf.LINK_NAMED}:
+                    if not 0 <= link.get("page", -1) < len(document):
+                        broken_internal_links.append({"page": number, "destination": link.get("nameddest")})
+                    else:
+                        internal_links += 1
+                        if link.get("nameddest"):
+                            destinations.add(link["nameddest"])
                 uri = link.get("uri", "")
-                if "127.0.0.1" in uri or uri.startswith("file:"):
-                    local_links.append({"page": number, "uri": uri})
-        if out_of_bounds or local_links or sparse_pages:
+                address = urlparse(uri)
+                if (
+                    link["kind"] in {pymupdf.LINK_GOTOR, pymupdf.LINK_LAUNCH}
+                    or uri and (
+                        address.scheme not in {"https", "http", "mailto"}
+                        or address.hostname in {"127.0.0.1", "localhost", "0.0.0.0", "::1"}
+                    )
+                ):
+                    local_links.append({"page": number, "uri": uri or link.get("file", "")})
+        if out_of_bounds or local_links or sparse_pages or broken_internal_links:
             raise ValueError(json.dumps({
                 "out_of_bounds": out_of_bounds, "nonportable_links": local_links, "nearly_blank_pages": sparse_pages,
+                "broken_internal_links": broken_internal_links,
             }, ensure_ascii=False))
-        missing_images = [path for fingerprint, path in expected_images.items() if fingerprint not in seen_images]
+        missing_images = [path for path, fingerprint in expected_images if fingerprint not in seen_images]
         if missing_images:
             raise ValueError(f"PDF is missing original portal screenshot pixels: {missing_images}")
         if internal_links < 30 or not {chapter["id"] + "-title" for chapter in chapters} <= destinations:
@@ -98,9 +111,11 @@ def check_pdf(language, report_dir):
             "cover_pages": 1, "first_module_page": 2,
             "internal_links": internal_links, "bookmarks": len(document.get_toc()),
             "module_destinations": len({chapter["id"] + "-title" for chapter in chapters} & destinations),
+            "broken_internal_links": 0,
             "out_of_bounds_text_blocks": 0, "nearly_blank_pages": [],
             "nonportable_local_links": 0, "localized_text_extractable": True,
             "portal_screenshots_with_matching_pixels": len(expected_images),
+            "portal_manifest": edition["portal_manifest"],
         }
         report_dir.mkdir(parents=True, exist_ok=True)
         document[0].get_pixmap(matrix=pymupdf.Matrix(1.3, 1.3)).save(report_dir / "pdf-cover.png")

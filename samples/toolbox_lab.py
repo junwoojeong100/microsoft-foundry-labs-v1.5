@@ -14,7 +14,7 @@ from uuid import uuid4
 from cloud import credential, project_client
 from evidence import Evidence, serializable
 from search_lab import SEARCH_API, configuration
-from workshop import DATA, RESULTS, ROOT, read_config, save_json
+from workshop import DATA, LANGUAGE, RESULTS, ROOT, read_config, save_json
 
 STATE = RESULTS / "toolbox.json"
 
@@ -106,7 +106,10 @@ async def session_for(local: bool, evidence: Evidence):
     from mcp.client.streamable_http import streamablehttp_client
 
     if local:
-        params = StdioServerParameters(command=sys.executable, args=[str(ROOT / "samples/mcp_server.py")])
+        params = StdioServerParameters(
+            command=sys.executable, args=[str(ROOT / "samples/mcp_server.py")],
+            env={"FOUNDRY_LAB_LANGUAGE": LANGUAGE},
+        )
         async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
             evidence.append("mcp_initialize", await session.initialize())
             yield session

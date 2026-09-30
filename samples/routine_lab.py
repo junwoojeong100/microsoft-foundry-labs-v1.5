@@ -13,7 +13,7 @@ import time
 from uuid import uuid4
 
 from evidence import Evidence
-from workshop import RESULTS, read_config
+from workshop import LANGUAGE, RESULTS, read_config
 
 STATE = RESULTS / "routine.json"
 HISTORY_LIMITATION = (
@@ -242,7 +242,10 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
             "trigger_at": fire_at.isoformat(), "run_id": evidence.run_id, "marker": marker,
             "execution_kind": "scheduled" if args.command == "scheduled-test" else "manual",
             "verification_start": fire_at.isoformat(),
-            "input": f"Contoso 구매 정책을 세 문장으로 요약해줘. 외부 발송·주문·승인은 하지 마. 검증 표식: {marker}",
+            "input": (
+                f"Summarize the Contoso purchasing policy in three English sentences. Do not send, order, or approve anything. Verification marker: {marker}"
+                if LANGUAGE == "en" else f"Contoso 구매 정책을 세 문장으로 요약해줘. 외부 발송·주문·승인은 하지 마. 검증 표식: {marker}"
+            ),
         }
         write_new(receipt, state)
         manifest = RESULTS / (name + ".json")

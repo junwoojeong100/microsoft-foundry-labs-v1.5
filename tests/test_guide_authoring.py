@@ -24,17 +24,20 @@ class GuideAuthoringTests(unittest.TestCase):
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
         labs = [chapter for chapter in chapters if chapter["track"] != "reference"]
         self.assertEqual(len(labs), 25)
-        commands = 0
+        total = {"blocks": 0, "commands": 0}
         for chapter in labs:
             text = (ROOT / chapter["file"]).read_text()
             with self.subTest(lab=chapter["id"]):
                 self.assertIn("## 개념과 실습 지도", text)
                 for label in ("경험할 기능", "무엇이며 왜 중요한가요?", "어떻게 사용하나요?", "어디서 실행하나요?"):
                     self.assertIn("**" + label, text)
-                commands += command_coverage(text, chapter["file"])["commands"]
+                coverage = command_coverage(text, chapter["file"])
+                for key in total:
+                    total[key] += coverage[key]
                 for source in re.findall(r"\b(?:samples|scripts)/[\w.-]+\.py\b", text):
                     self.assertTrue((ROOT / source).is_file(), source)
-        self.assertGreaterEqual(commands, 120)
+        edition = json.loads((ROOT / "content/release.json").read_text())["languages"]["ko"]
+        self.assertEqual(total, {"blocks": edition["shell_blocks"], "commands": edition["commands"]})
 
     def test_comments_and_continuations_do_not_inflate_command_count(self):
         text = (

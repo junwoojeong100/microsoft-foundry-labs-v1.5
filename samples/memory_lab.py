@@ -10,10 +10,13 @@ from uuid import uuid4
 
 from cloud import project_client
 from evidence import Budget, Evidence
-from workshop import RESULTS, config_values, save_json
+from workshop import LANGUAGE, RESULTS, config_values, save_json
 
 STATE = RESULTS / "memory.json"
-PREFERENCE = "Contoso 실습용 사용자 A는 구매 규정 답변을 표 형식으로 받는 것을 선호한다."
+PREFERENCE = (
+    "Synthetic Contoso workshop user A prefers purchasing-policy answers in table format."
+    if LANGUAGE == "en" else "Contoso 실습용 사용자 A는 구매 규정 답변을 표 형식으로 받는 것을 선호한다."
+)
 
 
 def memory_ids(result) -> set[str]:
@@ -93,7 +96,10 @@ def run(command: str, confirm: str | None, evidence: Evidence) -> None:
                 budget.before_request()
                 result = store.search_memories(
                     name=state["name"], scope=state[scope],
-                    items=[{"role": "user", "type": "message", "content": "이 실습의 답변 형식 선호는?"}],
+                    items=[{"role": "user", "type": "message", "content": (
+                        "What answer format does this workshop user prefer?"
+                        if LANGUAGE == "en" else "이 실습의 답변 형식 선호는?"
+                    )}],
                     options=MemorySearchOptions(max_memories=5),
                 )
                 evidence.append("memory_search", {"scope_label": scope, "result": result})

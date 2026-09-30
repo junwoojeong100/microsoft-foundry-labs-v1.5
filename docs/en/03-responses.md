@@ -22,19 +22,27 @@ You need L01's `.env`, CLI sign-in, and `requirements.txt` installation, plus th
 
 ### First connect inputs and responses in the portal
 
-Open **Build → Models → Deployments → your deployment → Playground**. The `contoso-chat` shown in the image is an existing `gpt-4.1-mini` deployment in the capture environment; use your own approved deployment name. This is a model exercise: **do not click Save as agent**.
+Open **Build → Models → Deployments → your deployment → Playground** in `contoso-workshop-en`. `contoso-chat` is an example deployment name; use your own approved deployment and verify its model/version. This is a model exercise: **do not click Save as agent**.
 
-![A live model Playground run with a synthetic Contoso approval-threshold question. The response says that a total of exactly KRW 2,000,000 requires team manager approval. No additional tools are configured under Tools.](../../assets/portal/16-model-response.png)
+![The English model Playground for a synthetic Contoso approval-boundary question in contoso-workshop-en. Inspect the actual input, response, and response ID.](../../assets/portal/en/16-model-response.png)
 
-**Reading the screen:** **Model / Instructions / Tools** on the left define the request's conditions; the right side shows user input and the model response. Because this demonstration stated the synthetic rule in the question itself, it did not validate RAG or private company knowledge. It also did not execute an inventory lookup, purchase draft, or actual approval.
+**Reading the screen:** **Model / Instructions / Tools** on the left define the request's conditions; the right side shows user input and the model response. A question that states the synthetic rule itself tests model behavior, not RAG or private company knowledge. It does not execute an inventory lookup, purchase draft, or actual approval.
 
-![The live Parameters dialog in the model Playground. Max Completion Tokens is set to 256, with the remaining default parameters visible.](../../assets/portal/17-model-parameters.png)
+![The Parameters dialog for the English model Playground. Check Max Completion Tokens before any approved request.](../../assets/portal/en/17-model-parameters.png)
 
-**Before running:** Set an output limit under **Parameters → Max Completion Tokens**. For the capture, the limit was 256, and **Web search**, which can incur extra charges or external data transfer, was removed from this model Playground before the question was sent once. No existing agent's tools or policies were changed. Temperature/Top P control aspects of generation variability; they are not monetary spending caps. Supported options vary by model.
+**Before running:** Set **Parameters → Max Completion Tokens** to 256 where supported. Keep **Web search** and other unnecessary tools off in this model-only experiment; they can add charges or external data transfer. Do not modify existing agents or policies to match a screenshot. Temperature/Top P control generation variability, not monetary spending caps. Supported options vary by model.
 
-The displayed answer was, in English, **“If the total is exactly KRW 2,000,000, team manager approval is required.”** The portal's **Response tokens** showed 91 input tokens, 18 output tokens, and 109 tokens in total. This is the result of one model demonstration, not an evaluation score or the total lab cost.
+For one separately approved, bounded portal request, use this English synthetic input:
 
-An automated wait that directly watched the API URL timed out, but the portal displayed a response and response ID, so they were **verified by reading the screen without resending the request**. The raw HTTP status and the number of any internal portal retries could not be verified and are not inferred. The CLI path below is a separate execution for learning to read the response object and ID in code. There is no need to make extra calls just to reproduce the screenshot.
+```text
+Contoso's synthetic rule: a total of KRW 2,000,000 or less requires team manager approval.
+A higher total requires approval from both the team manager and the purchasing representative.
+What approval is required for a total of exactly KRW 2,000,000?
+```
+
+The **expected** answer is team manager approval. In the captured English run, the actual answer was **“A total of exactly KRW 2,000,000 requires team lead approval.”** The completion cap was **256**, and the portal displayed **106 total tokens**. Web search was off, and the question was submitted once without resubmission. The [English capture log](../../content/portal-screenshots.en.json) records this observation. These are one model request's displayed values, not an evaluation score, proof of RAG, or the total lab cost.
+
+If a capture or wait times out, inspect the existing response before considering another request. Do not infer raw HTTP status or internal retries from the screen. The CLI path below is a separate execution for learning to read the response object and ID in code; there is no need to make extra calls merely to reproduce an image.
 
 ### 1. Review the plan at no cost
 
@@ -75,7 +83,7 @@ You should see response text and `response_id=...`. The question asks how to res
 To call it with your own input:
 
 ```bash
-python samples/workshop.py model --live --query "회사 규정이 없는데 노트북 구매 상한을 단정할 수 있나요?"
+python samples/workshop.py model --live --query "Without company policy, can you state a laptop purchase limit with certainty?"
 ```
 
 <div class="command-explanation" markdown="1">
@@ -88,7 +96,7 @@ python samples/workshop.py model --live --query "회사 규정이 없는데 노�
 
 </div>
 
-The Korean question in the command asks, “Without company policy, can you state a laptop purchase limit with certainty?” It is intentionally unchanged as an executable input. The content of `--query` is sent to Azure. Use only synthetic lab inputs.
+The English content of `--query` is sent to Azure. Use only synthetic lab inputs; the English profile also supplies an English default question when the option is omitted.
 
 ### 3. Read the core code
 
@@ -102,13 +110,13 @@ with (
 ):
     response = client.responses.create(
         model=deployment_name,
-        input="회사 규정이 없으면 어떻게 답해야 하나요?",
+        input="How should you respond if no company policy is available?",
         max_output_tokens=2048,
         store=False,
     )
 ```
 
-The unchanged Korean `input` asks, “How should you respond if no company policy is available?” `store=False` controls response storage for this model call. It does not mean that all service logs, abuse monitoring, or data retention disappear.
+The English `input` tests handling of missing policy information. `store=False` controls response storage for this model call. It does not mean that all service logs, abuse monitoring, or data retention disappear.
 
 | Value | Meaning | Common mistake |
 | --- | --- | --- |

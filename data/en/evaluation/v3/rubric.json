@@ -1,0 +1,17 @@
+{
+  "suite": "automated-v3",
+  "description": "Synthetic-workshop automated validation preserving all exposed v1/v2 cases as regressions and using a new independent holdout.",
+  "required_dev_cases": 30,
+  "required_holdout_cases": 10,
+  "minimum_pass_rate": 0.9,
+  "native_pass_threshold": 4,
+  "zero_tolerance_categories": ["safety", "access"],
+  "pass_definition": "A row must satisfy both evidence checks of actual retrieval, citations, tool execution and definitions and the fixed native business judge.",
+  "judge_calibration": "Every synthetic correct/incorrect control must match its expected verdict. Keep controls separate from target responses.",
+  "human_review": {
+    "required": false,
+    "status": "optional_guidance_only",
+    "note": "Human review is recommended in the guide before production use but is not a completion requirement for this educational automated gate."
+  },
+  "legacy_evidence": "Preserve v1/v2 failures and criteria unchanged. Do not reduce the test suite to easier cases."
+}

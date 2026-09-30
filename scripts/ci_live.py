@@ -14,7 +14,8 @@ from evidence import Evidence, digest, redacted
 from hosted_client import azd
 from evaluation_data import DEFAULT_SUITE, policy, suite_hash
 from business_checks import check_business_evidence
-from workshop import RESULTS, save_json
+from lab_profile import validation_for
+from workshop import DATA, LANGUAGE, RESULTS, save_json
 
 
 def required(name: str) -> str:
@@ -74,7 +75,7 @@ def run(phase: str) -> None:
         from cloud import project_client
         with project_client() as (project, _, endpoint, _):
             agent = project.agents.get("contoso-purchasing")
-        save_json(ROOT / "validation/automated-v3/ci-auth.json", {
+        save_json(validation_for(ROOT) / "automated-v3/ci-auth.json", {
             "status": "passed", "phase": "auth", "repository_id": required("GITHUB_REPOSITORY_ID"),
             "repository": required("GITHUB_REPOSITORY"), "workflow_run_id": os.environ["GITHUB_RUN_ID"],
             "agent_read": agent.name, "environment_sha256": digest(endpoint),
@@ -82,6 +83,11 @@ def run(phase: str) -> None:
         })
         return
     if phase == "optimizer":
+        baseline_version = required("FOUNDRY_OPTIMIZER_AGENT_VERSION") if LANGUAGE == "en" else "2"
+        if not re.fullmatch(r"[1-9]\d*", baseline_version):
+            raise ValueError("Optimizer CI requires an explicitly pinned numeric baseline version.")
+        optimizer_suite = DEFAULT_SUITE if LANGUAGE == "en" else "automated-v2"
+        optimizer_prompt = DATA / ("prompts/agent-v6.txt" if LANGUAGE == "en" else "prompts/agent-v4.txt")
         from azure_environment import az
         group = az("group", "show", "--subscription", subscription, "--name", rg)
         project = az("rest", "--method", "get", "--url", project_id + "?api-version=2025-06-01")
@@ -97,7 +103,7 @@ def run(phase: str) -> None:
         if identity["clientId"] != required("AZURE_CLIENT_ID"):
             raise ValueError("Optimizer CI identity is not the owned federated identity.")
         save_json(RESULTS / "azure-environment.json", {
-            "schema": "contoso-environment-v1", "subscription": subscription, "tenant": tenant,
+            "schema": "contoso-environment-v1", "language": LANGUAGE, "subscription": subscription, "tenant": tenant,
             "repository": required("GITHUB_REPOSITORY"), "repository_id": "1396573688", "location": required("AZURE_LOCATION"),
             "resource_group": rg, "resource_group_id": group["id"], "run_id": run_id,
             "project_endpoint": required("FOUNDRY_PROJECT_ENDPOINT"),
@@ -115,23 +121,23 @@ def run(phase: str) -> None:
             raise RuntimeError("Same-principal reflection probe failed; no optimizer job submitted.")
         result = subprocess.run([
             sys.executable, "samples/optimizer_lab.py", "--agent", "contoso-purchasing-responses",
-            "--version", "2", "--optimizer-deployment", "contoso-reflection",
-            "--suite", "automated-v2", "--prompt-file", "data/prompts/agent-v4.txt", "--require-oidc", "--live",
+            "--version", baseline_version, "--optimizer-deployment", "contoso-reflection",
+            "--suite", optimizer_suite, "--prompt-file", str(optimizer_prompt), "--require-oidc", "--live",
         ], cwd=ROOT, check=False, timeout=840)
         terminal = []
         for path in RESULTS.glob("contoso-optimizer-*-terminal.json"):
             terminal.append(redacted(json.loads(path.read_text())))
-        save_json(ROOT / "validation/optimizer-oidc/result.json", {
+        save_json(validation_for(ROOT) / "optimizer-oidc/result.json", {
             "workflow_run_id": os.environ["GITHUB_RUN_ID"], "returncode": result.returncode,
-            "target_agent": "contoso-purchasing-responses", "target_version": "2",
-            "suite": "automated-v2", "purpose": "same-target OIDC differential diagnosis, not a v3 quality claim",
+            "target_agent": "contoso-purchasing-responses", "target_version": baseline_version,
+            "suite": optimizer_suite, "purpose": "dev-only OIDC optimization; not an independent release-quality claim",
             "terminal_results": terminal,
         })
         if result.returncode:
             raise RuntimeError("Native optimizer operational check failed; see preserved terminal result.")
         return
     evidence = Evidence("ci")
-    output_dir = ROOT / "validation" / DEFAULT_SUITE
+    output_dir = validation_for(ROOT) / DEFAULT_SUITE
     summary_path = output_dir / f"ci-{phase}.json"
     summary = {"status": "started", "phase": phase, "evaluation_suite": DEFAULT_SUITE,
                "evaluation_suite_sha256": suite_hash(), "workflow_run_id": os.environ["GITHUB_RUN_ID"],
@@ -146,7 +152,10 @@ def run(phase: str) -> None:
             raise ValueError("azd did not return an exact deployed version.")
         subprocess.run([
             sys.executable, "samples/hosted_client.py", "invoke", "--version", version, "--live",
-            "--query", "NB-14 2대 구매 요청 초안을 만들어줘. 실제 주문은 하지 마.",
+            "--query", (
+                "Prepare a purchase request draft for NB-14, quantity 2. Do not place an order."
+                if LANGUAGE == "en" else "NB-14 2대 구매 요청 초안을 만들어줘. 실제 주문은 하지 마."
+            ),
         ], cwd=ROOT, check=True, timeout=420)
         responses = sorted(RESULTS.glob("contoso-hosted-client-*-responses.jsonl"), key=lambda p: p.stat().st_mtime)
         row = json.loads(responses[-1].read_text())

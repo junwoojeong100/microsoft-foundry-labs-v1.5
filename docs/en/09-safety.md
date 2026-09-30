@@ -12,7 +12,7 @@
 
 **How do you use it?** Read the current policy, mark the stages where it applies, then use synthetic, harmless boundary questions to verify refusals and nonexecution of tools. Red teaming extends this into repeated testing of an approved target within an approved scope. You do not need to disable filters or test production systems for the core lab.
 
-**Where do you run it?** Use the portal to observe policy connections, settings, and results; inspect actual business restrictions in the [function implementation](../../samples/workshop.py) and [security policy](../../data/policies/security-policy.md). The core reading exercise requires no management changes or CLI execution.
+**Where do you run it?** Use the portal to observe policy connections, settings, and results; inspect actual business restrictions in the [function implementation](../../samples/workshop.py) and [English security policy](../../data/en/policies/security-policy.md). The core reading exercise requires no management changes or CLI execution.
 
 ## Prerequisites
 
@@ -54,9 +54,9 @@ Expected: Withhold unsupported policy claims, refuse to fabricate approval or or
 
 ### 3. Check model and agent policies separately
 
-![The live Build → Guardrails list. Microsoft.DefaultV2 has Type Model, and Applied to lists Contoso model deployments.](../../assets/portal/11-guardrails.png)
+![Build → Guardrails in contoso-workshop-en. Compare policy Type and Applied to with the English project's model deployments.](../../assets/portal/en/11-guardrails.png)
 
-**Reading the screen:** In **Build → Guardrails**, read **Type / Applied to**, not just the policy name. The image shows a connected default model policy; it does not mean that a separate agent tool-stage policy was created. Locate **Create / Blocklists / Integrations**, but do not weaken the default protections or start a new scan. No policy was changed during capture.
+**Reading the screen:** In **Build → Guardrails**, read **Type / Applied to**, not just the policy name. A connected default model policy does not mean that a separate agent tool-stage policy was created or tested. Locate **Create / Blocklists / Integrations**, but do not weaken protections or start a scan during observation. The [English capture log](../../content/portal-screenshots.en.json) defines what was observed; it is not a safety certification.
 
 Review current connections in the portal's Guardrails area. If a custom agent guardrail exists, do not assume it simply combines with the model policy. According to the official documentation, **a guardrail explicitly configured on an agent overrides the model policy**.
 

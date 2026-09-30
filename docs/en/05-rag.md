@@ -12,11 +12,11 @@ Make the agent answer from **retrieved documents** rather than the model's pretr
 
 **How do you use it?** Read the three source documents and mark where the answers appear before uploading them. Confirm that indexing has completed, then ask single-document, cross-document, and missing-information questions in order. Check not only the numbers in each answer, but also that opening its evidence leads to the relevant section of the actual document.
 
-**Where do you run it?** Observe the File search connection and citations in the portal, and optionally reproduce the same lifecycle through the SDK. The [purchasing policy](../../data/policies/procurement-policy.md), [expense policy](../../data/policies/expense-policy.md), and [security policy](../../data/policies/security-policy.md) are the only sources of business-policy evidence. The implementation is in [workshop.py](../../samples/workshop.py).
+**Where do you run it?** Observe the File search connection and citations in the portal, and optionally reproduce the same lifecycle through the SDK. The English [purchasing policy](../../data/en/policies/procurement-policy.md), [expense policy](../../data/en/policies/expense-policy.md), and [security policy](../../data/en/policies/security-policy.md) are the only sources of business-policy evidence. The implementation is in [workshop.py](../../samples/workshop.py).
 
 ## Prerequisites
 
-Use the L04 agent and the 3 Markdown files in `data/policies/`. Check upload permissions and additional File search costs. You do not need to bring company documents to complete the lab.
+Use the L04 English agent and the 3 Markdown files in `data/en/policies/`. Check upload permissions and additional File search costs. Do not attach a store populated by the Korean run or bring real company documents to the lab.
 
 ## Steps
 
@@ -36,7 +36,7 @@ Add **File search** under **Tools/Knowledge** in the agent builder. If the UI of
 
 Create a new vector store and upload the 3 files. Wait until indexing is **Completed** before asking questions. Upload completion and search readiness are not the same.
 
-![A live agent screen with Instructions collapsed to expose Tools and Knowledge. The File search card is separate from the get_stock and prepare_purchase_request functions.](../../assets/portal/05-agent-tools.png)
+![Tools and Knowledge in the English Contoso agent. Distinguish File search over English policies from the get_stock and prepare_purchase_request functions.](../../assets/portal/en/05-agent-tools.png)
 
 **Reading the screen:** On the **File search** card under **Tools**, check the connected store and retrieval settings. Identifiers are masked in the image; use your own store's values. The `get_stock` and `prepare_purchase_request` entries below it are functions covered in L06, not features of file search itself. A tool list in a screenshot does not establish indexing completion or citation accuracy. Check the actual evidence returned for the questions below.
 

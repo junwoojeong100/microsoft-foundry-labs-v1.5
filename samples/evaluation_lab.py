@@ -13,7 +13,8 @@ from cloud import project_client
 from evidence import Evidence, digest, serializable
 from business_checks import check_business_evidence
 from evaluation_data import DEFAULT_SUITE, SUITES, calibration_cases, load_cases, policy, suite_hash
-from workshop import DATA, RESULTS, ROOT, config_values, load_jsonl, save_json, validate_data
+from lab_profile import validation_for
+from workshop import DATA, LANGUAGE, RESULTS, ROOT, config_values, load_jsonl, save_json, validate_data
 
 STATE = RESULTS / "native-evaluation.json"
 FIELDS = ("id", "query", "response", "ground_truth", "expected_behavior", "evidence")
@@ -61,7 +62,7 @@ def setup(project, client, endpoint: str, model: str, evidence: Evidence, suite:
     if not judge or judge == model:
         raise ValueError("Use an explicit judge deployment distinct from the target.")
     state_path = STATE if suite == "legacy-v1" else RESULTS / f"native-evaluation-{suite}.json"
-    binding_path = ROOT / "validation" / suite / "evaluation-binding.json"
+    binding_path = validation_for(ROOT) / suite / "evaluation-binding.json"
     if not state_path.exists() and binding_path.exists():
         binding = json.loads(binding_path.read_text())
         if binding["environment_sha256"] == digest(endpoint):
@@ -113,7 +114,7 @@ def setup(project, client, endpoint: str, model: str, evidence: Evidence, suite:
     for attempt in range(3):
         try:
             evaluation = client.evals.create(
-                name="Contoso fixed business and relevance evaluation",
+                name="Contoso English business and relevance evaluation" if LANGUAGE == "en" else "Contoso fixed business and relevance evaluation",
                 data_source_config={"type": "custom", "item_schema": {
                     "type": "object", "properties": {key: {"type": "string"} for key in FIELDS}, "required": list(FIELDS),
                 }, "include_sample_schema": True},

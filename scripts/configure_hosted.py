@@ -7,7 +7,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
-from workshop import config_values, read_config
+from workshop import LANGUAGE, config_values, read_config
 from search_lab import configuration
 
 
@@ -16,6 +16,8 @@ def main():
     endpoint, model = read_config()
     if endpoint != state["project_endpoint"]:
         raise ValueError("Local endpoint differs from the owned environment; binding refused.")
+    if state.get("language", "ko") != LANGUAGE:
+        raise ValueError("Selected language differs from the owned environment; binding refused.")
     search = configuration()
     environment = state["run_id"]
     config_file = ROOT / ".azure" / environment / ".env"
@@ -26,6 +28,7 @@ def main():
         "AZURE_RESOURCE_GROUP": state["resource_group"], "AZURE_LOCATION": state["location"],
         "AZURE_AI_PROJECT_ID": state["foundation"]["projectId"]["value"],
         "AZURE_AI_PROJECT_ENDPOINT": endpoint, "FOUNDRY_PROJECT_ENDPOINT": endpoint,
+        "FOUNDRY_LAB_LANGUAGE": LANGUAGE,
         "FOUNDRY_MODEL_DEPLOYMENT_NAME": model, "FOUNDRY_SEARCH_ENDPOINT": search["endpoint"],
         "FOUNDRY_SEARCH_INDEX": search["index"], "FOUNDRY_KNOWLEDGE_BASE": search["knowledge_base"],
         "FOUNDRY_EMBEDDING_DEPLOYMENT_NAME": config_values()["FOUNDRY_EMBEDDING_DEPLOYMENT_NAME"],

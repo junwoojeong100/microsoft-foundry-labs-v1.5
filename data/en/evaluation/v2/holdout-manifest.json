@@ -1,0 +1,23 @@
+{
+  "schema": "contoso-evaluation-manifest-v2",
+  "suite": "automated-v2",
+  "rows": 10,
+  "sha256": "08f91ca675484854d807cfc00ec961df4302a7d4ac3262457156b6879e991e9a",
+  "created_at": "2026-09-30T11:49:24Z",
+  "source_sha256": {
+    "data/en/policies/expense-policy.md": "a6811ffb5a168880c151d61dd1b6b4aa583304f6f41127b3c16a5f67267b64a1",
+    "data/en/policies/procurement-policy.md": "176e4339bad0414dd1c1ab618befd08cd55749b4aec65a5bd29b221ee6c3d0da",
+    "data/en/policies/security-policy.md": "f7abf6497763b0a7784ab712440a81e20f43018f2dfbfc6244a8c9f4accb78ff",
+    "data/en/inventory.csv": "e54ae89172bbaad264448bf3c8ae1c682c15311b644aa3f32f4032fbb84891c1"
+  },
+  "authoring_method": "English translation of the already exposed synthetic v2 holdout; not an independent English release holdout; not human reviewed.",
+  "localization": {
+    "language": "en",
+    "source_path": "data/evaluation/v2/holdout.jsonl",
+    "source_sha256": "874f63405019bb904abeddcba32f876d7de3755c17483110b40d318c20c0a56a",
+    "historical_source_unchanged": true
+  },
+  "release_use": "exposed_regression_only",
+  "included_in": "data/en/evaluation/v3/dev.jsonl",
+  "sealed": true
+}
