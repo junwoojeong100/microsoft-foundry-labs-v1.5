@@ -76,6 +76,9 @@ GitHub 정책으로 수동 브랜치 실행이 막히면 차단으로 기록하�
 `scripts/ci_live.py`는 OIDC 주체와 RG/project 일치를 확인하고 Hosted를 배포하여
 **290만원 초안·두 승인 역할·미주문**을 실제 tool result로 검사합니다.
 dev 단계는 20개 회귀와 8개 judge 대조군만 실행하며 holdout 질문을 읽거나 호출하지 않습니다.
+성공한 dev의 `contoso-ci-summary` artifact를 `validation/automated-v2/`에 받아 보존한 뒤
+같은 runtime·모델·suite hash로 release를 실행합니다. 성공한 dev 증거가 없거나 코드가 달라지면
+release는 holdout을 열기 전에 중단합니다.
 release 단계는 봉인된 새 holdout을 최초 수집하거나 동일 환경/코드의 보존된 원본을 평가합니다.
 사람 검토는 이 교육용 자동 게이트의 완료 조건이 아니며 안내 상태로만 기록합니다.
 holdout은 환경 fingerprint·runtime hash·실제 모델이 현재 테스트 환경과 같아야 사용합니다.

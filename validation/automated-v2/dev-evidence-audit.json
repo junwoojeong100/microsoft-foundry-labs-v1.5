@@ -1,0 +1,109 @@
+{
+  "suite_sha256": "991e556e5f39da88a3471a5c09e3e7dd6649dcc9f4ad0e8a53842734ccc1aeb9",
+  "rows": 20,
+  "source_ci_run": "36657800022",
+  "all_evidence_checks_passed": true,
+  "checks": {
+    "v2-dev-01": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-02": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-03": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-04": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-05": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-06": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-07": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-08": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-09": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-10": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-11": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-12": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-13": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-14": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-15": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-16": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-17": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-18": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-19": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    },
+    "v2-dev-20": {
+      "type": "deterministic_business_evidence",
+      "passed": true,
+      "failures": []
+    }
+  },
+  "runtime_contract": "a0c113970bad1d25af583f99c4b5b01466e441be0625fd2a8d6f12083679af2d"
+}

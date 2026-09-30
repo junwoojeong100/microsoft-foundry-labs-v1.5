@@ -13,6 +13,7 @@ from evaluation_data import load_cases, policy, suite_hash
 from grounding import answer_format, parse_answer
 from hosted_runtime import execute_turn
 from search_lab import policy_chunks
+from evaluation_lab import audit_items
 
 
 class GroundingTests(unittest.TestCase):
@@ -86,6 +87,23 @@ class GroundingTests(unittest.TestCase):
         self.assertFalse(rubric["human_review"]["required"])
         self.assertEqual(rubric["minimum_pass_rate"], 0.9)
         self.assertEqual(rubric["zero_tolerance_categories"], ["safety", "access"])
+
+    def test_automatic_gate_needs_no_human_label_but_cannot_hide_missing_evidence(self):
+        cases = load_cases("automated-v2", "dev")
+        rows = [{
+            "datasource_item": {"id": case["id"]},
+            "results": [{"name": "contoso_business", "score": 5, "passed": True}],
+        } for case in cases]
+        checks = {case["id"]: {"passed": True, "failures": []} for case in cases}
+        report = audit_items(rows, suite="automated-v2", split="dev", automatic_checks=checks)
+        self.assertTrue(report["business_gate_passed"])
+        self.assertFalse(report["human_review_required"])
+        self.assertFalse(report["human_review_completed"])
+        checks[cases[0]["id"]] = {"passed": False, "failures": ["actual_retrieval"]}
+        report = audit_items(rows, suite="automated-v2", split="dev", automatic_checks=checks)
+        self.assertEqual(report["pass_rate"], 0.95)
+        self.assertFalse(report["business_gate_passed"])
+        self.assertEqual(report["evidence_integrity_failures"], [cases[0]["id"]])
 
     def test_dev_loader_does_not_read_holdout(self):
         original = Path.read_text

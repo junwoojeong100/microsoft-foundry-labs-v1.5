@@ -10,7 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
-from evidence import Evidence, digest
+from evidence import Evidence, digest, redacted
 from hosted_client import azd
 from evaluation_data import DEFAULT_SUITE, suite_hash
 from business_checks import check_business_evidence
@@ -22,6 +22,30 @@ def required(name: str) -> str:
     if not value or "YOUR-" in value:
         raise ValueError(f"Missing approved CI environment variable: {name}")
     return value
+
+
+def native_evidence() -> list[dict]:
+    runs = []
+    for path in sorted(RESULTS.glob("contoso-native-*.json")):
+        result = json.loads(path.read_text())
+        if "items" not in result:
+            continue
+        judgments = []
+        for item in result["items"]:
+            rows = [{
+                key: value for key, value in row.items()
+                if key in {"name", "metric", "score", "passed", "reason", "threshold", "status"}
+            } for row in item.get("results", [])]
+            judgments.append({"id": item.get("datasource_item", {}).get("id"), "results": rows})
+        audit_path = path.with_name(path.stem + "-audit.json")
+        audit = json.loads(audit_path.read_text()) if audit_path.exists() else None
+        if audit:
+            audit = {key: value for key, value in audit.items() if key != "judge_verdicts"}
+        runs.append({
+            "eval_id": result["eval_id"], "run_id": result["run_id"], "service_status": result["status"],
+            "judgments": judgments, "audit": audit,
+        })
+    return redacted(runs)
 
 
 def run(phase: str) -> None:
@@ -79,8 +103,31 @@ def run(phase: str) -> None:
             "status": "business_smoke_passed", "hosted_version": version, "response_id": row["response_id"],
             "workflow_run_id": os.environ["GITHUB_RUN_ID"], "business_checks": "draft-only, 2900000 KRW, both approvals",
             "full_quality_gate": "not_claimed_by_smoke",
+            "runtime_contract": row["contract"]["sha256"],
+            "model": row["model"], "effective_prompt_sha256": row["effective_prompt_sha256"],
         })
         save_json(summary_path, summary)
+        if phase == "release":
+            dev_report_path = output_dir / "ci-dev.json"
+            dev_responses_path = output_dir / "dev-responses.jsonl"
+            if not dev_report_path.exists() or not dev_responses_path.exists():
+                raise ValueError("Release requires the committed successful dev artifact; no holdout is opened.")
+            dev_report = json.loads(dev_report_path.read_text())
+            dev_responses = [json.loads(line) for line in dev_responses_path.read_text(encoding="utf-8").splitlines()]
+            if (
+                dev_report.get("status") != "passed" or dev_report.get("phase") != "dev"
+                or dev_report.get("calibration") != "passed"
+                or not dev_report.get("dev", {}).get("business_gate_passed")
+                or dev_report.get("evaluation_suite_sha256") != suite_hash()
+                or len(dev_responses) != 20
+                or any(
+                    item.get("contract", {}).get("sha256") != row["contract"]["sha256"]
+                    or item.get("model") != row["model"]
+                    or item.get("effective_prompt_sha256") != row["effective_prompt_sha256"]
+                    for item in dev_responses
+                )
+            ):
+                raise ValueError("Dev artifact is not successful or its frozen runtime/model differs; holdout remains unopened.")
         calibration = subprocess.run([sys.executable, "samples/evaluation_lab.py", "calibrate", "--suite", DEFAULT_SUITE, "--live"], cwd=ROOT, check=False, timeout=720)
         evidence.append("calibration_exit", {"returncode": calibration.returncode})
         summary["calibration"] = "passed" if calibration.returncode == 0 else "failed"
@@ -125,27 +172,19 @@ def run(phase: str) -> None:
             raise RuntimeError("Calibration failed. Any holdout scores are untrusted and cannot release the agent.")
         summary["status"] = "passed"
         summary["quality_release"] = phase == "release"
+        summary["native_runs"] = native_evidence()
         save_json(summary_path, summary)
     except (ValueError, RuntimeError, OSError, subprocess.SubprocessError) as exc:
         evidence.failure(exc)
         summary["status"] = "failed"
         summary["error_type"] = type(exc).__name__
-        native = []
-        for path in RESULTS.glob("contoso-native-*.json"):
-            result = json.loads(path.read_text())
-            if "items" not in result:
-                continue
-            valid, invalid = [], []
-            for item in result["items"]:
-                rows = [row for row in item.get("results", []) if row.get("name") == "contoso_business"]
-                case_id = item.get("datasource_item", {}).get("id")
-                if len(rows) == 1 and isinstance(rows[0].get("score"), (int, float)) and type(rows[0].get("passed")) is bool:
-                    valid.append({"id": case_id, "score": rows[0]["score"], "passed": rows[0]["passed"]})
-                else:
-                    invalid.append(case_id)
-            native.append({"eval_id": result["eval_id"], "run_id": result["run_id"],
-                           "service_status": result["status"], "valid_judgments": valid, "invalid_or_missing": invalid})
-        summary["native_runs"] = native
+        summary["native_runs"] = native_evidence()
+        from share_evidence import FIELDS
+        for path in RESULTS.glob("contoso-hosted-client-*-responses.jsonl"):
+            values = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+            if values and any(row.get("status") != "completed" for row in values):
+                filtered = [{key: value for key, value in row.items() if key in FIELDS | {"error"}} for row in values]
+                save_json(output_dir / (path.stem + "-partial.json"), redacted(filtered))
         save_json(summary_path, summary)
         raise
 

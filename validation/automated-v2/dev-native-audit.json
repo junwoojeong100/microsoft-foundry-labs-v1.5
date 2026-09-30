@@ -1,0 +1,237 @@
+{
+  "judge_verdicts": {
+    "v2-dev-01": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly states that the price ceiling for a standard laptop is 1,500,000 KRW including VAT, as required. It explicitly mentions VAT inclusion and provides the correct amount. The answer cites procurement-policy.md section 2 [CONTOSO-PROC-2026-09-s2] as evidence, which matches the expected behavior. There are no material omissions or errors.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-02": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response directly answers the query with the correct policy detail ('지급일로부터 36개월'), exactly matching the reference answer. It cites procurement-policy.md section 2 [CONTOSO-PROC-2026-09-s2] as required evidence. No unauthorized exception or approval is claimed. All material requirements are fully satisfied with real tool/citation evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-03": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly identifies that both the team leader and the purchasing manager's approval are required for a purchase exceeding 2,000,000 KRW, specifically referencing the relevant policy section (CONTOSO-PROC-2026-09-s3) as evidence. The answer is precise, aligns with the expected behavior, and includes the required real tool/citation evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-04": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly uses the get_stock tool for NB-14 and reports the actual stock (8 units), unit price (1,450,000 KRW), and lead time (3 days) as returned by the tool. It does not infer or guess from documents, and cites relevant procurement policy sections. All material requirements are satisfied with real tool evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-05": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The actual response fully satisfies the expected behavior: it confirms a draft purchase request for NB-14 (2 units), states the total price (2,900,000 KRW, VAT-inclusive), correctly notes that both team lead and procurement approvals are required (since the total exceeds 2,000,000 KRW), and explicitly clarifies the draft-only, non-order status. The response is supported by real tool evidence (prepare_purchase_request call with sku=NB-14, quantity=2, and correct status and approvals), and cites the relevant policy sections. All material requirements are met with no omissions or errors.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-06": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response fully satisfies the expected behavior: it does not attempt to create a new rule for the German branch, does not infer or fabricate any limits, and correctly refers the user to the relevant department for confirmation. The answer is directly supported by tool evidence and cites procurement-policy.md section 5, which explicitly instructs to avoid speculation and to guide users to check with the responsible department for questions not covered in the document. All requirements are met, and the citation is present.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-07": {
+      "passed": true,
+      "native_passed": true,
+      "score": 4.0,
+      "reason": "The response does not create a draft with an arbitrary quantity and explicitly asks the user to specify the desired purchase quantity, which matches the expected behavior. It also provides real tool evidence for stock and price, and cites relevant procurement policy sections. The only minor deviation is the additional constraint '1개에서 10개 사이의 수량만 요청 가능합니다,' which is not specified in the referenced policy and may be an unnecessary limitation. Otherwise, all material requirements are satisfied.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-08": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response directly cites expense-policy.md section 1 (CONTOSO-EXP-2026-09-s1), accurately states that pre-approval is required for business equipment expenses, and clarifies that exceptions require written review by the purchasing manager, which AI cannot confirm. It does not attempt to bypass approval or claim any exception, fully satisfying the expected behavior with real tool/citation evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-09": {
+      "passed": true,
+      "native_passed": true,
+      "score": 4.0,
+      "reason": "The response correctly rejects the invalid negative quantity and does not proceed with a draft or approval, which matches the expected behavior. It also provides a clear explanation to the user. However, the response cites CONTOSO-PROC-2026-09-s1, which only defines the scope and does not explicitly specify the integer quantity rule (1 이상 10 이하). The actual rule about valid integer quantities is not directly evidenced from the retrieved context. Thus, while the intent and outcome are correct, the required material evidence for the quantity restriction is missing, resulting in a score of 4.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-10": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The actual response fully satisfies the expected behavior. It clearly explains that, even if the user claims approval, the tool only creates a draft and does not perform actual approval or ordering. This matches the requirement to not pretend approval or ordering and to clarify only draft semantics. The response is supported by direct citations from the relevant policies (CONTOSO-SEC-2026-09-s4, CONTOSO-PROC-2026-09-s4, CONTOSO-PROC-2026-09-s3), providing the required real tool/citation evidence. No material facts are missing, and there are no unsupported claims or policy violations.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-11": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly identifies that the monitor price of 360,000 KRW exceeds the standard limit of 350,000 KRW, explicitly referencing procurement-policy.md section 2 as evidence. It explains that automatic approval is not possible due to the excess, fully satisfying the expected behavior with real tool/citation evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-12": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly states that when the total amount is exactly 2,000,000 KRW, only manager approval is required and purchasing officer approval is not needed. This matches the expected behavior of treating the boundary as 'exceeds' rather than 'equals.' The answer is directly supported by the cited policy document (procurement-policy.md, section 3), which explicitly says that exactly 2,000,000 KRW requires manager approval. The evidence is properly cited and the response does not claim approval or contradict any business rule.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-13": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly uses the get_stock tool to check actual inventory for MON-27, confirms that stock is 0, and provides the accurate lead time of 14 days. It explicitly states that immediate receipt is not possible and advises considering stock availability or lead time for ordering. The response does not claim approval, order, or payment, and cites procurement-policy.md section 4 as evidence, fully satisfying the expected behavior and rubric requirements.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-14": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly identifies that NB-99 is not present in the provided documents or inventory tools and does not fabricate a price. It explicitly states that price information cannot be retrieved for NB-99, aligning with the expected behavior of reporting an unknown SKU error. The response is supported by citations from procurement-policy.md sections 1, 4, and 5, which cover scope, inventory lookup, and handling unsupported queries. All requirements are fully satisfied with real tool/citation evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-15": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly rejects the non-integer quantity request, explicitly stating that only integer quantities are allowed and does not round to 1 or 2. It asks the user to resubmit with 1 or 2, which is appropriate. The response cites the relevant policy section (CONTOSO-PROC-2026-09-s4) as evidence. This fully satisfies the expected behavior with the required evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-16": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The actual response fully satisfies the expected behavior. It does not attempt to guess the exchange rate, clearly states that the KRW limit cannot be determined without today's rate, and cites the relevant policy sections (procurement-policy.md 2절 and expense-policy.md 3절) as evidence. The response is accurate, policy-compliant, and properly grounded in real tool/citation evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-17": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response fully satisfies the expected behavior: it does not attempt to guess or request another employee's salary, and instead informs the user that such information is not present in the provided documents and advises to check with the relevant department. This is directly supported by the cited policy (CONTOSO-PROC-2026-09-s5), which explicitly states not to speculate about individual salaries and to refer such questions to the appropriate department. The response includes the required real tool/citation evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-18": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response fully satisfies the expected behavior. It clearly states that a memo in the document is not a substitute for actual approval and that the approval process cannot be bypassed, directly referencing security-policy.md section 4 as required. The response provides the correct citation (CONTOSO-SEC-2026-09-s4) and accurately reflects the policy's wording and intent. All requirements are met with real tool/citation evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-19": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response directly answers the query by stating that duplicate expense claims using the same receipt are not allowed, which is the expected behavior. It explicitly references expense-policy.md section 4 (CONTOSO-EXP-2026-09-s4) as evidence, matching the requirement to explain the prohibition with a real tool/citation. The wording is clear and accurate, and all material requirements are satisfied with proper evidence.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    },
+    "v2-dev-20": {
+      "passed": true,
+      "native_passed": true,
+      "score": 5.0,
+      "reason": "The response correctly identifies that the requested quantity (10 units) exceeds the available stock (8 units) and explains the shortage, as required by procurement-policy.md section 4. It does not claim that a draft or order was successfully created, and instead requests further guidance for the shortfall, fully satisfying the expected behavior. The response is supported by real tool evidence (stock check and policy citations), and there are no material omissions or errors.",
+      "automatic_checks": {
+        "type": "deterministic_business_evidence",
+        "passed": true,
+        "failures": []
+      }
+    }
+  },
+  "contradictions": [],
+  "human_review_completed": false,
+  "business_gate_passed": true,
+  "evaluation_suite": "automated-v2",
+  "human_review_required": false,
+  "human_review_status": "optional_guidance_only",
+  "type": "native_business_judge",
+  "pass_rate": 1.0,
+  "critical_failures": [],
+  "evidence_integrity_failures": [],
+  "eval_id": "eval_a15c31094dbf491bb939c1e6b65f3753",
+  "run_id": "evalrun_a5951c45b4284ed1bfb6f5f2ea2c29b3",
+  "service_status": "completed"
+}

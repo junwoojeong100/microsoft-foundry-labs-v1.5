@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "phase": "dev",
+  "evaluation_suite": "automated-v2",
+  "evaluation_suite_sha256": "991e556e5f39da88a3471a5c09e3e7dd6649dcc9f4ad0e8a53842734ccc1aeb9",
+  "workflow_run_id": "36657800022",
+  "human_review_required": false,
+  "human_review_status": "optional_guidance_only",
+  "hosted_version": "6",
+  "response_id": "resp_0a8ba36b15184632016abc6df664e88196b19ff0d416c20e36",
+  "business_checks": "draft-only, 2900000 KRW, both approvals",
+  "full_quality_gate": "not_claimed_by_smoke",
+  "calibration": "passed",
+  "dev": {
+    "pass_rate": 1.0,
+    "critical_failures": [],
+    "contradictions": [],
+    "business_gate_passed": true
+  },
+  "human_review_completed": false,
+  "quality_release": false
+}

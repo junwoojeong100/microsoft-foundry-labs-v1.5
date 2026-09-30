@@ -168,9 +168,16 @@ def audit_items(
             raise ValueError("No valid business-case results.")
         rubric = policy(suite)
         critical = [key for key, value in verdicts.items() if not value["passed"] and cases[key]["category"] in rubric["zero_tolerance_categories"]]
+        integrity_failures = [
+            key for key, value in verdicts.items()
+            if value["automatic_checks"] and set(value["automatic_checks"]["failures"]) - {
+                "required_policy_evidence", "required_tool_execution", "unrequested_tool_execution", "tool_arguments"
+            }
+        ]
         rate = sum(v["passed"] for v in verdicts.values()) / len(verdicts)
         report.update(type="native_business_judge", pass_rate=rate, critical_failures=critical,
-                      business_gate_passed=rate >= rubric["minimum_pass_rate"] and not critical and not contradictions)
+                      evidence_integrity_failures=integrity_failures,
+                      business_gate_passed=rate >= rubric["minimum_pass_rate"] and not critical and not contradictions and not integrity_failures)
     return report
 
 
