@@ -4,10 +4,10 @@ import json
 
 from grounding import parse_answer
 from search_lab import validate_hits
-from workshop import ToolInputError, dispatch_tool
+from workshop import ToolInputError, dispatch_tool, function_schemas
 
 
-def check_business_evidence(row: dict, case: dict) -> dict:
+def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: bool = False) -> dict:
     failures = []
     sources = row.get("retrieved_sources")
     citations = row.get("citations")
@@ -16,6 +16,8 @@ def check_business_evidence(row: dict, case: dict) -> dict:
         failures.append("completed_real_response")
     if row.get("grounding_contract") != "required-search-and-citations-v2":
         failures.append("grounding_contract")
+    if require_tool_definitions and row.get("tool_definitions") != function_schemas():
+        failures.append("runtime_tool_definition_evidence")
     if not isinstance(sources, list) or not sources or any(not isinstance(s, dict) for s in sources):
         failures.append("actual_retrieval")
         sources = []

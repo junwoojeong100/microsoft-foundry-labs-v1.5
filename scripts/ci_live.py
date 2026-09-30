@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import Evidence, digest, redacted
 from hosted_client import azd
-from evaluation_data import DEFAULT_SUITE, suite_hash
+from evaluation_data import DEFAULT_SUITE, policy, suite_hash
 from business_checks import check_business_evidence
 from workshop import RESULTS, save_json
 
@@ -70,6 +70,44 @@ def run(phase: str) -> None:
         "FOUNDRY_EMBEDDING_ENDPOINT",
     ):
         azd("env", "set", key, required(key))
+    if phase == "optimizer":
+        from azure_environment import az
+        group = az("group", "show", "--subscription", subscription, "--name", rg)
+        project = az("rest", "--method", "get", "--url", project_id + "?api-version=2025-06-01")
+        account_id = project_id.rsplit("/projects/", 1)[0]
+        run_id = group.get("tags", {}).get("validationRun")
+        if not run_id:
+            raise ValueError("Optimizer may run only in the owned validation RG.")
+        insights_id = group["id"] + "/providers/Microsoft.Insights/components/appi-" + run_id
+        app_id = az("rest", "--method", "get", "--url", insights_id + "?api-version=2020-02-02",
+                    "--query", "properties.AppId")
+        save_json(RESULTS / "azure-environment.json", {
+            "schema": "contoso-environment-v1", "subscription": subscription, "tenant": tenant,
+            "repository": "junwoojeong100/foundry-labs-v1.5", "location": required("AZURE_LOCATION"),
+            "resource_group": rg, "resource_group_id": group["id"], "run_id": run_id,
+            "project_endpoint": required("FOUNDRY_PROJECT_ENDPOINT"),
+            "account_name": account_id.rsplit("/", 1)[-1], "project_name": project_id.rsplit("/", 1)[-1],
+            "foundation": {"accountId": {"value": account_id}, "projectId": {"value": project_id},
+                           "projectPrincipalId": {"value": project["identity"]["principalId"]}},
+            "monitoring": {"appId": {"value": app_id}, "appInsightsId": {"value": insights_id}},
+        })
+        result = subprocess.run([
+            sys.executable, "samples/optimizer_lab.py", "--agent", "contoso-purchasing-responses",
+            "--version", "2", "--optimizer-deployment", "contoso-reflection",
+            "--suite", "automated-v2", "--live",
+        ], cwd=ROOT, check=False, timeout=840)
+        terminal = []
+        for path in RESULTS.glob("contoso-optimizer-*-terminal.json"):
+            terminal.append(redacted(json.loads(path.read_text())))
+        save_json(ROOT / "validation/optimizer-oidc/result.json", {
+            "workflow_run_id": os.environ["GITHUB_RUN_ID"], "returncode": result.returncode,
+            "target_agent": "contoso-purchasing-responses", "target_version": "2",
+            "suite": "automated-v2", "purpose": "same-target OIDC differential diagnosis, not a v3 quality claim",
+            "terminal_results": terminal,
+        })
+        if result.returncode:
+            raise RuntimeError("Native optimizer operational check failed; see preserved terminal result.")
+        return
     evidence = Evidence("ci")
     output_dir = ROOT / "validation" / DEFAULT_SUITE
     summary_path = output_dir / f"ci-{phase}.json"
@@ -90,7 +128,7 @@ def run(phase: str) -> None:
         ], cwd=ROOT, check=True, timeout=420)
         responses = sorted(RESULTS.glob("contoso-hosted-client-*-responses.jsonl"), key=lambda p: p.stat().st_mtime)
         row = json.loads(responses[-1].read_text())
-        proof = check_business_evidence(row, {"required_tools": ["prepare_purchase_request"]})
+        proof = check_business_evidence(row, {"required_tools": ["prepare_purchase_request"]}, require_tool_definitions=True)
         if not proof["passed"]:
             raise ValueError(f"CI grounding/business proof failed: {proof['failures']}")
         drafts = [call for call in row["tool_calls"] if call["name"] == "prepare_purchase_request" and call["output"]["ok"]]
@@ -119,7 +157,7 @@ def run(phase: str) -> None:
                 or dev_report.get("calibration") != "passed"
                 or not dev_report.get("dev", {}).get("business_gate_passed")
                 or dev_report.get("evaluation_suite_sha256") != suite_hash()
-                or len(dev_responses) != 20
+                or len(dev_responses) != policy()["required_dev_cases"]
                 or any(
                     item.get("contract", {}).get("sha256") != row["contract"]["sha256"]
                     or item.get("model") != row["model"]
@@ -139,7 +177,7 @@ def run(phase: str) -> None:
         if not records.exists():
             subprocess.run([
                 sys.executable, "samples/hosted_client.py", "evaluate", "--split", split, "--suite", DEFAULT_SUITE,
-                "--version", version, "--case-delay", "5", "--live",
+                "--version", version, "--case-delay", "3", "--live",
             ], cwd=ROOT, check=True, timeout=1200)
             candidates = sorted(RESULTS.glob("contoso-hosted-client-*-responses.jsonl"), key=lambda p: p.stat().st_mtime)
             subprocess.run([sys.executable, "scripts/share_evidence.py", "--input", str(candidates[-1]),
@@ -191,5 +229,5 @@ def run(phase: str) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--phase", choices=["dev", "release"], default="release")
+    parser.add_argument("--phase", choices=["dev", "release", "optimizer"], default="release")
     run(parser.parse_args().phase)

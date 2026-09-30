@@ -20,7 +20,7 @@ def main():
             "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
         )
     ]
-    for name in ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v2", ".github/workflows"):
+    for name in ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v2", "validation/automated-v3", ".github/workflows"):
         files.extend(
             path for path in (ROOT / name).rglob("*")
             if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".tmp"}

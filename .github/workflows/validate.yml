@@ -12,7 +12,7 @@ on:
       validation_phase:
         description: "dev never invokes holdout; release uses the sealed holdout only after dev approval"
         type: choice
-        options: [dev, release]
+        options: [dev, release, optimizer]
         default: dev
 permissions:
   contents: read

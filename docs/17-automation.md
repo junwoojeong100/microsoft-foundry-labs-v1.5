@@ -1,4 +1,4 @@
-> **완성할 결과:** Contoso 정책 요약을 실제 예약 실행하고 run history와 disabled 상태를 확인합니다.
+> **완성할 결과:** Contoso 정책 요약의 실제 예약 실행을 응답/trace로 검증하고 disabled 상태를 확인합니다.
 
 ## 목표
 
@@ -12,50 +12,67 @@ L15의 정책 worker를 사용하세요. 로컬 client-side 함수 agent를 예�
 서비스 Routines의 GA와 azd 확장의 Beta 상태를 구분하고, CMK 제한 등 현재 조건을 확인합니다.
 
 ```bash
-azd version
-azd extension list
-azd ai routine --help
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 ```
 
 SDK 기본 환경과 azd `azure.ai.routines` 확장을 준비합니다. 토큰을 파일에 저장하지 않습니다.
+`results/azure-environment.json`의 프로젝트와 App Insights만 조회합니다.
+CLI 확장/전역 설정을 자동 업그레이드하거나 다른 환경의 리소스를 이용하지 않습니다.
 
 ## 실행
 
 ### 1. 먼저 비활성 routine의 수동 호출
 
 ```bash
-python samples/routine_lab.py create --agent 실제-agent-name
-python samples/routine_lab.py create --agent 실제-agent-name --live
-python samples/routine_lab.py dispatch --live
+python samples/routine_lab.py create --agent 실제-agent-name --receipt results/routine-v2-manual.json
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py create --agent 실제-agent-name --receipt results/routine-v2-manual.json --live
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispatch --receipt results/routine-v2-manual.json --live
 ```
 
 고유 이름의 1회 timer를 **disabled**로 만들고 수동 dispatch합니다.
 manifest는 trigger 1개·action 1개이며 input은 “Contoso 정책 요약, 외부 발송·주문·승인 금지”입니다.
 `action.input`을 파일로 전달하고 존재하지 않는 create `--input` 옵션을 사용하지 않습니다.
-현재 receipt가 있으면 중복 생성하지 않습니다.
+기존 receipt를 덮어쓰지 않습니다. 새 실험은 `--receipt`로 별도 경로를 지정합니다.
+dispatch 전에 별도 `.dispatch.json` 시도 기록을 독점 생성하므로 timeout이 나도 같은
+receipt를 자동 재호출하지 않습니다. 수동 접수 ID만으로 실행 성공을 판정하지 않습니다.
 
 ### 2. 실제 예약 실행 확인
 
-새 실습 환경/receipt에서 아래 경로를 선택하면 3분 뒤의 **1회 timer**를 생성합니다.
+새 receipt에서 아래 경로를 선택하면 2분 뒤의 **1회 timer**를 생성합니다.
 수동 dispatch를 예약 성공으로 대신 표시하지 않습니다.
 
 ```bash
-python samples/routine_lab.py scheduled-test --agent 실제-agent-name --live
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py scheduled-test --agent 실제-agent-name --receipt results/routine-v2-scheduled.json --delay-seconds 120 --wait-seconds 360 --live
 ```
 
-최대 6분 동안 run history를 확인하고 `finally`에서 disable합니다.
-결과가 생겼다는 사실만으로 성공 판정하지 않습니다. status·action output·
-실제 response ID를 원문에서 확인합니다. 입력이 서비스에서 가려졌으면 추측해서 채우지 않습니다.
+최대 6분 동안 실제 action trace를 확인하고 `finally`에서 disable합니다.
+입력에 고유 검증 표식을 넣고 같은 agent·예약 시각 이후·정확히 같은 사용자 입력의
+`invoke_agent` span만 찾습니다. 성공 span, 실제 response ID, assistant의
+`finish_reason=stop`, 비어 있지 않은 출력이 모두 있어야 검증됩니다.
+가려진 출력, 진행 중/실패 기록, 다른 입력의 응답은 성공 증거가 아닙니다.
+
+**CLI run history의 빈 배열/null을 미실행으로 해석하지 마세요.**
+[현재 공식 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines#view-run-history)는
+azd의 history 조회를 지원하지 않는다고 명시합니다. 확인한 확장은 서비스의
+`data`/`next_link` 대신 `value`/`nextPageToken`을 디코딩해 실행이 있어도
+`{"value":null,"next_page_token":""}`를 출력할 수 있습니다.
+Routine 생성·조회·중지는 계속 azd로 수행하며, 스크립트가 Routine REST/SDK로 우회하지는 않습니다.
+실행 증거는 소유 App Insights의 제한된 KQL로 별도 확보합니다.
+trace를 읽을 수 없다면 **실행 미확인**으로 종료하며 성공이나 미실행을 추측하지 않습니다.
 
 ### 3. 중지 상태 재확인
 
 ```bash
-python samples/routine_lab.py stop --live
-python samples/routine_lab.py status --live
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-v2-scheduled.json --live
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py status --receipt results/routine-v2-scheduled.json --live
 ```
 
 receipt의 이름·endpoint만 대상으로 삼습니다. 반복 cron을 자동 활성화하지 않으며,
 예외나 중단 뒤에도 이 중지 명령을 실행합니다. 이 스크립트는 routine이나 RG를 삭제하지 않습니다.
+원래 `results/routine.json`은 `status`/`stop`으로 계속 읽을 수 있으며 덮어쓰거나 재dispatch하지 않습니다.
+disable 호출이 timeout/디코딩 오류로 끝나도 `show`를 다시 수행해 **같은 이름의 `enabled=false`**를 확인합니다.
 
 ### 4. identity와 복구 경계
 
@@ -70,13 +87,25 @@ L19 Voice와 지속 평가를 선택했다면 해당 세션·스케줄도 별도
 
 ## 성공 기준
 
-실제 예약 시점에 생성된 run, 업무 결과, disabled 상태를 확인했습니다.
+실제 예약 시점 이후의 action 실행, 완료된 업무 응답, disabled 상태를 확인했습니다.
 예약 생성만 됐거나 수동 dispatch만 했다면 그 범위까지만 실행 완료로 기록합니다.
 상태 조회가 실패했다면 “아마 중지됐을 것”이라고 쓰지 않습니다.
+run ID를 읽지 못했다면 response/trace ID와 구분해 `null`로 남깁니다.
+사람의 내용 검토는 선택 안내이며, 실행하지 않은 검토를 완료했다고 표시하지 않습니다.
 
-**이번 제작 환경에서는 예약 요청·수동 dispatch 접수까지 수행했지만 run history가 비어 있어
-예약 실행 성공은 확인하지 못했습니다.** routine의 `enabled=false`는 별도로 확인했습니다.
-이 한계를 File search·Hosted·A2A 등 다른 성공한 실행 결과로 대체하지 않습니다.
+기존 실험에서 저장한 “CLI history가 비었다”는 실패/관측 기록은 그대로 보존합니다.
+후속 조사에서 같은 정책 worker의 예약 시각 `2026-09-29T22:38:35Z`와 수동 dispatch 시각
+`22:44:59Z`에 성공한 action span과 실제 정책 요약 출력(`finish_reason=stop`)을 찾았습니다.
+예약 시각의 trace는 `8bf878b65509efa39d9643632629f506`,
+response는 `resp_07018918263947dc006abc3deaaf34819787a318905a8318ad`입니다.
+직접 response 조회의 404도 보존했으며, 조회 불가를 응답 부재로 바꾸지 않았습니다.
+이 증거는 다른 File search·Hosted·A2A 실행의 성공으로 대체한 것이 아닙니다.
+
+수정한 runner의 별도 v2 검증에서는 `contoso-policy-timer-v2-9a3154d0`을 한 번만 예약했습니다.
+`2026-09-30T01:58:35Z`의 trace `ebd60144b61d68788cb939b085f6c308`과
+response `resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2`에서
+고유 표식이 일치하는 완료 출력을 확인했습니다. 수동 dispatch는 하지 않았고 `enabled=false`를 재확인했습니다.
+원본은 `results/contoso-routine-04519d0f6e86.jsonl`과 `results/routine-v2-scheduled.json`에 보존합니다.
 
 ## 막혔을 때
 

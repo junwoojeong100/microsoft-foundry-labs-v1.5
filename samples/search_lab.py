@@ -152,15 +152,15 @@ class Search:
         return validate_hits(hits)
 
     def policy_scope(self) -> list[dict[str, Any]]:
-        required = {"CONTOSO-PROC-2026-09-s1", "CONTOSO-PROC-2026-09-s5", "CONTOSO-SEC-2026-09-s4"}
+        required = {item["id"] for item in policy_chunks()}
         result = self.rest.request("POST", f"/indexes/{self.settings['index']}/docs/search?api-version={SEARCH_API}", {
-            "search": "*", "top": 3,
+            "search": "*", "top": len(required),
             "filter": "search.in(id, '" + ",".join(sorted(required)) + "', ',')",
             "select": "id,document_id,title,section,filename,content,content_sha256",
         })
         hits = validate_hits(result["value"])
         if {item["id"] for item in hits} != required:
-            raise RuntimeError("Mandatory applicability and security-control evidence is missing.")
+            raise RuntimeError("The small synthetic policy corpus is incomplete; compound policy answers cannot be grounded.")
         self.evidence.append("policy_scope_guard", hits)
         return hits
 

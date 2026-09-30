@@ -18,12 +18,12 @@ on:
         default: false
       validation_phase:
         type: choice
-        options: [dev, release]
+        options: [dev, release, optimizer]
         default: dev
 permissions:
   contents: read
 concurrency:
-  group: contoso-approved-azure-deployment
+  group: contoso-approved-azure-${{ inputs.validation_phase == 'optimizer' && 'optimizer' || 'deployment' }}
   cancel-in-progress: false
 jobs:
   approved-test:
@@ -80,6 +80,8 @@ jobs:
         if: always()
         with:
           name: contoso-ci-summary
-          path: validation/automated-v2/
+          path: |
+            validation/automated-v3/
+            validation/optimizer-oidc/
           if-no-files-found: warn
           retention-days: 7

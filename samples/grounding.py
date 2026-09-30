@@ -14,10 +14,10 @@ def answer_format(source_ids: list[str]) -> dict[str, Any]:
             "schema": {
                 "type": "object",
                 "properties": {
-                    "answer": {"type": "string"},
                     "citation_ids": {"type": "array", "items": {"type": "string", "enum": sorted(source_ids)}},
+                    "answer": {"type": "string"},
                 },
-                "required": ["answer", "citation_ids"], "additionalProperties": False,
+                "required": ["citation_ids", "answer"], "additionalProperties": False,
             },
         },
     }

@@ -178,6 +178,7 @@ class EvaluationContractTests(unittest.TestCase):
         ids = {r["criteria"][0]["name"] for r in request["train_dataset"]["items"]}
         known_dev_sets = [
             {c["id"] for c in workshop.validate_data() if c["split"] == "dev"},
+            {c["id"] for c in load_cases("automated-v2", "dev")},
             {c["id"] for c in load_cases(DEFAULT_SUITE, "dev")},
         ]
         self.assertIn(ids, known_dev_sets, "Optimizer must use one complete dev suite, never a holdout or mixed subset.")

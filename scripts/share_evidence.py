@@ -20,6 +20,7 @@ FIELDS = {
     "effective_prompt_sha256", "manual_pass", "review_note",
     "environment_sha256", "execution_location",
     "raw_answer", "grounding_contract", "human_review_status", "evaluation_suite", "evaluation_suite_sha256",
+    "tool_definitions",
 }
 
 

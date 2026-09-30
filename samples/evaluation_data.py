@@ -8,15 +8,21 @@ from typing import Any
 from evidence import digest
 from workshop import DATA, load_jsonl, validate_data
 
-DEFAULT_SUITE = "automated-v2"
-SUITES = ("legacy-v1", DEFAULT_SUITE)
+DEFAULT_SUITE = "automated-v3"
+SUITES = ("legacy-v1", "automated-v2", DEFAULT_SUITE)
 V2 = DATA / "evaluation/v2"
+
+
+def suite_dir(suite: str) -> Path:
+    if suite not in SUITES or suite == "legacy-v1":
+        raise ValueError("Expected a versioned automated suite.")
+    return DATA / "evaluation" / suite.removeprefix("automated-")
 
 
 def policy(suite: str = DEFAULT_SUITE) -> dict[str, Any]:
     if suite not in SUITES:
         raise ValueError("Unknown evaluation suite.")
-    path = DATA / "evaluation/rubric.json" if suite == "legacy-v1" else V2 / "rubric.json"
+    path = DATA / "evaluation/rubric.json" if suite == "legacy-v1" else suite_dir(suite) / "rubric.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -26,12 +32,13 @@ def load_cases(suite: str = DEFAULT_SUITE, split: str | None = None) -> list[dic
     if suite == "legacy-v1":
         return [row for row in validate_data() if split is None or row["split"] == split]
     required = policy(suite)
+    directory = suite_dir(suite)
     splits = ("dev", "holdout") if split is None else (split,)
     rows = []
     for selected in splits:
-        path = V2 / (selected + ".jsonl")
+        path = directory / (selected + ".jsonl")
         if selected == "holdout":
-            manifest = json.loads((V2 / "holdout-manifest.json").read_text())
+            manifest = json.loads((directory / "holdout-manifest.json").read_text())
             if not manifest.get("sealed") or manifest["sha256"] != hashlib.sha256(path.read_bytes()).hexdigest():
                 raise ValueError("Sealed holdout checksum mismatch.")
         values = load_jsonl(path)
@@ -57,7 +64,7 @@ def load_cases(suite: str = DEFAULT_SUITE, split: str | None = None) -> list[dic
 def calibration_cases(suite: str = DEFAULT_SUITE) -> list[dict]:
     if suite not in SUITES:
         raise ValueError("Unknown evaluation suite.")
-    path = DATA / "evaluation/calibration.jsonl" if suite == "legacy-v1" else V2 / "calibration.jsonl"
+    path = DATA / "evaluation/calibration.jsonl" if suite == "legacy-v1" else suite_dir(suite) / "calibration.jsonl"
     values = load_jsonl(path)
     if any(type(row.get("expected_pass")) is not bool for row in values):
         raise ValueError("Calibration controls require boolean expected verdicts.")
@@ -68,10 +75,11 @@ def suite_hash(suite: str = DEFAULT_SUITE) -> str:
     if suite == "legacy-v1":
         files = ["cases.jsonl", "rubric.json", "calibration.jsonl", "judge.txt"]
         return digest({name: hashlib.sha256((DATA / "evaluation" / name).read_bytes()).hexdigest() for name in files})
-    manifest = json.loads((V2 / "holdout-manifest.json").read_text())
+    directory = suite_dir(suite)
+    manifest = json.loads((directory / "holdout-manifest.json").read_text())
     return digest({
-        "suite": suite, "dev": hashlib.sha256((V2 / "dev.jsonl").read_bytes()).hexdigest(),
+        "suite": suite, "dev": hashlib.sha256((directory / "dev.jsonl").read_bytes()).hexdigest(),
         "holdout": manifest["sha256"], "policy": policy(suite),
-        "calibration": hashlib.sha256((V2 / "calibration.jsonl").read_bytes()).hexdigest(),
+        "calibration": hashlib.sha256((directory / "calibration.jsonl").read_bytes()).hexdigest(),
         "judge": hashlib.sha256((DATA / "evaluation/judge.txt").read_bytes()).hexdigest(),
     })

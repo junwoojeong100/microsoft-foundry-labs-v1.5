@@ -39,16 +39,16 @@ def prepare_rows(path: Path, split: str, suite: str = "legacy-v1") -> list[dict]
         case = expected[row["id"]]
         if row.get("query") != case["query"]:
             raise ValueError("Actual question differs from the frozen dataset.")
-        if suite == DEFAULT_SUITE and (
+        if suite != "legacy-v1" and (
             row.get("evaluation_suite") != suite or row.get("evaluation_suite_sha256") != suite_hash(suite)
         ):
             raise ValueError("Response evidence belongs to another evaluation suite.")
-        evidence = {key: row.get(key) for key in ("tool_calls", "citations", "context", "retrieved_sources", "response_ids", "trace_id", "configuration", "contract", "raw_answer", "grounding_contract")}
+        evidence = {key: row.get(key) for key in ("tool_calls", "tool_definitions", "citations", "context", "retrieved_sources", "response_ids", "trace_id", "configuration", "contract", "raw_answer", "grounding_contract")}
         items.append({
             "id": row["id"], "query": row["query"], "response": row["response"],
             "ground_truth": case["ground_truth"], "expected_behavior": case["expected_behavior"],
             "evidence": json.dumps(evidence, ensure_ascii=False),
-            "automatic_checks": check_business_evidence(row, case) if suite == DEFAULT_SUITE else None,
+            "automatic_checks": check_business_evidence(row, case, require_tool_definitions=suite == "automated-v3") if suite != "legacy-v1" else None,
         })
     return items
 
@@ -140,7 +140,7 @@ def audit_items(
         if passed != (score >= 4):
             contradictions.append(case_id)
         checks = None if automatic_checks is None else automatic_checks.get(case_id)
-        if suite == DEFAULT_SUITE and expected is None and checks is None:
+        if suite != "legacy-v1" and expected is None and checks is None:
             raise ValueError(f"{case_id}: automated evidence checks are required.")
         verdicts[case_id] = {
             "passed": passed and (checks is None or checks["passed"]), "native_passed": passed,
@@ -151,7 +151,7 @@ def audit_items(
         "human_review_completed": False, "business_gate_passed": False,
         "evaluation_suite": suite,
         "human_review_required": suite == "legacy-v1",
-        "human_review_status": "optional_guidance_only" if suite == DEFAULT_SUITE else "not_performed",
+        "human_review_status": "optional_guidance_only" if suite != "legacy-v1" else "not_performed",
     }
     if expected is not None:
         if set(verdicts) != set(expected):
@@ -161,7 +161,7 @@ def audit_items(
                       calibration_passed=not mismatches and not contradictions,
                       not_target_agent_evidence=True)
     else:
-        if suite == DEFAULT_SUITE and split not in {"dev", "holdout"}:
+        if suite != "legacy-v1" and split not in {"dev", "holdout"}:
             raise ValueError("Automated native audit requires an explicit split.")
         cases = {c["id"]: c for c in load_cases(suite, split)}
         if not verdicts or not set(verdicts) <= cases.keys():
@@ -218,7 +218,7 @@ def run(args, evidence: Evidence) -> None:
         save_json(receipt_path, {"eval_id": state["eval_id"], "run_id": native.id, "status": native.status, "items": items})
         if native.status != "completed" or len(items) != len(rows):
             raise RuntimeError("Native evaluation failed or returned partial results; originals retained.")
-        checks = {row["id"]: row["automatic_checks"] for row in rows} if args.command != "calibrate" and args.suite == DEFAULT_SUITE else None
+        checks = {row["id"]: row["automatic_checks"] for row in rows} if args.command != "calibrate" and args.suite != "legacy-v1" else None
         audit = audit_items(items, expected, suite=args.suite, automatic_checks=checks, split=args.split)
         save_json(RESULTS / (evidence.run_id + "-audit.json"), audit)
         evidence.append("audit", audit)

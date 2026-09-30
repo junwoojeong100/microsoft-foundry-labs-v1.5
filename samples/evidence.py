@@ -52,7 +52,7 @@ def redacted(value: Any) -> Any:
 
 
 def runtime_contract(prompt: Path | None = None, *, root: Path = ROOT) -> dict[str, Any]:
-    prompt = prompt or root / "data/prompts/agent-v5.txt"
+    prompt = prompt or root / "data/prompts/agent-v6.txt"
     files = [
         *sorted((root / "data/policies").glob("*.md")),
         root / "data/inventory.csv", prompt,
