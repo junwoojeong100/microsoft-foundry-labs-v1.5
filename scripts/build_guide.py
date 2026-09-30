@@ -7,12 +7,12 @@ from html import escape
 import json
 from pathlib import Path
 import re
+from urllib.parse import unquote, urlparse, urlunparse
 
 import markdown
 from markdown.extensions.toc import slugify_unicode
 
 ROOT = Path(__file__).resolve().parents[1]
-TRACKS = {"core": "기본 코스", "advanced": "심화 코스", "reference": "참고 자료"}
 RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
 
 
@@ -20,9 +20,79 @@ def read_json(name: str):
     return json.loads((ROOT / "content" / name).read_text(encoding="utf-8"))
 
 
-def coverage_markdown(capabilities, chapters, sources):
+def load_content(language):
+    if language not in RELEASE["languages"]:
+        raise ValueError(f"Unsupported guide language: {language}")
+    chapters = read_json("chapters.json")
+    learning = read_json("learning-paths.json")
+    source_data = read_json("sources.json")
+    capabilities = read_json("capabilities.json")
+    if language == "en":
+        translated_chapters = read_json("chapters.en.json")
+        if [c["id"] for c in translated_chapters] != [c["id"] for c in chapters]:
+            raise ValueError("English chapter translations must match every canonical chapter in order.")
+        for chapter, translation in zip(chapters, translated_chapters, strict=True):
+            if set(translation) != {"id", "title", "summary", "status"}:
+                raise ValueError(f"Unexpected translated chapter fields: {translation['id']}")
+            chapter.update(translation)
+            if "file" in chapter:
+                chapter["file"] = "docs/en/" + Path(chapter["file"]).name
+        translated_learning = read_json("learning-paths.en.json")
+        if set(translated_learning) != set(learning):
+            raise ValueError("Every learning-path requirement needs an English translation.")
+        for chapter_id, translation in translated_learning.items():
+            if set(translation) != {"label", "requires"}:
+                raise ValueError(f"Unexpected translated learning-path fields: {chapter_id}")
+            learning[chapter_id].update(translation)
+        translated_sources = read_json("sources.en.json")
+        if set(translated_sources["notes"]) != {s["id"] for s in source_data["sources"]}:
+            raise ValueError("Every official source needs an English scope note.")
+        source_data["policy"] = translated_sources["policy"]
+        for source in source_data["sources"]:
+            source["basis"] = translated_sources["basis"][source["basis"]]
+            source["note"] = translated_sources["notes"][source["id"]]
+        translated_capabilities = read_json("capabilities.en.json")
+        for original, translation in zip(capabilities, translated_capabilities, strict=True):
+            if set(translation) != {"lab", "source", "area", "name", "status"}:
+                raise ValueError("Unexpected translated capability fields.")
+            if any(original[key] != translation[key] for key in ("lab", "source")):
+                raise ValueError("Translated capabilities must retain their canonical lab and source.")
+            original.update(translation)
+    chapters = [{**chapter, "learning": learning.get(chapter["id"])} for chapter in chapters]
+    return chapters, source_data, capabilities
+
+
+def coverage_markdown(capabilities, chapters, sources, language="ko"):
     title_map = {c["id"]: c for c in chapters}
     counts = Counter(c["mode"] for c in capabilities)
+    if language == "en":
+        modes = {
+            "직접 실습": ("Direct lab", "An executable main path or local exercise is provided. This does not mean every subfeature in the row was run in the cloud."),
+            "조건부 실습": ("Conditional lab", "Follow the steps only when the required resources, permissions, licenses, and Preview access are available."),
+            "설계": ("Design", "Design the decision criteria, configuration, and failure, permission, and operational checks. No real change is performed."),
+            "참고": ("Reference", "Understand product boundaries and the current official implementation path. Not counted as a full implementation lab."),
+        }
+        lines = [
+            "> **Coverage is explicit.** The official capability map and reference connect each capability group to labs, design exercises, or reference material.",
+            "",
+            f"There are **{len(capabilities)} coverage entries** across 25 modules. This is not a count of individual product APIs or models.",
+            "", "## How to read the coverage levels", "",
+            "| Depth | Meaning | Entries |", "| --- | --- | ---: |",
+        ]
+        lines += [f"| {label} | {description} | {counts[mode]} |" for mode, (label, description) in modes.items()]
+        lines += [
+            "", "**A status label is not an unconditional guarantee for an entire row.** Check the source for API, SDK, portal, model, and regional details. If permissions or quota prevent a run, record it as not executed.",
+            "", "## Capabilities mapped to labs", "",
+            "| Area | Capability group | Module | Depth | Availability / verification scope | Evidence |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+        for item in capabilities:
+            chapter = title_map[item["lab"]]
+            lines.append(
+                f"| {item['area']} | {item['name']} | [L{chapter['number']}](#{chapter['id']}) | "
+                f"{modes[item['mode']][0]} | {item['status']} | [Official documentation]({sources[item['source']]['url']}) |"
+            )
+        return "\n".join(lines)
     lines = [
         "> **포함 범위를 공개합니다.** 공식 capability map/reference를 기준으로 기능군을 실습·설계·참고 항목에 연결했습니다.",
         "",
@@ -60,7 +130,21 @@ def coverage_markdown(capabilities, chapters, sources):
     return "\n".join(lines)
 
 
-def sources_markdown(source_data):
+def sources_markdown(source_data, language="ko"):
+    if language == "en":
+        table = [
+            "| ID | Document | Basis for verification | Used for |",
+            "| --- | --- | --- | --- |",
+        ]
+        table += [
+            f"| `{source['id']}` | [{source['title']}]({source['url']}) | {source['basis']} | {source['note']} |"
+            for source in source_data["sources"]
+        ]
+        return (ROOT / "docs/en/sources.md").read_text(encoding="utf-8").format(
+            documentation_validation=RELEASE["documentation_validation"],
+            historical_validation=RELEASE["historical_validation"],
+            source_table="\n".join(table),
+        )
     lines = [
         "> **기초 출처 확인: 2026-09-29 / 실행 API 재확인·Contoso 보완: 2026-09-30, Asia/Seoul.** "
         "날짜가 적혀 있다고 영구적으로 최신인 자료는 아닙니다.",
@@ -159,21 +243,28 @@ def sources_markdown(source_data):
     return "\n".join(lines)
 
 
-def source_body(chapter, chapters, capabilities, source_data):
+def source_body(chapter, chapters, capabilities, source_data, language="ko"):
     sources = {s["id"]: s for s in source_data["sources"]}
     if chapter.get("generated") == "coverage":
-        return coverage_markdown(capabilities, chapters, sources)
+        return coverage_markdown(capabilities, chapters, sources, language)
     if chapter.get("generated") == "sources":
-        return sources_markdown(source_data)
+        return sources_markdown(source_data, language)
     body = (ROOT / chapter["file"]).read_text(encoding="utf-8")
-    body = re.sub(r"(\]\()\.\./", r"\1", body)
+    def normalize_link(match):
+        address = urlparse(match[1])
+        resolved = ((ROOT / chapter["file"]).parent / unquote(address.path)).resolve()
+        relative = resolved.relative_to(ROOT).as_posix()
+        return "](" + urlunparse(address._replace(path=relative)) + ")"
+
+    body = re.sub(r"\]\((\.\./[^)]+)\)", normalize_link, body)
     if chapter.get("learning"):
         learning = chapter["learning"]
-        body = f"> **학습 순서: {learning['label']}** — {learning['requires']}\n\n" + body
+        label = read_json("reader-labels.json")[language]["learning_order"]
+        body = f"> **{label}: {learning['label']}** — {learning['requires']}\n\n" + body
     return body
 
 
-def render_chapter(chapter, body, source_map, previous, following, captures):
+def render_chapter(chapter, body, source_map, previous, following, captures, ui):
     chapter_id = chapter["id"]
     engine = markdown.Markdown(
         extensions=["tables", "fenced_code", "toc", "md_in_html", "sane_lists"],
@@ -183,21 +274,20 @@ def render_chapter(chapter, body, source_map, previous, following, captures):
     )
     rendered = engine.convert(body)
     rendered = re.sub(
-        r"<table>", '<div class="table-wrap" tabindex="0" role="region" aria-label="가로로 스크롤할 수 있는 표"><table>', rendered,
+        r"<table>", f'<div class="table-wrap" tabindex="0" role="region" aria-label="{ui["table_aria"]}"><table>', rendered,
     ).replace("</table>", "</table></div>")
     def figure(match):
         image, source = match.groups()
         description = re.search(r'\balt="([^"]+)"', image).group(1)
         capture = captures.get(source)
         note = (
-            f'<span class="capture-note">실제 포털 · {escape(capture["captured_at"][:10])} · '
-            'Playwright MCP Headless · 식별 정보 가림 · 배포·품질 검증과 구분</span>'
+            f'<span class="capture-note">{escape(ui["capture"].format(date=capture["captured_at"][:10]))}</span>'
             if capture else ""
         )
         kind = ' class="portal-capture"' if capture else ""
         return (
             f'<figure{kind}>{image}<figcaption><span>{description}</span>{note}'
-            f'<a href="{source}" target="_blank" rel="noopener noreferrer">원본 크게 보기 ↗</a></figcaption></figure>'
+            f'<a href="{source}" target="_blank" rel="noopener noreferrer">{ui["original"]}</a></figcaption></figure>'
         )
 
     rendered = re.sub(r'<p>(<img[^>]+src="([^"]+)"[^>]*>)</p>', figure, rendered)
@@ -211,53 +301,51 @@ def render_chapter(chapter, body, source_map, previous, following, captures):
         f'{escape(source_map[key]["title"])}</a></li>' for key in chapter["sources"]
     )
     label = f'L{chapter["number"]}' if chapter["track"] != "reference" else chapter["number"]
-    time_label = f'<span>{chapter["minutes"]}분</span>' if chapter["minutes"] else ""
-    badge = "preview" if "Preview" in chapter["status"] else "neutral"
+    time_label = f'<span>{ui["minutes"].format(minutes=chapter["minutes"])}</span>' if chapter["minutes"] else ""
+    badge = "preview" if "preview" in chapter["status"].lower() else "neutral"
     learning = chapter.get("learning")
     learning_badge = (
         f'<span class="learning-badge" data-learning-mode="{escape(learning["mode"])}">{escape(learning["label"])}</span>'
-        if learning else '<span class="learning-badge" data-learning-mode="core">기본 순차</span>'
+        if learning else f'<span class="learning-badge" data-learning-mode="core">{ui["core_badge"]}</span>'
         if chapter["track"] == "core" else ""
     )
     checkbox = (
         f'<button class="complete-button" type="button" data-complete="{chapter_id}" aria-pressed="false">'
-        '<span class="check-icon" aria-hidden="true">✓</span><span class="complete-label">성공 기준을 확인했어요</span></button>'
+        f'<span class="check-icon" aria-hidden="true">✓</span><span class="complete-label">{ui["complete"]}</span></button>'
         if chapter["track"] != "reference" else ""
     )
-    prev_link = f'<a href="#{previous["id"]}"><span>이전</span>{escape(previous["title"])}</a>' if previous else '<span></span>'
-    next_link = f'<a class="next" href="#{following["id"]}"><span>다음</span>{escape(following["title"])} <b aria-hidden="true">→</b></a>' if following else '<a href="#l00">시작으로 돌아가기 ↑</a>'
+    prev_link = f'<a href="#{previous["id"]}"><span>{ui["previous"]}</span>{escape(previous["title"])}</a>' if previous else '<span></span>'
+    next_link = f'<a class="next" href="#{following["id"]}"><span>{ui["next"]}</span>{escape(following["title"])} <b aria-hidden="true">→</b></a>' if following else f'<a href="#l00">{ui["back"]}</a>'
     return f"""
 <article class="chapter" id="{chapter_id}" data-track="{chapter['track']}" aria-labelledby="{chapter_id}-title">
   <header class="chapter-header">
-    <div class="chapter-meta"><span class="eyebrow">{label} / {TRACKS[chapter['track']]}</span>{time_label}{learning_badge}<span class="status-badge {badge}">{escape(chapter['status'])}</span></div>
+    <div class="chapter-meta"><span class="eyebrow">{label} / {ui['tracks'][chapter['track']]}</span>{time_label}{learning_badge}<span class="status-badge {badge}">{escape(chapter['status'])}</span></div>
     <h1 id="{chapter_id}-title" tabindex="-1">{escape(chapter['title'])}</h1>
     <p class="chapter-summary">{escape(chapter['summary'])}</p>
-    <nav class="section-nav" aria-label="이 모듈 안에서 이동">{''.join(headings)}</nav>
+    <nav class="section-nav" aria-label="{ui['sections']}">{''.join(headings)}</nav>
   </header>
   <div class="prose">{rendered}</div>
-  <details class="source-notes"><summary>공식 근거 {len(chapter['sources'])}건 · 항목별 확인 범위는 출처 참조</summary><ul>{citations}</ul></details>
-  <div class="completion">{checkbox}<span>진도는 이 브라우저에만 저장됩니다. Azure 실행을 판정하지 않습니다.</span></div>
-  <nav class="chapter-pagination" aria-label="모듈 이동">{prev_link}{next_link}</nav>
+  <details class="source-notes"><summary>{ui['citations'].format(count=len(chapter['sources']))}</summary><ul>{citations}</ul></details>
+  <div class="completion">{checkbox}<span>{ui['progress_boundary']}</span></div>
+  <nav class="chapter-pagination" aria-label="{ui['pagination']}">{prev_link}{next_link}</nav>
 </article>
 """
 
 
-def build():
-    chapters = read_json("chapters.json")
-    learning_paths = read_json("learning-paths.json")
-    chapters = [{**chapter, "learning": learning_paths.get(chapter["id"])} for chapter in chapters]
-    source_data = read_json("sources.json")
+def build_language(language):
+    chapters, source_data, capabilities = load_content(language)
+    ui = read_json("reader-labels.json")[language]
+    edition = RELEASE["languages"][language]
     sources = {s["id"]: s for s in source_data["sources"]}
-    capabilities = read_json("capabilities.json")
     captures = {item["path"]: item for item in read_json("portal-screenshots.json")["captures"]}
-    bodies = {c["id"]: source_body(c, chapters, capabilities, source_data) for c in chapters}
+    bodies = {c["id"]: source_body(c, chapters, capabilities, source_data, language) for c in chapters}
     pages = []
     search_data = []
     for index, chapter in enumerate(chapters):
         pages.append(render_chapter(
             chapter, bodies[chapter["id"]], sources,
             chapters[index - 1] if index else None,
-            chapters[index + 1] if index + 1 < len(chapters) else None, captures,
+            chapters[index + 1] if index + 1 < len(chapters) else None, captures, ui,
         ))
         plain = re.sub(r"<[^>]+>", " ", markdown.markdown(bodies[chapter["id"]], extensions=["tables", "fenced_code"]))
         search_data.append({
@@ -265,7 +353,7 @@ def build():
             "summary": chapter["summary"], "track": chapter["track"], "text": re.sub(r"\s+", " ", plain),
         })
     nav = []
-    for track, title in TRACKS.items():
+    for track, title in ui["tracks"].items():
         links = []
         for c in chapters:
             if c["track"] == track:
@@ -279,105 +367,133 @@ def build():
     css = (ROOT / "assets/styles.css").read_text(encoding="utf-8")
     js = (ROOT / "assets/app.js").read_text(encoding="utf-8")
     serialized = json.dumps(search_data, ensure_ascii=False).replace("<", "\\u003c").replace("&", "\\u0026")
+    serialized_ui = json.dumps(ui["js"], ensure_ascii=False).replace("<", "\\u003c").replace("&", "\\u0026")
+    language_links = []
+    for code, other in RELEASE["languages"].items():
+        current = ' aria-current="true"' if code == language else ""
+        language_links.append(
+            f'<a href="{other["html"]}" data-language="{code}" lang="{code}" hreflang="{code}"'
+            f'{current}>{other["label"]}</a>'
+        )
+    alternate_links = "".join(
+        f'<link rel="alternate" hreflang="{code}" href="{RELEASE["site_url"]}{other["html"]}">'
+        for code, other in RELEASE["languages"].items()
+    )
     print_toc = "".join(
         f'<li><a href="#{c["id"]}"><span>{c["number"]}</span> {escape(c["title"])}</a></li>' for c in chapters
     )
     html = f"""<!doctype html>
-<html lang="ko">
+<html lang="{language}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Contoso 구매 도우미로 모델·지식·도구·평가·운영까지 배우는 독립형 한국어 Microsoft Foundry 실습 가이드. {RELEASE['edition']} 보완본.">
+<meta name="description" content="{escape(ui['description'])} {RELEASE['edition']}.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" type="image/svg+xml" href="assets/microsoft-foundry.svg">
-<title>Microsoft Foundry 실습 가이드 | 직접 만들며 이해하기</title>
+<link rel="canonical" href="{RELEASE['site_url']}{edition['html']}">
+<link rel="alternate" hreflang="x-default" href="{RELEASE['site_url']}">
+{alternate_links}
+<title>{ui['title']} | {ui['tagline']}</title>
 <style>{css}</style>
 </head>
 <body>
-<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+<a class="skip-link" href="#main">{ui['skip']}</a>
 <header class="topbar">
-  <a class="brand" href="#l00" aria-label="Foundry 실습 가이드 시작">
+  <a class="brand" href="#l00" aria-label="{ui['home']}">
     <img class="brand-mark" src="assets/microsoft-foundry.svg" alt="Microsoft Foundry" width="42" height="42">
-    <span><strong>Foundry <span class="brand-light">Lab Guide</span></strong><small>직접 만들며 이해하기</small></span>
+    <span><strong>Foundry <span class="brand-light">Lab Guide</span></strong><small>{ui['tagline']}</small></span>
   </a>
   <div class="top-actions">
     <span class="edition"><span aria-hidden="true"></span>Contoso · {RELEASE['edition']}</span>
-    <button id="theme-toggle" class="icon-button" type="button" aria-label="어두운 화면으로 전환">테마</button>
-    <button id="print-one" class="quiet-button" type="button">현재 인쇄</button>
-    <button id="print-all" class="quiet-button" type="button">전체 PDF</button>
-    <button id="menu-toggle" class="quiet-button mobile-only" type="button" aria-expanded="false" aria-controls="sidebar">목차</button>
+    <nav class="language-switch" aria-label="{ui['language']}">{''.join(language_links)}</nav>
+    <button id="theme-toggle" class="icon-button" type="button" aria-label="{ui['js']['dark_aria']}">{ui['theme']}</button>
+    <button id="print-one" class="quiet-button" type="button">{ui['print_one']}</button>
+    <button id="print-all" class="quiet-button" type="button">{ui['print_all']}</button>
+    <button id="menu-toggle" class="quiet-button mobile-only" type="button" aria-expanded="false" aria-controls="sidebar">{ui['menu']}</button>
   </div>
 </header>
 <div class="layout">
-<aside id="sidebar" class="sidebar" aria-label="학습 탐색">
-  <div class="search-box"><label for="guide-search">가이드 검색</label><div class="search-field"><input id="guide-search" type="search" placeholder="IQ, 권한, 403…" autocomplete="off" aria-controls="search-results"><kbd aria-hidden="true">/</kbd></div></div>
-  <label for="learning-path" class="path-label">학습 경로</label>
+<aside id="sidebar" class="sidebar" aria-label="{ui['navigation']}">
+  <div class="search-box"><label for="guide-search">{ui['search']}</label><div class="search-field"><input id="guide-search" type="search" placeholder="{ui['placeholder']}" autocomplete="off" aria-controls="search-results"><kbd aria-hidden="true">/</kbd></div></div>
+  <label for="learning-path" class="path-label">{ui['path']}</label>
   <select id="learning-path">
-    <option value="all">전체 모듈</option><option value="core">기본 코스 · 처음부터 끝까지</option>
-    <option value="quick">90분 체험 · 사전 환경 필요</option><option value="offline">Azure 없이 · 로컬/설계 단계</option>
-    <option value="advanced">심화 코스 · 선택해서 확장</option><option value="reference">참고 자료</option>
+    <option value="all">{ui['all']}</option><option value="core">{ui['core']}</option>
+    <option value="quick">{ui['quick']}</option><option value="offline">{ui['offline']}</option>
+    <option value="advanced">{ui['advanced']}</option><option value="reference">{ui['reference']}</option>
   </select>
-  <div class="progress-card"><div><strong>나의 학습 진도</strong><span id="progress-label">0 / 25</span></div><progress id="progress" value="0" max="25" aria-label="25개 모듈 학습 진도"></progress><small>성공 기준을 확인한 모듈을 체크하세요.</small></div>
-  <nav id="chapter-nav" aria-label="모듈 목차">{''.join(nav)}</nav>
-  <button id="reset-progress" class="text-button" type="button">이 브라우저 진도 초기화</button>
-  <div class="sidebar-note">가이드는 오프라인으로 읽습니다.<br>Azure 실습은 별도 인증·비용이 필요합니다.</div>
+  <div class="progress-card"><div><strong>{ui['progress']}</strong><span id="progress-label">0 / 25</span></div><progress id="progress" value="0" max="25" aria-label="{ui['progress_aria']}"></progress><small>{ui['progress_hint']}</small></div>
+  <nav id="chapter-nav" aria-label="{ui['toc']}">{''.join(nav)}</nav>
+  <button id="reset-progress" class="text-button" type="button">{ui['reset']}</button>
+  <div class="sidebar-note">{ui['offline_note']}</div>
 </aside>
 <main id="main" tabindex="-1">
   <section class="hero" id="hero" aria-labelledby="hero-title">
     <div class="hero-kicker">BUILD → GROUND → ACT → EVALUATE → OPERATE</div>
-    <h2 id="hero-title">Microsoft Foundry,<br><span>직접 만들며 이해하기.</span></h2>
-    <p>하나의 업무용 에이전트로 연결하는<br>모델·지식·도구·평가·안전·운영의 전체 흐름.</p>
-    <div class="hero-actions"><a href="#l01" class="primary-link">기본 실습 시작 <span aria-hidden="true">→</span></a><a href="#instructor" class="secondary-link">90분 코스 보기</a></div>
-    <div class="hero-stats"><div><strong>25</strong><span>단계별 모듈</span></div><div><strong>{len(capabilities)}</strong><span>기능군 연결</span></div><div><strong>{len(sources)}</strong><span>공식 출처</span></div><div><strong>1</strong><span>일관된 실습 시나리오</span></div></div>
+    <h2 id="hero-title">{ui['hero_title']}</h2>
+    <p>{ui['hero_description']}</p>
+    <div class="hero-actions"><a href="#l01" class="primary-link">{ui['start']} <span aria-hidden="true">→</span></a><a href="#instructor" class="secondary-link">{ui['tour']}</a></div>
+    <div class="hero-stats"><div><strong>25</strong><span>{ui['stat_modules']}</span></div><div><strong>{len(capabilities)}</strong><span>{ui['stat_features']}</span></div><div><strong>{len(sources)}</strong><span>{ui['stat_sources']}</span></div><div><strong>1</strong><span>{ui['stat_scenario']}</span></div></div>
     <div class="hero-orbit" aria-hidden="true"><span></span><i></i><b>f</b></div>
   </section>
-  <div class="reader-note" id="reader-note"><span class="note-mark" aria-hidden="true">i</span><p><strong>새 포털 GA ≠ 모든 기능 GA.</strong> Workflows는 2026-12-01 종료 예정입니다. 기본은 안정적인 핵심 경로, 심화는 Preview·지원 조건을 구분합니다.</p><a href="#sources">기준 보기 →</a></div>
-  <section class="print-cover" aria-label="인쇄본 표지와 목차">
+  <div class="reader-note" id="reader-note"><span class="note-mark" aria-hidden="true">i</span><p>{ui['reader_note']}</p><a href="#sources">{ui['view_basis']}</a></div>
+  <section class="print-cover" aria-label="{ui['cover_aria']}">
     <p class="eyebrow">MICROSOFT FOUNDRY / HANDS-ON GUIDE</p>
-    <h1>Microsoft Foundry,<br>직접 만들며 이해하기.</h1>
-    <p>하나의 구매·정책 도우미로 연결하는 모델 · 지식 · 도구 · 평가 · 안전 · 운영</p>
-    <p><strong>{RELEASE['edition']} Contoso 독립형 실행 가이드 · 한국어 · 25개 모듈</strong><br>기본 코스 5시간 20분 + 대기·휴식 / 심화는 필요에 따라 선택</p>
-    <p class="print-boundary">GA/Preview 및 구현·실행·품질을 구분합니다. 현재 실행 범위는 validation/current/report.json을 확인하세요. 실제 주문·결제·업무 승인은 수행하지 않습니다.</p>
-    <h2>읽는 순서</h2><ol class="print-toc">{print_toc}</ol>
-    <p>실행 파일과 데이터는 함께 제공된 실습 키트에 있습니다. 웹 가이드: index.html / 텍스트 판: GUIDE.ko.md</p>
+    <h1>{ui['cover_title']}</h1>
+    <p>{ui['cover_description']}</p>
+    <p><strong>{RELEASE['edition']} {ui['cover_edition']}</strong><br>{ui['duration']}</p>
+    <p class="print-boundary">{ui['cover_boundary']}</p>
+    <h2>{ui['reading_order']}</h2><ol class="print-toc">{print_toc}</ol>
+    <p>{ui['kit_note']} {ui['web_guide']}: {edition['html']} / {ui['text_edition']}: {edition['markdown']}</p>
   </section>
-  <section id="search-results" class="search-results" aria-labelledby="search-title" hidden><h1 id="search-title">검색 결과</h1><p id="search-count" role="status" aria-live="polite"></p><div id="search-list"></div></section>
-  <p id="storage-warning" class="storage-warning" role="status" hidden>이 환경에서는 로컬 저장소를 사용할 수 없어 진도가 현재 페이지에만 유지됩니다.</p>
-  {''.join(pages)}
-  <footer class="site-footer"><strong>배우는 것과 검증한 것을 구분합니다.</strong><p>Contoso 합성 데이터 · 명시적 Azure 실행 · GA/Preview 구분</p><a href="README.md">시작 안내</a><a href="GUIDE.ko.md">전체 Markdown</a><a href="{RELEASE['artifact']}.pdf">인쇄용 PDF</a><a href="validation/current/report.json">검증 범위</a><a href="#sources">출처</a></footer>
+  <section id="search-results" class="search-results" aria-labelledby="search-title" hidden><h1 id="search-title">{ui['search_results']}</h1><p id="search-count" role="status" aria-live="polite"></p><div id="search-list"></div></section>
+  <p id="storage-warning" class="storage-warning" role="status" hidden>{ui['storage_warning']}</p>
+{''.join(pages)}
+  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{edition['pdf']}">{ui['pdf']}</a><a href="{RELEASE['site_url']}{RELEASE['artifact']}.zip">{ui['zip']}</a><a href="data/receipt.html">{ui['receipt']}</a><a href="validation/current/report.json">{ui['validation']}</a><a href="#sources">{ui['sources']}</a></footer>
 </main>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
-<noscript><div class="noscript-note">JavaScript가 꺼져 있습니다. 모든 모듈을 순서대로 읽을 수 있으며 검색·진도 저장은 동작하지 않습니다.</div></noscript>
+<noscript><div class="noscript-note">{ui['nojs']}</div></noscript>
 <script id="guide-data" type="application/json">{serialized}</script>
+<script id="guide-ui" type="application/json">{serialized_ui}</script>
 <script>{js}</script>
 </body>
 </html>
 """
-    (ROOT / "index.html").write_text(html, encoding="utf-8")
+    (ROOT / edition["html"]).write_text(html, encoding="utf-8")
     book = [
-        "# Microsoft Foundry, 직접 만들며 이해하기",
+        f"# {ui['title']} — {ui['tagline']}",
         "",
-        f"> {RELEASE['edition']} Contoso 독립형 실행 가이드 · 한국어 · 25개 모듈. "
-        "웹으로는 [index.html](index.html)을 열어 검색·진도·학습 경로를 사용하세요.",
+        f"> {RELEASE['edition']} {ui['book_intro']} "
+        f"[{ui['web_guide']}]({RELEASE['site_url']}{edition['html']}) — {ui['book_web']}",
         "",
-        "**검증 경계:** 구현·실행·품질의 현재 상태는 [실행 보고서](validation/current/report.json)를 확인합니다. "
-        "직접 실습, 조건부 실습, 설계, 참고를 구분하며 과거 결과를 재사용하지 않습니다.",
+        " | ".join(f"[{other['label']}]({other['markdown']})" for other in RELEASE["languages"].values()),
         "",
-        "## 목차",
+        ui["book_boundary"],
+        "",
+        f"## {ui['toc']}",
         "",
     ]
     book += [f'- [{c["number"]}. {c["title"]}](#{c["id"]})' for c in chapters]
     for chapter in chapters:
+        book_body = re.sub(
+            r"\]\(([^():#?\s]+\.html(?:#[^)]*)?)\)",
+            lambda match: f"]({RELEASE['site_url']}{match[1]})",
+            bodies[chapter["id"]],
+        )
         book += [
             "", "---", "", f'<a id="{chapter["id"]}"></a>', "",
             f'# {chapter["number"]}. {chapter["title"]}', "",
-            f'**{TRACKS[chapter["track"]]} · {chapter["status"]}**' + (f' · 약 {chapter["minutes"]}분' if chapter["minutes"] else ""),
-            "", bodies[chapter["id"]], "", "### 공식 근거", "",
+            f'**{ui["tracks"][chapter["track"]]} · {chapter["status"]}**' + (" · " + ui["book_time"].format(minutes=chapter["minutes"]) if chapter["minutes"] else ""),
+            "", book_body, "", f"### {ui['official']}", "",
         ]
         book += [f'- [{sources[key]["title"]}]({sources[key]["url"]})' for key in chapter["sources"]]
-    (ROOT / "GUIDE.ko.md").write_text("\n".join(book) + "\n", encoding="utf-8")
-    print(f"Built {len(chapters)} pages (25 labs), {len(capabilities)} coverage rows, {len(sources)} official sources.")
+    (ROOT / edition["markdown"]).write_text("\n".join(book) + "\n", encoding="utf-8")
+    print(f"Built {language}: {len(chapters)} sections (25 labs), {len(capabilities)} coverage rows, {len(sources)} official sources.")
+
+
+def build():
+    for language in RELEASE["languages"]:
+        build_language(language)
 
 
 if __name__ == "__main__":

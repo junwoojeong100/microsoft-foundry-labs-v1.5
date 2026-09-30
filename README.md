@@ -1,67 +1,78 @@
-# Microsoft Foundry 실습 가이드
+# Microsoft Foundry Lab Guide
 
-**[온라인 가이드 열기 — index.html](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)**
+**English** | [한국어](README.ko.md)
 
-합성 Contoso 구매 도우미로 모델·지식·도구·평가·운영을 배우는 **한국어 25개 모듈**입니다.
-실제 포털 화면 17장과 CLI 명령 120개의 개별 해설을 제공합니다.
+**[Open the online guide — index.html](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)** · **[한국어 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)**
 
-## 시작하기
+Learn models, knowledge, tools, evaluation, and operations by building a synthetic Contoso purchasing assistant. The guide includes **25 labs and five reference sections in English and Korean**, 17 actual portal screenshots, and individual explanations for 120 CLI commands.
 
-처음에는 가이드의 **L00 시작하기**부터 진행하세요. 기본 코스는 **L00–L12, 약 5시간 20분**이며 심화 L13–L24는 필요한 기능을 선택합니다.
-가이드 열람에는 설치·로그인이 필요 없습니다. Azure 실습 준비와 비용·권한 조건은 L01에서 확인합니다.
+**English is the default.** Use the language switch to open the same module in Korean. Both editions share learning progress, theme, and learning-path preferences in the same browser.
 
-| 형식 | 최신 자료 |
+## Get started
+
+Begin with **L00: Microsoft Foundry at a glance**. The core course is **L00–L12, about 5 hours 20 minutes**; choose advanced modules L13–L24 as needed. Reading the guide requires no installation or sign-in. L01 explains the setup, permissions, and costs of running Azure labs.
+
+| Format | Open or download |
 | --- | --- |
-| 웹 | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
-| 텍스트 | [GUIDE.ko.md](GUIDE.ko.md) |
-| 인쇄 | [PDF 다운로드](Contoso-Foundry-Hands-on-2026-09-30.pdf) |
-| 전체 실습 키트 | [ZIP 다운로드](Contoso-Foundry-Hands-on-2026-09-30.zip) |
+| English web guide · default | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
+| Korean web guide | [GitHub Pages · 한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
+| Markdown | [English](GUIDE.en.md) · [한국어](GUIDE.ko.md) |
+| Printable PDF | [English](Contoso-Foundry-Hands-on-2026-09-30.en.pdf) · [한국어](Contoso-Foundry-Hands-on-2026-09-30.pdf) |
+| Complete bilingual workshop kit | [Download ZIP](Contoso-Foundry-Hands-on-2026-09-30.zip) |
+| Synthetic receipt for the document lab | [Open HTML on GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
 
-오프라인에서는 ZIP을 **압축 해제한 뒤** 그 안의 `index.html`을 엽니다. 폴더 구조를 유지하세요.
-실제 코드·설정은 GitHub 파일 목록이나 VS Code의 **파일 → 폴더 열기**에서 확인할 수 있습니다.
+For offline reading, **extract the ZIP first**, keep its folder structure, and open `index.html` (English) or `index.ko.html` (Korean). Code and configuration files are available in the repository file list or through **File → Open Folder** in VS Code.
 
-## 파일 구성
+## Repository layout
 
-| 경로 | 내용 |
+| Path | Contents |
 | --- | --- |
-| `docs/`, `content/` | 모듈 원문·학습 경로·공식 출처·스크린샷 정보 |
-| `assets/` | 가이드 화면·그림·포털 스크린샷 |
-| `samples/`, `hosted/`, `data/` | 실습 코드·에이전트 실행기·합성 데이터 |
-| `.env.example`, `azure.yaml`, `infra/` | 환경 설정 템플릿·배포 정의 |
-| `scripts/`, `tests/` | 문서 생성·패키징·회귀 검사 |
-| `validation/` | 종류별 최신 검증 결과 |
+| `docs/`, `docs/en/`, `content/` | Korean and English module sources, learning paths, official references, localized reader labels, and screenshot metadata |
+| `assets/` | Reader UI, diagrams in both languages, and original portal screenshots |
+| `samples/`, `hosted/`, `data/` | Lab code, agent runtime, and synthetic data |
+| `.env.example`, `azure.yaml`, `infra/` | Environment template and deployment definitions |
+| `scripts/`, `tests/` | Generation, packaging, and regression checks |
+| `validation/` | Latest results by validation category |
 
-**합성 데이터만 사용하며 실제 주문·결제·업무 승인은 수행하지 않습니다.**
-명령마다 실행 범위가 다르므로 가이드의 비용·변경 설명을 먼저 읽고, `.env`·인증 정보·개인 실행 결과는 커밋하지 마세요.
+**Synthetic data only. The labs do not place real orders, take payments, or grant business approvals.** Read each command's scope, costs, and side effects before running it. Never commit `.env`, credentials, or personal execution results.
 
-## 검증 결과
+Translation does not change runtime behavior. Executable inputs, Korean placeholders, synthetic fixtures, and original portal screenshots are preserved where needed for reproducibility. Their meaning is explained in English. The `microsoft-foundry` skill is authoring guidance, not a learner, runtime, or build dependency.
 
-[마지막 Azure 실행 보고서](validation/current/report.json) · [최신 자동 품질 결과](validation/automated-v3/quality.json) · [최신 문서 검사](validation/docs/browser.json)
+## Evidence and limits
 
-현재 파일 목록에는 종류별 최신 결과만 둡니다. 이전 기록은 [정리 전 Git 커밋](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation)에서 원본 그대로 볼 수 있습니다.
-검증 기록 안의 과거 경로는 해당 실행 당시의 커밋 기준입니다. 문서·로컬 검사 통과를 새로운 Azure 실행이나 품질 통과로 해석하지 않습니다.
+[Last Azure execution report](validation/current/report.json) · [Latest automated quality results](validation/automated-v3/quality.json) · [Current documentation checks](validation/docs/browser.json)
 
-## 수정·재생성
+The current file listing keeps only the latest results in each category. Earlier records remain unchanged in the [pre-cleanup Git commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation). Paths in historical records refer to the commit used for that run.
 
-`docs/`와 `content/`를 수정한 뒤 생성합니다. HTML·통합 Markdown은 직접 수정하지 않습니다.
-Python 문서 의존성(`requirements-docs.txt`, `requirements-qa.txt`)과 Node.js/Playwright Chromium이 필요합니다.
+Passing documentation or local checks is **not** a new Azure execution or a new quality-gate result. Translation does not rewrite historical evidence or relax evaluation thresholds.
+
+## Edit and regenerate
+
+Update the Korean sources in `docs/`, their English counterparts in `docs/en/`, and the corresponding metadata in `content/` together. The English metadata overlays preserve canonical module IDs, durations, source URLs, coverage levels, and prerequisites. Do not edit generated HTML or combined Markdown directly.
+
+Install the Python documentation dependencies and Node.js/Playwright Chromium, then run:
 
 ```bash
 python -m pip install -r requirements-docs.txt -r requirements-qa.txt
 npm ci
 npx playwright install chromium
 python scripts/build_guide.py
-python scripts/check_guide.py
 python -m unittest discover -s tests -q
-npm run guide:browser
 npm run guide:pdf
+python scripts/check_guide.py
+npm run guide:browser
 python scripts/check_pdf.py
 python scripts/package_guide.py
 ```
 
-문서 검사·패키지 보고서의 기본 저장 위치는 `validation/docs/`입니다.
-기존 Azure 검증은 재실행 없이 보존하고, 재현·회귀에 필요한 버전별 프롬프트와 시험지는 유지합니다.
+These commands generate and check **both languages**. One ZIP contains both readers, Markdown books, PDFs, and the shared code and data. Documentation reports live in `validation/docs/`; they are separate from Azure evidence.
 
-Pages는 **`main` 브랜치의 루트**에서 게시합니다. `.nojekyll`을 유지하고 `main`에 푸시하면 사이트가 갱신됩니다.
+## GitHub Pages
 
-이 자료는 Microsoft 공식 교육과정이 아닙니다. 출처와 사용 조건은 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES)를 참고하세요.
+Pages publishes the **root of the `docs/bilingual-guide` branch**. Keep `.nojekyll` and push regenerated artifacts to that branch to update the site. Merging into `main` and changing repository visibility require separate approval.
+
+Every guide HTML file is listed in the format table above. Relative links work under the repository's GitHub Pages path and in the extracted offline kit. English and Korean retain the same module fragments—for example, `#l13`—for deep links and language switching.
+
+After publishing, run `python scripts/check_pages.py` to compare every public HTML page and its linked assets with the local sources. This makes only unauthenticated requests to this repository's GitHub Pages site; it does not call Azure.
+
+This is not an official Microsoft curriculum. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) for sources and usage terms.

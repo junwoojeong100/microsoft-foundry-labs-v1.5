@@ -1,13 +1,14 @@
 async (page) => {
   const base = page.contosoGuideOrigin || "http://127.0.0.1:8765";
-  await page.goto(`${base}/index.html#l00`);
+  const edition = page.contosoGuideEdition;
+  await page.goto(`${base}/${edition.html}#l00`);
   await page.reload();
   await page.waitForLoadState("networkidle");
-  await page.evaluate(() => {
-    document.title = "Contoso Microsoft Foundry 실습 가이드 | 2026-09-30";
+  await page.evaluate(edition => {
+    document.title = `Contoso Microsoft Foundry | ${edition.label} | ${edition.date}`;
     document.body.dataset.print = "all";
     window.dispatchEvent(new Event("beforeprint"));
-  });
+  }, edition);
   await page.emulateMedia({media: "print"});
   if (await page.locator(".chapter:visible").count() !== 30) {
     throw new Error("All 30 guide sections must be visible before PDF export.");
@@ -20,7 +21,7 @@ async (page) => {
   }
   try {
     const output = await page.pdf({
-      path: "Contoso-Foundry-Hands-on-2026-09-30.pdf",
+      path: edition.pdf,
       format: "A4",
       preferCSSPageSize: true,
       printBackground: true,
@@ -28,9 +29,9 @@ async (page) => {
       tagged: true,
       outline: true,
       headerTemplate: '<div style="width:100%;font-family:Arial;font-size:8px;color:#536976;padding:0 13mm;">MICROSOFT FOUNDRY · HANDS-ON GUIDE</div>',
-      footerTemplate: '<div style="width:100%;font-family:Arial;font-size:8px;color:#536976;display:flex;justify-content:space-between;padding:0 13mm;"><span>2026-09-30 · Contoso independent edition</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
+      footerTemplate: `<div style="width:100%;font-family:Arial;font-size:8px;color:#536976;display:flex;justify-content:space-between;padding:0 13mm;"><span>${edition.date} · Contoso · ${edition.language}</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
     });
-    return {pdf: "Contoso-Foundry-Hands-on-2026-09-30.pdf", bytes: output.length};
+    return {pdf: edition.pdf, language: edition.language, bytes: output.length};
   } finally {
     await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
     await page.emulateMedia({media: null});

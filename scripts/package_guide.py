@@ -24,13 +24,15 @@ def main():
         raise ValueError("Reports must be inside validation/.")
     files = [
         ROOT / name for name in (
-            "README.md", "index.html", "GUIDE.ko.md", f"{NAME}.pdf", ".nojekyll",
+            ".nojekyll",
             ".env.example", ".gitignore", "requirements.txt",
             "requirements-docs.txt", "requirements-advanced.txt", "requirements-qa.txt",
             "requirements-hosted.txt", "requirements-tools.txt", "requirements-live.lock.txt",
             "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
         )
     ]
+    for edition in RELEASE["languages"].values():
+        files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "pdf"))
     directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v3", RELEASE["documentation_validation"], ".github/workflows")
     for directory in {*(ROOT / name for name in directories), report_dir}:
         files.extend(
@@ -52,11 +54,16 @@ def main():
             parts = Path(name).parts
             if any(part.startswith(".venv") or part in {"__pycache__", "results", ".azure", ".git", ".foundry", "node_modules"} for part in parts) or parts[-1] == ".env":
                 raise ValueError(f"Private or generated cloud data in archive: {name}")
-        for essential in ("index.html", "GUIDE.ko.md", f"{NAME}.pdf", "samples/workshop.py", "data/evaluation/cases.jsonl"):
+        essentials = [
+            edition[key] for edition in RELEASE["languages"].values()
+            for key in ("readme", "html", "markdown", "pdf")
+        ]
+        for essential in (*essentials, "samples/workshop.py", "data/evaluation/cases.jsonl"):
             if f"{NAME}/{essential}" not in names:
                 raise ValueError(f"Missing package artifact: {essential}")
         parser = GuideParser()
-        parser.feed((ROOT / "index.html").read_text(encoding="utf-8"))
+        for edition in RELEASE["languages"].values():
+            parser.feed((ROOT / edition["html"]).read_text(encoding="utf-8"))
         local_paths = {
             unquote(parsed.path)
             for address in [*parser.links, *(image["src"] for image in parser.images)]
@@ -75,6 +82,7 @@ def main():
         "created_at": datetime.now(timezone.utc).isoformat(), "archive": target.name,
         "files": len(names), "bytes": target.stat().st_size,
         "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+        "languages": list(RELEASE["languages"]), "default_language": RELEASE["default_language"],
         "integrity": "passed", "credential_and_virtualenv_exclusion": "passed",
         "portable_local_paths_checked": len(local_paths), "portal_screenshots": len(captures),
         "note": "This archive hash is kept outside the archive to avoid a self-referential checksum.",

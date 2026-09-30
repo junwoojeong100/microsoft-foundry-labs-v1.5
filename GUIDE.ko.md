@@ -1,10 +1,12 @@
-# Microsoft Foundry, 직접 만들며 이해하기
+# Microsoft Foundry 실습 가이드 — 직접 만들며 이해하기
 
-> 2026-09-30 Contoso 독립형 실행 가이드 · 한국어 · 25개 모듈. 웹으로는 [index.html](index.html)을 열어 검색·진도·학습 경로를 사용하세요.
+> 2026-09-30 Contoso 독립형 실행 가이드 · 한국어 · 25개 모듈. [웹 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) — 웹에서 검색·진도·학습 경로를 사용하세요.
+
+[English](GUIDE.en.md) | [한국어](GUIDE.ko.md)
 
 **검증 경계:** 구현·실행·품질의 현재 상태는 [실행 보고서](validation/current/report.json)를 확인합니다. 직접 실습, 조건부 실습, 설계, 참고를 구분하며 과거 결과를 재사용하지 않습니다.
 
-## 목차
+## 모듈 목차
 
 - [00. Foundry를 한 장으로 이해하기](#l00)
 - [01. 계정·권한·비용·개발 환경](#l01)
@@ -2964,7 +2966,7 @@ Hosted를 대상으로 사용했다면 agent session compute도 별도로 stop�
 
 **어떻게 사용하나요?** 동일한 합성 영수증을 자유 설명과 구조화 추출로 각각 처리해 빠진 값·추측·근거를 비교합니다. 이어 CSV의 9개 행을 계산하고 알려진 월별/전체 합계와 대조합니다. 보기 좋은 JSON이나 그래프보다 실제 값과 원본 행 수가 맞는지가 중요합니다.
 
-**어디서 실행하나요?** [receipt.html](data/receipt.html)을 브라우저에서 열고 [정답 파일](data/receipt.expected.json), [지출 CSV](data/monthly-spend.csv)를 함께 봅니다. 추론·analyzer·Code Interpreter는 각각 지원 포털/서비스와 비용 승인이 필요하며, 파일을 열어 보는 단계만으로 서비스 실행 완료가 되지는 않습니다.
+**어디서 실행하나요?** [receipt.html](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html)을 브라우저에서 열고 [정답 파일](data/receipt.expected.json), [지출 CSV](data/monthly-spend.csv)를 함께 봅니다. 추론·analyzer·Code Interpreter는 각각 지원 포털/서비스와 비용 승인이 필요하며, 파일을 열어 보는 단계만으로 서비스 실행 완료가 되지는 않습니다.
 
 ## 준비
 

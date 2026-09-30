@@ -10,10 +10,20 @@ import re
 from urllib.parse import unquote, urlparse
 import xml.etree.ElementTree as ET
 
+from build_guide import RELEASE, load_content
+
 ROOT = Path(__file__).resolve().parents[1]
+LAB_HEADINGS = {
+    "ko": ("목표", "개념과 실습 지도", "준비", "실행", "성공 기준", "막혔을 때", "정리"),
+    "en": ("Objectives", "Concepts and lab map", "Prerequisites", "Steps", "Success criteria", "Troubleshooting", "Cleanup"),
+}
+CONCEPT_LABELS = {
+    "ko": ("경험할 기능", "무엇이며 왜 중요한가요?", "어떻게 사용하나요?", "어디서 실행하나요?"),
+    "en": ("What you will try:", "What is it, and why does it matter?", "How do you use it?", "Where do you run it?"),
+}
 
 
-def command_coverage(text: str, source: str) -> dict:
+def command_coverage(text: str, source: str, language: str = "ko") -> dict:
     blocks = commands = 0
     for block in re.finditer(r"^```(bash|powershell)\n(.*?)^```[^\S\n]*(?:\n|$)", text, re.M | re.S):
         lines = [line.strip() for line in block[2].splitlines() if line.strip() and not line.lstrip().startswith("#")]
@@ -24,7 +34,8 @@ def command_coverage(text: str, source: str) -> dict:
             r'\s*<div class="command-explanation" markdown="1">(.*?)\n</div>',
             text[block.end():], re.S,
         )
-        if not count or not note or "명령 해설" not in note[1]:
+        label = {"ko": "명령 해설", "en": "Command walkthrough"}[language]
+        if not count or not note or label not in note[1]:
             raise ValueError(f"{source}: every shell block needs an adjacent command explanation")
         rows = re.findall(r"^\|\s*(\d+)\.\s*([^|]+)\|([^|]+)\|([^|]+)\|\s*$", note[1], re.M)
         if [int(row[0]) for row in rows] != list(range(1, count + 1)):
@@ -68,9 +79,12 @@ class GuideParser(HTMLParser):
         self.articles = []
         self.inputs_without_labels = []
         self.script_sources = []
+        self.language = None
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
+        if tag == "html":
+            self.language = values.get("lang")
         if values.get("id"):
             self.ids.append(values["id"])
         if tag == "a" and values.get("href"):
@@ -79,7 +93,9 @@ class GuideParser(HTMLParser):
             self.images.append(values)
         if tag == "article":
             self.articles.append(values.get("id"))
-        if tag in {"script", "img", "iframe", "link"}:
+        if tag in {"script", "img", "iframe", "link"} and not (
+            tag == "link" and values.get("rel") in {"alternate", "canonical"}
+        ):
             address = values.get("src") or values.get("href") or ""
             if address.startswith(("http:", "https:", "//")):
                 self.remote_assets.append(address)
@@ -87,10 +103,10 @@ class GuideParser(HTMLParser):
             self.script_sources.append(values["src"])
 
 
-def check() -> dict:
-    chapters = json.loads((ROOT / "content/chapters.json").read_text(encoding="utf-8"))
-    sources = json.loads((ROOT / "content/sources.json").read_text(encoding="utf-8"))["sources"]
-    capabilities = json.loads((ROOT / "content/capabilities.json").read_text(encoding="utf-8"))
+def check_language(language) -> dict:
+    chapters, source_data, capabilities = load_content(language)
+    sources = source_data["sources"]
+    edition = RELEASE["languages"][language]
     ids = {chapter["id"] for chapter in chapters}
     source_ids = {source["id"] for source in sources}
     if len(ids) != len(chapters) or len(source_ids) != len(sources):
@@ -98,8 +114,12 @@ def check() -> dict:
     labs = [chapter for chapter in chapters if chapter["track"] != "reference"]
     shell_blocks = shell_commands = 0
     core_minutes = sum(c["minutes"] for c in labs if c["track"] == "core")
-    duration = f"{core_minutes // 60}시간 {core_minutes % 60}분"
-    for path in ("README.md", "docs/00-start.md", "docs/instructor.md"):
+    duration = (
+        f"{core_minutes // 60}시간 {core_minutes % 60}분" if language == "ko"
+        else f"{core_minutes // 60} hours {core_minutes % 60} minutes"
+    )
+    docs = "docs" if language == "ko" else "docs/en"
+    for path in (edition["readme"], f"{docs}/00-start.md", f"{docs}/instructor.md"):
         if duration not in (ROOT / path).read_text(encoding="utf-8"):
             raise ValueError(f"{path}: course duration differs from chapter metadata")
     if [chapter["id"] for chapter in labs] != [f"l{i:02}" for i in range(25)]:
@@ -109,15 +129,15 @@ def check() -> dict:
             raise ValueError(f"{chapter['id']}: unresolved official source")
         if chapter["track"] != "reference":
             text = (ROOT / chapter["file"]).read_text(encoding="utf-8")
-            for heading in ("목표", "개념과 실습 지도", "준비", "실행", "성공 기준", "막혔을 때", "정리"):
-                if not re.search(rf"^## {heading}$", text, re.M):
+            for heading in LAB_HEADINGS[language]:
+                if not re.search(rf"^## {re.escape(heading)}$", text, re.M):
                     raise ValueError(f"{chapter['id']}: missing {heading} section")
             if len(text) < 1000:
                 raise ValueError(f"{chapter['id']}: unexpectedly thin lab")
-            for label in ("경험할 기능", "무엇이며 왜 중요한가요?", "어떻게 사용하나요?", "어디서 실행하나요?"):
+            for label in CONCEPT_LABELS[language]:
                 if f"**{label}" not in text:
                     raise ValueError(f"{chapter['id']}: missing learner explanation: {label}")
-            coverage = command_coverage(text, chapter["file"])
+            coverage = command_coverage(text, chapter["file"], language)
             shell_blocks += coverage["blocks"]
             shell_commands += coverage["commands"]
     for item in capabilities:
@@ -129,9 +149,11 @@ def check() -> dict:
         address = urlparse(source["url"])
         if address.scheme != "https" or address.hostname != "learn.microsoft.com":
             raise ValueError(f"Unexpected official source URL: {source['id']}")
-    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    html = (ROOT / edition["html"]).read_text(encoding="utf-8")
     parser = GuideParser()
     parser.feed(html)
+    if parser.language != language:
+        raise ValueError(f"{edition['html']}: incorrect HTML language metadata")
     duplicates = [item for item, count in Counter(parser.ids).items() if count > 1]
     if duplicates:
         raise ValueError(f"Duplicate HTML IDs: {duplicates}")
@@ -148,6 +170,11 @@ def check() -> dict:
                 raise ValueError(f"Broken internal anchor: {address}")
         elif not (ROOT / unquote(parsed.path)).is_file():
             raise ValueError(f"Missing linked file: {address}")
+        elif parsed.fragment and parsed.path.endswith(".html"):
+            linked = GuideParser()
+            linked.feed((ROOT / unquote(parsed.path)).read_text(encoding="utf-8"))
+            if unquote(parsed.fragment) not in linked.ids:
+                raise ValueError(f"Broken cross-language anchor: {address}")
     for image in parser.images:
         if not image.get("alt"):
             raise ValueError("Image missing alt text.")
@@ -156,10 +183,11 @@ def check() -> dict:
     portal_captures = check_portal_captures(parser)
     for path in (ROOT / "assets").glob("*.svg"):
         ET.parse(path)
-    for needle in ("2026-12-01", "부분 GA", "클라우드", "2.7.0", "1.13.1"):
+    caveats = ("부분 GA", "클라우드") if language == "ko" else ("Partially GA", "cloud")
+    for needle in ("2026-12-01", "2.7.0", "1.13.1", *caveats):
         if needle not in html:
             raise ValueError(f"Missing key caveat: {needle}")
-    book = (ROOT / "GUIDE.ko.md").read_text(encoding="utf-8")
+    book = (ROOT / edition["markdown"]).read_text(encoding="utf-8")
     for chapter_id in ids:
         if f'<a id="{chapter_id}"></a>' not in book:
             raise ValueError("Markdown book missing an anchor.")
@@ -167,6 +195,7 @@ def check() -> dict:
         "checked_at": datetime.now(timezone.utc).isoformat(),
         "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
         "guide_sha256": hashlib.sha256(html.encode("utf-8")).hexdigest(),
+        "language": language, "html": edition["html"], "markdown": edition["markdown"],
         "pages": len(chapters), "labs": len(labs),
         "coverage_rows": len(capabilities), "official_sources": len(sources),
         "core_minutes": core_minutes,
@@ -175,9 +204,26 @@ def check() -> dict:
         "explained_shell_blocks": shell_blocks, "explained_commands": shell_commands,
         "portal_screenshots": portal_captures,
     }
+    return result
+
+
+def check() -> dict:
+    languages = {language: check_language(language) for language in RELEASE["languages"]}
+    for key in ("pages", "labs", "coverage_rows", "official_sources", "core_minutes",
+                "explained_shell_blocks", "explained_commands", "portal_screenshots"):
+        if len({result[key] for result in languages.values()}) != 1:
+            raise ValueError(f"Language editions differ in {key}.")
+    result = {
+        "scope": "Offline bilingual documentation checks only; no Azure execution.",
+        "default_language": RELEASE["default_language"],
+        "languages": languages,
+    }
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return result
 
 
 if __name__ == "__main__":
-    check()
+    report = check()
+    target = ROOT / RELEASE["documentation_validation"] / "structure.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

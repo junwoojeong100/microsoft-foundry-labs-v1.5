@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="610" viewBox="0 0 1080 610" role="img" aria-labelledby="title desc">
+  <title id="title">Contoso lab architecture</title>
+  <desc id="desc">A Prompt or Hosted Agent responds to a user with a Foundry model, policy retrieval, inventory lookup, and purchase-draft tools. No real ordering system is connected. A business system and human approval are required separately. Evaluation, tracing, permissions, and safety controls apply throughout.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#487488" stroke-width="1.3"/></marker>
+    <style>text{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;fill:#15364b}.title{font-weight:700;font-size:18px}.sub{font-size:13px;fill:#4b6679}.small{font-size:12px;fill:#4b6679}.line{stroke:#487488;stroke-width:2;fill:none;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1080" height="610" rx="20" fill="#f8fbfc"/>
+  <text x="40" y="43" font-size="13" fill="#007568" font-weight="700" letter-spacing="2">ONE SCENARIO / END-TO-END</text>
+  <text x="40" y="81" font-size="28" font-weight="750">Answer with evidence. Check with tools. Stop at a draft.</text>
+  <rect x="260" y="114" width="546" height="355" rx="18" fill="#edf5f7" stroke="#c3d8e0" stroke-dasharray="6 5"/>
+  <text x="284" y="141" class="small" font-weight="700">MICROSOFT FOUNDRY</text>
+  <rect x="39" y="233" width="165" height="112" rx="13" fill="#fff" stroke="#c9dbe3"/>
+  <text x="61" y="268" class="title">User</text><text x="61" y="295" class="sub">Policy + inventory</text><text x="61" y="319" class="sub">Purchase draft</text>
+  <path d="M204 290H290" class="line"/>
+  <rect x="290" y="220" width="215" height="141" rx="14" fill="#133950"/>
+  <text x="309" y="256" style="fill:#fff" class="title">Contoso Agent</text>
+  <text x="305" y="286" style="fill:#c5e1eb" class="sub">Instructions + conversation</text>
+  <text x="305" y="313" style="fill:#b0ebd3" class="sub">Prompt → Hosted extension</text>
+  <text x="305" y="339" style="fill:#c5e1eb" class="small">Model suggestion ≠ approval</text>
+  <rect x="566" y="166" width="212" height="83" rx="12" fill="#fff" stroke="#bed3dc"/>
+  <text x="586" y="197" class="title">Foundry Models</text><text x="580" y="226" class="sub">Reason, select tools, respond</text>
+  <path d="M505 258H535V207H566" class="line"/>
+  <rect x="566" y="275" width="212" height="82" rx="12" fill="#fff" stroke="#bed3dc"/>
+  <text x="580" y="305" class="title">Policy + evidence</text><text x="580" y="334" class="sub">File search → Search / IQ</text>
+  <path d="M505 296H566" class="line"/>
+  <rect x="566" y="383" width="212" height="61" rx="12" fill="#e2f3e9" stroke="#afd8c2"/>
+  <text x="586" y="409" font-size="16" font-weight="700">Tools / Toolbox</text><text x="586" y="431" class="small">Functions · MCP · OpenAPI</text>
+  <path d="M505 331H535V413H566" class="line"/>
+  <rect x="852" y="165" width="190" height="81" rx="12" fill="#fff" stroke="#bfd9df"/>
+  <text x="866" y="196" class="title">Inventory lookup</text><text x="866" y="225" class="sub">Synthetic CSV · read-only</text>
+  <rect x="852" y="272" width="190" height="94" rx="12" fill="#fff" stroke="#bfd9df"/>
+  <text x="866" y="305" class="title">Purchase draft</text><text x="866" y="333" class="sub">Validate, price, approvers</text><text x="866" y="354" class="small">No real orders or payments</text>
+  <path d="M778 412H821V206H852" class="line"/>
+  <path d="M821 320H852" class="line"/>
+  <rect x="852" y="391" width="190" height="77" rx="12" fill="#fff4dc" stroke="#dfcc98"/>
+  <text x="865" y="422" font-size="15" font-weight="700">People + business apps</text><text x="865" y="449" class="small">Separate approval · not linked</text>
+  <rect x="39" y="502" width="1003" height="75" rx="13" fill="#e8f1f5" stroke="#c3d7e1"/>
+  <text x="64" y="533" font-size="17" font-weight="700">Across the entire lifecycle</text>
+  <text x="64" y="559" class="sub">Evaluation · Tracing · Guardrails · Entra / RBAC · Data permissions · Cost · Versions · Cleanup</text>
+  <text x="808" y="533" font-size="13" fill="#006f70">Build → Evaluate → Operate</text>
+</svg>

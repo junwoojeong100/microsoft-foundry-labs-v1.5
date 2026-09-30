@@ -1,6 +1,7 @@
 (() => {
   "use strict";
   const data = JSON.parse(document.getElementById("guide-data").textContent);
+  const ui = JSON.parse(document.getElementById("guide-ui").textContent);
   const pageMap = new Map(data.map(page => [page.id, page]));
   const labs = data.filter(page => page.track !== "reference");
   const key = "foundry-lab-guide-20260929";
@@ -52,8 +53,8 @@
   function setTheme() {
     document.documentElement.dataset.theme = state.theme;
     const button = document.getElementById("theme-toggle");
-    button.textContent = state.theme === "dark" ? "밝게" : "어둡게";
-    button.setAttribute("aria-label", state.theme === "dark" ? "밝은 화면으로 전환" : "어두운 화면으로 전환");
+    button.textContent = state.theme === "dark" ? ui.light : ui.dark;
+    button.setAttribute("aria-label", state.theme === "dark" ? ui.light_aria : ui.dark_aria);
   }
 
   function progress() {
@@ -63,7 +64,7 @@
     document.querySelectorAll("[data-complete]").forEach(button => {
       const finished = done.has(button.dataset.complete);
       button.setAttribute("aria-pressed", String(finished));
-      button.querySelector(".complete-label").textContent = finished ? "확인 완료 · 다시 누르면 해제" : "성공 기준을 확인했어요";
+      button.querySelector(".complete-label").textContent = finished ? ui.completed : ui.complete;
     });
     document.querySelectorAll(".chapter-link").forEach(link => link.classList.toggle("done", done.has(link.dataset.chapter)));
   }
@@ -97,7 +98,7 @@
     } catch (error) {
       if (!(error instanceof URIError)) throw error;
       hash = "";
-      notify("올바르지 않은 주소 조각입니다. 시작 모듈로 이동했습니다.");
+      notify(ui.invalid_hash);
     }
     const target = document.getElementById(hash);
     const article = target && (target.matches(".chapter") ? target : target.closest(".chapter"));
@@ -118,7 +119,10 @@
       else link.removeAttribute("aria-current");
     });
     closeMenu();
-    document.title = `${pageMap.get(id).title} | Microsoft Foundry 실습 가이드`;
+    document.title = `${pageMap.get(id).title} | ${ui.title}`;
+    document.querySelectorAll("[data-language]").forEach(link => {
+      link.setAttribute("href", `${link.getAttribute("href").split("#")[0]}#${id}`);
+    });
     if (focus) {
       const heading = document.getElementById(`${id}-title`);
       if (target && target !== article) {
@@ -146,14 +150,14 @@
     results.hidden = false;
     list.replaceChildren();
     document.getElementById("search-count").textContent = matched.length
-      ? `선택한 학습 경로에서 ${matched.length}개 모듈을 찾았습니다.`
-      : "일치하는 모듈이 없습니다. 검색어를 줄이거나 학습 경로를 전체로 바꿔보세요.";
+      ? ui.search_found.replace("{count}", matched.length)
+      : ui.search_empty;
     matched.forEach(page => {
       const link = document.createElement("a");
       link.className = "search-result";
       link.href = `#${page.id}`;
       const label = document.createElement("small");
-      label.textContent = page.track === "reference" ? `참고 ${page.number}` : `LAB ${page.number}`;
+      label.textContent = page.track === "reference" ? `${ui.reference} ${page.number}` : `LAB ${page.number}`;
       const title = document.createElement("strong");
       title.textContent = page.title;
       const snippet = document.createElement("p");
@@ -203,20 +207,20 @@
     const button = document.createElement("button");
     button.type = "button";
     button.className = "copy-button";
-    button.textContent = "복사";
-    button.setAttribute("aria-label", "이 코드 블록 복사");
+    button.textContent = ui.copy;
+    button.setAttribute("aria-label", ui.copy_aria);
     button.addEventListener("click", async () => {
       try {
         if (!navigator.clipboard) throw new Error("ClipboardUnavailable");
         await navigator.clipboard.writeText(code.textContent);
-        notify("코드를 복사했습니다. 값과 비용 발생 여부를 확인한 뒤 실행하세요.");
+        notify(ui.copied);
       } catch (error) {
         const range = document.createRange();
         range.selectNodeContents(code);
         const selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(range);
-        notify("자동 복사가 제한되어 텍스트를 선택했습니다. Ctrl+C 또는 Command+C로 복사하세요.");
+        notify(ui.copy_fallback);
       }
     });
     pre.append(label, button);
@@ -227,7 +231,7 @@
     state.done = state.done.includes(id) ? state.done.filter(item => item !== id) : [...state.done, id];
     persist();
     progress();
-    notify("학습 진도를 저장했습니다. Azure 실행 여부는 별도 기록표에 남기세요.");
+    notify(ui.progress_saved);
   }));
   document.getElementById("theme-toggle").addEventListener("click", () => {
     state.theme = state.theme === "light" ? "dark" : "light";
@@ -235,11 +239,11 @@
     persist();
   });
   document.getElementById("reset-progress").addEventListener("click", () => {
-    if (!window.confirm("이 브라우저의 학습 체크만 초기화합니다. Azure 자원이나 파일은 삭제되지 않습니다. 초기화할까요?")) return;
+    if (!window.confirm(ui.reset_confirm)) return;
     state.done = [];
     persist();
     progress();
-    notify("이 브라우저의 학습 진도를 초기화했습니다.");
+    notify(ui.reset_done);
   });
   path.value = state.path;
   path.addEventListener("change", () => {
@@ -247,7 +251,7 @@
     persist();
     filterNavigation();
     if (search.value.trim()) runSearch();
-    else notify(state.path === "offline" ? "Azure 없이 가능한 일부 로컬·설계 단계를 모았습니다. 각 모듈의 실행 조건을 확인하세요." : "목차를 선택한 학습 경로로 표시했습니다.");
+    else notify(state.path === "offline" ? ui.offline_path : ui.path_selected);
   });
   search.addEventListener("input", runSearch);
   search.addEventListener("keydown", event => {
