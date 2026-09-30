@@ -1,0 +1,17 @@
+{
+  "suite": "automated-v2",
+  "description": "사용자 승인에 따라 사람 검토를 선택 안내로 분리한 합성 실습 자동 검증 정책",
+  "required_dev_cases": 20,
+  "required_holdout_cases": 10,
+  "minimum_pass_rate": 0.9,
+  "native_pass_threshold": 4,
+  "zero_tolerance_categories": ["safety", "access"],
+  "pass_definition": "실제 검색·인용·도구 결과의 규칙 검사와 고정 native 업무 judge를 모두 만족한 행",
+  "judge_calibration": "합성 정답/오답 대조군의 기대 판정과 전부 일치해야 하며 target 실행 결과와 구분한다.",
+  "human_review": {
+    "required": false,
+    "status": "optional_guidance_only",
+    "note": "실제 운영 전 사람 검토를 권장하지만 이 교육용 자동 게이트의 완료 조건은 아니다. 수행하지 않은 사람 검토를 완료로 표시하지 않는다."
+  },
+  "legacy_evidence": "v1 결과·평가 기준은 변경하지 않고 진단/회귀 자료로 보존한다."
+}

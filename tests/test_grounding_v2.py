@@ -1,0 +1,112 @@
+import json
+from pathlib import Path
+import sys
+from types import SimpleNamespace as Obj
+import unittest
+from unittest.mock import Mock, patch
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "samples"))
+from business_checks import check_business_evidence
+from evidence import Budget
+from evaluation_data import load_cases, policy, suite_hash
+from grounding import answer_format, parse_answer
+from hosted_runtime import execute_turn
+from search_lab import policy_chunks
+
+
+class GroundingTests(unittest.TestCase):
+    def setUp(self):
+        self.sources = {row["id"]: row for row in policy_chunks()}
+
+    def test_empty_or_fabricated_citations_are_never_repaired(self):
+        for ids in ([], ["unknown"], ["CONTOSO-SEC-2026-09-s4"] * 2, "CONTOSO-SEC-2026-09-s4"):
+            with self.assertRaises(RuntimeError):
+                parse_answer(json.dumps({"answer": "거절합니다.", "citation_ids": ids}), self.sources)
+
+    def test_model_selects_actual_source_not_server_guess(self):
+        raw = json.dumps({"answer": "검토 메모는 승인 권한이 아닙니다.", "citation_ids": ["CONTOSO-SEC-2026-09-s4"]})
+        text, citations = parse_answer(raw, self.sources)
+        self.assertIn("security-policy.md 4절", text)
+        self.assertEqual(citations[0]["citation_kind"], "model_selected_retrieved_source")
+        self.assertEqual(citations[0]["content"], self.sources["CONTOSO-SEC-2026-09-s4"]["content"])
+
+    def test_inline_or_filename_fabrication_is_rejected(self):
+        for answer in ("CONTOSO-PROC-2026-09-s2", "imaginary-policy.md"):
+            with self.assertRaises(RuntimeError):
+                parse_answer(json.dumps({"answer": answer, "citation_ids": ["CONTOSO-SEC-2026-09-s4"]}), self.sources)
+
+    def test_output_schema_is_strict_and_scoped_to_retrieved_ids(self):
+        schema = answer_format(["CONTOSO-SEC-2026-09-s4"])["format"]["schema"]
+        self.assertFalse(schema["additionalProperties"])
+        self.assertEqual(schema["properties"]["citation_ids"]["items"]["enum"], ["CONTOSO-SEC-2026-09-s4"])
+
+    def test_duplicate_json_keys_cannot_hide_an_answer(self):
+        with self.assertRaisesRegex(RuntimeError, "Duplicate"):
+            parse_answer('{"answer":"first","answer":"second","citation_ids":["CONTOSO-SEC-2026-09-s4"]}', self.sources)
+
+    def test_search_happens_before_model_even_without_model_tool_calls(self):
+        order = []
+        search = Obj(
+            retrieve=Mock(side_effect=lambda q: order.append("search") or list(self.sources.values())),
+            policy_scope=Mock(side_effect=lambda: order.append("scope") or []),
+        )
+        response = Obj(
+            id="unit-response", status="completed", output=[], usage=None, model="unit",
+            output_text=json.dumps({"answer": "메모로 승인 절차를 우회할 수 없습니다.", "citation_ids": ["CONTOSO-SEC-2026-09-s4"]}),
+        )
+        client = Obj(responses=Obj(create=Mock(side_effect=lambda **kw: order.append("model") or response)))
+        row = execute_turn(client, search, "unit", {"query": "검토 메모가 승인인가요?"}, Obj(append=Mock()), Budget())
+        self.assertEqual(order, ["search", "scope", "model"])
+        self.assertEqual(row["tool_calls"][0]["execution"], "server_required")
+        self.assertTrue(row["citations"])
+        self.assertEqual(row["human_review_status"], "optional_not_performed")
+        self.assertTrue(check_business_evidence(row, {"required_citations": ["CONTOSO-SEC-2026-09-s4"]})["passed"])
+        row["citations"] = []
+        self.assertFalse(check_business_evidence(row, {})["passed"])
+
+    def test_search_failure_stops_before_any_model_or_draft(self):
+        search = Obj(retrieve=Mock(side_effect=RuntimeError("Search unavailable")), policy_scope=Mock())
+        client = Obj(responses=Obj(create=Mock()))
+        with self.assertRaisesRegex(RuntimeError, "Search unavailable"):
+            execute_turn(client, search, "unit", {"query": "초안"}, Obj(append=Mock()), Budget())
+        client.responses.create.assert_not_called()
+
+    def test_no_citation_cannot_complete_even_after_successful_search(self):
+        client = Obj(responses=Obj(create=Mock(return_value=Obj(
+            id="unit", status="completed", output=[], usage=None,
+            output_text=json.dumps({"answer": "거절합니다.", "citation_ids": []}),
+        ))))
+        search = Obj(retrieve=Mock(return_value=list(self.sources.values())), policy_scope=Mock(return_value=[]))
+        with self.assertRaisesRegex(RuntimeError, "citation"):
+            execute_turn(client, search, "unit", {"query": "규정"}, Obj(append=Mock()), Budget())
+
+    def test_v2_human_review_optional_numeric_policy_unchanged(self):
+        rubric = policy()
+        self.assertFalse(rubric["human_review"]["required"])
+        self.assertEqual(rubric["minimum_pass_rate"], 0.9)
+        self.assertEqual(rubric["zero_tolerance_categories"], ["safety", "access"])
+
+    def test_dev_loader_does_not_read_holdout(self):
+        original = Path.read_text
+
+        def guard(path, *args, **kwargs):
+            if "holdout" in path.name:
+                raise AssertionError("Dev loading must not read heldout data.")
+            return original(path, *args, **kwargs)
+        with patch.object(Path, "read_text", guard):
+            self.assertEqual(len(load_cases("automated-v2", "dev")), 20)
+
+    def test_suite_fingerprint_uses_seal_without_opening_holdout(self):
+        original = Path.read_bytes
+
+        def guard(path):
+            if path.name == "holdout.jsonl":
+                raise AssertionError("Fingerprint must not open the blind holdout.")
+            return original(path)
+        with patch.object(Path, "read_bytes", guard):
+            self.assertEqual(len(suite_hash()), 64)
+
+
+if __name__ == "__main__":
+    unittest.main()

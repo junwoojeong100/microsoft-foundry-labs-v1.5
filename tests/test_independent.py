@@ -19,6 +19,7 @@ import optimizer_lab
 import search_lab
 import trace_lab
 import workshop
+from evaluation_data import DEFAULT_SUITE, load_cases
 from check_independence import check
 
 
@@ -175,7 +176,11 @@ class EvaluationContractTests(unittest.TestCase):
         request = optimizer_lab.payload("contoso", "1", "judge", "optimizer")["inputs"]
         self.assertNotIn("validation_dataset", request)
         ids = {r["criteria"][0]["name"] for r in request["train_dataset"]["items"]}
-        self.assertEqual(ids, {c["id"] for c in workshop.validate_data() if c["split"] == "dev"})
+        known_dev_sets = [
+            {c["id"] for c in workshop.validate_data() if c["split"] == "dev"},
+            {c["id"] for c in load_cases(DEFAULT_SUITE, "dev")},
+        ]
+        self.assertIn(ids, known_dev_sets, "Optimizer must use one complete dev suite, never a holdout or mixed subset.")
         self.assertEqual(request["options"]["max_candidates"], 2)
         self.assertIn("Contoso", request["options"]["optimization_config"]["system_prompt"])
 
@@ -188,23 +193,32 @@ class EvaluationContractTests(unittest.TestCase):
 
 
 class HostedTurnTests(unittest.TestCase):
+    def search(self):
+        return Obj(retrieve=Mock(return_value=search_lab.policy_chunks()), policy_scope=Mock(return_value=[]))
+
     def test_exact_tool_call_result_and_model_version(self):
         call = Obj(type="function_call", name="prepare_purchase_request", arguments='{"sku":"NB-14","quantity":2}', call_id="call_unit")
         call.model_dump = lambda **_: {"type": "function_call", "name": call.name, "arguments": call.arguments, "call_id": call.call_id}
         first = Obj(id="resp_unit1", status="completed", output=[call], usage=Obj(input_tokens=20, output_tokens=10))
-        final = Obj(id="resp_unit2", status="completed", output=[], output_text="초안이며 승인·주문은 하지 않았습니다.", usage=Obj(input_tokens=30, output_tokens=10), model="unit-model-version")
+        final = Obj(id="resp_unit2", status="completed", output=[], output_text=json.dumps({
+            "answer": "초안이며 승인·주문은 하지 않았습니다.", "citation_ids": ["CONTOSO-PROC-2026-09-s3"],
+        }), usage=Obj(input_tokens=30, output_tokens=10), model="unit-model-version")
         client = Obj(responses=Obj(create=Mock(side_effect=[first, final])))
         sink = Obj(append=Mock())
-        row = hosted_runtime.execute_turn(client, Mock(), "unit-model", {"query": "NB-14 2대 초안"}, sink, evidence.Budget())
+        row = hosted_runtime.execute_turn(client, self.search(), "unit-model", {"query": "NB-14 2대 초안"}, sink, evidence.Budget())
         self.assertEqual(row["model"], "unit-model-version")
-        self.assertEqual(row["tool_calls"][0]["call_id"], "call_unit")
-        self.assertFalse(row["tool_calls"][0]["output"]["result"]["order_submitted"])
+        self.assertEqual(row["tool_calls"][0]["execution"], "server_required")
+        draft = next(c for c in row["tool_calls"] if c["name"] == "prepare_purchase_request")
+        self.assertEqual(draft["call_id"], "call_unit")
+        self.assertFalse(draft["output"]["result"]["order_submitted"])
         self.assertEqual(row["input_tokens"], 50)
 
     def test_fabricated_citation_fails(self):
-        result = Obj(id="resp_unit", status="completed", output=[], output_text="CONTOSO-PROC-2026-09-s2", usage=None)
+        result = Obj(id="resp_unit", status="completed", output=[], output_text=json.dumps({
+            "answer": "unit test only", "citation_ids": ["CONTOSO-SEC-2026-09-s99"],
+        }), usage=None)
         with self.assertRaisesRegex(RuntimeError, "never retrieved"):
-            hosted_runtime.execute_turn(Obj(responses=Obj(create=Mock(return_value=result))), Mock(), "model",
+            hosted_runtime.execute_turn(Obj(responses=Obj(create=Mock(return_value=result))), self.search(), "model",
                                         {"query": "정책"}, Obj(append=Mock()), evidence.Budget())
 
 

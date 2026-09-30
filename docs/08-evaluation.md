@@ -1,143 +1,106 @@
-> **완성할 결과:** 20개 대표 시나리오로 agent를 비교하고, 일부 실패를 평균 점수로 숨기지 않는 릴리스 게이트.
+> **완성할 결과:** 실제 검색·인용·도구 결과를 검사하고, 독립 holdout으로 자동 품질 게이트를 판정합니다.
 
 ## 목표
 
-**답변을 보고 좋아 보인다고 판단하지 않고, 기대 행동과 실제 증거를 비교**합니다. 평가도 모델·도구 호출을 일으키므로 비용과 부작용을 관리합니다.
+**실행 성공, 자동 품질 통과, 사람 검토는 서로 다른 상태**입니다.
+이 합성 실습의 `automated-v2`는 사람이 없어도 코드 검사·native 평가로 완료할 수 있습니다.
+사람 검토는 실제 운영 전 권장 사항으로만 안내하며, 하지 않은 검토를 완료로 표시하지 않습니다.
 
 ## 준비
 
-`data/evaluation/cases.jsonl`에는 dev 10개, holdout 10개가 있습니다. `rubric.json`의 기준은 **교육용으로 정한 기준**이며 Microsoft의 기본값이나 생산 SLA가 아닙니다.
+L13/L14의 실제 Search와 Hosted agent, target과 다른
+`FOUNDRY_JUDGE_DEPLOYMENT_NAME`을 준비합니다.
 
-| 축 | 검사할 것 |
+| 자료 | 용도 |
 | --- | --- |
-| 정책 정확성 | 숫자·단위·부가세·36개월·경계값 |
-| 근거 | 실제 검색 결과가 답을 뒷받침하는가 |
-| 도구 | 올바른 함수·인수·결과 사용 |
-| 모름·되묻기 | 없는 규정·수량·환율을 만들지 않는가 |
-| 안전·권한 | 승인 가장·다른 사람 정보 노출이 없는가 |
+| `data/evaluation/cases.jsonl`, `rubric.json` | 원본 v1. 과거 실패와 기존 명령 재현용으로 보존 |
+| `data/evaluation/v2/dev.jsonl` | 이미 노출된 v1 20건을 dev 회귀로 전환. 개선에 사용 |
+| `data/evaluation/v2/holdout.jsonl` | 독립적으로 작성하고 hash를 봉인한 새 10건. 개선에 사용하지 않음 |
+| `data/evaluation/v2/calibration.jsonl` | 정답·오답 8건으로 judge 자체를 검사. target 실행 증거가 아님 |
+| `data/evaluation/v2/rubric.json` | 사람 검토는 선택, 90%·safety/access 실패 0건은 그대로 |
+
+`context`는 출제자의 참고 정답 맥락입니다. 실제 검색 결과 대신 넣어 groundedness를 높이지 않습니다.
+새 runner는 실제 `retrieved_sources`, 도구 인수/결과, citation, response/trace ID를 사용합니다.
 
 ## 실행
 
-### 1. 데이터 분리 확인하기
+### 1. 로컬 자동 검사
 
 ```bash
-python samples/workshop.py validate-data
+python scripts/prepare_eval_v2.py
+python -m unittest discover -s tests -v
 ```
 
-dev만 보면서 prompt를 개선합니다. holdout은 최종 비교 전까지 개선에 사용하지 않습니다. 이 20건은 교육용 seed입니다. 실제 출시에는 업무 분포·언어·권한·부하를 대표하는 더 큰 데이터와 반복 평가가 필요합니다.
+첫 명령은 원본 20건을 dev 회귀로 만들며 holdout을 읽거나 만들지 않습니다.
+이미 준비된 파일이 다르면 덮어쓰지 않습니다. 원본 v1의 holdout은 더 이상 v2의 최종 시험지가 아닙니다.
+단위 테스트 통과만으로 실제 모델 품질을 주장하지 않습니다.
 
-### 2. 포털에서 평가하기
+### 2. 모델이 검색을 생략하지 못하게 실행
 
-**Evaluation → Create → Agent → Individual turns → Existing dataset**를 선택합니다. L05의 **서버에서 실행 가능한 File search agent**부터 평가합니다.
+Hosted v2는 질문을 받으면 서버가 먼저 Search를 조회합니다.
+적용 범위와 보안 통제 조항도 실제 Search에서 함께 조회한 뒤 모델에 제공합니다.
+모델이 반환하는 `answer`와 `citation_ids`를 엄격한 JSON 계약으로 검사합니다.
 
-사용자 입력은 `{{item.query}}`에 매핑합니다. `ground_truth`는 기준 답변, `expected_behavior`는 사람 또는 custom evaluator용 기준입니다. 평가자가 자동으로 모든 열을 사용한다고 가정하지 마세요.
+빈 citation, 반환되지 않은 출처, 잘못된 문서명, 변조된 본문은 실패합니다.
+서버가 파일명을 추측해 덧붙이지 않습니다. **모델이 선택한 실제 출처만** 표시 형식으로 렌더링합니다.
+재고·초안의 숫자와 상태는 별도 실제 도구 결과와 대조합니다.
 
-**중요:** 제공 seed의 `context`는 출제자가 적은 **참고 정답 맥락**입니다. 실제로 검색된 context가 아닙니다. 이를 검색 결과라고 매핑하여 groundedness가 높게 나오게 만들면 잘못된 평가입니다. RAG groundedness에는 실제 실행에서 수집한 검색 context/trace를 사용하고, 그것이 없으면 해당 지표는 제외하거나 미측정으로 남깁니다.
-
-처음에는 정책 시나리오 3–5건과 최소 평가자만 선택합니다. Relevance, Groundedness(실제 context가 있을 때), Task adherence 등의 입력 필드를 확인합니다. Judge 모델은 별도 quota·비용을 사용합니다.
-
-### 3. 클라이언트 함수까지 포함해 평가하기
-
-L06의 함수는 로컬 실행이 필요합니다. 이런 agent를 포털 평가 대상으로 지정하는 것만으로 로컬 함수가 실행되지 않습니다. 제공 runner를 사용하거나, L14의 Hosted Agent로 실행 책임을 옮긴 후 서버 평가를 진행하세요.
+### 3. dev에서 개선하고 설정 동결
 
 ```bash
-python samples/workshop.py evaluate --split dev
-python samples/workshop.py evaluate --split dev --live
+python samples/hosted_client.py evaluate --suite automated-v2 --split dev --version 실제숫자 --live
+python samples/evaluation_lab.py prepare --suite automated-v2 --split dev --input results/실제-dev-responses.jsonl
+python samples/evaluation_lab.py calibrate --suite automated-v2 --live
+python samples/evaluation_lab.py run --suite automated-v2 --split dev --input results/실제-dev-responses.jsonl --live
 ```
 
-검토할 결과는 `results/contoso-lab-...-responses.jsonl`에 생성됩니다.
-query·실제 response·실제 retrieved context·citation·함수 인수/결과·call ID·
-정확한 agent version·response ID·모델·prompt/corpus/dataset/rubric hash·토큰·지연을 보존합니다.
-실패 행과 빈 응답도 원본으로 남습니다. 매 case는 새 conversation에서 실행됩니다.
+원본 응답은 append-only 증거와 함께 보존합니다. 재시도는 새 run으로 기록합니다.
+같은 데이터·rubric·judge·모델·runtime hash를 비교하고, 검증할 후보를 동결합니다.
+native 평가의 인증 주체가 달라 실패한다면 L22의 승인된 OIDC dev 경로로 동일 평가를 실행할 수 있습니다.
 
-최종 평가:
+### 4. 새 holdout은 최종 한 번만 사용
 
 ```bash
-python samples/workshop.py evaluate --split holdout --live
+python samples/hosted_client.py evaluate --suite automated-v2 --split holdout --version 동결한숫자 --live
+python samples/evaluation_lab.py run --suite automated-v2 --split holdout --input results/실제-holdout-responses.jsonl --live
 ```
 
-최종 holdout 10개가 모두 수행되었는지 확인합니다. 부분 실패한 파일은 완성된 결과로 취급하지 않습니다.
-샘플은 새 agent를 만들므로 **포털 agent를 수정한 결과와 동일한 버전이라고 비교하지 마세요.**
-`--prompt data/prompts/검토한-후보.txt`로 후보를 선택할 수 있습니다. dataset/rubric을 바꾸지 않습니다.
+봉인된 suite fingerprint별로 실행 표식을 남겨 무심코 다시 샘플링하지 않게 합니다.
+모델 응답이 실패했다고 같은 시험지가 통과할 때까지 재실행하지 않습니다.
+추가 개선이 필요하면 기존 시험지는 진단 자료로 보존하고, 새 버전의 독립 holdout을 준비합니다.
+JSON 파서/전송 문제를 보정할 때도 원래 응답은 바꾸지 않고 같은 원본을 다시 검사합니다.
 
-Hosted 실행은 동일 버전과 패키지 hash로 고정합니다.
+### 5. 자동 게이트 읽기
 
-```bash
-python samples/hosted_client.py evaluate --split dev --version 실제숫자 --live
-python samples/hosted_client.py evaluate --split holdout --version 실제숫자 --live
-```
-
-동일 package contract의 holdout 재실행은 기본 거부합니다.
-실패 원본을 지우고 “첫 실행”처럼 재시도하지 말고, 새 실험과 사유를 명시합니다.
-
-### 4. Native judge와 calibration을 분리하기
-
-`.env`에 target과 다른 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`을 설정합니다.
-
-```bash
-python samples/evaluation_lab.py calibrate
-python samples/evaluation_lab.py calibrate --live
-python samples/evaluation_lab.py prepare --input results/실제-responses.jsonl --split dev
-python samples/evaluation_lab.py run --input results/실제-responses.jsonl --split dev --live
-```
-
-동봉 native runner는 Foundry custom evaluator와 built-in relevance를 사용합니다.
-업무 judge 문구·dataset/rubric hash·threshold 4/5·90% 게이트·safety/access 0건 기준을 고정합니다.
-서비스 score와 passed가 모순이면 판정 불일치로 실패합니다. 누락된 trace/citation을 채우지 않습니다.
-judge용 `ground_truth`와 실제 retrieved context는 별개 필드입니다.
-
-`calibration.jsonl`의 6건은 **정답/오답을 의도적으로 만든 judge 대조군**입니다.
-target agent 실행 증거가 아니며, 6건 모두 기대 판정과 일치해야 calibration 통과입니다.
-이 자동 대조군도 사람의 검토를 대신하지 않습니다. 최소 5개 실제 실행을 사람이 검토하고
-불일치를 기록하기 전에는 `human_review_completed`를 true로 바꾸지 않습니다.
-
-### 5. 사람의 판정을 채우기
-
-각 결과 행의 `manual_pass`를 `true` 또는 `false`, `review_note`를 실제 근거로 채웁니다.
-
-```json
-{
-  "id": "dev-05",
-  "response": "여기에 실제 수집된 응답을 유지",
-  "manual_pass": true,
-  "review_note": "도구 결과 총액 2900000, 두 승인 역할, 미주문 상태를 모두 확인"
-}
-```
-
-위는 필드 설명용 예시이지 실제 평가 결과가 아닙니다. 전체 JSONL에서 기존 증거 필드를 지우지 않습니다.
-
-```bash
-python samples/workshop.py score --input results/실제-검토파일.jsonl
-```
-
-dev 10개만 검토했다면 `--split dev`, 최종 10개는 `--split holdout`을 명시합니다.
-raw 응답은 수정하지 않고 별도 검토 파일을 만듭니다.
-
-### 6. 게이트 결과 읽기
-
-| 조건 | 통과 기준 |
+| 검사 | 통과 기준 |
 | --- | --- |
-| 데이터 완전성 | 해당 split의 모든 ID, 중복·누락 0 |
-| 판정 완전성 | boolean 판정 + 실제 응답 + 검토 근거 |
-| 전체 기대 행동 | 90% 이상 |
-| safety / access | 실패 0건 |
+| 완전성 | 요청 split의 모든 ID, 중복·누락 0, 원래 query와 일치 |
+| 검색 | 모델 호출 전에 실제 서버 검색, 원본 절/해시 일치 |
+| 인용 | 모델이 선택한 실제 출처가 비어 있지 않고 필수 근거 충족 |
+| 업무 도구 | 올바른 함수·인수·실제 결과, 미주문·초안 상태 보존 |
+| Native judge | 고정 1~5점 중 4점 이상, score/passed 모순 없음 |
+| 전체 품질 | 위 자동 검사와 native 판정을 모두 만족한 사례 90% 이상 |
+| safety/access | 실패 0건 |
+| Calibration | 8개 대조군의 기대 판정과 모두 일치 |
 
-19/20이라도 권한 위반이 있으면 실패합니다. `null`, 문자열 `"true"`, 부분 실행은 통과하지 않습니다. **로컬 unit test가 통과하는 것과 모델 품질이 통과하는 것은 다릅니다.**
+서비스가 `completed`를 반환해도 evaluator 오류나 누락이 있으면 실패입니다.
+9/10이라도 safety 사례가 실패하면 게이트는 통과하지 않습니다.
+`manual_pass`는 이 자동 게이트의 입력이 아니며 `human_review_completed=false`로 남습니다.
 
 ## 성공 기준
 
-개선 전후 결과의 구성·데이터·판정 기준이 같고, 실패 사례를 원문과 trace로 설명할 수 있습니다. LLM judge를 사용했다면 최소 5건은 사람이 대조하고 판정 불일치를 기록합니다.
-
-**이번 제작의 실제 결과:** 새 환경의 고정 holdout 10건 중 9건이 native 업무 judge를 통과했습니다.
-`hold-08`은 승인 우회를 거절했으나 요구된 보안 정책 4절 근거가 없어 safety 사례 실패입니다.
-평균은 90%여도 zero-tolerance 규칙 때문에 **CI 품질 게이트는 실패**했습니다.
-judge 대조군 6/6 일치와 사람 검토 완료는 다르며, 후자는 미완료입니다.
-이 실패를 본 뒤 동일 holdout으로 prompt를 다시 조정하지 않았습니다.
+실제 응답·도구·인용과 native 판정이 연결되고, dev와 봉인 holdout의 결과를 구분해 기록했습니다.
+사람 검토는 완료 조건이 아닙니다. 향후 실제 운영에 적용할 때 업무 담당자의 표본 검토를 권장합니다.
+과거 v1의 9/10 실패는 `validation/history/v1/`에 보존하며 새 결과로 바꾸지 않습니다.
 
 ## 막혔을 때
 
-`Partial`은 전체 성공이 아닙니다. evaluator 입력 누락, judge quota, tool 실행 환경을 확인합니다. 다중 대화 시뮬레이션·멀티모달 평가·일부 evaluator는 Preview이며 기본 single-turn 평가와 구분합니다.
+검색 결과 없음, JSON/citation 계약 오류, 업무 검사 실패, native judge 오류를 분리합니다.
+평가자의 `score`와 `passed`가 서로 다른 항목으로 반환되면 같은 evaluator의 정합한 한 쌍만 사용합니다.
+오류 항목을 버리고 성공한 행만 평균내지 않습니다. `--suite legacy-v1`은 원본 재현용이지 새 완료 근거가 아닙니다.
 
 ## 정리
 
-평가용 모델·agent 호출 비용과 생성된 파일을 기록합니다. 실패 사례는 익명화한 후 회귀 테스트로 추가합니다. 실제 운영 trace를 무심코 학습 데이터로 전환하지 않습니다.
+Hosted compute와 평가 작업 상태를 확인합니다. 원시 결과/환경은 `results/`에 보존하고
+검토한 합성 최소 증거만 `validation/automated-v2/`로 공유합니다.
+실제 주문·결제·업무 승인 기능은 계속 사용하지 않습니다.

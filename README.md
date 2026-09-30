@@ -20,10 +20,15 @@ GitHub 또는 텍스트로 읽을 때는 **[`GUIDE.ko.md`](GUIDE.ko.md)** 를 �
 설치·학습·실행·빌드·패키징·CI에서 clone/접근/다운로드하지 않습니다.
 출처·라이선스는 [`THIRD_PARTY_NOTICES`](THIRD_PARTY_NOTICES)에 보존합니다.
 
-**실제 검증 결과:** 새 Azure RG에서 Hosted·Search/IQ·도구·Memory·A2A·평가·Tracing과
+**보존된 v1 검증 결과:** 새 Azure RG에서 Hosted·Search/IQ·도구·Memory·A2A·평가·Tracing과
 [OIDC 배포·업무 검사](https://github.com/junwoojeong100/foundry-labs-v1.5/actions/runs/36649656044)를 수행했습니다.
 최종 holdout은 **9/10이나 safety 사례의 필수 인용 누락으로 품질 게이트 미통과**입니다.
 실행 성공과 릴리스 품질을 구분하며, Routine history 미확인·optimizer 신규 후보 0도 그대로 기록했습니다.
+
+**현재 자동 검증은 `automated-v2`입니다.** 검색을 서버가 먼저 실행하고, 모델이 선택한 실제 인용·도구 결과를
+코드로 검사합니다. 노출된 v1 20건은 dev 회귀로 보존하고 별도 봉인 holdout 10건을 사용합니다.
+사람 검토는 운영 전 권장 안내이며 이 합성 실습의 자동 완료 조건이 아닙니다.
+기존 90%·safety/access 실패 0건 기준과 과거 실패 결과는 유지합니다.
 
 | 학습 경로 | 범위 |
 | --- | --- |
@@ -77,6 +82,8 @@ Windows PowerShell에서는 `py -3 -m venv .venv` 후 `.venv\Scripts\python.exe`
 | `scripts/` | 재생성·문서 검사·출처 링크 확인 |
 | `tests/` | 로컬 계약·오류 경로·평가 게이트 회귀 테스트 |
 | `validation/current/` | 현재 구현/실행/품질/차단/미실행 구분 |
+| `validation/automated-v2/` | v2 자동 검사·native 평가·CI 및 합성 최소 응답 |
+| `validation/history/v1/` | 공개된 이전 v1 검증 결과의 불변 사본 |
 | `validation/`의 기존 파일 | 2026-09-29 과거 검증 원본, 수정하지 않음 |
 
 심화 실행 순서는 **L13 Search/IQ → L14 Hosted → L07 Toolbox → L15 A2A → L16 Memory → L17 Routine → L08 평가 → L10 Trace → L22 CI**입니다.

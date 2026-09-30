@@ -1,0 +1,15 @@
+{
+  "schema": "contoso-evaluation-manifest-v2",
+  "suite": "automated-v2",
+  "rows": 10,
+  "sha256": "874f63405019bb904abeddcba32f876d7de3755c17483110b40d318c20c0a56a",
+  "created_at": "2026-09-30T01:46:57Z",
+  "source_sha256": {
+    "data/policies/expense-policy.md": "4390dd5eb7c13bddcc976e3bf7854c575cb649765c1fc71b8998ffc4bbfaff7d",
+    "data/policies/procurement-policy.md": "1f8afa650915dd5eb0012dd9e221de9b3c3774cc9a11ab336df4e12db8fbcdff",
+    "data/policies/security-policy.md": "4e5dc54c906538a3f611710ff36613355ce754d6f434cd1e9f5a9a0cdf304f48",
+    "data/inventory.csv": "4ddcf1477913a51bcf9e364d6b57e23b50ead3195608012e1edeb9e5d02dde6e"
+  },
+  "authoring_method": "independent assistant context; synthetic; not human reviewed",
+  "sealed": true
+}

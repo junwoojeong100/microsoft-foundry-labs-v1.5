@@ -1,0 +1,7 @@
+{
+  "input_rows": 10,
+  "correlated_rows": 10,
+  "missing_case_ids": [],
+  "model_response_spans_observed": 10,
+  "request_trace_ids_observed": 10
+}

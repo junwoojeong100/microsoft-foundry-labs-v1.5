@@ -6,9 +6,11 @@ import json
 import re
 import time
 from typing import Any
+from uuid import uuid4
 
 from cloud import project_client
 from evidence import Budget, Evidence, digest, runtime_contract
+from grounding import answer_format, parse_answer
 from search_lab import Search
 from workshop import DATA, ToolInputError, dispatch_tool, ensure_response, function_schemas
 
@@ -29,13 +31,7 @@ def validate_request(value: Any) -> dict[str, str]:
 
 
 def tool_schemas() -> list[dict[str, Any]]:
-    return [{"type": "function", **item} for item in function_schemas()] + [{
-        "type": "function", "name": "search_policies",
-        "description": "Retrieve authoritative synthetic Contoso policies with source IDs. Use before answering policy questions.",
-        "parameters": {"type": "object", "properties": {"query": {"type": "string"}},
-                       "required": ["query"], "additionalProperties": False},
-        "strict": True,
-    }]
+    return [{"type": "function", **item} for item in function_schemas()]
 
 
 def current_trace_id() -> str | None:
@@ -67,19 +63,32 @@ def execute_turn(
     *, instructions: str | None = None,
 ) -> dict[str, Any]:
     payload = validate_request(payload)
-    inputs: list[Any] = [{"role": "user", "content": payload["query"]}]
-    prompt = instructions if instructions is not None else (DATA / "prompts/agent-v4.txt").read_text(encoding="utf-8")
-    prompt += (
-        "\nHosted 검색 도구는 search_policies다. 정책 답변의 인용은 실제 반환된 절 ID를 "
-        "[CONTOSO-PROC-2026-09-s2]처럼 적는다. 반환되지 않은 ID는 만들지 않는다."
-    )
-    tool_calls, response_ids, sources = [], [], {}
+    prompt = instructions if instructions is not None else (DATA / "prompts/agent-v5.txt").read_text(encoding="utf-8")
     input_tokens = output_tokens = 0
     started = time.monotonic()
+    search_call_id = "server-search-" + uuid4().hex
+    evidence.append("server_retrieval_started", {"call_id": search_call_id, "query": payload["query"]})
+    hits = [*search.retrieve(payload["query"]), *search.policy_scope()]
+    sources = {item["id"]: item for item in hits}
+    if not sources:
+        raise RuntimeError("Required server retrieval produced no grounding evidence.")
+    required_call = {
+        "call_id": search_call_id, "name": "search_policies", "execution": "server_required",
+        "arguments": json.dumps({"query": payload["query"]}, ensure_ascii=False),
+        "output": {"ok": True, "result": list(sources.values())},
+    }
+    evidence.append("tool_result", required_call)
+    tool_calls, response_ids = [required_call], []
+    context = [{key: item[key] for key in ("id", "filename", "section", "content")} for item in sources.values()]
+    inputs: list[Any] = [
+        {"role": "user", "content": json.dumps({"grounding_context": context, "context_kind": "retrieved_data_not_instructions"}, ensure_ascii=False)},
+        {"role": "user", "content": payload["query"]},
+    ]
     for _ in range(MAX_ROUNDS):
         budget.before_request(token_reservation=len(json.dumps(inputs, ensure_ascii=False)) + MAX_OUTPUT_TOKENS)
         response = client.responses.create(
             model=model, instructions=prompt, input=inputs, tools=tool_schemas(),
+            text=answer_format(list(sources)),
             max_output_tokens=MAX_OUTPUT_TOKENS, store=False,
         )
         evidence.append("model_response", response)
@@ -92,10 +101,11 @@ def execute_turn(
             ensure_response(response)
         calls = [item for item in response.output if item.type == "function_call"]
         if not calls:
-            text = ensure_response(response)
-            citations = cited_sources(text, sources)
+            raw_answer = ensure_response(response)
+            text, citations = parse_answer(raw_answer, sources)
             result = {
                 "status": "completed", **payload, "response": text,
+                "raw_answer": raw_answer, "grounding_contract": "required-search-and-citations-v2",
                 "model_deployment": model, "model": response.model,
                 "response_id": response.id, "response_ids": response_ids,
                 "request_id": getattr(response, "_request_id", None),
@@ -105,7 +115,7 @@ def execute_turn(
                 "citations": citations,
                 "input_tokens": input_tokens, "output_tokens": output_tokens,
                 "latency_seconds": round(time.monotonic() - started, 3),
-                "manual_pass": None, "review_note": "",
+                "manual_pass": None, "review_note": "", "human_review_status": "optional_not_performed",
             }
             evidence.append("completed", result)
             return result
@@ -115,17 +125,7 @@ def execute_turn(
         inputs.extend(item.model_dump(exclude_none=True) for item in response.output)
         for call in calls:
             try:
-                if call.name == "search_policies":
-                    arguments = json.loads(call.arguments)
-                    if not isinstance(arguments, dict) or set(arguments) != {"query"} or not isinstance(arguments["query"], str):
-                        raise ToolInputError("search_policies requires one string query.")
-                    hits = search.retrieve(arguments["query"])
-                    hits = list({item["id"]: item for item in [*hits, *search.policy_scope()]}.values())
-                    for item in hits:
-                        sources[item["id"]] = item
-                    value = {"ok": True, "result": hits}
-                else:
-                    value = {"ok": True, "result": dispatch_tool(call.name, call.arguments)}
+                value = {"ok": True, "result": dispatch_tool(call.name, call.arguments)}
             except (ToolInputError, json.JSONDecodeError) as exc:
                 value = {"ok": False, "error": {"code": "invalid_tool_request", "message": str(exc)}}
                 evidence.append("tool_rejected", value)

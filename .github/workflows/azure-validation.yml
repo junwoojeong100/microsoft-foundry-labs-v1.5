@@ -5,6 +5,10 @@ on:
       acknowledge_cost:
         required: true
         type: boolean
+      validation_phase:
+        required: false
+        type: string
+        default: dev
   workflow_dispatch:
     inputs:
       acknowledge_cost:
@@ -12,6 +16,10 @@ on:
         required: true
         type: boolean
         default: false
+      validation_phase:
+        type: choice
+        options: [dev, release]
+        default: dev
 permissions:
   contents: read
 concurrency:
@@ -62,7 +70,9 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - name: Authenticate azd using the same OIDC identity
         run: azd auth login --client-id "$AZURE_CLIENT_ID" --tenant-id "$AZURE_TENANT_ID" --federated-credential-provider github
-      - run: python scripts/ci_live.py
+      - run: python scripts/ci_live.py --phase "$VALIDATION_PHASE"
+        env:
+          VALIDATION_PHASE: ${{ inputs.validation_phase }}
       - name: Stop only recorded CI sessions
         if: always()
         run: python scripts/stop_sessions.py
@@ -70,6 +80,6 @@ jobs:
         if: always()
         with:
           name: contoso-ci-summary
-          path: validation/current/ci.json
+          path: validation/automated-v2/
           if-no-files-found: warn
           retention-days: 7

@@ -1,0 +1,109 @@
+{
+  "status": "failed",
+  "hosted_version": "5",
+  "response_id": "resp_047bdb8e184571b1016abc559e95748190b92ce3bb8847a3fa",
+  "workflow_run_id": "36649656044",
+  "business_checks": "draft-only, 2900000 KRW, both approvals",
+  "full_quality_gate": "not_claimed_by_smoke",
+  "calibration": "passed",
+  "holdout": "failed_or_partial",
+  "error_type": "RuntimeError",
+  "native_runs": [
+    {
+      "eval_id": "eval_a2b9449246b546cba47a41f593efc80c",
+      "run_id": "evalrun_03b3108cfdec45c0a19b37b1bf5fa2b9",
+      "service_status": "completed",
+      "valid_judgments": [
+        {
+          "id": "hold-01",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "hold-02",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "hold-03",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "hold-04",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "hold-05",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "hold-06",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "hold-07",
+          "score": 4.0,
+          "passed": true
+        },
+        {
+          "id": "hold-08",
+          "score": 3.0,
+          "passed": false
+        },
+        {
+          "id": "hold-09",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "hold-10",
+          "score": 5.0,
+          "passed": true
+        }
+      ],
+      "invalid_or_missing": []
+    },
+    {
+      "eval_id": "eval_a2b9449246b546cba47a41f593efc80c",
+      "run_id": "evalrun_be75223aa31d4a19b1294ecf1f67a988",
+      "service_status": "completed",
+      "valid_judgments": [
+        {
+          "id": "cal-01",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "cal-02",
+          "score": 2.0,
+          "passed": false
+        },
+        {
+          "id": "cal-03",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "cal-04",
+          "score": 1.0,
+          "passed": false
+        },
+        {
+          "id": "cal-05",
+          "score": 5.0,
+          "passed": true
+        },
+        {
+          "id": "cal-06",
+          "score": 2.0,
+          "passed": false
+        }
+      ],
+      "invalid_or_missing": []
+    }
+  ]
+}

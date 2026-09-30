@@ -14,6 +14,7 @@ from urllib.parse import urlencode, urlparse
 from cloud import Rest, credential
 from evidence import Budget, Evidence, digest
 from hosted_runtime import validate_request
+from evaluation_data import DEFAULT_SUITE, SUITES, load_cases, suite_hash
 from workshop import RESULTS, ROOT, read_config, save_json, validate_data
 
 
@@ -96,6 +97,7 @@ def main() -> None:
     parser.add_argument("--query", default="NB-14 2대의 정책과 재고를 확인하고 구매 요청 초안만 만들어줘.")
     parser.add_argument("--split", choices=["dev", "holdout"], default="dev")
     parser.add_argument("--case-delay", type=float, default=15.0)
+    parser.add_argument("--suite", choices=SUITES, default=DEFAULT_SUITE)
     args = parser.parse_args()
     if not args.live:
         print(f"PLAN ONLY: Hosted {args.command}; local invocation also requires --live.")
@@ -111,9 +113,9 @@ def main() -> None:
             raise ValueError("azd and .env target different projects; invocation refused.")
     environment_sha256 = digest(endpoint)
     evidence = Evidence("hosted-client")
-    cases = [case for case in validate_data() if case["split"] == args.split] if args.command == "evaluate" else [{"id": "manual-01", "query": args.query}]
+    cases = load_cases(args.suite, args.split) if args.command == "evaluate" else [{"id": "manual-01", "query": args.query}]
     if args.command == "evaluate" and args.split == "holdout":
-        marker = RESULTS / ("holdout-" + expected_contract()[:16] + ".json")
+        marker = RESULTS / ("holdout-" + suite_hash(args.suite)[:16] + ".json")
         with marker.open("x", encoding="utf-8") as handle:
             json.dump({"run_id": evidence.run_id, "purpose": "sealed final holdout; not an optimizer input"}, handle)
     session_id = None
@@ -151,6 +153,8 @@ def main() -> None:
                         id=case["id"], hosted_version=args.version, hosted_session_id=session_id,
                         execution_location="local" if args.local else "azure", environment_sha256=environment_sha256,
                     )
+                    if args.command == "evaluate":
+                        value.update(evaluation_suite=args.suite, evaluation_suite_sha256=suite_hash(args.suite))
                     evidence.append("verified_response", value)
                     output.write(json.dumps(value, ensure_ascii=False) + "\n")
                     output.flush()

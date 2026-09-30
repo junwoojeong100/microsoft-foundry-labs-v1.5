@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import redacted
 from evaluation_lab import prepare_rows
+from evaluation_data import DEFAULT_SUITE, SUITES
 from workshop import load_jsonl
 
 FIELDS = {
@@ -18,6 +19,7 @@ FIELDS = {
     "input_tokens", "output_tokens", "latency_seconds", "hosted_version", "contract",
     "effective_prompt_sha256", "manual_pass", "review_note",
     "environment_sha256", "execution_location",
+    "raw_answer", "grounding_contract", "human_review_status", "evaluation_suite", "evaluation_suite_sha256",
 }
 
 
@@ -25,9 +27,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--split", choices=["dev", "holdout"], required=True)
+    parser.add_argument("--suite", choices=SUITES, default=DEFAULT_SUITE)
     args = parser.parse_args()
-    prepare_rows(args.input, args.split)
-    target = ROOT / "validation/current" / (args.split + "-responses.jsonl")
+    prepare_rows(args.input, args.split, args.suite)
+    folder = ROOT / "validation" / ("current" if args.suite == "legacy-v1" else args.suite)
+    folder.mkdir(parents=True, exist_ok=True)
+    target = folder / (args.split + "-responses.jsonl")
     if target.exists():
         raise ValueError("Shared evidence already exists; preserve it instead of overwriting.")
     rows = [{key: value for key, value in row.items() if key in FIELDS} for row in load_jsonl(args.input)]

@@ -1,18 +1,11 @@
 {
   "edition": "2026-09-30",
   "scenario": "Contoso",
-  "status": "automated_v2_verification_in_progress",
-  "validation_policy": {
-    "active_suite": "automated-v2",
-    "human_review_required": false,
-    "human_review_status": "optional_guidance_only",
-    "legacy_snapshot": "validation/history/v1/",
-    "v2_status": "local_grounding_regressions_passed_cloud_suite_pending"
-  },
+  "status": "implementation_and_live_validation_complete_quality_gate_failed",
   "implementation": "implemented",
   "local_execution": "passed",
   "azure_execution": "executed_in_new_owned_resource_group",
-  "quality": "v2_not_yet_evaluated",
+  "quality": "failed_fixed_holdout_gate",
   "repository": {
     "name": "junwoojeong100/foundry-labs-v1.5",
     "visibility": "private",
@@ -70,7 +63,6 @@
     "actual_orders_payments_approvals": 0
   },
   "quality_results": {
-    "suite": "legacy-v1",
     "dev_execution_rows": 10,
     "holdout_execution_rows": 10,
     "holdout_native_judgments": 10,
@@ -88,7 +80,7 @@
     "details": "validation/current/quality.json"
   },
   "blocked_or_unexecuted": [
-    "Legacy v1 failed hold-08; automated-v2 validation is in progress. Human review is now optional guidance only; no main merge or production promotion",
+    "Quality release blocked by hold-08 and pending human review; no main merge or production promotion",
     "Routine scheduled execution is unverified: no run history/output; manual dispatch acceptance is not task completion",
     "Native optimizer produced no changed full candidate and reported reflection failures; no optimizer improvement claimed",
     "Voice, CU service calls, model fine-tuning, Foundry Local device inference, document ACL and Teams publishing were not executed"

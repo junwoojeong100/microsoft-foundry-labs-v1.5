@@ -42,7 +42,8 @@ def build() -> dict:
         ROOT / "data/prompts/agent-v2.txt",
         ROOT / "data/prompts/agent-v3.txt",
         ROOT / "data/prompts/agent-v4.txt",
-        *[ROOT / "samples" / name for name in ("workshop.py", "evidence.py", "cloud.py", "search_lab.py", "hosted_runtime.py")],
+        ROOT / "data/prompts/agent-v5.txt",
+        *[ROOT / "samples" / name for name in ("workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "hosted_runtime.py")],
         ROOT / "requirements-hosted.txt", ROOT / "THIRD_PARTY_NOTICES",
     ]
     TARGET.mkdir(parents=True, exist_ok=True)
@@ -72,7 +73,7 @@ def build() -> dict:
     baseline = TARGET / ".agent_configs/baseline"
     baseline.mkdir(parents=True, exist_ok=True)
     (baseline / "metadata.yaml").write_text(f"model: {json.dumps(model)}\ninstruction_file: instructions.md\n")
-    shutil.copy2(ROOT / "data/prompts/agent-v4.txt", baseline / "instructions.md")
+    shutil.copy2(ROOT / "data/prompts/agent-v5.txt", baseline / "instructions.md")
     entries = {
         path.relative_to(TARGET).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sorted(TARGET.rglob("*")) if path.is_file() and path.name != "package-manifest.json"

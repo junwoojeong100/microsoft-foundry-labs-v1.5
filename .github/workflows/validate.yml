@@ -9,6 +9,11 @@ on:
         required: false
         type: boolean
         default: false
+      validation_phase:
+        description: "dev never invokes holdout; release uses the sealed holdout only after dev approval"
+        type: choice
+        options: [dev, release]
+        default: dev
 permissions:
   contents: read
 jobs:
@@ -21,6 +26,7 @@ jobs:
     uses: ./.github/workflows/azure-validation.yml
     with:
       acknowledge_cost: true
+      validation_phase: ${{ inputs.validation_phase }}
   offline:
     runs-on: ubuntu-latest
     steps:

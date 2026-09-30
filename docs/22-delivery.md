@@ -31,10 +31,10 @@ L08의 평가 게이트, L14의 hosted 프로젝트 또는 버전 관리되는 p
 ```bash
 python -m unittest discover -s tests -v
 python samples/workshop.py validate-data
-python samples/workshop.py score --input results/실제-검토파일.jsonl
+python samples/evaluation_lab.py prepare --suite automated-v2 --split dev --input results/실제-dev-responses.jsonl
 ```
 
-마지막 명령은 실제로 검토한 20건이 있을 때 실행합니다. dummy 응답으로 통과 파일을 만들어 출시 근거로 사용하지 않습니다.
+마지막 명령은 실제 v2 dev 응답 20건이 있을 때 실행합니다. dummy 응답이나 수동 판정값으로 자동 게이트를 대신하지 않습니다.
 
 이 폴더의 `.github/workflows/validate.yml`은 문서와 로컬 테스트만 검사합니다. **Azure 배포·유료 추론을 자동 실행하지 않습니다.**
 
@@ -64,7 +64,9 @@ Environment variables는 workflow `env` 목록의 client/tenant/subscription/pro
 원시 실행 결과를 artifact로 올리지 않습니다.
 
 ```bash
-gh workflow run validate.yml --ref 승인된-작업브랜치 -f acknowledge_cost=true
+gh workflow run validate.yml --ref 승인된-작업브랜치 -f acknowledge_cost=true -f validation_phase=dev
+# dev 통과 후 코드·데이터·기준을 동결한 다음에만:
+gh workflow run validate.yml --ref 같은-동결브랜치 -f acknowledge_cost=true -f validation_phase=release
 ```
 
 `validate.yml`은 기존 기본 브랜치에 있는 수동 진입점입니다. 승인한 작업 브랜치의
@@ -73,12 +75,15 @@ gh workflow run validate.yml --ref 승인된-작업브랜치 -f acknowledge_cost
 GitHub 정책으로 수동 브랜치 실행이 막히면 차단으로 기록하며 main을 임의 merge하지 않습니다.
 `scripts/ci_live.py`는 OIDC 주체와 RG/project 일치를 확인하고 Hosted를 배포하여
 **290만원 초안·두 승인 역할·미주문**을 실제 tool result로 검사합니다.
-이후 judge 대조군과, 제공된 실제 holdout 응답의 native 평가를 수행합니다.
+dev 단계는 20개 회귀와 8개 judge 대조군만 실행하며 holdout 질문을 읽거나 호출하지 않습니다.
+release 단계는 봉인된 새 holdout을 최초 수집하거나 동일 환경/코드의 보존된 원본을 평가합니다.
+사람 검토는 이 교육용 자동 게이트의 완료 조건이 아니며 안내 상태로만 기록합니다.
 holdout은 환경 fingerprint·runtime hash·실제 모델이 현재 테스트 환경과 같아야 사용합니다.
 다른 환경의 제작자 결과를 자신의 CI 품질 근거로 재사용할 수 없습니다.
 calibration 실패 후에도 독립적인 holdout 증거를 수집할 수 있지만 **릴리스 게이트는 실패**입니다.
 smoke 성공은 전체 holdout 품질 게이트와 별개입니다. `always()` 단계는 기록된 세션만 stop합니다.
-원시 증거는 `results/`, 공유 가능한 최소 요약은 `validation/current/ci.json`으로 분리합니다.
+원시 증거는 `results/`, 공유 가능한 v2 결과는 `validation/automated-v2/ci-dev.json`과
+`ci-release.json` 및 합성 응답 파일로 분리합니다. 이전 v1 CI/실패는 history로 보존합니다.
 
 ### 4. 모델 업그레이드와 지식 변경 검사하기
 
