@@ -52,7 +52,7 @@ The English profile preserves the business rules and quality thresholds, not Kor
 
 [Latest English live report](validation/english/automated-v5/report.json) · [Preserved English v4 failure](validation/english/automated-v4/quality.json) · [Preserved Korean report](validation/current/report.json) · [Current documentation checks](validation/docs/live-v5/browser.json)
 
-The English run used a new owned resource group and English data for actual model/agent calls, Search/IQ, both Hosted protocols, tools, evaluation, tracing, Memory, A2A, Routine, and OIDC deployment. Its first incomplete dev attempt and final failed holdout are retained, not replaced with successful-looking results. Conditional services and cleanup/cost boundaries are listed explicitly in the report.
+The preserved initial English walkthrough used a then-new owned resource group for model/agent calls, Search/IQ, both Hosted protocols, tools, evaluation, tracing, Memory, A2A, Routine and OIDC deployment. Its incomplete dev attempt and failed holdout remain unchanged. **V5 reused only that existing owned English environment** for the approved candidate/smoke, judge/dev and Optimizer stages; it did not rerun optional features or query costs.
 
 The current file listing keeps only the latest results in each category. Earlier records remain unchanged in the [pre-cleanup Git commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation). Paths in historical records refer to the commit used for that run.
 
