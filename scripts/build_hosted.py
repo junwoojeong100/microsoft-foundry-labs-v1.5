@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / ".build/contoso"
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import runtime_contract
-from workshop import config_values
+from workshop import DATA, LANGUAGE, config_values
 
 
 def pinned_requirements(path: Path, seen: set[Path] | None = None) -> list[str]:
@@ -37,14 +37,10 @@ def pinned_requirements(path: Path, seen: set[Path] | None = None) -> list[str]:
 
 def build() -> dict:
     files = [
-        *sorted((ROOT / "data/policies").glob("*.md")),
-        ROOT / "data/inventory.csv", ROOT / "data/prompts/agent-v1.txt",
-        ROOT / "data/prompts/agent-v2.txt",
-        ROOT / "data/prompts/agent-v3.txt",
-        ROOT / "data/prompts/agent-v4.txt",
-        ROOT / "data/prompts/agent-v5.txt",
-        ROOT / "data/prompts/agent-v6.txt",
-        *[ROOT / "samples" / name for name in ("workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
+        *sorted((DATA / "policies").glob("*.md")),
+        DATA / "inventory.csv",
+        *[DATA / f"prompts/agent-v{version}.txt" for version in range(1, 7)],
+        *[ROOT / "samples" / name for name in ("lab_profile.py", "workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
         ROOT / "requirements-hosted.txt", ROOT / "THIRD_PARTY_NOTICES",
     ]
     TARGET.mkdir(parents=True, exist_ok=True)
@@ -69,12 +65,13 @@ def build() -> dict:
     shutil.copy2(ROOT / "hosted/main.py", TARGET / "main.py")
     shutil.copy2(ROOT / "hosted/responses_main.py", TARGET / "responses_main.py")
     shutil.copy2(ROOT / "hosted/.agentignore", TARGET / ".agentignore")
+    (TARGET / "lab-profile.json").write_text(json.dumps({"language": LANGUAGE}) + "\n", encoding="utf-8")
     (TARGET / "requirements.txt").write_text("\n".join(pinned_requirements(ROOT / "requirements-hosted.txt")) + "\n")
     model = config_values()["FOUNDRY_MODEL_DEPLOYMENT_NAME"] or "CONFIGURE-MODEL-BEFORE-DEPLOY"
     baseline = TARGET / ".agent_configs/baseline"
     baseline.mkdir(parents=True, exist_ok=True)
     (baseline / "metadata.yaml").write_text(f"model: {json.dumps(model)}\ninstruction_file: instructions.md\n")
-    shutil.copy2(ROOT / "data/prompts/agent-v6.txt", baseline / "instructions.md")
+    shutil.copy2(DATA / "prompts/agent-v6.txt", baseline / "instructions.md")
     entries = {
         path.relative_to(TARGET).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sorted(TARGET.rglob("*")) if path.is_file() and path.name != "package-manifest.json"
@@ -83,7 +80,8 @@ def build() -> dict:
     forbidden = {".env", "results", "evaluation", ".git", ".azure", ".foundry", "validation"}
     if any(set(Path(name).parts) & forbidden for name in entries):
         raise ValueError("Sensitive/local/evaluation state must not enter the Hosted package.")
-    manifest = {"schema": "contoso-package-v1", "files": entries, "runtime_contract": runtime_contract(root=TARGET)}
+    manifest = {"schema": "contoso-package-v1", "language": LANGUAGE,
+                "files": entries, "runtime_contract": runtime_contract(root=TARGET)}
     old.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
     with zipfile.ZipFile(ROOT / ".build/contoso-code.zip", "w", zipfile.ZIP_DEFLATED) as archive:
         for name in [*entries, "package-manifest.json"]:
@@ -113,7 +111,7 @@ def build_responses(primary: dict) -> dict:
         shutil.copy2(TARGET / name, destination)
     shutil.copy2(ROOT / "hosted/optimizer_responses.py", target / "main.py")
     entries = {name: hashlib.sha256((target / name).read_bytes()).hexdigest() for name in primary["files"]}
-    manifest = {"schema": "contoso-package-v1", "profile": "optimizer-responses",
+    manifest = {"schema": "contoso-package-v1", "profile": "optimizer-responses", "language": LANGUAGE,
                 "files": entries, "runtime_contract": runtime_contract(root=target)}
     receipt.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps({"profile": manifest["profile"], "files": len(entries),

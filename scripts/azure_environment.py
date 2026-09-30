@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import argparse
+import base64
 from datetime import datetime, timezone
 import json
 from pathlib import Path
 import subprocess
 import sys
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
-from workshop import save_json
+from workshop import LANGUAGE, save_json
 
 LEDGER = ROOT / "results/azure-environment.json"
 
@@ -33,17 +34,36 @@ def az(*args: str, timeout: int = 180) -> object:
         text=True, capture_output=True, timeout=timeout, check=False,
     )
     if result.returncode:
-        # Azure commands here never return keys, access tokens, or connection secrets.
+        # Command arguments never contain keys, access tokens, or connection secrets.
         raise RuntimeError(f"az {args[0]} {args[1]} failed: {result.stderr.strip()}")
     return json.loads(result.stdout) if result.stdout.strip() else None
 
 
 def owned() -> dict:
     state = json.loads(LEDGER.read_text(encoding="utf-8"))
+    if state.get("language", "ko") != LANGUAGE:
+        raise ValueError("Selected language differs from the owned environment. No changes are allowed.")
     group = az("group", "show", "--subscription", state["subscription"], "--name", state["resource_group"])
     if group["id"].lower() != state["resource_group_id"].lower() or group.get("tags", {}).get("validationRun") != state["run_id"]:
         raise ValueError("RG identity/ownership mismatch. No changes are allowed.")
     return state
+
+
+def current_user_id(state: dict) -> str:
+    account = az("account", "show", "--subscription", state["subscription"])
+    if account["tenantId"] != state["tenant"] or account["user"]["type"] != "user":
+        raise ValueError("Administrator setup requires the signed-in user in the owned tenant.")
+    token = az("account", "get-access-token", "--subscription", state["subscription"],
+               "--resource", "https://management.azure.com", "--query", "accessToken")
+    try:
+        encoded = token.split(".")[1]
+        claims = json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
+        principal = str(UUID(claims["oid"]))
+        if claims["tid"] != state["tenant"] or claims.get("idtyp") == "app":
+            raise ValueError("Caller identity does not match the approved user and tenant.")
+    except (KeyError, ValueError, IndexError, TypeError) as exc:
+        raise ValueError("Cannot verify the administrator's identity from the ARM credential.") from exc
+    return principal
 
 
 def create(args: argparse.Namespace) -> None:
@@ -55,17 +75,17 @@ def create(args: argparse.Namespace) -> None:
     if account["state"] != "Enabled":
         raise ValueError("Subscription is not enabled.")
     suffix = datetime.now(timezone.utc).strftime("%y%m%d") + uuid4().hex[:6]
-    run_id = f"contoso-a-{suffix}"
+    run_id = f"contoso-{'en' if LANGUAGE == 'en' else 'a'}-{suffix}"
     rg = f"rg-{run_id}"
     if az("group", "exists", "--subscription", args.subscription, "--name", rg):
         raise ValueError("Name collision; no existing RG will be reused.")
     state = {
-        "schema": "contoso-environment-v1", "run_id": run_id,
+        "schema": "contoso-environment-v1", "run_id": run_id, "language": LANGUAGE,
         "repository": "junwoojeong100/microsoft-foundry-labs-v1.5", "repository_id": 1396573688,
         "subscription": account["id"], "tenant": account["tenantId"], "location": args.location,
         "resource_group": rg,
         "resource_group_id": f"/subscriptions/{account['id']}/resourceGroups/{rg}",
-        "account_name": f"ai-{run_id}", "project_name": "contoso-workshop",
+        "account_name": f"ai-{run_id}", "project_name": "contoso-workshop-en" if LANGUAGE == "en" else "contoso-workshop",
         "search_name": f"srch-{run_id}", "created_at": datetime.now(timezone.utc).isoformat(),
         "cost_authorization": args.cost_authorization,
         "retention": "Do not delete. Stop sessions and schedules; retain resources until explicit approval.",
@@ -75,7 +95,7 @@ def create(args: argparse.Namespace) -> None:
     group = az(
         "group", "create", "--subscription", account["id"], "--name", rg, "--location", args.location,
         "--tags", "repository=microsoft-foundry-labs-v1.5", "scenario=Contoso", f"validationRun={run_id}",
-        "retention=retain-until-explicit-approval",
+        "retention=retain-until-explicit-approval", f"language={LANGUAGE}",
     )
     state["resource_group_id"] = group["id"]
     state["operations"].append({"step": "create-rg", "status": "succeeded"})
@@ -123,7 +143,7 @@ def foundation(args: argparse.Namespace) -> None:
 
 def roles() -> None:
     state = owned()
-    user = az("ad", "signed-in-user", "show", "--query", "id")
+    user = current_user_id(state)
     scope = state["foundation"]["projectId"]["value"]
     grants = [
         (user, "User", "53ca6127-db72-4b80-b1b0-d745d6d5456d", scope),
@@ -160,7 +180,7 @@ def search() -> None:
     state["search_id"] = resource["id"]
     state["search_endpoint"] = f"https://{state['search_name']}.search.windows.net"
     persist(state)
-    user = az("ad", "signed-in-user", "show", "--query", "id")
+    user = current_user_id(state)
     for principal, principal_type, role in [
         (user, "User", "Search Service Contributor"),
         (user, "User", "Search Index Data Contributor"),

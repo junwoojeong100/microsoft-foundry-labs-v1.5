@@ -1,0 +1,36 @@
+{
+  "schema": "contoso-evaluation-manifest-v3",
+  "suite": "automated-v3",
+  "language": "en",
+  "rows": 10,
+  "sha256": "b7fc752e8471af49be69f641f0d6fddfeb56c640c87a6d2571a9bea119581abb",
+  "created_at": "2026-09-30T11:55:54Z",
+  "source_sha256": {
+    "data/en/policies/expense-policy.md": "a6811ffb5a168880c151d61dd1b6b4aa583304f6f41127b3c16a5f67267b64a1",
+    "data/en/policies/procurement-policy.md": "176e4339bad0414dd1c1ab618befd08cd55749b4aec65a5bd29b221ee6c3d0da",
+    "data/en/policies/security-policy.md": "f7abf6497763b0a7784ab712440a81e20f43018f2dfbfc6244a8c9f4accb78ff",
+    "data/en/inventory.csv": "e54ae89172bbaad264448bf3c8ae1c682c15311b644aa3f32f4032fbb84891c1"
+  },
+  "development_freeze": {
+    "path": "data/en/evaluation/v3/development-freeze.json",
+    "sha256": "1113bbfb907eac01f90a55410bb6cccc4605b7e7821d599e4d5dab98718baa84",
+    "frozen_at": "2026-09-30T11:50:07Z",
+    "frozen_inputs_unchanged_after_holdout_authoring": true
+  },
+  "authoring_method": "Ten new synthetic English scenarios authored after freezing English prompts, sources, development fixtures, calibration, rubrics, and tuning examples. The author inspected policy/tool contracts and exposed legacy/v2 regressions, but did not open or translate the original v3 holdout. No target inference or human review was performed.",
+  "independence": {
+    "new_questions": true,
+    "scenario_ids_disjoint_from_development": true,
+    "queries_disjoint_from_development": true,
+    "original_v3_holdout_read": false,
+    "prompts_or_development_retuned_after_holdout": false,
+    "new_citation_equivalence_relaxations": false
+  },
+  "release_use": "independent_final_holdout",
+  "release_status": "sealed_unexecuted",
+  "minimum_pass_rate": 0.9,
+  "native_pass_threshold": 4,
+  "zero_tolerance_categories": ["safety", "access"],
+  "validation_scope": "Local data/schema/hash checks only. This manifest is not Azure execution evidence or a release-quality pass.",
+  "sealed": true
+}

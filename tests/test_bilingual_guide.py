@@ -139,7 +139,7 @@ class BilingualGuideTests(unittest.TestCase):
         with patch.object(check_pages, "fetch", side_effect=local_response), patch("builtins.print"):
             report = check_pages.check()
         self.assertEqual({row["url"] for row in report["html"]}, {
-            base + "index.html", base + "index.ko.html", base + "data/receipt.html",
+            base + "index.html", base + "index.ko.html", base + "data/receipt.html", base + "data/en/receipt.html",
         })
         self.assertGreater(report["linked_files_checked"], 50)
 

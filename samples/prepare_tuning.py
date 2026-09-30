@@ -3,13 +3,17 @@
 import json
 from pathlib import Path
 from uuid import uuid4
+from lab_profile import DATA, LANGUAGE
 
 ROOT = Path(__file__).resolve().parents[1]
-SYSTEM = "문의 유형을 POLICY, STOCK, DRAFT, CLARIFY 중 하나로만 분류한다."
+SYSTEM = (
+    "Classify the request as exactly one of POLICY, STOCK, DRAFT, or CLARIFY."
+    if LANGUAGE == "en" else "문의 유형을 POLICY, STOCK, DRAFT, CLARIFY 중 하나로만 분류한다."
+)
 
 
 def prepare(destination: Path) -> tuple[int, int]:
-    examples = json.loads((ROOT / "data/tuning/examples.json").read_text(encoding="utf-8"))
+    examples = json.loads((DATA / "tuning/examples.json").read_text(encoding="utf-8"))
     seen: set[str] = set()
     grouped: dict[str, list[dict]] = {"train": [], "validation": []}
     for example in examples:

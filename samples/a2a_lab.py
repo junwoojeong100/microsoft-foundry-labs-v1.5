@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from cloud import Rest, project_client
 from evidence import Budget, Evidence
-from workshop import DATA, RESULTS, ensure_response, save_json
+from workshop import DATA, LANGUAGE, RESULTS, ensure_response, save_json
 
 STATE = RESULTS / "a2a.json"
 
@@ -32,8 +32,11 @@ def run(command: str, evidence: Evidence) -> None:
                 agent_name=worker_name, definition=PromptAgentDefinition(
                     model=model,
                     instructions=(
-                        "너는 Contoso 구매 정책 검토 담당이다. 다음 합성 정책만 사용한다. "
-                        "규칙을 설명할 뿐 실제 승인·주문을 하지 않는다. 문서 ID와 절을 명시한다.\n"
+                        ("You review Contoso purchasing policies. Use only the following synthetic policy. "
+                         "Explain the rules in English; never approve a purchase or place an order. Cite the document ID and section.\n"
+                         if LANGUAGE == "en" else
+                         "너는 Contoso 구매 정책 검토 담당이다. 다음 합성 정책만 사용한다. "
+                         "규칙을 설명할 뿐 실제 승인·주문을 하지 않는다. 문서 ID와 절을 명시한다.\n")
                         + (DATA / "policies/procurement-policy.md").read_text(encoding="utf-8")
                     ),
                 ),
@@ -65,6 +68,9 @@ def run(command: str, evidence: Evidence) -> None:
             caller = project.agents.create_version(
                 agent_name=caller_name, definition=PromptAgentDefinition(
                     model=model, instructions=(
+                        "You are the Contoso coordinator. Delegate purchasing-policy questions to the remote policy-review agent "
+                        "and answer in English using its actual result. Report delegation failures explicitly. Never approve or order."
+                        if LANGUAGE == "en" else
                         "너는 Contoso 조정자다. 구매 정책 질문은 반드시 원격 policy-review agent에 위임하고 "
                         "그 실제 결과로 한국어 답변한다. 위임 실패는 실패로 알린다. 실제 승인·주문을 하지 않는다."
                     ),
@@ -105,7 +111,10 @@ def run(command: str, evidence: Evidence) -> None:
             print(json.dumps(card, ensure_ascii=False, indent=2))
             return
         response = client.responses.create(
-            input="총액 290만 원인 노트북 2대의 구매 승인 역할을 정책 검토 agent에게 확인해줘.",
+            input=(
+                "Ask the policy-review agent which roles must approve two laptops totaling KRW 2,900,000."
+                if LANGUAGE == "en" else "총액 290만 원인 노트북 2대의 구매 승인 역할을 정책 검토 agent에게 확인해줘."
+            ),
             extra_body={"agent_reference": {"type": "agent_reference", "name": state["caller"], "version": state["caller_version"]}},
             max_output_tokens=2048,
         )

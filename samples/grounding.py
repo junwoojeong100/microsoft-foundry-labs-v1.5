@@ -3,6 +3,7 @@
 import json
 import re
 from typing import Any
+from lab_profile import LANGUAGE
 
 
 def answer_format(source_ids: list[str]) -> dict[str, Any]:
@@ -52,8 +53,13 @@ def parse_answer(raw: str, sources: dict[str, dict]) -> tuple[str, list[dict]]:
     files = set(re.findall(r"[A-Za-z0-9_-]+\.md", answer))
     if not files <= {item["filename"] for item in cited}:
         raise RuntimeError("Answer names a document outside its selected retrieval evidence.")
-    references = "; ".join(f"{item['filename']} {item['section']}절 [{item['id']}]" for item in cited)
-    return answer.strip() + "\n\n근거: " + references, cited
+    english = LANGUAGE == "en"
+    references = "; ".join(
+        f"{item['filename']} section {item['section']} [{item['id']}]" if english
+        else f"{item['filename']} {item['section']}절 [{item['id']}]"
+        for item in cited
+    )
+    return answer.strip() + ("\n\nSources: " if english else "\n\n근거: ") + references, cited
 
 
 def attribute_answer(raw_answer: str, raw_attribution: str, sources: dict[str, dict]) -> tuple[str, list[dict]]:

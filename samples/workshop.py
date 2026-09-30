@@ -17,9 +17,9 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 from evidence import Budget, Evidence, digest
+from lab_profile import DATA, LANGUAGE
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data"
 RESULTS = ROOT / "results"
 ENDPOINT_KEY = "FOUNDRY_PROJECT_ENDPOINT"
 MODEL_KEY = "FOUNDRY_MODEL_DEPLOYMENT_NAME"
@@ -474,7 +474,10 @@ def run_live(args: argparse.Namespace) -> None:
             elif args.command == "model":
                 budget.before_request(token_reservation=4096)
                 response = client.responses.create(
-                    model=model, input=args.query or "회사 내부 규정이 제공되지 않았을 때 어떻게 답해야 하나요?",
+                    model=model, input=args.query or (
+                        "How should you respond when no internal company policy has been provided?"
+                        if LANGUAGE == "en" else "회사 내부 규정이 제공되지 않았을 때 어떻게 답해야 하나요?"
+                    ),
                     max_output_tokens=2048, store=False,
                 )
                 evidence.append("response", response)
@@ -489,12 +492,17 @@ def run_live(args: argparse.Namespace) -> None:
                     [c for c in validate_data() if args.split == "all" or c["split"] == args.split]
                     if args.command == "evaluate" else
                     [{"id": "manual-01", "query": args.query or (
-                        "노트북 2대의 구매 규정과 NB-14 재고를 확인하고 구매 요청 초안을 만들어줘."
-                        if args.command == "capstone" else "표준 노트북의 가격 상한과 근거를 알려줘."
+                        ("Check the purchasing policy and inventory for NB-14, quantity 2, and prepare a purchase request draft."
+                         if LANGUAGE == "en" else "노트북 2대의 구매 규정과 NB-14 재고를 확인하고 구매 요청 초안을 만들어줘.")
+                        if args.command == "capstone" else (
+                            "What is the standard laptop price ceiling? Cite the policy."
+                            if LANGUAGE == "en" else "표준 노트북의 가격 상한과 근거를 알려줘."
+                        )
                     )}]
                 )
                 path = RESULTS / f"{receipt.data['run_id']}-responses.jsonl"
                 configuration = {
+                    "language": LANGUAGE,
                     "agent_name": agent_name, "agent_version": agent_version, "model_deployment": model,
                     "prompt_sha256": hashlib.sha256(args.prompt.read_bytes()).hexdigest(),
                     "corpus_sha256": digest({p.name: p.read_text(encoding="utf-8") for p in sorted((DATA / "policies").glob("*.md"))}),

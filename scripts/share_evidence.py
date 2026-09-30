@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "samples"))
 from evidence import redacted
 from evaluation_lab import prepare_rows
 from evaluation_data import DEFAULT_SUITE, SUITES
+from lab_profile import validation_for
 from workshop import load_jsonl
 
 FIELDS = {
@@ -32,7 +33,7 @@ def main():
     parser.add_argument("--suite", choices=SUITES, default=DEFAULT_SUITE)
     args = parser.parse_args()
     prepare_rows(args.input, args.split, args.suite)
-    folder = ROOT / "validation" / ("current" if args.suite == "legacy-v1" else args.suite)
+    folder = validation_for(ROOT) / ("current" if args.suite == "legacy-v1" else args.suite)
     folder.mkdir(parents=True, exist_ok=True)
     target = folder / (args.split + "-responses.jsonl")
     if target.exists():

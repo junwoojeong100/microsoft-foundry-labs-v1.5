@@ -9,6 +9,10 @@ on:
         required: false
         type: string
         default: dev
+      language:
+        required: false
+        type: string
+        default: ko
   workflow_dispatch:
     inputs:
       acknowledge_cost:
@@ -18,23 +22,48 @@ on:
         default: false
       validation_phase:
         type: choice
-        options: [dev, release, optimizer, auth]
+        options: [dev, release, optimizer, auth, identity]
         default: dev
+      language:
+        type: choice
+        options: [ko, en]
+        default: ko
 permissions:
   contents: read
 concurrency:
-  group: contoso-approved-azure-${{ inputs.validation_phase == 'optimizer' && 'optimizer' || 'deployment' }}
+  group: contoso-approved-azure-${{ inputs.language }}-${{ inputs.validation_phase == 'optimizer' && 'optimizer' || 'deployment' }}
   cancel-in-progress: false
 jobs:
+  identity-probe:
+    if: github.repository_id == '1396573688' && inputs.acknowledge_cost && inputs.validation_phase == 'identity' && (inputs.language == 'ko' || inputs.language == 'en')
+    environment: ${{ inputs.language == 'en' && 'contoso-validation-en' || 'contoso-validation' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken('api://AzureADTokenExchange');
+            const claims = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
+            if (claims.repository_id !== '1396573688') throw new Error('Unexpected repository identity.');
+            core.info(JSON.stringify({
+              sub: claims.sub, aud: claims.aud, repository_id: claims.repository_id,
+              ref: claims.ref, environment: claims.environment,
+              azure_calls: 0, token_printed: false
+            }));
   approved-test:
-    if: github.repository_id == '1396573688' && inputs.acknowledge_cost
-    environment: contoso-validation
+    if: github.repository_id == '1396573688' && inputs.acknowledge_cost && inputs.validation_phase != 'identity' && (inputs.language == 'ko' || inputs.language == 'en')
+    environment: ${{ inputs.language == 'en' && 'contoso-validation-en' || 'contoso-validation' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     env:
+      FOUNDRY_LAB_LANGUAGE: ${{ inputs.language }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
@@ -56,8 +85,8 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
-      - run: python -m pip install -r requirements-hosted.txt -r requirements-tools.txt
-      - run: python -m pip check && python -m unittest discover -s tests -v
+      - run: python -m pip install -r requirements-hosted.txt -r requirements-tools.txt -r requirements-docs.txt
+      - run: python -m pip check && FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -v
       - run: python scripts/build_hosted.py
       - uses: Azure/setup-azd@v2
         with:
@@ -84,5 +113,6 @@ jobs:
           path: |
             validation/automated-v3/
             validation/optimizer-oidc/
+            validation/english/
           if-no-files-found: warn
           retention-days: 7

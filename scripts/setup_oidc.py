@@ -10,11 +10,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import Evidence
 from search_lab import configuration
-from workshop import config_values, save_json
+from workshop import LANGUAGE, config_values, save_json
 from azure_environment import az, owned, persist
 
 REPOSITORY_ID = "1396573688"
-ENVIRONMENT = "contoso-validation"
+ENVIRONMENT = "contoso-validation-en" if LANGUAGE == "en" else "contoso-validation"
 
 
 def gh(*args: str, body: dict | None = None):
@@ -32,17 +32,51 @@ def main():
     parser.add_argument("--branch", required=True)
     parser.add_argument("--subject", help="Exact nonsecret sub claim observed in this repository's GitHub OIDC log.")
     parser.add_argument("--repair-subject", action="store_true", help="Correct only this run's newly created federated credential.")
+    parser.add_argument("--prepare-environment", action="store_true", help="Create the branch-restricted environment before the identity-only OIDC probe.")
     parser.add_argument("--live", action="store_true")
     args = parser.parse_args()
     if not args.live:
         print("PLAN ONLY: new user-assigned identity + environment-bound federation + approved branch policy.")
         return
-    if args.branch in {"main", "master"} or not args.branch.startswith("feat/"):
+    if args.branch in {"main", "master"} or not args.branch.startswith(("feat/", "docs/")):
         raise ValueError("Setup is restricted to an explicit feature branch, never main.")
     repository = gh("api", f"repositories/{REPOSITORY_ID}")
     repo = repository["full_name"]
-    if not repository["private"]:
-        raise ValueError("Repository A must remain private.")
+    if str(repository["id"]) != REPOSITORY_ID or args.branch == repository["default_branch"]:
+        raise ValueError("Only the identified repository and a non-default branch are allowed.")
+    state = owned()
+    environment_receipt = state.get("oidc_environment")
+    if args.prepare_environment:
+        if environment_receipt:
+            raise ValueError("An environment receipt already exists; do not recreate it.")
+        environments = gh("api", f"repos/{repo}/environments")
+        if any(item["name"] == ENVIRONMENT for item in environments["environments"]):
+            raise ValueError("An environment already exists without this run's ownership receipt.")
+        environment = gh("api", "--method", "PUT", f"repos/{repo}/environments/{ENVIRONMENT}", "--input", "-", body={
+            "deployment_branch_policy": {"protected_branches": False, "custom_branch_policies": True},
+        })
+        branch_policy = gh("api", "--method", "POST",
+                           f"repos/{repo}/environments/{ENVIRONMENT}/deployment-branch-policies",
+                           "--input", "-", body={"name": args.branch, "type": "branch"})
+        state["oidc_environment"] = {
+            "id": environment["id"], "name": ENVIRONMENT, "branch": args.branch,
+            "branch_policy_id": branch_policy["id"], "repository_id": repository["id"],
+            "repository_private": repository["private"],
+        }
+        persist(state)
+        print(f"Prepared {repo}/{ENVIRONMENT} for {args.branch}. No Azure identity or client secret was created.")
+        return
+    if environment_receipt:
+        environment = gh("api", f"repos/{repo}/environments/{ENVIRONMENT}")
+        branch_policies = gh("api", f"repos/{repo}/environments/{ENVIRONMENT}/deployment-branch-policies")
+        if (
+            environment["id"] != environment_receipt["id"]
+            or environment_receipt["branch"] != args.branch
+            or environment_receipt["repository_id"] != repository["id"]
+            or environment_receipt["repository_private"] != repository["private"]
+            or [(p["name"], p["type"]) for p in branch_policies["branch_policies"]] != [(args.branch, "branch")]
+        ):
+            raise ValueError("Prepared environment ownership, visibility or branch policy changed.")
     owner, repository_name = repo.split("/")
     supported_subjects = {
         f"repo:{repo}:environment:{ENVIRONMENT}",
@@ -50,7 +84,6 @@ def main():
     }
     if args.subject not in supported_subjects:
         raise ValueError("Supply the exact observed environment-bound subject for A; never guess an OIDC subject.")
-    state = owned()
     if args.repair_subject:
         record = state.get("oidc")
         if not record or record["branch"] != args.branch:
@@ -69,9 +102,10 @@ def main():
         return
     if state.get("oidc"):
         raise ValueError("OIDC is already recorded; inspect existing identity/environment, do not overwrite.")
-    environments = gh("api", f"repos/{repo}/environments")
-    if any(item["name"] == ENVIRONMENT for item in environments["environments"]):
-        raise ValueError("Test environment already exists without this ownership receipt; setup refused.")
+    if not environment_receipt:
+        environments = gh("api", f"repos/{repo}/environments")
+        if any(item["name"] == ENVIRONMENT for item in environments["environments"]):
+            raise ValueError("Test environment already exists without this ownership receipt; setup refused.")
     evidence = Evidence("oidc-setup")
     name = "id-" + state["run_id"]
     existing = az("identity", "list", "--subscription", state["subscription"], "--resource-group", state["resource_group"])
@@ -104,13 +138,16 @@ def main():
                    "--role", role, "--scope", scope)
         state.setdefault("role_assignments", []).append({"id": grant["id"], "role": role, "scope": scope, "purpose": "oidc"})
         persist(state)
-    environment = gh("api", "--method", "PUT", f"repos/{repo}/environments/{ENVIRONMENT}", "--input", "-", body={
-        "deployment_branch_policy": {"protected_branches": False, "custom_branch_policies": True},
-    })
-    evidence.append("environment_created", {"id": environment["id"], "name": environment["name"]})
-    branch_policy = gh("api", "--method", "POST", f"repos/{repo}/environments/{ENVIRONMENT}/deployment-branch-policies",
-                       "--input", "-", body={"name": args.branch, "type": "branch"})
-    evidence.append("branch_policy", branch_policy)
+    if not environment_receipt:
+        environment = gh("api", "--method", "PUT", f"repos/{repo}/environments/{ENVIRONMENT}", "--input", "-", body={
+            "deployment_branch_policy": {"protected_branches": False, "custom_branch_policies": True},
+        })
+        evidence.append("environment_created", {"id": environment["id"], "name": environment["name"]})
+        branch_policy = gh("api", "--method", "POST", f"repos/{repo}/environments/{ENVIRONMENT}/deployment-branch-policies",
+                           "--input", "-", body={"name": args.branch, "type": "branch"})
+        evidence.append("branch_policy", branch_policy)
+    else:
+        evidence.append("prepared_environment_verified", environment_receipt)
     search, config = configuration(), config_values()
     variables = {
         "AZURE_CLIENT_ID": identity["clientId"], "AZURE_TENANT_ID": state["tenant"],
@@ -124,6 +161,7 @@ def main():
         "FOUNDRY_EMBEDDING_DEPLOYMENT_NAME": config["FOUNDRY_EMBEDDING_DEPLOYMENT_NAME"],
         "FOUNDRY_EMBEDDING_ENDPOINT": config["FOUNDRY_EMBEDDING_ENDPOINT"],
         "FOUNDRY_JUDGE_DEPLOYMENT_NAME": config["FOUNDRY_JUDGE_DEPLOYMENT_NAME"],
+        "FOUNDRY_LAB_LANGUAGE": LANGUAGE,
     }
     for key, value in variables.items():
         if not value:
@@ -132,7 +170,7 @@ def main():
     state["oidc"]["resources_created"].append("github_environment_and_variables")
     persist(state)
     evidence.append("configured", {"subject": subject, "branch": args.branch, "variables": list(variables), "client_secret_created": False})
-    print(f"Configured OIDC for {repo}/{ENVIRONMENT}; only branch {args.branch}. Repository remains private.")
+    print(f"Configured OIDC for {repo}/{ENVIRONMENT}; only branch {args.branch}. Repository visibility is unchanged.")
 
 
 if __name__ == "__main__":

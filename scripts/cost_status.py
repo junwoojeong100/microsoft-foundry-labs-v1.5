@@ -8,6 +8,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import Evidence
+from lab_profile import validation_for
 from workshop import save_json
 from azure_environment import az, owned
 
@@ -37,10 +38,10 @@ def main():
         "resource_retention": "no resource deletion authorized", "next_check": "within 24 hours after closeout",
         "continuing_costs": ["Search Basic allocation", "File search storage above free allowance", "logs and retained storage", "future model and agent calls"],
     }
-    pricing = ROOT / "validation/current/retail-pricing.json"
+    pricing = validation_for(ROOT) / "current/retail-pricing.json"
     if pricing.exists():
         report["search_retail_reference"] = json.loads(pricing.read_text())
-    save_json(ROOT / "validation/current/cost.json", report)
+    save_json(validation_for(ROOT) / "current/cost.json", report)
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 

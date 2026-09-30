@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from cloud import project_client
 from evidence import Evidence
+from lab_profile import validation_for
 from routine_lab import azd
 from workshop import save_json
 from azure_environment import owned
@@ -22,7 +23,8 @@ def main():
         "retention": "Keep Azure resources until explicit deletion approval; no expiry date authorized.",
         "next_check_by": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
         "resources_deleted": False, "hosted": [], "routine": None, "routines": [],
-        "voice_sessions": "not_created", "quality_status_source": "validation/automated-v3/quality.json",
+        "voice_sessions": "not_created",
+        "quality_status_source": (validation_for(ROOT) / "automated-v3/quality.json").relative_to(ROOT).as_posix(),
     }
     with project_client(evidence) as (project, _, endpoint, _):
         if endpoint != state["project_endpoint"]:
@@ -59,7 +61,7 @@ def main():
                 "scheduled_execution_verified": False,
             }
             report["routines"].append(report["routine"])
-        retained = ROOT / "validation/current/routine.json"
+        retained = validation_for(ROOT) / "current/routine.json"
         if retained.exists():
             proof = json.loads(retained.read_text())
             if not report["routine"] or proof["name"] != report["routine"]["name"]:
@@ -77,7 +79,7 @@ def main():
         or any(routine["enabled"] for routine in report["routines"])
     )
     report["active_work_observed"] = bool(active)
-    save_json(ROOT / "validation/current/operations.json", report)
+    save_json(validation_for(ROOT) / "current/operations.json", report)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if active:
         raise RuntimeError("Active work remains; stop only the owned operations and recheck.")

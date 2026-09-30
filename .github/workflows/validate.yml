@@ -12,8 +12,13 @@ on:
       validation_phase:
         description: "dev never invokes holdout; release uses the sealed holdout only after dev approval"
         type: choice
-        options: [dev, release, optimizer, auth]
+        options: [dev, release, optimizer, auth, identity]
         default: dev
+      language:
+        description: "Select the isolated Korean or English Azure environment"
+        type: choice
+        options: [ko, en]
+        default: ko
 permissions:
   contents: read
 jobs:
@@ -27,6 +32,7 @@ jobs:
     with:
       acknowledge_cost: true
       validation_phase: ${{ inputs.validation_phase }}
+      language: ${{ inputs.language }}
   offline:
     runs-on: ubuntu-latest
     steps:

@@ -15,7 +15,7 @@ from cloud import Rest, credential
 from evidence import Budget, Evidence, digest
 from hosted_runtime import validate_request
 from evaluation_data import DEFAULT_SUITE, SUITES, load_cases, suite_hash
-from workshop import RESULTS, ROOT, read_config, save_json, validate_data
+from workshop import LANGUAGE, RESULTS, ROOT, read_config, save_json, validate_data
 
 
 def parse_raw_http(text: str, *, allow_responses_stream: bool = False) -> tuple[dict, dict[str, str]]:
@@ -94,7 +94,10 @@ def main() -> None:
     parser.add_argument("--local", action="store_true")
     parser.add_argument("--live", action="store_true", help="Required even locally: the running agent calls paid Azure services.")
     parser.add_argument("--version", help="Exact remote agent version; never latest.")
-    parser.add_argument("--query", default="NB-14 2대의 정책과 재고를 확인하고 구매 요청 초안만 만들어줘.")
+    parser.add_argument("--query", default=(
+        "Check policy and stock for NB-14, quantity 2, and prepare a purchase request draft only."
+        if LANGUAGE == "en" else "NB-14 2대의 정책과 재고를 확인하고 구매 요청 초안만 만들어줘."
+    ))
     parser.add_argument("--split", choices=["dev", "holdout"], default="dev")
     parser.add_argument("--case-delay", type=float, default=15.0)
     parser.add_argument("--suite", choices=SUITES, default=DEFAULT_SUITE)
