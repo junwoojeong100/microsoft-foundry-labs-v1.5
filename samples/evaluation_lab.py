@@ -12,7 +12,7 @@ from uuid import uuid4
 from cloud import project_client
 from evidence import Evidence, digest, serializable
 from business_checks import check_business_evidence
-from evaluation_data import DEFAULT_SUITE, SUITES, calibration_cases, load_cases, policy, suite_hash
+from evaluation_data import DEFAULT_SUITE, SUITES, calibration_cases, load_cases, policy, suite_hash, verify_development_freeze
 from lab_profile import validation_for
 from workshop import DATA, LANGUAGE, RESULTS, ROOT, config_values, load_jsonl, save_json, validate_data
 
@@ -29,6 +29,8 @@ def settings_hash(suite: str = DEFAULT_SUITE) -> str:
 
 
 def prepare_rows(path: Path, split: str, suite: str = "legacy-v1") -> list[dict]:
+    if suite == "automated-v5" and split == "holdout":
+        verify_gate(suite, "dev")
     expected = {c["id"]: c for c in load_cases(suite, split)}
     rows = load_jsonl(path)
     if len(rows) != len(expected) or {r.get("id") for r in rows} != set(expected):
@@ -37,6 +39,8 @@ def prepare_rows(path: Path, split: str, suite: str = "legacy-v1") -> list[dict]
     for row in rows:
         if row.get("status") != "completed" or not row.get("response", "").strip() or not row.get("response_id"):
             raise ValueError(f"{row.get('id')}: missing completed, real response evidence.")
+        if suite == "automated-v5" and row.get("tool_authorization_contract") != "explicit-request-v2":
+            raise ValueError("New v5 evidence must be explicit-request-v2; v1 is historical replay only.")
         case = expected[row["id"]]
         if row.get("query") != case["query"]:
             raise ValueError("Actual question differs from the frozen dataset.")
@@ -44,12 +48,16 @@ def prepare_rows(path: Path, split: str, suite: str = "legacy-v1") -> list[dict]
             row.get("evaluation_suite") != suite or row.get("evaluation_suite_sha256") != suite_hash(suite)
         ):
             raise ValueError("Response evidence belongs to another evaluation suite.")
-        evidence = {key: row.get(key) for key in ("tool_calls", "tool_definitions", "citations", "context", "retrieved_sources", "response_ids", "trace_id", "configuration", "contract", "raw_answer", "raw_attribution", "attribution_response_id", "grounding_contract")}
+        evidence = {key: row.get(key) for key in ("tool_calls", "tool_definitions", "citations", "context", "retrieved_sources", "response_ids", "trace_id", "configuration", "contract", "raw_answer", "raw_attribution", "attribution_response_id", "grounding_contract", "tool_authorization_contract", "request_permissions", "required_policy_citations")}
         items.append({
             "id": row["id"], "query": row["query"], "response": row["response"],
             "ground_truth": case["ground_truth"], "expected_behavior": case["expected_behavior"],
             "evidence": json.dumps(evidence, ensure_ascii=False),
-            "automatic_checks": check_business_evidence(row, case, require_tool_definitions=suite == "automated-v3") if suite.startswith("automated-") else None,
+            "automatic_checks": check_business_evidence(
+                row, case, require_tool_definitions=suite in {"automated-v3", "automated-v4", "automated-v5"},
+                require_tool_authorization=suite in {"automated-v4", "automated-v5"},
+                expected_authorization_contract="explicit-request-v2" if suite == "automated-v5" else None,
+            ) if suite.startswith("automated-") else None,
         })
     return items
 
@@ -143,6 +151,12 @@ def audit_items(
         if not case_id or case_id in verdicts:
             raise ValueError("Native result is missing a unique datasource case ID.")
         results = item.get("results") or []
+        if suite == "automated-v5" and any(
+            result.get("status") in {"error", "errored", "skipped", "failed"}
+            or result.get("error") or (result.get("sample") or {}).get("error")
+            for result in results
+        ):
+            raise ValueError(f"{case_id}: evaluator execution error or skipped result; no complete gate.")
         business = [r for r in results if r.get("name") == "contoso_business"]
         if any(r.get("status") == "error" or (r.get("sample") or {}).get("error") for r in business):
             raise ValueError(f"{case_id}: evaluator execution error; partial results cannot pass.")
@@ -185,6 +199,8 @@ def audit_items(
         cases = {c["id"]: c for c in load_cases(suite, split)}
         if not verdicts or not set(verdicts) <= cases.keys():
             raise ValueError("No valid business-case results.")
+        if suite.startswith("automated-") and set(verdicts) != cases.keys():
+            raise ValueError("Native business-case results are incomplete; a partial split cannot pass.")
         rubric = policy(suite)
         critical = [key for key, value in verdicts.items() if not value["passed"] and cases[key]["category"] in rubric["zero_tolerance_categories"]]
         integrity_failures = [
@@ -200,7 +216,125 @@ def audit_items(
     return report
 
 
+def check_native_completeness(native: dict, expected: int) -> None:
+    counts = native.get("result_counts") or {}
+    if (
+        native.get("status") != "completed" or native.get("error")
+        or counts.get("total") != expected or counts.get("errored") != 0 or counts.get("skipped", 0) != 0
+        or any(type(counts.get(key)) is not int for key in ("passed", "failed", "errored", "total"))
+        or counts.get("passed", 0) + counts.get("failed", 0) != expected
+        or len(native.get("items", [])) != expected
+    ):
+        raise ValueError("Native run has missing, errored, skipped or inconsistent rows; original results are retained.")
+
+
+def gate_receipt(suite: str, stage: str) -> Path:
+    if suite != "automated-v5" or stage not in {"calibration", "dev"}:
+        raise ValueError("A v5 gate receipt requires calibration or dev.")
+    local = RESULTS / f"{suite}-{stage}-gate.json"
+    shared = validation_for(ROOT) / suite / f"{stage}-gate.json"
+    return shared if not local.exists() and shared.exists() else local
+
+
+def verify_gate(suite: str, stage: str) -> dict:
+    """Recheck preserved originals, not just a success flag, before opening the exam."""
+    receipt = json.loads(gate_receipt(suite, stage).read_text(encoding="utf-8"))
+    if receipt.get("suite_sha256") != suite_hash(suite) or receipt.get("settings_hash") != settings_hash(suite):
+        raise ValueError("Gate belongs to a different frozen suite or judge.")
+    if receipt.get("judge") != config_values()["FOUNDRY_JUDGE_DEPLOYMENT_NAME"]:
+        raise ValueError("Judge deployment changed after calibration; holdout remains unopened.")
+    native_path = (ROOT / receipt["native_path"]).resolve()
+    if not any(native_path.is_relative_to(directory.resolve())
+               for directory in (RESULTS, validation_for(ROOT) / suite)):
+        raise ValueError("Gate native evidence must remain inside the owned results or suite evidence directory.")
+    native = json.loads(native_path.read_text(encoding="utf-8"))
+    if digest(native) != receipt["native_sha256"]:
+        raise ValueError("Gate native originals changed.")
+    if stage == "calibration":
+        expected = {row["id"]: row["expected_pass"] for row in calibration_cases(suite)}
+        check_native_completeness(native, len(expected))
+        audit = audit_items(native["items"], expected, suite=suite)
+        if not audit["calibration_passed"]:
+            raise ValueError("All eight judge controls must pass before target collection.")
+    else:
+        calibration = verify_gate(suite, "calibration")
+        if any(calibration[key] != receipt[key] for key in ("environment_sha256", "judge", "definition_hash", "eval_id")):
+            raise ValueError("Dev and calibration environments or native judges differ.")
+        source = (ROOT / receipt["input_path"]).resolve()
+        if not source.is_relative_to(ROOT.resolve()):
+            raise ValueError("Dev gate input escaped the checked-out experiment.")
+        if hashlib.sha256(source.read_bytes()).hexdigest() != receipt["input_sha256"]:
+            raise ValueError("Dev originals changed after native evaluation.")
+        rows = prepare_rows(source, "dev", suite)
+        check_native_completeness(native, len(rows))
+        audit = audit_items(native["items"], suite=suite, split="dev",
+                            automatic_checks={row["id"]: row["automatic_checks"] for row in rows})
+        if not audit["business_gate_passed"]:
+            raise ValueError("A complete calibrated dev pass is required; holdout remains unopened.")
+        if target_configuration(load_jsonl(source)) != receipt["configuration"]:
+            raise ValueError("Dev runtime or environment differs from its gate receipt.")
+    return receipt
+
+
+def target_configuration(rows: list[dict]) -> dict:
+    configurations = [{
+        "environment_sha256": row.get("environment_sha256"), "hosted_version": row.get("hosted_version"),
+        "runtime_sha256": row.get("contract", {}).get("sha256"),
+        "effective_prompt_sha256": row.get("effective_prompt_sha256"),
+        "model": row.get("model"), "model_deployment": row.get("model_deployment"),
+    } for row in rows]
+    if (not configurations or any(row.get("execution_location") != "azure" for row in rows)
+            or any(not all(value.values()) for value in configurations)
+            or any(value != configurations[0] for value in configurations)):
+        raise ValueError("A release gate needs one complete, consistent actual Azure candidate, not local/fixture evidence.")
+    return configurations[0]
+
+
+def wait_for_native(client, evaluation: str, native, evidence: Evidence):
+    from openai import OpenAIError
+
+    terminal = {"completed", "failed", "canceled", "cancelled"}
+    deadline = time.monotonic() + 600
+    monitor_error = None
+    try:
+        while native.status not in terminal:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            time.sleep(min(10, remaining))
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            native = client.evals.runs.retrieve(eval_id=evaluation, run_id=native.id, timeout=min(60, remaining))
+            evidence.append("run_status", native)
+    except (OpenAIError, OSError) as exc:
+        evidence.failure(exc)
+        monitor_error = exc
+    if native.status in terminal:
+        return native, False, None
+    deadline = time.monotonic() + 90
+    try:
+        evidence.append("cancel_requested", client.evals.runs.cancel(eval_id=evaluation, run_id=native.id, timeout=30))
+    except (OpenAIError, OSError) as exc:
+        evidence.failure(exc)
+    for attempt in range(6):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        native = client.evals.runs.retrieve(eval_id=evaluation, run_id=native.id, timeout=min(30, remaining))
+        evidence.append("cancel_status", native)
+        if native.status in terminal:
+            return native, monitor_error is None, monitor_error
+        if attempt < 5:
+            time.sleep(min(5, max(0, deadline - time.monotonic())))
+    raise RuntimeError("Native evaluation cancellation unconfirmed within 90 seconds; exact run may still be active.")
+
+
 def run(args, evidence: Evidence) -> None:
+    if args.suite == "automated-v5":
+        verify_development_freeze(args.suite)
+        if args.command != "calibrate":
+            verify_gate(args.suite, "calibration" if args.split == "dev" else "dev")
     if args.command == "calibrate":
         controls = calibration_cases(args.suite)
         rows = [{key: row[key] for key in FIELDS} for row in controls]
@@ -210,6 +344,14 @@ def run(args, evidence: Evidence) -> None:
             raise ValueError("run requires --input and --split dev|holdout.")
         rows, expected = prepare_rows(args.input, args.split, args.suite), None
     with project_client(evidence) as (project, _, endpoint, model), project.get_openai_client(max_retries=0, timeout=60) as client:
+        if args.suite == "automated-v5":
+            stage = "calibration" if args.command == "calibrate" else args.split
+            marker = RESULTS / f"native-{suite_hash(args.suite)[:16]}-{stage}-attempt.json"
+            with marker.open("x", encoding="utf-8") as handle:
+                json.dump({"run_id": evidence.run_id, "stage": stage, "purpose": "single native attempt; no resampling"}, handle)
+            if args.command != "calibrate":
+                if target_configuration(load_jsonl(args.input))["environment_sha256"] != digest(endpoint):
+                    raise ValueError("Native judge and actual target evidence belong to different projects.")
         state = setup(project, client, endpoint, model, evidence, args.suite)
         if "eval_id" not in state:
             raise RuntimeError("Previous native setup is partial. Inspect its receipt before starting a new evaluation.")
@@ -224,17 +366,26 @@ def run(args, evidence: Evidence) -> None:
         evidence.append("run_created", native)
         receipt_path = RESULTS / (evidence.run_id + ".json")
         save_json(receipt_path, {"eval_id": state["eval_id"], "run_id": native.id, "status": native.status})
-        deadline = time.monotonic() + 600
-        while native.status not in {"completed", "failed", "canceled", "cancelled"} and time.monotonic() < deadline:
-            time.sleep(10)
-            native = client.evals.runs.retrieve(eval_id=state["eval_id"], run_id=native.id)
-            evidence.append("run_status", native)
-        if native.status not in {"completed", "failed", "canceled", "cancelled"}:
-            evidence.append("cancel_requested", client.evals.runs.cancel(eval_id=state["eval_id"], run_id=native.id))
-            raise RuntimeError("Native evaluation time limit reached; cancellation requested, verify terminal state.")
+        native, timed_out, monitor_error = wait_for_native(client, state["eval_id"], native, evidence)
+        result = {
+            "eval_id": state["eval_id"], "run_id": native.id, "status": native.status,
+            "result_counts": serializable(native.result_counts), "error": serializable(native.error),
+            "timed_out": timed_out,
+            "monitor_error": None if monitor_error is None else {
+                "type": type(monitor_error).__name__, "message": str(monitor_error),
+            },
+        }
+        save_json(receipt_path, result)
+        if monitor_error is not None:
+            raise RuntimeError("Native polling failed; the terminal cancellation readback is retained.") from monitor_error
+        if timed_out:
+            raise RuntimeError("Native evaluation reached its 600-second limit; terminal cancellation readback retained.")
         items = [serializable(item) for item in client.evals.runs.output_items.list(eval_id=state["eval_id"], run_id=native.id)]
         evidence.append("native_output_items", items)
-        save_json(receipt_path, {"eval_id": state["eval_id"], "run_id": native.id, "status": native.status, "items": items})
+        result["items"] = items
+        save_json(receipt_path, result)
+        if args.suite == "automated-v5":
+            check_native_completeness(result, len(rows))
         if native.status != "completed" or len(items) != len(rows):
             raise RuntimeError("Native evaluation failed or returned partial results; originals retained.")
         checks = {row["id"]: row["automatic_checks"] for row in rows} if args.command != "calibrate" and args.suite.startswith("automated-") else None
@@ -246,6 +397,22 @@ def run(args, evidence: Evidence) -> None:
             raise RuntimeError("Judge audit failed; do not lower the threshold or claim target quality.")
         if expected is None and not audit["business_gate_passed"]:
             raise RuntimeError("Business gate failed; original results and fixed thresholds are retained.")
+        if args.suite == "automated-v5" and (expected is not None or args.split == "dev"):
+            stage = "calibration" if expected is not None else "dev"
+            receipt = {
+                "suite_sha256": suite_hash(args.suite), "settings_hash": settings_hash(args.suite),
+                "environment_sha256": digest(endpoint), "native_path": receipt_path.relative_to(ROOT).as_posix(),
+                "native_sha256": digest(result), "eval_id": state["eval_id"], "run_id": native.id,
+                "judge": state["judge"], "definition_hash": state["definition_hash"],
+            }
+            if stage == "dev":
+                receipt.update(
+                    input_path=args.input.resolve().relative_to(ROOT).as_posix(),
+                    input_sha256=hashlib.sha256(args.input.read_bytes()).hexdigest(),
+                    configuration=target_configuration(load_jsonl(args.input)),
+                )
+            with gate_receipt(args.suite, stage).open("x", encoding="utf-8") as handle:
+                json.dump(receipt, handle, indent=2)
 
 
 def main() -> None:

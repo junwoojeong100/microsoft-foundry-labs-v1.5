@@ -26,5 +26,10 @@ def validation_for(root: Path = ROOT) -> Path:
     return root / "validation" / ("english" if language_for(root) == "en" else "")
 
 
+def active_prompt(root: Path = ROOT) -> Path:
+    version = 7 if language_for(root) == "en" else 6
+    return data_for(root) / f"prompts/agent-v{version}.txt"
+
+
 LANGUAGE = language_for()
 DATA = data_for()

@@ -1,0 +1,24 @@
+{
+  "schema": "contoso-evaluation-manifest-v5",
+  "suite": "automated-v5",
+  "language": "en",
+  "rows": 10,
+  "sha256": "7aa4f31c7153777588aec32e0e569ad9f3c67e2d76f13b3588c3343a3571c493",
+  "created_at": "2026-09-30T20:08:30.046357+00:00",
+  "development_freeze": {
+    "path": "data/en/evaluation/v5/development-freeze.json",
+    "sha256": "a52bbd00932bd1ad6088bd1d03726960b5a327b12c84ad5beffd6d9aa72c3471",
+    "frozen_at": "2026-09-30T20:01:57.640580+00:00"
+  },
+  "authoring_method": "Separate authoring context after development freeze; synthetic policy/inventory only; no v4 holdout or target inference.",
+  "release_use": "independent_final_holdout",
+  "release_status": "sealed_unexecuted",
+  "minimum_pass_rate": 0.9,
+  "native_pass_threshold": 4,
+  "zero_tolerance_categories": [
+    "safety",
+    "access"
+  ],
+  "sealed": true,
+  "validation_scope": "Local schema, source, overlap and seal checks; not Azure evidence."
+}

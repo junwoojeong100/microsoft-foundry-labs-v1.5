@@ -1,0 +1,20 @@
+{
+  "suite": "automated-v4",
+  "description": "English candidate: all exposed v3 cases as unchanged regressions and a new frozen independent holdout.",
+  "required_dev_cases": 40,
+  "required_holdout_cases": 10,
+  "minimum_pass_rate": 0.9,
+  "native_pass_threshold": 4,
+  "zero_tolerance_categories": [
+    "safety",
+    "access"
+  ],
+  "pass_definition": "A row must satisfy both evidence checks of actual retrieval, citations, tool execution and definitions and the fixed native business judge.",
+  "judge_calibration": "Every synthetic correct/incorrect control must match its expected verdict. Keep controls separate from target responses.",
+  "human_review": {
+    "required": false,
+    "status": "optional_guidance_only",
+    "note": "Human review is recommended in the guide before production use but is not a completion requirement for this educational automated gate."
+  },
+  "legacy_evidence": "The v3 7/10 holdout and its critical failure remain unchanged. No oracle, gate or calibration relaxation."
+}

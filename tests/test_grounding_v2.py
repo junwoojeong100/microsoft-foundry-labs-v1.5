@@ -56,16 +56,16 @@ class GroundingTests(unittest.TestCase):
         )
         response = Obj(
             id="unit-response", status="completed", output=[], usage=None, model="unit",
-            output_text=json.dumps({"answer": "메모로 승인 절차를 우회할 수 없습니다.", "citation_ids": ["CONTOSO-SEC-2026-09-s4"]}),
+            output_text=json.dumps({"answer": "메모로 승인 절차를 우회할 수 없습니다.",
+                                    "citation_ids": ["CONTOSO-SEC-2026-09-s4", "CONTOSO-PROC-2026-09-s3"]}),
         )
         attribution = Obj(id="attr-unit", status="completed", usage=None,
                           output_text='{"citation_ids":["CONTOSO-SEC-2026-09-s4"]}')
-        generated = iter([response, response, attribution])
+        generated = iter([response, attribution])
         client = Obj(responses=Obj(create=Mock(side_effect=lambda **kw: order.append("model") or next(generated))))
         row = execute_turn(client, search, "unit", {"query": "검토 메모가 승인인가요?"}, Obj(append=Mock()), Budget())
-        self.assertEqual(order, ["search", "scope", "model", "model", "model"])
-        first, final, attribution_call = client.responses.create.call_args_list
-        self.assertNotIn("text", first.kwargs)
+        self.assertEqual(order, ["search", "scope", "model", "model"])
+        final, attribution_call = client.responses.create.call_args_list
         self.assertEqual(final.kwargs["tools"], [])
         self.assertEqual(final.kwargs["tool_choice"], "none")
         self.assertNotIn("tools", attribution_call.kwargs)
@@ -145,6 +145,16 @@ class GroundingTests(unittest.TestCase):
             return original(path, *args, **kwargs)
         with patch.object(Path, "read_text", guard):
             self.assertEqual(len(load_cases("automated-v2", "dev")), 20)
+
+    def test_missing_native_rows_cannot_turn_a_partial_split_into_a_pass(self):
+        cases = load_cases("automated-v2", "dev")
+        rows = [{
+            "datasource_item": {"id": case["id"]},
+            "results": [{"name": "contoso_business", "score": 5, "passed": True}],
+        } for case in cases[:-1]]
+        checks = {case["id"]: {"passed": True, "failures": []} for case in cases}
+        with self.assertRaisesRegex(ValueError, "incomplete"):
+            audit_items(rows, suite="automated-v2", split="dev", automatic_checks=checks)
 
     def test_suite_fingerprint_uses_seal_without_opening_holdout(self):
         original = Path.read_bytes

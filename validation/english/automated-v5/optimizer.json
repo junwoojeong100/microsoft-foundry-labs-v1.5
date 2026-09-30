@@ -1,0 +1,92 @@
+{
+  "schema": "contoso-english-v5-optimizer-v1",
+  "job_id": "opt_7c6be680d37342dab3c41b2b06b52803",
+  "suite": "automated-v5",
+  "agent": "contoso-purchasing-responses",
+  "version": "4",
+  "outcome": "operational_failure",
+  "service_status": "succeeded",
+  "completion_status": "stopped_early",
+  "warnings": [
+    "Optimizer returned only the baseline; no optimized candidates were generated.",
+    "Optimization stopped because all candidates already achieve perfect scores on the evaluation samples."
+  ],
+  "dev_cases": 40,
+  "holdout_cases": 0,
+  "max_candidates": 2,
+  "max_stalls": 1,
+  "max_seconds": 1200,
+  "service_duration_seconds": 647,
+  "cancellation_max_seconds": 90,
+  "cleanup_max_seconds": 180,
+  "timeout_reached": false,
+  "cancellation_requested": false,
+  "baseline_dev_score": 0.9453125,
+  "generated_candidates": 0,
+  "candidate_promoted": false,
+  "quality_improvement_claimed": false,
+  "human_review_completed": false,
+  "reflection_execution": "not_established_by_native_job_evidence",
+  "native_baseline": {
+    "eval_id": "eval_9233f9ce768a434198aa13185b551971",
+    "run_id": "evalrun_a57ab56058f94ca2bf804e7b2928429e",
+    "status": "completed",
+    "result_counts": {
+      "errored": 1,
+      "failed": 1,
+      "passed": 38,
+      "total": 40,
+      "skipped": 0
+    },
+    "rows_downloaded": 40,
+    "errored_case_ids": [
+      "v5-dev-08"
+    ],
+    "failed_case_ids": [
+      "v5-dev-27"
+    ],
+    "authentic_engine_records": 39,
+    "missing_or_failed_engine_evidence": [
+      "v5-dev-08"
+    ],
+    "authorization_contracts": [
+      "explicit-request-v2"
+    ],
+    "runtime_hashes": [
+      "355b9aa773ef1db97b4afc3dd28af5ecfc78db94e15b4ae19549a634b13088a6"
+    ],
+    "effective_prompt_hashes": [
+      "2d223cdecdced7a5cdb6aa045aaa420e30b3a999ad47b86a39aa1aa56b67ce62"
+    ],
+    "raw_sha256": "9058f5d080f460849002d426a4e6c58a5196c318efdd7cf9317c6e436d753760"
+  },
+  "reported_agent_call_count": 43,
+  "perfect_score_warning_is_not_a_pass": true,
+  "cleanup": {
+    "job_id": "opt_7c6be680d37342dab3c41b2b06b52803",
+    "agent": "contoso-purchasing-responses",
+    "version": "4",
+    "status": "observed_quiescence",
+    "max_seconds": 180,
+    "max_passes": 6,
+    "max_sessions": 10,
+    "max_stop_requests": 60,
+    "session_creation_tail_seconds": 180,
+    "passes": 6,
+    "stopped_session_ids": [
+      "s-2829d350-f38d-4116-80f2-49babbeeab94",
+      "s-498247ff-0206-46e7-8c88-cef4b6b5801e"
+    ],
+    "resources_deleted": false,
+    "scope": "Recorded baseline version and verified job candidate versions, excluding the pre-job snapshot; bounded observation only.",
+    "quiet_passes": 5
+  },
+  "observed_cleanup_elapsed_seconds": 63.532,
+  "interpretation": [
+    "The service returned succeeded/stopped_early, but the native baseline has one evaluator error and one failure; preserve operational_failure.",
+    "v5-dev-08 has empty sample.output_text and no detailed native error reason. No answer was reconstructed from another run.",
+    "The task_adherence failure on v5-dev-27 penalizes refusal to confirm an unsupported deduction/FX conversion. Its reason conflicts with the fixed Contoso oracle; the original failed metric is retained, not relabeled as a pass.",
+    "The 39 parseable native engine responses retain actual v2 authorization, tools and citations. They never replace the original Invocations dev failure.",
+    "No reflection execution, generated-candidate improvement, timeout cancellation exercise or release pass is established by this run."
+  ]
+}

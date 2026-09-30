@@ -6,19 +6,28 @@ import argparse
 import base64
 from datetime import datetime, timezone
 import json
+from itertools import islice
 import math
 from pathlib import Path
+import re
 import signal
 import subprocess
 import time
 from uuid import uuid4
+from urllib.parse import urlparse
 
 from cloud import project_client
 from evidence import Evidence, digest, redacted, serializable
-from evaluation_data import DEFAULT_SUITE, SUITES, load_cases
-from workshop import DATA, RESULTS, config_values, read_config
+from evaluation_data import DEFAULT_SUITE, FROZEN_SUITES, SUITES, load_cases, suite_hash, verify_development_freeze
+from workshop import DATA, LANGUAGE, RESULTS, config_values, read_config
 
 TERMINAL = {"succeeded", "failed", "cancelled"}
+INACTIVE_SESSIONS = {"idle", "stopped", "expired", "deleted"}
+CLEANUP_MAX_SECONDS = 180
+CLEANUP_PASSES = 6
+CLEANUP_INTERVAL_SECONDS = 10
+MAX_CLEANUP_SESSIONS = 10
+CANCELLATION_MAX_SECONDS = 90
 REFLECTION_MODELS = {
     "gpt-5", "gpt-5.1", "gpt-5.2", "gpt-5.4", "gpt-5.5", "deepseek-v4-pro", "deepseek-v-3.2",
 }
@@ -71,6 +80,8 @@ def write_new(path: Path, value: dict) -> None:
 
 def owned_endpoint(endpoint: str) -> dict:
     state = json.loads((RESULTS / "azure-environment.json").read_text(encoding="utf-8"))
+    if state.get("language", "ko") != LANGUAGE:
+        raise ValueError("Optimizer language does not match the owned environment ledger.")
     expected = f"https://{state['account_name']}.services.ai.azure.com/api/projects/{state['project_name']}"
     if endpoint != state.get("project_endpoint") or endpoint != expected:
         raise ValueError("Optimizer endpoint does not match the owned environment ledger.")
@@ -187,11 +198,11 @@ def preflight(project, agent: str, version: str, optimizer: str, evidence: Evide
         raise ValueError("Deployment is not an allowed reflection model; gpt-5-mini is not supported.")
 
 
-def session_command(agent: str, evidence: Evidence, *args: str, json_output: bool = True):
+def session_command(agent: str, evidence: Evidence, *args: str, json_output: bool = True, timeout_seconds: float = 90):
     command = ["azd", "ai", "agent", "sessions", *args, "--agent-name", agent, "--no-prompt"]
     if json_output:
         command += ["--output", "json"]
-    result = subprocess.run(command, text=True, capture_output=True, timeout=90, check=False)
+    result = subprocess.run(command, text=True, capture_output=True, timeout=timeout_seconds, check=False)
     evidence.append("optimizer_session_cli", {
         "operation": list(args), "agent": agent, "returncode": result.returncode,
         "stdout": result.stdout, "stderr": result.stderr,
@@ -229,9 +240,25 @@ def verify_session_context(agent: str, endpoint: str, evidence: Evidence) -> Non
     })
 
 
-def sessions(agent: str, evidence: Evidence) -> list[dict]:
-    page = session_command(agent, evidence, "list", "--limit", "100")
+def sessions(agent: str, evidence: Evidence, *, project=None, timeout_seconds: float = 60) -> list[dict]:
+    if project is not None:
+        from azure.core.exceptions import AzureError
+        try:
+            rows = [serializable(row) for row in islice(project.agents.list_sessions(
+                agent, limit=100, read_timeout=timeout_seconds, connection_timeout=min(15, timeout_seconds),
+            ), 101)]
+        except AzureError as exc:
+            raise RuntimeError("SDK session discovery failed; cleanup is unverified.") from exc
+        if len(rows) > 100:
+            raise RuntimeError("SDK session discovery exceeded 100 sessions; cleanup is unverified.")
+        if any(not isinstance(row, dict) or not row.get("agent_session_id") for row in rows):
+            raise ValueError("Invalid SDK session identity; cleanup is unverified.")
+        evidence.append("optimizer_session_sdk_list", {"agent": agent, "sessions": rows})
+        return rows
+    page = session_command(agent, evidence, "list", "--limit", "100", timeout_seconds=timeout_seconds)
     if isinstance(page, list):
+        if len(page) >= 100:
+            raise RuntimeError("CLI session listing may be truncated; cleanup is unverified.")
         return page
     if any(page.get(key) for key in (
         "continuation_token", "next_page_token", "pagination_token", "next_link", "nextLink",
@@ -240,7 +267,79 @@ def sessions(agent: str, evidence: Evidence) -> list[dict]:
     rows = page.get("sessions", page.get("value", page.get("data")))
     if not isinstance(rows, list):
         raise ValueError("Unrecognized hosted-session list response.")
+    if len(rows) >= 100:
+        raise RuntimeError("CLI session listing may be truncated; cleanup is unverified.")
     return rows
+
+
+def timestamp(value, label: str) -> float:
+    if isinstance(value, datetime):
+        value = value.timestamp()
+    elif isinstance(value, str):
+        value = datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+    if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+        raise ValueError(f"Invalid {label}; session ownership/time bounds cannot be established.")
+    return value
+
+
+def remaining_timeout(deadline: float | None, limit: float = 60) -> float:
+    remaining = limit if deadline is None else min(limit, deadline - time.monotonic())
+    if remaining <= 0:
+        raise TimeoutError("Optimizer cleanup budget exhausted; remaining sessions are unverified.")
+    return remaining
+
+
+def session_action(agent: str, session_id: str, operation: str, evidence: Evidence, *, project=None, deadline=None):
+    timeout = remaining_timeout(deadline)
+    if project is None:
+        return session_command(
+            agent, evidence, operation, session_id, json_output=operation == "show", timeout_seconds=timeout,
+        )
+    from azure.core.exceptions import AzureError
+    try:
+        method = project.agents.get_session if operation == "show" else project.agents.stop_session
+        result = serializable(method(
+            agent, session_id, read_timeout=timeout, connection_timeout=min(15, timeout),
+        ))
+    except AzureError as exc:
+        raise RuntimeError(f"SDK {operation} failed for recorded session {session_id}; stop is unverified.") from exc
+    evidence.append("optimizer_session_sdk_" + operation, {
+        "agent": agent, "session_id": session_id, "result": result,
+    })
+    return result
+
+
+def owned_draft_version(project, agent: str, version: str, job_id: str, endpoint: str,
+                        evidence: Evidence, deadline: float) -> bool:
+    from azure.core.exceptions import AzureError
+    timeout = remaining_timeout(deadline)
+    try:
+        details = serializable(project.agents.get_version(
+            agent, version, read_timeout=timeout, connection_timeout=min(15, timeout),
+        ))
+    except AzureError as exc:
+        raise RuntimeError("Cannot verify optimizer draft-version ownership; no session was stopped.") from exc
+    if details.get("name") != agent or str(details.get("version")) != version:
+        raise ValueError("Optimizer draft-version identity mismatch.")
+    definition = details.get("definition") or {}
+    variables = definition.get("environment_variables") or {}
+    candidate = variables.get("OPTIMIZATION_CANDIDATE_ID", "")
+    if not isinstance(candidate, str) or not candidate.startswith("cand_opt_"):
+        raise ValueError("Draft version has no verifiable optimizer job identity; cleanup remains unverified.")
+    resolver = urlparse(variables.get("OPTIMIZATION_RESOLVE_ENDPOINT", ""))
+    target = urlparse(endpoint)
+    matches = (
+        definition.get("kind") == "hosted" and isinstance(candidate, str)
+        and candidate.startswith("cand_" + job_id + "_")
+        and target.scheme == "https" and resolver.scheme == "https" and resolver.netloc == target.netloc
+        and resolver.path.startswith(target.path.rstrip("/") + "/")
+    )
+    evidence.append("optimizer_draft_version_ownership", {
+        "agent": agent, "version": version, "candidate_id": candidate, "matches_recorded_job_and_project": matches,
+    })
+    if candidate.startswith("cand_" + job_id + "_") and not matches:
+        raise ValueError("Recorded job candidate has an unverified definition/resolver; no session was stopped.")
+    return matches
 
 
 def job_session_ids(environment: dict, agent: str, version: str, job: dict, evidence: Evidence) -> set[str]:
@@ -249,8 +348,8 @@ def job_session_ids(environment: dict, agent: str, version: str, job: dict, evid
     resource_id = monitoring.get("appInsightsId", {}).get("value", "")
     if not app_id or not resource_id.lower().startswith(environment["resource_group_id"].lower() + "/"):
         raise ValueError("Owned App Insights is required to discover native sessions omitted by azd list.")
-    start = datetime.fromtimestamp(job["created_at"], timezone.utc)
-    end = datetime.fromtimestamp(job["updated_at"], timezone.utc)
+    start = datetime.fromtimestamp(timestamp(job["created_at"], "job creation time"), timezone.utc)
+    end = datetime.fromtimestamp(timestamp(job["updated_at"], "job update time"), timezone.utc)
     query = f"""traces
 | where timestamp between (datetime({start.isoformat()}) .. datetime({end.isoformat()}))
 | where tostring(customDimensions["gen_ai.agent.name"]) == {json.dumps(agent)}
@@ -295,52 +394,150 @@ def job_session_ids(environment: dict, agent: str, version: str, job: dict, evid
 
 
 def stop_new_sessions(agent: str, version: str, before: set[str], job_id: str,
-                      evidence: Evidence, *, environment: dict | None = None, job: dict | None = None) -> None:
+                      evidence: Evidence, *, environment: dict | None = None, job: dict | None = None,
+                      project=None, deadline=None, verified: set[str] | None = None,
+                      endpoint: str | None = None, version_ownership: dict[str, bool] | None = None,
+                      allow_terminal_tail: bool = False) -> dict:
+    verified = set() if verified is None else verified
+    version_ownership = {} if version_ownership is None else version_ownership
     errors = []
     found = set()
+    owned = set()
+    stopped = set()
     try:
-        found.update(row["agent_session_id"] for row in sessions(agent, evidence))
-    except Exception as exc:
+        found.update(row["agent_session_id"] for row in sessions(
+            agent, evidence, project=project, timeout_seconds=remaining_timeout(deadline),
+        ))
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
         evidence.failure(exc)
         errors.append(str(exc))
-    if environment is not None:
+    if environment is not None and project is None:
         try:
             if not job:
                 raise ValueError("No final job timestamps; native session ownership cannot be established.")
             found.update(job_session_ids(environment, agent, version, job, evidence))
-        except Exception as exc:
+        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
             evidence.failure(exc)
             errors.append(str(exc))
     for session_id in sorted(found - before):
         try:
-            original = session_command(agent, evidence, "show", session_id)
+            original = session_action(agent, session_id, "show", evidence, project=project, deadline=deadline)
             indicator = original.get("version_indicator", {})
-            related = indicator.get("agent_version") == version or any(
-                isinstance(value, str) and value.startswith("cand_" + job_id + "_") for value in indicator.values()
+            candidate_ids = {
+                candidate["candidate_id"] for candidate in ((job or {}).get("result") or {}).get("candidates", [])
+                if isinstance(candidate.get("candidate_id"), str)
+            }
+            candidate = any(
+                isinstance(value, str) and (value.startswith("cand_" + job_id + "_") or value in candidate_ids)
+                for key, value in indicator.items() if key in {"agent_version", "candidate_id", "optimization_candidate_id"}
             )
+            candidate_reference = any(
+                key in {"candidate_id", "optimization_candidate_id"}
+                or (key == "agent_version" and isinstance(value, str) and value.startswith("cand_"))
+                for key, value in indicator.items()
+            )
+            related = candidate if candidate_reference else indicator.get("agent_version") == version
+            observed_version = indicator.get("agent_version", "")
+            if project is not None and isinstance(observed_version, str) and re.fullmatch(r"draft-\d+", observed_version):
+                if not endpoint or deadline is None:
+                    raise ValueError("The owned project and cleanup deadline are required for draft-version discovery.")
+                if observed_version not in version_ownership:
+                    if len(version_ownership) >= MAX_CLEANUP_SESSIONS:
+                        raise RuntimeError("Draft-version discovery exceeded the bounded ownership lookup limit.")
+                    version_ownership[observed_version] = owned_draft_version(
+                        project, agent, observed_version, job_id, endpoint, evidence, deadline,
+                    )
+                related = candidate = version_ownership[observed_version]
             if original.get("agent_session_id") != session_id or not related:
+                evidence.append("unrelated_session_preserved", {"session_id": session_id})
                 continue
-            if job and not (job["created_at"] <= original.get("created_at", 0) <= job["updated_at"]):
-                evidence.append("preexisting_session_preserved", {"session_id": session_id})
+            if job and session_id not in verified:
+                created = timestamp(original.get("created_at"), "session creation time")
+                start = timestamp(job.get("created_at"), "job creation time")
+                end = timestamp(job.get("updated_at"), "job update time")
+                upper = end + (CLEANUP_MAX_SECONDS if allow_terminal_tail else 0)
+                if created < start or created > upper:
+                    evidence.append("outside_job_window_session_preserved", {"session_id": session_id})
+                    continue
+                if created > datetime.now(timezone.utc).timestamp():
+                    raise ValueError("Session creation time is in the future; ownership is unverified.")
+            owned.add(session_id)
+            if len(owned | verified) > MAX_CLEANUP_SESSIONS:
+                raise RuntimeError("Optimizer sessions exceed the bounded cleanup limit.")
+            if original.get("status") in INACTIVE_SESSIONS and (
+                session_id in verified or original.get("stopped_at") or original.get("status") in {"expired", "deleted"}
+            ):
                 continue
-            session_command(agent, evidence, "stop", session_id, json_output=False)
+            session_action(agent, session_id, "stop", evidence, project=project, deadline=deadline)
             for attempt in range(6):
-                status = session_command(agent, evidence, "show", session_id)
-                if status.get("agent_session_id") == session_id and status.get("status") in {"idle", "stopped"}:
+                status = session_action(agent, session_id, "show", evidence, project=project, deadline=deadline)
+                if status.get("agent_session_id") == session_id and status.get("status") in INACTIVE_SESSIONS:
                     break
                 if attempt < 5:
-                    time.sleep(2)
-            if status.get("agent_session_id") != session_id or status.get("status") not in {"idle", "stopped"}:
+                    time.sleep(remaining_timeout(deadline, 2))
+            if status.get("agent_session_id") != session_id or status.get("status") not in INACTIVE_SESSIONS:
                 raise RuntimeError(f"Optimizer session {session_id} has no verified stopped state.")
-            # The extension omits stopped_at; successful stop + idle readback is the supported CLI evidence.
+            stopped.add(session_id)
+            verified.add(session_id)
             evidence.append("optimizer_session_stopped", {
                 "session": status, "stop_acknowledged": True, "stopped_at_visible": "stopped_at" in status,
             })
-        except Exception as exc:
+        except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
             evidence.failure(exc)
             errors.append(f"{session_id}: {exc}")
+    snapshot = {"observed_owned": sorted(owned), "stopped": sorted(stopped), "errors": errors}
+    evidence.append("optimizer_cleanup_snapshot", snapshot)
     if errors:
         raise RuntimeError("Optimizer cleanup is incomplete: " + "; ".join(errors))
+    return snapshot
+
+
+def reconcile_sessions(project, agent: str, version: str, before: set[str], job_id: str,
+                       job: dict, evidence: Evidence, *, endpoint: str) -> dict:
+    deadline = time.monotonic() + CLEANUP_MAX_SECONDS
+    observed, verified = set(), set()
+    version_ownership = {}
+    quiet = 0
+    summary = {
+        "job_id": job_id, "agent": agent, "version": version,
+        "status": "unverified", "max_seconds": CLEANUP_MAX_SECONDS,
+        "max_passes": CLEANUP_PASSES, "max_sessions": MAX_CLEANUP_SESSIONS,
+        "max_stop_requests": CLEANUP_PASSES * MAX_CLEANUP_SESSIONS,
+        "session_creation_tail_seconds": CLEANUP_MAX_SECONDS,
+        "passes": 0, "stopped_session_ids": [], "resources_deleted": False,
+        "scope": "Recorded baseline version and verified job candidate versions, excluding the pre-job snapshot; bounded observation only.",
+    }
+    try:
+        if not job or job.get("id") != job_id or job.get("status") not in TERMINAL:
+            raise RuntimeError("A terminal owned job is required before claiming session cleanup.")
+        start = timestamp(job.get("created_at"), "job creation time")
+        if timestamp(job.get("updated_at"), "job update time") < start:
+            raise ValueError("Optimizer job timestamps are out of order.")
+        for sweep in range(CLEANUP_PASSES):
+            snapshot = stop_new_sessions(
+                agent, version, before, job_id, evidence, project=project, job=job,
+                deadline=deadline, verified=verified,
+                endpoint=endpoint, version_ownership=version_ownership, allow_terminal_tail=True,
+            )
+            current = set(snapshot["observed_owned"])
+            quiet = quiet + 1 if current <= observed and not snapshot["stopped"] else 0
+            observed.update(current)
+            summary.update(passes=sweep + 1, stopped_session_ids=sorted(verified), quiet_passes=quiet)
+            evidence.append("optimizer_cleanup_progress", summary)
+            if sweep < CLEANUP_PASSES - 1:
+                time.sleep(remaining_timeout(deadline, CLEANUP_INTERVAL_SECONDS))
+        if quiet < 2:
+            raise RuntimeError("Late sessions have not settled for two readbacks; cleanup remains unverified.")
+        summary["status"] = "observed_quiescence"
+        return summary
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
+        summary["error"] = {"type": type(exc).__name__, "message": str(exc)}
+        evidence.failure(exc)
+        raise
+    finally:
+        summary["stopped_session_ids"] = sorted(verified)
+        evidence.append("optimizer_cleanup", summary)
+        write_new(RESULTS / (evidence.run_id + "-cleanup.json"), summary)
 
 
 def time_limit(value: int = 600, receipt: dict | None = None) -> int:
@@ -359,37 +556,66 @@ def time_limit(value: int = 600, receipt: dict | None = None) -> int:
 
 
 def cancel_verified(operations, job_id: str, evidence: Evidence, *, max_seconds: int = 600) -> dict:
-    evidence.append("cancellation_budget", {"job_id": job_id, "max_seconds": time_limit(max_seconds)})
+    from azure.core.exceptions import AzureError
+    deadline = time.monotonic() + CANCELLATION_MAX_SECONDS
+    evidence.append("cancellation_budget", {
+        "job_id": job_id, "max_seconds": time_limit(max_seconds),
+        "cancellation_max_seconds": CANCELLATION_MAX_SECONDS,
+    })
     try:
-        evidence.append("cancel_requested", operations.cancel_optimization_job(job_id))
-    except Exception as exc:
+        timeout = remaining_timeout(deadline)
+        evidence.append("cancel_requested", operations.cancel_optimization_job(
+            job_id, read_timeout=timeout, connection_timeout=min(15, timeout),
+        ))
+    except (AzureError, OSError, RuntimeError) as exc:
         evidence.failure(exc)
     for attempt in range(6):
-        job = serializable(operations.get_optimization_job(job_id))
+        timeout = remaining_timeout(deadline)
+        job = serializable(operations.get_optimization_job(
+            job_id, read_timeout=timeout, connection_timeout=min(15, timeout),
+        ))
         evidence.append("cancel_status", job)
         if job.get("status") in TERMINAL:
             return job
         if attempt < 5:
-            time.sleep(5)
+            time.sleep(remaining_timeout(deadline, 5))
     raise RuntimeError(f"Optimizer {job_id} cancellation is not confirmed; operations may still be active.")
 
 
 def monitor(operations, job_id: str, evidence: Evidence, *, max_seconds: int = 600) -> dict:
     max_seconds = time_limit(max_seconds)
-    job = serializable(operations.get_optimization_job(job_id))
-    created = job.get("created_at")
-    if isinstance(created, str):
-        created = datetime.fromisoformat(created.replace("Z", "+00:00")).timestamp()
-    if not isinstance(created, (int, float)):
-        raise ValueError("Missing optimizer creation time; cannot enforce the recorded time budget.")
+    job = serializable(operations.get_optimization_job(job_id, read_timeout=60, connection_timeout=15))
+    created = timestamp(job.get("created_at"), "optimizer creation time")
+    if created > datetime.now(timezone.utc).timestamp() + 30:
+        raise ValueError("Optimizer creation time is in the future; refusing to reset its budget.")
     remaining = max(0, min(max_seconds, max_seconds - (datetime.now(timezone.utc).timestamp() - created)))
     deadline = time.monotonic() + remaining
     evidence.append("monitor_budget", {
         "job_id": job_id, "max_seconds": max_seconds, "created_at": created,
         "deadline_at": created + max_seconds, "remaining_seconds": remaining,
     })
-    for _ in range(math.ceil(max_seconds / 10)):
+    previous = None
+    last_change = time.monotonic()
+    progress = {}
+    for poll in range(math.ceil(max_seconds / 10)):
         evidence.append("job_status", job)
+        result = job.get("result") or {}
+        progress = {
+            "job_id": job_id, "status": job.get("status"), "completion_status": job.get("completion_status"),
+            "candidates": [{key: candidate.get(key) for key in (
+                "candidate_id", "eval_id", "eval_run_id", "avg_score",
+            )} for candidate in result.get("candidates", [])],
+            "latency_usage": result.get("latency_usage", []), "token_usage": result.get("token_usage", []),
+            "warnings": job.get("warnings", []), "error": job.get("error"),
+            "service_progress": job.get("progress"),
+        }
+        fingerprint = digest(progress)
+        if fingerprint != previous:
+            previous, last_change = fingerprint, time.monotonic()
+        evidence.append("optimizer_progress", {
+            **progress, "polls": poll + 1,
+            "unchanged_seconds": round(time.monotonic() - last_change, 3),
+        })
         if job.get("status") in TERMINAL:
             return job
         remaining = deadline - time.monotonic()
@@ -403,6 +629,12 @@ def monitor(operations, job_id: str, evidence: Evidence, *, max_seconds: int = 6
         job = serializable(operations.get_optimization_job(
             job_id, read_timeout=min(60, remaining), connection_timeout=min(15, remaining),
         ))
+    evidence.append("optimizer_timeout", {
+        **progress, "max_seconds": max_seconds, "created_at": created, "deadline_at": created + max_seconds,
+        "unchanged_seconds": round(time.monotonic() - last_change, 3),
+        "cause": "The recorded job deadline expired; service latency/throttling cause is not established by polling alone.",
+        "deadline_extended": False, "new_job_submitted": False,
+    })
     raise TimeoutError(f"Optimizer {max_seconds}-second limit reached; cancellation is required.")
 
 
@@ -490,6 +722,10 @@ def outcome(job: dict, evaluations: list[dict], expected_items: int | None) -> d
 
 def run(args: argparse.Namespace, evidence: Evidence) -> dict:
     max_seconds = time_limit(getattr(args, "max_seconds", 600))
+    if LANGUAGE == "en" and not args.resume and args.suite in FROZEN_SUITES:
+        verify_development_freeze(args.suite)
+    if not args.resume and args.suite == "automated-v5" and max_seconds > 1200:
+        raise ValueError("The v5 optimizer budget cannot exceed 1200 seconds.")
     endpoint, _ = read_config()
     environment = owned_endpoint(endpoint)
     receipt = recorded_job(args.resume, endpoint, args.agent, args.version) if args.resume else None
@@ -511,11 +747,19 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
         before = set(receipt.get("session_ids_before", [])) if receipt else None
         job = None
         cleanup_needed = False
+        terminal_saved = False
+        failure = None
         try:
             if not args.resume:
                 preflight(project, args.agent, args.version, args.optimizer_deployment, evidence)
                 verify_session_context(args.agent, endpoint, evidence)
-                before = {row["agent_session_id"] for row in sessions(args.agent, evidence)}
+                before = {row["agent_session_id"] for row in sessions(args.agent, evidence, project=project)}
+                if args.suite == "automated-v5":
+                    write_new(RESULTS / f"optimizer-{suite_hash(args.suite)[:16]}-attempt.json", {
+                        "run_id": evidence.run_id, "suite": args.suite, "agent": args.agent,
+                        "version": args.version, "max_seconds": max_seconds,
+                        "purpose": "one dev-only optimizer submission; never automatically retry or promote",
+                    })
                 request = payload(
                     args.agent, args.version, judge, args.optimizer_deployment, args.suite, cases=cases,
                     prompt_path=getattr(args, "prompt_file", None),
@@ -553,6 +797,7 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
                 raise ValueError("Service job inputs do not match the recorded target version.")
             evidence.append("terminal_job", job)
             write_new(RESULTS / (evidence.run_id + "-terminal.json"), job)
+            terminal_saved = True
             reports = []
             if job.get("status") == "succeeded" and job.get("result"):
                 try:
@@ -568,18 +813,27 @@ def run(args: argparse.Namespace, evidence: Evidence) -> dict:
             write_new(RESULTS / (evidence.run_id + "-outcome.json"), summary)
             return summary
         except BaseException as exc:
+            failure = exc
             evidence.failure(exc)
             raise
         finally:
             try:
                 if cleanup_needed and job_id and (job is None or job.get("status") not in TERMINAL):
                     job = cancel_verified(project.beta.agents, job_id, evidence, max_seconds=max_seconds)
+                if job and job.get("status") in TERMINAL and not terminal_saved:
+                    evidence.append("terminal_job", job)
+                    write_new(RESULTS / (evidence.run_id + "-terminal.json"), job)
+                    summary = {
+                        **outcome(job, [], (receipt or {}).get("dev_items")),
+                        "suite": (receipt or {}).get("suite", args.suite),
+                        "max_seconds": max_seconds,
+                        "failure": {"type": type(failure).__name__, "message": str(failure)} if failure else None,
+                    }
+                    evidence.append("optimizer_outcome", summary)
+                    write_new(RESULTS / (evidence.run_id + "-outcome.json"), summary)
             finally:
                 if cleanup_needed and before is not None and (not args.resume or "session_ids_before" in receipt):
-                    verify_session_context(args.agent, endpoint, evidence)
-                    stop_new_sessions(
-                        args.agent, args.version, before, job_id, evidence, environment=environment, job=job,
-                    )
+                    reconcile_sessions(project, args.agent, args.version, before, job_id, job, evidence, endpoint=endpoint)
 
 
 def main() -> None:
@@ -619,6 +873,10 @@ def main() -> None:
             "reflection_probe": args.probe_reflection, "require_owned_oidc": args.require_oidc,
             "dev_items": len(cases), "holdout_items": 0, "max_candidates": 2,
             "max_stalls": 1, "max_seconds": args.max_seconds, "auto_promote": False,
+            "cancellation_max_seconds": CANCELLATION_MAX_SECONDS,
+            "cleanup_max_seconds": CLEANUP_MAX_SECONDS, "cleanup_passes": CLEANUP_PASSES,
+            "cleanup_max_sessions": MAX_CLEANUP_SESSIONS,
+            "cleanup_max_stop_requests": CLEANUP_PASSES * MAX_CLEANUP_SESSIONS,
             "prompt_file": str(args.prompt_file or DATA / "prompts/agent-v4.txt"),
             "prompt_selection_required": args.prompt_file is None and not args.resume,
             "dev_ids": [case["id"] for case in cases],

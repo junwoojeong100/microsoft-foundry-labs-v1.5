@@ -1,0 +1,44 @@
+{
+  "status": "passed_smoke_only",
+  "quality_release": false,
+  "execution_location": "azure",
+  "source": "results/contoso-hosted-client-ae82d89a6f12-responses.jsonl",
+  "source_sha256": "eb600c8520123422c2e34ccefcd04e39a62f216b94fc537fa6f589c17ff47196",
+  "hosted_version": "3",
+  "hosted_session_id": "041cec000f5bb6d400xPZTLnylTiHI7Y6TXXMcy8L2xY1vIDdF",
+  "response_id": "resp_0685c903571027d4016abd3d05d1a48190902a12bb9d445f1c",
+  "response_ids": [
+    "resp_0c7359a83c0b776e016abd3d0203308195a8c16e07d9813b0b",
+    "resp_0c7359a83c0b776e016abd3d04cd2c8195892a1838aabfbdf9",
+    "resp_0685c903571027d4016abd3d05d1a48190902a12bb9d445f1c",
+    "resp_07655acb4dc75fe0016abd3d091b908196bfbce839abeeb341"
+  ],
+  "trace_id": "954afdd84059e1df57fb456a8a123f90",
+  "model": "contoso-chat",
+  "model_deployment": "contoso-chat",
+  "runtime_contract": "d3716c0a96d77c413af4dcada365b589a6a67fbf43995c4ee7fc3ea3750711ee",
+  "effective_prompt_sha256": "2d223cdecdced7a5cdb6aa045aaa420e30b3a999ad47b86a39aa1aa56b67ce62",
+  "checks": {
+    "type": "deterministic_business_evidence",
+    "passed": true,
+    "failures": []
+  },
+  "draft": {
+    "draft_id": "DEMO-291193edf242",
+    "sku": "NB-14",
+    "quantity": 2,
+    "total_krw": 2900000,
+    "currency": "KRW",
+    "status": "draft_requires_human_approval",
+    "required_approvals": [
+      "team_lead",
+      "procurement"
+    ],
+    "order_submitted": false,
+    "synthetic": true
+  },
+  "citations": [
+    "CONTOSO-PROC-2026-09-s3",
+    "CONTOSO-PROC-2026-09-s4"
+  ]
+}

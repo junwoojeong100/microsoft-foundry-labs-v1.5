@@ -1,6 +1,7 @@
 """Offline structural checks for the generated guide and source metadata."""
 
 from collections import Counter
+import argparse
 from datetime import datetime, timezone
 import hashlib
 from html.parser import HTMLParser
@@ -232,7 +233,13 @@ def check() -> dict:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
+    args = parser.parse_args()
+    report_dir = (ROOT / args.report_dir).resolve()
+    if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
+        raise ValueError("Reports must be inside validation/.")
     report = check()
-    target = ROOT / RELEASE["documentation_validation"] / "structure.json"
+    target = report_dir / "structure.json"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / ".build/contoso"
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import runtime_contract
+from lab_profile import active_prompt
 from workshop import DATA, LANGUAGE, config_values
 
 
@@ -40,6 +41,7 @@ def build() -> dict:
         *sorted((DATA / "policies").glob("*.md")),
         DATA / "inventory.csv",
         *[DATA / f"prompts/agent-v{version}.txt" for version in range(1, 7)],
+        *([active_prompt()] if LANGUAGE == "en" else []),
         *[ROOT / "samples" / name for name in ("lab_profile.py", "workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
         ROOT / "requirements-hosted.txt", ROOT / "THIRD_PARTY_NOTICES",
     ]
@@ -71,7 +73,7 @@ def build() -> dict:
     baseline = TARGET / ".agent_configs/baseline"
     baseline.mkdir(parents=True, exist_ok=True)
     (baseline / "metadata.yaml").write_text(f"model: {json.dumps(model)}\ninstruction_file: instructions.md\n")
-    shutil.copy2(DATA / "prompts/agent-v6.txt", baseline / "instructions.md")
+    shutil.copy2(active_prompt(), baseline / "instructions.md")
     entries = {
         path.relative_to(TARGET).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sorted(TARGET.rglob("*")) if path.is_file() and path.name != "package-manifest.json"

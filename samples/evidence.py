@@ -12,7 +12,7 @@ import re
 import time
 from typing import Any
 from uuid import uuid4
-from lab_profile import LANGUAGE, data_for
+from lab_profile import LANGUAGE, active_prompt, data_for
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,7 +54,7 @@ def redacted(value: Any) -> Any:
 
 def runtime_contract(prompt: Path | None = None, *, root: Path = ROOT) -> dict[str, Any]:
     data = data_for(root)
-    prompt = prompt or data / "prompts/agent-v6.txt"
+    prompt = prompt or active_prompt(root)
     files = [
         *sorted((data / "policies").glob("*.md")),
         data / "inventory.csv", prompt,

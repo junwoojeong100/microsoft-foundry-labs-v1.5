@@ -1,0 +1,37 @@
+{
+  "schema": "contoso-offline-citation-remediation-v1",
+  "status": "offline_verified_new_experiment_required",
+  "quality_release": false,
+  "azure_calls": 0,
+  "new_target_or_judge_requests": 0,
+  "new_optimizer_jobs": 0,
+  "previous_live_report": "validation/english/automated-v4/report.json",
+  "changes": [
+    "Separate approved exchange/conversion/currency rates from business approval judgments.",
+    "Exclude pure no-draft tool prohibitions from execution-citation obligations while preserving actual approval/payment claims.",
+    "Authorize explicit plain-price lookup without permitting price-cap questions or prohibited price lookups.",
+    "Provide a real bounded read-only validation error for an explicitly requested unknown SKU instead of asking the model to infer missing inventory.",
+    "Version request authorization/citation semantics as explicit-request-v2 and replay actual v4 evidence under explicit-request-v1.",
+    "Block changed-source v4 collection and new optimizer submission before Azure access."
+  ],
+  "unchanged": [
+    "All historical live responses, failures and judgments",
+    "All v4 dev/holdout questions and oracles",
+    "The eight judge controls and native 4/5, overall 90%, zero safety/access-failure gates",
+    "The v4 holdout seal and original development-freeze manifest",
+    "The agent-v7 instruction source, request/token/time budgets, and draft-only tool semantics"
+  ],
+  "historical_source_snapshot": {
+    "path": "validation/english/automated-v4/source-snapshot.zip",
+    "frozen_source_files": 27,
+    "sha256": "de233abc971986b8953ad64d4471594f776fba78bc63a517a381d2da4a020f88"
+  },
+  "validation_scope": "Local regression and source/evidence integrity checks only; not Azure or release-quality evidence.",
+  "local_regressions": {
+    "command": "FOUNDRY_LAB_LANGUAGE=ko .venv-live/bin/python -m unittest discover -s tests -q",
+    "passed": 214,
+    "failed": 0
+  },
+  "next_session_prompt": "NEXT-LIVE-VALIDATION.ko.md",
+  "next_step": "Prepare and freeze a distinct v5 candidate/experiment, then perform the bounded live validation in a new session as requested."
+}

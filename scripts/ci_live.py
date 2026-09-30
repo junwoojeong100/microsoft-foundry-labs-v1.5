@@ -12,9 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import Evidence, digest, redacted
 from hosted_client import azd
-from evaluation_data import DEFAULT_SUITE, policy, suite_hash
+from evaluation_data import DEFAULT_SUITE, policy, suite_hash, verify_development_freeze
 from business_checks import check_business_evidence
-from lab_profile import validation_for
+from lab_profile import active_prompt, validation_for
 from workshop import DATA, LANGUAGE, RESULTS, save_json
 
 
@@ -52,6 +52,12 @@ def native_evidence() -> list[dict]:
 def run(phase: str) -> None:
     if required("GITHUB_REPOSITORY_ID") != "1396573688":
         raise ValueError("Live workflow is restricted to repository A, not forks.")
+    if LANGUAGE == "en" and phase in {"dev", "release", "optimizer"}:
+        verify_development_freeze(DEFAULT_SUITE)
+    dev_gate = None
+    if DEFAULT_SUITE == "automated-v5" and phase == "release":
+        from evaluation_lab import verify_gate
+        dev_gate = verify_gate(DEFAULT_SUITE, "dev")
     subscription, tenant = required("AZURE_SUBSCRIPTION_ID"), required("AZURE_TENANT_ID")
     project_id, rg = required("AZURE_AI_PROJECT_ID"), required("AZURE_RESOURCE_GROUP")
     expected = f"/subscriptions/{subscription}/resourceGroups/{rg}/providers/Microsoft.CognitiveServices/accounts/"
@@ -75,7 +81,7 @@ def run(phase: str) -> None:
         from cloud import project_client
         with project_client() as (project, _, endpoint, _):
             agent = project.agents.get("contoso-purchasing")
-        save_json(validation_for(ROOT) / "automated-v3/ci-auth.json", {
+        save_json(validation_for(ROOT) / DEFAULT_SUITE / "ci-auth.json", {
             "status": "passed", "phase": "auth", "repository_id": required("GITHUB_REPOSITORY_ID"),
             "repository": required("GITHUB_REPOSITORY"), "workflow_run_id": os.environ["GITHUB_RUN_ID"],
             "agent_read": agent.name, "environment_sha256": digest(endpoint),
@@ -87,7 +93,7 @@ def run(phase: str) -> None:
         if not re.fullmatch(r"[1-9]\d*", baseline_version):
             raise ValueError("Optimizer CI requires an explicitly pinned numeric baseline version.")
         optimizer_suite = DEFAULT_SUITE if LANGUAGE == "en" else "automated-v2"
-        optimizer_prompt = DATA / ("prompts/agent-v6.txt" if LANGUAGE == "en" else "prompts/agent-v4.txt")
+        optimizer_prompt = active_prompt() if LANGUAGE == "en" else DATA / "prompts/agent-v4.txt"
         from azure_environment import az
         group = az("group", "show", "--subscription", subscription, "--name", rg)
         project = az("rest", "--method", "get", "--url", project_id + "?api-version=2025-06-01")
@@ -123,7 +129,8 @@ def run(phase: str) -> None:
             sys.executable, "samples/optimizer_lab.py", "--agent", "contoso-purchasing-responses",
             "--version", baseline_version, "--optimizer-deployment", "contoso-reflection",
             "--suite", optimizer_suite, "--prompt-file", str(optimizer_prompt), "--require-oidc", "--live",
-        ], cwd=ROOT, check=False, timeout=840)
+            "--max-seconds", "1200" if LANGUAGE == "en" else "600",
+        ], cwd=ROOT, check=False, timeout=1560 if LANGUAGE == "en" else 960)
         terminal = []
         for path in RESULTS.glob("contoso-optimizer-*-terminal.json"):
             terminal.append(redacted(json.loads(path.read_text())))
@@ -143,11 +150,14 @@ def run(phase: str) -> None:
                "evaluation_suite_sha256": suite_hash(), "workflow_run_id": os.environ["GITHUB_RUN_ID"],
                "human_review_required": False, "human_review_status": "optional_guidance_only"}
     try:
-        evidence.append("deploy", azd("deploy", "contoso-purchasing", "--no-prompt", timeout=1200))
-        show = json.loads(azd("ai", "agent", "show", "contoso-purchasing", "--output", "json"))
-        evidence.append("deployed_agent", show)
-        values = json.loads(azd("env", "get-values", "--output", "json"))
-        version = values.get("AGENT_CONTOSO_PURCHASING_VERSION", "")
+        if dev_gate is None:
+            evidence.append("deploy", azd("deploy", "contoso-purchasing", "--no-prompt", timeout=1200))
+            show = json.loads(azd("ai", "agent", "show", "contoso-purchasing", "--output", "json"))
+            evidence.append("deployed_agent", show)
+            values = json.loads(azd("env", "get-values", "--output", "json"))
+            version = values.get("AGENT_CONTOSO_PURCHASING_VERSION", "")
+        else:
+            version = dev_gate["configuration"]["hosted_version"]
         if not re.fullmatch(r"[1-9]\d*", version):
             raise ValueError("azd did not return an exact deployed version.")
         subprocess.run([
@@ -197,19 +207,30 @@ def run(phase: str) -> None:
                 )
             ):
                 raise ValueError("Dev artifact is not successful or its frozen runtime/model differs; holdout remains unopened.")
-        calibration = subprocess.run([sys.executable, "samples/evaluation_lab.py", "calibrate", "--suite", DEFAULT_SUITE, "--live"], cwd=ROOT, check=False, timeout=720)
-        evidence.append("calibration_exit", {"returncode": calibration.returncode})
-        summary["calibration"] = "passed" if calibration.returncode == 0 else "failed"
+        calibration = (
+            None if dev_gate is not None else
+            subprocess.run([sys.executable, "samples/evaluation_lab.py", "calibrate", "--suite", DEFAULT_SUITE, "--live"],
+                           cwd=ROOT, check=False, timeout=810)
+        )
+        calibrated = dev_gate is not None or calibration.returncode == 0
+        evidence.append("calibration", {
+            "source": "verified_preserved_native_gate" if dev_gate is not None else "new_native_run",
+            "returncode": None if calibration is None else calibration.returncode,
+        })
+        summary["calibration"] = "passed" if calibrated else "failed"
         save_json(summary_path, summary)
-        if calibration.returncode:
+        if not calibrated:
             raise RuntimeError("Calibration failed. No fresh development/holdout responses are collected with an unready judge.")
+        if DEFAULT_SUITE == "automated-v5" and dev_gate is None:
+            subprocess.run([sys.executable, "scripts/share_evidence.py", "--suite", DEFAULT_SUITE,
+                            "--gate", "calibration"], cwd=ROOT, check=True, timeout=60)
         split = "dev" if phase == "dev" else "holdout"
         records = output_dir / (split + "-responses.jsonl")
         if not records.exists():
             subprocess.run([
                 sys.executable, "samples/hosted_client.py", "evaluate", "--split", split, "--suite", DEFAULT_SUITE,
                 "--version", version, "--case-delay", "3", "--live",
-            ], cwd=ROOT, check=True, timeout=1200)
+            ], cwd=ROOT, check=True, timeout=1380)
             candidates = sorted(RESULTS.glob("contoso-hosted-client-*-responses.jsonl"), key=lambda p: p.stat().st_mtime)
             subprocess.run([sys.executable, "scripts/share_evidence.py", "--input", str(candidates[-1]),
                             "--split", split, "--suite", DEFAULT_SUITE], cwd=ROOT, check=True, timeout=60)
@@ -223,7 +244,7 @@ def run(phase: str) -> None:
             ):
                 raise ValueError("Recorded responses differ from the approved environment, code, or model.")
             held_result = subprocess.run([sys.executable, "samples/evaluation_lab.py", "run", "--input", str(records),
-                                         "--split", split, "--suite", DEFAULT_SUITE, "--live"], cwd=ROOT, check=False, timeout=720)
+                                         "--split", split, "--suite", DEFAULT_SUITE, "--live"], cwd=ROOT, check=False, timeout=810)
             evidence.append("evaluation_exit", {"split": split, "returncode": held_result.returncode})
             if held_result.returncode:
                 summary[split] = "failed_or_partial"
@@ -235,9 +256,12 @@ def run(phase: str) -> None:
             save_json(summary_path, summary)
             if not audit["business_gate_passed"]:
                 raise RuntimeError("CI business gate failed; no threshold was changed.")
+            if DEFAULT_SUITE == "automated-v5" and split == "dev":
+                subprocess.run([sys.executable, "scripts/share_evidence.py", "--suite", DEFAULT_SUITE,
+                                "--gate", "dev"], cwd=ROOT, check=True, timeout=60)
         else:
             raise RuntimeError("No complete response set; a smoke test alone cannot pass evaluation.")
-        if calibration.returncode:
+        if not calibrated:
             raise RuntimeError("Calibration failed. Any holdout scores are untrusted and cannot release the agent.")
         summary["status"] = "passed"
         summary["quality_release"] = phase == "release"

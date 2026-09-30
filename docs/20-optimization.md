@@ -99,11 +99,11 @@ inline 학습 데이터의 wire 필드는 `train_dataset.items`입니다(`datase
 기존 job의 제한을 조용히 연장하지 않습니다.
 SDK 자동 LRO polling 대신 `polling=False`로 제출하고 API 버전이 포함된 명시적 GET으로 조회합니다.
 이 서비스의 `Operation-Location`에 API 버전이 없어 자동 polling이 실패했던 원본 기록도 보존합니다.
-timeout·조회 실패·중단에서는 `finally`로 cancel하고 terminal 상태를 확인합니다.
-native 세션은 azd 목록에 누락될 수 있어, 소유 App Insights에서 같은 agent/version과 job 시간 범위의
-session ID도 수집합니다. `show`로 생성 시각과 version을 검증한 새 세션만 stop합니다.
-성공한 stop 호출 뒤 같은 ID의 `idle`/`stopped`를 다시 읽습니다.
-현재 CLI가 `stopped_at`을 생략한다는 사실도 기록하며, 그 값을 만들어 채우지 않습니다.
+timeout·조회 실패·중단에서는 `finally`로 cancel하고 별도 **90초 제한** 안에서 terminal 상태를 확인합니다. 실패 경로에서도 terminal/outcome 원본을 남깁니다.
+현재 정리 경로는 CLI나 baseline 전용 trace만 보지 않고 프로젝트 SDK의 페이지 처리된 세션 목록을 새로 조회합니다. **6회 확인, 총 180초, 회차별 목록 100건, 서로 다른 소유 세션 최대 10건**으로 제한합니다. 재활성화된 세션을 다음 회차에서 다시 중지할 수 있으므로 전체 stop 요청은 최대 60회이며 각 요청 뒤 최대 6회 읽기로 확인합니다. SDK 재시도는 없습니다. 마지막 두 확인에서 새 실행이 없어야 완료로 기록합니다.
+후보가 `draft-...` 버전으로 나타나면 해당 버전의 optimizer candidate ID와 resolver가 기록된 job·프로젝트에 속하는지 확인합니다. 실행 전 snapshot의 세션, 다른 job·버전은 보존합니다. 늦게 생성된 baseline은 기록된 전용 버전과 job 종료 뒤 180초까지의 생성 범위로 제한합니다. 같은 baseline에 다른 작업을 동시에 실행하지 않습니다.
+중지 후 같은 ID의 비활성 상태를 다시 읽고, 이미 검증한 ID는 서비스가 중지 때 `created_at`을 바꾸어도 잊지 않습니다. 마지막 확인에서 새 세션이 나오거나 조회·소유권·중지 확인이 실패하면 정리는 미완료입니다. 결과는 관찰한 시간 범위의 증거이지 앞으로도 세션이 생기지 않는다는 보장이 아닙니다.
+Responses adapter는 동시 실행 gate 대기 뒤 취소 여부를 다시 확인하므로 취소된 대기 요청이 새 추론을 시작하지 않습니다. 이미 진행 중인 동기 요청은 기존 시간 제한 안에서 끝나며 즉시 종료를 보장하지 않습니다.
 취소/중지 확인이 실패하면 **아직 실행 중일 수 있음**으로 보고합니다.
 기존 job/receipt를 덮어쓰거나 리소스를 삭제하지 않습니다. 후보는 자동 배포/승격하지 않습니다.
 
@@ -196,7 +196,9 @@ job status, training/validation curve, checkpoints를 확인합니다. 마지막
 
 ### 현재 native 결과: 정상 실행, 개선 없음
 
-최종 job **`opt_428b84f689964bb793f83b93b8d34de5`**는 **`succeeded`**로 완료됐습니다.
+아래는 보존된 **한국어 환경**의 결과입니다. 별도 [영어 v5 job](../validation/english/automated-v5/optimizer.json)은 dev 40건·holdout 0건으로 한 번 실행했고, 647초 만에 service `succeeded`로 끝났어도 native 38 통과·1 실패·1 오류 때문에 `operational_failure`였습니다. 후보 생성·승격은 없었습니다. v5는 새 SDK readback으로 생성 세션 5개와 해당 job의 중지·종료를 확인했으며, 이 별도 결과로 한국어 원본이나 영어의 실패한 dev 게이트를 바꾸지 않습니다.
+
+한국어 최종 job **`opt_428b84f689964bb793f83b93b8d34de5`**는 **`succeeded`**로 완료됐습니다.
 
 | 항목 | 확인한 결과 |
 | --- | --- |

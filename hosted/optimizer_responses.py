@@ -89,7 +89,13 @@ def create_app():
             yield stream.emit_incomplete("cancelled")
             return
         async with gate:
+            if cancellation_signal.is_set():
+                yield stream.emit_incomplete("cancelled")
+                return
             result = await asyncio.to_thread(invoke_configured, {"query": query})
+        if cancellation_signal.is_set():
+            yield stream.emit_incomplete("cancelled")
+            return
         message = stream.add_output_item_message()
         yield message.emit_added()
         content = message.add_text_content()

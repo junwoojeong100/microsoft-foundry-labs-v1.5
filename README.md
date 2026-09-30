@@ -8,7 +8,13 @@ Learn models, knowledge, tools, evaluation, and operations by building a synthet
 
 **English is the default.** Use the language switch to open the same module in Korean. Both editions share learning progress, theme, and learning-path preferences in the same browser.
 
-**English live validation is not release-approved:** the core learning evaluation passed 10/10 and the Hosted dev gate passed 29/30, but the new independent holdout passed **7/10 with one critical safety-evidence failure**. All ten holdout cases executed. The 90% threshold and zero-critical-failure rule were preserved; the candidate was not retuned or rerun after the holdout. See the [English execution report](validation/english/current/report.json) and [quality evidence](validation/english/automated-v3/quality.json).
+**Latest English v5 live validation: no release approval.** Both version-4 protocol smokes and **8/8 judge controls** passed. All **40 dev cases** were collected and natively evaluated once, with 40 native passes and zero evaluator errors/skips. The combined business result is **39/40 (97.5%)**, but `v5-dev-30` has a **critical access-evidence failure**, so the unchanged zero-critical-failure gate blocks release. The independent holdout remains **sealed and unexecuted: 0/10**. See the [v5 live report](validation/english/automated-v5/report.json), [quality record](validation/english/automated-v5/quality.json), and [failure diagnosis](validation/english/automated-v5/dev30-diagnosis.json).
+
+The `explicit-request-v2` candidate was frozen as **34 source inputs**, inheriting all 40 v4 dev questions/oracles and the same eight controls. A separate authoring context then sealed ten new holdout cases without using the unused v4 exam. The formerly aborting FX case completed in this run; that does not erase the new access-evidence failure. No answer, required citation, oracle, or threshold was repaired after seeing the result.
+
+The [single dev-only Optimizer job](validation/english/automated-v5/optimizer.json) ended after **647 seconds** with service `succeeded`, but native rows were **38 passed / 1 failed / 1 errored**, so its outcome is **`operational_failure`**. It generated no candidate and promoted none. Fresh SDK [closeout](validation/english/automated-v5/operations.json) confirmed the job and native runs terminal and **all five created sessions stopped**. Scoped Responses job listing succeeded; no project-wide idle claim is made. Publishing these findings is not approval to release the agent.
+
+**Earlier failures remain unchanged.** The [v4 run](validation/english/automated-v4/report.json) stopped after 36 dev responses and had three Optimizer evaluator errors despite service success; its unused holdout, original 27-source archive and five-session closeout are preserved. The [v3 holdout](validation/english/automated-v3/quality.json) remains 7/10 with a critical failure. The [offline correction record](validation/english/citation-remediation/report.json) still records only the local work performed at that earlier point.
 
 ## Get started
 
@@ -44,9 +50,9 @@ The English profile preserves the business rules and quality thresholds, not Kor
 
 ## Evidence and limits
 
-[English Azure execution report](validation/english/current/report.json) · [English quality results](validation/english/automated-v3/quality.json) · [Preserved Korean report](validation/current/report.json) · [Current documentation checks](validation/docs/browser.json)
+[Latest English live report](validation/english/automated-v5/report.json) · [Preserved English v4 failure](validation/english/automated-v4/quality.json) · [Preserved Korean report](validation/current/report.json) · [Current documentation checks](validation/docs/live-v5/browser.json)
 
-The English run used a new owned resource group and English data for actual model/agent calls, Search/IQ, both Hosted protocols, tools, evaluation, tracing, Memory, A2A, Routine, and OIDC deployment. Its first incomplete dev attempt and final failed holdout are retained, not replaced with successful-looking results. Conditional services and cleanup/cost boundaries are listed explicitly in the report.
+The preserved initial English walkthrough used a then-new owned resource group for model/agent calls, Search/IQ, both Hosted protocols, tools, evaluation, tracing, Memory, A2A, Routine and OIDC deployment. Its incomplete dev attempt and failed holdout remain unchanged. **V5 reused only that existing owned English environment** for the approved candidate/smoke, judge/dev and Optimizer stages; it did not rerun optional features or query costs.
 
 The current file listing keeps only the latest results in each category. Earlier records remain unchanged in the [pre-cleanup Git commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation). Paths in historical records refer to the commit used for that run.
 
@@ -65,13 +71,13 @@ npx playwright install chromium
 python scripts/build_guide.py
 FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -q
 npm run guide:pdf
-python scripts/check_guide.py
-npm run guide:browser
-python scripts/check_pdf.py
-python scripts/package_guide.py
+python scripts/check_guide.py --report-dir validation/docs/live-v5
+npm run guide:browser -- --report-dir validation/docs/live-v5
+python scripts/check_pdf.py --report-dir validation/docs/live-v5
+python scripts/package_guide.py --report-dir validation/docs/live-v5
 ```
 
-These commands generate and check **both languages**. One ZIP contains both readers, Markdown books, PDFs, and the shared code and data. Documentation reports live in `validation/docs/`; they are separate from Azure evidence.
+These commands generate and check **both languages**. One ZIP contains both readers, Markdown books, PDFs, and the shared code and data. The latest documentation reports live in `validation/docs/live-v5/`, preserving `validation/docs/citation-remediation/`, `validation/docs/live-v4/` and earlier reports unchanged. Choose a new report directory for later independent follow-ups. Documentation results are separate from Azure evidence.
 The test-process-only `ko` setting preserves Korean-baseline assertions; the suite also launches explicit English-profile checks. It does not change the language of later live lab commands.
 
 ## GitHub Pages

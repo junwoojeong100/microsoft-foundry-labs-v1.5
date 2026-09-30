@@ -205,7 +205,8 @@ class HostedTurnTests(unittest.TestCase):
         call.model_dump = lambda **_: {"type": "function_call", "name": call.name, "arguments": call.arguments, "call_id": call.call_id}
         first = Obj(id="resp_unit1", status="completed", output=[call], usage=Obj(input_tokens=20, output_tokens=10))
         final = Obj(id="resp_unit2", status="completed", output=[], output_text=json.dumps({
-            "answer": "초안이며 승인·주문은 하지 않았습니다.", "citation_ids": ["CONTOSO-PROC-2026-09-s3"],
+            "answer": "초안이며 승인·주문은 하지 않았습니다.",
+            "citation_ids": ["CONTOSO-PROC-2026-09-s3", "CONTOSO-PROC-2026-09-s4"],
         }), usage=Obj(input_tokens=30, output_tokens=10), model="unit-model-version")
         attribution = Obj(id="attr-unit", status="completed", output=[], usage=None,
                           output_text='{"citation_ids":["CONTOSO-PROC-2026-09-s3"]}')
