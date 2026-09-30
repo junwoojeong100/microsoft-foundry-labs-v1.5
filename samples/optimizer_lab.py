@@ -1,6 +1,7 @@
 """Bounded native Agent Optimizer job on dev only. Never auto-promotes a candidate."""
 
 import argparse
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import time
@@ -21,7 +22,8 @@ def payload(agent: str, version: str, judge: str, optimizer: str) -> dict:
         } for case in dev]},
         "evaluators": [{"name": "builtin.task_adherence"}],
         "options": {"max_candidates": 2, "max_stalls": 1, "eval_model": judge,
-                    "optimization_model": optimizer},
+                    "optimization_model": optimizer,
+                    "optimization_config": {"system_prompt": (DATA / "prompts/agent-v4.txt").read_text(encoding="utf-8")}},
     }}
 
 
@@ -31,6 +33,7 @@ def main() -> None:
     parser.add_argument("--version", required=True)
     parser.add_argument("--optimizer-deployment", required=True)
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--resume", help="Resume monitoring only an optimization job recorded in this checkout.")
     args = parser.parse_args()
     judge = config_values()["FOUNDRY_JUDGE_DEPLOYMENT_NAME"]
     request = payload(args.agent, args.version, judge, args.optimizer_deployment)
@@ -45,19 +48,43 @@ def main() -> None:
                                           "dev_ids": [c["id"] for c in validate_data() if c["split"] == "dev"],
                                           "prompt_sha256": digest((DATA / "prompts/agent-v4.txt").read_text()),
                                           "holdout_submitted": False})
-    with project_client(evidence) as (project, _, _, _):
-        poller = project.beta.agents.begin_create_optimization_job(job=request, polling_interval=10)
-        job_id = poller.details["job_id"]
-        evidence.append("job_submitted", {"job_id": job_id})
-        save_json(RESULTS / (evidence.run_id + "-job.json"), {"job_id": job_id, "status": "submitted"})
-        deadline = time.monotonic() + 600
-        while not poller.done() and time.monotonic() < deadline:
-            time.sleep(5)
-        if not poller.done():
+    with project_client(evidence) as (project, _, endpoint, _):
+        if args.resume:
+            receipts = [json.loads(path.read_text()) for path in RESULTS.glob("contoso-optimizer-*-job.json")]
+            if not any(row["job_id"] == args.resume for row in receipts):
+                raise ValueError("Unknown job: monitoring/cancellation is limited to recorded runs.")
+            job_id = args.resume
+        else:
+            poller = project.beta.agents.begin_create_optimization_job(job=request, polling=False)
+            job_id = poller.details["job_id"]
+            evidence.append("job_submitted", {"job_id": job_id})
+            save_json(RESULTS / (evidence.run_id + "-job.json"), {
+                "job_id": job_id, "status": "submitted", "endpoint": endpoint,
+                "agent": args.agent, "version": args.version,
+            })
+        job = project.beta.agents.get_optimization_job(job_id)
+        if job.inputs and (job.inputs.agent.agent_name != args.agent or job.inputs.agent.agent_version != args.version):
+            raise ValueError("Recorded job does not match the selected target version.")
+        remaining = max(0, 600 - (datetime.now(timezone.utc) - job.created_at).total_seconds())
+        deadline = time.monotonic() + remaining
+        terminal = {"succeeded", "failed", "cancelled"}
+        while job.status not in terminal and time.monotonic() < deadline:
+            evidence.append("job_status", job)
+            time.sleep(10)
+            job = project.beta.agents.get_optimization_job(job_id)
+        if job.status not in terminal:
             evidence.append("cancel_requested", project.beta.agents.cancel_optimization_job(job_id))
-            evidence.append("timeout", {"job_id": job_id, "must_inspect_active_jobs": True})
-            raise RuntimeError("Optimizer time limit reached. Cancellation requested; verify the job's final state.")
-        result = poller.result()
+            for _ in range(6):
+                job = project.beta.agents.get_optimization_job(job_id)
+                evidence.append("cancel_status", job)
+                if job.status in terminal:
+                    break
+                time.sleep(5)
+            raise RuntimeError(f"Optimizer time limit reached; final observed state: {job.status}. No candidate promoted.")
+        evidence.append("terminal_job", job)
+        if job.status != "succeeded" or job.result is None:
+            raise RuntimeError(f"Optimizer ended as {job.status}; original service result retained.")
+        result = job.result
         evidence.append("optimizer_result", result)
         save_json(RESULTS / (evidence.run_id + ".json"), result.as_dict())
         candidates = getattr(result, "candidates", None)

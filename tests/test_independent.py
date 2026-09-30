@@ -145,6 +145,7 @@ class EvaluationContractTests(unittest.TestCase):
         ids = {r["criteria"][0]["name"] for r in request["train_dataset"]["items"]}
         self.assertEqual(ids, {c["id"] for c in workshop.validate_data() if c["split"] == "dev"})
         self.assertEqual(request["options"]["max_candidates"], 2)
+        self.assertIn("Contoso", request["options"]["optimization_config"]["system_prompt"])
 
     def test_partial_and_failed_records_rejected(self):
         with tempfile.TemporaryDirectory() as directory:

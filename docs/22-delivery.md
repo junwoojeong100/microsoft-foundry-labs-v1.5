@@ -46,15 +46,18 @@ python samples/workshop.py score --input results/실제-검토파일.jsonl
 기존 `.github/workflows/validate.yml`은 계속 자동 로컬 검사를 수행합니다.
 
 관리자는 새 테스트 RG의 workload identity에 최소 역할을 부여하고,
-federated credential의 subject를
-`repo:junwoojeong100/foundry-labs-v1.5:environment:contoso-validation`로 제한합니다.
+federated credential의 subject를 **Actions가 실제 발행한 A의 environment-bound `sub`**로 제한합니다.
+최근 형식은 owner/repository의 immutable ID를 이름 뒤에 `@ID`로 포함할 수 있습니다.
+과거 `repo:owner/repo:environment:name` 문자열을 그대로 가정하지 않습니다.
 audience는 `api://AzureADTokenExchange`입니다. client secret을 만들지 않습니다.
 identity는 프로젝트 Foundry User, 필요한 배포/읽기 권한만 받으며 CI가 RBAC를 스스로 확대하지 않습니다.
 
-관리자용 동봉 명령은 `python scripts/setup_oidc.py --branch 실제-feature-branch --live`입니다.
+관리자용 명령은 `python scripts/setup_oidc.py --branch 실제-feature-branch --subject "확인한-sub-claim" --live`입니다.
 새 RG의 user-assigned identity, environment-bound federated credential,
 새 GitHub Environment와 해당 branch policy를 함께 기록합니다.
 기존 환경/identity가 있으면 충돌로 중단하며, tenant 전체 앱 권한을 부여하지 않습니다.
+AADSTS700213이면 issuer·audience·subject를 로그의 비밀이 아닌 claims와 대조합니다.
+`--repair-subject`는 이번 receipt의 FIC만 보정하며, GitHub 전체 OIDC 정책은 변경하지 않습니다.
 
 Environment variables는 workflow `env` 목록의 client/tenant/subscription/project ID 및
 모델·Search endpoint/index/KB입니다. 비밀이 아닌 구성값만 등록하고 인증 토큰·전체 `.env`·

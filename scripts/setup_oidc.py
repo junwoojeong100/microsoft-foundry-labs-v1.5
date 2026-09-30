@@ -30,6 +30,8 @@ def gh(*args: str, body: dict | None = None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--branch", required=True)
+    parser.add_argument("--subject", help="Exact nonsecret sub claim observed in this repository's GitHub OIDC log.")
+    parser.add_argument("--repair-subject", action="store_true", help="Correct only this run's newly created federated credential.")
     parser.add_argument("--live", action="store_true")
     args = parser.parse_args()
     if not args.live:
@@ -37,10 +39,33 @@ def main():
         return
     if args.branch in {"main", "master"} or not args.branch.startswith("feat/"):
         raise ValueError("Setup is restricted to an explicit feature branch, never main.")
-    repository = gh("repo", "view", REPO, "--json", "isPrivate")
-    if not repository["isPrivate"]:
+    repository = gh("api", f"repos/{REPO}")
+    if not repository["private"]:
         raise ValueError("Repository A must remain private.")
+    owner, name = REPO.split("/")
+    supported_subjects = {
+        f"repo:{REPO}:environment:{ENVIRONMENT}",
+        f"repo:{owner}@{repository['owner']['id']}/{name}@{repository['id']}:environment:{ENVIRONMENT}",
+    }
+    if args.subject not in supported_subjects:
+        raise ValueError("Supply the exact observed environment-bound subject for A; never guess an OIDC subject.")
     state = owned()
+    if args.repair_subject:
+        record = state.get("oidc")
+        if not record or record["branch"] != args.branch:
+            raise ValueError("Only the newly recorded identity and approved branch can be repaired.")
+        current = az("rest", "--method", "get", "--url", record["federation_id"] + "?api-version=2023-01-31")
+        if current["properties"]["subject"] != record["subject"]:
+            raise ValueError("Federated credential changed outside this run; do not overwrite.")
+        properties = current["properties"]
+        properties["subject"] = args.subject
+        az("rest", "--method", "put", "--url", record["federation_id"] + "?api-version=2023-01-31",
+           "--body", json.dumps({"properties": properties}))
+        record.setdefault("previous_subjects", []).append(record["subject"])
+        record["subject"] = args.subject
+        persist(state)
+        print("Corrected only the recorded federation subject. No GitHub-wide claim policy or permissions changed.")
+        return
     if state.get("oidc"):
         raise ValueError("OIDC is already recorded; inspect existing identity/environment, do not overwrite.")
     environments = gh("api", f"repos/{REPO}/environments")
@@ -59,7 +84,7 @@ def main():
         "environment": ENVIRONMENT, "branch": args.branch, "resources_created": ["identity"],
     }
     persist(state)
-    subject = f"repo:{REPO}:environment:{ENVIRONMENT}"
+    subject = args.subject
     federation = az(
         "identity", "federated-credential", "create", "--subscription", state["subscription"],
         "--resource-group", state["resource_group"], "--identity-name", name, "--name", "github-contoso-validation",
@@ -89,6 +114,7 @@ def main():
     variables = {
         "AZURE_CLIENT_ID": identity["clientId"], "AZURE_TENANT_ID": state["tenant"],
         "AZURE_SUBSCRIPTION_ID": state["subscription"], "AZURE_RESOURCE_GROUP": state["resource_group"],
+        "AZURE_LOCATION": state["location"],
         "AZURE_AI_PROJECT_ID": state["foundation"]["projectId"]["value"],
         "AZURE_AI_PROJECT_ENDPOINT": state["project_endpoint"],
         "FOUNDRY_MODEL_DEPLOYMENT_NAME": config["FOUNDRY_MODEL_DEPLOYMENT_NAME"],
