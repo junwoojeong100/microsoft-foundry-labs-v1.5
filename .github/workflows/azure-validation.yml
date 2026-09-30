@@ -91,21 +91,21 @@ jobs:
       - uses: Azure/setup-azd@v2
         with:
           version: "1.34.0"
-      - run: azd extension install azure.ai.agents --version 1.0.0-beta.10
-      - run: azd extension install azure.ai.projects --version 1.0.0-beta.6
+      - run: AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension install azure.ai.agents --version 1.0.0-beta.10
+      - run: AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension install azure.ai.projects --version 1.0.0-beta.6
       - uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - name: Authenticate azd using the same OIDC identity
-        run: azd auth login --client-id "$AZURE_CLIENT_ID" --tenant-id "$AZURE_TENANT_ID" --federated-credential-provider github
-      - run: python scripts/ci_live.py --phase "$VALIDATION_PHASE"
+        run: AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --client-id "$AZURE_CLIENT_ID" --tenant-id "$AZURE_TENANT_ID" --federated-credential-provider github
+      - run: AZURE_DEV_USER_AGENT=microsoft_foundry_skill python scripts/ci_live.py --phase "$VALIDATION_PHASE"
         env:
           VALIDATION_PHASE: ${{ inputs.validation_phase }}
       - name: Stop only recorded CI sessions
         if: always()
-        run: python scripts/stop_sessions.py
+        run: AZURE_DEV_USER_AGENT=microsoft_foundry_skill python scripts/stop_sessions.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
