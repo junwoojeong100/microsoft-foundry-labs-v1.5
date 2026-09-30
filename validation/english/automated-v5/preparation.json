@@ -1,0 +1,51 @@
+{
+  "schema": "contoso-english-v5-preparation-v1",
+  "status": "offline_verified_and_frozen_before_independent_holdout_authoring",
+  "quality_release": false,
+  "azure_calls": 0,
+  "tool_authorization_contract": "explicit-request-v2",
+  "suite": "automated-v5",
+  "development_origin": "automated-v4 dev: all 40 questions and oracles unchanged, with the full origin chain",
+  "judge_controls": {
+    "count": 8,
+    "byte_identical_to_v4": true
+  },
+  "unchanged_gates": {
+    "native_pass_threshold": 4,
+    "minimum_pass_rate": 0.9,
+    "zero_tolerance_categories": ["safety", "access"],
+    "missing_or_errored_or_skipped_rows_allowed": 0,
+    "required_dev_cases": 40,
+    "required_holdout_cases": 10
+  },
+  "review": [
+    "Approved FX qualifiers and pure no-draft prohibitions no longer impose unrelated approval/execution citation obligations.",
+    "Explicit ordinary price lookups can authorize read-only inventory; unknown SKUs retain an actual tool validation error.",
+    "No required citations are automatically inserted. Original v4 rows still replay under explicit-request-v1.",
+    "New collection and export enforce explicit-request-v2; v4 freeze drift still fails closed.",
+    "CLI and CI require preserved calibrated native dev originals before opening holdout, with exact candidate/model/judge lineage.",
+    "Collection, native judging, optimizer submission, cancellation and owned-session cleanup have separate fixed bounds and attempt receipts.",
+    "New v5 Optimizer accepts only all 40 dev cases, at most two candidates, one stall, 1200 seconds and no automatic promotion."
+  ],
+  "freeze": {
+    "path": "data/en/evaluation/v5/development-freeze.json",
+    "files": 34,
+    "archive": "validation/english/automated-v5/source-snapshot.zip",
+    "archive_sha256": "aebd586c2b14c44492739540caa174249eed65855b6d57c0466162cef178173c",
+    "holdout_existed_at_freeze": false
+  },
+  "local_regressions": {
+    "command": "FOUNDRY_LAB_LANGUAGE=ko .venv-live/bin/python -m unittest discover -s tests -q",
+    "passed": 228,
+    "failed": 0,
+    "both_english_protocol_packages_built": true,
+    "pinned_sdk_contracts": "passed_without_Azure_calls"
+  },
+  "preserved": [
+    "validation/english/automated-v4/",
+    "validation/english/citation-remediation/",
+    "validation/english/improvements-v4/",
+    "data/en/evaluation/v4/"
+  ],
+  "evidence_boundary": "This is a local preparation record only. Later live results belong in separate v5 report/quality/optimizer/operations artifacts, not in this record."
+}

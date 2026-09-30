@@ -1,0 +1,41 @@
+{
+  "judge": "contoso-judge",
+  "suite": "automated-v5",
+  "settings_hash": "4da7824351ba216405c1c08f7ee73cc2f86573edd52cf1a3f1f2b792513265fa",
+  "evaluator_name": "contoso-business-b536fd1f",
+  "evaluator_version": "1",
+  "definition_hash": "21e89e9fa8a213196b8b9c7c622c1b68857064a561e9ead7269cc6d1b48fc7bd",
+  "eval_id": "eval_ed2b9c75595f4a709f67a457aebc5e68",
+  "criteria": [
+    {
+      "type": "azure_ai_evaluator",
+      "name": "contoso_business",
+      "evaluator_name": "contoso-business-b536fd1f",
+      "initialization_parameters": {
+        "deployment_name": "contoso-judge",
+        "threshold": 4
+      },
+      "data_mapping": {
+        "query": "{{item.query}}",
+        "response": "{{item.response}}",
+        "ground_truth": "{{item.ground_truth}}",
+        "expected_behavior": "{{item.expected_behavior}}",
+        "evidence": "{{item.evidence}}"
+      }
+    },
+    {
+      "type": "azure_ai_evaluator",
+      "name": "relevance",
+      "evaluator_name": "builtin.relevance",
+      "initialization_parameters": {
+        "deployment_name": "contoso-judge",
+        "threshold": 3
+      },
+      "data_mapping": {
+        "query": "{{item.query}}",
+        "response": "{{item.response}}"
+      }
+    }
+  ],
+  "environment_sha256": "cde85c948bd7cb90dddffa2eb1722d946023bd3e0084c60525d04769f0409151"
+}

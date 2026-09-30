@@ -27,12 +27,12 @@ def response(identifier, calls=(), text=""):
 
 class SequentialToolTests(unittest.TestCase):
     def run_turn(self, first, second):
-        source_id = "CONTOSO-PROC-2026-09-s3"
+        source_ids = ["CONTOSO-PROC-2026-09-s3", "CONTOSO-PROC-2026-09-s4"]
         final = response("final", text=json.dumps({
             "answer": "One draft requires human approval; no order or payment was made.",
-            "citation_ids": [source_id],
+            "citation_ids": source_ids,
         }))
-        attribution = response("attribution", text=json.dumps({"citation_ids": [source_id]}))
+        attribution = response("attribution", text=json.dumps({"citation_ids": source_ids}))
         client = Obj(responses=Obj(create=Mock(side_effect=[
             response("first", first), response("second", second), final, attribution,
         ])))
@@ -52,6 +52,7 @@ class SequentialToolTests(unittest.TestCase):
         self.assertEqual(len(drafts), 1)
         self.assertTrue(drafts[0]["output"]["ok"])
         self.assertEqual(drafts[0]["output"]["result"]["quantity"], 10)
+        self.assertEqual(sum(call["name"] == "get_stock" for call in row["tool_calls"]), 1)
         final = client.responses.create.call_args_list[2].kwargs
         self.assertEqual(final["tools"], [])
         self.assertEqual(final["tool_choice"], "none")

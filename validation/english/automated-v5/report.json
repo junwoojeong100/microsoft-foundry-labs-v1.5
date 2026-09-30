@@ -1,0 +1,146 @@
+{
+  "schema": "contoso-english-live-v5-v1",
+  "checked_at": "2026-09-30T20:52:40.682315+00:00",
+  "approved_at": "2026-10-01T04:44:27.736+09:00",
+  "language": "en",
+  "status": "executed_with_critical_dev_failure_and_optimizer_evaluation_error",
+  "quality_release": false,
+  "resource_group": "rg-contoso-en-260930ae24ba",
+  "suite": "automated-v5",
+  "suite_sha256": "225b78add83c351ed089a85ed8051f0a0801ab61313a97fd25305ee1feb05b1a",
+  "context": {
+    "source": "New hash-verified portable kit and isolated English directory; only the same owned environment's private settings and ownership receipts were reused.",
+    "private_run_directory": ".build/english-v5-live/Contoso-Foundry-Hands-on-2026-09-30/",
+    "azd_environment": "contoso-en-260930ae24ba",
+    "services": {
+      "contoso-purchasing": "4",
+      "contoso-purchasing-responses": "4"
+    },
+    "source_archive_sha256": "aebd586c2b14c44492739540caa174249eed65855b6d57c0466162cef178173c",
+    "development_freeze_sha256": "a52bbd00932bd1ad6088bd1d03726960b5a327b12c84ad5beffd6d9aa72c3471",
+    "frozen_files": 34,
+    "tool_authorization_contract": "explicit-request-v2",
+    "invocations_runtime_sha256": "db4ac710ea9ff5f52ce4596f7cdc0b071062cae884d7afe10aadbc988e4b47da",
+    "responses_runtime_sha256": "355b9aa773ef1db97b4afc3dd28af5ecfc78db94e15b4ae19549a634b13088a6",
+    "effective_prompt_sha256": "2d223cdecdced7a5cdb6aa045aaa420e30b3a999ad47b86a39aa1aa56b67ce62",
+    "both_protocols_same_effective_prompt": true,
+    "model_deployments_changed": false,
+    "runtime_data_judge_oracles_changed_after_freeze": false
+  },
+  "smoke": {
+    "invocations": "passed_actual_azure_business_smoke",
+    "responses": "passed_actual_azure_business_smoke",
+    "deployments": 2,
+    "target_invocations": 2,
+    "preserved_local_cli_rejection": "attempts/responses-cli-rejection.json"
+  },
+  "calibration": {
+    "controls": 8,
+    "matched": 8,
+    "passed": true,
+    "eval_id": "eval_ed2b9c75595f4a709f67a457aebc5e68",
+    "run_id": "evalrun_eb89937230e44fa5af41f1c36d7c3491"
+  },
+  "dev": {
+    "required": 40,
+    "attempted": 40,
+    "completed_responses": 40,
+    "collection_attempts": 1,
+    "native_runs": 1,
+    "runtime_failed": [],
+    "not_executed": [],
+    "native_passes": 40,
+    "business_passes": 39,
+    "pass_rate": 0.975,
+    "native_counts": {
+      "errored": 0,
+      "failed": 0,
+      "passed": 40,
+      "total": 40,
+      "skipped": 0
+    },
+    "native_eval_id": "eval_ed2b9c75595f4a709f67a457aebc5e68",
+    "native_run_id": "evalrun_e26005eaa54a4de3ab6db1784a12b0c5",
+    "complete_business_gate_passed": false,
+    "critical_failures": [
+      "v5-dev-30"
+    ],
+    "evidence_integrity_failures": [],
+    "contradictions": []
+  },
+  "holdout": {
+    "required": 10,
+    "executed": 0,
+    "native_runs": 0,
+    "opened_for_target_evaluation": false,
+    "reason": "The complete dev gate failed its unchanged zero-access-failure requirement. No holdout was opened or invoked.",
+    "sha256": "7aa4f31c7153777588aec32e0e569ad9f3c67e2d76f13b3588c3343a3571c493",
+    "seal_manifest_sha256": "c35cbdb3fc28bc137b0cd8f31e4812d78ec701e33ffe54710a177c3c89bedea9"
+  },
+  "optimizer": {
+    "job_id": "opt_7c6be680d37342dab3c41b2b06b52803",
+    "outcome": "operational_failure",
+    "service_status": "succeeded",
+    "service_duration_seconds": 647,
+    "baseline_dev_score": 0.9453125,
+    "generated_candidates": 0,
+    "candidate_promoted": false,
+    "quality_improvement_claimed": false,
+    "jobs": 1,
+    "native_counts": {
+      "errored": 1,
+      "failed": 1,
+      "passed": 38,
+      "total": 40,
+      "skipped": 0
+    }
+  },
+  "closeout": {
+    "status": "scoped_closeout_verified",
+    "recorded_sessions_stopped": 5,
+    "known_optimizer_job_terminal": true,
+    "native_runs_terminal": true,
+    "job_inventory": {
+      "status": "read",
+      "rows": 3,
+      "bounded": true,
+      "scope": "contoso-purchasing-responses only, at most six recent jobs"
+    },
+    "global_idle_claimed": false,
+    "resources_deleted": false
+  },
+  "administrator": {
+    "status": "awaiting_administrator_confirmation",
+    "external_workspace_current_existence_checked": false,
+    "policy_or_permissions_changed": false,
+    "administrator_contacted": false
+  },
+  "preserved": {
+    "v4_originals": "validation/english/automated-v4/",
+    "prior_failure_oracles_or_controls_changed": false,
+    "original_v4_unused_holdout_opened_or_reused": false,
+    "new_holdout_authoring": "separate_context_after_freeze",
+    "new_holdout_sha256": "7aa4f31c7153777588aec32e0e569ad9f3c67e2d76f13b3588c3343a3571c493",
+    "historical_files_unchanged": 20,
+    "korean_environment_changed": false,
+    "failed_cases_resampled": false
+  },
+  "excluded_work": [
+    "cost queries",
+    "optional-service validation",
+    "Azure resource deletion",
+    "organization policy/access changes",
+    "external workspace queries",
+    "automatic optimizer candidate apply/promotion",
+    "holdout execution after a failed dev gate"
+  ],
+  "publication": "Main merge and Pages publication were separately approved after this bounded work; publication is not quality release approval.",
+  "documentation_validation": "validation/docs/live-v5/",
+  "evidence_boundary": "Native dev 40/40 does not override the critical access-evidence failure at combined 39/40. Optimizer service success/perfect-score wording does not override 38 passed, 1 failed, 1 errored. The unused holdout remains unexecuted.",
+  "remaining": [
+    "A separately approved, newly frozen experiment is required to improve access-evidence completeness; do not rerun v5 until it passes.",
+    "Native Optimizer case08 lacks an actual engine response or detailed evaluator-error cause; case27 shows built-in judge/domain-oracle disagreement.",
+    "Timeout cancellation and generated draft-candidate cleanup were not exercised by this live run.",
+    "External diagnostic-policy dependency remains for the governance owner to confirm."
+  ]
+}

@@ -31,7 +31,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: contoso-approved-azure-${{ inputs.language }}-${{ inputs.validation_phase == 'optimizer' && 'optimizer' || 'deployment' }}
+  group: contoso-approved-azure-${{ inputs.language }}
   cancel-in-progress: false
 jobs:
   identity-probe:

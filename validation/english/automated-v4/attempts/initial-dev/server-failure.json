@@ -1,0 +1,16 @@
+{
+  "case_id": "v4-dev-37",
+  "client_http_status": 502,
+  "server_failure": [
+    {
+      "run_id": "contoso-hosted-failure-120a7896cac7",
+      "at": "2026-09-30T17:06:36.426328+00:00",
+      "event": "failed",
+      "payload": {
+        "type": "RuntimeError",
+        "message": "Model-selected citations omitted required policy evidence; no references were filled in."
+      }
+    }
+  ],
+  "source": "Original retained file in the exact owned dev session; no model retry."
+}

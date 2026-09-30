@@ -23,6 +23,9 @@ ENDPOINT = "https://owned.services.ai.azure.com/api/projects/workshop"
 
 class OperationalFiles(unittest.TestCase):
     def setUp(self):
+        sdk_errors = patch.dict(sys.modules, {"azure.core.exceptions": SimpleNamespace(AzureError=RuntimeError)})
+        sdk_errors.start()
+        self.addCleanup(sdk_errors.stop)
         self.directory = ROOT / ".build" / ("operations-unit-" + uuid4().hex)
         self.directory.mkdir(parents=True)
         self.addCleanup(shutil.rmtree, self.directory)
@@ -469,8 +472,9 @@ class OptimizerLifecycleTests(OperationalFiles):
             stack.enter_context(patch.object(optimizer_lab, "verify_session_context"))
             stack.enter_context(patch.object(optimizer_lab, "sessions", return_value=[{"agent_session_id": "prior"}]))
             monitor = stack.enter_context(patch.object(optimizer_lab, "monitor", side_effect=OSError("lost polling transport")))
-            cancel = stack.enter_context(patch.object(optimizer_lab, "cancel_verified"))
-            stop = stack.enter_context(patch.object(optimizer_lab, "stop_new_sessions"))
+            cancelled = {**native_job(), "status": "cancelled", "updated_at": datetime.now(timezone.utc).timestamp()}
+            cancel = stack.enter_context(patch.object(optimizer_lab, "cancel_verified", return_value=cancelled))
+            stop = stack.enter_context(patch.object(optimizer_lab, "reconcile_sessions"))
             with self.assertRaises(OSError):
                 optimizer_lab.run(self.args(max_seconds=1200), self.evidence)
         load.assert_called_once_with("automated-v2", split="dev")
@@ -480,8 +484,11 @@ class OptimizerLifecycleTests(OperationalFiles):
         monitor.assert_called_once_with(project.beta.agents, "opt_unit", self.evidence, max_seconds=1200)
         cancel.assert_called_once_with(project.beta.agents, "opt_unit", self.evidence, max_seconds=1200)
         stop.assert_called_once()
-        self.assertEqual(stop.call_args.args, ("contoso-agent", "2", {"prior"}, "opt_unit", self.evidence))
-        self.assertEqual(stop.call_args.kwargs["environment"], self.environment)
+        self.assertEqual(stop.call_args.args, (project, "contoso-agent", "2", {"prior"}, "opt_unit", cancelled, self.evidence))
+        self.assertEqual(json.loads((self.directory / "contoso-optimizer-unit-terminal.json").read_text())["status"], "cancelled")
+        outcome = json.loads((self.directory / "contoso-optimizer-unit-outcome.json").read_text())
+        self.assertEqual(outcome["failure"]["type"], "OSError")
+        self.assertFalse(outcome["quality_improvement_claimed"])
         receipt = json.loads((self.directory / "contoso-optimizer-unit-job.json").read_text())
         self.assertEqual(receipt["dev_items"], 1)
         self.assertEqual(receipt["max_seconds"], 1200)
@@ -535,7 +542,7 @@ class OptimizerLifecycleTests(OperationalFiles):
                 ]) as cli:
             optimizer_lab.stop_new_sessions("a", "2", set(), "opt_unit", self.evidence, environment=self.environment, job=job)
         self.assertEqual(cli.call_args_list[1].args[2:], ("stop", "s-native"))
-        proof = self.evidence.append.call_args.args[1]
+        proof = next(call.args[1] for call in self.evidence.append.call_args_list if call.args[0] == "optimizer_session_stopped")
         self.assertTrue(proof["stop_acknowledged"])
         self.assertFalse(proof["stopped_at_visible"])
 

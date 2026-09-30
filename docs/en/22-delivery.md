@@ -41,7 +41,7 @@ Checking that a response file is nonempty is only a smoke test. **A file contain
 ```bash
 FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -v
 python samples/workshop.py validate-data
-python samples/evaluation_lab.py prepare --suite automated-v3 --split dev --input results/actual-dev-responses.jsonl
+python samples/evaluation_lab.py prepare --suite automated-v5 --split dev --input results/actual-dev-responses.jsonl
 ```
 
 <div class="command-explanation" markdown="1">
@@ -52,11 +52,11 @@ python samples/evaluation_lab.py prepare --suite automated-v3 --split dev --inpu
 | --- | --- | --- |
 | 1. `FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -v` | Sets `ko` for this test process only. The shared suite preserves Korean-baseline assertions and includes explicit English-profile tests; `-v` prints each test's name and result. | Local code contract checks, with no Azure inference or deployment. The terminal's exported `en` selection and live environment remain unchanged. |
 | 2. `workshop.py validate-data` | Checks synthetic data structure, IDs, and the default split. | A local check, not a command for calculating the accuracy of model answers. |
-| 3. `evaluation_lab.py prepare ...` | Reads the 30 actual English v3 dev responses from `--input` and checks the specified suite/split and evidence contract. Replace `actual-dev-responses.jsonl` with the actual dev response filename. | Local validation. If the file does not exist, do not fill it with dummy data; first perform the approved actual-response collection step. |
+| 3. `evaluation_lab.py prepare ...` | Reads the 40 actual English v4 dev responses from `--input` and checks the specified suite/split and evidence contract. Replace `actual-dev-responses.jsonl` with the actual dev response filename. | Local validation. If the file does not exist, do not fill it with dummy data; first perform the approved actual-response collection step. |
 
 </div>
 
-Run the last command when you have 30 actual v3 dev responses. Do not substitute dummy responses or manually entered verdicts for the automated gates.
+Run the last command when you have 40 actual v4 dev responses. Do not substitute dummy responses or manually entered verdicts for the automated gates.
 CI uses the same test-process-only override. Do not globally unset or switch the English profile: the following `validate-data`, evaluation, and live commands still run with `FOUNDRY_LAB_LANGUAGE=en` and the separate English configuration and receipts.
 
 This directory's `.github/workflows/validate.yml` checks only documentation and local tests by default. **It does not automatically run Azure deployment or paid inference.**
@@ -69,6 +69,8 @@ Ordinary pushes and PRs have no paid Azure jobs. Deployment occurs only for runs
 The existing `.github/workflows/validate.yml` continues automatic local validation.
 
 Before setup or dispatch, confirm that you are using the **reviewed `docs/english-live-validation` branch**, `contoso-validation-en`, and the separate English project and receipts. Read [setup_oidc.py](../../scripts/setup_oidc.py) first. Bootstrap in two phases: observe the exact environment-bound identity metadata **before** creating Azure federation, then configure only the owned identity and scoped permissions. Do not omit `language=en`, switch to the Korean environment, or merge `main` as a workaround.
+
+**For subsequent experiments:** the literal branch name below documents the original approved run. It is not approval to recreate a merged/deleted branch or alter Environment branch restrictions. Before a new run, select a reviewed non-`main` branch containing the candidate and substitute that branch only after its execution scope is approved. Inspect the current kit's workflow files and the pinned source links. New Azure execution and any required access-policy changes remain separate approvals.
 
 **Preserve existing repository visibility**, whether public or private, and leave existing non-English environments unchanged. Setup is allowed only on an explicitly approved non-`main` feature/docs branch, never on `main` or `master`. Approval for paid calls does not also authorize identity or access changes.
 
@@ -155,31 +157,34 @@ gh workflow run validate.yml --ref docs/english-live-validation -f language=en -
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `gh workflow run ... validation_phase=dev` | `gh` is the GitHub CLI; `--ref docs/english-live-validation` selects the explicitly approved branch. `-f language=en` selects the English profile and `contoso-validation-en`; `acknowledge_cost=true` explicitly selects the paid path. | Requests a real Actions run. After English-environment approval, nonproduction deployment, 30 English dev cases, 8 judge controls, and related work incur charges; the holdout is not invoked. |
+| 1. `gh workflow run ... validation_phase=dev` | `gh` is the GitHub CLI; `--ref` must identify the reviewed, explicitly approved branch. `-f language=en` selects the English profile and `contoso-validation-en`; `acknowledge_cost=true` explicitly selects the paid path. | Requests a real Actions run. The new candidate path runs 40 English dev cases and 8 judge controls after English-environment approval; the holdout is not invoked. |
 | 2. `gh workflow run ... validation_phase=release` | Requests final English release validation from the same frozen branch, with `language=en` and successful English dev evidence. The comment line is not an executable command. | Real evaluation charges may apply. Collects the new independent sealed English holdout or evaluates preserved English originals under the original conditions; if preparation differs, it stops before the holdout. |
 
 </div>
 
 `validate.yml` is the manual entry point already present on the default branch. Its reviewed English-capable version on `docs/english-live-validation`
-calls the reusable Azure workflow after completing local checks. Do not dispatch the unchanged default-branch runtime workflow as an English run, and do not merge into `main` merely to enable dispatch.
+calls the reusable Azure workflow after completing local checks. A main merge or Pages publication does not authorize paid workflow dispatch; select the approved language, candidate and execution branch explicitly.
 If GitHub policy blocks a manual branch run, record it as blocked; do not merge main without authorization.
 `scripts/ci_live.py` checks the OIDC principal and RG/project match, deploys Hosted, and verifies
 **a KRW 2.9 million draft, both approval roles, and no order placed** through actual tool results.
-The English dev phase runs only v3's 30 English regressions and 8 judge controls; it neither passes holdout questions to the model nor invokes them.
-After a successful dev run exists, download and preserve its `contoso-ci-summary` artifact in `validation/english/automated-v3/`,
+The new English dev phase runs only v4's 40 exposed regressions and 8 unchanged judge controls; it neither passes new holdout questions to the model nor invokes them.
+After a successful dev run exists, download and preserve its `contoso-ci-summary` artifact in `validation/english/automated-v5/`,
 then run release with the same runtime, model, and suite hashes. If successful dev evidence is missing or the code has changed,
 release stops before opening the holdout.
 The release phase either collects the new independent sealed 10-case English holdout for the first time or evaluates preserved English originals from the same environment/code.
 Human review is not a completion requirement of this educational automated gate; it is recorded only as guidance.
 Holdout evidence is usable only if its environment fingerprint, runtime hash, and actual model match the current test environment.
 You cannot reuse the author's results from another environment as quality evidence for your own CI.
-Independent holdout evidence may still be collected after calibration failure, but **the release gate fails**.
+Calibration failure stops new collection; it cannot be bypassed to obtain a passing release report.
 Smoke success is separate from the full holdout quality gate. The `always()` step stops only recorded sessions.
 Raw English evidence stays in the isolated checkout's `results/`; shareable v3 summaries and reviewed synthetic response files belong under `validation/english/automated-v3/`. The completed English Hosted Invocations version 2 dev result was **29/30**, with **8/8** calibration controls and **0 critical dev failures**. The independent holdout executed **10/10** but passed **7/10**, including a critical safety citation-evidence failure: **release was not approved**. See [quality.json](../../validation/english/automated-v3/quality.json) and [ci-release.json](../../validation/english/automated-v3/ci-release.json). Preserve the immutable [first partial attempt](../../validation/english/attempts/36716203574/ci-dev.json) separately. No thresholds, data, or tested candidate were adjusted and no holdout rerun followed the result; do not redispatch the release collection to seek a passing score.
 Existing `validation/automated-v3/` and `validation/current/` remain historical Korean evidence. Earlier Korean v1 CI/failure records remain unchanged in the [pre-cleanup Git commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation/history/v1).
 
 For optional operational diagnostics, `validation_phase=optimizer` must use the same approved English OIDC principal,
 an explicitly pinned English Responses version, matching English instructions, and dev data only. Verify these bindings before selecting the phase. It is separate from new holdout collection and quality release, and it does not automatically apply or promote candidates.
+The workflow serializes optimizer, dev, and release phases within each language's owned environment (`cancel-in-progress=false`). English now selects v5; Korean defaults are unchanged. V5 CI verifies its distinct freeze before Azure operations and rechecks exported native/dev gate originals before opening holdout. Release reuses the exact dev version rather than redeploying another one. This is not proof that contention caused the historical timeout. The preserved [v4 live run](../../validation/english/automated-v4/report.json) used scoped CLI/SDK execution, **not these CI phases**: dev was incomplete, holdout stayed unopened, and Optimizer had three evaluator errors. That run did not merge or publish Pages.
+
+The [v5 CLI/SDK run](../../validation/english/automated-v5/report.json) also did **not** dispatch paid GitHub workflows. It completed dev collection/native evaluation, failed the combined access-evidence gate at 39/40, and left holdout unopened. Its separate Optimizer had one error and one failure. Publishing these preserved findings after explicit follow-up approval is documentation delivery, not a CI release pass or candidate promotion.
 
 ### 4. Check model upgrades and knowledge changes
 

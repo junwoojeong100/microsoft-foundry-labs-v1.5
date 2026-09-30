@@ -1,0 +1,88 @@
+{
+  "scope": "Byte-for-byte comparison with the pre-task hash inventory; no historical judgment was rewritten.",
+  "files_checked": 20,
+  "changed_files": [],
+  "files": [
+    {
+      "path": "validation/english/automated-v4/dev37-diagnosis.json",
+      "sha256": "b53acd94766b378b07f5467efe1a70b511466e88a8b7b56e0de591b30293ae5c"
+    },
+    {
+      "path": "validation/english/automated-v4/models.json",
+      "sha256": "971ae123947f402c5cc9c9e3ee3f12f4875279f5bdc75885034d34307622c648"
+    },
+    {
+      "path": "validation/english/automated-v4/report.json",
+      "sha256": "99eef5c7fa96345f265ecae7aa6101ffc8993b9f886de91bde7c98182e40b6b8"
+    },
+    {
+      "path": "validation/english/automated-v4/calibration.json",
+      "sha256": "dd25c52f5effc461772a6a5defa97ebd262bc35615ec9187241c9454dc4b4556"
+    },
+    {
+      "path": "validation/english/automated-v4/invocations-smoke.json",
+      "sha256": "43067cab474eb82bd2841754be875b91631a8fd5205ddb61b6b32d472fcdd897"
+    },
+    {
+      "path": "validation/english/automated-v4/quality.json",
+      "sha256": "5d2d4a40c24c499775f2c90a871d9ed6bfdbe7c50ba8c860aefb94ca4051d6dc"
+    },
+    {
+      "path": "validation/english/automated-v4/responses-smoke.json",
+      "sha256": "ada441f5d57da074ad510bebf6ac1878e7960574568cef990ca5506e1bd2b4f3"
+    },
+    {
+      "path": "validation/english/automated-v4/source-snapshot.zip",
+      "sha256": "de233abc971986b8953ad64d4471594f776fba78bc63a517a381d2da4a020f88"
+    },
+    {
+      "path": "validation/english/automated-v4/attempts/initial-dev/partial-responses.jsonl",
+      "sha256": "354138474cc64421ac563d827a22ad005a00a8bc070ecf377e1efb246b6b1241"
+    },
+    {
+      "path": "validation/english/automated-v4/attempts/initial-dev/server-failure.json",
+      "sha256": "4edf9abf9aa5d50a29ae9f551f606a04cf4de090090012f9ecb7eebfc5767a1b"
+    },
+    {
+      "path": "validation/english/automated-v4/optimizer.json",
+      "sha256": "f402fd63e188fb549942853d05ec4b6aeb2a14a92d3b5fdb06afde0d24c39ec7"
+    },
+    {
+      "path": "validation/english/automated-v4/operations.json",
+      "sha256": "7f593a1b18406746aae352fb4d97be708930ebaaecee8ffef51306cfae8a51e6"
+    },
+    {
+      "path": "validation/english/citation-remediation/report.json",
+      "sha256": "605831d492b1bd2c3aaceddd9b7b0c418f4081f13af5c41824e2576dd82565c4"
+    },
+    {
+      "path": "validation/english/improvements-v4/report.json",
+      "sha256": "0dff55bb32dc335840c04bccbfc6af463c6aab9d0b6165bbdd3c72a23cbc578e"
+    },
+    {
+      "path": "data/en/evaluation/v4/development-freeze.json",
+      "sha256": "38d8baab43e23f56f812be8836b8cfbf1e1ab7d161196862c8ee4851dd078733"
+    },
+    {
+      "path": "data/en/evaluation/v4/rubric.json",
+      "sha256": "e97431b6fc4cb8df6ec17e22b16ec350f77acb509454395f417613ee33bbfb0b"
+    },
+    {
+      "path": "data/en/evaluation/v4/holdout-manifest.json",
+      "sha256": "1834a8349237396f637bb71108622b2c72d6f42f0a2c4a278b752e64c7486897"
+    },
+    {
+      "path": "data/en/evaluation/v4/dev.jsonl",
+      "sha256": "7b48aadef2777f85ce2e335e3777db94a833bb6580124c24c095376d4ff30282"
+    },
+    {
+      "path": "data/en/evaluation/v4/calibration.jsonl",
+      "sha256": "f7320400a36009dd534664782896a42d9834a5a03e513620de620d1968496468"
+    },
+    {
+      "path": "data/en/evaluation/v4/holdout.jsonl",
+      "sha256": "021a26ee50f1992d5605e0f0bd32a3438a2729a880733576b807cf520246696e"
+    }
+  ],
+  "original_private_environment_files_unchanged": true
+}

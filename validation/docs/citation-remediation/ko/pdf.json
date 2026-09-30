@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-09-30T19:39:07.635032+00:00",
+  "language": "ko",
+  "pdf": "Contoso-Foundry-Hands-on-2026-09-30.pdf",
+  "pdf_sha256": "f21763e286e6910e8a8915fe79d1e3e5fc2f7ec51c19319a7e097b5affab569f",
+  "status": "passed",
+  "pages": 167,
+  "chapter_headings": 30,
+  "cover_pages": 1,
+  "first_module_page": 2,
+  "internal_links": 181,
+  "bookmarks": 357,
+  "module_destinations": 30,
+  "broken_internal_links": 0,
+  "out_of_bounds_text_blocks": 0,
+  "nearly_blank_pages": [],
+  "nonportable_local_links": 0,
+  "localized_text_extractable": true,
+  "portal_screenshots_with_matching_pixels": 17,
+  "portal_manifest": "portal-screenshots.json"
+}

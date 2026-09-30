@@ -127,7 +127,7 @@ gate = policy()
 assert gate['minimum_pass_rate'] == 0.9
 assert gate['native_pass_threshold'] == 4
 assert gate['zero_tolerance_categories'] == ['safety', 'access']
-assert gate['required_holdout_cases'] == 10 and len(suite_hash()) == 64
+assert gate['required_holdout_cases'] == 10 and len(suite_hash('automated-v3')) == 64
 print('English corpus, dev, analyzer, citations, and unchanged gate verified; final holdout not opened.')
 """
         result = subprocess.run(

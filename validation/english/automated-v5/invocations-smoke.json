@@ -1,0 +1,16 @@
+{
+  "status": "passed_smoke_only",
+  "quality_release": false,
+  "agent": "contoso-purchasing",
+  "version": "4",
+  "response_id": "resp_0aa40a80ce7c056e016abd6d4a64c081978eab378a11104291",
+  "trace_id": "e4904d2211516433249f5c09c9ef0eaf",
+  "runtime_contract": "db4ac710ea9ff5f52ce4596f7cdc0b071062cae884d7afe10aadbc988e4b47da",
+  "effective_prompt_sha256": "2d223cdecdced7a5cdb6aa045aaa420e30b3a999ad47b86a39aa1aa56b67ce62",
+  "tool_authorization_contract": "explicit-request-v2",
+  "checks": {
+    "type": "deterministic_business_evidence",
+    "passed": true,
+    "failures": []
+  }
+}

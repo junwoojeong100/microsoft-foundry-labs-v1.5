@@ -11,10 +11,10 @@ import time
 from urllib.request import Request, urlopen
 from urllib.parse import urlencode, urlparse
 
-from cloud import Rest, credential
+from cloud import Rest, credential, project_client
 from evidence import Budget, Evidence, digest
 from hosted_runtime import validate_request
-from evaluation_data import DEFAULT_SUITE, SUITES, load_cases, suite_hash
+from evaluation_data import DEFAULT_SUITE, FROZEN_SUITES, SUITES, load_cases, suite_hash, verify_development_freeze
 from workshop import LANGUAGE, RESULTS, ROOT, read_config, save_json, validate_data
 
 
@@ -66,16 +66,24 @@ def check_response(value: dict, payload: dict) -> None:
         raise ValueError("Hosted result failed status, lineage, or deployed-package contract checks.")
 
 
-def azd(*args: str, timeout: int = 360) -> str:
+def azd(*args: str, timeout: float = 360) -> str:
     result = subprocess.run(["azd", *args], cwd=ROOT, capture_output=True, text=True, timeout=timeout, check=False)
     if result.returncode:
         raise RuntimeError(f"azd failed ({result.returncode}): {result.stderr.strip()}\n{result.stdout.strip()}")
     return result.stdout
 
 
-def remote_invoke(payload: dict, session_id: str, evidence: Evidence) -> dict:
+def remaining_seconds(deadline: float | None, limit: float) -> float:
+    remaining = limit if deadline is None else min(limit, deadline - time.monotonic())
+    if remaining <= 0:
+        raise TimeoutError("Hosted collection budget exhausted; no further target request is allowed.")
+    return remaining
+
+
+def remote_invoke(payload: dict, session_id: str, evidence: Evidence, *, deadline: float | None = None) -> dict:
     endpoint, _ = read_config()
-    binding = json.loads(azd("ai", "agent", "show", "contoso-purchasing", "--output", "json"))
+    binding = json.loads(azd("ai", "agent", "show", "contoso-purchasing", "--output", "json",
+                             timeout=remaining_seconds(deadline, 90)))
     target = urlparse(binding["agent_endpoints"]["invocations"])
     project = urlparse(endpoint)
     expected_path = project.path + "/agents/contoso-purchasing/endpoint/protocols/invocations"
@@ -84,8 +92,29 @@ def remote_invoke(payload: dict, session_id: str, evidence: Evidence) -> dict:
     path = target.path.removeprefix(project.path) + "?api-version=v1&" + urlencode({"agent_session_id": session_id})
     with credential() as cred:
         rest = Rest(endpoint, cred, "https://ai.azure.com/.default", evidence,
-                    Budget(max_requests=1, max_seconds=330), timeout_seconds=310)
+                    Budget(max_requests=1, max_seconds=330), timeout_seconds=remaining_seconds(deadline, 310))
         return rest.request("POST", path, payload)
+
+
+def stop_owned_session(session_id: str, version: str, evidence: Evidence) -> dict:
+    from optimizer_lab import INACTIVE_SESSIONS, remaining_timeout, session_action
+
+    deadline = time.monotonic() + 180
+    with project_client(evidence) as (project, _, _, _):
+        original = session_action("contoso-purchasing", session_id, "show", evidence, project=project, deadline=deadline)
+        if (original.get("agent_session_id") != session_id
+                or original.get("version_indicator", {}).get("agent_version") != version):
+            raise ValueError("Recorded session ownership/version differs; refusing to stop unrelated compute.")
+        session_action("contoso-purchasing", session_id, "stop", evidence, project=project, deadline=deadline)
+        for attempt in range(6):
+            status = session_action("contoso-purchasing", session_id, "show", evidence, project=project, deadline=deadline)
+            if (status.get("agent_session_id") == session_id and status.get("status") in INACTIVE_SESSIONS
+                    and (status.get("stopped_at") or status.get("status") in {"expired", "deleted"})):
+                evidence.append("stopped_session", status)
+                return status
+            if attempt < 5:
+                time.sleep(remaining_timeout(deadline, 2))
+    raise RuntimeError("Hosted session stop is unconfirmed within the 180-second cleanup bound.")
 
 
 def main() -> None:
@@ -105,6 +134,17 @@ def main() -> None:
     if not args.live:
         print(f"PLAN ONLY: Hosted {args.command}; local invocation also requires --live.")
         return
+    if LANGUAGE == "en" and args.command == "evaluate" and args.suite in FROZEN_SUITES:
+        verify_development_freeze(args.suite)
+    if (LANGUAGE == "en" and args.command == "evaluate" and args.split == "holdout"
+            and args.suite != "automated-v5"):
+        raise ValueError("Older English exams are consumed or preserved unused; only the new frozen v5 holdout can run.")
+    gate = None
+    if args.command == "evaluate" and args.suite == "automated-v5":
+        from evaluation_lab import verify_gate
+        gate = verify_gate(args.suite, "dev" if args.split == "holdout" else "calibration")
+        if args.local:
+            raise ValueError("The v5 release experiment requires actual Azure evidence, not a local target.")
     if not args.local and (not args.version or not re.fullmatch(r"[1-9]\d*", args.version)):
         raise ValueError("Remote invocation requires an exact numeric --version.")
     if not 0 <= args.case_delay <= 60:
@@ -115,7 +155,20 @@ def main() -> None:
         if configured != endpoint:
             raise ValueError("azd and .env target different projects; invocation refused.")
     environment_sha256 = digest(endpoint)
+    if gate is not None:
+        if gate["environment_sha256"] != environment_sha256:
+            raise ValueError("Calibrated gate belongs to another project.")
+        if args.split == "holdout":
+            frozen = gate["configuration"]
+            if (frozen["hosted_version"] != args.version or frozen["runtime_sha256"] != expected_contract()
+                    or frozen["model_deployment"] != model):
+                raise ValueError("Holdout target differs from the complete dev candidate; the exam stays closed.")
     evidence = Evidence("hosted-client")
+    if args.command == "evaluate" and args.suite == "automated-v5":
+        marker = RESULTS / f"collection-{suite_hash(args.suite)[:16]}-{args.split}.json"
+        with marker.open("x", encoding="utf-8") as handle:
+            json.dump({"run_id": evidence.run_id, "version": args.version, "environment_sha256": environment_sha256,
+                       "purpose": "single collection attempt; never retry failed cases"}, handle)
     cases = load_cases(args.suite, args.split) if args.command == "evaluate" else [{"id": "manual-01", "query": args.query}]
     if args.command == "evaluate" and args.split == "holdout":
         marker = RESULTS / ("holdout-" + suite_hash(args.suite)[:16] + ".json")
@@ -126,32 +179,44 @@ def main() -> None:
     deadline = time.monotonic() + 1200
     try:
         if not args.local:
-            session = json.loads(azd("ai", "agent", "sessions", "create", "contoso-purchasing", args.version, "--output", "json"))
+            session = json.loads(azd("ai", "agent", "sessions", "create", "contoso-purchasing", args.version,
+                                     "--output", "json", timeout=remaining_seconds(deadline, 90)))
             evidence.append("session_created", session)
             session_id = session["agent_session_id"]
-            save_json(RESULTS / (evidence.run_id + "-session.json"), {"agent": "contoso-purchasing", "version": args.version, "session_id": session_id})
+            save_json(RESULTS / (evidence.run_id + "-session.json"), {
+                "agent": "contoso-purchasing", "version": args.version, "session_id": session_id,
+                "environment_sha256": environment_sha256,
+            })
         path = RESULTS / (evidence.run_id + "-responses.jsonl")
         with path.open("x", encoding="utf-8") as output:
             for case in cases:
                 if time.monotonic() >= deadline:
                     raise RuntimeError("Hosted evaluation time budget exceeded.")
                 if args.command == "evaluate":
-                    time.sleep(args.case_delay)
+                    time.sleep(min(args.case_delay, remaining_seconds(deadline, 60)))
+                remaining_seconds(deadline, 310)
                 payload = validate_request({"query": case["query"], "case_id": case["id"], "run_id": evidence.run_id})
                 try:
                     if args.local:
                         request = Request("http://127.0.0.1:8088/invocations", data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"})
-                        with urlopen(request, timeout=310) as response:
+                        with urlopen(request, timeout=remaining_seconds(deadline, 310)) as response:
                             value = json.load(response)
                     else:
-                        value = remote_invoke(payload, session_id, evidence)
+                        value = remote_invoke(payload, session_id, evidence, deadline=deadline)
                     check_response(value, payload)
+                    if args.suite == "automated-v5" and value.get("tool_authorization_contract") != "explicit-request-v2":
+                        raise ValueError("New v5 responses must retain explicit-request-v2; historical v1 is replay-only.")
                     actual_configuration = (value["contract"]["sha256"], value["effective_prompt_sha256"], value["model_deployment"])
                     if configuration is not None and configuration != actual_configuration:
                         raise ValueError("Runtime configuration changed within a supposedly fixed evaluation.")
                     configuration = actual_configuration
                     if value["model_deployment"] != model:
                         raise ValueError("Hosted model deployment differs from the approved local configuration.")
+                    if gate is not None and args.split == "holdout" and (
+                        value["model"] != gate["configuration"]["model"]
+                        or value["effective_prompt_sha256"] != gate["configuration"]["effective_prompt_sha256"]
+                    ):
+                        raise ValueError("Holdout model/prompt drifted from the complete dev candidate.")
                     value.update(
                         id=case["id"], hosted_version=args.version, hosted_session_id=session_id,
                         execution_location="local" if args.local else "azure", environment_sha256=environment_sha256,
@@ -170,11 +235,7 @@ def main() -> None:
         print(f"Responses: {path}")
     finally:
         if session_id:
-            evidence.append("stop_requested", azd("ai", "agent", "sessions", "stop", session_id, "--agent-name", "contoso-purchasing"))
-            status = json.loads(azd("ai", "agent", "sessions", "show", session_id, "--agent-name", "contoso-purchasing", "--output", "json"))
-            evidence.append("stopped_session", status)
-            if status.get("status") not in {"idle", "expired", "deleted"}:
-                raise RuntimeError("Hosted compute stop is not confirmed; inspect the recorded session.")
+            stop_owned_session(session_id, args.version, evidence)
         print(f"Evidence: {evidence.path}")
 
 

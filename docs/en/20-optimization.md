@@ -12,7 +12,7 @@ Start by considering **RAG for new facts, prompts for instruction problems, and 
 
 **How do you use it?** First classify whether a failure involves retrieval, instructions, formatting, or repeated behavior. Compare the baseline and candidates using the same dev criteria, and send only candidates with demonstrated improvement to a separate independent test. Clearly separate learning the format from a small local fine-tuning seed file from submitting a real paid training job.
 
-**Where do you run it?** The implementation is in [optimizer_lab.py](../../samples/optimizer_lab.py), the [optimizer-specific adapter](../../hosted/optimizer_responses.py), and [prepare_tuning.py](../../samples/prepare_tuning.py). Choose an English instruction source matching the deployed version, such as [agent-v6.txt](../../data/en/prompts/agent-v6.txt). Use the portal for Optimize/Fine-tune settings, progress, and result comparisons.
+**Where do you run it?** The implementation is in [optimizer_lab.py](../../samples/optimizer_lab.py), the [optimizer-specific adapter](../../hosted/optimizer_responses.py), and [prepare_tuning.py](../../samples/prepare_tuning.py). Choose an English instruction source matching the deployed version. The approved v4 run deployed [agent-v7.txt](../../data/en/prompts/agent-v7.txt) as English Responses version 3; verify your own environment rather than copying that number. Use the portal for Optimize/Fine-tune settings, progress, and result comparisons.
 
 ## Prerequisites
 
@@ -43,8 +43,8 @@ Do not automatically promote a candidate to the latest version. Inspect the chan
 The bundled native Agent Optimizer path:
 
 ```bash
-python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v6.txt
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v6.txt --live
+python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v7.txt
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v7.txt --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -53,12 +53,12 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --a
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `optimizer_lab.py` | `--agent/--version` identify the English Responses baseline, `--optimizer-deployment` identifies the approved reflection deployment, and `--prompt-file` must match the deployed English instructions. Replace the agent/version/deployment placeholders; use `data/en/prompts/agent-v6.txt` only if that file was deployed. Without `--live`, read the submission plan. | No Azure job is created. Check the suite, dev count, candidate/time limits, and 0 holdout cases. |
+| 1. `optimizer_lab.py` | `--agent/--version` identify the English Responses baseline, `--optimizer-deployment` identifies the approved reflection deployment, and `--prompt-file` must match the deployed English instructions. Replace the agent/version/deployment placeholders; use `data/en/prompts/agent-v7.txt` only after that file has been deployed in the selected version. Without `--live`, read the submission plan. | No Azure job is created. Check the suite, dev count, candidate/time limits, and 0 holdout cases. |
 | 2. The same command with `--live` | Submits a real native optimizer job with the reviewed settings and observes results for a bounded time. `AZURE_DEV_USER_AGENT` identifies the command process; it is not an authentication token. | Multiple model/agent/evaluator calls and Hosted charges may apply. Check results, warnings, cancellation, and session stopping; candidates are not automatically promoted. |
 
 </div>
 
-In the first command, check the **full dev count for the current suite and 0 holdout cases**, a maximum of 2 candidates, and at most 1 stall. For English `automated-v3`, the full dev count is **30**.
+In the first command, check the **full dev count for the current suite and 0 holdout cases**, a maximum of 2 candidates, and at most 1 stall. English now defaults to `automated-v5` with **40** unchanged exposed v4 dev cases; the historical v3 job used 30.
 `DEFAULT_SUITE` is the default; you can also select a suite explicitly with `--suite`. Verify the selected suite rather than substituting a smaller or easier sample.
 The optimizer does not open or submit the newly sealed holdout.
 It reads only the dev file through `load_cases(suite, split="dev")`, not all splits followed by filtering.
@@ -86,7 +86,7 @@ and resolver failures are rejected.
 Do not target an agent whose client-side functions cannot be executed by the server.
 The historical Korean experiment targeted `contoso-purchasing-responses` version `2`, which included `agent-v4.txt`.
 Its later successful native execution used the dedicated Responses **version `3` / `agent-v6.txt`** combination.
-Neither version number is a value to copy into the new English run. Use the actual English Responses version and `--prompt-file data/en/prompts/agent-v6.txt` only when that is **the same instruction file that was deployed**; otherwise select the matching English prompt file.
+Neither version number is a value to copy into a new English run. Use the actual English Responses version and **the same instruction file that was deployed**. V7 is a new local candidate, not the instructions of the historical English version 2.
 New `--live` jobs require `--prompt-file`. The function/plan's v4 default exists for historical diagnostics;
 you cannot omit this option and submit a job for a new version. The runner does not guess the latest instructions.
 With the English profile selected, the prompt argument accepts only `data/en/prompts/*.txt`; it does not read a dataset as an instruction file or silently translate a Korean prompt.
@@ -101,11 +101,11 @@ Resuming retains the deadline measured from the original creation time. It does 
 or silently extend an existing job's limit.
 Rather than SDK automatic LRO polling, the runner submits with `polling=False` and queries through explicit GET requests containing the API version.
 The original record of automatic polling failing because the service's `Operation-Location` lacked an API version is also preserved.
-On timeout, query failure, or interruption, `finally` cancels the job and verifies a terminal state.
-Native sessions can be missing from azd lists, so the runner also collects session IDs from the owned App Insights resource
-for the same agent/version and job time window. It stops only new sessions whose creation time and version have been verified with `show`.
-After a successful stop call, it rereads `idle`/`stopped` for the same ID.
-It also records that the current CLI omits `stopped_at`; it does not invent a value to fill in.
+On timeout, query failure, or interruption, `finally` requests cancellation and verifies a terminal state within a separate **90-second cancellation bound**. It preserves terminal/outcome artifacts even when monitoring failed. Progress snapshots include the service's reported progress, candidate/evaluation IDs, warnings and observed stagnation; they do not invent a server-side root cause.
+The new cleanup path uses the project SDK's paginated session list, not only the CLI list or baseline-filtered telemetry. It makes **six fresh sweeps**, at most **180 seconds**, at most **100 listed sessions per sweep**, and stops at most **10 distinct scoped sessions**. A reactivated session may need another stop in a later sweep, so the total stop-request bound is **60**; each stop has at most six readbacks, with no SDK retry. It requires two quiet final sweeps; a last-sweep arrival, error, truncated inventory, or unverified stop remains an explicit incomplete-cleanup result.
+Native candidates can appear as `version_ref` sessions whose version is `draft-...`, not as a `cand_...` session indicator. For these, the runner reads only the exact version and verifies its optimizer candidate ID and resolver against the recorded job/project. It preserves unrelated versions, other jobs, and every session in the pre-job snapshot. Baseline sessions are bounded to the recorded version and the job window plus a **180-second creation tail** for post-cancellation arrivals; do not run concurrent work against that dedicated baseline.
+A successful stop is followed by an inactive readback for the same ID. Already verified IDs remain tracked if the service changes `created_at` during stop/idle transitions; those timestamps are not used to forget a known session. The cleanup receipt states its bounded observation scope, not a guarantee that no future session can ever appear.
+The Responses adapter also rechecks cancellation after waiting for its concurrency gate and after an in-flight call. A cancelled queued request does not start new inference. An already running synchronous model request still has its existing bound; cancellation is not instantaneous termination of that request.
 If cancellation/stop verification fails, report that the job or session **may still be running**.
 Do not overwrite existing jobs/receipts or delete resources. Candidates are not automatically deployed or promoted.
 
@@ -184,9 +184,21 @@ Check job status, training/validation curves, and checkpoints. The last checkpoi
 
 You have validated the local data format and splits. If you ran actual training, compare **quality, latency, tokens, and total cost** with the baseline and record the reason for your selection. Preparing data alone is not completed training.
 
-**English Optimizer outcome:** The [single dev-only job](../../validation/english/current/optimizer.json), started before the holdout result was known, reached its explicit **1200-second limit** and was verified `cancelled`, with **no promotion or claimed improvement**. The runner initially stopped two baseline sessions; final project-wide closeout found three additional owned baseline/candidate sessions. After recording and stopping their exact identities, a fresh readback confirmed zero active sessions. See the [current report](../../validation/english/current/report.json). Cancellation alone is not proof that every child session stopped.
+**Preserved English v3 Optimizer outcome:** The [single dev-only job](../../validation/english/current/optimizer.json), started before the holdout result was known, reached its explicit **1200-second limit** and was verified `cancelled`, with **no promotion or claimed improvement**. The runner initially stopped two baseline sessions; final project-wide closeout found three additional owned baseline/candidate sessions. After recording and stopping their exact identities, a fresh readback confirmed zero active sessions. See the [original report](../../validation/english/current/report.json). Cancellation alone is not proof that every child session stopped.
 
-The Invocations candidate's independent holdout passed only **7/10** with a critical safety citation-evidence failure, so release remains blocked. No threshold, data, or tested candidate was changed and no holdout rerun followed that result. Do not resume this canceled job with a longer budget, use it to override the failure, promote a candidate, or tune against the consumed holdout.
+**Follow-up diagnosis, from preserved originals:** The job began at 13:34:45 UTC; the baseline first appeared in polling at 13:43:56 UTC, with a native score of 29/30. The last running snapshot had `candidate_generated=true` but `candidates_completed=0`; at cancellation at 13:54:45 UTC, the latest service-reported elapsed time was about 723 seconds. This locates the unfinished work after candidate generation, but no service error or reflection warning identified a precise latency or throttling cause. Two missed sessions used a `draft-...` version, and another baseline session was created 18 seconds after cancellation. The former one-shot listing, baseline-only trace filter and terminal timestamp cutoff were insufficient for those records. The [local follow-up record](../../validation/english/improvements-v4/report.json) made no new native execution claim.
+
+**Latest v5 native run:** [Job `opt_7c6be680d37342dab3c41b2b06b52803`](../../validation/english/automated-v5/optimizer.json) used all 40 unchanged dev cases and zero holdout cases, with one job, at most two candidates, one stall and a 1200-second bound. It ended in **647 seconds** with service `succeeded` / `stopped_early`, but its 40 native rows contain **38 passed, 1 failed and 1 errored**. The outcome is **`operational_failure`**, not a quality pass or improvement. Baseline score **0.9453125** and “perfect scores” wording do not override those rows. No candidate was generated or promoted, and reflection execution was not established.
+
+The [native originals](../../validation/english/automated-v5/optimizer-native.json) retain the empty engine response and evaluator error for `v5-dev-08`, without inventing a detailed cause. For `v5-dev-27`, the built-in task-adherence judge penalized refusal to confirm an unsupported deduction/FX conversion; its reason conflicts with the frozen Contoso oracle. The failed metric is preserved, not relabeled. All 39 parseable engine responses retain v2 authorization, actual tools, citations and runtime/prompt fingerprints. They are separate optimizer outputs, **not replacements for the Invocations dev failure**.
+
+Six SDK cleanup sweeps completed in about **63.5 seconds**, stopping two new owned baseline sessions. A fresh [final readback](../../validation/english/automated-v5/operations.json) confirmed all five sessions created by v5 stopped and all recorded jobs terminal. The scoped Responses job list succeeded; this is not a global idle claim. No timeout or new draft candidate occurred, so cancellation and new-candidate cleanup were not exercised live in this run.
+
+**Preserved v4 native run:** [Job `opt_d99483891d6a459087b2295d6410baaa`](../../validation/english/automated-v4/optimizer.json) used all 40 dev cases, zero holdout cases, at most two candidates and the unchanged 1200-second limit. It finished after **647 seconds** with service `succeeded` / `stopped_early`, but the native task-adherence evaluation had **37 passed and 3 errored**, including `v4-dev-14`, `v4-dev-37` and `v4-dev-40`. The runner correctly returned **`operational_failure`**. Its baseline score was **0.905625**, and the service's “perfect scores” warning is not accepted as a pass. No new candidate or promotion occurred.
+
+Six fresh SDK sweeps stopped two new owned baseline sessions and observed five quiet subsequent sweeps. Final [closeout](../../validation/english/automated-v4/operations.json) verified all five sessions created by this live run inactive. Because no new draft candidate was generated and no timeout occurred, the new draft-version and timeout-cancellation branches remain locally covered but were **not exercised by this live run**. The Optimizer list API returned HTTP 500 through SDK and azd; exact recorded-job GET remained available, so the report makes no project-wide idle claim. This explicitly approved CLI run is not evidence that the optional OIDC workflow below ran.
+
+The preserved v3 Invocations candidate's independent holdout passed only **7/10** with a critical safety citation-evidence failure. No threshold, data, or tested candidate was changed and no holdout rerun followed that result. Do not resume that canceled job with a longer budget, use it to override the failure, promote a candidate, or tune against the consumed holdout. The separate v4 holdout remains unexecuted because its dev attempt was incomplete.
 
 ### Historical Korean native result: Valid execution, no improvement
 
@@ -254,7 +266,7 @@ Earlier errors, cancellations, and scores remain historical evidence; scores fro
 First run a single-model probe that reads no datasets at all. A passing probe does not establish native optimizer success
 or a quality pass for a new Invocations version. The comparison that follows targets the
 **actual English Responses version** matching the supplied English instructions; do not submit an Invocations version to the optimizer.
-The commands below explicitly select **English automated-v3 dev: 30 cases and 0 holdout cases**. Replace the version and reflection deployment placeholders with your verified values; use v6 instructions only if that file is in the deployed baseline.
+The commands below explicitly select **English automated-v5 dev: 40 cases and 0 holdout cases**. Replace the version and reflection deployment placeholders with your verified values; use v7 instructions only if that file is in the deployed baseline. V5 permits one submission and at most 1200 seconds; the historical v4 freeze is not rewritten.
 Do not submit the sealed holdout. A new live run is optional and permitted only in L22's approved `contoso-validation-en` OIDC CI environment, with separate cost approval and an English ownership ledger. Dispatch from the reviewed `docs/english-live-validation` branch with `language=en`; do not use the old Korean environment.
 
 ```bash
@@ -263,7 +275,7 @@ python samples/optimizer_lab.py --probe-reflection --optimizer-deployment APPROV
 
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
 python samples/optimizer_lab.py --agent contoso-purchasing-responses --version ACTUAL_NUMERIC_VERSION \
-  --suite automated-v3 --prompt-file data/en/prompts/agent-v6.txt \
+  --suite automated-v5 --prompt-file data/en/prompts/agent-v7.txt \
   --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --max-seconds 1200 --require-oidc --live
 ```
 
@@ -274,7 +286,7 @@ python samples/optimizer_lab.py --agent contoso-purchasing-responses --version A
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
 | 1. `--probe-reflection` | A trailing `\` continues the same command on the next line. `FOUNDRY_AUTH_MODE=cli` selects CLI credentials, while `--require-oidc` verifies that they belong to the actual CI principal in the ownership ledger. | One reflection model request, at most 256 output tokens, 45 seconds, and 0 retries. Model charges apply, but no dataset or optimizer job is created. |
-| 2. `--suite automated-v3 ... --max-seconds 1200` | Explicitly selects the 30 English v3 dev cases and the actual English Responses version with matching instructions. Replace the version/deployment placeholders before execution. The 1200 value bounds seconds from job creation; it does not lower the candidate count or evaluation criteria. | A real new paid job. A personal CLI login alone cannot pass `--require-oidc`; do not omit it to bypass the check. |
+| 2. `--suite automated-v5 ... --max-seconds 1200` | Selects all 40 unchanged dev cases and the actual English Responses version with matching instructions. Replace the placeholders. The 1200 value bounds seconds from job creation; it does not change candidate limits or gates. | One paid job; no automatic apply/promotion. A personal CLI login alone cannot pass `--require-oidc`; do not bypass it. |
 
 </div>
 

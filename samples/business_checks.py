@@ -5,10 +5,16 @@ import json
 from grounding import attribute_answer, parse_answer
 from search_lab import validate_hits
 from workshop import ToolInputError, dispatch_tool, function_schemas
-from request_contract import validate_draft_request
+from request_contract import (
+    TOOL_AUTHORIZATION_CONTRACTS,
+    required_policy_citations, tool_permissions, validate_business_tool_request, validate_draft_request,
+)
 
 
-def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: bool = False) -> dict:
+def check_business_evidence(
+    row: dict, case: dict, *, require_tool_definitions: bool = False, require_tool_authorization: bool = False,
+    expected_authorization_contract: str | None = None,
+) -> dict:
     failures = []
     sources = row.get("retrieved_sources")
     citations = row.get("citations")
@@ -40,6 +46,20 @@ def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: 
     except (ValueError, RuntimeError, KeyError, TypeError):
         failures.append("citation_provenance")
     selected_ids = {c.get("id") for c in citations}
+    authorization_contract = row.get("tool_authorization_contract")
+    authorized = isinstance(authorization_contract, str) and authorization_contract in TOOL_AUTHORIZATION_CONTRACTS
+    if authorization_contract is not None and not authorized:
+        failures.append("tool_authorization_contract")
+    if require_tool_authorization and not authorized:
+        failures.append("tool_authorization_contract")
+    if expected_authorization_contract is not None and authorization_contract != expected_authorization_contract:
+        failures.append("tool_authorization_contract")
+    if authorized:
+        if row.get("request_permissions") != tool_permissions(row["query"], contract=authorization_contract):
+            failures.append("request_permissions")
+        required = required_policy_citations(row["query"], contract=authorization_contract)
+        if row.get("required_policy_citations") != required or not set(required) <= selected_ids:
+            failures.append("required_policy_evidence")
     if not set(case.get("required_citations", [])) <= selected_ids:
         failures.append("required_policy_evidence")
     for alternatives in case.get("required_citation_groups", []):
@@ -89,7 +109,9 @@ def check_business_evidence(row: dict, case: dict, *, require_tool_definitions: 
             continue
         try:
             arguments = json.loads(call["arguments"])
-            if call["name"] == "prepare_purchase_request":
+            if authorized:
+                validate_business_tool_request(row["query"], call["name"], arguments, contract=authorization_contract)
+            elif call["name"] == "prepare_purchase_request":
                 validate_draft_request(row["query"], arguments)
             if call["name"] in expected_arguments and arguments != expected_arguments[call["name"]]:
                 failures.append("tool_arguments")

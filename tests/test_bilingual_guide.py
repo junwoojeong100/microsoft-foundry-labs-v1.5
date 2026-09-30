@@ -192,6 +192,10 @@ class BilingualGuideTests(unittest.TestCase):
             korean = (ROOT / "docs" / translated_path.name).read_text(encoding="utf-8")
             with self.subTest(chapter=chapter["id"]):
                 korean_commands, english_commands = shell_commands(korean), shell_commands(english)
+                if chapter["id"] == "l08":
+                    preparation = ["python", "scripts/prepare_eval_v5.py", "prepare"]
+                    self.assertEqual(english_commands.count(preparation), 1)
+                    english_commands[english_commands.index(preparation)] = ["python", "scripts/prepare_eval_v3.py"]
                 if chapter["id"] == "l20":
                     historical = [
                         command for command in korean_commands
@@ -214,7 +218,10 @@ class BilingualGuideTests(unittest.TestCase):
                         self.assertIn("--live", command)
                         self.assertNotIn("holdout", command)
                         if "--suite" in command:
-                            self.assertEqual(command[command.index("--suite") + 1], "automated-v3")
+                            self.assertEqual(
+                                command[command.index("--suite") + 1],
+                                "automated-v3" if "--resume" in command else "automated-v5",
+                            )
 
     def test_english_oidc_bootstrap_observes_identity_before_scoped_federation(self):
         commands = shell_commands((ROOT / "docs/en/22-delivery.md").read_text(encoding="utf-8"))

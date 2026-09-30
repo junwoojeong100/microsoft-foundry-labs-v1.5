@@ -122,11 +122,16 @@ The current engine performs question-specific search and retrieves the 13 sectio
 It does not wait for the model to select a search function. Internally, the answer is `answer`/`citation_ids` JSON;
 only the sections the model selects from the actual returned results are rendered as citations. Missing search results or citations are errors, not successes.
 In `tool_calls`, `execution=server_required` records a real server-side search; it does not pretend the model called it.
-`get_stock` for an explicitly named SKU is also recorded as a read-only server prerequisite. Draft creation remains a separate function
-and does not place real orders or make payments. Check the basis for quantity limits against the `tool_definitions` used in the execution.
-Read-only does not mean universally permitted: this prerequisite conflicted with the frozen no-tool contracts in two English holdout cases. Preserve that failure rather than treating the absence of a draft/order as an automatic pass.
+The `agent-v7` candidate removes the old SKU-only `get_stock` prerequisite. Inventory calls now require explicit request permission, and every attempted business call is checked again before execution. Missing/invalid draft quantities do not authorize a preliminary stock check; a separately requested stock question can still be answered.
+Draft creation remains a separate function and does not place real orders or make payments. Check quantity input limits against actual `tool_definitions`, not an invented corporate policy.
+Read-only is not universally permitted: the old prefetch conflicted with two v3 no-tool cases. Preserve those failures. The v7 candidate has not passed a complete live dev or release gate.
 
-The tool-execution stage does not force an answer JSON format; a second bounded round lets the model request a draft after obtaining stock information.
+The approved v4 run deployed both protocols as version **3** and passed their real business smokes. However, Invocations dev case 37 failed the citation guard after 36 completed responses. See the [v4 live report](../../validation/english/automated-v4/report.json); deployment, smoke, and complete quality are still separate outcomes.
+
+The separate v5 run deployed each protocol once as version **4**, with the same effective v7 instructions and explicit-request-v2 runtime evidence. Both actual business smokes passed. An earlier local CLI invocation rejected the incompatible `--version` plus `--session-id` combination before contacting the target; that failure is [preserved](../../validation/english/automated-v5/attempts/responses-cli-rejection.json). The same already version-bound session then received its first actual smoke request with `--session-id` only. No target answer was resampled and neither agent was redeployed.
+
+The later offline `explicit-request-v2` change also recognizes explicit plain-price requests. If the supplied SKU is outside the function schema, the server performs only the authorized read-only validation and records its real error as `server_authorized`; it does not replace the SKU, invent a price, or ask the model to call an enum-invalid function. This is not the former SKU-only prefetch. The corrected source has not been deployed or live-validated and requires a new experiment.
+The tool-execution stage is skipped when no business tools are authorized. Otherwise it does not force an answer JSON format; a second bounded round lets the model request a draft after obtaining stock information.
 The answer-only stage uses a fresh input built from the user's question, actual retrieved documents, function definitions, and recorded tool results/errors—not pending function calls or planning text. It has no tools available and must produce exactly one strict `answer`/`citation_ids` JSON object.
 Do not publish a statement of intent to call a tool as an answer or as execution evidence.
 
@@ -135,7 +140,7 @@ Even if the model fills in a missing quantity with 1 or reduces 11 items to 10, 
 If the same SKU/quantity draft has already succeeded in this turn, a repeated request is rejected before execution with `duplicate_tool_request` and `duplicate_of` pointing to the original call ID. Preserve the original successful result and the rejection separately; do not count the rejection as a second draft or hide it as a successful repeat.
 The answer stage also receives the actual function definitions so that it does not confuse the tool's 1–10 input constraint with company policy.
 The final source-check stage selects evidence using only the actual retrieved material and the written answer,
-and the actual selections from both models are displayed together. The original answer and the response IDs for source selection are preserved separately.
+and the actual selections from both models are displayed together. Required draft/approval/authority evidence must be selected by the model; missing selections are not filled in automatically. The original answer and the response IDs for source selection are preserved separately.
 
 ### 3. Deploy only to a prepared project
 

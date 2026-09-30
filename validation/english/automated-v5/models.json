@@ -1,0 +1,29 @@
+{
+  "scope": "Read-only SDK readback of the four existing deployments in the approved project; no model deployments changed.",
+  "deployments": [
+    {
+      "name": "contoso-chat",
+      "modelName": "gpt-4.1-mini",
+      "modelVersion": "2025-04-14",
+      "type": "ModelDeployment"
+    },
+    {
+      "name": "contoso-judge",
+      "modelName": "gpt-4.1",
+      "modelVersion": "2025-04-14",
+      "type": "ModelDeployment"
+    },
+    {
+      "name": "contoso-embedding",
+      "modelName": "text-embedding-3-small",
+      "modelVersion": "1",
+      "type": "ModelDeployment"
+    },
+    {
+      "name": "contoso-reflection",
+      "modelName": "gpt-5.1",
+      "modelVersion": "2025-11-13",
+      "type": "ModelDeployment"
+    }
+  ]
+}

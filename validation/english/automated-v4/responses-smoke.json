@@ -1,0 +1,22 @@
+{
+  "status": "passed_smoke_only",
+  "quality_release": false,
+  "agent": "contoso-purchasing-responses",
+  "version": "3",
+  "session_id": "0597d18aaa8d4e0600HZjRsOcl5khtFHqJRS3qONMCvL5ZaDYu",
+  "response_id": "resp_08c413cd6d2f848c016abd47ae85688197bc2817a1ae81f985",
+  "trace_id": "dcb80e48a34c9f435a8f51fab80210fb",
+  "runtime_contract": "72ae3f203026e876f1c67b8192450e00b85ea1930bbe8e07e9b2d5c5ea6cc68e",
+  "effective_prompt_sha256": "2d223cdecdced7a5cdb6aa045aaa420e30b3a999ad47b86a39aa1aa56b67ce62",
+  "checks": {
+    "type": "deterministic_business_evidence",
+    "passed": true,
+    "failures": []
+  },
+  "optimization": {
+    "candidate_id": null,
+    "configuration_source": "local:/app/.agent_configs/baseline",
+    "model_deployment": "contoso-chat",
+    "model_resolution": "baseline"
+  }
+}

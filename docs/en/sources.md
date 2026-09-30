@@ -21,7 +21,23 @@ At the time of review, the monthly What's new roundup covered **August 2026**. W
 
 ## Validation boundaries
 
-### Current English Azure validation
+### Latest English v5 live validation
+
+The [v5 quality record](validation/english/automated-v5/quality.json) contains one complete 40-case dev collection and one native run with **40 passed, 0 errored and 0 skipped**. Both version-4 protocol smokes and all eight unchanged judge controls passed. The combined business score is **39/40 (97.5%)**, but case `v5-dev-30` omitted its mandatory access-evidence group. The zero-safety/access-failure rule therefore blocks release, and the independently authored holdout remains **0/10 executed**.
+
+The [diagnosis](validation/english/automated-v5/dev30-diagnosis.json) distinguishes a correct restricted-access refusal from complete required evidence. No restricted contract was accessed and no business tool ran in that case. Native score 4 did not override the missing PROC5/SEC1 group. Original responses, oracles, thresholds and source freeze were not changed after observing this failure. V5 evidence uses `explicit-request-v2`; historical v4 evidence is replayed under v1 only.
+
+The single [Optimizer job](validation/english/automated-v5/optimizer.json) ended after 647 seconds with service `succeeded`, but 38 passed / 1 failed / 1 errored native rows make it `operational_failure`. It generated and promoted no candidate. [Fresh SDK closeout](validation/english/automated-v5/operations.json) confirmed all five created sessions stopped and the recorded jobs terminal; scoped Responses job listing succeeded without establishing project-wide inactivity. These are not independent quality evidence. Cost queries, optional-service checks, external-workspace reads, policy/access changes and Azure resource deletion remain excluded. Main merge and Pages publication received separate follow-up approval; publishing a failed experiment does not turn it into a quality pass.
+
+### Preserved English v4 live validation
+
+The [approved v4 live report](validation/english/automated-v4/report.json) records real deployment of both protocols as version 3, successful business smokes, and **8/8 native judge controls**. Invocations dev collection completed **36 responses**, then `v4-dev-37` failed a required-policy citation guard; three cases were not invoked. A complete native dev evaluation was therefore not started, and the new holdout remained sealed and unexecuted. The failed original and its retained server receipt are preserved separately; no gate or frozen candidate was changed.
+
+The single dev-only native Optimizer job finished in **647 seconds**, with a baseline score of **0.905625**, zero generated candidates, and **37 passed / 3 errored** native rows. It is recorded as `operational_failure` despite service success/perfect-score wording. Six SDK sweeps stopped two new baseline sessions, and final readback verified all **five sessions created by this run** inactive. The job-list API still returned HTTP 500, so this is not a project-wide idle assertion. One failed organizational diagnostic deployment was reread inside the owned RG; external workspace existence and governance-owner confirmation remain outside the verified scope.
+
+No cost query, optional-service test, policy/access change, resource deletion, main merge or Pages publication was performed. No new portal screenshots were captured; the existing images document the earlier run.
+
+### Preserved English v3 Azure validation
 
 **The English release-quality gate failed.** In a new dedicated resource group, the core learning evaluation passed 10/10 with calibration 6/6. The fixed Hosted candidate passed the 30-case dev gate at 29/30 with no critical failures. Its new independent English holdout then passed **7/10, with one critical safety-evidence failure**, despite calibration 8/8 and complete execution of all ten cases. A successful deployment, a completed evaluation job, and a passing quality gate are different outcomes.
 
@@ -47,7 +63,7 @@ The resource-group screen also preserves an inherited organizational diagnostic-
 
 Resources are retained until explicit deletion approval. Stopping sessions and schedules does not stop all costs: Search Basic and retained storage/logs can continue charging. An empty Cost Management result means billing has not yet been reported, **not** that the run cost zero.
 
-Current documentation, browser, PDF, and package checks are kept separately in `{documentation_validation}/`. These are documentation checks, not evidence of a new Azure run.
+The earlier local follow-up's checks remain in `{documentation_validation}/improvements-v4/`, the v4 live edition in `{documentation_validation}/live-v4/`, and the offline citation correction in `{documentation_validation}/citation-remediation/`. The new bilingual v5 edition is checked in `{documentation_validation}/live-v5/`. None replaces earlier reports or counts as additional Azure execution. The [local follow-up record](validation/english/improvements-v4/report.json) preserves its original no-live state.
 
 ### Preserved Korean runs and earlier v1 results
 
