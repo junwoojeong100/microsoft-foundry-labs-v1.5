@@ -20,6 +20,11 @@ GitHub 또는 텍스트로 읽을 때는 **[`GUIDE.ko.md`](GUIDE.ko.md)** 를 �
 설치·학습·실행·빌드·패키징·CI에서 clone/접근/다운로드하지 않습니다.
 출처·라이선스는 [`THIRD_PARTY_NOTICES`](THIRD_PARTY_NOTICES)에 보존합니다.
 
+**실제 검증 결과:** 새 Azure RG에서 Hosted·Search/IQ·도구·Memory·A2A·평가·Tracing과
+[OIDC 배포·업무 검사](https://github.com/junwoojeong100/foundry-labs-v1.5/actions/runs/36649656044)를 수행했습니다.
+최종 holdout은 **9/10이나 safety 사례의 필수 인용 누락으로 품질 게이트 미통과**입니다.
+실행 성공과 릴리스 품질을 구분하며, Routine history 미확인·optimizer 신규 후보 0도 그대로 기록했습니다.
+
 | 학습 경로 | 범위 |
 | --- | --- |
 | 90분 핵심 체험 | 강사가 Azure 환경을 준비한 경우의 축약 코스 |

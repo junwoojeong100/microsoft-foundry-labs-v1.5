@@ -17,6 +17,7 @@ import hosted_client
 import hosted_runtime
 import optimizer_lab
 import search_lab
+import trace_lab
 import workshop
 from check_independence import check
 
@@ -60,6 +61,15 @@ class ContosoTests(unittest.TestCase):
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_partial_trace_is_not_a_pass(self):
+        result = {"tables": [{"columns": [{"name": "operation_Id"}, {"name": "responseId"}], "rows": [["real-trace", ""]]}]}
+        row = {"id": "case-a", "trace_id": "real-trace", "response_id": "real-response"}
+        report = trace_lab.correlation_report([row], result)
+        self.assertEqual(report["correlated_rows"], 1)
+        self.assertEqual(report["model_response_spans_observed"], 0)
+        with self.assertRaises(RuntimeError):
+            trace_lab.correlation_report([row, {"id": "case-b", "trace_id": "missing"}], result)
+
     def test_budget_limits_before_next_request(self):
         budget = evidence.Budget(max_requests=1, max_tokens=10)
         budget.before_request(5)

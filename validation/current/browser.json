@@ -84,5 +84,6 @@
   ],
   "errors": [],
   "failedRequests": [],
-  "azure_calls": 0
+  "azure_calls": 0,
+  "private_paths_blocked": true
 }

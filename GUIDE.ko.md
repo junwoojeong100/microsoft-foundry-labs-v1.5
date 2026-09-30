@@ -1047,6 +1047,12 @@ raw 응답은 수정하지 않고 별도 검토 파일을 만듭니다.
 
 개선 전후 결과의 구성·데이터·판정 기준이 같고, 실패 사례를 원문과 trace로 설명할 수 있습니다. LLM judge를 사용했다면 최소 5건은 사람이 대조하고 판정 불일치를 기록합니다.
 
+**이번 제작의 실제 결과:** 새 환경의 고정 holdout 10건 중 9건이 native 업무 judge를 통과했습니다.
+`hold-08`은 승인 우회를 거절했으나 요구된 보안 정책 4절 근거가 없어 safety 사례 실패입니다.
+평균은 90%여도 zero-tolerance 규칙 때문에 **CI 품질 게이트는 실패**했습니다.
+judge 대조군 6/6 일치와 사람 검토 완료는 다르며, 후자는 미완료입니다.
+이 실패를 본 뒤 동일 holdout으로 prompt를 다시 조정하지 않았습니다.
+
 ## 막혔을 때
 
 `Partial`은 전체 성공이 아닙니다. evaluator 입력 누락, judge quota, tool 실행 환경을 확인합니다. 다중 대화 시뮬레이션·멀티모달 평가·일부 evaluator는 Preview이며 기본 single-turn 평가와 구분합니다.
@@ -1061,6 +1067,7 @@ raw 응답은 수정하지 않고 별도 검토 파일을 만듭니다.
 - [Run evaluations from the Microsoft Foundry portal](https://learn.microsoft.com/azure/foundry/how-to/evaluate-generative-ai-app)
 - [Evaluation dataset schema in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluation-dataset-schema)
 - [Observability in generative AI](https://learn.microsoft.com/azure/foundry/concepts/observability)
+- [Evaluate your AI agents](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluate-agent)
 
 ---
 
@@ -1365,9 +1372,14 @@ Teams에 보이지만 응답하지 않으면 Bot 채널, agent endpoint 인증, 
 python scripts/stop_sessions.py
 python samples/routine_lab.py stop --live
 python scripts/azure_environment.py status --live
+python scripts/operations_status.py
+python scripts/cost_status.py
 ```
 
 각 명령은 해당 실습을 실행해 receipt가 있는 경우에 사용합니다.
+마지막 두 명령은 **소유 receipt로 범위를 제한한 읽기 전용 Azure 조회**입니다.
+`operations_status.py`는 세션·optimizer job·활성 평가 schedule·routine을 확인하며,
+`cost_status.py`는 새 RG에 반영된 실제 비용만 조회합니다. 빈 비용 행을 0달러로 표시하지 않습니다.
 **이번 제작 검증은 생성한 Azure 자원을 삭제하지 않고 보존**합니다.
 routine은 disable, Hosted는 compute stop만 수행합니다. `cleanup --live`, `azd down`,
 resource group 삭제를 자동 실행하지 않습니다. 아래 삭제 경로는 별도 승인이 있는 학습자를 위한 설명입니다.
@@ -1416,6 +1428,10 @@ Cost Management에서 비용 반영 지연을 고려하여 다음 날 다시 확
 삭제 금지 환경은 “명시적 삭제 승인까지 보존”으로 기록합니다.
 Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있습니다.
 다음 확인은 검증 종료 후 24시간 이내를 권장하며, 확인 담당자 없이 “비용 0”이라고 결론내리지 않습니다.
+
+이번 검증의 Azure 인프라와 agent/store는 보존했습니다. Memory 수명주기 검증의 **합성 item 1개**
+삭제와 Azure store/RG 삭제는 구분하여 기록했습니다. 검증용 vector store의 자동 만료도 해제하여
+보존하므로, 이후 승인된 정리 전까지 저장 비용 가능성이 남습니다.
 
 ## 막혔을 때
 
@@ -1551,6 +1567,7 @@ embedding 차원을 확인합니다. Preview 문자열로 바꾸어 우회하지
 - [Connect Foundry IQ to Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/foundry-iq-connect)
 - [Migrate agentic retrieval code to the latest version](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-migrate)
 - [Retrieval-augmented generation in Foundry](https://learn.microsoft.com/azure/foundry/concepts/retrieval-augmented-generation)
+- [Query a knowledge base using retrieve or MCP](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-retrieve)
 
 ---
 
@@ -1665,6 +1682,10 @@ python samples/hosted_client.py invoke --version 실제숫자 --live
 **compute만 stop**합니다. 응답·내부 model response ID·tool call ID·citation·trace ID가 반환되며,
 로컬 package contract와 원격 contract가 다르면 실패합니다.
 trace ID가 없으면 추측하지 않고 미수집으로 남깁니다.
+
+배포·session 관리는 azd, 동봉 Invocations client의 본문 수집은 **서비스가 반환한 endpoint에
+Entra-authenticated HTTP JSON 요청**을 사용합니다. CI의 azd stdout에 추가 출력이 섞인 실제 사례를
+수정한 것으로, CLI 화면 출력을 안정적인 API JSON 계약으로 가정하지 않습니다.
 
 ### 5. 기본 도구를 실제로 확인하기
 
@@ -1830,6 +1851,7 @@ SDK import 오류는 환경 혼용부터 확인합니다. 이 샘플은 core `Wo
 - [Connect agents to other agents with A2A](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/agent-to-agent)
 - [Build a workflow in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/agents/concepts/workflow)
 - [Add a human-in-the-loop approval step](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop)
+- [Enable incoming A2A on a Foundry agent](https://learn.microsoft.com/azure/foundry/agents/how-to/enable-agent-to-agent-endpoint)
 
 ---
 
@@ -2007,6 +2029,10 @@ L19 Voice와 지속 평가를 선택했다면 해당 세션·스케줄도 별도
 실제 예약 시점에 생성된 run, 업무 결과, disabled 상태를 확인했습니다.
 예약 생성만 됐거나 수동 dispatch만 했다면 그 범위까지만 실행 완료로 기록합니다.
 상태 조회가 실패했다면 “아마 중지됐을 것”이라고 쓰지 않습니다.
+
+**이번 제작 환경에서는 예약 요청·수동 dispatch 접수까지 수행했지만 run history가 비어 있어
+예약 실행 성공은 확인하지 못했습니다.** routine의 `enabled=false`는 별도로 확인했습니다.
+이 한계를 File search·Hosted·A2A 등 다른 성공한 실행 결과로 대체하지 않습니다.
 
 ## 막혔을 때
 
@@ -2331,6 +2357,11 @@ job status, training/validation curve, checkpoints를 확인합니다. 마지막
 
 로컬 데이터 형식과 split을 검증했습니다. 실제 학습을 진행했다면 **품질·지연·토큰·총비용**을 baseline과 비교하고 선택 이유를 기록합니다. 데이터 준비만 했다면 학습 완료로 표시하지 않습니다.
 
+**이번 native optimizer job은 서비스 상태 `succeeded`였지만 baseline만 반환했습니다.**
+새 후보는 0개이고 reflection 모델 오류/timeout 관련 경고가 있었습니다.
+baseline의 별도 점수 0.95를 holdout 품질 통과로 사용하지 않았으며 후보를 승격하지 않았습니다.
+개선된 v1→v4 지시는 native optimizer 산출물이 아니라 **dev 실패에 근거한 개발 과정의 변경**입니다.
+
 ## 막혔을 때
 
 학습 가능한 모델과 추론 가능한 모델은 다릅니다. training region/tier, 파일 형식, 권한, 최소 데이터 수를 확인합니다. 점수 향상이 없으면 먼저 데이터·평가 오염·grader 문제를 봅니다.
@@ -2347,6 +2378,7 @@ training job, checkpoint/model, inference deployment, uploaded training file은 
 - [Prompt optimizer](https://learn.microsoft.com/azure/foundry/observability/how-to/prompt-optimizer)
 - [Direct preference optimization](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning-direct-preference-optimization)
 - [Reinforcement fine-tuning](https://learn.microsoft.com/azure/foundry/openai/how-to/reinforcement-fine-tuning)
+- [Optimize agent instructions, skills, tools, and models](https://learn.microsoft.com/azure/foundry/agents/how-to/optimize-agent-targets)
 
 ---
 
@@ -2498,15 +2530,18 @@ python samples/workshop.py score --input results/실제-검토파일.jsonl
 기존 `.github/workflows/validate.yml`은 계속 자동 로컬 검사를 수행합니다.
 
 관리자는 새 테스트 RG의 workload identity에 최소 역할을 부여하고,
-federated credential의 subject를
-`repo:junwoojeong100/foundry-labs-v1.5:environment:contoso-validation`로 제한합니다.
+federated credential의 subject를 **Actions가 실제 발행한 A의 environment-bound `sub`**로 제한합니다.
+최근 형식은 owner/repository의 immutable ID를 이름 뒤에 `@ID`로 포함할 수 있습니다.
+과거 `repo:owner/repo:environment:name` 문자열을 그대로 가정하지 않습니다.
 audience는 `api://AzureADTokenExchange`입니다. client secret을 만들지 않습니다.
 identity는 프로젝트 Foundry User, 필요한 배포/읽기 권한만 받으며 CI가 RBAC를 스스로 확대하지 않습니다.
 
-관리자용 동봉 명령은 `python scripts/setup_oidc.py --branch 실제-feature-branch --live`입니다.
+관리자용 명령은 `python scripts/setup_oidc.py --branch 실제-feature-branch --subject "확인한-sub-claim" --live`입니다.
 새 RG의 user-assigned identity, environment-bound federated credential,
 새 GitHub Environment와 해당 branch policy를 함께 기록합니다.
 기존 환경/identity가 있으면 충돌로 중단하며, tenant 전체 앱 권한을 부여하지 않습니다.
+AADSTS700213이면 issuer·audience·subject를 로그의 비밀이 아닌 claims와 대조합니다.
+`--repair-subject`는 이번 receipt의 FIC만 보정하며, GitHub 전체 OIDC 정책은 변경하지 않습니다.
 
 Environment variables는 workflow `env` 목록의 client/tenant/subscription/project ID 및
 모델·Search endpoint/index/KB입니다. 비밀이 아닌 구성값만 등록하고 인증 토큰·전체 `.env`·
@@ -3126,7 +3161,7 @@ response 또는 request ID:
 
 # E. 출처·최신성·검증 범위
 
-**참고 자료 · 2026-09-29 확인**
+**참고 자료 · 2026-09-30 실행 확인**
 
 > **기초 출처 확인: 2026-09-29 / 실행 API 재확인·Contoso 보완: 2026-09-30, Asia/Seoul.** 날짜가 적혀 있다고 영구적으로 최신인 자료는 아닙니다.
 
@@ -3151,6 +3186,22 @@ Microsoft Learn의 플랫폼 개요, capability reference, GA 표, 기능별 문
 
 ## 검증의 경계
 
+### 이번 Contoso 실행 결과
+
+**구현과 실행은 확인했지만 품질 릴리스는 보류입니다.** 새 RG에서 Hosted·Search/IQ·Toolbox/MCP/OpenAPI/Skills·Memory·A2A·native 평가·Tracing과 실제 OIDC 배포를 수행했습니다.
+
+| 구분 | 이번 결과 |
+| --- | --- |
+| 구현 완료 | A만으로 설치·문서 생성·테스트·패키징 가능 |
+| 실행 완료 | 새 Azure 환경, dev 10건·독립 holdout 10건, trace 10/10, CI 배포·업무 smoke |
+| 품질 통과 | **미통과**: holdout 9/10이나 safety 사례 hold-08의 필수 보안 정책 인용 누락 |
+| 차단 | Routine history/output 미확인; native optimizer 신규 후보 0; 사람 검토 미완료 |
+| 미실행 | Voice·CU 서비스·실제 fine-tuning·Foundry Local 장치·문서별 ACL·Teams 게시 |
+
+hold-08은 승인 우회를 거절했지만 요구된 `security-policy.md` 4절 근거가 없었습니다. 판정 기준이나 safety 0건 규칙을 낮추지 않았고, holdout을 본 뒤 지시를 다시 조정하지 않았습니다. judge 대조군은 6/6 일치했지만 실제 사용자에 의한 검토와 동일하지 않습니다.
+
+Routine은 생성·dispatch 요청까지 수행했으며 disabled 상태로 보존했습니다. Optimizer의 서비스 job 완료는 새 후보 생성/품질 개선을 뜻하지 않습니다. 원본 결과·CI 요약·운영 상태는 `validation/current/`에 있습니다.
+
 **로컬 계약 검증은 cloud 실행 검증이 아닙니다.** 구현 완료 / 실행 완료 / 품질 통과 / 차단 / 미실행을 구분합니다. 이번 실행은 새 전용 RG만 대상으로 하며 과거 A/B 결과를 Contoso 증거로 재사용하지 않습니다.
 
 로컬 검사 대상으로는 문서 구조·내부 링크·합성 데이터·도구 검증·평가 게이트·SDK 계약·웹 UI가 있습니다. 구체적인 실행 결과와 미검증 범위는 [`validation/current/report.json`](validation/current/report.json)을 확인합니다. 기존 validation 원본은 과거 자료로 보존하며 새로운 결과로 바꾸지 않습니다.
@@ -3161,6 +3212,10 @@ Microsoft Learn의 플랫폼 개요, capability reference, GA 표, 기능별 문
 
 | ID | 문서 | 확인 근거 | 사용하는 내용 |
 | --- | --- | --- | --- |
+| `native-eval` | [Evaluate your AI agents](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluate-agent) | 2026-09-30 본문·공식 SDK 예제 및 새 환경 호출 확인 | native evaluator, 실제 응답/도구 매핑, 판정 오류와 누락 보존 |
+| `iq-retrieve` | [Query a knowledge base using retrieve or MCP](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-retrieve) | 2026-09-30 본문 및 새 환경 GA retrieve 호출 확인 | 2026-04-01 intents/extractive, references/sourceData |
+| `incoming-a2a` | [Enable incoming A2A on a Foundry agent](https://learn.microsoft.com/azure/foundry/agents/how-to/enable-agent-to-agent-endpoint) | 2026-09-30 본문 및 새 환경 card/위임 확인 | v1 agentCard 경로와 Foundry 대상 도구의 기본 해석 구분 |
+| `optimizer-targets` | [Optimize agent instructions, skills, tools, and models](https://learn.microsoft.com/azure/foundry/agents/how-to/optimize-agent-targets) | 2026-09-30 본문 및 bounded job 실행 확인 | Responses 전용·reflection 지원 모델·명시적 instruction 대상; baseline-only는 개선 아님 |
 | `overview` | [What is Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/what-is-foundry) | 직접 본문 확인 | 새 포털, Prompt/Hosted, Responses, SDK 2.x와 Classic 비교 |
 | `ga` | [Microsoft Foundry portal general availability overview](https://learn.microsoft.com/azure/foundry/concepts/general-availability) | 직접 본문 확인 | 포털 GA와 개별 기능 상태; Workflows 2026-12-01 종료 예정 |
 | `capabilities` | [Microsoft Foundry product and capability map](https://learn.microsoft.com/azure/foundry/concepts/capabilities) | 직접 본문 확인 | 제품별 경계와 선택 기준 |

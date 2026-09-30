@@ -33,9 +33,12 @@ async function main() {
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
     page.contosoGuideOrigin = `http://127.0.0.1:${server.address().port}`;
+    const privateResponse = await fetch(`${page.contosoGuideOrigin}/.env`);
+    if (privateResponse.status !== 403) throw new Error("Private environment files must never be served.");
     const filename = operation === "check" ? "browser-check.js" : "export-pdf.js";
     const callback = vm.runInThisContext(await fs.readFile(path.join(__dirname, filename), "utf8"), { filename });
     const result = await callback(page);
+    result.private_paths_blocked = true;
     if (operation === "check") {
       await fs.mkdir(path.join(root, "validation/current"), { recursive: true });
       await fs.writeFile(path.join(root, "validation/current/browser.json"), JSON.stringify(result, null, 2) + "\n");

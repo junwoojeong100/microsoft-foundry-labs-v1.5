@@ -38,6 +38,29 @@ union dependencies, requests, traces
 """.strip()
 
 
+def correlation_report(rows: list[dict], result: dict) -> dict:
+    trace_ids, response_ids = set(), set()
+    for table in result.get("tables", []):
+        columns = [column["name"] for column in table["columns"]]
+        for values in table["rows"]:
+            record = dict(zip(columns, values, strict=True))
+            if record.get("operation_Id"):
+                trace_ids.add(record["operation_Id"])
+            if record.get("responseId"):
+                response_ids.add(record["responseId"])
+    missing = [row["id"] for row in rows if (
+        row.get("trace_id") not in trace_ids if row.get("trace_id") else row.get("response_id") not in response_ids
+    )]
+    report = {
+        "input_rows": len(rows), "correlated_rows": len(rows) - len(missing), "missing_case_ids": missing,
+        "model_response_spans_observed": sum(row.get("response_id") in response_ids for row in rows),
+        "request_trace_ids_observed": sum(row.get("trace_id") in trace_ids for row in rows),
+    }
+    if missing:
+        raise RuntimeError(f"Partial trace correlation: {report}. Missing telemetry is not a pass.")
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
@@ -45,7 +68,8 @@ def main() -> None:
     parser.add_argument("--agent", default="contoso-purchasing")
     parser.add_argument("--live", action="store_true")
     args = parser.parse_args()
-    query = query_for(load_jsonl(args.input), args.agent)
+    rows = load_jsonl(args.input)
+    query = query_for(rows, args.agent)
     print(query)
     if not args.live:
         print("PLAN ONLY: no log query.")
@@ -57,11 +81,10 @@ def main() -> None:
         rest = Rest("https://api.applicationinsights.io", cred, "https://api.applicationinsights.io/.default",
                     evidence, Budget(max_requests=1))
         result = rest.request("POST", f"/v1/apps/{args.app_id}/query", {"query": query, "timespan": "P1D"})
-    count = sum(len(table["rows"]) for table in result.get("tables", []))
-    evidence.append("correlation", {"rows": count, "input": args.input.name})
-    if count == 0:
-        raise RuntimeError("No correlated telemetry. Ingestion delay/permissions/configuration must be investigated.")
-    print(f"Correlated {count} telemetry rows. Evidence: {evidence.path}")
+    report = correlation_report(rows, result)
+    evidence.append("correlation", report)
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    print(f"Evidence: {evidence.path}")
 
 
 if __name__ == "__main__":

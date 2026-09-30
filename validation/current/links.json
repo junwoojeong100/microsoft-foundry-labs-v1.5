@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-09-29T22:12:00.585028+00:00",
+  "checked_at": "2026-09-30T00:36:40.700149+00:00",
   "scope": "Unauthenticated GET requests to public Microsoft Learn source URLs. HTTP reachability is not feature or Azure execution validation.",
-  "checked": 76,
-  "passed": 76,
+  "checked": 80,
+  "passed": 80,
   "failed": 0,
   "links": [
     {
@@ -214,6 +214,14 @@
       "document_ms_date": "2026-09-11T00:00:00Z"
     },
     {
+      "url": "https://learn.microsoft.com/azure/foundry/agents/how-to/enable-agent-to-agent-endpoint",
+      "final_url": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/enable-agent-to-agent-endpoint",
+      "http_status": 200,
+      "reachable": true,
+      "title": "Enable incoming A2A on a Foundry agent - Microsoft Foundry | Microsoft Learn",
+      "document_ms_date": "2026-09-11T00:00:00Z"
+    },
+    {
       "url": "https://learn.microsoft.com/azure/foundry/agents/how-to/foundry-iq-connect",
       "final_url": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/foundry-iq-connect",
       "http_status": 200,
@@ -236,6 +244,14 @@
       "reachable": true,
       "title": "Migrate to the new Foundry Agent Service - Microsoft Foundry | Microsoft Learn",
       "document_ms_date": "2026-09-11T00:00:00Z"
+    },
+    {
+      "url": "https://learn.microsoft.com/azure/foundry/agents/how-to/optimize-agent-targets",
+      "final_url": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/optimize-agent-targets",
+      "http_status": 200,
+      "reachable": true,
+      "title": "Optimize agent instructions, skills, tools, and models in Foundry Agent Service (preview) - Microsoft Foundry | Microsoft Learn",
+      "document_ms_date": "2026-08-25T00:00:00Z"
     },
     {
       "url": "https://learn.microsoft.com/azure/foundry/agents/how-to/publish-copilot",
@@ -483,7 +499,7 @@
       "http_status": 200,
       "reachable": true,
       "title": "How to configure network isolation for Microsoft Foundry - Microsoft Foundry | Microsoft Learn",
-      "document_ms_date": "2026-08-14T00:00:00Z"
+      "document_ms_date": "2026-09-29T00:00:00Z"
     },
     {
       "url": "https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code",
@@ -508,6 +524,14 @@
       "reachable": true,
       "title": "High availability and resiliency for Microsoft Foundry projects and Agent Services - Microsoft Foundry | Microsoft Learn",
       "document_ms_date": "2026-09-21T00:00:00Z"
+    },
+    {
+      "url": "https://learn.microsoft.com/azure/foundry/observability/how-to/evaluate-agent",
+      "final_url": "https://learn.microsoft.com/en-us/azure/foundry/observability/how-to/evaluate-agent",
+      "http_status": 200,
+      "reachable": true,
+      "title": "Evaluate your AI agents - Microsoft Foundry | Microsoft Learn",
+      "document_ms_date": "2026-07-21T00:00:00Z"
     },
     {
       "url": "https://learn.microsoft.com/azure/foundry/observability/how-to/evaluation-dataset-schema",
@@ -612,6 +636,14 @@
       "reachable": true,
       "title": "Migrate Agentic Retrieval Code - Azure AI Search | Microsoft Learn",
       "document_ms_date": "2026-08-20T00:00:00Z"
+    },
+    {
+      "url": "https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-retrieve",
+      "final_url": "https://learn.microsoft.com/en-us/azure/search/agentic-retrieval-how-to-retrieve",
+      "http_status": 200,
+      "reachable": true,
+      "title": "Query Knowledge Base via API or MCP - Azure AI Search | Microsoft Learn",
+      "document_ms_date": "2026-09-04T00:00:00Z"
     }
   ]
 }

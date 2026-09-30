@@ -96,6 +96,11 @@ job status, training/validation curve, checkpoints를 확인합니다. 마지막
 
 로컬 데이터 형식과 split을 검증했습니다. 실제 학습을 진행했다면 **품질·지연·토큰·총비용**을 baseline과 비교하고 선택 이유를 기록합니다. 데이터 준비만 했다면 학습 완료로 표시하지 않습니다.
 
+**이번 native optimizer job은 서비스 상태 `succeeded`였지만 baseline만 반환했습니다.**
+새 후보는 0개이고 reflection 모델 오류/timeout 관련 경고가 있었습니다.
+baseline의 별도 점수 0.95를 holdout 품질 통과로 사용하지 않았으며 후보를 승격하지 않았습니다.
+개선된 v1→v4 지시는 native optimizer 산출물이 아니라 **dev 실패에 근거한 개발 과정의 변경**입니다.
+
 ## 막혔을 때
 
 학습 가능한 모델과 추론 가능한 모델은 다릅니다. training region/tier, 파일 형식, 권한, 최소 데이터 수를 확인합니다. 점수 향상이 없으면 먼저 데이터·평가 오염·grader 문제를 봅니다.
