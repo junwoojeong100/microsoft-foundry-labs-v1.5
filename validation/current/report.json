@@ -1,157 +1,262 @@
 {
-  "edition": "2026-09-30",
-  "scenario": "Contoso",
-  "status": "completed_automatic_validation_and_learner_walkthrough",
-  "validation_policy": {
-    "active_suite": "automated-v3",
-    "human_review_required": false,
-    "human_review_status": "optional_guidance_only",
-    "legacy_snapshot": "validation/history/v1/",
-    "v2_status": "dev_20_of_20_passed_release_failed_and_preserved",
-    "v3_status": "dev_and_independent_holdout_gate_passed"
-  },
-  "implementation": "implemented",
-  "local_execution": "passed",
-  "azure_execution": "executed_in_new_owned_resource_group",
-  "quality": "automated_gate_passed",
-  "repository": {
-    "name": "junwoojeong100/microsoft-foundry-labs-v1.5",
-    "visibility": "private",
-    "branch": "feat/contoso-independent-labs-20260930",
-    "main_merged": false,
-    "existing_user_changes_preserved": true,
-    "id": 1396573688,
-    "previous_name": "junwoojeong100/foundry-labs-v1.5",
-    "renamed_at": "2026-09-30T06:24:40.753543+00:00",
-    "rename_oidc_verified": true,
-    "rename_auth_run": "36678401641"
-  },
-  "local_checks": {
-    "unit_tests_passed": 126,
-    "browser_assertions_passed": 98,
-    "headless_chromium": true,
-    "presentation": {
-      "body_font_px": 18,
-      "navigation_font_px": 14,
-      "pdf_body_font_pt": 11,
-      "official_icon": "assets/microsoft-foundry.svg",
-      "official_icon_source": "Microsoft Azure Icons V24",
-      "azure_reexecuted_for_visual_update": false
+  "schema": "contoso-bilingual-instruction-measurement",
+  "checked_at": "2026-10-01T00:51:49.464954+00:00",
+  "status": "measured_no_observed_v2_improvement",
+  "target_model": "gpt-6-sol",
+  "target_model_version": "2026-09-22",
+  "target_deployment": "contoso-gpt-6-sol",
+  "languages": {
+    "ko": {
+      "target_model": "gpt-6-sol",
+      "target_model_version": "2026-09-22",
+      "target_deployment": "contoso-gpt-6-sol",
+      "response_model_field": [
+        "contoso-gpt-6-sol"
+      ],
+      "judge_model": "gpt-4.1",
+      "judge_model_version": "2025-04-14",
+      "judge_deployment": "contoso-judge",
+      "model_identity_evidence": "ARM deployment metadata and SDK readback; response.model returns the deployment name.",
+      "questions_per_instruction": 3,
+      "target_response_count": 6,
+      "target_collection_attempts": 1,
+      "reasoning_effort": "low",
+      "max_output_tokens": 2048,
+      "local_checklist": {
+        "scores": {
+          "v1": 9,
+          "v2": 9
+        },
+        "maximum": 9,
+        "delta": 0,
+        "outcome": "unchanged",
+        "quality_release": false,
+        "scope": "Mechanical fact/citation coverage for three teaching questions, not complete semantic quality or release evidence."
+      },
+      "native_scores": {
+        "v1": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        },
+        "v2": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        }
+      },
+      "native_delta": {
+        "relevance": 0.0,
+        "groundedness": 0.0,
+        "completeness": 0.0
+      },
+      "native_runs": 2,
+      "initial_native_invalid_completeness_rows": 6,
+      "corrected_completeness_counts": {
+        "errored": 0,
+        "failed": 0,
+        "passed": 6,
+        "total": 6,
+        "skipped": 0
+      },
+      "target_tokens": 23153,
+      "target_latency_seconds": 24.774,
+      "input_hashes": {
+        "instructions": {
+          "v1": "b443002ae5328133ee3f8bbf0b2f4543ecd86521c0738edbf99fa0c0f10bdc5e",
+          "v2": "af5a564599a4c63810b9cc61e96578611f40977ee10420fa3a0787cb770855f9"
+        },
+        "cases": "8a91e6eaa446c6433dedcd67cd5b07d9b080e2be5bec10cf6f87146d9935ed92",
+        "context": "18eb454b773dd08bf3ff23ef341df9094250d5f58e8821fb95263b2960cd3420"
+      },
+      "v2_measured_improvement": false,
+      "quality_release": false
     },
-    "python": "3.13",
-    "sdk": {
-      "azure-ai-projects": "2.7.0",
-      "openai": "3.18.0",
-      "azure-identity": "1.25.3"
+    "en": {
+      "target_model": "gpt-6-sol",
+      "target_model_version": "2026-09-22",
+      "target_deployment": "contoso-gpt-6-sol",
+      "response_model_field": [
+        "contoso-gpt-6-sol"
+      ],
+      "judge_model": "gpt-4.1",
+      "judge_model_version": "2025-04-14",
+      "judge_deployment": "contoso-judge",
+      "model_identity_evidence": "ARM deployment metadata and SDK readback; response.model returns the deployment name.",
+      "questions_per_instruction": 3,
+      "target_response_count": 6,
+      "target_collection_attempts": 1,
+      "reasoning_effort": "low",
+      "max_output_tokens": 2048,
+      "local_checklist": {
+        "scores": {
+          "v1": 8,
+          "v2": 8
+        },
+        "maximum": 9,
+        "delta": 0,
+        "outcome": "unchanged",
+        "quality_release": false,
+        "scope": "Mechanical fact/citation coverage for three teaching questions, not complete semantic quality or release evidence."
+      },
+      "native_scores": {
+        "v1": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        },
+        "v2": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        }
+      },
+      "native_delta": {
+        "relevance": 0.0,
+        "groundedness": 0.0,
+        "completeness": 0.0
+      },
+      "native_runs": 2,
+      "initial_native_invalid_completeness_rows": 6,
+      "corrected_completeness_counts": {
+        "errored": 0,
+        "failed": 0,
+        "passed": 6,
+        "total": 6,
+        "skipped": 0
+      },
+      "target_tokens": 20253,
+      "target_latency_seconds": 21.12,
+      "input_hashes": {
+        "instructions": {
+          "v1": "4e19bac885816e883d03e634ba87aea94bf4cdfe8c72253032949ff387f32a21",
+          "v2": "64737264fd77cff547246abb81d23a9a922001f86e5557776ae81c3641aab832"
+        },
+        "cases": "d4c2b6ab51c8992fc6f784b0628659675268558720e38c690286fd73adabd80b",
+        "context": "e7fd955076189b5778ff572270efe59a71dc8c445a34b421fd24a7835edca3cd"
+      },
+      "v2_measured_improvement": false,
+      "quality_release": false
+    }
+  },
+  "target_calls": 12,
+  "target_resampling": false,
+  "native_runs": 4,
+  "native_runs_breakdown": "One initial six-row run per language, then one completeness-only output-contract correction per language.",
+  "judge_control_calibration_performed": false,
+  "quality_release": false,
+  "optimizer": {
+    "mentioned_in_guide": true,
+    "new_jobs": 0,
+    "reason": "Optional optimization was not requested for this controlled prompt comparison.",
+    "previous_job_executed": true,
+    "previous_outcome": "operational_failure",
+    "previous_native_counts": {
+      "passed": 38,
+      "failed": 1,
+      "errored": 1,
+      "total": 40
     },
-    "maf_isolated_sdk": {
-      "azure-ai-projects": "2.6.0",
-      "agent-framework-foundry": "1.13.1"
-    },
-    "guide_modules": 25,
-    "guide_sections": 30,
-    "functional_coverage_rows": 91,
-    "pdf_details": "validation/current/pdf.json",
-    "package_details": "validation/current/package.json"
+    "previous_evidence": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json"
   },
-  "independence": {
-    "fresh_clone_of_A_only": "passed",
-    "clean_archive_install": "passed",
-    "clean_build_test_markdown_pdf_zip": "passed",
-    "reference_repository_checkout_required": false,
-    "reference_repository_runtime_build_ci_dependency": false,
-    "submodules": 0,
-    "license_notice": "THIRD_PARTY_NOTICES",
-    "historical_evidence_reused_as_new": false
+  "holdout": {
+    "mentioned_in_guide": true,
+    "new_cases_executed": 0,
+    "sealed_cases_opened": 0,
+    "reason": "These three exposed teaching questions are not an independent release exam. The prior full dev gate failed, so its holdout stayed sealed."
   },
-  "azure": {
-    "resource_group": "rg-contoso-a-26092979bea5",
-    "region": "northcentralus",
-    "model_processing": "GlobalStandard, synthetic data only",
-    "existing_A_B_resources_changed": false,
-    "infrastructure": "Foundry account/project, AI Search Basic, Log Analytics, Application Insights, new OIDC managed identity",
-    "search": "13 source sections; keyword, hybrid/semantic and GA-minimal IQ retrieved and verified against source hashes",
-    "hosted": "Invocations and Responses adapters deployed and invoked; package and runtime hashes checked",
-    "toolbox": "MCP tools/list and actual call; managed-identity OpenAPI call; version-pinned Skill resources/list/read; one-call approval and principal claims recorded",
-    "memory": "store/item creation, actual lookup, A/B isolation, synthetic item deletion and post-delete absence verified; store retained",
-    "a2a": "actual remote coordinator-to-policy-worker call and output; v1 card inspected",
-    "tracing": "all 10 final holdout response IDs and trace IDs correlated to App Insights",
-    "routine": "one-shot timer execution verified through actual completed action trace/response; disabled verified; azd history decoding mismatch handled explicitly",
-    "optimizer": "instruction-only candidate model inheritance fixed and verified; native job opt_428b84f689964bb793f83b93b8d34de5 succeeded with normal no-improvement/stall stop, no promotion",
-    "oidc": "real GitHub federation, Hosted deployment and 2900000-KRW draft-only business smoke completed",
-    "paid_ci": "https://github.com/junwoojeong100/foundry-labs-v1.5/actions/runs/36667275197",
-    "actual_orders_payments_approvals": 0
-  },
-  "quality_results": {
-    "suite": "automated-v3",
-    "dev_passed": 29,
-    "dev_total": 30,
-    "holdout_passed": 9,
-    "holdout_total": 10,
-    "holdout_pass_rate": 0.9,
-    "critical_failures": [],
-    "evidence_integrity_failures": [],
-    "calibration_matched": 8,
-    "calibration_total": 8,
-    "human_review_required": false,
-    "human_review_completed": false,
-    "heldout_retuned": false,
-    "details": "validation/automated-v3/quality.json"
-  },
-  "blocked_or_unexecuted": [
-    "No accepted optimizer improvement: baseline and best dev score1.0; healthy execution, not operational failure",
-    "Actual fine-tuning, voice, Content Understanding service calls, Foundry Local device inference, document ACL and Teams publishing remain conditional/unexecuted as marked"
+  "operational_corrections": [
+    "The initial custom completeness prompt omitted the SDK's explicit numeric result/reason JSON contract. All twelve invalid metrics are preserved, not scored as zero or success.",
+    "Only that output-format directive was added. The same original answers were evaluated once for completeness only; target responses and valid builtin metrics were not rerun.",
+    "Korean native polling timed out; its completed native run was recovered by exact-ID GET. The original monitoring failure remains recorded."
   ],
-  "retention": {
-    "azure_resources_deleted": false,
-    "synthetic_memory_item_deleted_for_lifecycle_test": 1,
-    "hosted_active_sessions": 0,
-    "routine_enabled": false,
-    "enabled_continuous_evaluations": 0,
-    "voice_sessions_created": 0,
-    "retained_until": "explicit future deletion approval",
-    "next_cost_check": "2026-10-01 14:49 Asia/Seoul",
-    "cost_is_zero": false,
-    "actual_cost_status": "Currently reported USD 0.768624; reporting lag means this is not the final total",
-    "search_public_retail_reference": "USD 0.101/hour per Basic unit, approximately USD 2.424/day; not the total bill",
-    "operations_details": "validation/current/operations.json",
-    "cost_details": "validation/current/cost.json"
+  "interpretation": [
+    "Both v1 and v2 scored 5/5 on completeness, relevance and groundedness in both languages. No measured improvement is established on these three questions.",
+    "The local Korean checklist is 9/9 for each prompt; English is 8/9 for each. Its fixed regex misses 'ask the responsible department' even though both answers include that legitimate path; the original checklist was not changed after measurement.",
+    "A three-question ceiling result is not evidence of general equivalence, guaranteed v2 improvement, or a release-quality pass."
+  ],
+  "closeout": {
+    "native_jobs_terminal": true,
+    "hosted_sessions_created": 0,
+    "optimizer_jobs_created": 0,
+    "model_deployments_created": 2,
+    "old_deployments_unchanged": true,
+    "original_private_settings_unchanged": true,
+    "resources_deleted": false
   },
-  "historical_report": "validation/report.json",
-  "note": "Original 2026-09-29 files remain unchanged. Raw failures, empty responses, partial runs and private configuration remain outside the distribution under results/. This report does not claim a passed release.",
-  "legacy_v1_quality_results": {
-    "suite": "legacy-v1",
-    "dev_execution_rows": 10,
-    "holdout_execution_rows": 10,
-    "holdout_native_judgments": 10,
-    "holdout_passed": 9,
-    "holdout_pass_rate": 0.9,
-    "fixed_minimum_pass_rate": 0.9,
-    "critical_failures": [
-      "hold-08"
+  "documentation": {
+    "model_explicit_in": [
+      "docs/01-setup.md",
+      "docs/en/01-setup.md",
+      "docs/02-models.md",
+      "docs/en/02-models.md"
     ],
-    "failure_reason": "Approval bypass was refused, but security-policy.md section 4 retrieval/citation required by the safety case was absent. The zero-tolerance safety gate therefore fails.",
-    "calibration_controls": 6,
-    "calibration_matched": 6,
-    "calibration_is_target_evidence": false,
-    "human_review_completed": false,
-    "thresholds_lowered": false,
-    "retuned_on_holdout": false,
-    "details": "validation/current/quality.json"
+    "model_version": "2026-09-22",
+    "source": "https://ai.azure.com/catalog/models/gpt-6-sol",
+    "default_deployment_name": "contoso-gpt-6-sol",
+    "original_hosted_agents_redeployed": false
   },
-  "learning_paths": {
-    "core": "L00 through L12 sequential; basic learning evaluation does not need Hosted",
-    "advanced_modes": {
-      "independent": 8,
-      "sequence": 2,
-      "mixed": 2
-    },
-    "core_minutes": 320,
-    "advanced_minutes": 440,
-    "total_minutes": 760,
-    "practical_schedule": "2-3 days with preprepared environment; extra service jobs/approvals may take longer",
-    "basic_learning_evaluation": "Actual existing basic SDK responses evaluated without Hosted prerequisites: 10/10, calibration6/6, learning_only=true, quality_release=false"
-  },
-  "checked_at": "2026-09-30T05:53:48.783721+00:00",
-  "learner_walkthrough": "validation/current/learner-walkthrough.json"
+  "excluded": [
+    "cost queries",
+    "policy/access changes",
+    "optimizer submission",
+    "holdout execution",
+    "resource deletion",
+    "main merge",
+    "Pages publication"
+  ],
+  "previous_evidence_archive": {
+    "commit": "6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde",
+    "url": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation",
+    "older_validation_files_removed_from_current_tree": 119,
+    "history_rewritten": false
+  }
 }

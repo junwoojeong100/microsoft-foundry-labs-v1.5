@@ -175,117 +175,22 @@ def coverage_markdown(capabilities, chapters, sources, language="ko"):
 
 
 def sources_markdown(source_data, language="ko"):
-    if language == "en":
-        table = [
-            "| ID | Document | Basis for verification | Used for |",
-            "| --- | --- | --- | --- |",
-        ]
-        table += [
-            f"| `{source['id']}` | [{source['title']}]({source['url']}) | {source['basis']} | {source['note']} |"
-            for source in source_data["sources"]
-        ]
-        return (ROOT / "docs/en/sources.md").read_text(encoding="utf-8").format(
-            documentation_validation=RELEASE["documentation_validation"],
-            historical_validation=RELEASE["historical_validation"],
-            validation=RELEASE["languages"][language]["validation"],
-            source_table="\n".join(table),
-        )
-    lines = [
-        "> **기초 출처 확인: 2026-09-29 / 실행 API 재확인·Contoso 보완: 2026-09-30, Asia/Seoul.** "
-        "날짜가 적혀 있다고 영구적으로 최신인 자료는 아닙니다.",
-        "",
-        "## 최신성을 판단한 방식",
-        "",
-        "Microsoft Learn의 플랫폼 개요, capability reference, GA 표, 기능별 문서와 공식 SDK 예제를 확인했습니다. "
-        "상태가 충돌하거나 범위가 다르면 기능별 API·포털·지역을 분리하고 더 좁은 의미로 설명했습니다.",
-        "",
-        "확인 당시 월간 What's new 모음은 **2026년 8월**을 안내했습니다. 이를 9월의 모든 출시를 포괄하는 목록으로 바꾸지 않았습니다. "
-        "Content Understanding 등의 기능별 문서에는 9월 업데이트가 있어 별도로 반영했습니다.",
-        "",
-        "## 반드시 기억할 변경",
-        "",
-        "| 항목 | 이 가이드의 처리 |",
-        "| --- | --- |",
-        "| 새 포털 GA | 개별 기능의 GA와 분리 |",
-        "| 포털 Workflows 종료 예정 | 2026-12-01을 명시하고 새 구현은 MAF |",
-        "| Foundry IQ | 일부 API GA, 포털 Preview |",
-        "| Foundry RBAC 이름 | 새 이름과 이전 Azure AI 이름을 설명 |",
-        "| Memory / Voice / Agent guardrails / 운영 일부 | Preview 표기 |",
-        "| Agent Optimizer | GA 표 기준 Limited preview |",
-        "| Content Understanding | 2025-11-01 GA와 2026-06-01-preview 구분 |",
-        "| SDK 조합 | 실제 설치 가능한 기본/advanced 환경 분리 |",
-        "",
-        "## 검증의 경계",
-        "",
-        "### 현재 자동 검증 결과",
-        "",
-        "**automated-v3의 실제 릴리스 게이트는 통과했습니다.** dev 29/30, 독립 holdout 9/10, "
-        "critical 실패 0건, calibration 8/8입니다. 비중대 미통과 사례도 원본으로 남겼으며 "
-        "사람 검토는 선택 안내로 구분합니다.",
-        "",
-        "Routine은 실제 예약 응답과 trace 및 disabled 상태를 확인했습니다. Optimizer는 "
-        "지시문만 바뀌는 후보의 누락 모델을 명시적으로 상속하도록 보완한 뒤 정상 실행됐습니다. "
-        "별도 Optimizer dev 20건의 baseline/best 점수는 1.0/1.0으로 추가 개선이 없어 승격하지 않았습니다. "
-        "검증 세부 자료는 `validation/current/`와 `validation/automated-v3/`에 있습니다.",
-        "",
-        f"최신 문서·브라우저·PDF·패키지 검사는 `{RELEASE['documentation_validation']}/`에 따로 둡니다. "
-        "이는 문서 검사이며 Azure를 새로 실행한 증거가 아닙니다.",
-        "",
-        "### 이전 v1 결과와 현재 자동 검증 경로",
-        "",
-        f"이전 검증 파일은 [정리 전 Git 커밋의 원본]({RELEASE['historical_validation']})에서 확인합니다. "
-        "현재 파일 목록에서는 중복·이전 실행을 정리했으며 과거 기록의 내용이나 판정을 바꾸지 않았습니다.",
-        "",
-        "**아래 수치는 보존한 v1 결과입니다.** 새 RG에서 Hosted·Search/IQ·"
-        "Toolbox/MCP/OpenAPI/Skills·Memory·A2A·native 평가·Tracing과 실제 OIDC 배포를 수행했습니다.",
-        "",
-        "| 구분 | 이번 결과 |", "| --- | --- |",
-        "| 구현 완료 | A만으로 설치·문서 생성·테스트·패키징 가능 |",
-        "| 실행 완료 | 새 Azure 환경, dev 10건·독립 holdout 10건, trace 10/10, CI 배포·업무 smoke |",
-        "| 품질 통과 | **미통과**: holdout 9/10이나 safety 사례 hold-08의 필수 보안 정책 인용 누락 |",
-        "| v1 운영 제한 | Routine history/output 미확인; native optimizer 신규 후보 0 |",
-        "| 미실행 | Voice·CU 서비스·실제 fine-tuning·Foundry Local 장치·문서별 ACL·Teams 게시 |",
-        "",
-        "hold-08은 승인 우회를 거절했지만 요구된 `security-policy.md` 4절 근거가 없었습니다. "
-        "판정 기준이나 safety 0건 규칙을 낮추지 않았고, holdout을 본 뒤 지시를 다시 조정하지 않았습니다. "
-        "judge 대조군은 6/6 일치했지만 실제 사용자에 의한 검토와 동일하지 않습니다.",
-        "",
-        "**현재 automated-v3는 사람 검토를 선택 안내로 분리했습니다.** 기존 v1/v2 시험지는 dev 회귀로 보존하고 "
-        "새 봉인 holdout과 검색·인용·도구 자동 검사를 사용합니다. 전체 90%·safety/access 실패 0건은 유지합니다. "
-        "v3의 실제 통과 여부는 최신 `validation/current/report.json` 및 `validation/automated-v3/` 결과를 확인하세요.",
-        "",
-        "Routine은 생성·dispatch 요청까지 수행했으며 disabled 상태로 보존했습니다. "
-        "Optimizer의 서비스 job 완료는 새 후보 생성/품질 개선을 뜻하지 않습니다. "
-        f"이 v1 실행의 원본 결과·CI 요약·운영 상태는 [과거 검증 원본]({RELEASE['historical_validation']})에 있습니다.",
-        "",
-        "**로컬 계약 검증은 cloud 실행 검증이 아닙니다.** 구현 완료 / 실행 완료 / 품질 통과 / 차단 / 미실행을 "
-        "구분합니다. 이번 실행은 새 전용 RG만 대상으로 하며 과거 A/B 결과를 Contoso 증거로 재사용하지 않습니다.",
-        "",
-        "로컬 검사 대상으로는 문서 구조·내부 링크·합성 데이터·도구 검증·평가 게이트·SDK 계약·웹 UI가 있습니다. "
-        "구체적인 실행 결과와 미검증 범위는 [`validation/current/report.json`](validation/current/report.json)을 확인합니다. "
-        "과거 검증 원본은 위의 고정된 Git 커밋에 보존하며 새로운 결과로 바꾸지 않습니다.",
-        "",
-        "전달물은 Microsoft 공식 교육과정이나 보증서가 아닙니다. 시나리오·설명·그림은 이 실습을 위해 작성했습니다. "
-        "제품 사실의 근거는 아래 원문이며 전체 문서를 복제하지 않았습니다.",
-        "",
-        "## 공개 공식 출처",
-        "",
-        "| ID | 문서 | 확인 근거 | 사용하는 내용 |",
+    table = [
+        "| ID | Document | Basis for verification | Used for |" if language == "en"
+        else "| ID | 문서 | 확인 근거 | 사용하는 내용 |",
         "| --- | --- | --- | --- |",
     ]
-    for source in source_data["sources"]:
-        lines.append(
-            f"| `{source['id']}` | [{source['title']}]({source['url']}) | {source['basis']} | {source['note']} |"
-        )
-    lines += [
-        "",
-        "## 다음 교육 전에 업데이트하기",
-        "",
-        "GA 표 → capability reference → 필요한 기능 문서 → 지역/모델 카드 → SDK 호환 조합 순으로 다시 확인합니다. "
-        "변경한 사실은 `content/sources.json`과 해당 모듈에 함께 반영합니다. 출처 링크만 갱신하고 "
-        "실습 코드·패키지·완료 기준을 그대로 두지 않습니다.",
+    table += [
+        f"| `{source['id']}` | [{source['title']}]({source['url']}) | {source['basis']} | {source['note']} |"
+        for source in source_data["sources"]
     ]
-    return "\n".join(lines)
+    path = ROOT / ("docs/en/sources.md" if language == "en" else "docs/sources.md")
+    return path.read_text(encoding="utf-8").format(
+        documentation_validation=RELEASE["documentation_validation"],
+        historical_validation=RELEASE["historical_validation"],
+        validation=RELEASE["languages"][language]["validation"],
+        source_table="\n".join(table),
+    )
 
 
 def source_body(chapter, chapters, capabilities, source_data, language="ko"):

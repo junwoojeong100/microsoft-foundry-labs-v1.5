@@ -110,7 +110,7 @@ If the trace cannot be read, end with **execution unverified** rather than assum
 
 ![Build → Agents → Routines in contoso-workshop-en. Inspect each English policy timer's target, trigger, last run, and actual enabled or paused state.](../../assets/portal/en/12-routines.png)
 
-**Read the screen:** Under **Agents → Routines**, first find your English schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. A **Last run** value does not prove that the business output was correct; connect it to the trace/response from the previous step. The [English capture log](../../content/portal-screenshots.en.json) records observed states separately from backend execution. The English one-shot Routine **succeeded and was disabled**, as recorded in the [execution report](../../validation/english/current/report.json); this is a scoped timer result, not a release-quality pass or proof that every other job stopped.
+**Read the screen:** Under **Agents → Routines**, first find your English schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. A **Last run** value does not prove that the business output was correct; connect it to the trace/response from the previous step. The [English capture log](../../content/portal-screenshots.en.json) records observed states separately from backend execution. The English one-shot Routine **succeeded and was disabled**, as recorded in the [execution report](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/current/report.json); this is a scoped timer result, not a release-quality pass or proof that every other job stopped.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live
@@ -167,7 +167,7 @@ In a separate v2 validation of the corrected runner, `contoso-policy-timer-v2-9a
 The trace `ebd60144b61d68788cb939b085f6c308` at `2026-09-30T01:58:35Z`
 and response `resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2`
 showed completed output matching the unique marker. No manual dispatch was performed, and `enabled=false` was rechecked.
-Those historical originals were recorded as `results/contoso-routine-04519d0f6e86.jsonl` and `results/routine-v2-scheduled.json` in the Korean checkout; they are not files to copy into the English run. New shareable English evidence belongs under `validation/english/`.
+Those originals belong to their recorded environment; do not copy them into another run as new evidence. Keep personal execution receipts under `results/` and share only the latest reviewed set with its actual scope.
 
 </details>
 

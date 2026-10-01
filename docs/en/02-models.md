@@ -2,7 +2,7 @@
 
 ## Objectives
 
-Choose **the most economical combination that meets your quality requirements, not simply the largest model**. Understand the difference between a model name, model version, and deployment name.
+**This guide uses OpenAI `gpt-6-sol` as the target model**, with version `2026-09-22`. Distinguish the model ID, model version, and deployment name. Cost/performance comparisons with alternatives are optional.
 
 ## Concepts and lab map
 
@@ -20,9 +20,9 @@ You need the L01 project and permission to deploy models. If learners do not hav
 
 ## Steps
 
-### 1. Choose two candidates from the model catalog
+### 1. Select gpt-6-sol in the model catalog
 
-In **Discover → Models**, compare a small general-purpose model with a model offering stronger reasoning capabilities. Check providers such as Microsoft, OpenAI, Anthropic, and Meta, and distinguish models sold/operated directly by Azure from partner or community offerings.
+In **Discover → Models**, search for **`gpt-6-sol`** and open the OpenAI model card. It is supplied directly through Azure; verify Responses API, structured-output, and function-calling support. Both v1 and v2 use the same model/version in the comparison.
 
 ![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](../../assets/portal/en/02-model-catalog.png)
 
@@ -37,7 +37,15 @@ In **Discover → Models**, compare a small general-purpose model with a model o
 | Pricing, context length, and input/output limits | A larger maximum context does not mean a lower cost |
 | License and data-processing terms | Terms vary by provider and deployment method |
 
-One current example in the official hosted quickstart is `gpt-5.4-mini`. **It is neither a required model nor guaranteed to be available in every subscription.** Choose based on the actual model card and your current access. This guide's code does not hardcode a model name.
+| Lab setting | Value |
+| --- | --- |
+| Publisher / model ID | OpenAI / `gpt-6-sol` |
+| Model version | `2026-09-22` |
+| Suggested deployment name | `contoso-gpt-6-sol` |
+| Deployment type | `GlobalStandard`, subject to availability and organizational policy |
+| Inference API | Responses API |
+
+Quota and capacity vary by subscription. A visible card does not establish deployability in the selected project. Check supported versions and capacity; if unavailable, record that limitation rather than silently substituting another model.
 
 ### 2. Choose a deployment type
 
@@ -54,9 +62,11 @@ One current example in the official hosted quickstart is `gpt-5.4-mini`. **It is
 
 ### 3. Deploy and record the name
 
-From the model card's deployment action, choose a supported model version, deployment type, and capacity. For example, name the lab deployment `contoso-chat`, and put **that deployment name** in `.env`'s `FOUNDRY_MODEL_DEPLOYMENT_NAME`.
+From the model card's deployment action, select **`gpt-6-sol` / `2026-09-22`** with a supported type/capacity. If you name it `contoso-gpt-6-sol`, set `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-gpt-6-sol` in `.env`. The API uses the **actual deployment name**, not merely the catalog model ID.
 
-Once the deployment is ready, run each of the following two inputs 3 times in the playground.
+L01's administrator foundation script can deploy the same model under the name `contoso-chat`. If using that path, keep the actual returned deployment name and do not deploy it again. Changing a model deployment does not automatically redeploy an existing Hosted agent's code or configuration.
+
+Once ready, run each of the following two inputs once in a separately approved Playground check. L08's v1/v2 measurement uses its own three fixed questions.
 
 ```text
 Summarize this rule in one sentence:
@@ -69,10 +79,10 @@ Compare a total of KRW 2,000,000 with a total of KRW 2,000,001 in a table.
 Do not add anything that is not in the rule.
 ```
 
-| Candidate | Correct boundary answers / 3 | Approximate latency | Token/pricing terms | Selection |
+| Candidate | Actual results for both questions | Approximate latency | Token/pricing terms | Selection |
 | --- | --- | --- | --- | --- |
-| A | Record your result | Record your result | Based on the model card | Reason |
-| B | Record your result | Record your result | Based on the model card | Reason |
+| `gpt-6-sol` | Record your result | Record your result | Based on the model card | Lab target |
+| Separately approved alternative (optional) | Record only if executed | Record your result | Based on the model card | Comparison reason |
 
 A public leaderboard is a starting point for narrowing candidates, not a guarantee of performance on your business data.
 

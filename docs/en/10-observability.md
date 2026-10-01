@@ -79,7 +79,7 @@ Print the KQL first and review its scope. It covers the last 24 hours, returns a
 `app-id` is not an instrumentation key or connection string. Zero returned rows fail as **unverified correlation**;
 do not relabel a request ID as a trace ID to fill the gap. Also compare the Hosted response's `contract.sha256` and version.
 
-**Current English trace scope:** Request-level trace IDs were correlated for **10/10** requests, but the bounded mixed query returned only **7 model-response spans**. Do not describe this as all 10 model spans being observed or infer missing model-span details from request correlation. The [English execution report](../../validation/english/current/report.json) records that distinction; it is not a reason to resubmit completed or held-out questions.
+Request-level correlation and model-response spans are different evidence. Report only the scope actually observed; do not infer missing spans or resubmit completed questions merely to produce a better-looking trace.
 
 ### 4. Optional: Add client-side tracing
 

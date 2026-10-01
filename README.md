@@ -4,88 +4,69 @@
 
 **[Open the online guide — index.html](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)** · **[한국어 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)**
 
-Learn models, knowledge, tools, evaluation, and operations by building a synthetic Contoso purchasing assistant. Both editions contain **25 labs and five reference sections**. The English guide has **18 newly captured English portal screens and 124 explained commands**; the preserved Korean guide has 17 screens and 120 explained commands.
+Build a synthetic Contoso purchasing assistant through **25 labs and five reference sections**. Both languages share the same implementation and use their own data and instructions.
 
-**English is the default.** Use the language switch to open the same module in Korean. Both editions share learning progress, theme, and learning-path preferences in the same browser.
+**The learning path is now simple: unchanged v1 → improved v2 → one comparison.** Keep current improvements in `agent-v2.txt`; do not create more instruction versions or accumulate release-experiment narratives.
+V2 explicitly separates public and restricted questions, covers every requested part, matches evidence to individual claims, preserves unknown facts, and respects actual tool permissions/results.
 
-**Latest English v5 live validation: no release approval.** Both version-4 protocol smokes and **8/8 judge controls** passed. All **40 dev cases** were collected and natively evaluated once, with 40 native passes and zero evaluator errors/skips. The combined business result is **39/40 (97.5%)**, but `v5-dev-30` has a **critical access-evidence failure**, so the unchanged zero-critical-failure gate blocks release. The independent holdout remains **sealed and unexecuted: 0/10**. See the [v5 live report](validation/english/automated-v5/report.json), [quality record](validation/english/automated-v5/quality.json), and [failure diagnosis](validation/english/automated-v5/dev30-diagnosis.json).
+L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-sol`. L08 compares three fixed questions once per prompt, then evaluates the preserved answers in Foundry. No holdout, Hosted redeployment, or Optimizer is required. **Actual score increases are not guaranteed or prewritten.**
 
-The `explicit-request-v2` candidate was frozen as **34 source inputs**, inheriting all 40 v4 dev questions/oracles and the same eight controls. A separate authoring context then sealed ten new holdout cases without using the unused v4 exam. The formerly aborting FX case completed in this run; that does not erase the new access-evidence failure. No answer, required citation, oracle, or threshold was repaired after seeing the result.
+## Read or download
 
-The [single dev-only Optimizer job](validation/english/automated-v5/optimizer.json) ended after **647 seconds** with service `succeeded`, but native rows were **38 passed / 1 failed / 1 errored**, so its outcome is **`operational_failure`**. It generated no candidate and promoted none. Fresh SDK [closeout](validation/english/automated-v5/operations.json) confirmed the job and native runs terminal and **all five created sessions stopped**. Scoped Responses job listing succeeded; no project-wide idle claim is made. Publishing these findings is not approval to release the agent.
-
-**Earlier failures remain unchanged.** The [v4 run](validation/english/automated-v4/report.json) stopped after 36 dev responses and had three Optimizer evaluator errors despite service success; its unused holdout, original 27-source archive and five-session closeout are preserved. The [v3 holdout](validation/english/automated-v3/quality.json) remains 7/10 with a critical failure. The [offline correction record](validation/english/citation-remediation/report.json) still records only the local work performed at that earlier point.
-
-## Get started
-
-Begin with **L00: Microsoft Foundry at a glance**. The core course is **L00–L12, about 5 hours 20 minutes**; choose advanced modules L13–L24 as needed. Reading the guide requires no installation or sign-in. L01 explains the setup, permissions, and costs of running Azure labs.
-
-| Format | Open or download |
+| Format | Location |
 | --- | --- |
-| English web guide · default | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
+| English web guide | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
 | Korean web guide | [GitHub Pages · 한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
 | Markdown | [English](GUIDE.en.md) · [한국어](GUIDE.ko.md) |
-| Printable PDF | [English](Contoso-Foundry-Hands-on-2026-09-30.en.pdf) · [한국어](Contoso-Foundry-Hands-on-2026-09-30.pdf) |
-| Complete bilingual workshop kit | [Download ZIP](Contoso-Foundry-Hands-on-2026-09-30.zip) |
-| Synthetic receipt for the document lab | [English HTML](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [Korean HTML](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
+| PDF | [English](Contoso-Foundry-Hands-on-2026-09-30.en.pdf) · [한국어](Contoso-Foundry-Hands-on-2026-09-30.pdf) |
+| Complete kit | [Bilingual ZIP](Contoso-Foundry-Hands-on-2026-09-30.zip) |
+| Synthetic receipt | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
 
-For offline reading, **extract the ZIP first**, keep its folder structure, and open `index.html` (English) or `index.ko.html` (Korean). Code and configuration files are available in the repository file list or through **File → Open Folder** in VS Code.
+Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.html`; use an editor to inspect code.
+The core course is L00–L12, about 5 hours 20 minutes. Choose advanced modules as needed. Reading requires no sign-in.
 
-## Repository layout
+## Instructions and latest evidence
 
-| Path | Contents |
-| --- | --- |
-| `docs/`, `docs/en/`, `content/` | Korean and English module sources, learning paths, official references, localized reader labels, and screenshot metadata |
-| `assets/` | Reader UI, bilingual diagrams, original Korean captures, and new English captures in `assets/portal/en/` |
-| `samples/`, `hosted/`, `data/`, `data/en/` | Shared lab/runtime code and separate Korean/English synthetic data profiles |
-| `.env.example`, `azure.yaml`, `infra/` | Environment template and deployment definitions |
-| `scripts/`, `tests/` | Generation, packaging, and regression checks |
-| `validation/` | Latest results by validation category |
+- Baseline: `data/prompts/agent-v1.txt` and `data/en/prompts/agent-v1.txt`, unchanged.
+- Current: `agent-v2.txt` in those same folders; Prompt/Hosted build defaults use v2.
+- One comparison: `samples/instruction_lab.py`; native evaluation of its originals: `samples/instruction_evaluation.py`. Both require explicit `--live`.
+- [Current status](validation/current/instructions.json), [latest actual Azure originals](validation/current/report.json), and [current documentation checks](validation/docs/structure.json).
 
-**Synthetic data only. The labs do not place real orders, take payments, or grant business approvals.** Read each command's scope, costs, and side effects before running it. Never commit `.env`, credentials, or personal execution results.
+**Both languages have now been measured on GPT-6 Sol.** Korean local checklist: **v1 9/9 → v2 9/9**; English: **8/9 → 8/9**. Foundry completeness/relevance/groundedness means are **5.0/5 for both instructions in both languages**. No v2 improvement was observed on these three questions. The judge was the separate, fixed GPT-4.1 deployment.
 
-Use a separate checkout, `.env`, `.azure/`, and `results/` for a new English Azure run. In that terminal, select `export FOUNDRY_LAB_LANGUAGE=en` (PowerShell: `$env:FOUNDRY_LAB_LANGUAGE = "en"`). English commands then use `data/en/`, English Search analysis and citation labels, language-bound Hosted packages, and `validation/english/` evidence. Existing commands remain Korean unless explicitly opted in. Do not reuse another environment's ownership receipts.
+Twelve original target responses were collected once. An initial custom-evaluator output-format error and Korean polling timeout are preserved; only completeness was evaluated once more on those same originals after correcting its JSON contract. All four native runs are terminal. Optimizer and holdout remain explained in L08/L20 but were not newly executed; this small comparison is not a release pass.
+Older reports were removed from the current tree, not rewritten: [immutable pre-cleanup history](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation).
+Original run/deployment IDs remain in raw evidence for provenance; they are not instruction versions.
 
-The English profile preserves the business rules and quality thresholds, not Korean display text. Policies, prompts, inventory names, skill content, receipts, and evaluation examples are English. Its final holdout was independently authored and sealed. The `microsoft-foundry` skill remains authoring guidance, not a learner, runtime, or build dependency.
+## Working safely
 
-## Evidence and limits
-
-[Latest English live report](validation/english/automated-v5/report.json) · [Preserved English v4 failure](validation/english/automated-v4/quality.json) · [Preserved Korean report](validation/current/report.json) · [Current documentation checks](validation/docs/live-v5/browser.json)
-
-The preserved initial English walkthrough used a then-new owned resource group for model/agent calls, Search/IQ, both Hosted protocols, tools, evaluation, tracing, Memory, A2A, Routine and OIDC deployment. Its incomplete dev attempt and failed holdout remain unchanged. **V5 reused only that existing owned English environment** for the approved candidate/smoke, judge/dev and Optimizer stages; it did not rerun optional features or query costs.
-
-The current file listing keeps only the latest results in each category. Earlier records remain unchanged in the [pre-cleanup Git commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation). Paths in historical records refer to the commit used for that run.
-
-Passing documentation or local checks is **not** a new Azure execution or a quality-gate result. The new English execution does not rewrite historical Korean evidence or relax evaluation thresholds.
+Use only synthetic Contoso data. These tools never place real orders, take payments, or grant business approval.
+Keep private `.env`, `.azure/`, credentials, and raw personal execution files out of Git and the kit.
+Select `FOUNDRY_LAB_LANGUAGE=en` in the separate English environment; Korean remains the default. Do not mix environments or ownership receipts.
+The `microsoft-foundry` skill is authoring guidance, not a learner/runtime dependency. New Azure calls, access changes, and resource deletion require explicit scope and approval.
 
 ## Edit and regenerate
 
-Update the Korean sources in `docs/`, their English counterparts in `docs/en/`, and the corresponding metadata in `content/` together. The English metadata overlays preserve canonical module IDs, durations, source URLs, coverage levels, and prerequisites. Do not edit generated HTML or combined Markdown directly.
-
-Install the Python documentation dependencies and Node.js/Playwright Chromium, then run:
+Edit `docs/`, `docs/en/`, `content/`, and the shared sources; never hand-edit generated readers.
+With the declared Python/Node dependencies installed:
 
 ```bash
-python -m pip install -r requirements-docs.txt -r requirements-qa.txt
-npm ci
-npx playwright install chromium
 python scripts/build_guide.py
 FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -q
 npm run guide:pdf
-python scripts/check_guide.py --report-dir validation/docs/live-v5
-npm run guide:browser -- --report-dir validation/docs/live-v5
-python scripts/check_pdf.py --report-dir validation/docs/live-v5
-python scripts/package_guide.py --report-dir validation/docs/live-v5
+python scripts/check_guide.py
+npm run guide:browser
+python scripts/check_pdf.py
+python scripts/package_guide.py
 ```
 
-These commands generate and check **both languages**. One ZIP contains both readers, Markdown books, PDFs, and the shared code and data. The latest documentation reports live in `validation/docs/live-v5/`, preserving `validation/docs/citation-remediation/`, `validation/docs/live-v4/` and earlier reports unchanged. Choose a new report directory for later independent follow-ups. Documentation results are separate from Azure evidence.
-The test-process-only `ko` setting preserves Korean-baseline assertions; the suite also launches explicit English-profile checks. It does not change the language of later live lab commands.
+The same checked-in sources produce both HTML/Markdown/PDF editions and one ZIP. Keep only current local reports under `validation/docs/`.
+Local checks are not Azure execution or measured model improvement.
 
 ## GitHub Pages
 
-Pages publishes the **root of the `gh-pages` branch**, kept separately from pull-request branches so merging and deleting a feature branch does not remove the site. Keep `.nojekyll`; after regenerating and checking the artifacts, publish the reviewed commit with `git push origin HEAD:gh-pages`. Never force-push or delete the publishing branch. Merging into `main` and changing repository visibility require separate approval.
+Pages serves the **root of the `gh-pages` branch**. Keep `.nojekyll`; publish only reviewed artifacts after approval, without force-pushing or deleting that branch.
+Merging into `main`, Pages publication, and visibility changes are separate actions, not automatic consequences of editing instructions.
+Use `python scripts/check_pages.py` after approved publication to compare the public HTML/assets with the generated sources.
 
-Every guide HTML file is listed in the format table above. Relative links work under the repository's GitHub Pages path and in the extracted offline kit. English and Korean retain the same module fragments—for example, `#l13`—for deep links and language switching.
-
-After publishing, run `python scripts/check_pages.py` to compare every public HTML page and its linked assets with the local sources. This makes only unauthenticated requests to this repository's GitHub Pages site; it does not call Azure.
-
-This is not an official Microsoft curriculum. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) for sources and usage terms.
+This is not an official Microsoft curriculum. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).

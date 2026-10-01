@@ -39,13 +39,12 @@ def main():
             "requirements-docs.txt", "requirements-advanced.txt", "requirements-qa.txt",
             "requirements-hosted.txt", "requirements-tools.txt", "requirements-live.lock.txt",
             "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
-            "NEXT-LIVE-VALIDATION.ko.md",
         )
     ]
     for edition in RELEASE["languages"].values():
         files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "pdf", "receipt_html", "validation"))
         files.append(ROOT / "content" / edition["portal_manifest"])
-    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", "validation/automated-v3", "validation/english", RELEASE["documentation_validation"], ".github/workflows")
+    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", RELEASE["documentation_validation"], ".github/workflows")
     for directory in {*(ROOT / name for name in directories), report_dir}:
         files.extend(
             path for path in directory.rglob("*")

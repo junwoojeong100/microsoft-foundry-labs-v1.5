@@ -12,11 +12,11 @@ Prompt Agent는 **모델 + instructions + tools**로 선언하는 관리형 agen
 
 **어떻게 사용하나요?** 포털에서 모델과 instructions를 지정하고, 없는 지식·없는 도구·같은 대화·새 대화를 차례로 시험합니다. Instructions를 수정한 버전과 대화 맥락을 따로 기록하세요. 모델이 그럴듯한 문장을 만들었는지가 아니라 제공한 능력의 한계를 지켰는지가 관찰 대상입니다.
 
-**어디서 실행하나요?** 기본은 포털, SDK는 선택 비교입니다. [지시문 원본](../data/prompts/agent-v4.txt)을 먼저 읽고 [SDK 구현](../samples/workshop.py)과 비교하세요. 두 경로는 별도 agent를 만들므로 같은 객체가 자동 동기화되는 것이 아닙니다.
+**어디서 실행하나요?** 기본은 포털, SDK는 선택 비교입니다. [지시문 원본](../data/prompts/agent-v2.txt)을 먼저 읽고 [SDK 구현](../samples/workshop.py)과 비교하세요. 두 경로는 별도 agent를 만들므로 같은 객체가 자동 동기화되는 것이 아닙니다.
 
 ## 준비
 
-프로젝트 `Foundry User`, 호출 가능한 모델, `data/prompts/agent-v4.txt`가 필요합니다.
+프로젝트 `Foundry User`, 호출 가능한 모델, `data/prompts/agent-v2.txt`가 필요합니다.
 
 ## 실행
 
@@ -24,7 +24,7 @@ Prompt Agent는 **모델 + instructions + tools**로 선언하는 관리형 agen
 
 **Build → Agents → New agent → Build an agent**를 선택합니다. 촬영 시점의 **New agent**는 Build/Code/template 등의 경로를 고르는 메뉴입니다. 이름은 `contoso-procurement`, 모드는 **Text**, 모델은 L02의 배포로 지정합니다. 다른 UI 버전에서는 바로 **Build an agent** 버튼이 표시될 수 있습니다.
 
-Instructions에 `data/prompts/agent-v4.txt`의 내용을 붙여 넣습니다. 아직 File search와 함수 도구를 붙이지 않았으므로 **없는 도구를 사용했다고 주장하면 안 됩니다.**
+Instructions에 `data/prompts/agent-v2.txt`의 내용을 붙여 넣습니다. 아직 File search와 함수 도구를 붙이지 않았으므로 **없는 도구를 사용했다고 주장하면 안 됩니다.**
 
 ![실제 Contoso Prompt Agent의 Playground. 왼쪽에 Model·Instructions·Tools, 오른쪽에 Chat/YAML과 메시지 입력, 위쪽에 버전·Save·Publish·Traces 탭이 있다.](../assets/portal/04-prompt-playground.png)
 
@@ -84,7 +84,7 @@ python samples/workshop.py agent --live
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `agent` | 생성·호출할 Prompt Agent의 실행 계획을 출력합니다. 기본 지시 파일은 `data/prompts/agent-v4.txt`입니다. | Azure 요청 없음. 지시문이 설명한 기능과 실제 연결할 도구를 먼저 구분합니다. |
+| 1. `agent` | 생성·호출할 Prompt Agent의 실행 계획을 출력합니다. 기본 지시 파일은 `data/prompts/agent-v2.txt`입니다. | Azure 요청 없음. 지시문이 설명한 기능과 실제 연결할 도구를 먼저 구분합니다. |
 | 2. `agent --live` | 고유 `contoso-lab-...` agent와 대화를 만들고 실제 모델 응답을 받습니다. 포털에서 만든 agent를 수정하지 않습니다. | 추론·서비스 비용과 새 실습 객체가 생깁니다. 출력된 receipt 경로는 L12 정리용으로 보관합니다. |
 
 </div>

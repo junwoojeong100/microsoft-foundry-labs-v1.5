@@ -1,197 +1,121 @@
-> **완성할 결과:** 기본에서는 실제 응답 평가를 배우고, 심화에서는 독립 holdout으로 자동 품질 게이트를 판정합니다.
+> **이 모듈에서 만드는 것:** 같은 질문에 대한 기본 v1과 개선 v2의 답을 한 번 비교하고, 무엇이 달라졌는지 설명하는 학습 결과입니다.
 
 ## 목표
 
-**실행 성공, 자동 품질 통과, 사람 검토는 서로 다른 상태**입니다.
-이 합성 실습의 현재 `automated-v3`는 사람이 없어도 코드 검사·native 평가로 완료할 수 있습니다.
-사람 검토는 실제 운영 전 권장 사항으로만 안내하며, 하지 않은 검토를 완료로 표시하지 않습니다.
+**지침을 개선한 이유와 실제 답변의 차이를 연결합니다.** 실습 가이드에서 지침 버전을 계속 늘리거나 출시 승인 실험을 반복할 필요는 없습니다.
+v1은 변경하지 않은 기준선이고, v2가 현재 개선 지침입니다. 다음 개선도 v2 파일에서 관리합니다.
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 실제 응답 수집, 코드 기반 업무 검사, native evaluator, judge calibration, dev/holdout 품질 게이트입니다.
+**경험할 기능:** 동일 입력 비교, 고정 체크리스트, 인용 근거, Foundry 평가 결과의 해석입니다.
 
-**무엇이며 왜 중요한가요?** 평가는 정해 둔 질문과 기준으로 결과를 비교하는 절차입니다. Target은 평가받는 도우미, judge는 답을 판정하는 별도 모델입니다. Calibration은 정답·오답 대조군으로 그 judge의 판단부터 점검하는 일입니다. Dev는 개선하며 반복해서 보는 연습 문제, holdout은 동결된 후보의 마지막 독립 시험입니다. 시험지를 보면서 프롬프트를 고치거나 쉬운 행만 평균내면 숫자는 좋아져도 신뢰할 수 없습니다.
+**무엇이며 왜 중요한가요?** 평가 점수는 “v2라고 이름 붙였는가”가 아니라 실제 답이 요청과 근거를 충족했는가를 나타내야 합니다.
+지침만 바꾸고 모델·정책·질문·출력 형식·채점 기준을 같게 해야 개선 효과를 비교할 수 있습니다.
 
-**어떻게 사용하나요?** 기본 코스에서는 L05/L06의 응답을 모아 “어떤 이유로 통과·실패했는가”를 읽습니다. 심화에서는 같은 질문·모델·코드·기준을 고정해 dev를 검사하고 마지막에만 독립 holdout을 사용합니다. 서비스의 `completed`는 작업 종료일 뿐, 품질 게이트 통과 여부는 개별 결과와 필수 조건으로 따로 판단합니다.
+**어떻게 사용하나요?** 세 질문을 v1과 v2에 각각 한 번 묻습니다. 원문 답변과 체크별 충족 여부를 함께 읽고 점수 차이를 계산합니다.
+실제 결과가 같거나 나빠졌다면 그대로 남깁니다. 기대 점수를 미리 적거나 통과할 때까지 반복하지 않습니다.
 
-**어디서 실행하나요?** 수집·자동 검사는 CLI/SDK, 결과 탐색은 포털 Evaluations에서 합니다. [평가 runner](../samples/evaluation_lab.py), [suite 선택 코드](../samples/evaluation_data.py), [v3 판정 기준](../data/evaluation/v3/rubric.json)을 먼저 읽습니다. 봉인된 holdout을 미리 열거나 스크린샷을 위해 재실행하지 않습니다.
+**어디서 실행하나요?** [비교 실행 코드](../samples/instruction_lab.py), [고정 질문·체크리스트](../data/evaluation/instruction-comparison.json),
+[v1](../data/prompts/agent-v1.txt), [v2](../data/prompts/agent-v2.txt)를 사용합니다.
+포털의 Evaluations에서는 서비스 완료 상태와 실제 점수·오류·누락을 구분해서 읽습니다.
 
 ## 준비
 
-**기본 순차 경로:** L05/L06의 프로젝트·Prompt Agent·클라이언트 함수 준비만 필요합니다.
-L13 Search나 L14 Hosted를 먼저 끝낼 필요가 없습니다. Target과 별도의 judge 배포를 L02에서 준비합니다.
-
-**심화 자동 릴리스 경로:** L13/L14의 실제 Search·Hosted agent와
-`FOUNDRY_JUDGE_DEPLOYMENT_NAME`을 준비합니다. 아래 `automated-v3`는 이 경로입니다.
-
-| 자료 | 용도 |
-| --- | --- |
-| `data/evaluation/cases.jsonl`, `rubric.json` | 원본 v1. 과거 실패와 기존 명령 재현용으로 보존 |
-| `data/evaluation/v2/` | 첫 자동 검증의 dev/holdout/기준을 그대로 보존 |
-| `data/evaluation/v3/dev.jsonl` | 이미 노출된 v1/v2 총 30건을 dev 회귀로 전환 |
-| `data/evaluation/v3/holdout.jsonl` | 독립적으로 작성하고 hash를 봉인한 새 10건. 개선에 사용하지 않음 |
-| `data/evaluation/v3/calibration.jsonl` | 정답·오답 8건으로 judge 자체를 검사. target 실행 증거가 아님 |
-| `data/evaluation/v3/rubric.json` | 사람 검토는 선택, 90%·safety/access 실패 0건은 그대로 |
-
-`context`는 출제자의 참고 정답 맥락입니다. 실제 검색 결과 대신 넣어 groundedness를 높이지 않습니다.
-새 runner는 실제 `retrieved_sources`, 도구 인수/결과, citation, response/trace ID를 사용합니다.
+L01의 환경과 L02의 **`gpt-6-sol` / `2026-09-22`** 배포를 사용합니다. 실제 배포 이름은 `contoso-gpt-6-sol`이며 `.env`에 그 이름을 설정합니다. Native 평가에는 별도 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`도 필요합니다. 이번 실측의 judge는 양쪽 모두 기존 `contoso-judge`(GPT-4.1)로 고정했습니다. 이 비교에는 Hosted 재배포, Search 서비스, Optimizer, holdout이 필요하지 않습니다.
+체크인된 **합성 정책 문맥**을 두 지침에 동일하게 제공합니다. 이를 실제 Search 조회라고 표시하지 않습니다.
+한국어는 기본값이며, 영어 실습에서는 L01에서 선택한 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다.
 
 ## 실행
 
-### 기본 코스: L05/L06 결과를 학습용으로 자동 평가
+### 1. v2의 개선점을 먼저 읽기
 
-![실제 Build → Evaluations의 Runs 목록. 평가 이름·마지막 실행·횟수와 Completed, Canceled, Partial 상태가 함께 표시된다. 작성자 이름은 가렸다.](../assets/portal/08-evaluations.png)
-
-**화면 따라 읽기:** **Build → Evaluations → Runs**에서 자신이 실행한 평가 이름과 시각을 찾습니다. **Status of last run**은 서비스 작업 상태이며, 개별 run을 열어 사례별 점수·오류·누락을 확인해야 품질을 판단할 수 있습니다. **Evaluator catalog**는 평가 기준 탐색, **Recurring configs**는 지속 실행 설정이므로 기본 실습에서 무심코 예약을 만들지 않습니다. 이미 있던 실패·취소를 숨기지 않고 촬영했으며 새 평가를 제출하지 않았습니다.
-
-```bash
-python samples/workshop.py evaluate --split dev --live
-python samples/evaluation_lab.py calibrate --suite basic-learning --live
-python samples/evaluation_lab.py run --suite basic-learning --split dev --input results/앞-명령이-출력한-responses.jsonl --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — 기본 코스에서는 이 세 단계만 수행하고 L09로 진행합니다.**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| v1의 일반 지침 | v2에서 구체화한 행동 | 확인할 답변 차이 |
 | --- | --- | --- |
-| 1. `workshop.py evaluate --split dev --live` | 기본 SDK 도우미를 dev 질문들에 실제 실행하여 응답·도구·인용을 모읍니다. `--split dev`는 개발용 질문만 선택합니다. | 모델·검색 호출 비용과 새 응답 JSONL이 생깁니다. 출력된 실제 파일 경로를 3번 명령에 넣습니다. |
-| 2. `calibrate --suite basic-learning --live` | `--suite`로 학습용 평가 정책을 선택하고 정답/오답 대조군을 judge에 전달합니다. | judge 호출 비용이 발생합니다. 판정 일치는 평가자 검사이며 target의 품질 통과가 아닙니다. |
-| 3. `run --suite basic-learning ...` | `--input`의 실제 응답 파일을 같은 dev 기준으로 평가합니다. `run`은 새 target 응답을 꾸며 만드는 명령이 아닙니다. | native 평가·judge 비용이 발생합니다. 점수·오류·실패 이유를 확인하며, 학습용 결과를 독립 릴리스 증거로 쓰지 않습니다. |
+| 모르는 정보는 추측하지 않기 | 비공개 부분을 거절해도 확인 가능한 공용 질문은 끝까지 답하기 | 공용 상한의 숫자·통화·부가세 기준을 생략하지 않음 |
+| 실제 문서 인용하기 | 접근 권한·정보 부재·공용 사실·다음 단계에 각각 적합한 절 연결하기 | 일반 소개 절 하나로 다른 판단의 근거를 대신하지 않음 |
+| 정책과 도구 사용하기 | 정책 상한·견적·실제 단가·확정 환율·초안 상태 구분하기 | 없는 계약 조건이나 환율을 확정 사실로 만들지 않음 |
+| 안전하게 초안 만들기 | 명시적 요청·정확한 수량·중복 금지·실제 결과 확인 | 임시 수량, 승인·주문·결제 완료 주장 없음 |
 
-</div>
+v2에 질문별 정답이나 평가 사례 ID를 넣지 않습니다. 여러 질문에도 적용할 수 있는 답변 절차를 개선합니다.
 
-원본 SDK 경로의 노출된 dev 10건으로 평가 절차를 학습합니다. 사람 판정값을 채울 필요는 없습니다.
-모델 품질이 미달하면 평가 명령은 실패 상태를 표시하며, 이를 보고 원인과 다음 개선을 설명하는 것이 기본 학습 목표입니다.
-`basic-learning` 결과는 독립 holdout을 통과한 배포 품질 증거가 아닙니다.
-이 단계를 마쳤으면 L09로 진행하고, 아래 내용은 Hosted를 준비한 뒤 심화 연결로 실행합니다.
-
-### 1. 로컬 자동 검사
+### 2. 계획 확인 후 한 번 비교하기
 
 ```bash
-python scripts/prepare_eval_v3.py
-python -m unittest discover -s tests -v
+python samples/instruction_lab.py --reasoning-effort low
+python samples/instruction_lab.py --reasoning-effort low --live
+python samples/instruction_evaluation.py --live
 ```
 
 <div class="command-explanation" markdown="1">
 
 **명령 해설**
 
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| 순서와 명령 | 하는 일과 옵션 | 결과·비용·변경 |
 | --- | --- | --- |
-| 1. `prepare_eval_v3.py` | 이미 공개된 v1/v2 사례를 v3 dev 회귀 데이터로 준비합니다. 동일 파일은 확인하고, 다른 기존 파일은 덮어쓰지 않습니다. | 로컬 데이터 준비/일치 검사. v3 holdout을 읽거나 새 Azure 응답을 만들지 않습니다. |
-| 2. `python -m unittest discover -s tests -v` | `unittest` 모듈이 `tests/` 아래 테스트를 찾습니다. `-s`는 시작 폴더, `-v`는 각 테스트 이름을 표시합니다. | 로컬 계약·회귀 검사를 수행합니다. 통과해도 실제 Azure 품질 증거는 아닙니다. |
+| 1. `instruction_lab.py --reasoning-effort low` | v1/v2, 질문 3개와 공통 reasoning 설정을 확인합니다. `low`는 양쪽에 똑같이 적용합니다. | 계획만 출력하며 Azure 호출은 0건입니다. |
+| 2. `instruction_lab.py ... --live` | 별도 비용 승인 후 같은 GPT-6 Sol·문맥·질문으로 v1/v2를 각각 한 번 호출합니다. | 최대 6건·360초·재시도 0회·출력 2048토큰입니다. 실제 원문과 로컬 체크를 `results/instruction-comparison.json`에 보존합니다. |
+| 3. `instruction_evaluation.py --live` | 앞에서 수집한 원문 6개를 Foundry native 평가에 제출합니다. 완결성·관련성·근거성을 평가하며 v1/v2 이름을 judge에 제공하지 않습니다. | 대상 모델 재호출은 0건입니다. Native 1회·600초·취소 확인 90초로 제한하고 `results/instruction-native.json`에 행별 결과를 저장합니다. |
 
 </div>
 
-첫 명령은 원본 및 노출된 v2 사례 30건을 dev 회귀로 만들며 v3 holdout을 읽거나 만들지 않습니다.
-이미 준비된 파일이 다르면 덮어쓰지 않습니다. 이전 v1/v2 holdout은 v3의 최종 시험지가 아닙니다.
-단위 테스트 통과만으로 실제 모델 품질을 주장하지 않습니다.
+이미 비교 파일이 있으면 다시 실행하지 않고 그 결과를 읽습니다. 지침 버전이나 실험 번호를 늘리지 않습니다. Foundry가 발급하는 평가 ID는 원본 추적용으로만 보존합니다.
+오류나 미완료 응답도 원본으로 보존하며, 이전 답이나 예시 답으로 채우지 않습니다.
 
-### 2. 모델이 검색을 생략하지 못하게 실행
+### 3. 점수와 근거를 함께 읽기
 
-Hosted는 질문을 받으면 서버가 먼저 Search를 조회합니다.
-작은 합성 정책 집합 13절 전체를 실제 Search에서 함께 조회하여 복합 질문의 필요한 조항이 빠지지 않게 합니다.
-현재 공통 엔진은 SKU만 있다는 이유로 재고를 선조회하지 않습니다. 재고·실제 단가·납기를 명시적으로 물었거나 유효한 초안을 요청한 경우에만 허용하며 각 호출을 실행 직전에 다시 검사합니다.
-초안 수량이 없거나 모호하거나 잘못되었으면 별도로 요청하지 않은 재고 조회를 하지 않습니다. 도구가 허용되지 않는 정책·명확화 질문은 도구 계획 호출을 건너뜁니다.
-수량 제한이 회사 정책이 아닌 도구 입력 제약임을 검증할 수 있도록 실제 함수 정의도 실행 증거에 포함합니다.
-모델이 반환하는 `answer`와 `citation_ids`를 엄격한 JSON 계약으로 검사합니다.
+각 답에 같은 세 개의 체크를 적용하므로 지침별 점수는 **0~9**입니다.
+체크는 해당 사실·거절·확인 경로가 답에 나타나는지와 관련 정책 절을 선택했는지를 함께 봅니다.
+이는 **단순한 기계적 완결성·인용 체크리스트**입니다. 표현 차이를 완벽히 이해하는 의미 평가나 업무 릴리스 게이트가 아닙니다.
 
-빈 citation, 반환되지 않은 출처, 잘못된 문서명, 변조된 본문은 실패합니다.
-서버가 파일명을 추측해 덧붙이지 않습니다. **모델이 선택한 실제 출처만** 표시 형식으로 렌더링합니다.
-재고·초안의 숫자와 상태는 별도 실제 도구 결과와 대조합니다.
-초안 수량이 실제 사용자 문장에 없으면 모델이 유효한 숫자를 제안해도 실행하지 않습니다.
-출처 대응 확인 단계의 `raw_attribution`과 response ID도 원본으로 보존하여 근거 선택을 검증합니다.
-초안·승인·문서 지시의 권한 판단에 필요한 실제 정책 근거가 모델 선택에서 빠지면 실패하며, 인용을 자동으로 채우지 않습니다. 공통 코드 개선을 과거 한국어 v3 Azure 통과 기록의 재검증으로 해석하지 않습니다. 영어 후속 후보는 별도 v5 동결·독립 시험지를 사용하며 기존 v4 미사용 시험지는 그대로 보존합니다.
-
-### 3. dev에서 개선하고 설정 동결
-
-```bash
-python samples/hosted_client.py evaluate --suite automated-v3 --split dev --version 실제숫자 --live
-python samples/evaluation_lab.py prepare --suite automated-v3 --split dev --input results/실제-dev-responses.jsonl
-python samples/evaluation_lab.py calibrate --suite automated-v3 --live
-python samples/evaluation_lab.py run --suite automated-v3 --split dev --input results/실제-dev-responses.jsonl --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — L13/L14를 끝낸 심화 경로입니다.**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `hosted_client.py evaluate ... --version` | `--suite automated-v3 --split dev`의 30건을 정확한 숫자 버전의 Hosted agent에 보냅니다. `실제숫자`를 배포 결과로 바꾸며 `latest`는 쓰지 않습니다. | 실제 Hosted·모델·검색 비용과 새 응답 JSONL 생성. 끝나면 해당 세션 compute 중지를 확인합니다. |
-| 2. `evaluation_lab.py prepare ... --input` | 앞 명령의 실제 파일을 읽어 ID·질문·검색·도구·인용과 판정 입력을 검사합니다. `--live` 없이 로컬에서 수행됩니다. | 행 수·해시·evidence 실패 목록을 읽습니다. 점수나 모델 응답을 새로 생성하지 않습니다. |
-| 3. `calibrate --suite automated-v3 --live` | v3의 대조군 8건으로 judge의 기대 판정을 확인합니다. | judge 비용 발생. 불일치하면 기준을 낮추지 말고 평가자·설정을 진단합니다. |
-| 4. `run --suite automated-v3 --split dev` | 수집한 같은 dev 원본과 고정 기준으로 native 평가·업무 게이트를 판정합니다. | 원격 평가 비용 발생. 코드 검사와 judge 양쪽의 실패를 보존합니다. |
-
-</div>
-
-원본 응답은 append-only 증거와 함께 보존합니다. 재시도는 새 run으로 기록합니다.
-같은 데이터·rubric·judge·모델·runtime hash를 비교하고, 검증할 후보를 동결합니다.
-native 평가의 인증 주체가 달라 실패한다면 L22의 승인된 OIDC dev 경로로 동일 평가를 실행할 수 있습니다.
-
-### 4. 새 holdout은 최종 한 번만 사용
-
-```bash
-python samples/hosted_client.py evaluate --suite automated-v3 --split holdout --version 동결한숫자 --live
-python samples/evaluation_lab.py run --suite automated-v3 --split holdout --input results/실제-holdout-responses.jsonl --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — dev 승인·설정 동결 후 최종 시험으로만 실행합니다.**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `evaluate --split holdout --version` | 독립 holdout 10건을 동결한 정확한 버전에 한 번 수집합니다. suite 실행 표식이 재수집을 제한합니다. | 실제 Hosted·검색·모델 비용과 원본 응답 생성. 실패했다고 통과할 때까지 재실행하지 않습니다. |
-| 2. `run --split holdout --input` | 방금 보존한 원본을 같은 suite·judge로 판정합니다. `--input`에는 dev 파일이 아닌 해당 holdout 응답 파일을 지정합니다. | 원격 평가 비용 발생. 전체 90%뿐 아니라 safety/access 실패 0건 등 모든 게이트를 확인합니다. |
-
-</div>
-
-봉인된 suite fingerprint별로 실행 표식을 남겨 무심코 다시 샘플링하지 않게 합니다.
-모델 응답이 실패했다고 같은 시험지가 통과할 때까지 재실행하지 않습니다.
-추가 개선이 필요하면 기존 시험지는 진단 자료로 보존하고, 새 버전의 독립 holdout을 준비합니다.
-JSON 파서/전송 문제를 보정할 때도 원래 응답은 바꾸지 않고 같은 원본을 다시 검사합니다.
-
-### 5. 자동 게이트 읽기
-
-| 검사 | 통과 기준 |
+| 결과 필드 | 읽는 방법 |
 | --- | --- |
-| 완전성 | 요청 split의 모든 ID, 중복·누락 0, 원래 query와 일치 |
-| 검색 | 모델 호출 전에 실제 서버 검색, 원본 절/해시 일치 |
-| 인용 | 모델이 선택한 실제 출처가 비어 있지 않고 필수 근거 충족 |
-| 업무 도구 | 올바른 함수·인수·실제 결과, 미주문·초안 상태 보존 |
-| Native judge | 고정 1~5점 중 4점 이상, score/passed 모순 없음 |
-| 전체 품질 | 위 자동 검사와 native 판정을 모두 만족한 사례 90% 이상 |
-| safety/access | 실패 0건 |
-| Calibration | 8개 대조군의 기대 판정과 모두 일치 |
+| `scores.v1`, `scores.v2` | 동일 기준에서 실제로 충족한 체크 수 |
+| `delta` | v2 점수에서 v1 점수를 뺀 값 |
+| `outcome` | `improved`, `unchanged`, `regressed` 중 실제 결과 |
+| `rows[].raw_answer`, `checklist` | 점수의 원인이 되는 원문과 체크별 판정 |
+| `instructions_sha256`, `context_sha256` | 비교에 사용한 실제 입력 식별용 해시; 지침 버전 증가가 아님 |
 
-서비스가 `completed`를 반환해도 evaluator 오류나 누락이 있으면 실패입니다.
-9/10이라도 safety 사례가 실패하면 게이트는 통과하지 않습니다.
-`manual_pass`는 이 자동 게이트의 입력이 아니며 `human_review_completed=false`로 남습니다.
+**v2의 높은 점수를 보장하지 않습니다.** v1이 이미 완전한 답을 냈으면 동점일 수 있고, LLM 변동으로 v2가 낮을 수도 있습니다.
+그 경우 원문에서 원인을 설명하는 것이 실습입니다. v1을 약화하거나 체크리스트를 바꾸어 개선을 연출하지 않습니다.
+
+### 4. Foundry의 평가 화면과 연결하기
+
+![Foundry 평가 화면. 완료 상태와 개별 점수·오류·누락을 구분합니다.](../assets/portal/08-evaluations.png)
+
+Evaluations에서 실행 상태, 평가자, 입력 데이터, 행별 판정과 오류를 구분해서 살펴봅니다.
+첫 두 명령은 실제 Azure 모델 응답 수집과 로컬 체크입니다. 세 번째 [native 비교 코드](../samples/instruction_evaluation.py)는 그 원문을 Foundry Evaluations에 제출합니다. 관련성·근거성은 built-in evaluator이며 완결성은 두 지침에 동일한 1~5 기준을 적용하는 custom evaluator입니다.
+Native 평가자는 3개 사례의 학습용 평가이며 별도의 judge 대조군 calibration은 수행하지 않았습니다.
+전체 90% 이상·safety/access 실패 0 등 기존 업무 게이트는 이 작은 학습용 점수로 대체하거나 완화하지 않습니다.
+
+### 5. 국문·영문 실제 측정 결과
+
+모두 `gpt-6-sol`의 `2026-09-22` 버전, reasoning `low`, 같은 질문·문맥·기준으로 측정했습니다.
+
+| 언어 | 지침 | 로컬 체크 / 9 | Native 완결성 / 5 | 관련성 / 5 | 근거성 / 5 |
+| --- | --- | --- | --- | --- | --- |
+| 한국어 | v1 | 9 | 5.0 | 5.0 | 5.0 |
+| 한국어 | v2 | 9 | 5.0 | 5.0 | 5.0 |
+| English | v1 | 8 | 5.0 | 5.0 | 5.0 |
+| English | v2 | 8 | 5.0 | 5.0 | 5.0 |
+
+**이번 세 질문에서는 v2의 점수 상승이 관측되지 않았습니다.** v1도 모든 native 항목에서 최고점을 받았습니다. 영어 로컬 체크는 “ask the responsible department”를 정규식이 인식하지 못해 두 지침 모두 1점을 잃었고, native 의미 평가에서는 이 확인 경로를 올바르게 인정했습니다. 측정 후 체크리스트를 바꾸지 않았습니다.
+
+최초 custom 평가에서 숫자 출력 형식이 누락돼 완결성 점수가 `null`이 된 실패와 한국어 상태 조회 timeout을 보존했습니다. 출력 형식만 보완한 뒤 **동일 원문에 완결성만 한 번 평가**했습니다. 실제 대상 응답은 총 12개, native run은 최초 2건과 완결성 보완 2건이며, 대상 응답이나 유효한 built-in 점수는 재샘플링하지 않았습니다. 네 run의 종료를 확인했습니다.
+
+**Optimizer와 holdout의 역할:** Optimizer는 dev 자료로 개선 후보를 만드는 선택 기능이고, holdout은 지침·개선 과정에 노출하지 않은 독립 최종 시험지입니다. 이번 비교는 노출된 학습 질문이므로 holdout이 아니며 두 작업은 새로 실행하지 않았습니다. 이전 Optimizer는 실제 실행 후 오류로 실패했고, 이전 holdout은 full dev 실패 때문에 봉인 상태를 유지했습니다.
 
 ## 성공 기준
 
-실제 응답·도구·인용과 native 판정이 연결되고, dev와 봉인 holdout의 결과를 구분해 기록했습니다.
-사람 검토는 완료 조건이 아닙니다. 향후 실제 운영에 적용할 때 업무 담당자의 표본 검토를 권장합니다.
-별도 [영어 v5 실제 결과](../validation/english/automated-v5/quality.json)는 dev 40건 수집·native 평가를 모두 완료했습니다. Native 40/40·오류/누락 0이지만 실제 근거를 합친 판정은 39/40(97.5%)이며, access 사례 `v5-dev-30`의 필수 인용 그룹 누락 때문에 critical 실패 0 기준을 통과하지 못했습니다. 새 holdout 10건은 열지 않았고, 실패 응답·기준을 고치거나 재샘플링하지 않았습니다. 이는 한국어 v3 성적의 변경이나 영어 릴리스 승인이 아닙니다.
+v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침이 어떤 누락을 줄였는지 설명할 수 있습니다.
+숫자가 올랐다는 결론은 실제 `delta`가 양수일 때만 씁니다. 이 실습을 위해 반복 검증·holdout·Optimizer를 수행할 필요는 없습니다.
 
-과거 v1의 9/10 실패는 [정리 전 커밋의 v1 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation/history/v1)에서 확인합니다. 현재 파일 목록에서는 이전 기록을 정리하지만 과거 판정은 바꾸지 않습니다.
-
-v2의 새 시험지는 복합 질문 누락과 근거 선택 문제를 드러냈으므로 원본 실패를 보존하고 v3 dev로 전환했습니다.
-한 개발 사례의 실제 계약서 사용 거절은 SEC1 또는 PROC5가 같은 주장에 유효한 근거임을 원문으로 대조했습니다.
-v3에는 이 주장에 한해서만 명시적 근거 대체 그룹을 기록하며, 권한 SEC2·노트북 상한 PROC2와 원래 기대 행동은 유지합니다.
-이는 답을 바꾸거나 출처를 자동으로 끼워 넣는 방식이 아닙니다. 원래의 엄격한 v2 판정과 v3 최초 dev 초안도 보존합니다.
+[현재 지침 상태](../validation/current/instructions.json)와 [최신 실제 측정](../validation/current/report.json)에 국문·영문 원문, 모델 신원, 행별 점수와 오류 보존 경로가 있습니다. 이전 내역은 Git 이력에 보존하며 이번 동점을 향상으로 바꾸지 않습니다.
 
 ## 막혔을 때
 
-검색 결과 없음, JSON/citation 계약 오류, 업무 검사 실패, native judge 오류를 분리합니다.
-평가자의 `score`와 `passed`가 서로 다른 항목으로 반환되면 같은 evaluator의 정합한 한 쌍만 사용합니다.
-오류 항목을 버리고 성공한 행만 평균내지 않습니다. `--suite legacy-v1`은 원본 재현용이지 새 완료 근거가 아닙니다.
+모델·문맥·질문·체크가 양쪽에서 같은지 먼저 확인합니다. JSON 형식 오류, 인용 누락, 답변 누락을 구분하고 원문을 읽습니다.
+이미 생성한 비교 파일은 덮어쓰지 않습니다. 모델 오류가 나도 “예상 v2 답”을 대신 기록하지 않습니다.
 
 ## 정리
 
-Hosted compute와 평가 작업 상태를 확인합니다. 원시 결과/환경은 `results/`에 보존하고
-검토한 합성 최소 증거만 `validation/automated-v3/`로 공유합니다.
-실제 주문·결제·업무 승인 기능은 계속 사용하지 않습니다.
+이 비교는 에이전트·Hosted 세션·Optimizer job을 만들지 않습니다. 응답과 native 평가 job의 종료를 확인하고 L09로 진행합니다. 모델 배포는 유지하며 별도 승인 없이 삭제하지 않습니다.

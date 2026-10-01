@@ -67,7 +67,7 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 
 Use the new Foundry experience at `https://ai.azure.com`. Learners can use an existing approved project.
 If none is available, the responsible administrator prepares a new environment. The English validation uses a **new dedicated resource group**, not the existing Korean-run resources.
-New English evidence is recorded under `validation/english/current/`; existing `validation/current/` remains historical Korean-run evidence. See L08 for the completed evaluation results and failed independent release gate.
+Keep personal execution files in the selected environment's `results/`. Only the latest reviewed originals remain in `validation/current/`, with their actual language and provenance. L08 uses one v1/v2 learning comparison, not a sequence of release runs.
 
 Record the nonproduction resource group, project name, and region. The English project is `contoso-workshop-en`; use your own approved resource names and endpoints.
 **Learner path:** Use the project and model supplied by the administrator, with the minimum data-plane roles.
@@ -75,7 +75,7 @@ Record the nonproduction resource group, project name, and region. The English p
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription approved-subscription-id --location approved-region --cost-authorization "Approved amount and retention policy" --live
-python3.13 scripts/azure_environment.py foundation --chat-model supported-chat-model --chat-version actual-chat-version --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
 python3.13 scripts/azure_environment.py roles --live
 ```
 
@@ -149,11 +149,11 @@ python3 samples/workshop.py validate-data
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `doctor` | Checks the current Python installation and required tools. It does not automatically install or repair them. | Read the diagnostic items in the terminal. No Azure sign-in or model calls. |
-| 2. `validate-data` | Locally checks the English legacy learning data's format, scenario IDs, and dev/holdout separation under `data/en/`. | The checks should complete without errors. This validates data structure, not model quality or the new sealed v3 holdout. |
+| 2. `validate-data` | Locally checks the English learning data's format, scenario IDs, and original split under `data/en/`. | Checks data structure only, not model quality or an independent release exam. |
 
 </div>
 
-The expected result is `dev=10, holdout=10`, with 0 duplicate scenarios, for the translated legacy learning set. These exposed cases are not the independent English v3 release test. L08 distinguishes the historical v2 translation (20 dev / 10 exposed holdout) from v3 (30 dev / 10 newly sealed independent English holdout). This step **requires no Azure account, network connection, or external packages**.
+The expected result is `dev=10, holdout=10`, with 0 duplicate scenarios, for the existing exposed learning data. It is not a fresh independent release test. L08 uses its own three fixed comparison questions. This check **requires no Azure account, network connection, or external packages**.
 
 Install packages only when you are ready to call Azure from code.
 

@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 from cloud import project_client
 from evidence import Evidence, digest, redacted, serializable
 from evaluation_data import DEFAULT_SUITE, FROZEN_SUITES, SUITES, load_cases, suite_hash, verify_development_freeze
+from lab_profile import active_prompt
 from workshop import DATA, LANGUAGE, RESULTS, config_values, read_config
 
 TERMINAL = {"succeeded", "failed", "cancelled"}
@@ -44,7 +45,7 @@ def dev_cases(suite: str) -> list[dict]:
 
 
 def prompt_text(path: Path | None = None) -> str:
-    path = (path or DATA / "prompts/agent-v4.txt").resolve()
+    path = (path or active_prompt()).resolve()
     if path.parent != (DATA / "prompts").resolve() or path.suffix != ".txt":
         raise ValueError("Optimizer prompts must be .txt instructions inside data/prompts, never a dataset.")
     text = path.read_text(encoding="utf-8")
@@ -877,7 +878,7 @@ def main() -> None:
             "cleanup_max_seconds": CLEANUP_MAX_SECONDS, "cleanup_passes": CLEANUP_PASSES,
             "cleanup_max_sessions": MAX_CLEANUP_SESSIONS,
             "cleanup_max_stop_requests": CLEANUP_PASSES * MAX_CLEANUP_SESSIONS,
-            "prompt_file": str(args.prompt_file or DATA / "prompts/agent-v4.txt"),
+            "prompt_file": str(args.prompt_file or active_prompt()),
             "prompt_selection_required": args.prompt_file is None and not args.resume,
             "dev_ids": [case["id"] for case in cases],
         }, ensure_ascii=False, indent=2))

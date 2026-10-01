@@ -1,0 +1,116 @@
+{
+  "status": "measured_no_observed_v2_improvement",
+  "quality_release": false,
+  "v2_measured_improvement": false,
+  "languages": {
+    "ko": {
+      "local_checklist": {
+        "scores": {
+          "v1": 9,
+          "v2": 9
+        },
+        "maximum": 9,
+        "delta": 0,
+        "outcome": "unchanged",
+        "quality_release": false,
+        "scope": "Mechanical fact/citation coverage for three teaching questions, not complete semantic quality or release evidence."
+      },
+      "native_scores": {
+        "v1": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        },
+        "v2": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        }
+      },
+      "native_delta": {
+        "relevance": 0.0,
+        "groundedness": 0.0,
+        "completeness": 0.0
+      }
+    },
+    "en": {
+      "local_checklist": {
+        "scores": {
+          "v1": 8,
+          "v2": 8
+        },
+        "maximum": 9,
+        "delta": 0,
+        "outcome": "unchanged",
+        "quality_release": false,
+        "scope": "Mechanical fact/citation coverage for three teaching questions, not complete semantic quality or release evidence."
+      },
+      "native_scores": {
+        "v1": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        },
+        "v2": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        }
+      },
+      "native_delta": {
+        "relevance": 0.0,
+        "groundedness": 0.0,
+        "completeness": 0.0
+      }
+    }
+  },
+  "full_gate_scope": "Not a full business gate or independent holdout; no existing release threshold was relaxed."
+}

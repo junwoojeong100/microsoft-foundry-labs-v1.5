@@ -41,8 +41,8 @@ python scripts/cost_status.py
 | 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
 | 2. `routine_lab.py stop --live` | Disables the schedule recorded in the default `results/routine.json`. If you used another receipt, specify `--receipt` as in L17. | Changes actual schedule state. Does not delete other schedules or resource groups. |
 | 3. `azure_environment.py status --live` | Reads and checks the Azure environment recorded in the ownership receipt. | Sends Azure read requests and records status. No model inference. |
-| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure, but updates local `validation/english/current/operations.json` under the English profile. Do not rerun it in a checkout preserving completed evidence; check the portal instead. |
-| 5. `cost_status.py` | Queries ActualCost by service from the owned English resource group's creation time to the present. Reads the real billing API without `--live`. | An authoring tool that updates local `validation/english/current/cost.json` under the English profile. Do not rerun it in a preserved copy. Empty billing rows do not prove zero cost. |
+| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure; writes private `results/operations-status.json`, not the preserved public validation original. Run only when that inspection is approved. |
+| 5. `cost_status.py` | Queries ActualCost by service from the owned English resource group's creation time to the present. Reads the real billing API without `--live`. | Requires approval for cost inspection and writes private `results/cost-status.json`. Empty billing rows do not prove zero cost. |
 
 </div>
 
@@ -51,7 +51,7 @@ The final two commands are **read-only Azure queries scoped by ownership receipt
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
 `cost_status.py` queries only actual costs posted to the new resource group. It does not report empty cost rows as USD 0.
 **The English validation's default retention policy is to retain owned Azure resources until explicit deletion approval.**
-Disable routines and stop only recorded Hosted compute, then verify those states. The English one-shot Routine succeeded and was confirmed disabled; the dev-only Optimizer was still running at this reporting cutoff, so do not infer that every job has stopped. Consult the [current English report](../../validation/english/current/report.json) for subsequent job/compute status. `cleanup --live`, `azd down`,
+Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
 and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Existing `validation/current/` operational and cost records describe the historical Korean environment, not the new English one.
 
 ### 2. Delete only the exact SDK lab resources

@@ -1,0 +1,48 @@
+{
+  "schema": "contoso-current-instructions",
+  "instructions_version": "v2",
+  "status": "measured_no_observed_v2_improvement",
+  "updated_at": "2026-10-01T00:51:49.464954+00:00",
+  "instructions": {
+    "ko": {
+      "baseline": "data/prompts/agent-v1.txt",
+      "current": "data/prompts/agent-v2.txt",
+      "baseline_sha256": "b443002ae5328133ee3f8bbf0b2f4543ecd86521c0738edbf99fa0c0f10bdc5e",
+      "current_sha256": "af5a564599a4c63810b9cc61e96578611f40977ee10420fa3a0787cb770855f9",
+      "baseline_unchanged": true
+    },
+    "en": {
+      "baseline": "data/en/prompts/agent-v1.txt",
+      "current": "data/en/prompts/agent-v2.txt",
+      "baseline_sha256": "4e19bac885816e883d03e634ba87aea94bf4cdfe8c72253032949ff387f32a21",
+      "current_sha256": "64737264fd77cff547246abb81d23a9a922001f86e5557776ae81c3641aab832",
+      "baseline_unchanged": true
+    }
+  },
+  "target_model": "gpt-6-sol",
+  "target_model_version": "2026-09-22",
+  "target_model_calls": 12,
+  "native_evaluation_runs": 4,
+  "v2_live_comparison_completed": true,
+  "v2_live_improvement_established": false,
+  "score_improvement_guaranteed": false,
+  "quality_release": false,
+  "latest_actual_azure": {
+    "languages": [
+      "ko",
+      "en"
+    ],
+    "report": "validation/current/report.json",
+    "matches_new_v2_instructions": true
+  },
+  "historical_archive": {
+    "commit": "6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde",
+    "url": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation",
+    "older_validation_files_removed_from_current_tree": 119,
+    "history_rewritten": false
+  },
+  "comparison_files": {
+    "ko": "validation/current/ko/responses.json",
+    "en": "validation/current/en/responses.json"
+  }
+}

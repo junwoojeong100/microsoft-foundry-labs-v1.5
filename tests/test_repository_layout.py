@@ -24,11 +24,9 @@ class RepositoryLayoutTests(unittest.TestCase):
         release = json.loads((ROOT / "content/release.json").read_text())
         self.assertEqual(release["documentation_validation"], "validation/docs")
         self.assertFalse(list((ROOT / "validation").glob("*.json")))
-        for name in ("automated-v2", "history", "guide-refresh-20260930", "pages-20260930"):
-            self.assertFalse((ROOT / "validation" / name).exists(), name)
-        for name in ("ci.json", "quality.json", "dev-responses.jsonl", "holdout-responses.jsonl"):
-            self.assertFalse((ROOT / "validation/current" / name).exists(), name)
-        self.assertTrue((ROOT / "validation/automated-v3/quality.json").is_file())
+        self.assertEqual({path.name for path in (ROOT / "validation").iterdir()}, {"current", "docs"})
+        self.assertFalse((ROOT / "validation/current/holdout-responses.jsonl").exists())
+        self.assertTrue((ROOT / "validation/current/quality.json").is_file())
         self.assertTrue((ROOT / release["validation"]).is_file())
 
     def test_historical_evidence_is_linked_to_an_immutable_commit(self):

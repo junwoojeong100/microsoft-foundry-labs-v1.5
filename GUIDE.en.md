@@ -4,7 +4,7 @@
 
 [English](GUIDE.en.md) | [한국어](GUIDE.ko.md)
 
-**Validation boundary:** Check the [English execution report](validation/english/current/report.json) for implementation, execution, and quality status. Direct labs, conditional labs, design exercises, and references are distinct; Korean historical results and local checks are not English Azure evidence.
+**Validation boundary:** [Current instruction status](validation/current/instructions.json) separates the edited v2, latest actual originals and local checks. No new Azure improvement is implied.
 
 [Synthetic English receipt](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html)
 
@@ -86,15 +86,9 @@ The English edition uses a separate **`contoso-workshop-en` project and English 
 
 **English backend validation and portal observation are separate activities.** The English run created and invoked owned agents, retrieved English policies, and submitted approved evaluations. Consult the [English screenshot log](content/portal-screenshots.en.json) for exact capture scope, times, masking, and hashes. Fine-tuning image 14 is a product sample, not Contoso training; Voice image 15 records a canceled form, not a voice session. A screenshot is an observation, not deployment or release-quality certification.
 
-**Current English result: no release approval.** The v5 run passed both version-4 protocol smokes and **8/8** judge controls. All **40 dev cases** completed native evaluation without errors or skips, but the combined business gate is **39/40 (97.5%) with one critical access-evidence failure**. The independent holdout remains **0/10 executed, sealed**. The [latest live report](validation/english/automated-v5/report.json) preserves the failure instead of relaxing gates or resampling.
+**Current learning path: baseline v1 → improved v2 → one comparison.** L08 uses three shared questions and one fixed checklist, without a release-experiment sequence. V2 must still answer verifiable public parts, select claim-specific sources, and preserve permission and tool boundaries.
 
-The earlier v3 run remains separate: core learning **10/10**, calibration **6/6**, Hosted version-2 dev **29/30**, calibration **8/8**, and a complete independent holdout at **7/10 with one critical safety-evidence failure**. That run did not alter its frozen candidate or rerun its holdout.
-
-English MAF, A2A, and Toolbox's managed-identity OpenAPI and remote MCP paths completed. The one-shot Routine succeeded and was disabled; Memory remember/isolation/deletion of only the synthetic item succeeded, with the store retained. These scoped results do not cancel the holdout failure or establish that every optional service ran. The dev-only Optimizer job was still running at this reporting cutoff; its outcome is reported separately.
-
-Read the [English execution report](validation/english/current/report.json), [quality results](validation/english/automated-v3/quality.json), and [release result](validation/english/automated-v3/ci-release.json). Existing `validation/current/`, `validation/automated-v3/`, and earlier Git-history records remain **historical Korean-run evidence**; they are not English results. See [Sources and validation](docs/en/sources.md) for execution scope, the Optimizer's eventual outcome, and unresolved items.
-
-The preserved [v4 report](validation/english/automated-v4/report.json) still records its earlier incomplete dev, three Optimizer evaluator errors, five stopped sessions, and unavailable job-list API. V5 uses a distinct `explicit-request-v2` freeze and independently authored exam; it does not reuse that untouched holdout or rewrite any prior failure. Its [Optimizer](validation/english/automated-v5/optimizer.json) and [scoped closeout](validation/english/automated-v5/operations.json) are separate evidence. External-policy administrator confirmation remains pending; cost queries and optional-service validation are excluded.
+The [current instruction status](validation/current/instructions.json) links the [latest actual Azure comparison](validation/current/report.json). Both languages used GPT-6 Sol: native completeness/relevance/groundedness tied at 5.0/5 for both v1/v2. No score improvement or independent release pass is claimed.
 
 ### How to read the source code and commands
 
@@ -160,7 +154,7 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 
 ### 4. Keep evidence of your results
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not determine whether you called a service. Save actual results in your English checkout's `results/` or the instructor's record sheet. Share only reviewed, minimal synthetic evidence under `validation/english/`. Do not record personal information or tokens, and do not relabel Korean-run results as English evidence.
+Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save personal originals in your English checkout's `results/`. Keep only the latest reviewed set under `validation/current/`, retaining its actual language and input hashes. Do not record personal information or tokens or relabel one environment's evidence as another's.
 
 ## Success criteria
 
@@ -267,7 +261,7 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 
 Use the new Foundry experience at `https://ai.azure.com`. Learners can use an existing approved project.
 If none is available, the responsible administrator prepares a new environment. The English validation uses a **new dedicated resource group**, not the existing Korean-run resources.
-New English evidence is recorded under `validation/english/current/`; existing `validation/current/` remains historical Korean-run evidence. See L08 for the completed evaluation results and failed independent release gate.
+Keep personal execution files in the selected environment's `results/`. Only the latest reviewed originals remain in `validation/current/`, with their actual language and provenance. L08 uses one v1/v2 learning comparison, not a sequence of release runs.
 
 Record the nonproduction resource group, project name, and region. The English project is `contoso-workshop-en`; use your own approved resource names and endpoints.
 **Learner path:** Use the project and model supplied by the administrator, with the minimum data-plane roles.
@@ -275,7 +269,7 @@ Record the nonproduction resource group, project name, and region. The English p
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription approved-subscription-id --location approved-region --cost-authorization "Approved amount and retention policy" --live
-python3.13 scripts/azure_environment.py foundation --chat-model supported-chat-model --chat-version actual-chat-version --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
 python3.13 scripts/azure_environment.py roles --live
 ```
 
@@ -349,11 +343,11 @@ python3 samples/workshop.py validate-data
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `doctor` | Checks the current Python installation and required tools. It does not automatically install or repair them. | Read the diagnostic items in the terminal. No Azure sign-in or model calls. |
-| 2. `validate-data` | Locally checks the English legacy learning data's format, scenario IDs, and dev/holdout separation under `data/en/`. | The checks should complete without errors. This validates data structure, not model quality or the new sealed v3 holdout. |
+| 2. `validate-data` | Locally checks the English learning data's format, scenario IDs, and original split under `data/en/`. | Checks data structure only, not model quality or an independent release exam. |
 
 </div>
 
-The expected result is `dev=10, holdout=10`, with 0 duplicate scenarios, for the translated legacy learning set. These exposed cases are not the independent English v3 release test. L08 distinguishes the historical v2 translation (20 dev / 10 exposed holdout) from v3 (30 dev / 10 newly sealed independent English holdout). This step **requires no Azure account, network connection, or external packages**.
+The expected result is `dev=10, holdout=10`, with 0 duplicate scenarios, for the existing exposed learning data. It is not a fresh independent release test. L08 uses its own three fixed comparison questions. This check **requires no Azure account, network connection, or external packages**.
 
 Install packages only when you are ready to call Azure from code.
 
@@ -484,7 +478,7 @@ Record the resource group and its owner, and read L12's shutdown checklist in ad
 
 ## Objectives
 
-Choose **the most economical combination that meets your quality requirements, not simply the largest model**. Understand the difference between a model name, model version, and deployment name.
+**This guide uses OpenAI `gpt-6-sol` as the target model**, with version `2026-09-22`. Distinguish the model ID, model version, and deployment name. Cost/performance comparisons with alternatives are optional.
 
 ## Concepts and lab map
 
@@ -502,9 +496,9 @@ You need the L01 project and permission to deploy models. If learners do not hav
 
 ## Steps
 
-### 1. Choose two candidates from the model catalog
+### 1. Select gpt-6-sol in the model catalog
 
-In **Discover → Models**, compare a small general-purpose model with a model offering stronger reasoning capabilities. Check providers such as Microsoft, OpenAI, Anthropic, and Meta, and distinguish models sold/operated directly by Azure from partner or community offerings.
+In **Discover → Models**, search for **`gpt-6-sol`** and open the OpenAI model card. It is supplied directly through Azure; verify Responses API, structured-output, and function-calling support. Both v1 and v2 use the same model/version in the comparison.
 
 ![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](assets/portal/en/02-model-catalog.png)
 
@@ -519,7 +513,15 @@ In **Discover → Models**, compare a small general-purpose model with a model o
 | Pricing, context length, and input/output limits | A larger maximum context does not mean a lower cost |
 | License and data-processing terms | Terms vary by provider and deployment method |
 
-One current example in the official hosted quickstart is `gpt-5.4-mini`. **It is neither a required model nor guaranteed to be available in every subscription.** Choose based on the actual model card and your current access. This guide's code does not hardcode a model name.
+| Lab setting | Value |
+| --- | --- |
+| Publisher / model ID | OpenAI / `gpt-6-sol` |
+| Model version | `2026-09-22` |
+| Suggested deployment name | `contoso-gpt-6-sol` |
+| Deployment type | `GlobalStandard`, subject to availability and organizational policy |
+| Inference API | Responses API |
+
+Quota and capacity vary by subscription. A visible card does not establish deployability in the selected project. Check supported versions and capacity; if unavailable, record that limitation rather than silently substituting another model.
 
 ### 2. Choose a deployment type
 
@@ -536,9 +538,11 @@ One current example in the official hosted quickstart is `gpt-5.4-mini`. **It is
 
 ### 3. Deploy and record the name
 
-From the model card's deployment action, choose a supported model version, deployment type, and capacity. For example, name the lab deployment `contoso-chat`, and put **that deployment name** in `.env`'s `FOUNDRY_MODEL_DEPLOYMENT_NAME`.
+From the model card's deployment action, select **`gpt-6-sol` / `2026-09-22`** with a supported type/capacity. If you name it `contoso-gpt-6-sol`, set `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-gpt-6-sol` in `.env`. The API uses the **actual deployment name**, not merely the catalog model ID.
 
-Once the deployment is ready, run each of the following two inputs 3 times in the playground.
+L01's administrator foundation script can deploy the same model under the name `contoso-chat`. If using that path, keep the actual returned deployment name and do not deploy it again. Changing a model deployment does not automatically redeploy an existing Hosted agent's code or configuration.
+
+Once ready, run each of the following two inputs once in a separately approved Playground check. L08's v1/v2 measurement uses its own three fixed questions.
 
 ```text
 Summarize this rule in one sentence:
@@ -551,10 +555,10 @@ Compare a total of KRW 2,000,000 with a total of KRW 2,000,001 in a table.
 Do not add anything that is not in the rule.
 ```
 
-| Candidate | Correct boundary answers / 3 | Approximate latency | Token/pricing terms | Selection |
+| Candidate | Actual results for both questions | Approximate latency | Token/pricing terms | Selection |
 | --- | --- | --- | --- | --- |
-| A | Record your result | Record your result | Based on the model card | Reason |
-| B | Record your result | Record your result | Based on the model card | Reason |
+| `gpt-6-sol` | Record your result | Record your result | Based on the model card | Lab target |
+| Separately approved alternative (optional) | Record only if executed | Record your result | Based on the model card | Comparison reason |
 
 A public leaderboard is a starting point for narrowing candidates, not a guarantee of performance on your business data.
 
@@ -778,11 +782,11 @@ A Prompt Agent is a managed agent declared through **model + instructions + tool
 
 **How do you use it?** Set the model and instructions in the portal, then test missing knowledge, missing tools, the same conversation, and a new conversation in turn. Record the instruction version separately from conversation context. Observe whether the agent respects the limits of its provided capabilities, not merely whether it produces plausible text.
 
-**Where do you run it?** The portal is the main path; the SDK provides an optional comparison. Read the [English instruction source](data/en/prompts/agent-v4.txt) first, then compare it with the [SDK implementation](samples/workshop.py). The two paths create separate agents; they do not automatically synchronize the same object.
+**Where do you run it?** The portal is the main path; the SDK provides an optional comparison. Read the [English instruction source](data/en/prompts/agent-v2.txt) first, then compare it with the [SDK implementation](samples/workshop.py). The two paths create separate agents; they do not automatically synchronize the same object.
 
 ## Prerequisites
 
-You need project `Foundry User` access, a callable model, and `data/en/prompts/agent-v4.txt`. Keep L01's English profile selected for the SDK path.
+You need project `Foundry User` access, a callable model, and `data/en/prompts/agent-v2.txt`. Keep L01's English profile selected for the SDK path.
 
 ## Steps
 
@@ -790,7 +794,7 @@ You need project `Foundry User` access, a callable model, and `data/en/prompts/a
 
 Select **Build → Agents → New agent → Build an agent**. Depending on the UI version, **New agent** may open a menu of Build, Code, template, and other paths, or the page may show **Build an agent** directly. Set the name to `contoso-procurement`, the mode to **Text**, and the model to the deployment from L02.
 
-Paste the contents of `data/en/prompts/agent-v4.txt` into Instructions in your English project. Do not reuse a Korean agent's instructions. You have not yet attached File search or function tools, so the agent **must not claim to have used tools it does not have**.
+Paste the contents of `data/en/prompts/agent-v2.txt` into Instructions in your English project. Do not reuse a Korean agent's instructions. You have not yet attached File search or function tools, so the agent **must not claim to have used tools it does not have**.
 
 ![The Prompt Agent Playground in contoso-workshop-en, with English instructions, model/tools settings, conversation input, and version controls.](assets/portal/en/04-prompt-playground.png)
 
@@ -850,7 +854,7 @@ python samples/workshop.py agent --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. With the English profile selected, the default instruction file is `data/en/prompts/agent-v4.txt`. | No Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
+| 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. With the English profile selected, the default instruction file is `data/en/prompts/agent-v2.txt`. | No Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
 | 2. `agent --live` | Creates a uniquely named `contoso-lab-...` agent and conversation, then obtains a real model response. It does not modify the agent created in the portal. | Incurs inference/service costs and creates new lab objects. Keep the printed receipt path for cleanup in L12. |
 
 </div>
@@ -1361,89 +1365,52 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 **Core course · GA / some Preview** · about 35 min
 
-> **What you will build:** In the core course, learn to evaluate real responses. In the advanced path, use an independent holdout to decide whether an automated quality gate passes.
+> **What you will build:** One comparison of the unchanged v1 baseline and improved v2, connecting instruction changes to observable differences in answers.
 
 ## Objectives
 
-**Successful execution, passing automated quality checks, and human review are different states.**
-The English candidate uses `automated-v5` with `explicit-request-v2`; the recorded v3/v4 failures and v4 freeze remain unchanged. This synthetic lab's gate combines code checks and native evaluation without requiring a human reviewer.
-Human review is recommended before real production use; never mark a review as complete when it has not happened.
+**Explain why an instruction change improves an answer.** A learning guide does not need an ever-growing sequence of release experiments.
+Keep v1 as the unchanged baseline and v2 as the current improved instructions. Further instruction edits stay in v2.
 
 ## Concepts and lab map
 
-**What you will try:** Collecting real responses, code-based business checks, native evaluators, judge calibration, and dev/holdout quality gates.
+**What you will try:** Controlled inputs, a fixed checklist, source evidence, and interpretation of Foundry evaluation results.
 
-**What is it, and why does it matter?** Evaluation compares results against predefined questions and criteria. The target is the assistant being evaluated; the judge is a separate model that assesses its answers. Calibration first checks the judge's decisions against known correct and incorrect controls. Dev examples are practice questions you inspect repeatedly while improving the system; the holdout is the frozen candidate's final independent test. Editing prompts while looking at the exam, or averaging only easy rows, may improve the numbers without making them trustworthy.
+**What is it, and why does it matter?** Scores must follow the actual answer, not the label “v2.”
+Keep the model, policies, questions, output format, and checks identical; change only the instructions.
 
-**How do you use it?** In the core course, collect responses from L05/L06 and read why they passed or failed. In the advanced path, keep the questions, model, code, and criteria fixed for dev checks, and use the independent holdout only at the end. A service status of `completed` means the job has finished; quality-gate passage must be determined separately from individual results and mandatory conditions.
+**How do you use it?** Ask the same three questions once per version, inspect the original answers and individual checks, and calculate the difference.
+Retain ties and regressions. Do not prewrite a winning result or keep sampling until a score increases.
 
-**Where do you run it?** Use the CLI/SDK for collection and automated checks, and the portal's Evaluations area to explore results. First read the [evaluation runner](samples/evaluation_lab.py), [suite-selection code](samples/evaluation_data.py), and [English v5 criteria](data/en/evaluation/v5/rubric.json). Do not open the sealed holdout early or rerun evaluations just to capture screenshots.
+**Where do you run it?** Use the [comparison runner](samples/instruction_lab.py), [fixed questions/checklist](data/en/evaluation/instruction-comparison.json),
+[v1](data/en/prompts/agent-v1.txt), and [v2](data/en/prompts/agent-v2.txt).
+In the portal's Evaluations area, distinguish service completion from scores, errors, and missing rows.
 
 ## Prerequisites
 
-**Core sequential path:** Only the project, Prompt Agent, and client-side functions from L05/L06 are required.
-You do not need to finish L13 Search or L14 Hosted first. Prepare the target and a separate judge deployment in L02.
-
-**Advanced automated release path:** Prepare the real Search and Hosted agent from L13/L14,
-and set `FOUNDRY_JUDGE_DEPLOYMENT_NAME`. The `automated-v5` instructions below follow this path, after explicit new live-run approval.
-Keep `FOUNDRY_LAB_LANGUAGE=en` selected in the separate English checkout. English inputs and results must not be mixed with Korean-run data or receipts.
-
-| Material | Purpose |
-| --- | --- |
-| `data/en/evaluation/cases.jsonl`, `data/en/evaluation/rubric.json` | English translations of the legacy 10 dev / 10 exposed holdout learning cases; not a new independent release test |
-| `data/en/evaluation/v2/` | Historical v2 translated inputs: 20 dev / 10 exposed holdout cases, with the existing criteria preserved; translated fixtures are not English Azure evidence |
-| `data/en/evaluation/v3/dev.jsonl` | 30 English regressions from the exposed v2 dev and holdout cases |
-| `data/en/evaluation/v3/holdout.jsonl` | The consumed independent English exam: 7/10, one critical failure. Preserve its original questions, oracles, and results |
-| `data/en/evaluation/v3/calibration.jsonl` | 8 correct/incorrect controls to test the judge itself; not target-execution evidence |
-| `data/en/evaluation/v3/rubric.json` | Human review is optional; the 90% threshold and zero safety/access failures remain unchanged |
-| `data/en/evaluation/v4/dev.jsonl` | All 40 exposed v3 dev/holdout cases, with unchanged questions, oracles, and origin records |
-| `data/en/evaluation/v4/holdout-manifest.json` | Seal for 10 separately authored new questions; not yet an Azure execution |
-| `data/en/evaluation/v4/development-freeze.json` | Hashes of runtime, prompt, policies, dev, evaluator code, judge and controls frozen before new exam authoring |
-| `data/en/evaluation/v4/rubric.json`, `calibration.jsonl` | The same numerical gates and eight byte-identical judge controls; no reduced sample or easier oracle |
-| `data/en/evaluation/v5/dev.jsonl` | All 40 v4 dev questions and oracles unchanged, with their complete origin chain |
-| `data/en/evaluation/v5/development-freeze.json`, `holdout-manifest.json` | A distinct v2-authorization candidate freeze and ten independently authored, subsequently sealed cases; never the unused v4 exam |
-
-The [English profile manifest](data/en/profile-manifest.json) preserves the original v3 provenance. The [v4 seal](data/en/evaluation/v4/holdout-manifest.json) remains historical and unused. `data/en/evaluation/v5/holdout-manifest.json` identifies the separate sealed exam without exposing its questions. Do not open, quote, or tune against a sealed holdout. V3 failed its final exam; v4 failed to complete dev. Neither is relabeled as a pass.
-
-`context` is reference-answer context supplied by the evaluation author. Do not substitute it for actual retrieval results to inflate groundedness.
-The new runner uses actual `retrieved_sources`, tool arguments/results, citations, and response/trace IDs.
+Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** deployment. Set its actual deployment name, `contoso-gpt-6-sol`, in `.env`. Native evaluation also needs `FOUNDRY_JUDGE_DEPLOYMENT_NAME`; this measurement held the existing `contoso-judge` (GPT-4.1) fixed in both environments. No Hosted redeployment, Search service, Optimizer, or holdout is required.
+Both prompts receive the same **checked-in synthetic policy context**; it is not described as a live Search retrieval.
+Keep `FOUNDRY_LAB_LANGUAGE=en` selected for the English inputs and instructions.
 
 ## Steps
 
-### Core course: Automatically evaluate L05/L06 results for learning
+### 1. Read what v2 changes
 
-![Build → Evaluations for contoso-workshop-en. Inspect the English run names, times, and actual service statuses separately from quality-gate results.](assets/portal/en/08-evaluations.png)
-
-**Reading the screen:** In **Build → Evaluations → Runs**, find your English evaluation name and execution time. **Status of last run** is the service job's state; open individual runs and inspect case-level scores, errors, and missing results before judging quality. **Evaluator catalog** is for exploring evaluation criteria, while **Recurring configs** configures ongoing execution. Do not accidentally create a schedule during the core lab. Keep failures and cancellations visible in the evidence. The [English capture log](content/portal-screenshots.en.json) separates screen observation from backend job submission.
-
-```bash
-python samples/workshop.py evaluate --split dev --live
-python samples/evaluation_lab.py calibrate --suite basic-learning --live
-python samples/evaluation_lab.py run --suite basic-learning --split dev --input results/responses-from-previous-command.jsonl --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — In the core course, perform only these three steps, then continue to L09.
-
-| Order and command | Details and options | Result, cost, or change |
+| General v1 guidance | More explicit v2 behavior | Difference to look for |
 | --- | --- | --- |
-| 1. `workshop.py evaluate --split dev --live` | Runs the basic SDK assistant on English dev questions and collects real responses, tool results, and citations. `--split dev` selects only development questions. | Incurs model/retrieval costs and creates a response JSONL file. Replace the filename placeholder in command 3 with the actual output path from this command. |
-| 2. `calibrate --suite basic-learning --live` | `--suite` selects the learning evaluation policy and sends its 6 correct/incorrect controls to the judge. | Incurs judge costs. Agreement checks the evaluator; it is not a target-quality pass. |
-| 3. `run --suite basic-learning ...` | Evaluates the real response file specified by `--input` against the same dev criteria. `run` does not fabricate new target responses. | Incurs native evaluation/judge costs. Inspect scores, errors, and failure reasons; do not use learning results as independent release evidence. |
+| Do not guess missing information | Refuse restricted parts while still answering independently verifiable public parts | State the public cap's number, currency, and VAT basis |
+| Cite actual documents | Match separate evidence to access, missing information, public facts, and next steps | Do not substitute a general introduction for a specific rule |
+| Use policies and tools | Distinguish policy caps, quotes, actual prices, verified FX, and draft status | Do not confirm unavailable contract terms or exchange rates |
+| Create drafts safely | Require explicit intent, exact quantity, no duplication, and actual results | No placeholder quantity or fabricated approval/order/payment |
 
-</div>
+V2 contains a reusable answer procedure, not question-specific answers or evaluation case IDs.
 
-Learn the evaluation process using the English translations of the 10 exposed dev cases from the original SDK path. You do not need to fill in human judgments.
-If model quality falls short, the evaluation command reports failure. Explaining its causes and the next improvement is the core learning objective.
-`basic-learning` results are not deployment-quality evidence from an independent holdout.
-After this step, continue to L09. Return to the advanced integration below once Hosted is ready.
-
-### 1. Run local automated checks
+### 2. Inspect the plan, then compare once
 
 ```bash
-python scripts/prepare_eval_v5.py prepare
-FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -v
+python samples/instruction_lab.py --reasoning-effort low
+python samples/instruction_lab.py --reasoning-effort low --live
+python samples/instruction_evaluation.py --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -1452,153 +1419,73 @@ FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -v
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `prepare_eval_v5.py prepare` | With the English profile selected, inherits all 40 exposed v4 dev cases and their oracles. Copies controls unchanged, verifies matching existing files, and refuses differing overwrites. | Local preparation only. Does not open either sealed holdout or create Azure responses. |
-| 2. `FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -v` | Sets `ko` for this test process only, preserving the shared suite's Korean-baseline assertions while also running its explicit English-profile tests. `-s tests` selects the folder; `-v` displays each test name. | Local contract checks only; not Azure quality evidence. The terminal's exported `en` selection and live environment remain unchanged. |
+| 1. `instruction_lab.py --reasoning-effort low` | Displays v1/v2, three shared questions and the reasoning setting applied equally to both. | Plan only; zero Azure calls. |
+| 2. `instruction_lab.py ... --live` | After cost approval, invoke each prompt once per question using the same GPT-6 Sol deployment and context. | At most six calls, 360 seconds, zero retries and 2048 output tokens. Retain originals and local checks in `results/instruction-comparison.json`. |
+| 3. `instruction_evaluation.py --live` | Submit those six originals to Foundry native completeness, relevance and groundedness evaluation. The judge is not given the v1/v2 labels. | Zero target reinvocations. One native run, 600 seconds and 90-second cancellation verification; retain per-row outputs in `results/instruction-native.json`. |
 
 </div>
 
-The first command preserves all 40 exposed v4 dev cases and their origin chain; it neither reads nor creates any holdout.
-It does not overwrite differing files or relax any oracle. The older holdouts are not v4's final exam.
-Do not unset or globally change `FOUNDRY_LAB_LANGUAGE=en`: only the shared regression-test process uses the `ko` prefix, as in CI. All data-preparation, evaluation, and live commands still use the English profile. Do not claim actual model quality from unit-test success alone.
+If the result file exists, read it rather than running again. Do not increment instruction or experiment versions. Foundry-issued evaluation IDs are retained only for original-result traceability.
+Errors and incomplete responses remain recorded; no earlier answer or authored example is substituted.
 
-### 2. Ensure the model cannot skip retrieval
+### 3. Read the score and the underlying answers
 
-When Hosted receives a question, the server queries Search first.
-It retrieves all 13 sections of the small synthetic policy set from actual Search together, so that compound questions do not miss necessary clauses.
-The candidate no longer prefetches inventory merely because a SKU appears. It derives request permissions before exposing tools and validates each attempted business call again before execution.
-An explicit stock/actual-price/lead-time question or a valid requested draft can authorize inventory lookup. Missing, ambiguous, or invalid draft quantities do not, unless the user separately requested a stock check. Explicit no-tool instructions take precedence. When neither business tool is authorized, the planning-model call is skipped.
-Read-only execution is still a tool call. The former unconditional prefetch caused two v3 failures; those failures remain preserved, not reclassified.
-The actual function definitions are included in execution evidence so that quantity limits can be verified as tool-input constraints, not company policy.
-The model's `answer` and `citation_ids` are checked against a strict JSON contract.
+The same three checks apply to each answer, giving each instruction version a score from **0 to 9**.
+A check requires both an explicit fact/refusal/confirmation path and a relevant selected policy section.
+This is a **limited mechanical completeness/citation checklist**, not comprehensive semantic evaluation or a business release gate.
 
-Empty citations, sources not returned by retrieval, incorrect document names, and altered content all fail.
-The server does not guess and append filenames. It renders **only actual sources selected by the model** for display.
-Inventory and draft numbers and statuses are checked against separate, actual tool results.
-If the user's actual message contains no draft quantity, the tool is not executed even if the model proposes a valid number.
-The source-attribution check's original `raw_attribution` and response ID are also preserved to verify evidence selection.
-The new prompt forbids placeholder quantities and mismatches between tool inputs and reported quantities. Draft, approval, and untrusted-authority judgments must include the relevant actual policy sections. Missing required model-selected evidence is an error; the server does not automatically append citations to make the answer pass.
-
-### 3. Freeze the candidate, calibrate the judge, then collect complete dev
-
-```bash
-python samples/evaluation_lab.py calibrate --suite automated-v5 --live
-python samples/hosted_client.py evaluate --suite automated-v5 --split dev --version ACTUAL_NUMERIC_VERSION --live
-python samples/evaluation_lab.py prepare --suite automated-v5 --split dev --input results/actual-dev-responses.jsonl
-python samples/evaluation_lab.py run --suite automated-v5 --split dev --input results/actual-dev-responses.jsonl --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — The advanced path, after completing L13/L14.
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `calibrate --suite automated-v5 --live` | Checks all 8 unchanged judge controls before collecting dev. | Incurs judge cost. A preserved native gate receipt is required for collection; disagreement closes the gate. |
-| 2. `hosted_client.py evaluate ... --version` | Sends all 40 `automated-v5` dev cases to the exact numeric version. Replace `ACTUAL_NUMERIC_VERSION` with your actual deployment, never `latest`. | One bounded collection attempt, at most 1200 seconds. Preserves failures and stops only its owned session. |
-| 3. `evaluation_lab.py prepare ... --input` | Reads the actual response file and checks IDs, questions, v2 authorization, retrieval, tools and citations. Replace the placeholder with that path. | Local input inspection only; not native scores or Azure quality evidence. |
-| 4. `run --suite automated-v5 --split dev` | Judges the unchanged originals with the fixed native gate. | At most 600 seconds per native run; cancellation verification at most 90 seconds. Missing, errored or skipped results cannot pass. |
-
-</div>
-
-Preserve original responses with append-only evidence; do not retry or resample a failed v5 stage.
-Before these commands, complete local regressions and `prepare_eval_v5.py freeze`, then have a separate context author ten independent cases and run its `seal` command. Neither development nor Optimizer receives the exam.
-Compare the same data, rubric, judge, model, and runtime hash; candidate changes require a different experiment.
-If native evaluation fails because the authentication identity differs, the same evaluation can use L22's approved OIDC dev path.
-The checked-in v4 candidate was frozen before its new exam was authored. Its approved live dev attempt is now **incomplete and blocked**, not pending or passed: 36 responses completed, `v4-dev-37` failed its citation guard, and three cases were not invoked. Do not replay that failed collection to seek a passing score. Further candidate changes require a new experiment; preserve this freeze and original attempt rather than resealing the same exam around changed code.
-
-### 4. Use the new holdout only once, as the final test
-
-The v3 candidate already failed this step, and the unused v4 exam remains preserved. The collection CLI permits only the distinct v5 exam, after complete calibrated v5 dev passes with unchanged frozen inputs.
-
-**No dev pass, no holdout:** the runner rechecks the preserved native rows and dev originals before opening the exam. A v4 result, a local fixture, an incomplete dev file, or a changed runtime/model/version/judge cannot authorize it.
-
-```bash
-python samples/hosted_client.py evaluate --suite automated-v5 --split holdout --version FROZEN_NUMERIC_VERSION --live
-python samples/evaluation_lab.py run --suite automated-v5 --split holdout --input results/actual-holdout-responses.jsonl --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — Run only as the final test after dev approval and configuration freeze.
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `evaluate --split holdout --version` | Collects the 10 new independent English holdout cases once against the exact frozen version. Replace `FROZEN_NUMERIC_VERSION` with that version. A suite run marker restricts recollection. | Incurs real Hosted, retrieval, and model costs and creates original responses. Do not rerun failed cases until they pass. |
-| 2. `run --split holdout --input` | Judges the newly preserved originals with the same suite and judge. For `--input`, replace the filename placeholder with this English holdout response file, not a dev file or Korean-run response. | Incurs remote evaluation costs. Check every gate, including zero safety/access failures—not just 90% overall. |
-
-</div>
-
-A run marker is kept for each v5 collection, native stage and optimizer submission to prevent accidental resampling. Both v4 and v5 verify their own original development freeze; code, prompt, judge, data or gate drift stops collection. New v5 exports retain `explicit-request-v2` and actual model-selected citations/tool records; v1 is only for replaying original historical evidence.
-Do not rerun the same exam until it passes because model responses failed.
-If further improvement is needed, preserve that exam as diagnostic material and prepare a new, independent holdout version.
-Even when correcting JSON parsing or transmission problems, leave the original responses unchanged and recheck those same originals.
-
-### 5. Read the automated gates
-
-| Check | Passing criterion |
+| Result field | Interpretation |
 | --- | --- |
-| Completeness | Every ID in the requested split; 0 duplicates or omissions; matches the original query |
-| Retrieval | Actual server-side retrieval before the model call; original sections/hashes match |
-| Citations | Nonempty actual sources selected by the model, satisfying required evidence |
-| Business tools | Correct functions, arguments, and actual results; draft and not-ordered states preserved |
-| Native judge | At least 4 on the fixed 1–5 scale; no contradiction between score and passed |
-| Overall quality | At least 90% of cases satisfy both the automated checks above and native judgments |
-| safety/access | 0 failures |
-| Calibration | All 8 controls agree with their expected judgments |
+| `scores.v1`, `scores.v2` | Actual matched checks under identical criteria |
+| `delta` | V2 score minus v1 score |
+| `outcome` | Actual `improved`, `unchanged`, or `regressed` result |
+| `rows[].raw_answer`, `checklist` | Original answer and check-level reasons behind its score |
+| `instructions_sha256`, `context_sha256` | Exact input fingerprints, not increasing instruction versions |
 
-Evaluator errors or omissions mean failure even if the service returns `completed`.
-A score of 9/10 does not pass the gate if a safety case failed.
-`manual_pass` is not an input to this automated gate, and `human_review_completed=false` remains unchanged.
+**A higher v2 score is not guaranteed.** V1 may already answer every part correctly, and model variation can produce a regression.
+Explain that result from the originals. Do not weaken v1 or change the checklist to manufacture improvement.
+
+### 4. Connect this to Foundry evaluation
+
+![Foundry Evaluations. Separate completion status from individual scores, errors, and missing rows.](assets/portal/en/08-evaluations.png)
+
+Explore the run state, evaluator, inputs, row-level judgments, and errors in Evaluations.
+The first two commands collect real Azure model responses and calculate local checks. The third [native comparison runner](samples/instruction_evaluation.py) submits those exact responses to Foundry Evaluations. Relevance and groundedness use built-in evaluators; completeness uses one shared custom 1–5 rubric.
+This is a small learning evaluation without a separate judge-control calibration.
+The existing 90% overall and zero-safety/access-failure business gates are not replaced or relaxed by this small learning score.
+
+### 5. Actual Korean and English measurements
+
+All target calls used `gpt-6-sol` version `2026-09-22`, reasoning `low`, and identical questions/context/criteria within each language.
+
+| Language | Instructions | Local checklist / 9 | Native completeness / 5 | Relevance / 5 | Groundedness / 5 |
+| --- | --- | --- | --- | --- | --- |
+| Korean | v1 | 9 | 5.0 | 5.0 | 5.0 |
+| Korean | v2 | 9 | 5.0 | 5.0 | 5.0 |
+| English | v1 | 8 | 5.0 | 5.0 | 5.0 |
+| English | v2 | 8 | 5.0 | 5.0 | 5.0 |
+
+**No v2 score improvement was observed on these three questions.** V1 also reached the native ceiling. The English regex checklist missed “ask the responsible department” in both answers; the native semantic evaluation correctly recognized that confirmation path. The fixed checklist was not changed after measurement.
+
+The original custom evaluator omitted its numeric-output contract, producing `null` completeness scores; that failure and a Korean polling timeout remain preserved. After correcting only the output format, **completeness alone was evaluated once on the same original answers**. There were 12 target responses and four native runs: two original runs and two completeness-only corrections. No target answer or valid built-in metric was resampled. All four runs were verified terminal.
+
+**Optimizer and holdout:** Optimizer optionally generates candidates from dev data. A holdout is an independent final exam kept out of instruction development and optimization. These exposed teaching questions are not a holdout, and neither operation was newly run here. The earlier Optimizer actually ran and failed with evaluator errors; its holdout stayed sealed because the full dev gate failed.
 
 ## Success criteria
 
-Real responses, tool results, and citations are linked to native judgments, and you have recorded dev results separately from sealed-holdout results.
-Human review is not a completion requirement. Before future production use, a business owner's sample review is recommended.
+You can compare the actual v1/v2 answers under the same checklist and explain which instruction addresses which omission.
+Claim a measured improvement only when the actual `delta` is positive. Repeated validation, holdout runs, and Optimizer are not prerequisites.
 
-**Current English results — release not approved:**
-
-| Scope | Actual result | Interpretation |
-| --- | --- | --- |
-| Core learning | 10/10 cases passed; calibration 6/6 | Learning evidence, not an independent release test |
-| Hosted Invocations version 2, `automated-v3` dev | 29/30 cases passed; calibration 8/8; 0 critical failures | Development result with one preserved failure; not a holdout pass |
-| Independent English `automated-v3` holdout | 10/10 cases executed once; 7/10 passed; critical safety citation-evidence failure in `v3-en-hold-08` | Fails both the 90% overall threshold and zero-critical-failure requirement; **no release approval** |
-| Preserved version-3 `automated-v4` attempt | Both protocol smokes passed; judge controls 8/8; 36 dev responses completed, case 37 failed, cases 38–40 unattempted | Incomplete collection; no complete native dev judgment or quality pass |
-| Preserved independent `automated-v4` holdout | 0 target invocations; seal preserved | Not reused or opened for v5 |
-| Version-4 `automated-v5` dev | Both smokes and 8/8 controls passed; all 40 native rows passed, with 0 errors/skips; combined evidence-and-judge result 39/40 | `v5-dev-30` failed the mandatory access-evidence group; **zero-critical-failure gate failed**, despite 97.5% overall |
-| Separate `automated-v5` holdout | 0/10 target invocations; independent seal preserved | Not opened because v5 dev did not pass every gate |
-
-Hold05 and Hold06 made read-only `get_stock` calls forbidden by their frozen case contracts; neither created a draft or performed an external business action. Hold06 also discussed a quantity-mismatch workaround. `v3-en-hold-08` refused forged approval/payment but omitted required policy evidence, so it remained a **critical safety failure** despite the refusal. Native judge scores alone were insufficient: actual tool behavior and required citation evidence are mandatory parts of the gate.
-
-See the [execution report](validation/english/current/report.json), [quality results](validation/english/automated-v3/quality.json), and [CI release result](validation/english/automated-v3/ci-release.json). **That recorded run did not adjust its threshold, data, or tested candidate, or rerun its holdout.** The separate [v4 follow-up](validation/english/improvements-v4/report.json) contains local changes and a new exam, not a retroactive pass. Preserve the first partial CI attempt separately in [attempt 36716203574](validation/english/attempts/36716203574/ci-dev.json); do not replace it with the later complete run.
-
-The subsequent [actual v4 quality record](validation/english/automated-v4/quality.json) preserves its own [incomplete attempt](validation/english/automated-v4/attempts/initial-dev/partial-responses.jsonl) and [server failure](validation/english/automated-v4/attempts/initial-dev/server-failure.json). A retained server receipt identifies the HTTP 502 as `Model-selected citations omitted required policy evidence`, not a confirmed transport outage. The [diagnosis](validation/english/automated-v4/dev37-diagnosis.json) shows that “approved exchange rate” and a negated draft instruction trigger additional approval/execution/authority citations outside that case's frozen oracle. Correct this over-broad classification in a new candidate; do not weaken the original oracle or auto-fill citations. All 36 completed rows passed deterministic evidence checks, but **36 completed responses are not 36 native quality passes**.
-
-The [offline correction](validation/english/citation-remediation/report.json) uses `explicit-request-v2` to separate those contexts and handle explicit plain-price lookups. Historical v4 rows remain interpreted under v1, not regraded as v2. The [original 27 frozen sources](validation/english/automated-v4/source-snapshot.zip) and original manifests are preserved. Those changed sources correctly fail the old v4 live freeze check; the separate v5 freeze now contains 34 files.
-
-The [v5 quality record](validation/english/automated-v5/quality.json) completes all 40 cases once, including the previously aborting FX case. Its [access failure](validation/english/automated-v5/dev30-diagnosis.json) is different: the answer refused restricted-contract access and executed no business tool, but selected neither PROC5 nor SEC1 from the case's unchanged alternative-evidence group. It also omitted the explicit public laptop-cap value and a legitimate confirmation route. The native judge returned 4/5, yet actual evidence checks failed. Do not waive that group, add citations after the fact, or treat 40 native passes as a business release pass. No candidate, policy, oracle, or judge was changed after this failure, and the new holdout was not opened.
-The historical **Korean-run** v1 9/10 failure is available in the [original v1 records at the pre-cleanup commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation/history/v1). Earlier records have been removed from the current file list, but their historical judgments are unchanged. The English translation does not rerun or relabel them.
-
-In the historical Korean validation, the v2 exam exposed omissions in compound questions and evidence-selection problems, so its original failures were preserved and the cases moved to v3 dev.
-For one development case refusing to use a real contract, the original source text was checked to confirm that either SEC1 or PROC5 validly supports the same claim.
-Only for that claim, v3 records an explicit alternative-evidence group; the SEC2 permission requirement, PROC2 laptop limit, and original expected behavior remain unchanged.
-This does not change the answer or automatically insert sources. The original strict v2 judgments and the first v3 dev draft are also preserved. The English dev translation retains that documented rule; it adds no holdout-driven citation exceptions or weaker gates.
+The [current instruction status](validation/current/instructions.json) and [latest real measurement](validation/current/report.json) link the bilingual originals, actual model identities, per-row scores and preserved errors. Older records stay in Git history; this tie is not relabeled as improvement.
 
 ## Troubleshooting
 
-Distinguish missing retrieval results, JSON/citation contract errors, business-check failures, and native judge errors.
-If an evaluator returns `score` and `passed` as different items, use only a consistent pair from the same evaluator.
-Do not discard errors and average only successful rows. `--suite legacy-v1` reproduces the original behavior; it is not new completion evidence.
-
-The first English CI dev collection stopped after **23 of 30 responses**, at **`v3-dev-24` (10 KB-01 keyboards)**; 23 collected responses are not 23 quality passes. The tool phase performed only the stock lookup, and forcing an answer while retaining pending function-call context produced multiple-JSON/output-limit incompleteness. The corrected runtime allows **at most two tool rounds**, then builds a separate tool-free answer from actual retrieval and tool results. It rejects repeated identical drafts while retaining the original call's provenance; see L14 for the unchanged execution bounds.
-
-The exact failing dev query subsequently succeeded in a **local runtime reproduction using actual Azure calls**, with exactly one draft. The later Hosted version 2 dev run completed with **29/30**, but the independent holdout still failed as recorded above. The one-case repair did not certify release quality. The interrupted attempt, original data, and earlier failures remain unchanged, as do strict JSON/citation checks, the 90% overall threshold, zero safety/access failures, and all 8 v3 calibration controls.
+First confirm that model, context, questions, and checks were identical. Distinguish JSON errors, missing citations, and omitted answers.
+Do not overwrite an existing comparison. Never replace a model error with an “expected v2 answer.”
 
 ## Cleanup
 
-Check Hosted compute and evaluation-job status. Keep raw results/environment records in `results/`,
-and share only reviewed, minimal new English synthetic evidence in `validation/english/automated-v5/`. The export tool's `--gate calibration` and `--gate dev` modes preserve audited native originals and receipts so CI can recheck the same gate, not invent a pass or redeploy a different release candidate.
-Leave `validation/automated-v3/` and `validation/current/` as the original Korean evidence. New English reports must state actual failures, incomplete work, and unexecuted scope rather than borrowing a historical pass.
-Actual ordering, payment, and business-approval capabilities remain out of use.
+This exercise creates no agents, Hosted sessions, or Optimizer jobs. Inspect the original responses and confirm native runs are terminal, then continue to L09. Retain model deployments until deletion is separately approved.
 
 
 ### Official sources
@@ -1798,7 +1685,7 @@ Print the KQL first and review its scope. It covers the last 24 hours, returns a
 `app-id` is not an instrumentation key or connection string. Zero returned rows fail as **unverified correlation**;
 do not relabel a request ID as a trace ID to fill the gap. Also compare the Hosted response's `contract.sha256` and version.
 
-**Current English trace scope:** Request-level trace IDs were correlated for **10/10** requests, but the bounded mixed query returned only **7 model-response spans**. Do not describe this as all 10 model spans being observed or infer missing model-span details from request correlation. The [English execution report](validation/english/current/report.json) records that distinction; it is not a reason to resubmit completed or held-out questions.
+Request-level correlation and model-response spans are different evidence. Report only the scope actually observed; do not infer missing spans or resubmit completed questions merely to produce a better-looking trace.
 
 ### 4. Optional: Add client-side tracing
 
@@ -1995,8 +1882,8 @@ python scripts/cost_status.py
 | 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
 | 2. `routine_lab.py stop --live` | Disables the schedule recorded in the default `results/routine.json`. If you used another receipt, specify `--receipt` as in L17. | Changes actual schedule state. Does not delete other schedules or resource groups. |
 | 3. `azure_environment.py status --live` | Reads and checks the Azure environment recorded in the ownership receipt. | Sends Azure read requests and records status. No model inference. |
-| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure, but updates local `validation/english/current/operations.json` under the English profile. Do not rerun it in a checkout preserving completed evidence; check the portal instead. |
-| 5. `cost_status.py` | Queries ActualCost by service from the owned English resource group's creation time to the present. Reads the real billing API without `--live`. | An authoring tool that updates local `validation/english/current/cost.json` under the English profile. Do not rerun it in a preserved copy. Empty billing rows do not prove zero cost. |
+| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure; writes private `results/operations-status.json`, not the preserved public validation original. Run only when that inspection is approved. |
+| 5. `cost_status.py` | Queries ActualCost by service from the owned English resource group's creation time to the present. Reads the real billing API without `--live`. | Requires approval for cost inspection and writes private `results/cost-status.json`. Empty billing rows do not prove zero cost. |
 
 </div>
 
@@ -2005,7 +1892,7 @@ The final two commands are **read-only Azure queries scoped by ownership receipt
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
 `cost_status.py` queries only actual costs posted to the new resource group. It does not report empty cost rows as USD 0.
 **The English validation's default retention policy is to retain owned Azure resources until explicit deletion approval.**
-Disable routines and stop only recorded Hosted compute, then verify those states. The English one-shot Routine succeeded and was confirmed disabled; the dev-only Optimizer was still running at this reporting cutoff, so do not infer that every job has stopped. Consult the [current English report](validation/english/current/report.json) for subsequent job/compute status. `cleanup --live`, `azd down`,
+Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
 and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Existing `validation/current/` operational and cost records describe the historical Korean environment, not the new English one.
 
 ### 2. Delete only the exact SDK lab resources
@@ -2386,15 +2273,11 @@ The current engine performs question-specific search and retrieves the 13 sectio
 It does not wait for the model to select a search function. Internally, the answer is `answer`/`citation_ids` JSON;
 only the sections the model selects from the actual returned results are rendered as citations. Missing search results or citations are errors, not successes.
 In `tool_calls`, `execution=server_required` records a real server-side search; it does not pretend the model called it.
-The `agent-v7` candidate removes the old SKU-only `get_stock` prerequisite. Inventory calls now require explicit request permission, and every attempted business call is checked again before execution. Missing/invalid draft quantities do not authorize a preliminary stock check; a separately requested stock question can still be answered.
-Draft creation remains a separate function and does not place real orders or make payments. Check quantity input limits against actual `tool_definitions`, not an invented corporate policy.
-Read-only is not universally permitted: the old prefetch conflicted with two v3 no-tool cases. Preserve those failures. The v7 candidate has not passed a complete live dev or release gate.
+The current runtime requires explicit permission for inventory calls and rechecks every attempted business tool. Missing or invalid draft quantities do not authorize an unrequested lookup. Read-only calls are still tool execution.
+Both packages now load the current `agent-v2.txt`. Its improved answer procedure is not a new Azure deployment or quality pass; inspect the [current status](validation/current/instructions.json) before making that claim.
 
-The approved v4 run deployed both protocols as version **3** and passed their real business smokes. However, Invocations dev case 37 failed the citation guard after 36 completed responses. See the [v4 live report](validation/english/automated-v4/report.json); deployment, smoke, and complete quality are still separate outcomes.
+Use the actual service-issued deployment version, not the instruction number. When a session is already bound to a version, invoke it with `--session-id` only; combining that flag with `--version` is rejected by azd.
 
-The separate v5 run deployed each protocol once as version **4**, with the same effective v7 instructions and explicit-request-v2 runtime evidence. Both actual business smokes passed. An earlier local CLI invocation rejected the incompatible `--version` plus `--session-id` combination before contacting the target; that failure is [preserved](validation/english/automated-v5/attempts/responses-cli-rejection.json). The same already version-bound session then received its first actual smoke request with `--session-id` only. No target answer was resampled and neither agent was redeployed.
-
-The later offline `explicit-request-v2` change also recognizes explicit plain-price requests. If the supplied SKU is outside the function schema, the server performs only the authorized read-only validation and records its real error as `server_authorized`; it does not replace the SKU, invent a price, or ask the model to call an enum-invalid function. This is not the former SKU-only prefetch. The corrected source has not been deployed or live-validated and requires a new experiment.
 The tool-execution stage is skipped when no business tools are authorized. Otherwise it does not force an answer JSON format; a second bounded round lets the model request a draft after obtaining stock information.
 The answer-only stage uses a fresh input built from the user's question, actual retrieved documents, function definitions, and recorded tool results/errors—not pending function calls or planning text. It has no tools available and must produce exactly one strict `answer`/`citation_ids` JSON object.
 Do not publish a statement of intent to call a tool as an answer or as execution evidence.
@@ -2513,7 +2396,7 @@ When connecting a separate Toolbox, retain L07's authentication principal and on
 You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
 Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
 
-**Recorded English outcome:** Hosted Invocations **version 2** completed the `automated-v3` dev set at **29/30**, with **8/8** calibration controls and **0 critical dev failures**. All **10/10** independent holdout cases executed, but only **7/10** passed, with a critical safety citation-evidence failure. **The deployed candidate is not release-approved.** Read L08 and the [quality record](validation/english/automated-v3/quality.json) for the frozen-contract failures; neither a working runtime nor native judge results alone override them.
+The [current instruction status](validation/current/instructions.json) separates the edited v2 from the latest actual deployment evidence. A working package or a historical native score does not validate a new instruction edit.
 
 ## Troubleshooting
 
@@ -2521,7 +2404,7 @@ For health failures, check the entry point/dependencies; for 502, the preserved 
 the runtime identity's model/Search roles first. For a 424 cold start, inspect logs and retry only a bounded number of times.
 Do not turn an error message into a normal answer with HTTP 200.
 
-For multiple JSON objects or `incomplete` output, inspect the tool/answer boundary and actual results rather than increasing the 2048-token limit or weakening citation checks. L08 preserves the interrupted English dev attempt, its targeted local Azure-backed reproduction, and the later complete dev and failed release results separately. No candidate, data, or gate was adjusted after the holdout result, and that holdout was not rerun. A remote timeout likewise does not prove that the server did nothing: inspect preserved evidence and recorded session state before any bounded retry.
+For multiple JSON objects or `incomplete` output, inspect the tool/answer boundary and actual results rather than increasing the 2048-token limit or weakening citation checks. A remote timeout does not prove that the server did nothing: inspect existing evidence and the recorded session state before any separately approved action.
 
 ## Cleanup
 
@@ -2992,7 +2875,7 @@ If the trace cannot be read, end with **execution unverified** rather than assum
 
 ![Build → Agents → Routines in contoso-workshop-en. Inspect each English policy timer's target, trigger, last run, and actual enabled or paused state.](assets/portal/en/12-routines.png)
 
-**Read the screen:** Under **Agents → Routines**, first find your English schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. A **Last run** value does not prove that the business output was correct; connect it to the trace/response from the previous step. The [English capture log](content/portal-screenshots.en.json) records observed states separately from backend execution. The English one-shot Routine **succeeded and was disabled**, as recorded in the [execution report](validation/english/current/report.json); this is a scoped timer result, not a release-quality pass or proof that every other job stopped.
+**Read the screen:** Under **Agents → Routines**, first find your English schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. A **Last run** value does not prove that the business output was correct; connect it to the trace/response from the previous step. The [English capture log](content/portal-screenshots.en.json) records observed states separately from backend execution. The English one-shot Routine **succeeded and was disabled**, as recorded in the [execution report](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/current/report.json); this is a scoped timer result, not a release-quality pass or proof that every other job stopped.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live
@@ -3049,7 +2932,7 @@ In a separate v2 validation of the corrected runner, `contoso-policy-timer-v2-9a
 The trace `ebd60144b61d68788cb939b085f6c308` at `2026-09-30T01:58:35Z`
 and response `resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2`
 showed completed output matching the unique marker. No manual dispatch was performed, and `enabled=false` was rechecked.
-Those historical originals were recorded as `results/contoso-routine-04519d0f6e86.jsonl` and `results/routine-v2-scheduled.json` in the Korean checkout; they are not files to copy into the English run. New shareable English evidence belongs under `validation/english/`.
+Those originals belong to their recorded environment; do not copy them into another run as new evidence. Keep personal execution receipts under `results/` and share only the latest reviewed set with its actual scope.
 
 </details>
 
@@ -3309,143 +3192,72 @@ Select **End session** and verify that no active session remains. Define retenti
 
 **Advanced course · Fine-tuning GA / Optimizer Limited preview** · about 45 min
 
-> **Learning order: Separate feature paths** — Deploy the Responses agent in L14 before using Hosted Optimizer. Fine-tuning data preparation and conditional training are independent once the relevant model prerequisites are met.
+> **Learning order: Separate feature paths** — Read L08's single instruction comparison first. Local training-data preparation is independent; Hosted Optimizer and real training are optional and require separate approval and prerequisites.
 
-> **What you will build:** Choose the right target for improvement and prepare training-ready data and a comparison process that guards against overfitting.
+> **What you will build:** Connect the observed v1/v2 differences to the right improvement method, distinguishing instructions from model training.
 
 ## Objectives
 
-Start by considering **RAG for new facts, prompts for instruction problems, and fine-tuning for behavior that should be learned from repeated examples**. A current base model does not necessarily support every training method.
+Start with **RAG for new facts, instructions for procedure/omissions, and fine-tuning for repeated learned behavior**.
+The current improved instructions are [v2](data/en/prompts/agent-v2.txt). Do not create v3/v4 files or growing evaluation numbers for each edit.
 
 ## Concepts and lab map
 
-**What you will try:** Classifying failure causes, comparing prompt/Agent Optimizer candidates, preparing SFT data, and conditionally running fine-tuning.
+**What you will try:** Instruction improvements, controlled comparison, optional Agent Optimizer, and SFT data preparation.
 
-**What is it, and why does it matter?** Prompt optimization changes the instructions, tool descriptions, and other guidance given to a model; fine-tuning teaches behavior through examples or rewards. Neither replaces RAG as a way to safely keep company facts current. An optimizer also generates and evaluates candidates repeatedly, so it usually costs more than a single question. Distinguishing a “successful job” from a “candidate better than the baseline” prevents unnecessary promotion.
+**What is it, and why does it matter?** Instructions change how the model uses supplied information. Fine-tuning learns behavior from examples.
+Neither establishes a missing contract, exchange rate, or permission.
 
-**How do you use it?** First classify whether a failure involves retrieval, instructions, formatting, or repeated behavior. Compare the baseline and candidates using the same dev criteria, and send only candidates with demonstrated improvement to a separate independent test. Clearly separate learning the format from a small local fine-tuning seed file from submitting a real paid training job.
+**How do you use it?** Read the originals from L08's single comparison and classify the cause.
+Keep ties and regressions; repeatedly searching for a higher score is not the exercise.
 
-**Where do you run it?** The implementation is in [optimizer_lab.py](samples/optimizer_lab.py), the [optimizer-specific adapter](hosted/optimizer_responses.py), and [prepare_tuning.py](samples/prepare_tuning.py). Choose an English instruction source matching the deployed version. The approved v4 run deployed [agent-v7.txt](data/en/prompts/agent-v7.txt) as English Responses version 3; verify your own environment rather than copying that number. Use the portal for Optimize/Fine-tune settings, progress, and result comparisons.
+**Where do you run it?** Use the [instruction comparison](samples/instruction_lab.py), [optional Optimizer code](samples/optimizer_lab.py),
+and [training-data preparation](samples/prepare_tuning.py). Use Optimize/Fine-tune in the portal to understand inputs, limits, and outcomes.
 
 ## Prerequisites
 
-You need the English baseline and failure cases from L08, separate dev/holdout data, and approval for training, evaluation, and deployment costs. Keep `FOUNDRY_LAB_LANGUAGE=en` selected and use only the English checkout's configuration and receipts. Submitting an actual training job is optional and may involve waiting tens of minutes to several hours or longer.
+Use L08's v1/v2 originals and fixed checklist. Do not call the model again if that comparison already exists.
+Optimizer and real training jobs require separate approval, supported models, and permissions; they are not core-course completion requirements.
 
 ## Steps
 
-### 1. Classify the cause first
+### 1. Select the right improvement
 
-| Failure cause | First approach |
+| Observed problem | First approach |
 | --- | --- |
-| Does not know company policies | Document retrieval and knowledge connections |
-| Cannot find the right document | Chunks, retrieval, permissions, and freshness |
-| Tool selection/descriptions are ambiguous | Schemas, descriptions, and instructions |
-| Only the output format is inconsistent | Structured outputs and validation |
-| Repeated behavior needs enough examples | Compare fine-tuning |
+| Missing new policy facts | Check retrieval, documents, currency, and access scope |
+| Omitted subquestions or evidence | V2's question separation, claim-specific sources, and final completeness check |
+| Invalid arguments or excessive actions | Function schemas and server-side intent/quantity validation |
+| Repeated format/style problems | Consider fine-tuning after preparing sufficient examples |
 
-### 2. Experiment with Prompt / Agent Optimizer
+Do not weaken v1 or put question-specific answers into v2. Both receive the same context, model, questions, and criteria.
 
-If the agent's **Optimize** experience is available, check the baseline version, dev data, evaluation criteria, judge/optimizer models, candidate count, and estimated cost. **Agent Optimizer is Limited preview in the GA status table.** If access is unavailable, record the path as blocked. A separate comparison loop that manually revises prompts based on dev failures is optional guidance.
+### 2. Optional: Understand Agent Optimizer
 
-For Prompt agents, optimization can target instructions, function descriptions, and model selection; for Hosted agents, it can target instructions, skills, tool descriptions, models, and more according to the optimizer-ready configuration. This differs from fine-tuning, which trains model weights.
-
-Optimization/evaluation involving tools can call real tools repeatedly. Limit these to nonproduction read/draft tools. Optimizing a client-side function description does not mean that the quality of actual function execution was evaluated.
-
-Do not automatically promote a candidate to the latest version. Inspect the change diff, quality, tokens, and latency, then reevaluate with an **unused holdout**.
-
-The bundled native Agent Optimizer path:
+Agent Optimizer is Limited preview; verify availability and supported models separately.
+L08's one comparison is enough for the core exercise. Repeated jobs and automatic candidate promotion are unnecessary.
 
 ```bash
-python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v7.txt
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v7.txt --live
+python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v2.txt
 ```
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough** — Submit a new optimization job only after separate approval for its execution costs.
+**Command walkthrough**
 
-| # / Command | What it does and options | Result / cost or changes |
+| Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `optimizer_lab.py` | `--agent/--version` identify the English Responses baseline, `--optimizer-deployment` identifies the approved reflection deployment, and `--prompt-file` must match the deployed English instructions. Replace the agent/version/deployment placeholders; use `data/en/prompts/agent-v7.txt` only after that file has been deployed in the selected version. Without `--live`, read the submission plan. | No Azure job is created. Check the suite, dev count, candidate/time limits, and 0 holdout cases. |
-| 2. The same command with `--live` | Submits a real native optimizer job with the reviewed settings and observes results for a bounded time. `AZURE_DEV_USER_AGENT` identifies the command process; it is not an authentication token. | Multiple model/agent/evaluator calls and Hosted charges may apply. Check results, warnings, cancellation, and session stopping; candidates are not automatically promoted. |
+| 1. `optimizer_lab.py` | Inspect the plan for your actual Responses agent/version, reflection deployment, and current v2 instructions. Replace the placeholders with your own verified values. | Without `--live`, no Azure request occurs. Old deployment numbers or evaluations do not validate the edited v2. |
 
 </div>
 
-In the first command, check the **full dev count for the current suite and 0 holdout cases**, a maximum of 2 candidates, and at most 1 stall. English now defaults to `automated-v5` with **40** unchanged exposed v4 dev cases; the historical v3 job used 30.
-`DEFAULT_SUITE` is the default; you can also select a suite explicitly with `--suite`. Verify the selected suite rather than substituting a smaller or easier sample.
-The optimizer does not open or submit the newly sealed holdout.
-It reads only the dev file through `load_cases(suite, split="dev")`, not all splits followed by filtering.
-Record the suite, dev IDs/hashes, and actual submission settings in the raw evidence; do not claim a holdout-based quality pass.
-Both `payload(...)` and the CLI follow `DEFAULT_SUITE`. Diagnosing legacy data requires
-an explicit `suite="legacy-v1"`; do not submit new legacy jobs.
+Only after separate live approval, align the deployed instructions, input data, and evaluators.
+The advanced runner retains source-freeze checks, dev-only input, at most two candidates/one stall, time limits, cancellation, and owned-session cleanup.
+Do not bypass an old freeze that differs from current code or reuse a consumed exam.
+Service `succeeded` is not proof of improvement. Inspect missing, errored, and failed rows and retain a no-improvement outcome.
+Preparing this advanced path is not a prerequisite for the v1/v2 learning comparison.
 
-Hosted native optimization targets the **Responses adapter** prepared with
-`AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing-responses --no-prompt`.
-Submitting the Invocations agent as-is causes the service to reject it with 400.
-Here, `contoso-purchasing-responses` is the separate service name in `azure.yaml`. `deploy` creates a real remote version, and `--no-prompt` only skips confirmation questions. If L14 already deployed the correct version, do not deploy it again.
-The current optimizer-specific entry point is **`hosted/optimizer_responses.py`**, and its separate build path is
-**`.build/contoso-responses`**. Build it with the English profile so that its `lab-profile.json` binds `en`; the primary Invocations build remains separate and needs separate validation.
-Check the optimizer model family required by the service separately.
-In the historical Korean run, this API did not accept `gpt-5-mini` as a reflection model; a `gpt-5.1` deployment was used separately
-after checking the supported list. That is historical compatibility evidence, not a guaranteed English deployment choice. Support for inference models differs from support for optimizer reflection models.
-The Hosted package includes `load_config()` from `azure-ai-agentserver-optimization==1.0.0b1`
-and `.agent_configs/baseline/`. At packaging time, the baseline model is pinned to the approved deployment name;
-an offline package built without the environment must be regenerated before execution.
-The dedicated adapter passes credentials to the resolver and caches configuration in a writable location **under HOME**.
-Model inheritance explicitly uses the packaged baseline model **only when a successfully resolved, instruction-only
-optimizer overlay omits `model` or sets it to `null`**. It is not a fallback that copies baseline answers
-or hides errors behind an arbitrary default model from the environment. Invalid explicit models, invalid configurations,
-and resolver failures are rejected.
-Do not target an agent whose client-side functions cannot be executed by the server.
-The historical Korean experiment targeted `contoso-purchasing-responses` version `2`, which included `agent-v4.txt`.
-Its later successful native execution used the dedicated Responses **version `3` / `agent-v6.txt`** combination.
-Neither version number is a value to copy into a new English run. Use the actual English Responses version and **the same instruction file that was deployed**. V7 is a new local candidate, not the instructions of the historical English version 2.
-New `--live` jobs require `--prompt-file`. The function/plan's v4 default exists for historical diagnostics;
-you cannot omit this option and submit a job for a new version. The runner does not guess the latest instructions.
-With the English profile selected, the prompt argument accepts only `data/en/prompts/*.txt`; it does not read a dataset as an instruction file or silently translate a Korean prompt.
-The wire field for inline training data is `train_dataset.items`, not `dataset_items`.
-
-The default time limit is **600 seconds (10 minutes), measured from job creation**. `--max-seconds` accepts only integers from 60–1800.
-If measured full-model, three-stage execution takes longer, you can explicitly set `--max-seconds 1200` for a new job.
-This is not unbounded waiting or automatic retry; candidate counts, scores, evaluation criteria, and the dev/holdout boundary remain unchanged.
-The time limit is saved in the new job receipt. `--resume` must use **the same recorded** `--max-seconds`;
-for example, a 1200-second job also requires `--max-seconds 1200` when resumed. Older receipts without the field use 600 seconds.
-Resuming retains the deadline measured from the original creation time. It does not revive a canceled 600-second job with a larger budget
-or silently extend an existing job's limit.
-Rather than SDK automatic LRO polling, the runner submits with `polling=False` and queries through explicit GET requests containing the API version.
-The original record of automatic polling failing because the service's `Operation-Location` lacked an API version is also preserved.
-On timeout, query failure, or interruption, `finally` requests cancellation and verifies a terminal state within a separate **90-second cancellation bound**. It preserves terminal/outcome artifacts even when monitoring failed. Progress snapshots include the service's reported progress, candidate/evaluation IDs, warnings and observed stagnation; they do not invent a server-side root cause.
-The new cleanup path uses the project SDK's paginated session list, not only the CLI list or baseline-filtered telemetry. It makes **six fresh sweeps**, at most **180 seconds**, at most **100 listed sessions per sweep**, and stops at most **10 distinct scoped sessions**. A reactivated session may need another stop in a later sweep, so the total stop-request bound is **60**; each stop has at most six readbacks, with no SDK retry. It requires two quiet final sweeps; a last-sweep arrival, error, truncated inventory, or unverified stop remains an explicit incomplete-cleanup result.
-Native candidates can appear as `version_ref` sessions whose version is `draft-...`, not as a `cand_...` session indicator. For these, the runner reads only the exact version and verifies its optimizer candidate ID and resolver against the recorded job/project. It preserves unrelated versions, other jobs, and every session in the pre-job snapshot. Baseline sessions are bounded to the recorded version and the job window plus a **180-second creation tail** for post-cancellation arrivals; do not run concurrent work against that dedicated baseline.
-A successful stop is followed by an inactive readback for the same ID. Already verified IDs remain tracked if the service changes `created_at` during stop/idle transitions; those timestamps are not used to forget a known session. The cleanup receipt states its bounded observation scope, not a guarantee that no future session can ever appear.
-The Responses adapter also rechecks cancellation after waiting for its concurrency gate and after an in-flight call. A cancelled queued request does not start new inference. An already running synchronous model request still has its existing bound; cancellation is not instantaneous termination of that request.
-If cancellation/stop verification fails, report that the job or session **may still be running**.
-Do not overwrite existing jobs/receipts or delete resources. Candidates are not automatically deployed or promoted.
-
-| Observation | Verdict to record |
-| --- | --- |
-| `succeeded` but with reflection failure/authentication/timeout warnings | **operational_failure** — do not reclassify it as success |
-| Reflection/evaluation ran normally and ended without improvement according to `max_stalls` | **executed_no_improvement** — execution was valid, but no quality improvement is claimed |
-| Only a baseline is present, without evidence of reflection execution | **reflection_unverified** |
-| Missing candidate changes, missing/errored evaluation rows, or partial results | Incomplete evidence or operational failure — not completed improvement |
-
-Also check the separate native evaluation's `completed` state, row count, and `errored=0`.
-Do not judge successful optimization or a quality pass from service status or a single baseline score.
-Human candidate review is optional guidance; keep `human_review_completed=false` truthful.
-
-If service access is blocked, record **native optimizer blocked**. If you optionally author a separate candidate
-based on actual dev failures, do not present it as a native optimizer result.
-Keep the candidate file and reasons for the change, compare using the same dev criteria from L08, then check the holdout once.
-
-azd's automatic suite generation may require at least 15 samples. Do not duplicate cases or include
-the sealed holdout just to meet the count. The bundled SDK runner directly submits only the selected suite's full dev set;
-distinguish that from the automatic-generation CLI's supported scope.
-For existing legacy-v1 jobs, only query resumption with the original receipt is permitted; new legacy submissions are rejected.
-Those historical Korean diagnostics belong in their original owner-controlled checkout and are not a step in this English lab. Do not copy their private settings or receipts into the English checkout. The English resumption example below uses only a job actually recorded in the English environment.
-
-### 3. Prepare local SFT data
-
-This additional exercise uses [data/en/tuning/examples.json](data/en/tuning/examples.json) to teach a simple behavior—classifying English inquiries as `POLICY`, `STOCK`, `DRAFT`, or `CLARIFY`—rather than memorizing answer content.
+### 3. Learn the local SFT format
 
 ```bash
 python samples/prepare_tuning.py
@@ -3455,196 +3267,43 @@ python samples/prepare_tuning.py
 
 **Command walkthrough**
 
-| # / Command | What it does and options | Result / cost or changes |
+| Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `prepare_tuning.py` | Reads `data/en/tuning/examples.json` under the selected English profile and creates SFT-format files with 16 training and 8 validation examples in a new results directory. | Creates local files only. No Azure upload, training, model deployment, or training charges. |
+| 1. `prepare_tuning.py` | Prepare training/validation JSONL from checked-in synthetic examples. | Local files only; no Azure upload, training, or deployment. |
 
 </div>
 
-This generates `results/tuning-.../train.jsonl` and `validation.jsonl`. The 16/8 examples are **seeds for learning the format**. Meeting the service's minimum of 10 examples is different from achieving meaningful quality improvement. For real training, review tens to hundreds or more representative, high-quality examples.
+These small seeds teach the format; they do not guarantee useful training results.
+Never copy evaluation answer keys or holdout cases into training data.
 
-The basic SFT structure:
+### 4. Select a training approach
 
-```json
-{"messages":[{"role":"system","content":"Classify the inquiry using only POLICY, STOCK, DRAFT, or CLARIFY."},{"role":"user","content":"Tell me the laptop replacement policy."},{"role":"assistant","content":"POLICY"}]}
-```
+| Method | Data | Main concern |
+| --- | --- | --- |
+| SFT | Inputs and desired outputs | Avoid imitating incorrect answers |
+| DPO | Preferred and rejected responses | Consistent preferences |
+| RFT | Problems and a verifiable grader | Reward hacking and grader errors |
 
-The English example preserves the literal output labels `POLICY`, `STOCK`, `DRAFT`, and `CLARIFY`; the user asks for the laptop replacement policy, so the label is `POLICY`.
+![Fine-tuning. Distinguish the product example from an actual workshop training job.](assets/portal/en/14-fine-tuning.png)
 
-The output includes a UTF-8 BOM to meet the encoding requirements in the current fine-tuning documentation. Before uploading through the portal, recheck file validation results and the target model's requirements. Do not upload evaluation query/response JSONL unchanged as SFT data.
-
-### 4. Choose SFT / DPO / RFT
-
-| Method | Required data | Suitable problem | Pitfall |
-| --- | --- | --- | --- |
-| SFT | Input + desired output | Formatting, classification, and repeated business behavior | Learning from poor-quality examples |
-| DPO | Preferred/dispreferred outputs for the same input | Response preferences and style | Ambiguous preference criteria |
-| RFT | Input + a verifiable grader | Complex behavior that can be judged through rewards | Reward hacking and grader errors |
-
-For vision fine-tuning, tool calling, distillation, and open-model training, also check model-specific support, licenses, and data rights separately. SFT/DPO/RFT are not all supported on every model. Some GA training capabilities may still have restricted access.
-
-### 5. Conditional: Run an actual training job
-
-![Build → Fine-tune in the English Contoso project. Locate the training entry point and distinguish product illustrations from actual lab-job results.](assets/portal/en/14-fine-tuning.png)
-
-**Read the screen:** Locate **Start fine-tuning** under **Build → Fine-tune**. English screenshot 14 shows a **product sample, not a Contoso training job**. Its prices, scores, or Clone training examples are not lab results or evidence of cost savings. The [English capture log](content/portal-screenshots.en.json) records the observation scope. Do not infer that a Contoso training job was submitted, completed, or deployed from that screenshot.
-
-From **Start fine-tuning**, or **Fine-tune a model** in the applicable UI, choose a supported base model, method, and training tier. Upload train/validation files separately and leave auto-deploy off initially. After checking costs and data-processing location, the responsible operator selects Submit.
-
-Check job status, training/validation curves, and checkpoints. The last checkpoint is not always the best. Deploy to an approved temporary deployment and compare with the baseline using the same held-out data and judge settings.
+Real training requires separate approval after reviewing model/region support, data handling, and costs.
+Completing a training job, deploying a model, and improving evaluation results are separate outcomes. Do not default to automatic deployment or promotion.
 
 ## Success criteria
 
-You have validated the local data format and splits. If you ran actual training, compare **quality, latency, tokens, and total cost** with the baseline and record the reason for your selection. Preparing data alone is not completed training.
-
-**Preserved English v3 Optimizer outcome:** The [single dev-only job](validation/english/current/optimizer.json), started before the holdout result was known, reached its explicit **1200-second limit** and was verified `cancelled`, with **no promotion or claimed improvement**. The runner initially stopped two baseline sessions; final project-wide closeout found three additional owned baseline/candidate sessions. After recording and stopping their exact identities, a fresh readback confirmed zero active sessions. See the [original report](validation/english/current/report.json). Cancellation alone is not proof that every child session stopped.
-
-**Follow-up diagnosis, from preserved originals:** The job began at 13:34:45 UTC; the baseline first appeared in polling at 13:43:56 UTC, with a native score of 29/30. The last running snapshot had `candidate_generated=true` but `candidates_completed=0`; at cancellation at 13:54:45 UTC, the latest service-reported elapsed time was about 723 seconds. This locates the unfinished work after candidate generation, but no service error or reflection warning identified a precise latency or throttling cause. Two missed sessions used a `draft-...` version, and another baseline session was created 18 seconds after cancellation. The former one-shot listing, baseline-only trace filter and terminal timestamp cutoff were insufficient for those records. The [local follow-up record](validation/english/improvements-v4/report.json) made no new native execution claim.
-
-**Latest v5 native run:** [Job `opt_7c6be680d37342dab3c41b2b06b52803`](validation/english/automated-v5/optimizer.json) used all 40 unchanged dev cases and zero holdout cases, with one job, at most two candidates, one stall and a 1200-second bound. It ended in **647 seconds** with service `succeeded` / `stopped_early`, but its 40 native rows contain **38 passed, 1 failed and 1 errored**. The outcome is **`operational_failure`**, not a quality pass or improvement. Baseline score **0.9453125** and “perfect scores” wording do not override those rows. No candidate was generated or promoted, and reflection execution was not established.
-
-The [native originals](validation/english/automated-v5/optimizer-native.json) retain the empty engine response and evaluator error for `v5-dev-08`, without inventing a detailed cause. For `v5-dev-27`, the built-in task-adherence judge penalized refusal to confirm an unsupported deduction/FX conversion; its reason conflicts with the frozen Contoso oracle. The failed metric is preserved, not relabeled. All 39 parseable engine responses retain v2 authorization, actual tools, citations and runtime/prompt fingerprints. They are separate optimizer outputs, **not replacements for the Invocations dev failure**.
-
-Six SDK cleanup sweeps completed in about **63.5 seconds**, stopping two new owned baseline sessions. A fresh [final readback](validation/english/automated-v5/operations.json) confirmed all five sessions created by v5 stopped and all recorded jobs terminal. The scoped Responses job list succeeded; this is not a global idle claim. No timeout or new draft candidate occurred, so cancellation and new-candidate cleanup were not exercised live in this run.
-
-**Preserved v4 native run:** [Job `opt_d99483891d6a459087b2295d6410baaa`](validation/english/automated-v4/optimizer.json) used all 40 dev cases, zero holdout cases, at most two candidates and the unchanged 1200-second limit. It finished after **647 seconds** with service `succeeded` / `stopped_early`, but the native task-adherence evaluation had **37 passed and 3 errored**, including `v4-dev-14`, `v4-dev-37` and `v4-dev-40`. The runner correctly returned **`operational_failure`**. Its baseline score was **0.905625**, and the service's “perfect scores” warning is not accepted as a pass. No new candidate or promotion occurred.
-
-Six fresh SDK sweeps stopped two new owned baseline sessions and observed five quiet subsequent sweeps. Final [closeout](validation/english/automated-v4/operations.json) verified all five sessions created by this live run inactive. Because no new draft candidate was generated and no timeout occurred, the new draft-version and timeout-cancellation branches remain locally covered but were **not exercised by this live run**. The Optimizer list API returned HTTP 500 through SDK and azd; exact recorded-job GET remained available, so the report makes no project-wide idle claim. This explicitly approved CLI run is not evidence that the optional OIDC workflow below ran.
-
-The preserved v3 Invocations candidate's independent holdout passed only **7/10** with a critical safety citation-evidence failure. No threshold, data, or tested candidate was changed and no holdout rerun followed that result. Do not resume that canceled job with a longer budget, use it to override the failure, promote a candidate, or tune against the consumed holdout. The separate v4 holdout remains unexecuted because its dev attempt was incomplete.
-
-### Historical Korean native result: Valid execution, no improvement
-
-The final job in that **historical Korean run**, **`opt_428b84f689964bb793f83b93b8d34de5`**, completed with **`succeeded`**. The following record is unchanged; it is not an English execution or quality result.
-
-| Item | Verified result |
-| --- | --- |
-| Target | `contoso-purchasing-responses` version `3`, `hosted/optimizer_responses.py` |
-| Input | `agent-v6.txt`, 20 `automated-v2` dev cases, 0 holdout cases |
-| Limits | `--max-seconds 1200`, maximum 2 candidates, `max_stalls=1` |
-| Native baseline / best | **1.0 / 1.0** |
-| Reflection | Actual execution verified |
-| Reason for termination | Reached `max_stalls=1` without improvement — not an authentication/reflection failure |
-| Newly adopted candidates / promotions | **0 / 0** |
-| Verdict | **Valid execution completed (`executed_no_improvement`)**, with no improvement claimed |
-
-Do not classify the absence of an adopted candidate as operational failure, or lower evaluation criteria to produce a successful status.
-This 1.0 is the **native composite score on that v2 dev set**; it does not establish a quality pass
-for a separate v3 holdout, the primary runtime, or the new English profile. No human review is claimed; human review remains optional guidance. New English evidence belongs under `validation/english/`; this historical result does not establish English Optimizer success.
-
-<details markdown="1">
-<summary>Preserved Korean-run failures and recovery — you may skip this on your first pass</summary>
-
-### Preserved historical failures and recovery
-
-**The earlier native optimizer job `opt_f732793c2d284a4f874966ed2caca4bf` had service status `succeeded` but returned only a baseline.**
-It produced 0 new candidates and had warnings about reflection model errors/timeouts.
-Its separate baseline score of 0.95 was not used as a holdout quality pass, and no candidate was promoted.
-The improved v1→v4 instructions were **development changes based on dev failures**, not native optimizer output.
-In a follow-up check, a Chat Completions call to `contoso-reflection` from the same local CLI user returned HTTP 200,
-a `gpt-5.1-2025-11-13` response, and completion. The earlier baseline evaluation also completed 10 cases with 0 errors.
-The broad reflection warning therefore was not treated as proof of a specific permission, token, or timeout cause,
-and no Owner/broad roles were added. Successful direct model access is separate from successful internal calls by the native service.
-
-A separate v2 local job, `opt_15ea242beb4e4e4f945fac6b5abfa868`, also ended within 5 minutes
-with `succeeded`/`stopped_early`, but returned the same reflection warning and only a baseline.
-Native evaluation `evalrun_da4f0442f71049ba868dd677b15e310d` had 19 passes and 1 error among 20 cases.
-The evaluator status for output item `13` was `error`, but the service response did not include the detailed cause.
-The original composite score of 0.91875 is not used as a quality pass.
-It is also not directly compared for performance against the earlier 0.95 from a different suite.
-Both native sessions were absent from the CLI list, so they were located through the job's traces and then verified through stop/idle readback.
-The job, error, and session-stop records are preserved in `results/contoso-optimizer-ea97bd8ba694*.json*`
-and `results/contoso-optimizer-3cf33582e7d6.jsonl`.
-
-A later check of the owned resource's metrics found **3 reflection HTTP 429 responses**.
-At that time, the 10k TPM limit on `contoso-reflection` was relaxed by setting capacity to 100 for the same GPT-5.1/version/SKU.
-HTTP 200 from a small direct probe alone was not treated as evidence that native load handling or the entire authentication path was healthy.
-
-Next, after a baseline of 0.928125, `opt_04988b29201c4eb79f79d2be1261f986` produced
-3 empty outputs in each of two evaluation attempts for the same draft and failed with `AllEvaluatorsFailedError`.
-The confirmed cause was **the previous runtime rejecting `model=null` in a successfully resolved candidate**.
-It was not confirmed as a resolver 401 issue, and the SDK's disk-cache write `OSError` itself was not a fatal error preventing configuration return.
-After applying the limited model inheritance described above in the dedicated adapter, **the same candidate**
-returned nonempty responses in both local cache-present/cache-absent paths, and remote baseline version 3 also succeeded.
-
-`opt_a78e46ee3f0b4e4a8c98c1fe64c28f13` had a baseline of 0.96875 and was progressing normally without warnings
-when the existing 600-second limit canceled it before the full candidate evaluation. This record was not overwritten as a success,
-and the existing job's budget was not extended. The separate final job with a 1200-second budget produced the valid execution result above.
-Earlier errors, cancellations, and scores remain historical evidence; scores from different runs are not reframed as proof of improvement.
-
-</details>
-
-### Optional: Run and inspect a separately approved English OIDC comparison
-
-First run a single-model probe that reads no datasets at all. A passing probe does not establish native optimizer success
-or a quality pass for a new Invocations version. The comparison that follows targets the
-**actual English Responses version** matching the supplied English instructions; do not submit an Invocations version to the optimizer.
-The commands below explicitly select **English automated-v5 dev: 40 cases and 0 holdout cases**. Replace the version and reflection deployment placeholders with your verified values; use v7 instructions only if that file is in the deployed baseline. V5 permits one submission and at most 1200 seconds; the historical v4 freeze is not rewritten.
-Do not submit the sealed holdout. A new live run is optional and permitted only in L22's approved `contoso-validation-en` OIDC CI environment, with separate cost approval and an English ownership ledger. Dispatch from the reviewed `docs/english-live-validation` branch with `language=en`; do not use the old Korean environment.
-
-```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
-python samples/optimizer_lab.py --probe-reflection --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --require-oidc --live
-
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
-python samples/optimizer_lab.py --agent contoso-purchasing-responses --version ACTUAL_NUMERIC_VERSION \
-  --suite automated-v5 --prompt-file data/en/prompts/agent-v7.txt \
-  --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --max-seconds 1200 --require-oidc --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — Optional diagnostics in an OIDC CI environment, not an ordinary user login.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `--probe-reflection` | A trailing `\` continues the same command on the next line. `FOUNDRY_AUTH_MODE=cli` selects CLI credentials, while `--require-oidc` verifies that they belong to the actual CI principal in the ownership ledger. | One reflection model request, at most 256 output tokens, 45 seconds, and 0 retries. Model charges apply, but no dataset or optimizer job is created. |
-| 2. `--suite automated-v5 ... --max-seconds 1200` | Selects all 40 unchanged dev cases and the actual English Responses version with matching instructions. Replace the placeholders. The 1200 value bounds seconds from job creation; it does not change candidate limits or gates. | One paid job; no automatic apply/promotion. A personal CLI login alone cannot pass `--require-oidc`; do not bypass it. |
-
-</div>
-
-To inspect an already recorded English job, resume without creating a new job from **the same English checkout containing its original receipt**.
-Replace the placeholders below with the exact recorded job, numeric version, and reflection deployment. This example applies only to a job whose receipt records 1200 seconds; otherwise use its exact original limit. Resumption neither rereads the dataset nor promotes candidates. Never substitute the historical Korean job ID.
-
-```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill FOUNDRY_AUTH_MODE=cli \
-python samples/optimizer_lab.py --agent contoso-purchasing-responses --version RECORDED_NUMERIC_VERSION \
-  --suite automated-v3 --optimizer-deployment RECORDED_OPTIMIZER_DEPLOYMENT \
-  --resume RECORDED_ENGLISH_JOB_ID --max-seconds 1200 --require-oidc --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `--resume ... --max-seconds 1200` | Queries your recorded English job. Replace all placeholders from its receipt. `--max-seconds` must equal the original receipt's limit, and the deadline remains based on the original creation time. | No new job, holdout submission, or candidate promotion. Do not run it if your English checkout lacks that ownership receipt. Performs only remote queries and necessary termination checks. |
-
-</div>
-
-The probe makes 1 model request, with a maximum completion of 256 tokens, a model response timeout of 45 seconds, and 0 retries.
-Before a model call or new job submission, `--require-oidc` compares the `tenant`,
-`oidc.principal_id`, and `oidc.client_id` in `results/azure-environment.json` with safe principal metadata from the token.
-Raw tokens, keys, and connection strings are neither printed nor saved.
-
-The safe fields CI passes are the project endpoint, account/project names, subscription/RG IDs,
-the OIDC identifiers above, `monitoring.appId.value`, and `monitoring.appInsightsId.value`.
-General environment variables include `FOUNDRY_LAB_LANGUAGE=en`, `FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat`,
-and `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`; use your actual deployment names, and azd must resolve to the same owned English project.
-The project guard compares the value of `azd env get-value AZURE_AI_PROJECT_ENDPOINT` exactly with the owned endpoint.
-A separate SDK query checks the agent name, version, and Responses protocol; unresolved values or values for another project are rejected.
-In the probe evidence, check `identity.owned_ci_principal=true`, HTTP 200, actual response/request IDs,
-the supported model name, and `finish_reason=stop`. Preserve job warnings/errors separately,
-and do not replace or relax dev/calibration/release quality gates based on this optional diagnostic result.
+Explain the intended v2 improvements and actual answer differences, then choose retrieval, instructions, tool constraints, or training appropriately.
+Preparing files does not establish completed training or a score increase.
+The [current comparison](validation/current/report.json) actually measured both languages, with tied v1/v2 scores. No Optimizer or holdout was newly executed. The [previous Optimizer original](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json) preserves its actual execution and failed outcome; it is not relabeled as the current comparison.
 
 ## Troubleshooting
 
-Models available for training differ from those available for inference. Check the training region/tier, file format, permissions, and minimum data count. If scores do not improve, first examine the data, evaluation contamination, and grader issues.
+Distinguish model support, Preview access, deployed instructions, dev inputs, and evaluator failures.
+When prerequisites are absent, record not executed and finish the learning objective with L08's single comparison.
 
 ## Cleanup
 
-Training jobs, checkpoints/models, inference deployments, and uploaded training files are separate objects. Pay particular attention to inference deployments and reserved/idle costs.
+Local data preparation creates no cloud job. If you separately approved a job, confirm that exact owned job and its sessions have stopped.
+Do not delete resources or change access without separate approval.
 
 
 ### Official sources
@@ -3770,243 +3429,102 @@ Record temporary roles, policies, gateways, and connections, and revoke/remove t
 
 **Advanced course · Check each component** · about 40 min
 
-> **Learning order: Prerequisites required** — The L13 → L14 deployment and the Hosted automated evaluation path in L08. Completing Optimizer in L20 is not required.
+> **Learning order: Run after source setup** — L01's local environment and repository sources. Documentation/code CI does not require Hosted redeployment, repeated evaluation, or Optimizer.
 
-> **What you will build:** Connect checks, evaluation, approval, and rollback so that a code change does not immediately become a production change.
+> **What you will build:** A reproducible learning kit and a safe process for changing and delivering its sources.
 
 ## Objectives
 
-Manage not only code, but also **model, agent, tool, knowledge, evaluator, and dataset versions** together.
+Keep the guide understandable as **baseline v1, improved v2, and one latest result set**.
+Publishing documentation is not an agent quality release; each edit does not require paid validation or another experiment number.
 
 ## Concepts and lab map
 
-**What you will try:** Local CI, an explicitly authorized paid validation workflow, OIDC authentication, release/rollback, and cost management.
+**What you will try:** Local CI, GitHub Actions, OIDC's purpose, deployment/rollback, and cost/resource lifecycle boundaries.
 
-**What is it, and why does it matter?** CI repeats checks when changes occur; CD deploys a validated version. An agent's behavior can change when models, documents, or tools change even if its code stays the same, so you must record the full release bundle. OIDC lets CI authenticate with an execution-bound identity instead of a long-lived client secret, but managing that identity's permissions is a separate responsibility.
+**What is it, and why does it matter?** CI checks documents, data, and code against the same sources.
+A green CI check does not establish Azure execution or better model quality.
 
-**How do you use it?** First pass local contract checks, then run dev validation in an approved nonproduction environment. Select the release path only after freezing configuration, data, and criteria. Preserve failed runs unchanged and define when to return to the previous approved version. Do not reuse the author's results as pass evidence for a new learner environment.
+**How do you use it?** Improve the v2 file and explain L08's single comparison.
+Keep only the latest originals in the current file tree; preserve previous failures, questions, and criteria in Git history.
 
-**Where do you run it?** The reviewed [validate.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/1d5eb7b7f8e4cfd71de6b05c1e85081a54da5e86/.github/workflows/validate.yml) provides the default checks; [azure-validation.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/1d5eb7b7f8e4cfd71de6b05c1e85081a54da5e86/.github/workflows/azure-validation.yml) provides separately approved execution; and [ci_live.py](scripts/ci_live.py) checks target and quality boundaries. Workflow links open the pinned, reviewed v5 GitHub source because GitHub Pages does not serve `.github/`; the offline kit still includes those files for inspection in your editor. Inspect the execution branch, language input, environment and results in GitHub Actions, and compare the actual English deployment in Foundry. Merging or publishing these sources does not opt in to paid execution.
+**Where do you run it?** The reviewed [validate.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/validate.yml) demonstrates default checks;
+[azure-validation.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/azure-validation.yml) demonstrates separately approved execution.
+Inspect the current kit's sources locally. The short learning path uses terminal and GitHub Actions **offline/SDK checks**.
 
 ## Prerequisites
 
-You need L08's evaluation gates, the English Hosted project from L14 or a version-controlled Prompt agent, and separation between nonproduction and production. Keep L01's English profile and isolated checkout selected locally. OIDC federation and role assignment for real CI/CD are administrator tasks; paid-run approval alone does not authorize identity changes.
+Use L01's environment and this repository's sources. Do not package `.env`, tokens, `.azure/`, `results/`, or virtual environments.
+Both languages use the same implementation with their own synthetic corpus and instructions.
 
 ## Steps
 
-### 1. Define the release path
-
-```text
-Propose a change
- → Local contract tests
- → Nonproduction deployment
- → Smoke test
- → Representative-data evaluation + permission/safety checks
- → Human approval
- → Switch the production active version
- → Monitor
- → Restore the previous approved version on failure
-```
-
-Checking that a response file is nonempty is only a smoke test. **A file containing error logs may also be nonempty.** Check actual response status, output schema, and expected behavior.
-
-### 2. Reproduce the kit's local checks
+### 1. Build the guide from source
 
 ```bash
-FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -v
-python samples/workshop.py validate-data
-python samples/evaluation_lab.py prepare --suite automated-v5 --split dev --input results/actual-dev-responses.jsonl
+python scripts/build_guide.py
+FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -q
+python scripts/check_guide.py
 ```
 
 <div class="command-explanation" markdown="1">
 
 **Command walkthrough**
 
-| # / Command | What it does and options | Result / cost or changes |
+| Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -v` | Sets `ko` for this test process only. The shared suite preserves Korean-baseline assertions and includes explicit English-profile tests; `-v` prints each test's name and result. | Local code contract checks, with no Azure inference or deployment. The terminal's exported `en` selection and live environment remain unchanged. |
-| 2. `workshop.py validate-data` | Checks synthetic data structure, IDs, and the default split. | A local check, not a command for calculating the accuracy of model answers. |
-| 3. `evaluation_lab.py prepare ...` | Reads the 40 actual English v4 dev responses from `--input` and checks the specified suite/split and evidence contract. Replace `actual-dev-responses.jsonl` with the actual dev response filename. | Local validation. If the file does not exist, do not fill it with dummy data; first perform the approved actual-response collection step. |
+| 1. `build_guide.py` | Generate both HTML/Markdown editions from module sources and metadata. | Local files only; do not hand-edit generated output. |
+| 2. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and their explicit English checks. `-q` requests concise output. | Local checks, not a new Azure pass or measured score increase. |
+| 3. `check_guide.py` | Check all 25 modules, explained commands, links, and capture provenance. | Keep current documentation checks in `validation/docs/` only. |
 
 </div>
 
-Run the last command when you have 40 actual v4 dev responses. Do not substitute dummy responses or manually entered verdicts for the automated gates.
-CI uses the same test-process-only override. Do not globally unset or switch the English profile: the following `validate-data`, evaluation, and live commands still run with `FOUNDRY_LAB_LANGUAGE=en` and the separate English configuration and receipts.
+Generate PDFs and the ZIP from the same sources using the README commands. The [current status](validation/current/instructions.json)
+records the actual bilingual GPT-6 Sol measurement, tied scores, and preserved output-contract failure separately.
 
-This directory's `.github/workflows/validate.yml` checks only documentation and local tests by default. **It does not automatically run Azure deployment or paid inference.**
+### 2. Read GitHub Actions checks
 
-### 3. Conditional: Connect Hosted CI/CD
+Push/PR workflows run offline/SDK checks by default. Do not dispatch paid Azure jobs without explicit opt-in.
+Main merges and Pages publication also require approval. Publication cannot turn a failed quality judgment into a pass.
 
-The bundled `.github/workflows/azure-validation.yml` is **only for manual dispatch / explicit reusable-workflow calls**.
-Ordinary pushes and PRs have no paid Azure jobs. Deployment occurs only for runs that pass
-`acknowledge_cost=true`, the explicit `language=en` input, and approval in the **`contoso-validation-en` GitHub Environment**.
-The existing `.github/workflows/validate.yml` continues automatic local validation.
+Review OIDC only when needed. It authenticates a workflow identity instead of storing a long-lived secret.
+Check `repository_id`, branch/environment, tenant/subscription/project, and least-privilege roles; do not reuse another person's environment or access.
+This learning comparison does not require creating an identity, role, or Environment policy.
 
-Before setup or dispatch, confirm that you are using the **reviewed `docs/english-live-validation` branch**, `contoso-validation-en`, and the separate English project and receipts. Read [setup_oidc.py](scripts/setup_oidc.py) first. Bootstrap in two phases: observe the exact environment-bound identity metadata **before** creating Azure federation, then configure only the owned identity and scoped permissions. Do not omit `language=en`, switch to the Korean environment, or merge `main` as a workaround.
+### 3. Separate deployment and rollback
 
-**For subsequent experiments:** the literal branch name below documents the original approved run. It is not approval to recreate a merged/deleted branch or alter Environment branch restrictions. Before a new run, select a reviewed non-`main` branch containing the candidate and substitute that branch only after its execution scope is approved. Inspect the current kit's workflow files and the pinned source links. New Azure execution and any required access-policy changes remain separate approvals.
-
-**Preserve existing repository visibility**, whether public or private, and leave existing non-English environments unchanged. Setup is allowed only on an explicitly approved non-`main` feature/docs branch, never on `main` or `master`. Approval for paid calls does not also authorize identity or access changes.
-
-**Bootstrap phase 1: Prepare the GitHub environment, then observe its issued subject.**
-
-After branch and environment-creation approval, the administrator runs:
-
-```bash
-FOUNDRY_LAB_LANGUAGE=en python scripts/setup_oidc.py --branch docs/english-live-validation --prepare-environment --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — Prepare GitHub configuration only.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `setup_oidc.py --prepare-environment --live` | The environment prefix selects English for this command. `--branch` restricts the new `contoso-validation-en` environment to the explicitly approved branch; `--prepare-environment` stops before Azure identity setup. | Creates only the new branch-restricted GitHub Environment and its ownership record. No Azure identity, federation, or client secret is created; existing non-English environments and repository visibility are unchanged. |
-
-</div>
-
-Next, dispatch the identity-only probe from that same branch:
-
-```bash
-gh workflow run azure-validation.yml --ref docs/english-live-validation -f language=en -f acknowledge_cost=true -f validation_phase=identity
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — Observe identity metadata before federation.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `gh workflow run ... validation_phase=identity` | `--ref` selects the approved branch, `language=en` selects `contoso-validation-en`, and `validation_phase=identity` selects the identity-only probe. `acknowledge_cost=true` is the required workflow opt-in, not a request for paid Azure execution in this phase. | Runs GitHub Actions and prints only nonsecret OIDC `sub`, `aud`, repository, and ref metadata. Makes **zero Azure calls**: no Azure login, deployment, inference, or evaluation. It does not print the raw token or create federation. |
-
-</div>
-
-The existing `validate.yml` entry point can also dispatch this probe with the same `--ref` and inputs. Inspect the actual Actions output and retain only the nonsecret metadata. Verify the repository, approved ref, English environment-bound `sub`, and audience `api://AzureADTokenExchange`. A successful identity probe is not Azure authentication or quality-pass evidence.
-
-Recent subject formats may include the owner's/repository's immutable IDs as `@ID` after their names. Do not assume the old `repo:owner/repo:environment:name` string is still exact, and never construct a guessed subject.
-
-**Bootstrap phase 2: Configure the owned Azure identity using that exact observed subject.**
-
-Only after the administrator has reviewed the probe and approved the scoped identity changes:
-
-```bash
-FOUNDRY_LAB_LANGUAGE=en python scripts/setup_oidc.py --branch docs/english-live-validation --subject "OBSERVED_ENVIRONMENT_BOUND_SUBJECT" --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — Administrator-only federation and scoped access changes.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `setup_oidc.py --subject ... --live` | Replace `OBSERVED_ENVIRONMENT_BOUND_SUBJECT` with the complete, exact `sub` printed by the English identity probe. Keep the same approved `--branch` and English ownership receipt. `--live` permits the reviewed Azure identity/federation and access changes. | Creates the owned resource group's identity, environment-bound federation, scoped roles, and nonsecret GitHub configuration variables. Creates no client secret and does not change repository visibility or unrelated environments. |
-
-</div>
-
-The identity receives project-level Foundry User and only the required deployment/read permissions; CI does not expand its own RBAC.
-Record the new RG's user-assigned identity, environment-bound federated credential,
-new GitHub Environment, and its branch policy together.
-The matching environment recorded during preparation is used for phase 2; an unrelated existing environment or identity is not overwritten. No tenant-wide application permissions are granted.
-For AADSTS700213, compare issuer, audience, and subject with the non-secret claims in the logs.
-`--repair-subject` corrects only the FIC in this receipt; it does not change GitHub-wide OIDC policy.
-
-Environment variables are the client/tenant/subscription/project IDs and model/Search endpoint/index/KB
-listed in the workflow's `env`. Register only non-secret configuration values. Do not upload authentication tokens,
-the entire `.env`, or raw execution results as artifacts.
-
-The optional English `optimizer` CI phase also requires `FOUNDRY_OPTIMIZER_AGENT_VERSION` in this English environment, pinned to the reviewed Responses baseline. If it is unset or invalid, the job stops rather than guessing a version. The recorded English Optimizer experiment was run separately through the bounded CLI path; an OIDC optimizer run is not claimed.
-
-After bootstrap succeeds, the separately approved **dev and release phases** use the English environment and can incur Azure charges:
-
-```bash
-gh workflow run validate.yml --ref docs/english-live-validation -f language=en -f acknowledge_cost=true -f validation_phase=dev
-# Only after dev passes and code, data, and criteria are frozen:
-gh workflow run validate.yml --ref docs/english-live-validation -f language=en -f acknowledge_cost=true -f validation_phase=release
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — Check the dev results and freeze settings between these two runs.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `gh workflow run ... validation_phase=dev` | `gh` is the GitHub CLI; `--ref` must identify the reviewed, explicitly approved branch. `-f language=en` selects the English profile and `contoso-validation-en`; `acknowledge_cost=true` explicitly selects the paid path. | Requests a real Actions run. The new candidate path runs 40 English dev cases and 8 judge controls after English-environment approval; the holdout is not invoked. |
-| 2. `gh workflow run ... validation_phase=release` | Requests final English release validation from the same frozen branch, with `language=en` and successful English dev evidence. The comment line is not an executable command. | Real evaluation charges may apply. Collects the new independent sealed English holdout or evaluates preserved English originals under the original conditions; if preparation differs, it stops before the holdout. |
-
-</div>
-
-`validate.yml` is the manual entry point already present on the default branch. Its reviewed English-capable version on `docs/english-live-validation`
-calls the reusable Azure workflow after completing local checks. A main merge or Pages publication does not authorize paid workflow dispatch; select the approved language, candidate and execution branch explicitly.
-If GitHub policy blocks a manual branch run, record it as blocked; do not merge main without authorization.
-`scripts/ci_live.py` checks the OIDC principal and RG/project match, deploys Hosted, and verifies
-**a KRW 2.9 million draft, both approval roles, and no order placed** through actual tool results.
-The new English dev phase runs only v4's 40 exposed regressions and 8 unchanged judge controls; it neither passes new holdout questions to the model nor invokes them.
-After a successful dev run exists, download and preserve its `contoso-ci-summary` artifact in `validation/english/automated-v5/`,
-then run release with the same runtime, model, and suite hashes. If successful dev evidence is missing or the code has changed,
-release stops before opening the holdout.
-The release phase either collects the new independent sealed 10-case English holdout for the first time or evaluates preserved English originals from the same environment/code.
-Human review is not a completion requirement of this educational automated gate; it is recorded only as guidance.
-Holdout evidence is usable only if its environment fingerprint, runtime hash, and actual model match the current test environment.
-You cannot reuse the author's results from another environment as quality evidence for your own CI.
-Calibration failure stops new collection; it cannot be bypassed to obtain a passing release report.
-Smoke success is separate from the full holdout quality gate. The `always()` step stops only recorded sessions.
-Raw English evidence stays in the isolated checkout's `results/`; shareable v3 summaries and reviewed synthetic response files belong under `validation/english/automated-v3/`. The completed English Hosted Invocations version 2 dev result was **29/30**, with **8/8** calibration controls and **0 critical dev failures**. The independent holdout executed **10/10** but passed **7/10**, including a critical safety citation-evidence failure: **release was not approved**. See [quality.json](validation/english/automated-v3/quality.json) and [ci-release.json](validation/english/automated-v3/ci-release.json). Preserve the immutable [first partial attempt](validation/english/attempts/36716203574/ci-dev.json) separately. No thresholds, data, or tested candidate were adjusted and no holdout rerun followed the result; do not redispatch the release collection to seek a passing score.
-Existing `validation/automated-v3/` and `validation/current/` remain historical Korean evidence. Earlier Korean v1 CI/failure records remain unchanged in the [pre-cleanup Git commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation/history/v1).
-
-For optional operational diagnostics, `validation_phase=optimizer` must use the same approved English OIDC principal,
-an explicitly pinned English Responses version, matching English instructions, and dev data only. Verify these bindings before selecting the phase. It is separate from new holdout collection and quality release, and it does not automatically apply or promote candidates.
-The workflow serializes optimizer, dev, and release phases within each language's owned environment (`cancel-in-progress=false`). English now selects v5; Korean defaults are unchanged. V5 CI verifies its distinct freeze before Azure operations and rechecks exported native/dev gate originals before opening holdout. Release reuses the exact dev version rather than redeploying another one. This is not proof that contention caused the historical timeout. The preserved [v4 live run](validation/english/automated-v4/report.json) used scoped CLI/SDK execution, **not these CI phases**: dev was incomplete, holdout stayed unopened, and Optimizer had three evaluator errors. That run did not merge or publish Pages.
-
-The [v5 CLI/SDK run](validation/english/automated-v5/report.json) also did **not** dispatch paid GitHub workflows. It completed dev collection/native evaluation, failed the combined access-evidence gate at 39/40, and left holdout unopened. Its separate Optimizer had one error and one failure. Publishing these preserved findings after explicit follow-up approval is documentation delivery, not a CI release pass or candidate promotion.
-
-### 4. Check model upgrades and knowledge changes
-
-| Change | Recheck alongside it |
+| Object | Retain |
 | --- | --- |
-| Model version/auto-update | Response format, tool selection, latency, and cost |
-| Model router pool/subset | Allowed models, quality, fallback, and context |
-| Knowledge documents/index | Accuracy, citations, deletion, permissions, and freshness |
-| Tool schema/endpoint | Call arguments, authentication, errors, and duplicate actions |
-| Instructions/skills | Regressions and safety boundaries |
-| Evaluator/judge | Score meaning and consistency of judgments |
+| Instructions | V1 baseline, current v2, exact instruction-file hashes |
+| Execution | Actual response/trace IDs, model, and data |
+| Deployment | The service-issued agent version, distinct from instruction v1/v2 |
+| Delivery | Source-matching HTML/Markdown/PDF/ZIP |
 
-Monitor model retirement notices and allow enough time to compare replacement models. Even for the same agent version, changes to a router pool or external data can change behavior.
+Do not relabel service deployment IDs or historical evidence IDs as “v2.” Keep the learning instructions at v2 while preserving actual IDs and hashes.
+Reconfirm the target and approval scope before deployment changes or rollback.
 
-### 5. Build a cost worksheet
+### 4. Understand cost and lifecycle
 
-![Prompt Agent Monitor in contoso-workshop-en. Inspect the selected English agent's time range, tokens, estimated cost, and monitoring configuration.](assets/portal/en/07-monitor.png)
+![Operate monitoring. Distinguish requests, errors, and usage from actual quality judgments.](assets/portal/en/07-monitor.png)
 
-**Read the screen:** Under **Build → Agents → your agent → Monitor**, select the time range first, then consider execution count, tokens, and estimated cost together. **Configure / Set up insights** can start new observation/evaluation configuration, so do not select it for this read-only exercise. Image values, if present, apply only to the selected English agent/time range recorded in the [English capture log](content/portal-screenshots.en.json), not the total RG bill or a quality pass. Reconcile actual billing separately with Cost Management.
-
-Approximate inference cost:
-
-```text
-Input tokens / 1,000,000 × input unit price
-+ Output tokens / 1,000,000 × output unit price
-+ Evaluation judges, search, tools, voice/video, logs, and hosted runtime
-+ Fixed capacity, reservations, and storage costs
-```
-
-Use the price list applicable to your region, currency, contract, and model at execution time. Also check billing rules for cache discounts, reasoning tokens, routers, Batch, and similar features. This guide does not guarantee a fixed “exactly this many dollars per learner” cost.
-
-### 6. Practice failure response
-
-Simulate tool timeouts, 429 responses, incorrect connections, and a single-backend outage in a nonproduction environment. Record how stopping, retrying, fallback, and human handoff should work.
-
-Use bounded retries with backoff/Retry-After, and do not blindly retry non-idempotent operations. Multi-region recovery must not send data to prohibited regions. Set RTO/RPO as organizational goals and measure them through real drills.
+Inference, Search, Hosted compute, and retained data have separate charging mechanisms.
+Stopping a session is neither resource deletion nor proof of zero total cost. An empty billing response does not mean free usage.
+Actual cost queries, extra feature execution, and deletion each need the appropriate approved scope.
 
 ## Success criteria
 
-You have a release-version bundle, evaluation criteria, an approver, a rollback target, a cost owner, and an incident-response path. Distinguish CI success from passing business quality checks.
+Another learner can extract the ZIP, read both 25-module editions, and inspect the same v1/v2 comparison plan.
+They can distinguish latest originals, current instructions, local checks, Azure execution, and quality judgments.
 
 ## Troubleshooting
 
-If something works in development but not in CI, check the OIDC subject, environment, identity roles, network access, and SDK/CLI version differences. Do not print tokens or full environment values in logs.
+First check `.env`/language selection, missing dependencies, and generated-file drift.
+Do not hide CI failures, lower paid-validation gates, or copy historical logs as new execution.
 
 ## Cleanup
 
-Work with the responsible owners to clean up unnecessary staging deployments, continuous evaluations, temporary federated credentials, and permissions.
+Keep private settings and raw responses under `results/`; share only the latest reviewed originals.
+Do not rewrite Git history. Azure resource deletion is not a default part of this module.
 
 
 ### Official sources
@@ -4220,11 +3738,7 @@ After the new path passes actual usage and evaluation and the recovery period ha
 
 ## Troubleshooting by symptom
 
-**Recorded English release result:** All 10 independent holdout cases executed, but only 7 passed and one had a critical safety citation-evidence failure. Release is blocked; see [L08](docs/en/08-evaluation.md) and [quality.json](validation/english/automated-v3/quality.json). Preserve the frozen contracts and failed originals—native judge scores, a safe-sounding refusal, or absence of an order cannot override mandatory tool/evidence checks.
-
-**Latest v5 result:** [All 40 dev cases](validation/english/automated-v5/quality.json) completed collection and native evaluation, but the business gate failed at 39/40 because `v5-dev-30` omitted its required PROC5/SEC1 evidence group. Native score 4 and 97.5% overall do not override zero access failures. Preserve the failure and unopened holdout; do not resample or repair references.
-
-**Preserved v4 result:** [Dev collection](validation/english/automated-v4/quality.json) stopped on `v4-dev-37` after 36 completed responses. Its server receipt confirms a citation-guard `RuntimeError`, not a proven transient gateway outage. The [v4 Optimizer](validation/english/automated-v4/optimizer.json) also has three evaluator errors despite service `succeeded` wording. V5 does not change those records.
+The [actual bilingual comparison](validation/current/quality.json) tied on GPT-6 Sol. Do not turn a tie into improvement. The initial custom-evaluator output-format error and polling timeout remain recorded in the [measurement report](validation/current/report.json); neither service completion nor missing numeric results count as a valid score.
 
 | Symptom | Check first | Next action | Do not |
 | --- | --- | --- | --- |
@@ -4251,8 +3765,8 @@ After the new path passes actual usage and evaluation and the recovery period ha
 | Native judge accepts a refusal but the gate fails | Required policy evidence and code-based checks | Preserve missing-evidence failures, including critical safety failures, and keep release blocked | Assume refusal wording alone satisfies the contract |
 | `Model-selected citations omitted required policy evidence` on an FX/branch question | The frozen case oracle versus keyword-derived runtime obligations | Diagnose “approved exchange rate” and negated draft wording as potential over-broad intent matching; correct a new candidate and repeat complete dev validation | Auto-fill references, weaken the oracle, rewrite the failed response, or open holdout after an incomplete dev run |
 | Optimizer list API returns HTTP 500 | Exact project, retained service error and known job receipts | Use bounded GET for recorded job IDs and scoped SDK session readbacks; explicitly leave the global inventory unverified | Claim all project jobs are idle from a failed list response |
-| Optimizer reports “perfect scores” but has errored rows | Full native `result_counts` and all downloaded output items | Preserve 37 passed / 3 errored in the v4 run as operational failure; distinguish task-adherence scoring from the business release gate | Average only successful rows or use service success text to override errors |
-| Candidate v4 differs from its development freeze | Runtime, active prompt, judge, policy, and dev hashes | Preserve the seal and start a new experiment if code must change; the new exam is still not release evidence | Reseal the same exam around changed code or recollect consumed v3 cases |
+| Optimizer reports “perfect scores” but has errored rows | Full native `result_counts` and all downloaded output items | Preserve errored or missing rows as operational failure; distinguish task-adherence scoring from the business release gate | Average only successful rows or use service success text to override errors |
+| Recorded candidate differs from its development freeze | Runtime, active prompt, judge, policy, and dev hashes | Preserve the seal and start a new experiment if code must change; the new exam is still not release evidence | Reseal the same exam around changed code or resample consumed exam cases |
 | Optimizer hits its job deadline | Preserved `optimizer_progress`, `optimizer_timeout`, terminal/outcome and cleanup receipts | Distinguish deadline expiry from an established service-side cause; retain the original limit and inspect bounded cleanup | Automatically extend the job, lower gates, or call baseline-only scoring an improvement |
 | More sessions appear after Optimizer cancellation | SDK session inventory, exact baseline/draft version, candidate ID and resolver ownership | Use six bounded reconciliation sweeps and same-ID stopped readbacks; retain unknown/unsettled sessions as unverified | Rely only on CLI listing, a `cand_` prefix, or the terminal timestamp cutoff |
 | IQ permission leak | ACL metadata, user token, and server validation | Trace permissions from the source through query time | Control access only through prompts |
@@ -4268,22 +3782,9 @@ After the new path passes actual usage and evaluation and the recovery period ha
 | Costs keep increasing | Routines, voice, continuous evaluation, Search/PTU/runtime | Separate active, idle, and fixed costs | Only close the browser |
 | Cleanup fails | Receipt endpoint, permissions, and ownership | Record the remaining IDs and retry | Delete the entire resource group |
 
-## Administrator handoff: inherited diagnostics target
+## Administrator handoff
 
-**Status: prepared for the governance administrator; not sent or confirmed.** The preserved [English execution report](validation/english/current/report.json) records a failed inherited diagnostic-setting deployment referring to a missing Log Analytics workspace outside the lab resource group. The lab's own foundation and observability deployments succeeded. This is neither a new check of the workspace nor proof of organization-wide compliance.
-
-During the approved v4 live run, one failed deployment was reread **inside the owned RG**, retaining `DeploymentFailed` / `ResourceNotFound` and its exact internal correlation/error details in the private `results/live-v4-policy-handoff.json`. No external workspace lookup, administrator message, policy change, or remediation was performed. The handoff remains **awaiting administrator confirmation**.
-| Handoff item | Administrator action or evidence |
-| --- | --- |
-| Locate the original failure | In the owned English resource group's deployment history, retain the failed deployment name, UTC time, correlation ID, error code and nested diagnostic-setting target. Do not retry provisioning the entire lab to investigate it |
-| Identify the responsible policy | Record the actual policy assignment/definition ID and its assignment scope from the deployment/error details. Route to that management-group/subscription governance owner, not automatically to the lab owner |
-| Confirm the dependency | In an approved internal channel, confirm the exact referenced workspace resource ID, its existence/region and intended ownership. These IDs and an administrator's response are not established by the published summary |
-| Decide the fix | The authorized owner decides whether to restore the intended workspace or correct the policy destination. Policy exemptions, role changes, restoring/deleting resources, and remediation deployment each need separate approval |
-| Acceptance evidence | Preserve the original failure; retain the approved change reference, a new successful scoped remediation/deployment, the resulting diagnostic-setting destination, and an authorized readback of log delivery |
-
-Suggested internal request: “Please confirm the owner and intended destination of the inherited diagnostic policy affecting the English Contoso lab. The lab deployments succeeded, but the organizational diagnostics deployment reported a missing external workspace. Please return the assignment/workspace IDs through the approved internal channel, the approved remediation decision, and verification evidence. No policy, permission, workspace, or resource deletion has been authorized by the lab follow-up.”
-
-Do not disable diagnostics, hide the failed deployment, add broad roles, or create a similarly named workspace in the lab group to make the warning disappear. Until the administrator supplies confirmation and the separately authorized verification succeeds, keep this item **awaiting administrator confirmation**.
+The inherited external diagnostics dependency remains for its governance owner to confirm. This instruction update does not query the external workspace, change policy/access, or perform remediation. Keep exact resource/correlation IDs in approved private channels and never hide a prior failure or add broad roles just to pass a lab.
 
 ## Safe information to include in a support request
 
@@ -4420,17 +3921,10 @@ The table below is an **educational completion record**, not service certificati
 
 This record is separate from the web guide's progress checkboxes. Browser progress does not connect to Azure.
 
-Keep the English data scopes distinct: legacy **10 dev / 10 exposed holdout** learning cases, a historical v2 translation with **20 dev / 10 exposed holdout**, and v3 with **30 dev regressions plus a new independent sealed 10-case English holdout**. The v3 judge must match all **8 calibration controls**; the release gate still requires **at least 90% overall and zero safety/access failures**. Do not expose sealed questions/answers or tune against them. A shortened classroom exercise is not independent release evidence.
+Use L08's same three questions once with the unchanged v1 baseline and improved v2. Keep model, context, output format and checks identical. Have learners explain specific omissions or evidence improvements from the actual answers; ties and regressions are valid observations, not reasons to resample.
 
-The v3 exam is consumed. V4 inherited all 40 exposed cases and sealed a separate exam, but its live dev failed before completion. V5 inherits those same 40 dev questions/oracles and eight judge controls, freezes explicit-request-v2 separately, and uses ten newly authored independent cases—not the unused v4 exam. Keep sealed questions out of instruction development and Optimizer input; drift invalidates a freeze rather than silently resealing it.
-
-The [subsequent approved v4 run](validation/english/automated-v4/report.json) is a useful failed-gate example: both version-3 smokes and 8/8 judge controls passed, but dev stopped after 36 completed responses at a citation-guard runtime error. The untouched holdout was not used. The native Optimizer finished in 647 seconds yet had three evaluator errors, so `succeeded` and “perfect scores” wording did not qualify as operational or quality success. Five newly created sessions were verified stopped; administrator confirmation and broader job-list availability remain unresolved.
-
-The [v5 dev failure](validation/english/automated-v5/quality.json) teaches a second distinction: 40 native passes and 97.5% combined business success still fail the fixed zero-access-failure rule. Case 30 refused restricted data but omitted a required evidence group. Its original answer remains unchanged, and the independently authored holdout remains unexecuted. Never demonstrate a passing result by inserting the missing references or rerunning that question.
-
-All 18 English portal captures are complete, but **release is not approved**. Core learning passed 10/10 with 6/6 calibration controls; Hosted version 2 dev passed 29/30 with 8/8 calibration and zero critical dev failures. The independent holdout executed 10/10, passed 7/10, and had a critical safety citation-evidence failure. Native judge results alone did not satisfy the frozen tool/evidence contracts. No post-holdout threshold, data, or tested-candidate adjustment or rerun occurred. Use the [current English report](validation/english/current/report.json) and L08 to teach the difference between execution, learning, and release quality.
-
-Reviewed English evidence stays under `validation/english/`; `validation/current/`, `validation/automated-v3/`, and historical Git records remain Korean-run evidence. The dev-only Optimizer outcome is reported separately; do not assume success. Record unexecuted optional services honestly. Lack of a license, device, Teams access, fine-tuning job, or other optional service is not a full-cloud pass.
+No Optimizer, new holdout, or repeated release run is required for the lesson. The separate full business gates remain strict and are not replaced by the small learning checklist.
+Only [current instructions and latest evidence](validation/current/instructions.json) remain in the reader; older originals are preserved in Git history. Portal images retain their original capture provenance and are not fresh v2 validation.
 
 ## Failure signals instructors should watch for
 
@@ -4675,100 +4169,40 @@ There are **91 coverage entries** across 25 modules. This is not a count of indi
 
 **Reference · Execution checked on 2026-09-30**
 
-> **Foundational sources reviewed: 2026-09-29 / Execution APIs rechecked and Contoso edition updated: 2026-09-30, Asia/Seoul.** A review date does not make a document permanently current.
+> **Foundational sources reviewed: 2026-09-29 / Execution APIs rechecked: 2026-09-30, Asia/Seoul.** A review date does not make a source permanently current.
 
 ## How we assessed currency
 
-We reviewed Microsoft Learn platform overviews, the capability reference, the GA table, feature-specific documentation, and official SDK examples. Where status descriptions conflicted or covered different scopes, we distinguished the specific APIs, portal experiences, and regions rather than making a broader claim.
+We compared Microsoft Learn overviews, the capability reference, GA tables, feature documentation, and official SDK examples.
+Portal GA is distinct from individual feature GA. Where API, region, or access scopes differ, the guide uses the narrower claim.
+The monthly What's new roundup then covered August 2026; it was not relabeled as all September changes.
 
-At the time of review, the monthly What's new roundup covered **August 2026**. We did not relabel it as a comprehensive list of September releases. Feature-specific documentation, including Content Understanding, contained September updates that were considered separately.
+## Boundaries to remember
 
-## Changes to keep in mind
-
-| Topic | How this guide treats it |
+| Topic | Treatment |
 | --- | --- |
-| New portal GA | Separate from the GA status of individual features |
-| Scheduled retirement of portal Workflows | State the 2026-12-01 date; use MAF for new implementations |
-| Foundry IQ | Some APIs are GA; the portal experience is Preview |
-| Foundry RBAC names | Explain both new names and previous Azure AI names |
-| Memory / Voice / Agent guardrails / some operations features | Mark as Preview |
-| Agent Optimizer | Limited preview according to the GA table |
-| Content Understanding | Distinguish 2025-11-01 GA from 2026-06-01-preview |
-| SDK combinations | Separate installable base and advanced environments |
+| New portal GA | Separate from individual feature GA |
+| Scheduled portal Workflows retirement | 2026-12-01; consider MAF for new implementations |
+| Foundry IQ | Some APIs GA, portal experience Preview |
+| Memory, Voice, Agent guardrails | Keep API-specific Preview/access conditions explicit |
+| Agent Optimizer | Limited preview, optional exercise |
+| Content Understanding | Distinguish 2025-11-01 GA and 2026-06-01-preview |
+| SDKs | Separate installable core and advanced combinations |
 
-## Validation boundaries
+## Current instructions and validation
 
-### Latest English v5 live validation
+The learning instructions use only **baseline v1 and improved v2**. L08 compares the same questions, context, model, and checks once.
+The label v2 does not establish a score increase.
 
-The [v5 quality record](validation/english/automated-v5/quality.json) contains one complete 40-case dev collection and one native run with **40 passed, 0 errored and 0 skipped**. Both version-4 protocol smokes and all eight unchanged judge controls passed. The combined business score is **39/40 (97.5%)**, but case `v5-dev-30` omitted its mandatory access-evidence group. The zero-safety/access-failure rule therefore blocks release, and the independently authored holdout remains **0/10 executed**.
+The [current instruction status](validation/current/instructions.json) records preparation and whether a real comparison exists.
+Both languages were actually compared using `gpt-6-sol` / `2026-09-22`. For the same three questions per instruction, native completeness/relevance/groundedness means tied at 5.0/5. The Korean local checklist tied 9→9 and English 8→8. Local structure, browser and PDF checks live separately in `validation/docs/`; they are not Azure results.
 
-The [diagnosis](validation/english/automated-v5/dev30-diagnosis.json) distinguishes a correct restricted-access refusal from complete required evidence. No restricted contract was accessed and no business tool ran in that case. Native score 4 did not override the missing PROC5/SEC1 group. Original responses, oracles, thresholds and source freeze were not changed after observing this failure. V5 evidence uses `explicit-request-v2`; historical v4 evidence is replayed under v1 only.
+The [latest actual originals](validation/current/report.json) link these bilingual responses to native judgments.
+The initial custom metric's missing numeric-output contract is preserved; only that contract was corrected and completeness evaluated on the same answers. Targets were not resampled.
+Earlier full-dev and Optimizer failures remain unchanged in [immutable Git history](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation). This tie is not relabeled as v2 improvement or an independent holdout pass.
 
-The single [Optimizer job](validation/english/automated-v5/optimizer.json) ended after 647 seconds with service `succeeded`, but 38 passed / 1 failed / 1 errored native rows make it `operational_failure`. It generated and promoted no candidate. [Fresh SDK closeout](validation/english/automated-v5/operations.json) confirmed all five created sessions stopped and the recorded jobs terminal; scoped Responses job listing succeeded without establishing project-wide inactivity. These are not independent quality evidence. Cost queries, optional-service checks, external-workspace reads, policy/access changes and Azure resource deletion remain excluded. Main merge and Pages publication received separate follow-up approval; publishing a failed experiment does not turn it into a quality pass.
-
-### Preserved English v4 live validation
-
-The [approved v4 live report](validation/english/automated-v4/report.json) records real deployment of both protocols as version 3, successful business smokes, and **8/8 native judge controls**. Invocations dev collection completed **36 responses**, then `v4-dev-37` failed a required-policy citation guard; three cases were not invoked. A complete native dev evaluation was therefore not started, and the new holdout remained sealed and unexecuted. The failed original and its retained server receipt are preserved separately; no gate or frozen candidate was changed.
-
-The single dev-only native Optimizer job finished in **647 seconds**, with a baseline score of **0.905625**, zero generated candidates, and **37 passed / 3 errored** native rows. It is recorded as `operational_failure` despite service success/perfect-score wording. Six SDK sweeps stopped two new baseline sessions, and final readback verified all **five sessions created by this run** inactive. The job-list API still returned HTTP 500, so this is not a project-wide idle assertion. One failed organizational diagnostic deployment was reread inside the owned RG; external workspace existence and governance-owner confirmation remain outside the verified scope.
-
-No cost query, optional-service test, policy/access change, resource deletion, main merge or Pages publication was performed. No new portal screenshots were captured; the existing images document the earlier run.
-
-### Preserved English v3 Azure validation
-
-**The English release-quality gate failed.** In a new dedicated resource group, the core learning evaluation passed 10/10 with calibration 6/6. The fixed Hosted candidate passed the 30-case dev gate at 29/30 with no critical failures. Its new independent English holdout then passed **7/10, with one critical safety-evidence failure**, despite calibration 8/8 and complete execution of all ten cases. A successful deployment, a completed evaluation job, and a passing quality gate are different outcomes.
-
-The minimum pass rate remains 90%, with zero safety/access failures. Neither the questions, citation requirements, evaluator, nor threshold was weakened. The frozen candidate was not changed or rerun after inspecting the holdout. Human review remains optional guidance and was not recorded as completed.
-
-| English result | What the evidence establishes |
-| --- | --- |
-| New environment | A separately owned resource group, Foundry project, online models, Search Basic, telemetry, and a branch-restricted OIDC identity |
-| Core labs | Actual English model and Prompt Agent responses, File search over English policies, inventory lookup, and draft-only purchase tools |
-| Advanced integrations | Actual keyword/hybrid/GA-minimal IQ retrieval, both Hosted protocols, Toolbox/MCP/managed-identity OpenAPI/Skills, MAF and A2A |
-| Memory and Routine | An English synthetic preference, scope isolation, and deletion of that item; a one-shot scheduled English response correlated to a trace, then disabled |
-| Trace correlation | All ten holdout request trace IDs found; the bounded combined query also observed seven model-response spans, not ten |
-| Final holdout | 7/10; one critical safety citation-evidence failure; **not release-approved** |
-| Remaining conditions | Voice, Content Understanding service calls, actual fine-tuning, Foundry Local device inference, document-level ACLs, and Teams publishing remain conditional or not executed |
-
-The initial English dev attempt stopped after 23 completed cases. A sequential request first called the stock tool, but the runtime moved to an answer while a draft was still pending. Actual server evidence showed repeated JSON messages and an output-limit failure. Before the holdout, the controller was corrected to allow at most two tool rounds and then one separate, tool-free answer built from completed evidence. Duplicate drafts are rejected with provenance, and the remote timeout now matches the existing bounded server window. The original failed attempt remains under `validation/english/attempts/`; it is not relabeled as a pass.
-
-The final failures are also retained. Two clarification/validation cases triggered a read-only stock lookup forbidden by their frozen case contracts; one response discussed an unacceptable quantity-mismatch workaround. The safety case refused the injected approval/payment claim but omitted required policy evidence. No actual approval, order, payment, or stock mutation occurred.
-
-See the [English execution report](validation/english/current/report.json), [quality result](validation/english/automated-v3/quality.json), and [original release summary](validation/english/automated-v3/ci-release.json). The separate dev-only Optimizer job reached its 1200-second limit and was canceled; no completed improvement or promotion is claimed. Final closeout stopped five discovered optimizer baseline/candidate sessions and verified zero active work across the project. This does not repair or replace the held-out verdict.
-
-The resource-group screen also preserves an inherited organizational diagnostic-policy deployment failure: its external governance log workspace was missing. The lab's own foundation and observability deployments succeeded. No shared governance resource was changed to hide that failure.
-
-Resources are retained until explicit deletion approval. Stopping sessions and schedules does not stop all costs: Search Basic and retained storage/logs can continue charging. An empty Cost Management result means billing has not yet been reported, **not** that the run cost zero.
-
-The earlier local follow-up's checks remain in `validation/docs/improvements-v4/`, the v4 live edition in `validation/docs/live-v4/`, and the offline citation correction in `validation/docs/citation-remediation/`. The new bilingual v5 edition is checked in `validation/docs/live-v5/`. None replaces earlier reports or counts as additional Azure execution. The [local follow-up record](validation/english/improvements-v4/report.json) preserves its original no-live state.
-
-### Preserved Korean runs and earlier v1 results
-
-The original Korean automated-v3 gate passed at dev 29/30 and holdout 9/10, with zero critical failures and calibration 8/8. Its Routine and dev-only Optimizer records remain unchanged in `validation/current/` and `validation/automated-v3/`. **Those are not results for the new English environment.**
-
-Earlier validation files remain available in the [original pre-cleanup Git commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation). Duplicate and older runs were removed from the current file listing; their recorded content and verdicts were not changed.
-
-**The following numbers are the preserved v1 results.** In a new resource group, that run exercised Hosted, Search/IQ, Toolbox/MCP/OpenAPI/Skills, Memory, A2A, native evaluation, Tracing, and an actual OIDC deployment.
-
-| Category | Recorded result |
-| --- | --- |
-| Implementation complete | This repository alone supports installation, document generation, tests, and packaging |
-| Execution complete | New Azure environment; 10 dev and 10 independent holdout cases; traces 10/10; CI deployment and business smoke check |
-| Quality gate | **Failed:** holdout 9/10, but safety case hold-08 omitted the required security-policy citation |
-| v1 operational limitations | Routine history/output not confirmed; zero new native optimizer candidates |
-| Not executed | Voice, CU service, actual fine-tuning, Foundry Local device execution, document-level ACLs, and Teams publishing |
-
-hold-08 rejected the approval bypass but did not cite the required section 4 of `security-policy.md`. Neither the scoring criteria nor the zero-safety-failure rule was relaxed, and instructions were not retuned after inspecting the holdout. The judge calibration controls agreed in 6/6 cases, but that is not equivalent to review by real users.
-
-**The Korean automated-v3 path treats human review as an optional recommendation.** Its v1/v2 test sets are retained for dev regression; its v3 uses a separately sealed holdout and automated retrieval, citation, and tool checks. The overall 90% threshold and zero safety/access failures remain unchanged. Its original outcome is in `validation/current/report.json` and `validation/automated-v3/`; the English outcome is in the separate paths above.
-
-In v1, the Routine was created and dispatch was requested; it was retained in the disabled state. A completed Optimizer service job does not by itself mean a new candidate was generated or quality improved. The original v1 results, CI summary, and operational status remain in the [historical validation archive](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation).
-
-**Local contract checks are not cloud execution checks.** Distinguish implementation complete, execution complete, quality passed, blocked, and not executed. The recorded execution targeted only a new dedicated resource group; previous A/B results are not reused as Contoso evidence.
-
-Local checks cover document structure, internal links, synthetic data, tool validation, evaluation gates, SDK contracts, and the web UI. Consult the [English execution report](validation/english/current/report.json) for actual results and unverified scope. Historical evidence remains in the immutable Git commit above; it is not rewritten as a new result.
-
-This material is not an official Microsoft curriculum or a warranty. The scenario, explanations, and diagrams were created for this workshop. The sources below support product facts; the guide does not reproduce their full documentation.
+Screenshots are actual portal observations from their recorded capture times, not new v2 execution or quality evidence.
+Optional features, policy/access changes, cost queries, deletion, merges, and publication each require the applicable separate approval.
 
 ## Public official sources
 
@@ -4857,11 +4291,8 @@ This material is not an official Microsoft curriculum or a warranty. The scenari
 
 ## Refresh before the next workshop
 
-Recheck the GA table, capability reference, relevant feature documentation, region/model cards, and compatible SDK combinations—in that order. Update changed facts in `content/sources.json`, its English translation, and the affected module together. Updating a source URL alone is not enough: the code, packages, and success criteria must still agree.
-
-## Language editions
-
-English is the default web edition at `index.html`; the original Korean reader is at `index.ko.html`. Both contain the same 25 labs and five reference sections. The language switch keeps the current module and shares browser progress. English execution explicitly selects `FOUNDRY_LAB_LANGUAGE=en` and the synthetic `data/en/` profile in an isolated checkout. Korean remains the default runtime profile for existing commands. English portal images are genuine new captures from the English environment; the original Korean images and historical evidence are preserved separately.
+Check GA tables, the capability reference, required feature docs, regional/model support, and SDK combinations.
+Update the relevant sources and exercises when something actually changes. A learning guide does not need a growing sequence of validation numbers or histories.
 
 
 ### Official sources

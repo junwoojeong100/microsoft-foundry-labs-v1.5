@@ -121,7 +121,7 @@ with patch.object(Path, 'read_text', guard):
     assert DEFAULT_SUITE == 'automated-v5'
     cases = dev_cases(DEFAULT_SUITE)
     request = payload('agent', '4', 'judge', 'reflection', cases=cases,
-                      prompt_path=Path('data/en/prompts/agent-v7.txt'))
+                      prompt_path=Path('data/en/prompts/agent-v2.txt'))
     assert len(request['inputs']['train_dataset']['items']) == 40
     assert 'validation_dataset' not in request['inputs']
     assert request['inputs']['options']['max_candidates'] == 2

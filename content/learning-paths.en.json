@@ -6,9 +6,9 @@
   "l17": {"label":"Separate feature paths","requires":"A routine can run independently with the server-side prompt agent from L05. The long-running Hosted path requires L14."},
   "l18": {"label":"Independent elective","requires":"The base environment and the models and permissions for your chosen Content Understanding or Code Interpreter path. Preparing the synthetic receipt also works locally."},
   "l19": {"label":"Independent elective","requires":"The base environment, a supported Voice/Speech model and region, and device permissions. No other advanced module is required."},
-  "l20": {"label":"Separate feature paths","requires":"Deploy the Responses agent in L14 before using Hosted Optimizer. Fine-tuning data preparation and conditional training are independent once the relevant model prerequisites are met."},
+  "l20": {"label":"Separate feature paths","requires":"Read L08's single instruction comparison first. Local training-data preparation is independent; Hosted Optimizer and real training are optional and require separate approval and prerequisites."},
   "l21": {"label":"Independent elective","requires":"The core concepts, administrator permissions, and network policies. The design path is independent; real organizational changes need separate approval."},
-  "l22": {"label":"Prerequisites required","requires":"The L13 → L14 deployment and the Hosted automated evaluation path in L08. Completing Optimizer in L20 is not required."},
+  "l22": {"label":"Run after source setup","requires":"L01's local environment and repository sources. Documentation/code CI does not require Hosted redeployment, repeated evaluation, or Optimizer."},
   "l23": {"label":"Independent elective","requires":"A supported Foundry Local device or the relevant Fabric/Work IQ licenses and permissions. These electives are independent of other advanced modules."},
   "l24": {"label":"Independent elective","requires":"The core-course concepts. Comparison and design are independent; perform a real migration only with an approved Classic environment."}
 }

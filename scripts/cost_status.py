@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import Evidence
 from lab_profile import validation_for
-from workshop import save_json
+from workshop import RESULTS, save_json
 from azure_environment import az, owned
 
 
@@ -41,7 +41,7 @@ def main():
     pricing = validation_for(ROOT) / "current/retail-pricing.json"
     if pricing.exists():
         report["search_retail_reference"] = json.loads(pricing.read_text())
-    save_json(validation_for(ROOT) / "current/cost.json", report)
+    save_json(RESULTS / "cost-status.json", report)
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 

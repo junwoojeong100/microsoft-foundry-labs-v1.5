@@ -35,15 +35,9 @@ The English edition uses a separate **`contoso-workshop-en` project and English 
 
 **English backend validation and portal observation are separate activities.** The English run created and invoked owned agents, retrieved English policies, and submitted approved evaluations. Consult the [English screenshot log](../../content/portal-screenshots.en.json) for exact capture scope, times, masking, and hashes. Fine-tuning image 14 is a product sample, not Contoso training; Voice image 15 records a canceled form, not a voice session. A screenshot is an observation, not deployment or release-quality certification.
 
-**Current English result: no release approval.** The v5 run passed both version-4 protocol smokes and **8/8** judge controls. All **40 dev cases** completed native evaluation without errors or skips, but the combined business gate is **39/40 (97.5%) with one critical access-evidence failure**. The independent holdout remains **0/10 executed, sealed**. The [latest live report](../../validation/english/automated-v5/report.json) preserves the failure instead of relaxing gates or resampling.
+**Current learning path: baseline v1 → improved v2 → one comparison.** L08 uses three shared questions and one fixed checklist, without a release-experiment sequence. V2 must still answer verifiable public parts, select claim-specific sources, and preserve permission and tool boundaries.
 
-The earlier v3 run remains separate: core learning **10/10**, calibration **6/6**, Hosted version-2 dev **29/30**, calibration **8/8**, and a complete independent holdout at **7/10 with one critical safety-evidence failure**. That run did not alter its frozen candidate or rerun its holdout.
-
-English MAF, A2A, and Toolbox's managed-identity OpenAPI and remote MCP paths completed. The one-shot Routine succeeded and was disabled; Memory remember/isolation/deletion of only the synthetic item succeeded, with the store retained. These scoped results do not cancel the holdout failure or establish that every optional service ran. The dev-only Optimizer job was still running at this reporting cutoff; its outcome is reported separately.
-
-Read the [English execution report](../../validation/english/current/report.json), [quality results](../../validation/english/automated-v3/quality.json), and [release result](../../validation/english/automated-v3/ci-release.json). Existing `validation/current/`, `validation/automated-v3/`, and earlier Git-history records remain **historical Korean-run evidence**; they are not English results. See [Sources and validation](../../docs/en/sources.md) for execution scope, the Optimizer's eventual outcome, and unresolved items.
-
-The preserved [v4 report](../../validation/english/automated-v4/report.json) still records its earlier incomplete dev, three Optimizer evaluator errors, five stopped sessions, and unavailable job-list API. V5 uses a distinct `explicit-request-v2` freeze and independently authored exam; it does not reuse that untouched holdout or rewrite any prior failure. Its [Optimizer](../../validation/english/automated-v5/optimizer.json) and [scoped closeout](../../validation/english/automated-v5/operations.json) are separate evidence. External-policy administrator confirmation remains pending; cost queries and optional-service validation are excluded.
+The [current instruction status](../../validation/current/instructions.json) links the [latest actual Azure comparison](../../validation/current/report.json). Both languages used GPT-6 Sol: native completeness/relevance/groundedness tied at 5.0/5 for both v1/v2. No score improvement or independent release pass is claimed.
 
 ### How to read the source code and commands
 
@@ -109,7 +103,7 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 
 ### 4. Keep evidence of your results
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not determine whether you called a service. Save actual results in your English checkout's `results/` or the instructor's record sheet. Share only reviewed, minimal synthetic evidence under `validation/english/`. Do not record personal information or tokens, and do not relabel Korean-run results as English evidence.
+Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save personal originals in your English checkout's `results/`. Keep only the latest reviewed set under `validation/current/`, retaining its actual language and input hashes. Do not record personal information or tokens or relabel one environment's evidence as another's.
 
 ## Success criteria
 

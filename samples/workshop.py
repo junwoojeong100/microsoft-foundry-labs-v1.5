@@ -388,7 +388,7 @@ def run_turn(
 
 def create_lab_agent(
     project: Any, client: Any, model: str, mode: str, receipt: Receipt,
-    prompt: Path = DATA / "prompts/agent-v4.txt",
+    prompt: Path = DATA / "prompts/agent-v2.txt",
 ) -> str:
     from azure.ai.projects.models import FileSearchTool, FunctionTool, PromptAgentDefinition
 
@@ -572,7 +572,7 @@ def main(argv: list[str] | None = None) -> int:
         child.add_argument("--split", choices=["all", "dev", "holdout"], default="dev")
         child.add_argument("--receipt", type=Path)
         child.add_argument("--confirm")
-        child.add_argument("--prompt", type=Path, default=DATA / "prompts/agent-v4.txt")
+        child.add_argument("--prompt", type=Path, default=DATA / "prompts/agent-v2.txt")
         child.add_argument("--case-delay", type=float, default=10.0, help="Seconds between evaluation cases; 0..60.")
     args = parser.parse_args(argv)
     if args.command == "doctor":

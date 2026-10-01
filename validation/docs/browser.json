@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-30T14:21:22.188Z",
+  "checked_at": "2026-10-01T00:56:10.825Z",
   "scope": "Local bilingual documentation only; no Azure execution.",
   "private_paths_blocked": true,
   "default_language": "en",
@@ -26,8 +26,8 @@
         "advanced navigation exposes dependency labels",
         "25 trackable labs",
         "all 25 labs explain feature, purpose, method and execution surface",
-        "all 59 shell blocks have visible command explanations",
-        "all 124 logical CLI commands have individual explanation rows",
+        "all 50 shell blocks have visible command explanations",
+        "all 107 logical CLI commands have individual explanation rows",
         "language-specific portal capture manifest matches the rendered guide",
         "all portal captures retain genuine scoped provenance and original hashes",
         "all offline portal images load with provenance and execution boundaries",
@@ -35,9 +35,9 @@
         "print cover uses localized link: data/en/receipt.html",
         "localized receipt/evidence file is available: data/en/receipt.html",
         "synthetic receipt matches the reader language",
-        "footer uses localized link: validation/english/current/report.json",
-        "print cover uses localized link: validation/english/current/report.json",
-        "localized receipt/evidence file is available: validation/english/current/report.json",
+        "footer uses localized link: validation/current/instructions.json",
+        "print cover uses localized link: validation/current/instructions.json",
+        "localized receipt/evidence file is available: validation/current/instructions.json",
         "source is readable as text: samples/workshop.py",
         "source is readable as text: azure.yaml",
         "source is readable as text: .env.example",
@@ -155,7 +155,7 @@
       "failedRequests": [],
       "remoteRequests": [],
       "azure_calls": 0,
-      "guide_sha256": "3a936d4daef52333163eee4adc029c24a17d757c4788b18ed3df7a1bf3da5d89"
+      "guide_sha256": "ff87f7a6f6e4f8b78099019ff9d21ae32c5a0395b97a2a101a3216ff7b74c9f2"
     },
     "ko": {
       "status": "passed",
@@ -179,8 +179,8 @@
         "advanced navigation exposes dependency labels",
         "25 trackable labs",
         "all 25 labs explain feature, purpose, method and execution surface",
-        "all 55 shell blocks have visible command explanations",
-        "all 120 logical CLI commands have individual explanation rows",
+        "all 48 shell blocks have visible command explanations",
+        "all 105 logical CLI commands have individual explanation rows",
         "language-specific portal capture manifest matches the rendered guide",
         "all portal captures retain genuine scoped provenance and original hashes",
         "all offline portal images load with provenance and execution boundaries",
@@ -188,9 +188,9 @@
         "print cover uses localized link: data/receipt.html",
         "localized receipt/evidence file is available: data/receipt.html",
         "synthetic receipt matches the reader language",
-        "footer uses localized link: validation/current/report.json",
-        "print cover uses localized link: validation/current/report.json",
-        "localized receipt/evidence file is available: validation/current/report.json",
+        "footer uses localized link: validation/current/instructions.json",
+        "print cover uses localized link: validation/current/instructions.json",
+        "localized receipt/evidence file is available: validation/current/instructions.json",
         "source is readable as text: samples/workshop.py",
         "source is readable as text: azure.yaml",
         "source is readable as text: .env.example",
@@ -308,7 +308,7 @@
       "failedRequests": [],
       "remoteRequests": [],
       "azure_calls": 0,
-      "guide_sha256": "5e84473f4c7cfa468ba67123607c6b138302b5e85938fb7d2e16933833ea99f4"
+      "guide_sha256": "db5e6975a67476241ef33fb4a14ebe2a22c76b2d5885f87850a81ff1c63a97bc"
     }
   }
 }
