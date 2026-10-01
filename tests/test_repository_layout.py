@@ -11,13 +11,20 @@ class RepositoryLayoutTests(unittest.TestCase):
     def test_only_current_distributions_are_present(self):
         release = json.loads((ROOT / "content/release.json").read_text())
         self.assertEqual(
-            {path.name for path in ROOT.glob("*Foundry*Hands-on*.pdf")},
-            {edition["pdf"] for edition in release["languages"].values()},
+            {path.name for path in (ROOT / "downloads").glob("*Foundry*Hands-on*.pdf")},
+            {Path(edition["pdf"]).name for edition in release["languages"].values()},
         )
         self.assertLessEqual(
-            {path.name for path in ROOT.glob("*Foundry*Hands-on*.zip")},
-            {release["artifact"] + ".zip"},
+            {path.name for path in (ROOT / "downloads").glob("*Foundry*Hands-on*.zip")},
+            {Path(release["archive"]).name},
         )
+        self.assertEqual(
+            {path.name for path in (ROOT / "downloads").glob("GUIDE*.md")},
+            {Path(edition["markdown"]).name for edition in release["languages"].values()},
+        )
+        for key in ("markdown", "pdf"):
+            self.assertTrue(all(Path(edition[key]).parent == Path("downloads") for edition in release["languages"].values()))
+        self.assertEqual(Path(release["archive"]).parent, Path("downloads"))
         self.assertFalse((ROOT / "assets/favicon.svg").exists())
 
     def test_validation_has_no_superseded_snapshots(self):

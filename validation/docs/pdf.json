@@ -2,10 +2,10 @@
   "scope": "Local bilingual PDF checks only; no Azure execution.",
   "languages": {
     "en": {
-      "checked_at": "2026-10-01T03:18:20.320787+00:00",
+      "checked_at": "2026-10-01T18:33:55.554010+00:00",
       "language": "en",
-      "pdf": "Contoso-Foundry-Hands-on-2026-09-30.en.pdf",
-      "pdf_sha256": "3fd8b4fa340fd0f4c3d4f56d19005905d8ddd87a02bbe55276ebb16b31d60818",
+      "pdf": "downloads/Contoso-Foundry-Hands-on-2026-09-30.en.pdf",
+      "pdf_sha256": "3da3dc725f456a51ecb47fde9d68b9bcda1c03fceb57bb82c57596cac6bf1e24",
       "status": "passed",
       "pages": 187,
       "chapter_headings": 30,
@@ -23,10 +23,10 @@
       "portal_manifest": "portal-screenshots.en.json"
     },
     "ko": {
-      "checked_at": "2026-10-01T03:18:21.742755+00:00",
+      "checked_at": "2026-10-01T18:33:57.276694+00:00",
       "language": "ko",
-      "pdf": "Contoso-Foundry-Hands-on-2026-09-30.pdf",
-      "pdf_sha256": "38f0c5d894221903489179fbc024871636e00c4d18e2fb50e9f9360c2a034191",
+      "pdf": "downloads/Contoso-Foundry-Hands-on-2026-09-30.pdf",
+      "pdf_sha256": "98e7bf4851fc90bfe3ec8cf9a3445a45e864b0e945f166acf8bced65ae3ad1f9",
       "status": "passed",
       "pages": 158,
       "chapter_headings": 30,

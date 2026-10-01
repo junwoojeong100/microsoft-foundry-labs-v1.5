@@ -91,6 +91,10 @@ async (page) => {
         check((await response.text()).includes(`<html lang="${edition.language}">`), "synthetic receipt matches the reader language");
       }
     }
+    for (const path of [edition.readme, edition.markdown, edition.pdf, page.contosoGuideRelease.archive]) {
+      const response = await page.request.get(`${origin}/${path}`);
+      check(response.ok(), `download is available: ${path}`);
+    }
     for (const source of ["samples/workshop.py", "azure.yaml", ".env.example", ".github/workflows/validate.yml"]) {
       const response = await page.request.get(`${origin}/${source}`);
       check(response.ok() && response.headers()["content-type"].startsWith("text/plain"), `source is readable as text: ${source}`);
