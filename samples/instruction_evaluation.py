@@ -3,7 +3,6 @@
 import argparse
 from datetime import datetime, timezone
 import hashlib
-from itertools import islice
 import json
 import math
 import os
@@ -14,14 +13,14 @@ from uuid import uuid4
 from cloud import project_client
 from evaluation_lab import check_native_completeness, wait_for_native
 from evidence import Evidence, digest, redacted, serializable
-from grounding import parse_answer
-from instruction_lab import cases, model_input, score, summarize
+from grounding import answer_format, parse_answer
+from instruction_lab import cases, model_input, score, summarize, verify_profile
 from search_lab import policy_chunks
 from workshop import DATA, LANGUAGE, RESULTS, ROOT, config_values
 
 RUBRIC = ROOT / "data/evaluation/instruction-judge.txt"
 METRICS = ("completeness", "relevance", "groundedness")
-FIELDS = ("id", "query", "response", "context")
+FIELDS = ("id", "query", "expected_behavior", "response", "context")
 THRESHOLD = 4
 
 
@@ -29,15 +28,36 @@ def prepare(source: Path) -> tuple[dict, list[dict], dict]:
     recorded = json.loads(source.read_text(encoding="utf-8"))
     expected = cases()
     sources = {row["id"]: row for row in policy_chunks()}
+    execution_location = recorded.get("execution_location")
     if (recorded.get("language") != LANGUAGE or recorded.get("status") != "completed"
-            or recorded.get("execution_location") != "azure_model"
-            or recorded.get("cases_sha256") != digest(expected) or recorded.get("context_sha256") != digest(sources)):
+            or execution_location not in {"azure_model", "azure_prompt_agent"}
+            or recorded.get("cases_sha256") != digest(expected) or recorded.get("context_sha256") != digest(sources)
+            or recorded.get("reasoning_effort") != "low" or recorded.get("max_output_tokens") != 2048
+            or recorded.get("retries") != 0):
         raise ValueError("Native comparison requires the complete actual answers and unchanged language/questions/context.")
+    if execution_location == "azure_prompt_agent":
+        prompt_agents = recorded.get("prompt_agent_versions", {})
+        versions = prompt_agents.get("versions", {})
+        model_identity = recorded.get("model_identity", {})
+        if (recorded.get("schema") != "contoso-instruction-prompt-agent-comparison"
+                or prompt_agents.get("status") != "active"
+                or not prompt_agents.get("agent_name")
+                or set(versions) != {"v1", "v2"}
+                or model_identity.get("name") != "contoso-gpt-6-sol"
+                or model_identity.get("modelName") != "gpt-6-sol"
+                or model_identity.get("modelVersion") != "2026-09-22"):
+            raise ValueError("Prompt Agent native evaluation requires two verified, active instruction versions.")
+    if (recorded.get("case_file_sha256") != hashlib.sha256((DATA / "evaluation/instruction-comparison.json").read_bytes()).hexdigest()
+            or recorded.get("rubric_sha256") != hashlib.sha256(RUBRIC.read_bytes()).hexdigest()
+            or recorded.get("shared_wrapper", {}).get("output_schema_sha256") != digest(answer_format(list(sources)))
+            or recorded.get("shared_wrapper", {}).get("version_specific_guidance_in_wrapper") is not False
+            or recorded.get("shared_wrapper", {}).get("target_input_contains_case_criteria_or_reference_answers") is not False):
+        raise ValueError("The precommitted evaluation rubric or common target-input contract changed.")
     hashes = {f"v{version}": hashlib.sha256((DATA / f"prompts/agent-v{version}.txt").read_bytes()).hexdigest()
               for version in (1, 2)}
     if recorded.get("instructions_sha256") != hashes:
         raise ValueError("Instructions changed after target collection; do not relabel or resample the answers.")
-    if len(recorded.get("rows", [])) != 6 or summarize(recorded["rows"], expected) != recorded.get("comparison"):
+    if len(recorded.get("rows", [])) != 24 or summarize(recorded["rows"], expected) != recorded.get("comparison"):
         raise ValueError("Recorded comparison is partial or its original local checks changed.")
     by_id = {row["id"]: row for row in expected}
     native_rows, identities = [], {}
@@ -46,11 +66,19 @@ def prepare(source: Path) -> tuple[dict, list[dict], dict]:
         if (row["query"] != case["query"] or row["input_sha256"] != digest(model_input(case, sources))
                 or not row.get("response_id") or row.get("checklist") != score(row["raw_answer"], case, sources)):
             raise ValueError("A target answer differs from its actual question, context, or preserved checks.")
+        if execution_location == "azure_prompt_agent" and (
+            row.get("agent_name") != prompt_agents["agent_name"]
+            or row.get("agent_version") != versions.get(row["instructions"])
+        ):
+            raise ValueError("A Prompt Agent answer is not pinned to its recorded instruction version.")
         text, _ = parse_answer(row["raw_answer"], sources)
         opaque = uuid4().hex
         identities[opaque] = {"case_id": row["id"], "instructions": row["instructions"], "response_id": row["response_id"]}
         native_rows.append({
-            "id": opaque, "query": row["query"], "response": text,
+            "id": opaque,
+            "query": row["query"],
+            "expected_behavior": "\n".join(f"- {check['requirement']}" for check in case["checks"]),
+            "response": text,
             "context": json.dumps(list(sources.values()), ensure_ascii=False),
         })
     native_rows.sort(key=lambda row: row["id"])
@@ -90,17 +118,17 @@ def audit(native: dict, rows: list[dict], identities: dict, *, metric_names: tup
     scores = {}
     for version in ("v1", "v2"):
         selected = [row for row in judged.values() if row["instructions"] == version]
-        if len(selected) != 3:
-            raise ValueError("Each instruction version requires all three native results.")
+        if len(selected) != 12:
+            raise ValueError("Each instruction version requires all twelve native results.")
         scores[version] = {
-            name: {"mean": sum(row["metrics"][name]["score"] for row in selected) / 3,
-                   "passed": sum(row["metrics"][name]["passed"] for row in selected), "total": 3}
+            name: {"mean": sum(row["metrics"][name]["score"] for row in selected) / 12,
+                   "passed": sum(row["metrics"][name]["passed"] for row in selected), "total": 12}
             for name in metric_names
         }
     return {
         "scores": scores, "delta": {name: scores["v2"][name]["mean"] - scores["v1"][name]["mean"] for name in metric_names},
         "rows": list(judged.values()), "quality_release": False, "judge_control_calibration_performed": False,
-        "scope": "One uncalibrated six-row Foundry learning evaluation, not an independent holdout or release gate.",
+        "scope": "One uncalibrated 24-row Foundry development evaluation, not an independent holdout or release gate.",
     }
 
 
@@ -122,6 +150,7 @@ def evaluate(source: Path, output: Path) -> dict:
         "identities": identities, "submitted_rows": rows, "quality_release": False,
         "target_reinvocations": 0, "optimizer_jobs": 0, "holdout_cases": 0,
         "native_max_seconds": 600, "cancellation_max_seconds": 90,
+        "native_rows": 24,
     }
     with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
         def persist():
@@ -135,12 +164,15 @@ def evaluate(source: Path, output: Path) -> dict:
             with project_client(evidence) as (project, _, endpoint, model), project.get_openai_client(max_retries=0, timeout=60) as client:
                 if recorded["project_endpoint_sha256"] != digest(endpoint) or recorded["model_deployment"] != model:
                     raise ValueError("Native evaluator project/model differs from the collected answers.")
-                owner = json.loads((RESULTS / "azure-environment.json").read_text())
-                if owner.get("language", "ko") != LANGUAGE or owner["project_endpoint"] != endpoint:
-                    raise ValueError("Native evaluation ownership receipt differs from the selected profile.")
+                ownership = verify_profile(endpoint, model)
                 judge = config_values()["FOUNDRY_JUDGE_DEPLOYMENT_NAME"]
-                if not judge or judge == model:
-                    raise ValueError("Use an explicit judge deployment distinct from the target deployment.")
+                if judge != "contoso-judge" or judge == model:
+                    raise ValueError("Use the precommitted, distinct contoso-judge deployment.")
+                judge_identity = project.deployments.get(judge).as_dict()
+                if (judge_identity.get("modelName") != "gpt-4.1"
+                        or judge_identity.get("modelVersion") != "2025-04-14"):
+                    raise ValueError("Judge readback differs from the precommitted gpt-4.1 / 2025-04-14.")
+                report["ownership"] = ownership
                 report["models"] = {role: serializable(project.deployments.get(name))
                                     for role, name in (("target", model), ("judge", judge))}
                 builtin = {name: serializable(project.beta.evaluators.get_version("builtin." + name, "latest"))
@@ -158,8 +190,8 @@ def evaluate(source: Path, output: Path) -> dict:
                                 "deployment_name": {"type": "string"}, "threshold": {"type": "number"},
                             }, "required": ["deployment_name", "threshold"]},
                             "data_schema": {"type": "object", "properties": {
-                                key: {"type": "string"} for key in ("query", "response", "context")
-                            }, "required": ["query", "response", "context"]},
+                                key: {"type": "string"} for key in FIELDS[1:]
+                            }, "required": list(FIELDS[1:])},
                             "metrics": {"completeness": {"type": "ordinal", "min_value": 1, "max_value": 5,
                                                         "desirable_direction": "increase", "threshold": THRESHOLD}},
                         },
@@ -171,7 +203,7 @@ def evaluate(source: Path, output: Path) -> dict:
                 criteria = [TestingCriterionAzureAIEvaluator(
                     type="azure_ai_evaluator", name="completeness", evaluator_name=evaluator.name,
                     evaluator_version=evaluator.version, initialization_parameters={"deployment_name": judge, "threshold": THRESHOLD},
-                    data_mapping={key: "{{item." + key + "}}" for key in ("query", "response", "context")},
+                    data_mapping={key: "{{item." + key + "}}" for key in FIELDS[1:]},
                 )]
                 for name in ("relevance", "groundedness"):
                     fields = ("query", "response") if name == "relevance" else ("query", "response", "context")
@@ -211,9 +243,9 @@ def evaluate(source: Path, output: Path) -> dict:
                     raise RuntimeError("Native monitoring failed; cancellation readback retained.") from monitor_error
                 if timed_out:
                     raise RuntimeError("Native comparison exceeded 600 seconds; no rerun is permitted.")
-                report["items"] = [serializable(item) for item in islice(client.evals.runs.output_items.list(
-                    eval_id=group.id, run_id=native.id, limit=20,
-                ), 7)]
+                report["items"] = [serializable(item) for item in client.evals.runs.output_items.list(
+                    eval_id=group.id, run_id=native.id, limit=50,
+                )]
                 evidence.append("native_output_items", report["items"])
                 persist()
                 report["comparison"] = audit(report, rows, identities)
@@ -230,13 +262,13 @@ def evaluate(source: Path, output: Path) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=RESULTS / "instruction-comparison.json")
-    parser.add_argument("--output", type=Path, default=RESULTS / "instruction-native.json")
-    parser.add_argument("--live", action="store_true", help="Submit one native evaluation over six existing answers.")
+    parser.add_argument("--input", type=Path, default=RESULTS / f"instruction-comparison-{LANGUAGE}.json")
+    parser.add_argument("--output", type=Path, default=RESULTS / f"instruction-native-{LANGUAGE}.json")
+    parser.add_argument("--live", action="store_true", help="Submit one native evaluation over 24 existing answers.")
     args = parser.parse_args()
     if not args.live:
         print(json.dumps({"plan_only": True, "target_calls": 0, "native_runs_if_approved": 1,
-                          "rows": 6, "metrics": METRICS, "threshold": THRESHOLD,
+                          "rows": 24, "metrics": METRICS, "threshold": THRESHOLD,
                           "native_max_seconds": 600, "cancellation_max_seconds": 90,
                           "optimizer_jobs": 0, "holdout_cases": 0, "quality_release": False}, indent=2))
         return

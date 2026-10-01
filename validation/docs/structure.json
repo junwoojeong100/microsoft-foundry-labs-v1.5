@@ -3,9 +3,9 @@
   "default_language": "en",
   "languages": {
     "en": {
-      "checked_at": "2026-10-01T00:55:16.757427+00:00",
+      "checked_at": "2026-10-01T03:18:14.323530+00:00",
       "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
-      "guide_sha256": "ff87f7a6f6e4f8b78099019ff9d21ae32c5a0395b97a2a101a3216ff7b74c9f2",
+      "guide_sha256": "f748c0d297236100bb2610750a54fe76b7d133b9e3cee5927785688d1eec9f9f",
       "language": "en",
       "html": "index.html",
       "markdown": "GUIDE.en.md",
@@ -44,9 +44,9 @@
       ]
     },
     "ko": {
-      "checked_at": "2026-10-01T00:55:16.804917+00:00",
+      "checked_at": "2026-10-01T03:18:14.372871+00:00",
       "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
-      "guide_sha256": "db5e6975a67476241ef33fb4a14ebe2a22c76b2d5885f87850a81ff1c63a97bc",
+      "guide_sha256": "5df5abc7844f0e97c4743039133cb310c8a53aacb8a7912f62feaa3df86fcac8",
       "language": "ko",
       "html": "index.ko.html",
       "markdown": "GUIDE.ko.md",

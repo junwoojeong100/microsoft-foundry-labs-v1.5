@@ -6,10 +6,10 @@
 
 Build a synthetic Contoso purchasing assistant through **25 labs and five reference sections**. Both languages share the same implementation and use their own data and instructions.
 
-**The learning path is now simple: unchanged v1 → improved v2 → one comparison.** Keep current improvements in `agent-v2.txt`; do not create more instruction versions or accumulate release-experiment narratives.
+**The learning path is educational initial v1 → evaluate → analyze and improve → reevaluate v2.** Keep current improvements in `agent-v2.txt`; do not create more instruction versions or accumulate release-experiment narratives.
 V2 explicitly separates public and restricted questions, covers every requested part, matches evidence to individual claims, preserves unknown facts, and respects actual tool permissions/results.
 
-L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-sol`. L08 compares three fixed questions once per prompt, then evaluates the preserved answers in Foundry. No holdout, Hosted redeployment, or Optimizer is required. **Actual score increases are not guaranteed or prewritten.**
+L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-sol`. L08 compares 12 fixed composite questions once for each instruction in both languages, then evaluates those preserved answers in Foundry. No holdout, Hosted redeployment, or Optimizer is required. **Actual score increases are not guaranteed or prewritten.**
 
 ## Read or download
 
@@ -27,15 +27,14 @@ The core course is L00–L12, about 5 hours 20 minutes. Choose advanced modules 
 
 ## Instructions and latest evidence
 
-- Baseline: `data/prompts/agent-v1.txt` and `data/en/prompts/agent-v1.txt`, unchanged.
+- Educational baseline: `agent-v1.txt` in those folders is a deliberately simple role-and-goal starting instruction; it was not weakened to manufacture a lower score.
 - Current: `agent-v2.txt` in those same folders; Prompt/Hosted build defaults use v2.
 - One comparison: `samples/instruction_lab.py`; native evaluation of its originals: `samples/instruction_evaluation.py`. Both require explicit `--live`.
 - [Current status](validation/current/instructions.json), [latest actual Azure originals](validation/current/report.json), and [current documentation checks](validation/docs/structure.json).
 
-**Both languages have now been measured on GPT-6 Sol.** Korean local checklist: **v1 9/9 → v2 9/9**; English: **8/9 → 8/9**. Foundry completeness/relevance/groundedness means are **5.0/5 for both instructions in both languages**. No v2 improvement was observed on these three questions. The judge was the separate, fixed GPT-4.1 deployment.
+**Both languages were measured through GPT-6 Sol Prompt Agent versions.** Korean native relevance moved from **4.9167/5 to 5.0/5** on one question; completeness and groundedness tied. All three English metrics tied at **5.0/5**. This is a limited Korean relevance gain observed in a small, exposed dev sample—not generalization, statistical significance, or operational approval. The supporting mechanical checklist tied at **33/40** in Korean and changed from **29/40 → 28/40 (−1)** in English. Every changed critical flag was reviewed against the answer originals; some wording was missed by the regex checks. The checklist is not a calibrated semantic or safety evaluator. The judge was the separate, fixed GPT-4.1 deployment.
 
-Twelve original target responses were collected once. An initial custom-evaluator output-format error and Korean polling timeout are preserved; only completeness was evaluated once more on those same originals after correcting its JSON contract. All four native runs are terminal. Optimizer and holdout remain explained in L08/L20 but were not newly executed; this small comparison is not a release pass.
-Older reports were removed from the current tree, not rewritten: [immutable pre-cleanup history](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation).
+The comparison collected **48 target responses** once and completed **two native runs with 24 rows each**. Evaluation-only Prompt Agents pinned v1/v2 in each language. V2 used more tokens (Korean **+7,376**, English **+5,157**) and had higher mean response latency (Korean **+0.427 s**, English **+0.496 s**). Optimizer and holdout were not run; this exposed dev comparison is not a release pass. Earlier direct-response instructions and measurements remain in [Git history at the preserved baseline commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation).
 Original run/deployment IDs remain in raw evidence for provenance; they are not instruction versions.
 
 ## Working safely

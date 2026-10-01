@@ -1,4 +1,4 @@
-"""One v1/v2 learning comparison. No loop, optimizer, holdout, or predetermined scores."""
+"""Collect one bounded v1/v2 development comparison; never retry or use holdout."""
 
 import argparse
 from datetime import datetime, timezone
@@ -13,19 +13,47 @@ from cloud import project_client
 from evidence import Budget, digest, redacted, serializable
 from grounding import answer_format, parse_answer
 from search_lab import policy_chunks
-from workshop import DATA, LANGUAGE, RESULTS, ensure_response
+from workshop import DATA, LANGUAGE, RESULTS, ROOT, ensure_response
+
+TARGET_DEPLOYMENT = "contoso-gpt-6-sol"
+TARGET_MODEL = "gpt-6-sol"
+TARGET_MODEL_VERSION = "2026-09-22"
+MAX_CALLS_PER_LANGUAGE = 24
+MAX_SECONDS_PER_LANGUAGE = 600
+MAX_OUTPUT_TOKENS = 2048
+
+EXPECTED_SCOPE = {
+    "ko": {"resource_group": "rg-contoso-a-26092979bea5", "project": "contoso-workshop"},
+    "en": {"resource_group": "rg-contoso-en-260930ae24ba", "project": "contoso-workshop-en"},
+}
 
 
 def cases() -> list[dict]:
-    rows = json.loads((DATA / "evaluation/instruction-comparison.json").read_text(encoding="utf-8"))["cases"]
-    if len(rows) != 3 or len({row["id"] for row in rows}) != 3:
-        raise ValueError("The learning comparison requires the same three fixed cases for both prompts.")
+    comparison = json.loads((DATA / "evaluation/instruction-comparison.json").read_text(encoding="utf-8"))
+    contract = comparison.get("comparison_contract", {})
+    if (
+        contract.get("cases_per_language") != 12
+        or contract.get("target_responses_per_language") != MAX_CALLS_PER_LANGUAGE
+        or contract.get("target_responses_total_max") != 48
+        or contract.get("reference_answers_in_target_input") is not False
+        or contract.get("criteria_hidden_from_target_model") is not True
+        or contract.get("holdout_is_sealed") is not True
+    ):
+        raise ValueError("The bilingual 12-case development comparison contract changed.")
+    rows = comparison.get("cases", [])
+    if len(rows) != 12 or len({row.get("id") for row in rows}) != 12:
+        raise ValueError("The learning comparison requires exactly 12 unique, fixed questions.")
     for row in rows:
-        if set(row) != {"id", "query", "checks"} or not row["query"] or len(row["checks"]) != 3:
-            raise ValueError("Unexpected comparison case or checklist shape.")
+        if set(row) != {"id", "risk_dimensions", "query", "checks"} or not row["query"] or len(row["checks"]) < 3:
+            raise ValueError(f"Unexpected comparison case or checklist shape: {row.get('id')}.")
+        check_ids = set()
         for check in row["checks"]:
-            if set(check) != {"id", "pattern", "sources"} or not check["sources"]:
-                raise ValueError("Checklist requirements cannot depend on the instruction version.")
+            if (set(check) != {"id", "requirement", "pattern", "sources", "critical"}
+                    or not check["requirement"] or not check["sources"] or type(check["critical"]) is not bool):
+                raise ValueError(f"Invalid precommitted evaluator criterion: {row['id']}.")
+            if check["id"] in check_ids:
+                raise ValueError(f"Duplicate criterion ID in {row['id']}.")
+            check_ids.add(check["id"])
             re.compile(check["pattern"])
     return rows
 
@@ -35,131 +63,365 @@ def score(raw: str, case: dict, sources: dict) -> dict:
     answer = json.loads(raw)
     selected = set(answer["citation_ids"])
     checks = {
-        check["id"]: bool(re.search(check["pattern"], answer["answer"], re.I | re.S))
-        and bool(selected & set(check["sources"]))
+        check["id"]: {
+            "matched": bool(re.search(check["pattern"], answer["answer"], re.I | re.S))
+            and set(check["sources"]) <= selected,
+            "critical": check["critical"],
+            "required_sources": check["sources"],
+        }
         for check in case["checks"]
     }
-    return {"matched": sum(checks.values()), "total": len(checks), "checks": checks}
+    failed_critical = [key for key, value in checks.items() if value["critical"] and not value["matched"]]
+    return {
+        "matched": sum(value["matched"] for value in checks.values()),
+        "total": len(checks),
+        "checks": checks,
+        "critical_failures": failed_critical,
+        "scope": "Supporting mechanical text-and-citation checks only; native Foundry judgments are the primary quality evidence.",
+    }
 
 
 def model_input(case: dict, sources: dict) -> str:
     return json.dumps({
-        "query": case["query"], "grounding_context": list(sources.values()),
-        "context_kind": "supplied_synthetic_documents_not_a_tool_execution", "available_tools": [],
+        "query": case["query"],
+        "grounding_context": list(sources.values()),
+        "context_kind": "supplied_synthetic_documents_not_a_tool_execution",
+        "available_tools": [],
     }, ensure_ascii=False)
 
 
+def comparison_outcome(delta: float) -> str:
+    return "improved" if delta > 0 else "unchanged" if delta == 0 else "regressed"
+
+
 def summarize(rows: list[dict], expected: list[dict]) -> dict:
-    ids = {case["id"] for case in expected}
-    scores = {}
-    for version in ("v1", "v2"):
-        selected = [row for row in rows if row["instructions"] == version]
-        if (len(selected) != len(ids) or {row["id"] for row in selected} != ids
-                or any(row["status"] != "completed" for row in selected)):
-            raise ValueError("A partial or failed comparison cannot show an improvement.")
-        scores[version] = sum(row["checklist"]["matched"] for row in selected)
-    if len({row["model"] for row in rows}) != 1:
-        raise ValueError("Actual model versions changed; this is not a controlled comparison.")
-    delta = scores["v2"] - scores["v1"]
+    expected_ids = {case["id"] for case in expected}
+    if len(rows) != MAX_CALLS_PER_LANGUAGE:
+        raise ValueError("A complete comparison requires one v1 and one v2 response for all 12 cases.")
+    if len({row["model"] for row in rows}) != 1 or any(row["status"] != "completed" for row in rows):
+        raise ValueError("A failed response or mixed target deployment cannot establish a comparison.")
+    by_case = {}
+    for row in rows:
+        if row["id"] not in expected_ids:
+            raise ValueError("Unexpected question in the comparison.")
+        by_case.setdefault(row["id"], []).append(row)
+    if set(by_case) != expected_ids or any(
+        len(pair) != 2 or {row["instructions"] for row in pair} != {"v1", "v2"}
+        or len({row["input_sha256"] for row in pair}) != 1
+        or len({row["query"] for row in pair}) != 1
+        or len({row["response_id"] for row in pair}) != 2
+        for pair in by_case.values()
+    ):
+        raise ValueError("Every question needs exactly one matched pair with identical model input.")
+
+    by_version = {
+        version: [row for row in rows if row["instructions"] == version]
+        for version in ("v1", "v2")
+    }
+    if any(len(selected) != len(expected_ids) for selected in by_version.values()):
+        raise ValueError("Each instruction version must have exactly 12 completed answers.")
+    scores = {
+        version: sum(row["checklist"]["matched"] for row in selected)
+        for version, selected in by_version.items()
+    }
+    maximum = sum(len(case["checks"]) for case in expected)
+    case_comparison = {}
+    for case_id, pair in by_case.items():
+        case_comparison[case_id] = {
+            version: next(row for row in pair if row["instructions"] == version)["checklist"]
+            for version in ("v1", "v2")
+        }
+    metrics = {}
+    for version, selected in by_version.items():
+        usage = [row.get("usage") for row in selected]
+        metrics[version] = {
+            "responses": len(selected),
+            "input_tokens": sum(row["input_tokens"] for row in usage) if all(usage and isinstance(row, dict) and type(row.get("input_tokens")) is int for row in usage) else None,
+            "output_tokens": sum(row["output_tokens"] for row in usage) if all(usage and isinstance(row, dict) and type(row.get("output_tokens")) is int for row in usage) else None,
+            "total_tokens": sum(row["total_tokens"] for row in usage) if all(usage and isinstance(row, dict) and type(row.get("total_tokens")) is int for row in usage) else None,
+            "mean_latency_seconds": round(sum(row["latency_seconds"] for row in selected) / len(selected), 3),
+            "total_latency_seconds": round(sum(row["latency_seconds"] for row in selected), 3),
+        }
+    token_delta = {
+        key: metrics["v2"][key] - metrics["v1"][key]
+        if type(metrics["v1"][key]) is int and type(metrics["v2"][key]) is int else None
+        for key in ("input_tokens", "output_tokens", "total_tokens")
+    }
+    latency_delta = round(metrics["v2"]["mean_latency_seconds"] - metrics["v1"]["mean_latency_seconds"], 3)
+    checklist_delta = scores["v2"] - scores["v1"]
+    critical_failures = {
+        version: [
+            {"case_id": row["id"], "criteria": row["checklist"]["critical_failures"]}
+            for row in by_version[version] if row["checklist"]["critical_failures"]
+        ]
+        for version in ("v1", "v2")
+    }
     return {
-        "scores": scores, "maximum": sum(len(case["checks"]) for case in expected), "delta": delta,
-        "outcome": "improved" if delta > 0 else "unchanged" if delta == 0 else "regressed",
+        "local_checklist": {
+            "scores": scores, "maximum": maximum, "delta": checklist_delta,
+            "outcome": comparison_outcome(checklist_delta), "per_case": case_comparison,
+            "critical_failures": critical_failures,
+            "scope": "Mechanical text-and-citation coverage; supporting only, not semantic quality or a release gate.",
+        },
+        "usage_latency": {
+            "by_instruction": metrics, "v2_minus_v1_tokens": token_delta,
+            "v2_minus_v1_mean_latency_seconds": latency_delta,
+        },
         "quality_release": False,
-        "scope": "Mechanical fact/citation coverage for three teaching questions, not complete semantic quality or release evidence.",
+        "scope": "One paired development comparison on 12 exposed teaching questions; not independent generalization or release approval.",
     }
 
 
-def compare(output: Path, *, reasoning_effort: str | None = None) -> dict:
+def verify_profile(endpoint: str, model: str) -> dict:
+    scope = EXPECTED_SCOPE[LANGUAGE]
+    operations_path = ROOT / "validation/current/operations.json"
+    operations = json.loads(operations_path.read_text(encoding="utf-8"))
+    profile = operations.get("languages", {}).get(LANGUAGE, {})
+    if (operations.get("status") != "recorded_jobs_terminal"
+            or operations.get("policy_or_access_changed") is not False
+            or profile.get("resource_group") != scope["resource_group"]
+            or profile.get("project") != scope["project"]
+            or operations.get("resources_deleted") is not False):
+        raise ValueError("The scoped operations receipt does not match this language/project.")
+    deployment = profile.get("target_deployment", {})
+    deployment_model = deployment.get("model", {})
+    if isinstance(deployment_model, str):
+        deployment_name = deployment.get("deployment")
+        deployment_version = deployment.get("version")
+        deployment_model_name = deployment_model
+    else:
+        deployment_name = deployment.get("name")
+        deployment_version = deployment_model.get("version")
+        deployment_model_name = deployment_model.get("name")
+    deployment_state = deployment.get("state")
+    if (
+        model != TARGET_DEPLOYMENT
+        or deployment_name != TARGET_DEPLOYMENT
+        or deployment_model_name != TARGET_MODEL
+        or deployment_version != TARGET_MODEL_VERSION
+        or (deployment_state is not None and deployment_state != "Succeeded")
+    ):
+        raise ValueError("The scoped receipt does not identify the required gpt-6-sol deployment/version.")
+
+    previous_path = ROOT / f"validation/current/{LANGUAGE}/responses.json"
+    previous = json.loads(previous_path.read_text(encoding="utf-8"))
+    if previous.get("project_endpoint_sha256") != digest(endpoint):
+        raise ValueError("The actual project endpoint does not match this language's preserved measurement fingerprint.")
+    receipt_sources = [
+        "validation/current/operations.json",
+        str(previous_path.relative_to(ROOT)),
+    ]
+    if LANGUAGE == "ko":
+        receipt_path = RESULTS / "azure-environment.json"
+        if not receipt_path.is_file():
+            raise ValueError("The Korean owned-environment receipt is missing.")
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        if (receipt.get("repository_id") != 1396573688
+                or receipt.get("resource_group") != scope["resource_group"]
+                or receipt.get("project_name") != scope["project"]
+                or receipt.get("project_endpoint") != endpoint):
+            raise ValueError("The Korean owner receipt does not match the repository/project endpoint.")
+        receipt_sources.append("results/azure-environment.json")
+    return {
+        "repository_id": 1396573688,
+        "language": LANGUAGE,
+        "resource_group": scope["resource_group"],
+        "project": scope["project"],
+        "project_endpoint_sha256": digest(endpoint),
+        "receipt_sources": receipt_sources,
+        "model_deployment": TARGET_DEPLOYMENT,
+        "model": TARGET_MODEL,
+        "model_version": TARGET_MODEL_VERSION,
+    }
+
+
+def compare(output: Path, *, reasoning_effort: str | None = "low", max_seconds: int = MAX_SECONDS_PER_LANGUAGE) -> dict:
+    from azure.core.exceptions import AzureError
     from openai import OpenAIError
 
-    rows = cases()
+    if type(max_seconds) is not int or not 60 <= max_seconds <= MAX_SECONDS_PER_LANGUAGE:
+        raise ValueError(f"Per-language response collection must be between 60 and {MAX_SECONDS_PER_LANGUAGE} seconds.")
+    caseset = cases()
     sources = {row["id"]: row for row in policy_chunks()}
     prompts = {f"v{version}": (DATA / f"prompts/agent-v{version}.txt").read_text(encoding="utf-8") for version in (1, 2)}
-    if any(not set(check["sources"]) <= sources.keys() for row in rows for check in row["checks"]):
-        raise ValueError("Comparison checklist cites an unknown source.")
+    if any(not set(check["sources"]) <= sources.keys() for case in caseset for check in case["checks"]):
+        raise ValueError("A fixed evaluation criterion cites an unknown source.")
+    case_file = DATA / "evaluation/instruction-comparison.json"
+    rubric_file = ROOT / "data/evaluation/instruction-judge.txt"
     if not output.resolve().is_relative_to(RESULTS.resolve()):
-        raise ValueError("Keep the one comparison result inside results/.")
+        raise ValueError("Keep raw comparison originals inside results/.")
     output.parent.mkdir(parents=True, exist_ok=True)
     descriptor = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    report = {
+        "schema": "contoso-instruction-comparison",
+        "language": LANGUAGE,
+        "status": "started",
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "instructions_sha256": {name: hashlib.sha256(text.encode()).hexdigest() for name, text in prompts.items()},
+        "cases_sha256": digest(caseset),
+        "case_file_sha256": hashlib.sha256(case_file.read_bytes()).hexdigest(),
+        "rubric_sha256": hashlib.sha256(rubric_file.read_bytes()).hexdigest(),
+        "context_sha256": digest(sources),
+        "rows": [],
+        "model_calls_max": MAX_CALLS_PER_LANGUAGE,
+        "max_seconds": max_seconds,
+        "bilingual_collection_max_seconds": 1200,
+        "retries": 0,
+        "holdout_cases": 0,
+        "optimizer_rows": 0,
+        "context_source": "Checked-in synthetic policy text; not a live Search retrieval.",
+        "shared_wrapper": {
+            "input_fields": ["query", "grounding_context", "context_kind", "available_tools"],
+            "available_tools": [],
+            "version_specific_guidance_in_wrapper": False,
+            "target_input_contains_case_criteria_or_reference_answers": False,
+            "output_schema_sha256": digest(answer_format(list(sources))),
+        },
+        "quality_release": False,
+        "reasoning_effort": reasoning_effort,
+        "max_output_tokens": MAX_OUTPUT_TOKENS,
+    }
     with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-        report = {
-            "schema": "contoso-instruction-comparison", "language": LANGUAGE, "status": "started",
-            "started_at": datetime.now(timezone.utc).isoformat(),
-            "instructions_sha256": {name: hashlib.sha256(text.encode()).hexdigest() for name, text in prompts.items()},
-            "cases_sha256": digest(rows), "context_sha256": digest(sources), "rows": [],
-            "model_calls_max": 6, "max_seconds": 360, "retries": 0, "holdout_cases": 0,
-            "context_source": "Checked-in synthetic policy text, not a live Search retrieval.",
-            "quality_release": False,
-            "reasoning_effort": reasoning_effort, "max_output_tokens": 2048,
-        }
+        def persist() -> None:
+            handle.seek(0)
+            handle.write(json.dumps(redacted(report), ensure_ascii=False, indent=2) + "\n")
+            handle.truncate()
+            handle.flush()
+
+        persist()
         try:
-            with project_client() as (project, _, endpoint, model), project.get_openai_client(max_retries=0, timeout=60) as client:
-                report.update(project_endpoint_sha256=digest(endpoint), model_deployment=model,
-                              execution_location="azure_model", tools_executed=0)
-                receipt = RESULTS / "azure-environment.json"
-                if receipt.exists():
-                    owned = json.loads(receipt.read_text(encoding="utf-8"))
-                    if owned.get("language", "ko") != LANGUAGE or owned.get("project_endpoint") != endpoint:
-                        raise ValueError("The comparison profile/project differs from the owned environment receipt.")
-                budget = Budget(max_requests=6, max_tokens=60000, max_seconds=360)
-                deadline = time.monotonic() + 360
-                for case in rows:
+            with project_client() as (project, _, endpoint, model), project.get_openai_client(
+                max_retries=0, timeout=60,
+            ) as client:
+                ownership = verify_profile(endpoint, model)
+                target = project.deployments.get(model).as_dict()
+                if (target.get("name") != TARGET_DEPLOYMENT
+                        or target.get("modelName") != TARGET_MODEL
+                        or target.get("modelVersion") != TARGET_MODEL_VERSION):
+                    raise ValueError("Foundry deployment readback differs from gpt-6-sol / 2026-09-22.")
+                report.update(
+                    ownership=ownership,
+                    project_endpoint_sha256=digest(endpoint),
+                    model_deployment=model,
+                    model_identity=serializable(target),
+                    execution_location="azure_model",
+                    tools_executed=0,
+                )
+                persist()
+                budget = Budget(max_requests=MAX_CALLS_PER_LANGUAGE, max_tokens=500_000, max_seconds=max_seconds)
+                deadline = time.monotonic() + max_seconds
+                schema = answer_format(list(sources))
+                for case_index, case in enumerate(caseset):
                     shared_input = model_input(case, sources)
-                    for version in ("v1", "v2"):
-                        budget.before_request(token_reservation=len(shared_input) + len(prompts[version]) + 2048)
+                    order = ("v1", "v2") if case_index % 2 == 0 else ("v2", "v1")
+                    for version in order:
+                        budget.before_request(
+                            token_reservation=len(shared_input) + len(prompts[version]) + MAX_OUTPUT_TOKENS,
+                        )
                         remaining = deadline - time.monotonic()
                         if remaining <= 0:
-                            raise TimeoutError("Single-comparison time budget exhausted.")
+                            raise TimeoutError("Per-language response-collection budget exhausted.")
                         started = time.monotonic()
                         response = client.responses.create(
-                            model=model, instructions=prompts[version], input=shared_input,
-                            text=answer_format(list(sources)), tools=[], tool_choice="none",
-                            max_output_tokens=2048, store=False, timeout=min(60, remaining),
+                            model=model,
+                            instructions=prompts[version],
+                            input=shared_input,
+                            text=schema,
+                            tools=[],
+                            tool_choice="none",
+                            max_output_tokens=MAX_OUTPUT_TOKENS,
+                            store=False,
+                            timeout=min(60, remaining),
                             **({"reasoning": {"effort": reasoning_effort}} if reasoning_effort else {}),
                         )
                         row = {
-                            "id": case["id"], "instructions": version, "query": case["query"],
-                            "status": response.status, "response_id": response.id, "model": response.model,
-                            "raw_answer": response.output_text, "input_sha256": digest(shared_input),
+                            "id": case["id"],
+                            "instructions": version,
+                            "call_order": len(report["rows"]) + 1,
+                            "query": case["query"],
+                            "status": response.status,
+                            "response_id": response.id,
+                            "model": response.model,
+                            "raw_answer": response.output_text,
+                            "input_sha256": digest(shared_input),
                             "request_id": getattr(response, "_request_id", None),
                             "usage": serializable(response.usage),
                             "latency_seconds": round(time.monotonic() - started, 3),
                         }
                         report["rows"].append(row)
+                        persist()
                         raw = ensure_response(response)
+                        if response.model != model:
+                            raise ValueError("Response model field differs from the verified target deployment.")
                         row["checklist"] = score(raw, case, sources)
                         if response.usage:
-                            budget.record_tokens(response.usage.input_tokens + response.usage.output_tokens)
-                report.update(status="completed", comparison=summarize(report["rows"], rows))
-        except (OpenAIError, OSError, ValueError, RuntimeError) as exc:
+                            budget.record_tokens(response.usage.total_tokens)
+                        persist()
+                report["comparison"] = summarize(report["rows"], caseset)
+                report["status"] = "completed"
+                report["budget_usage"] = {
+                    "requests": budget.requests,
+                    "max_requests": budget.max_requests,
+                    "tokens": budget.tokens,
+                    "max_tokens": budget.max_tokens,
+                    "elapsed_seconds": round(time.monotonic() - budget.started, 3),
+                    "max_seconds": budget.max_seconds,
+                }
+        except (AzureError, OpenAIError, OSError, ValueError, RuntimeError) as exc:
             report.update(status="failed", error={"type": type(exc).__name__, "message": str(exc)})
             raise
         finally:
             report["finished_at"] = datetime.now(timezone.utc).isoformat()
-            handle.write(json.dumps(redacted(report), ensure_ascii=False, indent=2) + "\n")
+            persist()
     return report
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--live", action="store_true", help="Explicitly allow six paid model calls once.")
-    parser.add_argument("--output", type=Path, default=RESULTS / "instruction-comparison.json")
-    parser.add_argument("--reasoning-effort", choices=["none", "low", "medium", "high", "xhigh"],
-                        help="Use only with a model supporting reasoning; applies equally to v1 and v2.")
+    parser.add_argument("--live", action="store_true", help="Explicitly allow 24 paid model calls once for this language.")
+    parser.add_argument("--output", type=Path, default=RESULTS / f"instruction-comparison-{LANGUAGE}.json")
+    parser.add_argument("--reasoning-effort", choices=["none", "low", "medium", "high", "xhigh"], default="low",
+                        help="Use the same reasoning setting for both instructions (default: low).")
+    parser.add_argument("--max-seconds", type=int, default=MAX_SECONDS_PER_LANGUAGE,
+                        help="Per-language bound; the bilingual collection is limited to 1200 seconds total.")
     args = parser.parse_args()
+    if type(args.max_seconds) is not int or not 60 <= args.max_seconds <= MAX_SECONDS_PER_LANGUAGE:
+        raise ValueError(f"Per-language response collection must be between 60 and {MAX_SECONDS_PER_LANGUAGE} seconds.")
     if not args.live:
         print(json.dumps({
-            "plan_only": True, "instructions": ["v1", "v2"], "same_cases_per_version": len(cases()),
-            "model_calls": 0, "model_calls_if_approved": 6, "maximum_checklist_score": 9,
-            "new_agent_deployments": 0, "optimizer_jobs": 0, "holdout_cases": 0,
-            "output": str(args.output), "score_improvement_guaranteed": False,
+            "plan_only": True,
+            "language": LANGUAGE,
+            "instructions": ["v1", "v2"],
+            "same_cases_per_version": len(cases()),
+            "model_calls": 0,
+            "model_calls_if_approved": MAX_CALLS_PER_LANGUAGE,
+            "bilingual_target_calls_max": 48,
+            "per_language_collection_max_seconds": args.max_seconds,
+            "bilingual_collection_max_seconds": 1200,
+            "maximum_local_checklist_score": sum(len(case["checks"]) for case in cases()),
+            "target_deployment": TARGET_DEPLOYMENT,
+            "target_model": TARGET_MODEL,
+            "target_model_version": TARGET_MODEL_VERSION,
+            "new_agent_deployments": 0,
+            "optimizer_jobs": 0,
+            "holdout_cases": 0,
+            "output": str(args.output),
+            "score_improvement_guaranteed": False,
             "reasoning_effort": args.reasoning_effort,
         }, ensure_ascii=False, indent=2))
         return
     if args.output.exists():
-        raise ValueError("A comparison already exists. Keep its actual result; do not resample until a better score appears.")
-    result = compare(args.output, reasoning_effort=args.reasoning_effort)
-    print(json.dumps(result["comparison"], ensure_ascii=False, indent=2))
+        raise ValueError("A comparison already exists. Preserve it; do not resample until a better score appears.")
+    result = compare(args.output, reasoning_effort=args.reasoning_effort, max_seconds=args.max_seconds)
+    print(json.dumps({
+        "language": LANGUAGE,
+        "status": result["status"],
+        "responses": len(result["rows"]),
+        "local_checklist": result["comparison"]["local_checklist"]["scores"],
+        "outcome": result["comparison"]["local_checklist"]["outcome"],
+        "usage_latency": result["comparison"]["usage_latency"],
+        "quality_release": False,
+    }, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

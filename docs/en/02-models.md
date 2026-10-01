@@ -66,7 +66,7 @@ From the model card's deployment action, select **`gpt-6-sol` / `2026-09-22`** w
 
 L01's administrator foundation script can deploy the same model under the name `contoso-chat`. If using that path, keep the actual returned deployment name and do not deploy it again. Changing a model deployment does not automatically redeploy an existing Hosted agent's code or configuration.
 
-Once ready, run each of the following two inputs once in a separately approved Playground check. L08's v1/v2 measurement uses its own three fixed questions.
+Once ready, run each of the following two inputs once in a separately approved Playground check. L08's v1/v2 measurement uses its own 12 fixed composite questions.
 
 ```text
 Summarize this rule in one sentence:

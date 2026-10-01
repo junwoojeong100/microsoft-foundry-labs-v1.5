@@ -18,18 +18,20 @@ class InstructionNativeTests(unittest.TestCase):
     def fixtures(self, *, improved=True):
         rows, mapping, items = [], {}, []
         for index, version in enumerate(("v1", "v2")):
-            for number in range(3):
+            for number in range(12):
                 identifier = f"opaque-{index}-{number}"
-                row = {"id": identifier, "query": f"fixture-{number}", "response": "Fixture only.", "context": "Fixture context."}
+                row = {"id": identifier, "query": f"fixture-{number}",
+                       "expected_behavior": "Answer the synthetic question.", "response": "Fixture only.",
+                       "context": "Fixture context."}
                 rows.append(row)
-                mapping[identifier] = {"instructions": version, "case_id": f"fixture-{number}", "response_id": "fixture-response"}
+                mapping[identifier] = {"instructions": version, "case_id": f"fixture-{number}", "response_id": f"fixture-{identifier}"}
                 value = 5 if version == "v2" and improved else 3
                 items.append({"datasource_item": dict(row), "results": [
                     {"name": name, "score": value, "passed": value >= 4, "status": "completed", "reason": "Local fixture only."}
                     for name in instruction_evaluation.METRICS
                 ]})
         native = {"status": "completed", "error": None,
-                  "result_counts": {"total": 6, "passed": 3 if improved else 0, "failed": 3 if improved else 6, "errored": 0, "skipped": 0},
+                  "result_counts": {"total": 24, "passed": 12 if improved else 0, "failed": 12 if improved else 24, "errored": 0, "skipped": 0},
                   "items": items}
         return native, rows, mapping
 
@@ -41,7 +43,7 @@ class InstructionNativeTests(unittest.TestCase):
         result = json.loads(stream.getvalue())
         self.assertEqual(result["target_calls"], 0)
         self.assertEqual(result["native_runs_if_approved"], 1)
-        self.assertEqual(result["rows"], 6)
+        self.assertEqual(result["rows"], 24)
         self.assertEqual(result["metrics"], ["completeness", "relevance", "groundedness"])
         self.assertEqual(result["optimizer_jobs"], 0)
         self.assertEqual(result["holdout_cases"], 0)
@@ -52,6 +54,7 @@ class InstructionNativeTests(unittest.TestCase):
         result = instruction_evaluation.audit(native, rows, mapping)
         self.assertEqual(result["scores"]["v1"]["completeness"]["mean"], 3)
         self.assertEqual(result["scores"]["v2"]["completeness"]["mean"], 5)
+        self.assertEqual(result["scores"]["v1"]["completeness"]["total"], 12)
         self.assertEqual(result["delta"]["completeness"], 2)
         self.assertFalse(result["quality_release"])
         self.assertFalse(result["judge_control_calibration_performed"])
@@ -107,14 +110,26 @@ class InstructionNativeTests(unittest.TestCase):
         raw = json.dumps({"answer": "Fixture only.", "citation_ids": [next(iter(sources))]})
         rows = [{
             "id": case["id"], "instructions": version, "status": "completed",
-            "model": "fixture", "query": case["query"], "raw_answer": raw, "response_id": f"fixture-{version}-{case['id']}",
+            "model": "fixture", "query": case["query"], "raw_answer": raw,
+            "response_id": f"fixture-{version}-{case['id']}",
             "input_sha256": digest(instruction_lab.model_input(case, sources)),
+            "usage": None, "latency_seconds": 0.0,
             "checklist": instruction_lab.score(raw, case, sources),
         } for case in cases for version in ("v1", "v2")]
         report = {
             "language": instruction_evaluation.LANGUAGE, "status": "completed", "execution_location": "azure_model",
             "cases_sha256": digest(cases), "context_sha256": digest(sources), "rows": rows,
             "comparison": instruction_lab.summarize(rows, cases),
+            "reasoning_effort": "low", "max_output_tokens": 2048, "retries": 0,
+            "case_file_sha256": hashlib.sha256(
+                (instruction_evaluation.DATA / "evaluation/instruction-comparison.json").read_bytes()
+            ).hexdigest(),
+            "rubric_sha256": hashlib.sha256(instruction_evaluation.RUBRIC.read_bytes()).hexdigest(),
+            "shared_wrapper": {
+                "output_schema_sha256": digest(instruction_lab.answer_format(list(sources))),
+                "version_specific_guidance_in_wrapper": False,
+                "target_input_contains_case_criteria_or_reference_answers": False,
+            },
             "instructions_sha256": {f"v{v}": hashlib.sha256((instruction_evaluation.DATA / f"prompts/agent-v{v}.txt").read_bytes()).hexdigest()
                                     for v in (1, 2)},
         }
@@ -122,15 +137,68 @@ class InstructionNativeTests(unittest.TestCase):
             path = Path(directory) / "fixture.json"
             path.write_text(json.dumps(report))
             _, native_rows, mapping = instruction_evaluation.prepare(path)
-            self.assertEqual(len(native_rows), 6)
+            self.assertEqual(len(native_rows), 24)
             for row in native_rows:
-                self.assertEqual(set(row), {"id", "query", "response", "context"})
+                self.assertEqual(set(row), {"id", "query", "expected_behavior", "response", "context"})
                 self.assertNotIn("v1", row["id"])
                 self.assertNotIn("v2", row["id"])
+                self.assertTrue(row["expected_behavior"].startswith("- "))
                 self.assertIn(mapping[row["id"]]["instructions"], {"v1", "v2"})
+                self.assertNotIn(mapping[row["id"]]["instructions"], row["expected_behavior"])
             report["instructions_sha256"]["v2"] = "changed"
             path.write_text(json.dumps(report))
             with self.assertRaisesRegex(ValueError, "Instructions changed"):
+                instruction_evaluation.prepare(path)
+
+    def test_preparation_requires_each_prompt_answer_to_use_its_pinned_agent_version(self):
+        import hashlib
+        sources = {row["id"]: row for row in instruction_evaluation.policy_chunks()}
+        cases = instruction_lab.cases()
+        raw = json.dumps({"answer": "Fixture only.", "citation_ids": [next(iter(sources))]})
+        versions = {"v1": "1", "v2": "2"}
+        agent_name = "contoso-instruction-eval-fixture"
+        rows = [{
+            "id": case["id"], "instructions": version, "status": "completed",
+            "model": "gpt-6-sol", "query": case["query"], "raw_answer": raw,
+            "response_id": f"fixture-{version}-{case['id']}",
+            "input_sha256": digest(instruction_lab.model_input(case, sources)),
+            "usage": None, "latency_seconds": 0.0,
+            "checklist": instruction_lab.score(raw, case, sources),
+            "agent_name": agent_name, "agent_version": versions[version],
+        } for case in cases for version in ("v1", "v2")]
+        report = {
+            "schema": "contoso-instruction-prompt-agent-comparison",
+            "language": instruction_evaluation.LANGUAGE, "status": "completed",
+            "execution_location": "azure_prompt_agent",
+            "cases_sha256": digest(cases), "context_sha256": digest(sources), "rows": rows,
+            "comparison": instruction_lab.summarize(rows, cases),
+            "reasoning_effort": "low", "max_output_tokens": 2048, "retries": 0,
+            "model_identity": {"name": "contoso-gpt-6-sol", "modelName": "gpt-6-sol", "modelVersion": "2026-09-22"},
+            "prompt_agent_versions": {"agent_name": agent_name, "versions": versions, "status": "active"},
+            "case_file_sha256": hashlib.sha256(
+                (instruction_evaluation.DATA / "evaluation/instruction-comparison.json").read_bytes()
+            ).hexdigest(),
+            "rubric_sha256": hashlib.sha256(instruction_evaluation.RUBRIC.read_bytes()).hexdigest(),
+            "shared_wrapper": {
+                "output_schema_sha256": digest(instruction_lab.answer_format(list(sources))),
+                "version_specific_guidance_in_wrapper": False,
+                "target_input_contains_case_criteria_or_reference_answers": False,
+            },
+            "instructions_sha256": {
+                f"v{v}": hashlib.sha256(
+                    (instruction_evaluation.DATA / f"prompts/agent-v{v}.txt").read_bytes()
+                ).hexdigest() for v in (1, 2)
+            },
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "prompt-agent.json"
+            path.write_text(json.dumps(report))
+            _, native_rows, identities = instruction_evaluation.prepare(path)
+            self.assertEqual(len(native_rows), 24)
+            self.assertEqual({item["instructions"] for item in identities.values()}, {"v1", "v2"})
+            report["rows"][0]["agent_version"] = "2"
+            path.write_text(json.dumps(report))
+            with self.assertRaisesRegex(ValueError, "not pinned"):
                 instruction_evaluation.prepare(path)
 
     def test_existing_native_result_is_not_overwritten_or_rejudged(self):

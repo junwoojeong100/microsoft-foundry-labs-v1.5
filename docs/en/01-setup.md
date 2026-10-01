@@ -153,7 +153,7 @@ python3 samples/workshop.py validate-data
 
 </div>
 
-The expected result is `dev=10, holdout=10`, with 0 duplicate scenarios, for the existing exposed learning data. It is not a fresh independent release test. L08 uses its own three fixed comparison questions. This check **requires no Azure account, network connection, or external packages**.
+The expected result is `dev=10, holdout=10`, with 0 duplicate scenarios, for the existing exposed learning data. It is not a fresh independent release test. L08 uses its own 12 fixed comparison questions; these remain separate from the sealed holdout. This check **requires no Azure account, network connection, or external packages**.
 
 Install packages only when you are ready to call Azure from code.
 
