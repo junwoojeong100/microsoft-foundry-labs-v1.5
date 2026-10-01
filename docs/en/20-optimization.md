@@ -97,7 +97,7 @@ Completing a training job, deploying a model, and improving evaluation results a
 
 Explain the intended v2 improvements and actual answer differences, then choose retrieval, instructions, tool constraints, or training appropriately.
 Preparing files does not establish completed training or a score increase.
-The [latest retained Optimizer original](../../validation/current/optimizer.json) keeps its failed outcome; it is not relabeled as a result for the edited v2.
+The [current comparison](../../validation/current/report.json) actually measured both languages, with tied v1/v2 scores. No Optimizer or holdout was newly executed. The [previous Optimizer original](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json) preserves its actual execution and failed outcome; it is not relabeled as the current comparison.
 
 ## Troubleshooting
 

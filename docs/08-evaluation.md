@@ -21,7 +21,7 @@ v1은 변경하지 않은 기준선이고, v2가 현재 개선 지침입니다. 
 
 ## 준비
 
-L01의 환경과 L02의 호출 가능한 모델이 있으면 됩니다. 이 비교에는 Hosted 재배포, Search 서비스, Optimizer, holdout이 필요하지 않습니다.
+L01의 환경과 L02의 **`gpt-6-sol` / `2026-09-22`** 배포를 사용합니다. 실제 배포 이름은 `contoso-gpt-6-sol`이며 `.env`에 그 이름을 설정합니다. Native 평가에는 별도 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`도 필요합니다. 이번 실측의 judge는 양쪽 모두 기존 `contoso-judge`(GPT-4.1)로 고정했습니다. 이 비교에는 Hosted 재배포, Search 서비스, Optimizer, holdout이 필요하지 않습니다.
 체크인된 **합성 정책 문맥**을 두 지침에 동일하게 제공합니다. 이를 실제 Search 조회라고 표시하지 않습니다.
 한국어는 기본값이며, 영어 실습에서는 L01에서 선택한 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다.
 
@@ -41,8 +41,9 @@ v2에 질문별 정답이나 평가 사례 ID를 넣지 않습니다. 여러 질
 ### 2. 계획 확인 후 한 번 비교하기
 
 ```bash
-python samples/instruction_lab.py
-python samples/instruction_lab.py --live
+python samples/instruction_lab.py --reasoning-effort low
+python samples/instruction_lab.py --reasoning-effort low --live
+python samples/instruction_evaluation.py --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -51,12 +52,13 @@ python samples/instruction_lab.py --live
 
 | 순서와 명령 | 하는 일과 옵션 | 결과·비용·변경 |
 | --- | --- | --- |
-| 1. `instruction_lab.py` | v1/v2, 같은 질문 3개, 고정 체크리스트와 실행 상한을 확인합니다. | 계획만 출력하며 Azure 호출은 0건입니다. |
-| 2. `instruction_lab.py --live` | 별도 비용 승인 후 실행합니다. 같은 모델·문맥·질문으로 v1과 v2를 각각 한 번 호출합니다. | 모델 호출 최대 6건, 360초, 재시도 0회입니다. `results/instruction-comparison.json` 한 파일에 실제 답변과 점수를 저장합니다. |
+| 1. `instruction_lab.py --reasoning-effort low` | v1/v2, 질문 3개와 공통 reasoning 설정을 확인합니다. `low`는 양쪽에 똑같이 적용합니다. | 계획만 출력하며 Azure 호출은 0건입니다. |
+| 2. `instruction_lab.py ... --live` | 별도 비용 승인 후 같은 GPT-6 Sol·문맥·질문으로 v1/v2를 각각 한 번 호출합니다. | 최대 6건·360초·재시도 0회·출력 2048토큰입니다. 실제 원문과 로컬 체크를 `results/instruction-comparison.json`에 보존합니다. |
+| 3. `instruction_evaluation.py --live` | 앞에서 수집한 원문 6개를 Foundry native 평가에 제출합니다. 완결성·관련성·근거성을 평가하며 v1/v2 이름을 judge에 제공하지 않습니다. | 대상 모델 재호출은 0건입니다. Native 1회·600초·취소 확인 90초로 제한하고 `results/instruction-native.json`에 행별 결과를 저장합니다. |
 
 </div>
 
-이미 비교 파일이 있으면 다시 실행하지 않고 그 결과를 읽습니다. 에이전트 버전이나 평가 실행 번호를 새로 만들지 않습니다.
+이미 비교 파일이 있으면 다시 실행하지 않고 그 결과를 읽습니다. 지침 버전이나 실험 번호를 늘리지 않습니다. Foundry가 발급하는 평가 ID는 원본 추적용으로만 보존합니다.
 오류나 미완료 응답도 원본으로 보존하며, 이전 답이나 예시 답으로 채우지 않습니다.
 
 ### 3. 점수와 근거를 함께 읽기
@@ -81,17 +83,33 @@ python samples/instruction_lab.py --live
 ![Foundry 평가 화면. 완료 상태와 개별 점수·오류·누락을 구분합니다.](../assets/portal/08-evaluations.png)
 
 Evaluations에서 실행 상태, 평가자, 입력 데이터, 행별 판정과 오류를 구분해서 살펴봅니다.
-위 비교는 SDK 모델 호출과 로컬 체크리스트이며, 화면에 새로운 native evaluation job을 생성했다고 주장하지 않습니다.
-별도 native evaluator 실습이 필요할 때만 [평가 코드](../samples/evaluation_lab.py)의 명시적 승인 경로를 사용합니다.
+첫 두 명령은 실제 Azure 모델 응답 수집과 로컬 체크입니다. 세 번째 [native 비교 코드](../samples/instruction_evaluation.py)는 그 원문을 Foundry Evaluations에 제출합니다. 관련성·근거성은 built-in evaluator이며 완결성은 두 지침에 동일한 1~5 기준을 적용하는 custom evaluator입니다.
+Native 평가자는 3개 사례의 학습용 평가이며 별도의 judge 대조군 calibration은 수행하지 않았습니다.
 전체 90% 이상·safety/access 실패 0 등 기존 업무 게이트는 이 작은 학습용 점수로 대체하거나 완화하지 않습니다.
+
+### 5. 국문·영문 실제 측정 결과
+
+모두 `gpt-6-sol`의 `2026-09-22` 버전, reasoning `low`, 같은 질문·문맥·기준으로 측정했습니다.
+
+| 언어 | 지침 | 로컬 체크 / 9 | Native 완결성 / 5 | 관련성 / 5 | 근거성 / 5 |
+| --- | --- | --- | --- | --- | --- |
+| 한국어 | v1 | 9 | 5.0 | 5.0 | 5.0 |
+| 한국어 | v2 | 9 | 5.0 | 5.0 | 5.0 |
+| English | v1 | 8 | 5.0 | 5.0 | 5.0 |
+| English | v2 | 8 | 5.0 | 5.0 | 5.0 |
+
+**이번 세 질문에서는 v2의 점수 상승이 관측되지 않았습니다.** v1도 모든 native 항목에서 최고점을 받았습니다. 영어 로컬 체크는 “ask the responsible department”를 정규식이 인식하지 못해 두 지침 모두 1점을 잃었고, native 의미 평가에서는 이 확인 경로를 올바르게 인정했습니다. 측정 후 체크리스트를 바꾸지 않았습니다.
+
+최초 custom 평가에서 숫자 출력 형식이 누락돼 완결성 점수가 `null`이 된 실패와 한국어 상태 조회 timeout을 보존했습니다. 출력 형식만 보완한 뒤 **동일 원문에 완결성만 한 번 평가**했습니다. 실제 대상 응답은 총 12개, native run은 최초 2건과 완결성 보완 2건이며, 대상 응답이나 유효한 built-in 점수는 재샘플링하지 않았습니다. 네 run의 종료를 확인했습니다.
+
+**Optimizer와 holdout의 역할:** Optimizer는 dev 자료로 개선 후보를 만드는 선택 기능이고, holdout은 지침·개선 과정에 노출하지 않은 독립 최종 시험지입니다. 이번 비교는 노출된 학습 질문이므로 holdout이 아니며 두 작업은 새로 실행하지 않았습니다. 이전 Optimizer는 실제 실행 후 오류로 실패했고, 이전 holdout은 full dev 실패 때문에 봉인 상태를 유지했습니다.
 
 ## 성공 기준
 
 v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침이 어떤 누락을 줄였는지 설명할 수 있습니다.
 숫자가 올랐다는 결론은 실제 `delta`가 양수일 때만 씁니다. 이 실습을 위해 반복 검증·holdout·Optimizer를 수행할 필요는 없습니다.
 
-[현재 지침 상태](../validation/current/instructions.json)는 새 v2와 [가장 최근 실제 Azure 원본](../validation/current/report.json)을 구분합니다.
-보존된 실제 원본은 수정 전 지침의 결과이며, 새 v2의 개선 점수를 입증하지 않습니다. 이전 내역은 Git 이력에만 보존합니다.
+[현재 지침 상태](../validation/current/instructions.json)와 [최신 실제 측정](../validation/current/report.json)에 국문·영문 원문, 모델 신원, 행별 점수와 오류 보존 경로가 있습니다. 이전 내역은 Git 이력에 보존하며 이번 동점을 향상으로 바꾸지 않습니다.
 
 ## 막혔을 때
 
@@ -100,4 +118,4 @@ v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침
 
 ## 정리
 
-이 비교는 에이전트·Hosted 세션·Optimizer job을 만들지 않습니다. 생성된 응답 파일 한 개만 검토하고 L09로 진행합니다.
+이 비교는 에이전트·Hosted 세션·Optimizer job을 만들지 않습니다. 응답과 native 평가 job의 종료를 확인하고 L09로 진행합니다. 모델 배포는 유지하며 별도 승인 없이 삭제하지 않습니다.

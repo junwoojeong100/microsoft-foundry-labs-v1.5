@@ -75,7 +75,7 @@ Record the nonproduction resource group, project name, and region. The English p
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription approved-subscription-id --location approved-region --cost-authorization "Approved amount and retention policy" --live
-python3.13 scripts/azure_environment.py foundation --chat-model supported-chat-model --chat-version actual-chat-version --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
 python3.13 scripts/azure_environment.py roles --live
 ```
 

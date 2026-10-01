@@ -37,7 +37,7 @@ The English edition uses a separate **`contoso-workshop-en` project and English 
 
 **Current learning path: baseline v1 → improved v2 → one comparison.** L08 uses three shared questions and one fixed checklist, without a release-experiment sequence. V2 must still answer verifiable public parts, select claim-specific sources, and preserve permission and tool boundaries.
 
-The [current instruction status](../../validation/current/instructions.json) distinguishes the edited v2 from the [latest actual Azure originals](../../validation/current/report.json). Those originals predate this edit and retain their failed quality verdict; no new v2 score or Azure execution is claimed.
+The [current instruction status](../../validation/current/instructions.json) links the [latest actual Azure comparison](../../validation/current/report.json). Both languages used GPT-6 Sol: native completeness/relevance/groundedness tied at 5.0/5 for both v1/v2. No score improvement or independent release pass is claimed.
 
 ### How to read the source code and commands
 

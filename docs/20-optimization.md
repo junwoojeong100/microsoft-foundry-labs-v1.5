@@ -97,7 +97,7 @@ python samples/prepare_tuning.py
 
 v2의 개선 의도와 실제 답의 차이를 설명하고, 검색·지침·도구 제약·학습 중 적절한 방법을 선택할 수 있습니다.
 학습 파일을 만들었다고 모델 학습이나 점수 향상을 완료했다고 쓰지 않습니다.
-[최신 보존 원본](../validation/current/optimizer.json)의 실패 판정도 그대로 두며, 이를 현재 v2의 결과로 바꾸지 않습니다.
+[현재 비교](../validation/current/report.json)는 국문·영문 모두 실제 측정했지만 v1/v2 점수는 동점입니다. 이번에는 Optimizer job과 holdout을 새로 실행하지 않았습니다. [이전 Optimizer 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json)의 실제 실행·실패 판정은 보존하며 현재 비교로 바꾸지 않습니다.
 
 ## 막혔을 때
 

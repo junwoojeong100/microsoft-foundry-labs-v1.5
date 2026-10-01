@@ -24,11 +24,11 @@ Microsoft Learn의 개요, capability reference, GA 표, 기능 문서와 공식
 지침 파일 이름이 v2라는 사실만으로 평가 점수가 올랐다고 판단하지 않습니다.
 
 [현재 지침 상태]({validation})에는 새 v2의 준비 상태와 실제 비교 여부를 기록합니다.
-현재 수정본에 대한 새 Azure 비교는 수행하지 않았습니다. 로컬 구조·브라우저·PDF 검사는 `{documentation_validation}/`에만 두며 Azure 결과가 아닙니다.
+현재 v1/v2는 국문·영문 모두 `gpt-6-sol` / `2026-09-22`로 실제 비교했습니다. 지침별 같은 세 질문에서 native 완결성·관련성·근거성은 모두 평균 5.0/5로 동점이었고, 로컬 체크는 국문 9→9·영문 8→8입니다. 로컬 구조·브라우저·PDF 검사는 `{documentation_validation}/`에 따로 두며 Azure 결과가 아닙니다.
 
-[가장 최근 실제 실행 원본](validation/current/report.json)은 수정 전 지침으로 수행한 기록입니다.
-Dev 합산 39/40 및 critical 근거 실패와 Optimizer 오류 판정은 원래대로 유지합니다. 새 v2의 통과 결과로 바꾸지 않습니다.
-현재 파일 목록에는 이 최신 묶음만 두고, 이전 원본은 [고정된 Git 이력]({historical_validation})에 보존합니다.
+[가장 최근 실제 실행 원본](validation/current/report.json)은 이 국문·영문 비교의 응답과 native 판정을 연결합니다.
+최초 custom 평가의 숫자 형식 누락은 보존하고 출력 계약만 수정해 같은 응답의 완결성만 평가했습니다. 대상 재샘플링은 없습니다.
+기존 full-dev 실패·Optimizer 오류는 [고정된 Git 이력]({historical_validation})에 원래대로 보존하며 이번 동점을 v2 향상이나 독립 holdout 통과로 바꾸지 않습니다.
 
 화면 이미지는 촬영 당시의 실제 포털 관찰입니다. 새 v2 실행 화면이나 새 모델 품질 증거로 사용하지 않습니다.
 선택 기능, 조직 정책·권한, 비용 조회, 리소스 삭제, 저장소 병합·게시는 각각 별도 승인 범위입니다.

@@ -96,13 +96,15 @@ class InstructionLearningTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, patch.object(instruction_lab, "RESULTS", Path(directory)), \
                 patch.object(instruction_lab, "project_client", context), \
                 patch.dict(sys.modules, {"openai": Obj(OpenAIError=RuntimeError)}):
-            result = instruction_lab.compare(Path(directory) / "comparison.json")
+            result = instruction_lab.compare(Path(directory) / "comparison.json", reasoning_effort="low")
         self.assertEqual(client.responses.create.call_count, 6)
         calls = client.responses.create.call_args_list
         for first, second in zip(calls[::2], calls[1::2], strict=True):
             self.assertEqual(first.kwargs["input"], second.kwargs["input"])
             self.assertEqual(first.kwargs["model"], second.kwargs["model"])
             self.assertEqual(first.kwargs["text"], second.kwargs["text"])
+            self.assertEqual(first.kwargs["reasoning"], {"effort": "low"})
+            self.assertEqual(first.kwargs["reasoning"], second.kwargs["reasoning"])
             self.assertNotEqual(first.kwargs["instructions"], second.kwargs["instructions"])
             self.assertNotIn("checks", json.loads(first.kwargs["input"]))
         self.assertEqual(result["comparison"]["outcome"], "unchanged")

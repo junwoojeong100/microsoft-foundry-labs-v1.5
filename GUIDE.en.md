@@ -88,7 +88,7 @@ The English edition uses a separate **`contoso-workshop-en` project and English 
 
 **Current learning path: baseline v1 → improved v2 → one comparison.** L08 uses three shared questions and one fixed checklist, without a release-experiment sequence. V2 must still answer verifiable public parts, select claim-specific sources, and preserve permission and tool boundaries.
 
-The [current instruction status](validation/current/instructions.json) distinguishes the edited v2 from the [latest actual Azure originals](validation/current/report.json). Those originals predate this edit and retain their failed quality verdict; no new v2 score or Azure execution is claimed.
+The [current instruction status](validation/current/instructions.json) links the [latest actual Azure comparison](validation/current/report.json). Both languages used GPT-6 Sol: native completeness/relevance/groundedness tied at 5.0/5 for both v1/v2. No score improvement or independent release pass is claimed.
 
 ### How to read the source code and commands
 
@@ -269,7 +269,7 @@ Record the nonproduction resource group, project name, and region. The English p
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription approved-subscription-id --location approved-region --cost-authorization "Approved amount and retention policy" --live
-python3.13 scripts/azure_environment.py foundation --chat-model supported-chat-model --chat-version actual-chat-version --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
 python3.13 scripts/azure_environment.py roles --live
 ```
 
@@ -478,7 +478,7 @@ Record the resource group and its owner, and read L12's shutdown checklist in ad
 
 ## Objectives
 
-Choose **the most economical combination that meets your quality requirements, not simply the largest model**. Understand the difference between a model name, model version, and deployment name.
+**This guide uses OpenAI `gpt-6-sol` as the target model**, with version `2026-09-22`. Distinguish the model ID, model version, and deployment name. Cost/performance comparisons with alternatives are optional.
 
 ## Concepts and lab map
 
@@ -496,9 +496,9 @@ You need the L01 project and permission to deploy models. If learners do not hav
 
 ## Steps
 
-### 1. Choose two candidates from the model catalog
+### 1. Select gpt-6-sol in the model catalog
 
-In **Discover → Models**, compare a small general-purpose model with a model offering stronger reasoning capabilities. Check providers such as Microsoft, OpenAI, Anthropic, and Meta, and distinguish models sold/operated directly by Azure from partner or community offerings.
+In **Discover → Models**, search for **`gpt-6-sol`** and open the OpenAI model card. It is supplied directly through Azure; verify Responses API, structured-output, and function-calling support. Both v1 and v2 use the same model/version in the comparison.
 
 ![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](assets/portal/en/02-model-catalog.png)
 
@@ -513,7 +513,15 @@ In **Discover → Models**, compare a small general-purpose model with a model o
 | Pricing, context length, and input/output limits | A larger maximum context does not mean a lower cost |
 | License and data-processing terms | Terms vary by provider and deployment method |
 
-One current example in the official hosted quickstart is `gpt-5.4-mini`. **It is neither a required model nor guaranteed to be available in every subscription.** Choose based on the actual model card and your current access. This guide's code does not hardcode a model name.
+| Lab setting | Value |
+| --- | --- |
+| Publisher / model ID | OpenAI / `gpt-6-sol` |
+| Model version | `2026-09-22` |
+| Suggested deployment name | `contoso-gpt-6-sol` |
+| Deployment type | `GlobalStandard`, subject to availability and organizational policy |
+| Inference API | Responses API |
+
+Quota and capacity vary by subscription. A visible card does not establish deployability in the selected project. Check supported versions and capacity; if unavailable, record that limitation rather than silently substituting another model.
 
 ### 2. Choose a deployment type
 
@@ -530,9 +538,11 @@ One current example in the official hosted quickstart is `gpt-5.4-mini`. **It is
 
 ### 3. Deploy and record the name
 
-From the model card's deployment action, choose a supported model version, deployment type, and capacity. For example, name the lab deployment `contoso-chat`, and put **that deployment name** in `.env`'s `FOUNDRY_MODEL_DEPLOYMENT_NAME`.
+From the model card's deployment action, select **`gpt-6-sol` / `2026-09-22`** with a supported type/capacity. If you name it `contoso-gpt-6-sol`, set `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-gpt-6-sol` in `.env`. The API uses the **actual deployment name**, not merely the catalog model ID.
 
-Once the deployment is ready, run each of the following two inputs 3 times in the playground.
+L01's administrator foundation script can deploy the same model under the name `contoso-chat`. If using that path, keep the actual returned deployment name and do not deploy it again. Changing a model deployment does not automatically redeploy an existing Hosted agent's code or configuration.
+
+Once ready, run each of the following two inputs once in a separately approved Playground check. L08's v1/v2 measurement uses its own three fixed questions.
 
 ```text
 Summarize this rule in one sentence:
@@ -545,10 +555,10 @@ Compare a total of KRW 2,000,000 with a total of KRW 2,000,001 in a table.
 Do not add anything that is not in the rule.
 ```
 
-| Candidate | Correct boundary answers / 3 | Approximate latency | Token/pricing terms | Selection |
+| Candidate | Actual results for both questions | Approximate latency | Token/pricing terms | Selection |
 | --- | --- | --- | --- | --- |
-| A | Record your result | Record your result | Based on the model card | Reason |
-| B | Record your result | Record your result | Based on the model card | Reason |
+| `gpt-6-sol` | Record your result | Record your result | Based on the model card | Lab target |
+| Separately approved alternative (optional) | Record only if executed | Record your result | Based on the model card | Comparison reason |
 
 A public leaderboard is a starting point for narrowing candidates, not a guarantee of performance on your business data.
 
@@ -1378,7 +1388,7 @@ In the portal's Evaluations area, distinguish service completion from scores, er
 
 ## Prerequisites
 
-Use the environment from L01 and a callable model from L02. This comparison needs no Hosted deployment, Search service, Optimizer, or holdout.
+Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** deployment. Set its actual deployment name, `contoso-gpt-6-sol`, in `.env`. Native evaluation also needs `FOUNDRY_JUDGE_DEPLOYMENT_NAME`; this measurement held the existing `contoso-judge` (GPT-4.1) fixed in both environments. No Hosted redeployment, Search service, Optimizer, or holdout is required.
 Both prompts receive the same **checked-in synthetic policy context**; it is not described as a live Search retrieval.
 Keep `FOUNDRY_LAB_LANGUAGE=en` selected for the English inputs and instructions.
 
@@ -1398,8 +1408,9 @@ V2 contains a reusable answer procedure, not question-specific answers or evalua
 ### 2. Inspect the plan, then compare once
 
 ```bash
-python samples/instruction_lab.py
-python samples/instruction_lab.py --live
+python samples/instruction_lab.py --reasoning-effort low
+python samples/instruction_lab.py --reasoning-effort low --live
+python samples/instruction_evaluation.py --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -1408,12 +1419,13 @@ python samples/instruction_lab.py --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `instruction_lab.py` | Displays v1/v2, the three shared questions, fixed checks, and limits. | Plan only; zero Azure calls. |
-| 2. `instruction_lab.py --live` | Run only after separate cost approval. Invokes each prompt once per question with the same model and context. | At most six model calls, 360 seconds, and zero retries. Saves actual answers and scores in one `results/instruction-comparison.json` file. |
+| 1. `instruction_lab.py --reasoning-effort low` | Displays v1/v2, three shared questions and the reasoning setting applied equally to both. | Plan only; zero Azure calls. |
+| 2. `instruction_lab.py ... --live` | After cost approval, invoke each prompt once per question using the same GPT-6 Sol deployment and context. | At most six calls, 360 seconds, zero retries and 2048 output tokens. Retain originals and local checks in `results/instruction-comparison.json`. |
+| 3. `instruction_evaluation.py --live` | Submit those six originals to Foundry native completeness, relevance and groundedness evaluation. The judge is not given the v1/v2 labels. | Zero target reinvocations. One native run, 600 seconds and 90-second cancellation verification; retain per-row outputs in `results/instruction-native.json`. |
 
 </div>
 
-If the result file exists, read it rather than running again. No new agent version or evaluation-run sequence is created.
+If the result file exists, read it rather than running again. Do not increment instruction or experiment versions. Foundry-issued evaluation IDs are retained only for original-result traceability.
 Errors and incomplete responses remain recorded; no earlier answer or authored example is substituted.
 
 ### 3. Read the score and the underlying answers
@@ -1438,17 +1450,33 @@ Explain that result from the originals. Do not weaken v1 or change the checklist
 ![Foundry Evaluations. Separate completion status from individual scores, errors, and missing rows.](assets/portal/en/08-evaluations.png)
 
 Explore the run state, evaluator, inputs, row-level judgments, and errors in Evaluations.
-The comparison above uses SDK model calls and a local checklist; it does not create a native evaluation job in that screen.
-Use the separately approved [native evaluation runner](samples/evaluation_lab.py) only when that additional exercise is needed.
+The first two commands collect real Azure model responses and calculate local checks. The third [native comparison runner](samples/instruction_evaluation.py) submits those exact responses to Foundry Evaluations. Relevance and groundedness use built-in evaluators; completeness uses one shared custom 1–5 rubric.
+This is a small learning evaluation without a separate judge-control calibration.
 The existing 90% overall and zero-safety/access-failure business gates are not replaced or relaxed by this small learning score.
+
+### 5. Actual Korean and English measurements
+
+All target calls used `gpt-6-sol` version `2026-09-22`, reasoning `low`, and identical questions/context/criteria within each language.
+
+| Language | Instructions | Local checklist / 9 | Native completeness / 5 | Relevance / 5 | Groundedness / 5 |
+| --- | --- | --- | --- | --- | --- |
+| Korean | v1 | 9 | 5.0 | 5.0 | 5.0 |
+| Korean | v2 | 9 | 5.0 | 5.0 | 5.0 |
+| English | v1 | 8 | 5.0 | 5.0 | 5.0 |
+| English | v2 | 8 | 5.0 | 5.0 | 5.0 |
+
+**No v2 score improvement was observed on these three questions.** V1 also reached the native ceiling. The English regex checklist missed “ask the responsible department” in both answers; the native semantic evaluation correctly recognized that confirmation path. The fixed checklist was not changed after measurement.
+
+The original custom evaluator omitted its numeric-output contract, producing `null` completeness scores; that failure and a Korean polling timeout remain preserved. After correcting only the output format, **completeness alone was evaluated once on the same original answers**. There were 12 target responses and four native runs: two original runs and two completeness-only corrections. No target answer or valid built-in metric was resampled. All four runs were verified terminal.
+
+**Optimizer and holdout:** Optimizer optionally generates candidates from dev data. A holdout is an independent final exam kept out of instruction development and optimization. These exposed teaching questions are not a holdout, and neither operation was newly run here. The earlier Optimizer actually ran and failed with evaluator errors; its holdout stayed sealed because the full dev gate failed.
 
 ## Success criteria
 
 You can compare the actual v1/v2 answers under the same checklist and explain which instruction addresses which omission.
 Claim a measured improvement only when the actual `delta` is positive. Repeated validation, holdout runs, and Optimizer are not prerequisites.
 
-The [current instruction status](validation/current/instructions.json) distinguishes the edited v2 from the [latest preserved Azure originals](validation/current/report.json).
-Those originals predate this instruction edit; they do not establish its improvement. Older records remain in Git history, not the current reader.
+The [current instruction status](validation/current/instructions.json) and [latest real measurement](validation/current/report.json) link the bilingual originals, actual model identities, per-row scores and preserved errors. Older records stay in Git history; this tie is not relabeled as improvement.
 
 ## Troubleshooting
 
@@ -1457,7 +1485,7 @@ Do not overwrite an existing comparison. Never replace a model error with an “
 
 ## Cleanup
 
-This exercise creates no agents, Hosted sessions, or Optimizer jobs. Inspect the one response file, then continue to L09.
+This exercise creates no agents, Hosted sessions, or Optimizer jobs. Inspect the original responses and confirm native runs are terminal, then continue to L09. Retain model deployments until deletion is separately approved.
 
 
 ### Official sources
@@ -3265,7 +3293,7 @@ Completing a training job, deploying a model, and improving evaluation results a
 
 Explain the intended v2 improvements and actual answer differences, then choose retrieval, instructions, tool constraints, or training appropriately.
 Preparing files does not establish completed training or a score increase.
-The [latest retained Optimizer original](validation/current/optimizer.json) keeps its failed outcome; it is not relabeled as a result for the edited v2.
+The [current comparison](validation/current/report.json) actually measured both languages, with tied v1/v2 scores. No Optimizer or holdout was newly executed. The [previous Optimizer original](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json) preserves its actual execution and failed outcome; it is not relabeled as the current comparison.
 
 ## Troubleshooting
 
@@ -3452,7 +3480,7 @@ python scripts/check_guide.py
 </div>
 
 Generate PDFs and the ZIP from the same sources using the README commands. The [current status](validation/current/instructions.json)
-distinguishes the edited v2 from preserved actual execution that predates it.
+records the actual bilingual GPT-6 Sol measurement, tied scores, and preserved output-contract failure separately.
 
 ### 2. Read GitHub Actions checks
 
@@ -3710,7 +3738,7 @@ After the new path passes actual usage and evaluation and the recovery period ha
 
 ## Troubleshooting by symptom
 
-The edited v2 has not been newly compared in Azure. The [latest actual originals](validation/current/quality.json) retain their critical evidence failure; do not treat an instruction filename, safe-sounding refusal, or service success as a quality pass.
+The [actual bilingual comparison](validation/current/quality.json) tied on GPT-6 Sol. Do not turn a tie into improvement. The initial custom-evaluator output-format error and polling timeout remain recorded in the [measurement report](validation/current/report.json); neither service completion nor missing numeric results count as a valid score.
 
 | Symptom | Check first | Next action | Do not |
 | --- | --- | --- | --- |
@@ -4167,11 +4195,11 @@ The learning instructions use only **baseline v1 and improved v2**. L08 compares
 The label v2 does not establish a score increase.
 
 The [current instruction status](validation/current/instructions.json) records preparation and whether a real comparison exists.
-No new Azure comparison has been performed for the edited v2. Current local structure, browser, and PDF checks live only in `validation/docs/`; they are not Azure results.
+Both languages were actually compared using `gpt-6-sol` / `2026-09-22`. For the same three questions per instruction, native completeness/relevance/groundedness means tied at 5.0/5. The Korean local checklist tied 9→9 and English 8→8. Local structure, browser and PDF checks live separately in `validation/docs/`; they are not Azure results.
 
-The [latest actual execution originals](validation/current/report.json) predate this instruction edit.
-Their combined dev result of 39/40 with a critical evidence failure and failed Optimizer outcome remain unchanged; they are not converted into a v2 pass.
-Only that latest set remains in the current file listing. Older originals stay in [immutable Git history](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation).
+The [latest actual originals](validation/current/report.json) link these bilingual responses to native judgments.
+The initial custom metric's missing numeric-output contract is preserved; only that contract was corrected and completeness evaluated on the same answers. Targets were not resampled.
+Earlier full-dev and Optimizer failures remain unchanged in [immutable Git history](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation). This tie is not relabeled as v2 improvement or an independent holdout pass.
 
 Screenshots are actual portal observations from their recorded capture times, not new v2 execution or quality evidence.
 Optional features, policy/access changes, cost queries, deletion, merges, and publication each require the applicable separate approval.

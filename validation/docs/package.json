@@ -1,9 +1,9 @@
 {
-  "created_at": "2026-10-01T00:05:34.096781+00:00",
+  "created_at": "2026-10-01T00:58:05.095521+00:00",
   "archive": "Contoso-Foundry-Hands-on-2026-09-30.zip",
-  "files": 311,
-  "bytes": 14451046,
-  "sha256": "80b7b78fda6db2e127dea40c1d5e27220ed3eb127528780bc162fb4d3a60bb61",
+  "files": 308,
+  "bytes": 14347682,
+  "sha256": "35a4f3903f82052b7fd146a679f8877592edfa346a2080337fb85fd1440d0ce8",
   "languages": [
     "en",
     "ko"
@@ -11,7 +11,7 @@
   "default_language": "en",
   "integrity": "passed",
   "credential_and_virtualenv_exclusion": "passed",
-  "portable_local_paths_checked": 105,
+  "portable_local_paths_checked": 104,
   "portal_screenshots": 35,
   "portal_screenshots_by_language": {
     "en": 18,

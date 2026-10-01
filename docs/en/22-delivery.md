@@ -47,7 +47,7 @@ python scripts/check_guide.py
 </div>
 
 Generate PDFs and the ZIP from the same sources using the README commands. The [current status](../../validation/current/instructions.json)
-distinguishes the edited v2 from preserved actual execution that predates it.
+records the actual bilingual GPT-6 Sol measurement, tied scores, and preserved output-contract failure separately.
 
 ### 2. Read GitHub Actions checks
 

@@ -107,10 +107,10 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["pages_branch"], "gh-pages")
         expected = {
             "en": ("index.html", "GUIDE.en.md", release["artifact"] + ".en.pdf",
-                   "portal-screenshots.en.json", 18, 50, 106,
+                   "portal-screenshots.en.json", 18, 50, 107,
                    "validation/current/instructions.json", "data/en/receipt.html"),
             "ko": ("index.ko.html", "GUIDE.ko.md", release["artifact"] + ".pdf",
-                   "portal-screenshots.json", 17, 48, 104,
+                   "portal-screenshots.json", 17, 48, 105,
                    "validation/current/instructions.json", "data/receipt.html"),
         }
         for language, values in expected.items():
@@ -300,8 +300,8 @@ class BilingualGuideTests(unittest.TestCase):
         current = json.loads((ROOT / "validation/current/instructions.json").read_text())
         self.assertFalse(current["v2_live_improvement_established"])
         self.assertFalse(current["quality_release"])
-        self.assertFalse(current["latest_actual_azure"]["matches_new_v2_instructions"])
-        self.assertEqual(current["latest_actual_azure"]["language"], "en")
+        self.assertTrue(current["latest_actual_azure"]["matches_new_v2_instructions"])
+        self.assertEqual(current["latest_actual_azure"]["languages"], ["ko", "en"])
 
     def test_missing_translation_fails_instead_of_falling_back_to_korean(self):
         read_json = build_guide.read_json

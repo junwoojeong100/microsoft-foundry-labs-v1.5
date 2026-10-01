@@ -1,146 +1,262 @@
 {
-  "schema": "contoso-english-live-v5-v1",
-  "checked_at": "2026-09-30T20:52:40.682315+00:00",
-  "approved_at": "2026-10-01T04:44:27.736+09:00",
-  "language": "en",
-  "status": "executed_with_critical_dev_failure_and_optimizer_evaluation_error",
-  "quality_release": false,
-  "resource_group": "rg-contoso-en-260930ae24ba",
-  "suite": "automated-v5",
-  "suite_sha256": "225b78add83c351ed089a85ed8051f0a0801ab61313a97fd25305ee1feb05b1a",
-  "context": {
-    "source": "New hash-verified portable kit and isolated English directory; only the same owned environment's private settings and ownership receipts were reused.",
-    "private_run_directory": ".build/english-v5-live/Contoso-Foundry-Hands-on-2026-09-30/",
-    "azd_environment": "contoso-en-260930ae24ba",
-    "services": {
-      "contoso-purchasing": "4",
-      "contoso-purchasing-responses": "4"
+  "schema": "contoso-bilingual-instruction-measurement",
+  "checked_at": "2026-10-01T00:51:49.464954+00:00",
+  "status": "measured_no_observed_v2_improvement",
+  "target_model": "gpt-6-sol",
+  "target_model_version": "2026-09-22",
+  "target_deployment": "contoso-gpt-6-sol",
+  "languages": {
+    "ko": {
+      "target_model": "gpt-6-sol",
+      "target_model_version": "2026-09-22",
+      "target_deployment": "contoso-gpt-6-sol",
+      "response_model_field": [
+        "contoso-gpt-6-sol"
+      ],
+      "judge_model": "gpt-4.1",
+      "judge_model_version": "2025-04-14",
+      "judge_deployment": "contoso-judge",
+      "model_identity_evidence": "ARM deployment metadata and SDK readback; response.model returns the deployment name.",
+      "questions_per_instruction": 3,
+      "target_response_count": 6,
+      "target_collection_attempts": 1,
+      "reasoning_effort": "low",
+      "max_output_tokens": 2048,
+      "local_checklist": {
+        "scores": {
+          "v1": 9,
+          "v2": 9
+        },
+        "maximum": 9,
+        "delta": 0,
+        "outcome": "unchanged",
+        "quality_release": false,
+        "scope": "Mechanical fact/citation coverage for three teaching questions, not complete semantic quality or release evidence."
+      },
+      "native_scores": {
+        "v1": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        },
+        "v2": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        }
+      },
+      "native_delta": {
+        "relevance": 0.0,
+        "groundedness": 0.0,
+        "completeness": 0.0
+      },
+      "native_runs": 2,
+      "initial_native_invalid_completeness_rows": 6,
+      "corrected_completeness_counts": {
+        "errored": 0,
+        "failed": 0,
+        "passed": 6,
+        "total": 6,
+        "skipped": 0
+      },
+      "target_tokens": 23153,
+      "target_latency_seconds": 24.774,
+      "input_hashes": {
+        "instructions": {
+          "v1": "b443002ae5328133ee3f8bbf0b2f4543ecd86521c0738edbf99fa0c0f10bdc5e",
+          "v2": "af5a564599a4c63810b9cc61e96578611f40977ee10420fa3a0787cb770855f9"
+        },
+        "cases": "8a91e6eaa446c6433dedcd67cd5b07d9b080e2be5bec10cf6f87146d9935ed92",
+        "context": "18eb454b773dd08bf3ff23ef341df9094250d5f58e8821fb95263b2960cd3420"
+      },
+      "v2_measured_improvement": false,
+      "quality_release": false
     },
-    "source_archive_sha256": "aebd586c2b14c44492739540caa174249eed65855b6d57c0466162cef178173c",
-    "development_freeze_sha256": "a52bbd00932bd1ad6088bd1d03726960b5a327b12c84ad5beffd6d9aa72c3471",
-    "frozen_files": 34,
-    "tool_authorization_contract": "explicit-request-v2",
-    "invocations_runtime_sha256": "db4ac710ea9ff5f52ce4596f7cdc0b071062cae884d7afe10aadbc988e4b47da",
-    "responses_runtime_sha256": "355b9aa773ef1db97b4afc3dd28af5ecfc78db94e15b4ae19549a634b13088a6",
-    "effective_prompt_sha256": "2d223cdecdced7a5cdb6aa045aaa420e30b3a999ad47b86a39aa1aa56b67ce62",
-    "both_protocols_same_effective_prompt": true,
-    "model_deployments_changed": false,
-    "runtime_data_judge_oracles_changed_after_freeze": false
-  },
-  "smoke": {
-    "invocations": "passed_actual_azure_business_smoke",
-    "responses": "passed_actual_azure_business_smoke",
-    "deployments": 2,
-    "target_invocations": 2,
-    "preserved_local_cli_rejection": "attempts/responses-cli-rejection.json"
-  },
-  "calibration": {
-    "controls": 8,
-    "matched": 8,
-    "passed": true,
-    "eval_id": "eval_ed2b9c75595f4a709f67a457aebc5e68",
-    "run_id": "evalrun_eb89937230e44fa5af41f1c36d7c3491"
-  },
-  "dev": {
-    "required": 40,
-    "attempted": 40,
-    "completed_responses": 40,
-    "collection_attempts": 1,
-    "native_runs": 1,
-    "runtime_failed": [],
-    "not_executed": [],
-    "native_passes": 40,
-    "business_passes": 39,
-    "pass_rate": 0.975,
-    "native_counts": {
-      "errored": 0,
-      "failed": 0,
-      "passed": 40,
-      "total": 40,
-      "skipped": 0
-    },
-    "native_eval_id": "eval_ed2b9c75595f4a709f67a457aebc5e68",
-    "native_run_id": "evalrun_e26005eaa54a4de3ab6db1784a12b0c5",
-    "complete_business_gate_passed": false,
-    "critical_failures": [
-      "v5-dev-30"
-    ],
-    "evidence_integrity_failures": [],
-    "contradictions": []
-  },
-  "holdout": {
-    "required": 10,
-    "executed": 0,
-    "native_runs": 0,
-    "opened_for_target_evaluation": false,
-    "reason": "The complete dev gate failed its unchanged zero-access-failure requirement. No holdout was opened or invoked.",
-    "sha256": "7aa4f31c7153777588aec32e0e569ad9f3c67e2d76f13b3588c3343a3571c493",
-    "seal_manifest_sha256": "c35cbdb3fc28bc137b0cd8f31e4812d78ec701e33ffe54710a177c3c89bedea9"
-  },
-  "optimizer": {
-    "job_id": "opt_7c6be680d37342dab3c41b2b06b52803",
-    "outcome": "operational_failure",
-    "service_status": "succeeded",
-    "service_duration_seconds": 647,
-    "baseline_dev_score": 0.9453125,
-    "generated_candidates": 0,
-    "candidate_promoted": false,
-    "quality_improvement_claimed": false,
-    "jobs": 1,
-    "native_counts": {
-      "errored": 1,
-      "failed": 1,
-      "passed": 38,
-      "total": 40,
-      "skipped": 0
+    "en": {
+      "target_model": "gpt-6-sol",
+      "target_model_version": "2026-09-22",
+      "target_deployment": "contoso-gpt-6-sol",
+      "response_model_field": [
+        "contoso-gpt-6-sol"
+      ],
+      "judge_model": "gpt-4.1",
+      "judge_model_version": "2025-04-14",
+      "judge_deployment": "contoso-judge",
+      "model_identity_evidence": "ARM deployment metadata and SDK readback; response.model returns the deployment name.",
+      "questions_per_instruction": 3,
+      "target_response_count": 6,
+      "target_collection_attempts": 1,
+      "reasoning_effort": "low",
+      "max_output_tokens": 2048,
+      "local_checklist": {
+        "scores": {
+          "v1": 8,
+          "v2": 8
+        },
+        "maximum": 9,
+        "delta": 0,
+        "outcome": "unchanged",
+        "quality_release": false,
+        "scope": "Mechanical fact/citation coverage for three teaching questions, not complete semantic quality or release evidence."
+      },
+      "native_scores": {
+        "v1": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        },
+        "v2": {
+          "relevance": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "groundedness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          },
+          "completeness": {
+            "mean": 5.0,
+            "passed": 3,
+            "total": 3
+          }
+        }
+      },
+      "native_delta": {
+        "relevance": 0.0,
+        "groundedness": 0.0,
+        "completeness": 0.0
+      },
+      "native_runs": 2,
+      "initial_native_invalid_completeness_rows": 6,
+      "corrected_completeness_counts": {
+        "errored": 0,
+        "failed": 0,
+        "passed": 6,
+        "total": 6,
+        "skipped": 0
+      },
+      "target_tokens": 20253,
+      "target_latency_seconds": 21.12,
+      "input_hashes": {
+        "instructions": {
+          "v1": "4e19bac885816e883d03e634ba87aea94bf4cdfe8c72253032949ff387f32a21",
+          "v2": "64737264fd77cff547246abb81d23a9a922001f86e5557776ae81c3641aab832"
+        },
+        "cases": "d4c2b6ab51c8992fc6f784b0628659675268558720e38c690286fd73adabd80b",
+        "context": "e7fd955076189b5778ff572270efe59a71dc8c445a34b421fd24a7835edca3cd"
+      },
+      "v2_measured_improvement": false,
+      "quality_release": false
     }
   },
-  "closeout": {
-    "status": "scoped_closeout_verified",
-    "recorded_sessions_stopped": 5,
-    "known_optimizer_job_terminal": true,
-    "native_runs_terminal": true,
-    "job_inventory": {
-      "status": "read",
-      "rows": 3,
-      "bounded": true,
-      "scope": "contoso-purchasing-responses only, at most six recent jobs"
+  "target_calls": 12,
+  "target_resampling": false,
+  "native_runs": 4,
+  "native_runs_breakdown": "One initial six-row run per language, then one completeness-only output-contract correction per language.",
+  "judge_control_calibration_performed": false,
+  "quality_release": false,
+  "optimizer": {
+    "mentioned_in_guide": true,
+    "new_jobs": 0,
+    "reason": "Optional optimization was not requested for this controlled prompt comparison.",
+    "previous_job_executed": true,
+    "previous_outcome": "operational_failure",
+    "previous_native_counts": {
+      "passed": 38,
+      "failed": 1,
+      "errored": 1,
+      "total": 40
     },
-    "global_idle_claimed": false,
+    "previous_evidence": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json"
+  },
+  "holdout": {
+    "mentioned_in_guide": true,
+    "new_cases_executed": 0,
+    "sealed_cases_opened": 0,
+    "reason": "These three exposed teaching questions are not an independent release exam. The prior full dev gate failed, so its holdout stayed sealed."
+  },
+  "operational_corrections": [
+    "The initial custom completeness prompt omitted the SDK's explicit numeric result/reason JSON contract. All twelve invalid metrics are preserved, not scored as zero or success.",
+    "Only that output-format directive was added. The same original answers were evaluated once for completeness only; target responses and valid builtin metrics were not rerun.",
+    "Korean native polling timed out; its completed native run was recovered by exact-ID GET. The original monitoring failure remains recorded."
+  ],
+  "interpretation": [
+    "Both v1 and v2 scored 5/5 on completeness, relevance and groundedness in both languages. No measured improvement is established on these three questions.",
+    "The local Korean checklist is 9/9 for each prompt; English is 8/9 for each. Its fixed regex misses 'ask the responsible department' even though both answers include that legitimate path; the original checklist was not changed after measurement.",
+    "A three-question ceiling result is not evidence of general equivalence, guaranteed v2 improvement, or a release-quality pass."
+  ],
+  "closeout": {
+    "native_jobs_terminal": true,
+    "hosted_sessions_created": 0,
+    "optimizer_jobs_created": 0,
+    "model_deployments_created": 2,
+    "old_deployments_unchanged": true,
+    "original_private_settings_unchanged": true,
     "resources_deleted": false
   },
-  "administrator": {
-    "status": "awaiting_administrator_confirmation",
-    "external_workspace_current_existence_checked": false,
-    "policy_or_permissions_changed": false,
-    "administrator_contacted": false
+  "documentation": {
+    "model_explicit_in": [
+      "docs/01-setup.md",
+      "docs/en/01-setup.md",
+      "docs/02-models.md",
+      "docs/en/02-models.md"
+    ],
+    "model_version": "2026-09-22",
+    "source": "https://ai.azure.com/catalog/models/gpt-6-sol",
+    "default_deployment_name": "contoso-gpt-6-sol",
+    "original_hosted_agents_redeployed": false
   },
-  "preserved": {
-    "v4_originals": "validation/english/automated-v4/",
-    "prior_failure_oracles_or_controls_changed": false,
-    "original_v4_unused_holdout_opened_or_reused": false,
-    "new_holdout_authoring": "separate_context_after_freeze",
-    "new_holdout_sha256": "7aa4f31c7153777588aec32e0e569ad9f3c67e2d76f13b3588c3343a3571c493",
-    "historical_files_unchanged": 20,
-    "korean_environment_changed": false,
-    "failed_cases_resampled": false
-  },
-  "excluded_work": [
+  "excluded": [
     "cost queries",
-    "optional-service validation",
-    "Azure resource deletion",
-    "organization policy/access changes",
-    "external workspace queries",
-    "automatic optimizer candidate apply/promotion",
-    "holdout execution after a failed dev gate"
+    "policy/access changes",
+    "optimizer submission",
+    "holdout execution",
+    "resource deletion",
+    "main merge",
+    "Pages publication"
   ],
-  "publication": "Main merge and Pages publication were separately approved after this bounded work; publication is not quality release approval.",
-  "documentation_validation": "validation/docs/live-v5/",
-  "evidence_boundary": "Native dev 40/40 does not override the critical access-evidence failure at combined 39/40. Optimizer service success/perfect-score wording does not override 38 passed, 1 failed, 1 errored. The unused holdout remains unexecuted.",
-  "remaining": [
-    "A separately approved, newly frozen experiment is required to improve access-evidence completeness; do not rerun v5 until it passes.",
-    "Native Optimizer case08 lacks an actual engine response or detailed evaluator-error cause; case27 shows built-in judge/domain-oracle disagreement.",
-    "Timeout cancellation and generated draft-candidate cleanup were not exercised by this live run.",
-    "External diagnostic-policy dependency remains for the governance owner to confirm."
-  ]
+  "previous_evidence_archive": {
+    "commit": "6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde",
+    "url": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation",
+    "older_validation_files_removed_from_current_tree": 119,
+    "history_rewritten": false
+  }
 }

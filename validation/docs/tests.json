@@ -1,23 +1,32 @@
 {
-  "scope": "Local regression and build checks only. Not Azure execution, a v1/v2 model comparison, or measured score improvement.",
+  "scope": "Local regression and documentation checks only. Actual bilingual Azure measurements are separately preserved in validation/current/report.json.",
   "status": "passed",
   "command": "FOUNDRY_LAB_LANGUAGE=ko .venv-live/bin/python -m unittest discover -s tests -q",
-  "tests_passed": 237,
+  "tests_passed": 248,
   "tests_failed": 0,
   "new_azure_calls": 0,
-  "live_instruction_comparison_executed": false,
+  "azure_measurement_report": "validation/current/report.json",
+  "v2_score_improvement_claimed": false,
   "v1_baselines_unchanged": true,
   "active_instructions": "v2",
   "packaged_instruction_versions": ["v1", "v2"],
   "korean_and_english_hosted_builds": "passed",
   "same_input_same_checklist_and_no_forced_winner": "passed with explicitly local fixtures",
   "partial_failure_and_no_retry": "passed with explicitly local fixtures",
-  "latest_actual_originals_preserved_byte_for_byte": 15,
-  "older_validation_files_preserved_in_git": 119,
+  "current_measurement": {
+    "target_model": "gpt-6-sol",
+    "target_version": "2026-09-22",
+    "target_responses": 12,
+    "native_runs": 4,
+    "original_invalid_custom_metric_preserved": true,
+    "format_correction_did_not_change_semantic_rubric": true,
+    "target_resampling": false,
+    "local_or_native_improvement_observed": false
+  },
   "archive_commit": "6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde",
   "existing_native_judges_datasets_and_business_gates_changed": false,
   "repository_independence": {
-    "executable_files_checked": 66,
+    "executable_files_checked": 67,
     "reference_repository_dependencies": 0,
     "personal_paths": 0
   }

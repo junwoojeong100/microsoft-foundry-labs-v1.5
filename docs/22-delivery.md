@@ -47,7 +47,7 @@ python scripts/check_guide.py
 </div>
 
 PDF와 ZIP은 README의 생성 명령으로 같은 소스에서 만듭니다. [최신 상태](../validation/current/instructions.json)는
-새 v2의 준비 상태와 수정 전 실제 실행 원본을 구분합니다.
+현재 국문·영문 GPT-6 Sol 실측과 그 동점 결과·보존된 형식 오류를 구분해 보여 줍니다.
 
 ### 2. GitHub Actions에서 같은 검사 확인하기
 

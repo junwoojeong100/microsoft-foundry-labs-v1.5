@@ -9,9 +9,7 @@
 **학습 흐름은 변경하지 않은 v1 → 개선 v2 → 한 번 비교입니다.** 현재 개선은 `agent-v2.txt`에서 관리하며 지침 버전과 검증 이력을 계속 늘리지 않습니다.
 v2는 공용·비공개 질문 분리, 모든 하위 질문의 답변, 주장별 근거, 미확인 사실 보류, 실제 도구 권한·결과 확인을 구체화했습니다.
 
-L08에서는 같은 질문 3개를 같은 모델·문맥·출력 형식·체크리스트로 지침별 한 번씩 비교합니다.
-반복 검증·holdout·Hosted 재배포·Optimizer는 필수가 아닙니다. **실제 점수 상승을 미리 보장하거나 결과를 작성하지 않습니다.**
-동점·하락·오류·미완료도 원문 그대로 남깁니다.
+L02에 **`gpt-6-sol` / `2026-09-22`**, 배포 이름 `contoso-gpt-6-sol`을 명시했습니다. L08에서는 같은 질문 3개를 지침별 한 번씩 호출한 뒤 그 원문을 Foundry로 평가합니다. Holdout·Hosted 재배포·Optimizer는 필수가 아니며 **실제 점수 상승을 미리 보장하거나 결과를 작성하지 않습니다.**
 
 ## 읽기와 다운로드
 
@@ -31,10 +29,12 @@ ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `i
 
 - 기준선: `data/prompts/agent-v1.txt`와 `data/en/prompts/agent-v1.txt`. 비교를 위해 약화하지 않았습니다.
 - 현재 지침: 같은 폴더의 `agent-v2.txt`. Prompt/Hosted 기본값도 v2입니다.
-- 한 번 비교: `samples/instruction_lab.py`. 별도 승인 후 `--live`를 주기 전에는 계획만 표시합니다.
+- 한 번 비교: `samples/instruction_lab.py`; 원문 native 평가: `samples/instruction_evaluation.py`. 둘 다 명시적인 `--live` 전에는 계획만 표시합니다.
 - [현재 상태](validation/current/instructions.json), [최신 실제 Azure 원본](validation/current/report.json), [최신 문서 검사](validation/docs/structure.json).
 
-수정한 v2는 **새 Azure 비교를 실행하지 않았습니다.** 가장 최근 실제 원본은 수정 전 지침의 dev 39/40·critical access 근거 실패와 Optimizer 오류를 그대로 유지하며, holdout은 실행하지 않았습니다. 이 기록을 현재 v2의 통과 결과로 바꾸지 않습니다.
+**국문·영문 모두 GPT-6 Sol로 실측했습니다.** 로컬 체크는 국문 **9/9→9/9**, 영문 **8/9→8/9**이며, Foundry 완결성·관련성·근거성 평균은 양쪽 언어의 v1/v2 모두 **5.0/5**였습니다. 이 세 질문에서는 **v2의 점수 향상이 관측되지 않았습니다.** Judge는 별도로 고정한 GPT-4.1을 사용했습니다.
+
+대상 응답은 총 12개를 한 번씩 수집했습니다. 최초 custom 평가자의 숫자 출력 형식 오류와 한국어 상태 조회 timeout은 보존했고, JSON 형식만 수정한 뒤 같은 원문의 완결성만 한 번 평가했습니다. Native 4건 모두 종료를 확인했습니다. Optimizer·holdout은 L08/L20에 설명하지만 이번에는 새로 실행하지 않았으며, 이 작은 비교를 출시 품질 통과로 기록하지 않습니다.
 이전 검증 파일은 현재 목록에서 정리하고 [고정된 Git 이력](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation)에 원본을 보존했습니다.
 원본의 실행·배포 ID는 추적용이며 지침 버전이 아닙니다.
 

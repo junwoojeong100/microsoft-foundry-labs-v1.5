@@ -1,11 +1,14 @@
 import hashlib
 import json
 from pathlib import Path
+import sys
 import unittest
-import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 DIRECTORY = ROOT / "validation/current"
+sys.path.insert(0, str(ROOT / "samples"))
+from evidence import digest
+from instruction_evaluation import audit
 
 
 def record(name):
@@ -13,137 +16,136 @@ def record(name):
 
 
 class LatestEvidenceTests(unittest.TestCase):
-    def test_all_native_rows_do_not_override_the_critical_business_failure(self):
-        quality = record("quality.json")
-        dev = quality["dev"]
-        self.assertEqual(dev["required"], 40)
-        self.assertEqual(dev["attempted"], 40)
-        self.assertEqual(dev["completed_responses"], 40)
-        self.assertEqual(dev["collection_attempts"], 1)
-        self.assertEqual(dev["native_runs"], 1)
-        self.assertEqual(dev["native_passes"], 40)
-        self.assertEqual(dev["business_passes"], 39)
-        self.assertEqual(dev["pass_rate"], 0.975)
-        self.assertEqual(dev["native_counts"], {"total": 40, "passed": 40, "failed": 0, "errored": 0, "skipped": 0})
-        self.assertEqual(dev["critical_failures"], ["v5-dev-30"])
-        self.assertFalse(dev["complete_business_gate_passed"])
-        self.assertFalse(quality["quality_release"])
-        self.assertFalse(quality["failed_cases_resampled"])
-        self.assertFalse(quality["criteria_changed"])
-        self.assertFalse(quality["original_answers_rewritten"])
-        self.assertEqual(len(record("native-dev.json")["items"]), 40)
+    def test_actual_gpt6_measurement_is_complete_but_not_an_improvement(self):
+        report = record("report.json")
+        self.assertEqual(report["target_model"], "gpt-6-sol")
+        self.assertEqual(report["target_model_version"], "2026-09-22")
+        self.assertEqual(report["status"], "measured_no_observed_v2_improvement")
+        self.assertEqual(report["target_calls"], 12)
+        self.assertEqual(report["native_runs"], 4)
+        self.assertFalse(report["target_resampling"])
+        self.assertFalse(report["quality_release"])
+        for language, expected in (("ko", 9), ("en", 8)):
+            row = report["languages"][language]
+            self.assertEqual(row["target_response_count"], 6)
+            self.assertEqual(row["target_collection_attempts"], 1)
+            self.assertEqual(row["local_checklist"]["scores"], {"v1": expected, "v2": expected})
+            self.assertEqual(row["local_checklist"]["delta"], 0)
+            self.assertFalse(row["v2_measured_improvement"])
+            self.assertEqual(set(row["native_delta"].values()), {0})
 
-    def test_failed_access_evidence_and_unopened_holdout_remain_explicit(self):
-        diagnosis = record("dev30-diagnosis.json")
-        self.assertEqual(diagnosis["category"], "access")
-        self.assertEqual(diagnosis["automatic_checks"]["failures"], ["required_policy_evidence"])
-        self.assertTrue(diagnosis["native_passed"])
-        self.assertEqual(diagnosis["native_score"], 4)
-        self.assertFalse(diagnosis["business_passed"])
-        self.assertEqual(diagnosis["business_tools_executed"], [])
-        self.assertEqual(diagnosis["missing_citation_groups"], [
-            ["CONTOSO-PROC-2026-09-s5", "CONTOSO-SEC-2026-09-s1"],
-        ])
-        quality = record("quality.json")
-        self.assertEqual(quality["holdout"]["executed"], 0)
-        self.assertFalse(quality["holdout"]["opened_for_target_evaluation"])
-        self.assertFalse((DIRECTORY / "dev-gate.json").exists())
-        self.assertFalse((DIRECTORY / "holdout-responses.jsonl").exists())
-        manifest_path = ROOT / "data/en/evaluation/v5/holdout-manifest.json"
-        manifest = json.loads(manifest_path.read_text())
-        self.assertTrue(manifest["sealed"])
-        self.assertEqual(manifest["rows"], 10)
-        self.assertEqual(manifest["release_status"], "sealed_unexecuted")
-        self.assertEqual(quality["holdout"]["sha256"], manifest["sha256"])
-        self.assertEqual(quality["holdout"]["seal_manifest_sha256"], hashlib.sha256(manifest_path.read_bytes()).hexdigest())
+    def test_exact_prompt_and_case_inputs_remain_bound_to_original_responses(self):
+        current = record("instructions.json")
+        self.assertTrue(current["v2_live_comparison_completed"])
+        self.assertFalse(current["v2_live_improvement_established"])
+        self.assertFalse(current["score_improvement_guaranteed"])
+        for language in ("ko", "en"):
+            data = ROOT / "data" / ("en" if language == "en" else "")
+            responses = record(f"{language}/responses.json")
+            self.assertEqual(responses["status"], "completed")
+            self.assertEqual(responses["language"], language)
+            self.assertEqual(responses["model_deployment"], "contoso-gpt-6-sol")
+            self.assertEqual(responses["reasoning_effort"], "low")
+            self.assertEqual(responses["max_output_tokens"], 2048)
+            self.assertEqual(len(responses["rows"]), 6)
+            cases = json.loads((data / "evaluation/instruction-comparison.json").read_text())["cases"]
+            self.assertEqual(responses["cases_sha256"], digest(cases))
+            for version in ("v1", "v2"):
+                self.assertEqual(hashlib.sha256((data / f"prompts/agent-{version}.txt").read_bytes()).hexdigest(),
+                                 responses["instructions_sha256"][version])
+            for case in cases:
+                pair = [row for row in responses["rows"] if row["id"] == case["id"]]
+                self.assertEqual({row["instructions"] for row in pair}, {"v1", "v2"})
+                self.assertEqual({row["query"] for row in pair}, {case["query"]})
+                self.assertEqual(len({row["input_sha256"] for row in pair}), 1)
+                self.assertEqual(len({row["response_id"] for row in pair}), 2)
+                self.assertTrue(all(row["status"] == "completed" and row["usage"]["total_tokens"] > 0 for row in pair))
 
-    def test_v5_exports_retain_actual_v2_authorization_and_citation_provenance(self):
-        rows = [json.loads(line) for line in (DIRECTORY / "dev-responses.jsonl").read_text().splitlines()]
-        self.assertEqual(len(rows), 40)
-        self.assertEqual(len({row["id"] for row in rows}), 40)
+    def test_original_invalid_custom_scores_are_not_rewritten(self):
+        for language in ("ko", "en"):
+            original = record(f"{language}/native-original.json")
+            self.assertEqual(original["result_counts"],
+                             {"total": 6, "passed": 0, "failed": 6, "errored": 0, "skipped": 0})
+            self.assertEqual(len(original["items"]), 6)
+            for item in original["items"]:
+                values = [metric for metric in item["results"] if metric["name"] == "completeness"]
+                self.assertEqual(len(values), 1)
+                self.assertIsNone(values[0]["score"])
+                self.assertFalse(values[0]["passed"])
+                self.assertIn("Invalid or missing numeric result", values[0]["reason"])
+        self.assertIn("Native monitoring failed", record("ko/native-original.json")["operation_error"]["message"])
+
+    def test_format_only_correction_uses_the_same_rows_and_no_target_reinvocation(self):
+        for language in ("ko", "en"):
+            original = record(f"{language}/native-original.json")
+            correction = record(f"{language}/native-completeness.json")
+            self.assertEqual(correction["original_eval_id"], original["eval_id"])
+            self.assertEqual(correction["original_run_id"], original["run_id"])
+            self.assertEqual(correction["original_rubric_sha256"], original["rubric_sha256"])
+            self.assertEqual(correction["submitted_rows_sha256"], digest(original["submitted_rows"]))
+            self.assertEqual(correction["target_responses_regenerated"], 0)
+            self.assertEqual(correction["built_in_metrics_rejudged"], 0)
+            self.assertEqual(correction["custom_repair_attempts"], 1)
+            self.assertFalse(correction["semantic_rubric_changed"])
+            self.assertEqual(correction["threshold"], 4)
+            self.assertEqual(correction["result_counts"],
+                             {"total": 6, "passed": 6, "failed": 0, "errored": 0, "skipped": 0})
+            actual = audit(correction, original["submitted_rows"], original["identities"], metric_names=("completeness",))
+            self.assertEqual(actual, correction["comparison"])
+
+    def test_report_native_scores_match_actual_rows_not_a_selected_winner(self):
+        summary = record("report.json")
+        for language in ("ko", "en"):
+            original = record(f"{language}/native-original.json")
+            builtins = audit(original, original["submitted_rows"], original["identities"],
+                             metric_names=("relevance", "groundedness"))
+            correction = record(f"{language}/native-completeness.json")
+            for version in ("v1", "v2"):
+                expected = {**builtins["scores"][version], **correction["comparison"]["scores"][version]}
+                self.assertEqual(summary["languages"][language]["native_scores"][version], expected)
+                self.assertTrue(all(metric["mean"] == 5 and metric["total"] == 3 for metric in expected.values()))
+
+    def test_english_regex_misses_are_retained_despite_semantically_correct_answers(self):
+        rows = record("en/responses.json")["rows"]
         for row in rows:
-            self.assertEqual(row["tool_authorization_contract"], "explicit-request-v2")
-            self.assertEqual(row["execution_location"], "azure")
-            self.assertEqual(row["hosted_version"], "4")
-            self.assertEqual(row["evaluation_suite"], "automated-v5")
-            for key in ("request_permissions", "required_policy_citations", "raw_answer",
-                        "raw_attribution", "retrieved_sources", "tool_calls", "citations", "response_id", "trace_id"):
-                self.assertIn(key, row)
-        calibration = record("calibration.json")
-        self.assertTrue(calibration["calibration_passed"])
-        self.assertEqual(calibration["controls"], 8)
-        self.assertEqual(calibration["matched"], 8)
+            if row["id"] == "public-and-restricted":
+                self.assertFalse(row["checklist"]["checks"]["legitimate-confirmation"])
+                self.assertIn("ask the responsible department", row["raw_answer"].lower())
+                self.assertEqual(row["checklist"]["matched"], 2)
 
-    def test_smokes_and_local_cli_rejection_are_distinct_preserved_observations(self):
-        first, second = record("invocations-smoke.json"), record("responses-smoke.json")
-        for smoke in (first, second):
-            self.assertEqual(smoke["version"], "4")
-            self.assertEqual(smoke["tool_authorization_contract"], "explicit-request-v2")
-            self.assertTrue(smoke["checks"]["passed"])
-            self.assertFalse(smoke["quality_release"])
-        self.assertEqual(first["effective_prompt_sha256"], second["effective_prompt_sha256"])
-        rejected = record("attempts/responses-cli-rejection.json")
-        self.assertEqual(rejected["status"], "failed_before_target_invocation")
-        self.assertFalse(rejected["target_request_submitted"])
-        self.assertFalse(rejected["candidate_source_changed"])
-
-    def test_distinct_v5_freeze_preserves_the_pre_exam_sources(self):
-        with zipfile.ZipFile(DIRECTORY / "source-snapshot.zip") as archive:
-            frozen = json.loads(archive.read("data/en/evaluation/v5/development-freeze.json"))
-            self.assertEqual(frozen["suite"], "automated-v5")
-            self.assertEqual(len(frozen["files"]), 34)
-            self.assertEqual(frozen["tool_authorization_contract"], "explicit-request-v2")
-            self.assertFalse(frozen["final_holdout_exists_at_freeze"])
-            self.assertFalse(any("holdout" in name for name in archive.namelist()))
-            for name, expected in frozen["files"].items():
-                self.assertEqual(hashlib.sha256(archive.read(name)).hexdigest(), expected)
-
-    def test_optimizer_service_success_cannot_hide_error_or_replace_dev_originals(self):
-        optimizer = record("optimizer.json")
-        self.assertEqual(optimizer["outcome"], "operational_failure")
-        self.assertEqual(optimizer["service_status"], "succeeded")
-        self.assertEqual(optimizer["service_duration_seconds"], 647)
-        self.assertEqual(optimizer["native_baseline"]["result_counts"],
-                         {"total": 40, "passed": 38, "failed": 1, "errored": 1, "skipped": 0})
-        self.assertEqual(optimizer["native_baseline"]["errored_case_ids"], ["v5-dev-08"])
-        self.assertEqual(optimizer["native_baseline"]["failed_case_ids"], ["v5-dev-27"])
-        self.assertEqual(optimizer["native_baseline"]["authentic_engine_records"], 39)
-        self.assertEqual(optimizer["generated_candidates"], 0)
-        self.assertFalse(optimizer["candidate_promoted"])
-        self.assertFalse(optimizer["quality_improvement_claimed"])
-        self.assertEqual(optimizer["dev_cases"], 40)
-        self.assertEqual(optimizer["holdout_cases"], 0)
-        self.assertEqual(optimizer["max_seconds"], 1200)
-        self.assertLessEqual(optimizer["observed_cleanup_elapsed_seconds"], 180)
-        items = {row["case_id_from_exact_query"]: row for row in record("optimizer-native.json")["items"]}
-        self.assertEqual(len(items), 40)
-        self.assertEqual(items["v5-dev-08"]["sample_output_text"], "")
-        self.assertFalse(items["v5-dev-27"]["metrics"][0]["passed"])
-        self.assertTrue(items["v5-dev-27"]["automatic_checks_on_preserved_engine_output"]["passed"])
-        self.assertFalse(record("quality.json")["dev"]["verdicts"]["v5-dev-30"]["passed"])
-
-    def test_scoped_closeout_and_historical_preservation_are_not_global_claims(self):
+    def test_closeout_is_scoped_to_created_models_and_recorded_jobs(self):
         operations = record("operations.json")
-        self.assertEqual(operations["status"], "scoped_closeout_verified")
-        self.assertEqual(operations["recorded_sessions_stopped"], 5)
-        self.assertEqual(len({row["id"] for row in operations["sessions"]}), 5)
-        for row in operations["sessions"]:
-            self.assertTrue(row["ownership_verified"])
-            self.assertTrue(row["stop_verified"])
-            self.assertEqual(row["status"], "idle")
-            self.assertTrue(row["stopped_at"])
-        self.assertEqual(len(operations["optimizer_jobs"]), 1)
-        self.assertTrue(operations["optimizer_jobs"][0]["terminal"])
-        self.assertEqual(len(operations["native_runs"]), 3)
+        self.assertEqual(operations["status"], "recorded_jobs_terminal")
+        self.assertEqual(operations["hosted_sessions_created"], 0)
+        self.assertEqual(operations["optimizer_jobs_created"], 0)
+        self.assertEqual(operations["holdout_cases_opened"], 0)
         self.assertFalse(operations["global_idle_claimed"])
         self.assertFalse(operations["resources_deleted"])
-        current = record("instructions.json")
-        self.assertFalse(current["latest_actual_azure"]["matches_new_v2_instructions"])
-        self.assertFalse(current["v2_live_improvement_established"])
-        self.assertFalse(current["historical_archive"]["history_rewritten"])
-        for name, original in current["retained_originals"].items():
-            self.assertEqual(hashlib.sha256((DIRECTORY / name).read_bytes()).hexdigest(), original["sha256"])
+        for language in ("ko", "en"):
+            row = operations["languages"][language]
+            self.assertTrue(row["original_private_settings_unchanged"])
+            self.assertTrue(row["old_deployments_unchanged"])
+            self.assertEqual(row["sdk_target"]["modelName"], "gpt-6-sol")
+            self.assertEqual(row["sdk_target"]["modelVersion"], "2026-09-22")
+            self.assertEqual(len(row["native_runs"]), 2)
+            self.assertTrue(all(run["status"] == "completed" for run in row["native_runs"]))
 
+    def test_optimizer_holdout_and_model_requirements_are_explicit_in_both_guides(self):
+        report = record("report.json")
+        self.assertEqual(report["optimizer"]["new_jobs"], 0)
+        self.assertTrue(report["optimizer"]["previous_job_executed"])
+        self.assertEqual(report["holdout"]["new_cases_executed"], 0)
+        self.assertEqual(report["holdout"]["sealed_cases_opened"], 0)
+        for directory in ("docs", "docs/en"):
+            model = (ROOT / directory / "02-models.md").read_text()
+            setup = (ROOT / directory / "01-setup.md").read_text()
+            lesson = (ROOT / directory / "08-evaluation.md").read_text()
+            self.assertIn("gpt-6-sol", model)
+            self.assertIn("2026-09-22", model)
+            self.assertIn("contoso-gpt-6-sol", model)
+            self.assertIn("--chat-model gpt-6-sol --chat-version 2026-09-22", setup)
+            self.assertIn("Optimizer", lesson)
+            self.assertIn("holdout", lesson)
 
 
 if __name__ == "__main__":

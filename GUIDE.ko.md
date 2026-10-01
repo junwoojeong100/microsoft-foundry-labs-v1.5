@@ -226,7 +226,7 @@ Microsoft의 capability map/reference를 기준으로 기능군을 빠짐없이 
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인 금액과 보존 정책" --live
-python3.13 scripts/azure_environment.py foundation --chat-model 지원-chat모델 --chat-version 실제버전 --judge-model 지원-judge모델 --judge-version 실제버전 --embedding-model 지원-embedding모델 --embedding-version 실제버전 --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model 지원-judge모델 --judge-version 실제버전 --embedding-model 지원-embedding모델 --embedding-version 실제버전 --model-sku GlobalStandard --capacity 10 --live
 python3.13 scripts/azure_environment.py roles --live
 ```
 
@@ -425,7 +425,7 @@ SDK 설치가 사내 미러에서 실패하면 허용된 미러의 동기화를 
 
 ## 목표
 
-**가장 큰 모델이 아니라 요구 품질을 충족하는 가장 경제적인 조합**을 선택합니다. 모델 이름, 모델 버전, 배포 이름을 분리해 이해합니다.
+**이 가이드의 실습 대상 모델은 OpenAI `gpt-6-sol`입니다.** 모델 버전은 `2026-09-22`로 확인하고, 모델 ID·버전·배포 이름을 구분합니다. 다른 모델과의 비용·성능 비교는 선택 확장입니다.
 
 ## 개념과 실습 지도
 
@@ -443,9 +443,9 @@ L01의 프로젝트와 모델 배포 권한이 필요합니다. 학습자에게 
 
 ## 실행
 
-### 1. 모델 카탈로그에서 후보 두 개 고르기
+### 1. 모델 카탈로그에서 gpt-6-sol 선택하기
 
-**Discover → Models**에서 소형 범용 모델과 더 높은 추론 능력의 모델을 비교합니다. Microsoft·OpenAI·Anthropic·Meta 등 공급자 선택과 “Azure가 직접 판매/운영하는 모델” 대 “파트너·커뮤니티 모델”의 제공 방식도 확인합니다.
+**Discover → Models**에서 **`gpt-6-sol`**을 검색하고 OpenAI 모델 카드를 엽니다. Azure가 직접 제공하는 모델이며 Responses API·구조화 출력·함수 호출 지원을 확인합니다. v1/v2 비교에서는 두 지침 모두 이 동일 모델·버전을 사용합니다.
 
 ![Foundry의 실제 Discover → Models 화면. 검색창, Available in my project 필터, 지원 기능·배포 유형 필터와 모델 카드가 보인다.](assets/portal/02-model-catalog.png)
 
@@ -460,7 +460,15 @@ L01의 프로젝트와 모델 배포 권한이 필요합니다. 학습자에게 
 | 가격·문맥 길이·입출력 제한 | 최대 문맥이 길다고 비용이 저렴하지 않음 |
 | 라이선스·데이터 처리 조건 | 공급자와 배포 방식별 조건이 다름 |
 
-공식 hosted quickstart의 현재 예시 중 하나는 `gpt-5.4-mini`입니다. **필수 모델이나 모든 구독의 가용 모델로 고정하지 않습니다.** 실제 모델 카드와 현재 접근 권한을 기준으로 고르세요. 이 가이드 코드는 모델명을 하드코딩하지 않습니다.
+| 이번 실습 설정 | 값 |
+| --- | --- |
+| 공급자 / 모델 ID | OpenAI / `gpt-6-sol` |
+| 모델 버전 | `2026-09-22` |
+| 권장 실습 배포 이름 | `contoso-gpt-6-sol` |
+| 배포 유형 | 가용성과 조직 정책을 확인한 `GlobalStandard` |
+| 호출 API | Responses API |
+
+모든 구독에서 quota·capacity가 같지는 않습니다. 카드가 보이더라도 현재 프로젝트에서 지원되는 버전·용량을 확인합니다. 배포가 불가능하면 다른 모델로 조용히 바꾸지 않고 해당 제한을 기록합니다.
 
 ### 2. 배포 유형 선택하기
 
@@ -477,9 +485,11 @@ L01의 프로젝트와 모델 배포 권한이 필요합니다. 학습자에게 
 
 ### 3. 배포하고 이름 기록하기
 
-모델 카드의 배포 동작에서 지원되는 모델 버전·유형·용량을 선택합니다. 실습 배포 이름은 예를 들어 `contoso-chat`로 지정하고 `.env`의 `FOUNDRY_MODEL_DEPLOYMENT_NAME`에 **그 배포 이름**을 넣습니다.
+모델 카드의 배포 동작에서 **`gpt-6-sol` / `2026-09-22`**와 지원되는 유형·용량을 선택합니다. 이름을 `contoso-gpt-6-sol`로 지정했다면 `.env`에 `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-gpt-6-sol`을 설정합니다. API에는 모델 카드의 이름이 아니라 **실제 배포 이름**을 넘깁니다.
 
-배포가 준비됨 상태가 되면 playground에서 다음 두 입력을 각각 3회 실행합니다.
+L01의 관리자 foundation 스크립트는 같은 모델을 `contoso-chat`이라는 배포 이름으로 만들 수 있습니다. 이 경로를 사용했다면 실제 출력된 이름을 설정하고 배포를 중복 생성하지 않습니다. 모델 배포를 바꾸었다고 기존 Hosted 에이전트 코드나 설정이 자동 재배포되는 것은 아닙니다.
+
+배포가 준비됨 상태가 되면 별도 승인된 Playground 확인에서 다음 두 입력을 각각 한 번만 실행합니다. L08의 v1/v2 실측은 별도의 같은 질문 3개를 사용합니다.
 
 ```text
 다음 규칙을 한 문장으로 요약해줘:
@@ -492,10 +502,10 @@ L01의 프로젝트와 모델 배포 권한이 필요합니다. 학습자에게 
 규칙에 없는 내용은 추가하지 마.
 ```
 
-| 후보 | 경계값 정답 / 3 | 대략적 지연 | 토큰/가격 조건 | 선택 |
+| 후보 | 두 질문의 실제 결과 | 대략적 지연 | 토큰/가격 조건 | 선택 |
 | --- | --- | --- | --- | --- |
-| A | 직접 기록 | 직접 기록 | 모델 카드 기준 | 이유 |
-| B | 직접 기록 | 직접 기록 | 모델 카드 기준 | 이유 |
+| `gpt-6-sol` | 직접 기록 | 직접 기록 | 모델 카드 기준 | 실습 대상 |
+| 별도 승인한 대안(선택) | 실행했다면 기록 | 직접 기록 | 모델 카드 기준 | 비교 이유 |
 
 공개 leaderboard는 후보를 줄이는 출발점이지 내 업무 데이터의 성능 보증이 아닙니다.
 
@@ -1317,7 +1327,7 @@ v1은 변경하지 않은 기준선이고, v2가 현재 개선 지침입니다. 
 
 ## 준비
 
-L01의 환경과 L02의 호출 가능한 모델이 있으면 됩니다. 이 비교에는 Hosted 재배포, Search 서비스, Optimizer, holdout이 필요하지 않습니다.
+L01의 환경과 L02의 **`gpt-6-sol` / `2026-09-22`** 배포를 사용합니다. 실제 배포 이름은 `contoso-gpt-6-sol`이며 `.env`에 그 이름을 설정합니다. Native 평가에는 별도 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`도 필요합니다. 이번 실측의 judge는 양쪽 모두 기존 `contoso-judge`(GPT-4.1)로 고정했습니다. 이 비교에는 Hosted 재배포, Search 서비스, Optimizer, holdout이 필요하지 않습니다.
 체크인된 **합성 정책 문맥**을 두 지침에 동일하게 제공합니다. 이를 실제 Search 조회라고 표시하지 않습니다.
 한국어는 기본값이며, 영어 실습에서는 L01에서 선택한 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다.
 
@@ -1337,8 +1347,9 @@ v2에 질문별 정답이나 평가 사례 ID를 넣지 않습니다. 여러 질
 ### 2. 계획 확인 후 한 번 비교하기
 
 ```bash
-python samples/instruction_lab.py
-python samples/instruction_lab.py --live
+python samples/instruction_lab.py --reasoning-effort low
+python samples/instruction_lab.py --reasoning-effort low --live
+python samples/instruction_evaluation.py --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -1347,12 +1358,13 @@ python samples/instruction_lab.py --live
 
 | 순서와 명령 | 하는 일과 옵션 | 결과·비용·변경 |
 | --- | --- | --- |
-| 1. `instruction_lab.py` | v1/v2, 같은 질문 3개, 고정 체크리스트와 실행 상한을 확인합니다. | 계획만 출력하며 Azure 호출은 0건입니다. |
-| 2. `instruction_lab.py --live` | 별도 비용 승인 후 실행합니다. 같은 모델·문맥·질문으로 v1과 v2를 각각 한 번 호출합니다. | 모델 호출 최대 6건, 360초, 재시도 0회입니다. `results/instruction-comparison.json` 한 파일에 실제 답변과 점수를 저장합니다. |
+| 1. `instruction_lab.py --reasoning-effort low` | v1/v2, 질문 3개와 공통 reasoning 설정을 확인합니다. `low`는 양쪽에 똑같이 적용합니다. | 계획만 출력하며 Azure 호출은 0건입니다. |
+| 2. `instruction_lab.py ... --live` | 별도 비용 승인 후 같은 GPT-6 Sol·문맥·질문으로 v1/v2를 각각 한 번 호출합니다. | 최대 6건·360초·재시도 0회·출력 2048토큰입니다. 실제 원문과 로컬 체크를 `results/instruction-comparison.json`에 보존합니다. |
+| 3. `instruction_evaluation.py --live` | 앞에서 수집한 원문 6개를 Foundry native 평가에 제출합니다. 완결성·관련성·근거성을 평가하며 v1/v2 이름을 judge에 제공하지 않습니다. | 대상 모델 재호출은 0건입니다. Native 1회·600초·취소 확인 90초로 제한하고 `results/instruction-native.json`에 행별 결과를 저장합니다. |
 
 </div>
 
-이미 비교 파일이 있으면 다시 실행하지 않고 그 결과를 읽습니다. 에이전트 버전이나 평가 실행 번호를 새로 만들지 않습니다.
+이미 비교 파일이 있으면 다시 실행하지 않고 그 결과를 읽습니다. 지침 버전이나 실험 번호를 늘리지 않습니다. Foundry가 발급하는 평가 ID는 원본 추적용으로만 보존합니다.
 오류나 미완료 응답도 원본으로 보존하며, 이전 답이나 예시 답으로 채우지 않습니다.
 
 ### 3. 점수와 근거를 함께 읽기
@@ -1377,17 +1389,33 @@ python samples/instruction_lab.py --live
 ![Foundry 평가 화면. 완료 상태와 개별 점수·오류·누락을 구분합니다.](assets/portal/08-evaluations.png)
 
 Evaluations에서 실행 상태, 평가자, 입력 데이터, 행별 판정과 오류를 구분해서 살펴봅니다.
-위 비교는 SDK 모델 호출과 로컬 체크리스트이며, 화면에 새로운 native evaluation job을 생성했다고 주장하지 않습니다.
-별도 native evaluator 실습이 필요할 때만 [평가 코드](samples/evaluation_lab.py)의 명시적 승인 경로를 사용합니다.
+첫 두 명령은 실제 Azure 모델 응답 수집과 로컬 체크입니다. 세 번째 [native 비교 코드](samples/instruction_evaluation.py)는 그 원문을 Foundry Evaluations에 제출합니다. 관련성·근거성은 built-in evaluator이며 완결성은 두 지침에 동일한 1~5 기준을 적용하는 custom evaluator입니다.
+Native 평가자는 3개 사례의 학습용 평가이며 별도의 judge 대조군 calibration은 수행하지 않았습니다.
 전체 90% 이상·safety/access 실패 0 등 기존 업무 게이트는 이 작은 학습용 점수로 대체하거나 완화하지 않습니다.
+
+### 5. 국문·영문 실제 측정 결과
+
+모두 `gpt-6-sol`의 `2026-09-22` 버전, reasoning `low`, 같은 질문·문맥·기준으로 측정했습니다.
+
+| 언어 | 지침 | 로컬 체크 / 9 | Native 완결성 / 5 | 관련성 / 5 | 근거성 / 5 |
+| --- | --- | --- | --- | --- | --- |
+| 한국어 | v1 | 9 | 5.0 | 5.0 | 5.0 |
+| 한국어 | v2 | 9 | 5.0 | 5.0 | 5.0 |
+| English | v1 | 8 | 5.0 | 5.0 | 5.0 |
+| English | v2 | 8 | 5.0 | 5.0 | 5.0 |
+
+**이번 세 질문에서는 v2의 점수 상승이 관측되지 않았습니다.** v1도 모든 native 항목에서 최고점을 받았습니다. 영어 로컬 체크는 “ask the responsible department”를 정규식이 인식하지 못해 두 지침 모두 1점을 잃었고, native 의미 평가에서는 이 확인 경로를 올바르게 인정했습니다. 측정 후 체크리스트를 바꾸지 않았습니다.
+
+최초 custom 평가에서 숫자 출력 형식이 누락돼 완결성 점수가 `null`이 된 실패와 한국어 상태 조회 timeout을 보존했습니다. 출력 형식만 보완한 뒤 **동일 원문에 완결성만 한 번 평가**했습니다. 실제 대상 응답은 총 12개, native run은 최초 2건과 완결성 보완 2건이며, 대상 응답이나 유효한 built-in 점수는 재샘플링하지 않았습니다. 네 run의 종료를 확인했습니다.
+
+**Optimizer와 holdout의 역할:** Optimizer는 dev 자료로 개선 후보를 만드는 선택 기능이고, holdout은 지침·개선 과정에 노출하지 않은 독립 최종 시험지입니다. 이번 비교는 노출된 학습 질문이므로 holdout이 아니며 두 작업은 새로 실행하지 않았습니다. 이전 Optimizer는 실제 실행 후 오류로 실패했고, 이전 holdout은 full dev 실패 때문에 봉인 상태를 유지했습니다.
 
 ## 성공 기준
 
 v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침이 어떤 누락을 줄였는지 설명할 수 있습니다.
 숫자가 올랐다는 결론은 실제 `delta`가 양수일 때만 씁니다. 이 실습을 위해 반복 검증·holdout·Optimizer를 수행할 필요는 없습니다.
 
-[현재 지침 상태](validation/current/instructions.json)는 새 v2와 [가장 최근 실제 Azure 원본](validation/current/report.json)을 구분합니다.
-보존된 실제 원본은 수정 전 지침의 결과이며, 새 v2의 개선 점수를 입증하지 않습니다. 이전 내역은 Git 이력에만 보존합니다.
+[현재 지침 상태](validation/current/instructions.json)와 [최신 실제 측정](validation/current/report.json)에 국문·영문 원문, 모델 신원, 행별 점수와 오류 보존 경로가 있습니다. 이전 내역은 Git 이력에 보존하며 이번 동점을 향상으로 바꾸지 않습니다.
 
 ## 막혔을 때
 
@@ -1396,7 +1424,7 @@ v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침
 
 ## 정리
 
-이 비교는 에이전트·Hosted 세션·Optimizer job을 만들지 않습니다. 생성된 응답 파일 한 개만 검토하고 L09로 진행합니다.
+이 비교는 에이전트·Hosted 세션·Optimizer job을 만들지 않습니다. 응답과 native 평가 job의 종료를 확인하고 L09로 진행합니다. 모델 배포는 유지하며 별도 승인 없이 삭제하지 않습니다.
 
 
 ### 공식 근거
@@ -1791,7 +1819,7 @@ python scripts/cost_status.py
 | 1. `stop_sessions.py` | 기록된 Hosted client 세션에 실제 stop을 보내고 같은 ID를 다시 조회합니다. 이 스크립트에는 `--live` 안전 스위치가 없습니다. | 세션 compute 상태를 변경합니다. agent/RG/receipt 삭제는 하지 않으며 미확인 중지는 오류입니다. |
 | 2. `routine_lab.py stop --live` | 기본 `results/routine.json`에 기록된 예약을 disable합니다. 다른 receipt를 썼다면 L17처럼 `--receipt`를 명시합니다. | 실제 예약 상태 변경. 다른 예약이나 RG를 삭제하지 않습니다. |
 | 3. `azure_environment.py status --live` | 소유 receipt의 Azure 환경 상태를 읽어 확인합니다. | Azure 읽기 요청 및 상태 기록. 모델 추론은 하지 않습니다. |
-| 4. `operations_status.py` | 소유 환경의 세션·optimizer·평가 schedule·routine을 읽습니다. `--live` 없이 실행되며 남은 작업은 실패 상태로 알립니다. | Azure는 읽기 전용이지만 로컬 `validation/current/operations.json`은 갱신합니다. 보존된 제작 증거 checkout에서는 재실행하지 않고 포털로 확인합니다. |
+| 4. `operations_status.py` | 소유 환경의 세션·optimizer·평가 schedule·routine을 읽습니다. `--live` 없이 실행되며 남은 작업은 실패 상태로 알립니다. | 승인된 읽기 범위에서 실행하고 비공개 `results/operations-status.json`에 저장합니다. 보존된 공개 검증 원본을 덮어쓰지 않습니다. |
 | 5. `cost_status.py` | 소유 RG의 생성 시각부터 현재까지 ActualCost를 서비스별로 조회합니다. `--live` 없이 실제 청구 API를 읽습니다. | 로컬 `validation/current/cost.json`을 갱신하는 제작자용 도구입니다. 보존본에서는 재실행하지 않습니다. 빈 청구 행은 비용 0의 증거가 아닙니다. |
 
 </div>
@@ -3192,7 +3220,7 @@ python samples/prepare_tuning.py
 
 v2의 개선 의도와 실제 답의 차이를 설명하고, 검색·지침·도구 제약·학습 중 적절한 방법을 선택할 수 있습니다.
 학습 파일을 만들었다고 모델 학습이나 점수 향상을 완료했다고 쓰지 않습니다.
-[최신 보존 원본](validation/current/optimizer.json)의 실패 판정도 그대로 두며, 이를 현재 v2의 결과로 바꾸지 않습니다.
+[현재 비교](validation/current/report.json)는 국문·영문 모두 실제 측정했지만 v1/v2 점수는 동점입니다. 이번에는 Optimizer job과 holdout을 새로 실행하지 않았습니다. [이전 Optimizer 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json)의 실제 실행·실패 판정은 보존하며 현재 비교로 바꾸지 않습니다.
 
 ## 막혔을 때
 
@@ -3379,7 +3407,7 @@ python scripts/check_guide.py
 </div>
 
 PDF와 ZIP은 README의 생성 명령으로 같은 소스에서 만듭니다. [최신 상태](validation/current/instructions.json)는
-새 v2의 준비 상태와 수정 전 실제 실행 원본을 구분합니다.
+현재 국문·영문 GPT-6 Sol 실측과 그 동점 결과·보존된 형식 오류를 구분해 보여 줍니다.
 
 ### 2. GitHub Actions에서 같은 검사 확인하기
 
@@ -4066,11 +4094,11 @@ Microsoft Learn의 개요, capability reference, GA 표, 기능 문서와 공식
 지침 파일 이름이 v2라는 사실만으로 평가 점수가 올랐다고 판단하지 않습니다.
 
 [현재 지침 상태](validation/current/instructions.json)에는 새 v2의 준비 상태와 실제 비교 여부를 기록합니다.
-현재 수정본에 대한 새 Azure 비교는 수행하지 않았습니다. 로컬 구조·브라우저·PDF 검사는 `validation/docs/`에만 두며 Azure 결과가 아닙니다.
+현재 v1/v2는 국문·영문 모두 `gpt-6-sol` / `2026-09-22`로 실제 비교했습니다. 지침별 같은 세 질문에서 native 완결성·관련성·근거성은 모두 평균 5.0/5로 동점이었고, 로컬 체크는 국문 9→9·영문 8→8입니다. 로컬 구조·브라우저·PDF 검사는 `validation/docs/`에 따로 두며 Azure 결과가 아닙니다.
 
-[가장 최근 실제 실행 원본](validation/current/report.json)은 수정 전 지침으로 수행한 기록입니다.
-Dev 합산 39/40 및 critical 근거 실패와 Optimizer 오류 판정은 원래대로 유지합니다. 새 v2의 통과 결과로 바꾸지 않습니다.
-현재 파일 목록에는 이 최신 묶음만 두고, 이전 원본은 [고정된 Git 이력](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation)에 보존합니다.
+[가장 최근 실제 실행 원본](validation/current/report.json)은 이 국문·영문 비교의 응답과 native 판정을 연결합니다.
+최초 custom 평가의 숫자 형식 누락은 보존하고 출력 계약만 수정해 같은 응답의 완결성만 평가했습니다. 대상 재샘플링은 없습니다.
+기존 full-dev 실패·Optimizer 오류는 [고정된 Git 이력](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation)에 원래대로 보존하며 이번 동점을 v2 향상이나 독립 holdout 통과로 바꾸지 않습니다.
 
 화면 이미지는 촬영 당시의 실제 포털 관찰입니다. 새 v2 실행 화면이나 새 모델 품질 증거로 사용하지 않습니다.
 선택 기능, 조직 정책·권한, 비용 조회, 리소스 삭제, 저장소 병합·게시는 각각 별도 승인 범위입니다.

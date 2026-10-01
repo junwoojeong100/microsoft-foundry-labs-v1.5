@@ -24,11 +24,11 @@ The learning instructions use only **baseline v1 and improved v2**. L08 compares
 The label v2 does not establish a score increase.
 
 The [current instruction status]({validation}) records preparation and whether a real comparison exists.
-No new Azure comparison has been performed for the edited v2. Current local structure, browser, and PDF checks live only in `{documentation_validation}/`; they are not Azure results.
+Both languages were actually compared using `gpt-6-sol` / `2026-09-22`. For the same three questions per instruction, native completeness/relevance/groundedness means tied at 5.0/5. The Korean local checklist tied 9→9 and English 8→8. Local structure, browser and PDF checks live separately in `{documentation_validation}/`; they are not Azure results.
 
-The [latest actual execution originals](validation/current/report.json) predate this instruction edit.
-Their combined dev result of 39/40 with a critical evidence failure and failed Optimizer outcome remain unchanged; they are not converted into a v2 pass.
-Only that latest set remains in the current file listing. Older originals stay in [immutable Git history]({historical_validation}).
+The [latest actual originals](validation/current/report.json) link these bilingual responses to native judgments.
+The initial custom metric's missing numeric-output contract is preserved; only that contract was corrected and completeness evaluated on the same answers. Targets were not resampled.
+Earlier full-dev and Optimizer failures remain unchanged in [immutable Git history]({historical_validation}). This tie is not relabeled as v2 improvement or an independent holdout pass.
 
 Screenshots are actual portal observations from their recorded capture times, not new v2 execution or quality evidence.
 Optional features, policy/access changes, cost queries, deletion, merges, and publication each require the applicable separate approval.

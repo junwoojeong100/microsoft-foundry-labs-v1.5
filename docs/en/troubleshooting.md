@@ -8,7 +8,7 @@
 
 ## Troubleshooting by symptom
 
-The edited v2 has not been newly compared in Azure. The [latest actual originals](../../validation/current/quality.json) retain their critical evidence failure; do not treat an instruction filename, safe-sounding refusal, or service success as a quality pass.
+The [actual bilingual comparison](../../validation/current/quality.json) tied on GPT-6 Sol. Do not turn a tie into improvement. The initial custom-evaluator output-format error and polling timeout remain recorded in the [measurement report](../../validation/current/report.json); neither service completion nor missing numeric results count as a valid score.
 
 | Symptom | Check first | Next action | Do not |
 | --- | --- | --- | --- |

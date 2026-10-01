@@ -41,7 +41,7 @@ python scripts/cost_status.py
 | 1. `stop_sessions.py` | 기록된 Hosted client 세션에 실제 stop을 보내고 같은 ID를 다시 조회합니다. 이 스크립트에는 `--live` 안전 스위치가 없습니다. | 세션 compute 상태를 변경합니다. agent/RG/receipt 삭제는 하지 않으며 미확인 중지는 오류입니다. |
 | 2. `routine_lab.py stop --live` | 기본 `results/routine.json`에 기록된 예약을 disable합니다. 다른 receipt를 썼다면 L17처럼 `--receipt`를 명시합니다. | 실제 예약 상태 변경. 다른 예약이나 RG를 삭제하지 않습니다. |
 | 3. `azure_environment.py status --live` | 소유 receipt의 Azure 환경 상태를 읽어 확인합니다. | Azure 읽기 요청 및 상태 기록. 모델 추론은 하지 않습니다. |
-| 4. `operations_status.py` | 소유 환경의 세션·optimizer·평가 schedule·routine을 읽습니다. `--live` 없이 실행되며 남은 작업은 실패 상태로 알립니다. | Azure는 읽기 전용이지만 로컬 `validation/current/operations.json`은 갱신합니다. 보존된 제작 증거 checkout에서는 재실행하지 않고 포털로 확인합니다. |
+| 4. `operations_status.py` | 소유 환경의 세션·optimizer·평가 schedule·routine을 읽습니다. `--live` 없이 실행되며 남은 작업은 실패 상태로 알립니다. | 승인된 읽기 범위에서 실행하고 비공개 `results/operations-status.json`에 저장합니다. 보존된 공개 검증 원본을 덮어쓰지 않습니다. |
 | 5. `cost_status.py` | 소유 RG의 생성 시각부터 현재까지 ActualCost를 서비스별로 조회합니다. `--live` 없이 실제 청구 API를 읽습니다. | 로컬 `validation/current/cost.json`을 갱신하는 제작자용 도구입니다. 보존본에서는 재실행하지 않습니다. 빈 청구 행은 비용 0의 증거가 아닙니다. |
 
 </div>
