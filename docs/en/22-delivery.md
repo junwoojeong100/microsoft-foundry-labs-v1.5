@@ -48,6 +48,7 @@ python scripts/check_guide.py
 
 Generate PDFs and the ZIP from the same sources using the README commands. The [current status](../../validation/current/instructions.json)
 records the actual bilingual GPT-6 Sol measurement, tied scores, and preserved output-contract failure separately.
+Generated Markdown, PDF, and ZIP files are grouped under the root `downloads/` directory. Keep `index.html` and `index.ko.html` at the root for the existing Pages routes.
 
 ### 2. Read GitHub Actions checks
 

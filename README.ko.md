@@ -17,9 +17,9 @@ L02에 **`gpt-6-sol` / `2026-09-22`**, 배포 이름 `contoso-gpt-6-sol`을 명�
 | --- | --- |
 | 한국어 웹 | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
 | 영어 웹 | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
-| Markdown | [한국어](GUIDE.ko.md) · [English](GUIDE.en.md) |
-| PDF | [한국어](Contoso-Foundry-Hands-on-2026-09-30.pdf) · [English](Contoso-Foundry-Hands-on-2026-09-30.en.pdf) |
-| 전체 실습 패키지 | [두 언어 ZIP](Contoso-Foundry-Hands-on-2026-09-30.zip) |
+| Markdown | [한국어](downloads/GUIDE.ko.md) · [English](downloads/GUIDE.en.md) |
+| PDF | [한국어](downloads/Contoso-Foundry-Hands-on-2026-09-30.pdf) · [English](downloads/Contoso-Foundry-Hands-on-2026-09-30.en.pdf) |
+| 전체 실습 패키지 | [두 언어 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
 | 합성 영수증 | [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) |
 
 ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `index.html`을 열고, 코드는 편집기에서 확인합니다.

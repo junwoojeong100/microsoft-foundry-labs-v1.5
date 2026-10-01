@@ -3,12 +3,12 @@
   "default_language": "en",
   "languages": {
     "en": {
-      "checked_at": "2026-10-01T03:18:14.323530+00:00",
+      "checked_at": "2026-10-01T18:33:53.893593+00:00",
       "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
-      "guide_sha256": "f748c0d297236100bb2610750a54fe76b7d133b9e3cee5927785688d1eec9f9f",
+      "guide_sha256": "255bc519065cc0c091bded9eced2725e12e2a36113f97cd7bd8a3c8f148127be",
       "language": "en",
       "html": "index.html",
-      "markdown": "GUIDE.en.md",
+      "markdown": "downloads/GUIDE.en.md",
       "pages": 30,
       "labs": 25,
       "coverage_rows": 91,
@@ -44,12 +44,12 @@
       ]
     },
     "ko": {
-      "checked_at": "2026-10-01T03:18:14.372871+00:00",
+      "checked_at": "2026-10-01T18:33:53.943445+00:00",
       "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
-      "guide_sha256": "5df5abc7844f0e97c4743039133cb310c8a53aacb8a7912f62feaa3df86fcac8",
+      "guide_sha256": "f8b8a1bc53a279b6e48144bf313b8694df26e4a9739a06f7a93bda97a7bbf3b8",
       "language": "ko",
       "html": "index.ko.html",
-      "markdown": "GUIDE.ko.md",
+      "markdown": "downloads/GUIDE.ko.md",
       "pages": 30,
       "labs": 25,
       "coverage_rows": 91,

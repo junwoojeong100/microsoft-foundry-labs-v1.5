@@ -48,6 +48,7 @@ python scripts/check_guide.py
 
 PDF와 ZIP은 README의 생성 명령으로 같은 소스에서 만듭니다. [최신 상태](../validation/current/instructions.json)는
 현재 국문·영문 GPT-6 Sol 실측과 그 동점 결과·보존된 형식 오류를 구분해 보여 줍니다.
+생성된 Markdown·PDF·ZIP은 루트의 `downloads/`에 모으며, 웹 진입점 `index.html`과 `index.ko.html`은 Pages 경로를 위해 루트에 유지합니다.
 
 ### 2. GitHub Actions에서 같은 검사 확인하기
 

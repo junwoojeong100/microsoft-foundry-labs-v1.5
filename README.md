@@ -17,9 +17,9 @@ L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-so
 | --- | --- |
 | English web guide | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
 | Korean web guide | [GitHub Pages · 한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
-| Markdown | [English](GUIDE.en.md) · [한국어](GUIDE.ko.md) |
-| PDF | [English](Contoso-Foundry-Hands-on-2026-09-30.en.pdf) · [한국어](Contoso-Foundry-Hands-on-2026-09-30.pdf) |
-| Complete kit | [Bilingual ZIP](Contoso-Foundry-Hands-on-2026-09-30.zip) |
+| Markdown | [English](downloads/GUIDE.en.md) · [한국어](downloads/GUIDE.ko.md) |
+| PDF | [English](downloads/Contoso-Foundry-Hands-on-2026-09-30.en.pdf) · [한국어](downloads/Contoso-Foundry-Hands-on-2026-09-30.pdf) |
+| Complete kit | [Bilingual ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
 | Synthetic receipt | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
 
 Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.html`; use an editor to inspect code.

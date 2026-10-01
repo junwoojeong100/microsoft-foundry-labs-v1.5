@@ -65,6 +65,8 @@ async function main() {
     };
     for (const [language, edition] of Object.entries(release.languages)) {
       page.contosoGuideEdition = { ...edition, language, date: release.edition };
+      page.contosoGuideRelease = release;
+      if (operation === "pdf") await fs.mkdir(path.dirname(path.resolve(edition.pdf)), { recursive: true });
       const checked = await callback(page);
       checked.guide_sha256 = createHash("sha256").update(await fs.readFile(path.join(root, edition.html))).digest("hex");
       result.languages[language] = checked;

@@ -4,12 +4,13 @@
   "default_language": "en",
   "site_url": "https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/",
   "pages_branch": "gh-pages",
+  "archive": "downloads/Contoso-Foundry-Hands-on-2026-09-30.zip",
   "languages": {
     "en": {
       "label": "English",
       "html": "index.html",
-      "markdown": "GUIDE.en.md",
-      "pdf": "Contoso-Foundry-Hands-on-2026-09-30.en.pdf",
+      "markdown": "downloads/GUIDE.en.md",
+      "pdf": "downloads/Contoso-Foundry-Hands-on-2026-09-30.en.pdf",
       "readme": "README.md",
       "portal_manifest": "portal-screenshots.en.json",
       "portal_screenshots": 18,
@@ -21,8 +22,8 @@
     "ko": {
       "label": "한국어",
       "html": "index.ko.html",
-      "markdown": "GUIDE.ko.md",
-      "pdf": "Contoso-Foundry-Hands-on-2026-09-30.pdf",
+      "markdown": "downloads/GUIDE.ko.md",
+      "pdf": "downloads/Contoso-Foundry-Hands-on-2026-09-30.pdf",
       "readme": "README.ko.md",
       "portal_manifest": "portal-screenshots.json",
       "portal_screenshots": 17,

@@ -58,7 +58,8 @@ def main():
         ):
             raise ValueError(f"Package input must be an existing regular file: {path.relative_to(ROOT)}")
     captures = {language: load_portal_captures(language) for language in RELEASE["languages"]}
-    target = ROOT / f"{NAME}.zip"
+    target = ROOT / RELEASE["archive"]
+    target.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path in sorted(set(files)):
             archive.write(path, f"{NAME}/{path.relative_to(ROOT).as_posix()}")
@@ -88,7 +89,9 @@ def main():
                     path = (ROOT / Path(edition[key]).parent / unquote(parsed.path)).resolve()
                     if not path.is_relative_to(ROOT):
                         raise ValueError(f"Portable guide link escapes the kit: {address}")
-                    local_paths.add(path.relative_to(ROOT).as_posix())
+                    relative = path.relative_to(ROOT).as_posix()
+                    if relative != RELEASE["archive"]:
+                        local_paths.add(relative)
         for local_path in local_paths:
             if f"{NAME}/{local_path}" not in names:
                 raise ValueError(f"Portable guide link missing from ZIP: {local_path}")

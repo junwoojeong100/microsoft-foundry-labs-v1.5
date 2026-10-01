@@ -403,7 +403,7 @@ def build_language(language):
   <section id="search-results" class="search-results" aria-labelledby="search-title" hidden><h1 id="search-title">{ui['search_results']}</h1><p id="search-count" role="status" aria-live="polite"></p><div id="search-list"></div></section>
   <p id="storage-warning" class="storage-warning" role="status" hidden>{ui['storage_warning']}</p>
 {''.join(pages)}
-  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{edition['pdf']}">{ui['pdf']}</a><a href="{RELEASE['site_url']}{RELEASE['artifact']}.zip">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="{edition['validation']}">{ui['validation']}</a><a href="#sources">{ui['sources']}</a></footer>
+  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{edition['pdf']}">{ui['pdf']}</a><a href="{RELEASE['archive']}">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="{edition['validation']}">{ui['validation']}</a><a href="#sources">{ui['sources']}</a></footer>
 </main>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -421,7 +421,10 @@ def build_language(language):
         f"> {RELEASE['edition']} {ui['book_intro']} "
         f"[{ui['web_guide']}]({RELEASE['site_url']}{edition['html']}) — {ui['book_web']}",
         "",
-        " | ".join(f"[{other['label']}]({other['markdown']})" for other in RELEASE["languages"].values()),
+        " | ".join(
+            f"[{other['label']}]({Path(other['markdown']).name})"
+            for other in RELEASE["languages"].values()
+        ),
         "",
         ui["book_boundary"].format(validation=edition["validation"]),
         "",
@@ -444,7 +447,9 @@ def build_language(language):
             "", book_body, "", f"### {ui['official']}", "",
         ]
         book += [f'- [{sources[key]["title"]}]({sources[key]["url"]})' for key in chapter["sources"]]
-    (ROOT / edition["markdown"]).write_text("\n".join(book) + "\n", encoding="utf-8")
+    markdown_path = ROOT / edition["markdown"]
+    markdown_path.parent.mkdir(parents=True, exist_ok=True)
+    markdown_path.write_text("\n".join(book) + "\n", encoding="utf-8")
     print(f"Built {language}: {len(chapters)} sections (25 labs), {len(capabilities)} coverage rows, {len(sources)} official sources.")
 
 

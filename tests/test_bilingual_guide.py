@@ -106,10 +106,10 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["default_language"], "en")
         self.assertEqual(release["pages_branch"], "gh-pages")
         expected = {
-            "en": ("index.html", "GUIDE.en.md", release["artifact"] + ".en.pdf",
+            "en": ("index.html", "downloads/GUIDE.en.md", "downloads/" + release["artifact"] + ".en.pdf",
                    "portal-screenshots.en.json", 18, 50, 107,
                    "validation/current/instructions.json", "data/en/receipt.html"),
-            "ko": ("index.ko.html", "GUIDE.ko.md", release["artifact"] + ".pdf",
+            "ko": ("index.ko.html", "downloads/GUIDE.ko.md", "downloads/" + release["artifact"] + ".pdf",
                    "portal-screenshots.json", 17, 48, 105,
                    "validation/current/instructions.json", "data/receipt.html"),
         }
@@ -119,6 +119,7 @@ class BilingualGuideTests(unittest.TestCase):
                 "html", "markdown", "pdf", "portal_manifest", "portal_screenshots",
                 "shell_blocks", "commands", "validation", "receipt_html",
             )), values)
+        self.assertEqual(release["archive"], "downloads/" + release["artifact"] + ".zip")
 
     def test_translations_preserve_canonical_structure_and_evidence(self):
         korean, ko_sources, ko_capabilities = build_guide.load_content("ko")
@@ -376,6 +377,7 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertNotIn("data/en/receipt.html", parser.links)
         self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/")}), 17)
         self.assertIn("](" + build_guide.RELEASE["site_url"] + "data/receipt.html)", artifacts["GUIDE.ko.md"])
+        self.assertIn("[English](GUIDE.en.md)", artifacts["GUIDE.ko.md"])
 
     def test_package_rejects_private_state_including_nested_english_evidence(self):
         for path in (

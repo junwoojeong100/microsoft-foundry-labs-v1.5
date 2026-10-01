@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-10-01T03:18:21.742755+00:00",
+  "checked_at": "2026-10-01T18:33:57.276694+00:00",
   "language": "ko",
-  "pdf": "Contoso-Foundry-Hands-on-2026-09-30.pdf",
-  "pdf_sha256": "38f0c5d894221903489179fbc024871636e00c4d18e2fb50e9f9360c2a034191",
+  "pdf": "downloads/Contoso-Foundry-Hands-on-2026-09-30.pdf",
+  "pdf_sha256": "98e7bf4851fc90bfe3ec8cf9a3445a45e864b0e945f166acf8bced65ae3ad1f9",
   "status": "passed",
   "pages": 158,
   "chapter_headings": 30,
