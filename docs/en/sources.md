@@ -24,11 +24,11 @@ The learning instructions use only **baseline v1 and improved v2**. L08 compares
 The label v2 does not establish a score increase.
 
 The [current instruction status]({validation}) records preparation and whether a real comparison exists.
-Both languages were actually compared using `gpt-6-sol` / `2026-09-22`. For the same three questions per instruction, native completeness/relevance/groundedness means tied at 5.0/5. The Korean local checklist tied 9→9 and English 8→8. Local structure, browser and PDF checks live separately in `{documentation_validation}/`; they are not Azure results.
+Both languages were measured on 12 questions each using version-pinned GPT-6 Sol Prompt Agents. Korean native relevance moved from 4.9167/5 to 5.0/5 on one row; all other Korean metrics and all English metrics tied at 5.0/5. The mechanical checklist tied at 33/40 in Korean and changed from 29/40→28/40 in English. Every changed critical flag was reviewed against its original answer; some regex checks missed paraphrased wording. The [latest report](validation/current/report.json) links agent versions, responses, per-question native reasons, tokens, and latency. Local structure, browser and PDF checks live separately in `{documentation_validation}/`; they are not Azure results.
 
 The [latest actual originals](validation/current/report.json) link these bilingual responses to native judgments.
-The initial custom metric's missing numeric-output contract is preserved; only that contract was corrected and completeness evaluated on the same answers. Targets were not resampled.
-Earlier full-dev and Optimizer failures remain unchanged in [immutable Git history]({historical_validation}). This tie is not relabeled as v2 improvement or an independent holdout pass.
+The 48 target responses were collected once; two native runs completed with 24 rows each. V2 used 7,376 more tokens and 0.427 seconds more mean latency in Korean, and 5,157 more tokens and 0.496 seconds more in English. Neither Optimizer nor the sealed holdout was newly run.
+Earlier direct-response instructions and measurements remain unchanged in [the preserved baseline commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation). The limited observed Korean relevance change is not statistical significance, an independent holdout pass, or release approval.
 
 Screenshots are actual portal observations from their recorded capture times, not new v2 execution or quality evidence.
 Optional features, policy/access changes, cost queries, deletion, merges, and publication each require the applicable separate approval.

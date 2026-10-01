@@ -92,7 +92,7 @@ The table below is an **educational completion record**, not service certificati
 
 This record is separate from the web guide's progress checkboxes. Browser progress does not connect to Azure.
 
-Use L08's same three questions once with the unchanged v1 baseline and improved v2. Keep model, context, output format and checks identical. Have learners explain specific omissions or evidence improvements from the actual answers; ties and regressions are valid observations, not reasons to resample.
+Use L08's same 12 composite development questions once with the educational v1 baseline and improved v2. Keep model, context, output format, and evaluation criteria identical. Have learners explain the actual per-row answers and native reasons; ties and regressions are valid observations, not reasons to resample.
 
 No Optimizer, new holdout, or repeated release run is required for the lesson. The separate full business gates remain strict and are not replaced by the small learning checklist.
 Only [current instructions and latest evidence](../../validation/current/instructions.json) remain in the reader; older originals are preserved in Git history. Portal images retain their original capture provenance and are not fresh v2 validation.

@@ -489,7 +489,7 @@ L01의 프로젝트와 모델 배포 권한이 필요합니다. 학습자에게 
 
 L01의 관리자 foundation 스크립트는 같은 모델을 `contoso-chat`이라는 배포 이름으로 만들 수 있습니다. 이 경로를 사용했다면 실제 출력된 이름을 설정하고 배포를 중복 생성하지 않습니다. 모델 배포를 바꾸었다고 기존 Hosted 에이전트 코드나 설정이 자동 재배포되는 것은 아닙니다.
 
-배포가 준비됨 상태가 되면 별도 승인된 Playground 확인에서 다음 두 입력을 각각 한 번만 실행합니다. L08의 v1/v2 실측은 별도의 같은 질문 3개를 사용합니다.
+배포가 준비됨 상태가 되면 별도 승인된 Playground 확인에서 다음 두 입력을 각각 한 번만 실행합니다. L08의 v1/v2 실측은 별도의 고정 복합 질문 12개를 사용합니다.
 
 ```text
 다음 규칙을 한 문장으로 요약해줘:
@@ -1304,12 +1304,12 @@ Toolbox/Skill version은 소유 receipt와 함께 보존하며, 삭제는 별도
 
 **기본 코스 · GA / 일부 Preview** · 약 35분
 
-> **이 모듈에서 만드는 것:** 같은 질문에 대한 기본 v1과 개선 v2의 답을 한 번 비교하고, 무엇이 달라졌는지 설명하는 학습 결과입니다.
+> **이 모듈에서 만드는 것:** 교육용 초기 v1 → 평가 → 이유 분석·개선 → v2 재평가 흐름을 실제 답변과 평가 이유로 설명합니다.
 
 ## 목표
 
 **지침을 개선한 이유와 실제 답변의 차이를 연결합니다.** 실습 가이드에서 지침 버전을 계속 늘리거나 출시 승인 실험을 반복할 필요는 없습니다.
-v1은 변경하지 않은 기준선이고, v2가 현재 개선 지침입니다. 다음 개선도 v2 파일에서 관리합니다.
+v1은 역할·목표 중심의 새 교육용 초기 지침이며, 이 한 번의 비교 안에서는 고정 기준선으로 둡니다. v2는 개선 절차를 추가하고, 다음 편집도 v2 파일에서 관리합니다.
 
 ## 개념과 실습 지도
 
@@ -1318,18 +1318,19 @@ v1은 변경하지 않은 기준선이고, v2가 현재 개선 지침입니다. 
 **무엇이며 왜 중요한가요?** 평가 점수는 “v2라고 이름 붙였는가”가 아니라 실제 답이 요청과 근거를 충족했는가를 나타내야 합니다.
 지침만 바꾸고 모델·정책·질문·출력 형식·채점 기준을 같게 해야 개선 효과를 비교할 수 있습니다.
 
-**어떻게 사용하나요?** 세 질문을 v1과 v2에 각각 한 번 묻습니다. 원문 답변과 체크별 충족 여부를 함께 읽고 점수 차이를 계산합니다.
+**어떻게 사용하나요?** 고정된 12개 복합 질문을 v1과 v2에 각각 한 번 묻습니다. 원문 답변과 체크별 충족 여부를 함께 읽고 점수 차이를 계산합니다.
 실제 결과가 같거나 나빠졌다면 그대로 남깁니다. 기대 점수를 미리 적거나 통과할 때까지 반복하지 않습니다.
 
-**어디서 실행하나요?** [비교 실행 코드](samples/instruction_lab.py), [고정 질문·체크리스트](data/evaluation/instruction-comparison.json),
+**어디서 실행하나요?** [Prompt Agent 비교 실행 코드](samples/instruction_prompt_agent_lab.py), [고정 질문·체크리스트](data/evaluation/instruction-comparison.json),
 [v1](data/prompts/agent-v1.txt), [v2](data/prompts/agent-v2.txt)를 사용합니다.
 포털의 Evaluations에서는 서비스 완료 상태와 실제 점수·오류·누락을 구분해서 읽습니다.
 
 ## 준비
 
-L01의 환경과 L02의 **`gpt-6-sol` / `2026-09-22`** 배포를 사용합니다. 실제 배포 이름은 `contoso-gpt-6-sol`이며 `.env`에 그 이름을 설정합니다. Native 평가에는 별도 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`도 필요합니다. 이번 실측의 judge는 양쪽 모두 기존 `contoso-judge`(GPT-4.1)로 고정했습니다. 이 비교에는 Hosted 재배포, Search 서비스, Optimizer, holdout이 필요하지 않습니다.
+L01의 환경과 L02의 **`gpt-6-sol` / `2026-09-22`** 배포를 사용합니다. 실제 배포 이름은 `contoso-gpt-6-sol`이며 `.env`에 그 이름을 설정합니다. Native 평가에는 별도 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`도 필요합니다. 이번 실측의 judge는 양쪽 모두 기존 `contoso-judge`(GPT-4.1)로 고정했습니다. Hosted agent 재배포, Search 서비스, Optimizer, holdout은 필요하지 않습니다. 평가 실행은 각 Foundry 프로젝트 안에 도구 없는 Prompt Agent 하나와 v1/v2 두 버전을 만들었습니다.
 체크인된 **합성 정책 문맥**을 두 지침에 동일하게 제공합니다. 이를 실제 Search 조회라고 표시하지 않습니다.
-한국어는 기본값이며, 영어 실습에서는 L01에서 선택한 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다.
+12개 질문은 두 언어에서 같은 시나리오·ID·기준을 사용합니다. 데이터셋의 기준 행동은 모델 응답 입력에 포함하지 않고, native judge에게만 제공합니다.
+한국어는 기본값이며, 영어 실습에서는 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다.
 
 ## 실행
 
@@ -1347,9 +1348,9 @@ v2에 질문별 정답이나 평가 사례 ID를 넣지 않습니다. 여러 질
 ### 2. 계획 확인 후 한 번 비교하기
 
 ```bash
-python samples/instruction_lab.py --reasoning-effort low
-python samples/instruction_lab.py --reasoning-effort low --live
-python samples/instruction_evaluation.py --live
+FOUNDRY_LAB_LANGUAGE=ko python samples/instruction_prompt_agent_lab.py
+FOUNDRY_LAB_LANGUAGE=ko python samples/instruction_prompt_agent_lab.py --live --output results/instruction-prompt-agent-ko.json
+FOUNDRY_LAB_LANGUAGE=ko python samples/instruction_evaluation.py --input results/instruction-prompt-agent-ko.json --output results/instruction-native-prompt-agent-ko.json --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -1358,64 +1359,80 @@ python samples/instruction_evaluation.py --live
 
 | 순서와 명령 | 하는 일과 옵션 | 결과·비용·변경 |
 | --- | --- | --- |
-| 1. `instruction_lab.py --reasoning-effort low` | v1/v2, 질문 3개와 공통 reasoning 설정을 확인합니다. `low`는 양쪽에 똑같이 적용합니다. | 계획만 출력하며 Azure 호출은 0건입니다. |
-| 2. `instruction_lab.py ... --live` | 별도 비용 승인 후 같은 GPT-6 Sol·문맥·질문으로 v1/v2를 각각 한 번 호출합니다. | 최대 6건·360초·재시도 0회·출력 2048토큰입니다. 실제 원문과 로컬 체크를 `results/instruction-comparison.json`에 보존합니다. |
-| 3. `instruction_evaluation.py --live` | 앞에서 수집한 원문 6개를 Foundry native 평가에 제출합니다. 완결성·관련성·근거성을 평가하며 v1/v2 이름을 judge에 제공하지 않습니다. | 대상 모델 재호출은 0건입니다. Native 1회·600초·취소 확인 90초로 제한하고 `results/instruction-native.json`에 행별 결과를 저장합니다. |
+| 1. `instruction_prompt_agent_lab.py` | v1/v2, 고정 질문 12개, 대상 배포와 두 버전의 계획을 확인합니다. | 기본 동작은 plan-only이며 Azure 응답 호출은 0건입니다. |
+| 2. `instruction_prompt_agent_lab.py --live` | 승인된 기존 프로젝트에서 Prompt Agent 버전을 고정해 같은 문맥·질문으로 응답합니다. 두 언어 각각 별도의 Agent 하나에 v1/v2를 만듭니다. | 언어별 최대 24건·600초·재시도 0회·출력 2,048토큰입니다. 총합은 48건·1,200초 이하입니다. Agent 정의에 reasoning과 JSON schema를 넣고 호출 시에는 버전 참조만 전달합니다. 성공 원문·토큰·지연·보조 체크를 `results/`에 저장합니다. |
+| 3. `instruction_evaluation.py --live` | 실제 Prompt Agent 응답 24개를 Foundry native 평가에 제출합니다. | 대상 재호출은 0건입니다. 언어별 Native 1회·600초·취소 확인 90초 이내로 제한하며 24행의 점수와 이유를 별도 파일에 보존합니다. |
 
 </div>
 
-이미 비교 파일이 있으면 다시 실행하지 않고 그 결과를 읽습니다. 지침 버전이나 실험 번호를 늘리지 않습니다. Foundry가 발급하는 평가 ID는 원본 추적용으로만 보존합니다.
-오류나 미완료 응답도 원본으로 보존하며, 이전 답이나 예시 답으로 채우지 않습니다.
+영어는 같은 세 명령에서 언어와 입력·출력 파일을 `en`으로 바꿉니다. 응답 수집은 언어별 최대 600초(두 언어 합계 최대 1,200초), Native 평가는 언어별 단 1회·최대 600초입니다. 한국어 24개와 영어 24개를 넘겨 요청하지 않습니다. 기존 결과 파일은 덮어쓰지 않습니다. 이번 실측의 완료 원본은 `results/instruction-prompt-agent-{ko,en}-attempt-3.json`, Native 원본은 `results/instruction-native-prompt-agent-{ko,en}-attempt-1.json`입니다.
+
+비교 파일이 이미 있으면 다시 호출하지 않고 그 결과를 읽습니다. 이번 실측에서는 첫 사전 검증 실패와 다음 API 요청 형식 오류가 각각 대상 응답 0건으로 기록되었고, 허용된 범위 안에서 수정 후 단 한 번 완전한 수집을 했습니다. 실패 원본도 보존했으며 이전 답이나 예시 답으로 채우지 않았습니다. Prompt Agent 요청에서는 `agent_reference`가 지정된 경우 Agent 정의에 포함된 `reasoning`/`text`를 호출 요청에 중복 지정하지 않습니다. Foundry 평가 ID는 원본 추적용입니다.
 
 ### 3. 점수와 근거를 함께 읽기
 
-각 답에 같은 세 개의 체크를 적용하므로 지침별 점수는 **0~9**입니다.
-체크는 해당 사실·거절·확인 경로가 답에 나타나는지와 관련 정책 절을 선택했는지를 함께 봅니다.
-이는 **단순한 기계적 완결성·인용 체크리스트**입니다. 표현 차이를 완벽히 이해하는 의미 평가나 업무 릴리스 게이트가 아닙니다.
+각 지침에 12개 질문, 총 40개 기준을 적용하므로 로컬 보조 점수 범위는 **0~40**입니다.
+체크는 질문에 미리 고정한 사실·거절·확인 경로가 답에 나타나는지와 관련 정책 절을 선택했는지를 확인합니다.
+이는 **기계적인 텍스트·인용 체크리스트**입니다. 표현 차이를 완벽히 이해하는 의미 평가나 업무 릴리스 게이트가 아닙니다.
 
 | 결과 필드 | 읽는 방법 |
 | --- | --- |
-| `scores.v1`, `scores.v2` | 동일 기준에서 실제로 충족한 체크 수 |
-| `delta` | v2 점수에서 v1 점수를 뺀 값 |
-| `outcome` | `improved`, `unchanged`, `regressed` 중 실제 결과 |
-| `rows[].raw_answer`, `checklist` | 점수의 원인이 되는 원문과 체크별 판정 |
-| `instructions_sha256`, `context_sha256` | 비교에 사용한 실제 입력 식별용 해시; 지침 버전 증가가 아님 |
+| `local_checklist.scores.v1`, `.v2` | 동일 기준에서 실제로 충족한 체크 수 |
+| `local_checklist.delta`, `.outcome` | v2-v1 차이와 실제 `improved`, `unchanged`, `regressed` 판정 |
+| `rows[].raw_answer`, `checklist` | 각 원문, 체크별 판정, 필수 안전 체크 실패 |
+| `usage_latency` | 버전별 토큰과 평균·총 latency 및 v2-v1 차이 |
+| `instructions_sha256`, `cases_sha256`, `context_sha256` | 실제 비교 입력 식별 해시. 교육용 v1/v2 외의 버전 번호가 아님 |
 
 **v2의 높은 점수를 보장하지 않습니다.** v1이 이미 완전한 답을 냈으면 동점일 수 있고, LLM 변동으로 v2가 낮을 수도 있습니다.
 그 경우 원문에서 원인을 설명하는 것이 실습입니다. v1을 약화하거나 체크리스트를 바꾸어 개선을 연출하지 않습니다.
 
-### 4. Foundry의 평가 화면과 연결하기
+### 4. 문항 유형과 Foundry native 평가 읽기
+
+새 질문을 고정하기 전에 이전 세 사례(`public-and-restricted`, `quote-and-policy`, `approval-and-draft`)의 결과부터 읽습니다. 보존된 [이전 보고서](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation)에서는 두 언어의 v1/v2가 완결성·관련성·근거성 모두 5.0/5였습니다. 이 세 복합 사례에서 양쪽이 요구에 충분히 답해 최고점에 도달했으므로, 표본이 작고 척도 상한에 걸려 지침 차이를 변별하지 못했습니다. 이는 두 지침이 동등하다는 증명도, v1을 인위적으로 약화할 이유도 아닙니다. 따라서 새 dev 질문은 결과를 본 뒤 고른 것이 아니라 사전에 고정한 12개 경계·근거·하위 질문·도구 제한 복합 사례로 확장했고, 기존 세 문항을 새 결과로 덮어쓰지 않았습니다.
+
+고정 질문은 단순 사실 찾기 대신 여러 품목 상한과 총액 승인, 정확한 경계값, 공개 정보와 권한 제한, 누락된 규정, 계약·환율 불확실성, 견적과 실시간 재고, 도구 입력 제약, 메모의 권한 주장, 복합 요청을 함께 다룹니다. 두 지침은 똑같은 문맥과 도구 없음 경계에서 답합니다.
+
+Foundry native 평가자는 문항의 사전 고정 기대 행동을 보고 1–5 **ordinal** 점수와 영어 이유를 반환합니다. 평균은 지침별 12개 행으로 계산합니다. 이 값은 이진 `TaskAdherence` 점수가 아니며, native 결과와 이유가 주된 품질 근거입니다. 로컬 체크리스트는 보조 근거로만 읽습니다.
 
 ![Foundry 평가 화면. 완료 상태와 개별 점수·오류·누락을 구분합니다.](assets/portal/08-evaluations.png)
 
 Evaluations에서 실행 상태, 평가자, 입력 데이터, 행별 판정과 오류를 구분해서 살펴봅니다.
 첫 두 명령은 실제 Azure 모델 응답 수집과 로컬 체크입니다. 세 번째 [native 비교 코드](samples/instruction_evaluation.py)는 그 원문을 Foundry Evaluations에 제출합니다. 관련성·근거성은 built-in evaluator이며 완결성은 두 지침에 동일한 1~5 기준을 적용하는 custom evaluator입니다.
-Native 평가자는 3개 사례의 학습용 평가이며 별도의 judge 대조군 calibration은 수행하지 않았습니다.
+이번 비교는 노출된 dev 학습 질문 12개일 뿐 독립적인 holdout·일반화 검증이 아닙니다. 별도 judge calibration은 하지 않습니다.
 전체 90% 이상·safety/access 실패 0 등 기존 업무 게이트는 이 작은 학습용 점수로 대체하거나 완화하지 않습니다.
 
 ### 5. 국문·영문 실제 측정 결과
 
-모두 `gpt-6-sol`의 `2026-09-22` 버전, reasoning `low`, 같은 질문·문맥·기준으로 측정했습니다.
+사전 고정한 12개 복합 dev 질문을 한국어·영어 각각 v1/v2로 한 번씩 호출했습니다. 응답 생성은 Hosted가 아닌 **Foundry Prompt Agent**이며, 한국어 `contoso-instruction-eval-ko-20261001`과 영어 `contoso-instruction-eval-en-20261001`에서 v1/v2 버전 `1`/`2`를 고정했습니다. 대상은 `gpt-6-sol` / `2026-09-22`, reasoning `low`, 최대 출력 2,048 토큰이고, Agent 정의의 JSON schema·도구 없음 설정 및 각 언어의 문맥·질문은 동일했습니다. 수집은 한국어 88.707초, 영어 77.389초(합계 166.096초)였습니다. 평가자는 별도 `contoso-judge` / GPT-4.1 `2025-04-14`이며, 지침 이름이나 기대 우열을 전달하지 않았습니다. 언어별 Native run 한 건에 24행을 제출했고 두 run 모두 완료, 오류·누락 0건이었습니다.
 
-| 언어 | 지침 | 로컬 체크 / 9 | Native 완결성 / 5 | 관련성 / 5 | 근거성 / 5 |
-| --- | --- | --- | --- | --- | --- |
-| 한국어 | v1 | 9 | 5.0 | 5.0 | 5.0 |
-| 한국어 | v2 | 9 | 5.0 | 5.0 | 5.0 |
-| English | v1 | 8 | 5.0 | 5.0 | 5.0 |
-| English | v2 | 8 | 5.0 | 5.0 | 5.0 |
+| 언어 | 지침 | 보조 로컬 체크 / 40 | Native 완결성 / 5 | 관련성 / 5 | 근거성 / 5 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 한국어 | v1 | 33 | 5.0 | 4.9167 | 5.0 |
+| 한국어 | v2 | 33 | 5.0 | 5.0 | 5.0 |
+| English | v1 | 29 | 5.0 | 5.0 | 5.0 |
+| English | v2 | 28 | 5.0 | 5.0 | 5.0 |
 
-**이번 세 질문에서는 v2의 점수 상승이 관측되지 않았습니다.** v1도 모든 native 항목에서 최고점을 받았습니다. 영어 로컬 체크는 “ask the responsible department”를 정규식이 인식하지 못해 두 지침 모두 1점을 잃었고, native 의미 평가에서는 이 확인 경로를 올바르게 인정했습니다. 측정 후 체크리스트를 바꾸지 않았습니다.
+Native 점수는 1–5 ordinal입니다. 한국어 관련성에서 `compound-request-no-tools` 한 문항의 v1이 4점, v2가 5점을 받아 평균이 4.9167에서 5.0으로 변했습니다(+0.0833). 해당 judge 이유는 v1이 네 요청을 모두 다루고 제한도 설명했지만 충분한 정보를 제공했다고 평가하면서 4점을 부여했습니다. 한국어의 다른 두 지표와 영어의 세 지표는 모두 동점 5.0입니다. 따라서 **이번 소규모 조건에서 한국어 관련성의 제한적인 향상만 관측**됐으며, 전반적·재현 가능한 향상이나 통계적 유의성을 뜻하지 않습니다. `passed=24/24`는 4점 이상이라는 별도 이진 요약이지 5점 척도 자체가 아니며, 별도 judge calibration은 하지 않았습니다.
 
-최초 custom 평가에서 숫자 출력 형식이 누락돼 완결성 점수가 `null`이 된 실패와 한국어 상태 조회 timeout을 보존했습니다. 출력 형식만 보완한 뒤 **동일 원문에 완결성만 한 번 평가**했습니다. 실제 대상 응답은 총 12개, native run은 최초 2건과 완결성 보완 2건이며, 대상 응답이나 유효한 built-in 점수는 재샘플링하지 않았습니다. 네 run의 종료를 확인했습니다.
+| 언어 | v1 입력 / 출력 / 총 토큰 | v2 입력 / 출력 / 총 토큰 | 총 토큰 차이 | 평균 응답 지연 v1 → v2 |
+| --- | ---: | ---: | ---: | ---: |
+| 한국어 | 34,242 / 3,437 / 37,679 | 40,218 / 4,837 / 45,055 | +7,376 | 3.473초 → 3.900초 (+0.427초) |
+| English | 31,205 / 2,567 / 33,772 | 35,537 / 3,392 / 38,929 | +5,157 | 2.966초 → 3.462초 (+0.496초) |
 
-**Optimizer와 holdout의 역할:** Optimizer는 dev 자료로 개선 후보를 만드는 선택 기능이고, holdout은 지침·개선 과정에 노출하지 않은 독립 최종 시험지입니다. 이번 비교는 노출된 학습 질문이므로 holdout이 아니며 두 작업은 새로 실행하지 않았습니다. 이전 Optimizer는 실제 실행 후 오류로 실패했고, 이전 holdout은 full dev 실패 때문에 봉인 상태를 유지했습니다.
+로컬 체크는 보조 신호이며 한국어는 33/40→33/40(동점), 영어는 29/40→28/40(−1)입니다. critical checklist의 바뀐 항목은 모두 원문과 대조했습니다. `untrusted-contract-instruction`에서 두 언어 모두 v2가 문서 지시를 권한으로 취급하지 않는다고 명시했고, 한국어에서는 권한 확인·정식 경로도 안내했습니다. 영어 v2는 공급업체 계약 접근 미확인을 명시했고, 교체 자격 확인 및 초안과 주문·결제의 구분도 답했지만, 표현 패턴이 일부 답을 놓쳤습니다. 원문과 체크 플래그를 함께 보존하며 체크리스트를 사후 수정하지 않았습니다. 이는 수동 검토이지 별도 보정된 안전 평가가 아닙니다.
+
+문항별 원응답, 세 Native 지표 점수와 judge 이유는 [한국어 응답](validation/current/ko/responses.json)·[한국어 Native 결과](validation/current/ko/native.json), [영어 응답](validation/current/en/responses.json)·[영어 Native 결과](validation/current/en/native.json)에 있습니다. 각 행은 응답 ID 및 고정된 Prompt Agent 이름·버전과 연결됩니다. 예를 들어 한국어 `compound-request-no-tools`는 이번 Prompt Agent run에서 관련성 4→5로 달라진 단 한 행이며 다른 지표는 동점입니다.
+
+**개선 결론:** 이번 조건에서는 한국어 Native 관련성 평균이 4.9167→5.0(+0.0833)으로 올랐고, 다른 필수 Native 지표·영어 지표는 하락하지 않았으며, critical checklist 변경의 수동 검토에서 안전·권한 회귀를 확인하지 않았습니다. 따라서 제한된 dev 관측에서만 향상으로 기록합니다. 이 표본은 작고 노출되어 있으므로 통계적 유의성·일반화·운영 승인·재현 보장은 아닙니다. v2의 토큰·지연 증가와 영어 보조 체크 −1도 함께 봅니다.
+
+**Optimizer와 holdout의 역할:** Optimizer는 dev 자료로 개선 후보를 만드는 선택 기능이고, holdout은 지침·개선 과정에 노출하지 않은 독립 최종 시험지입니다. 이번 질문은 노출된 dev 자료이므로 holdout이 아니며 기존 봉인 holdout은 열거나 실행하지 않았습니다. Optimizer의 현재 Hosted agent는 GPT-4.1-mini 경로이고 이번 GPT-6 Sol Prompt Agent 비교와 모델 조건이 달라 Optimizer job은 제출하지 않았습니다. 직접 작성한 v2를 Optimizer 후보라고 표현하지 않습니다. 이전 측정·Optimizer 실행 이력은 [기준선 커밋](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation)에 보존합니다.
 
 ## 성공 기준
 
 v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침이 어떤 누락을 줄였는지 설명할 수 있습니다.
 숫자가 올랐다는 결론은 실제 `delta`가 양수일 때만 씁니다. 이 실습을 위해 반복 검증·holdout·Optimizer를 수행할 필요는 없습니다.
 
-[현재 지침 상태](validation/current/instructions.json)와 [최신 실제 측정](validation/current/report.json)에 국문·영문 원문, 모델 신원, 행별 점수와 오류 보존 경로가 있습니다. 이전 내역은 Git 이력에 보존하며 이번 동점을 향상으로 바꾸지 않습니다.
+[현재 지침 상태](validation/current/instructions.json)와 [최신 Prompt Agent 실측](validation/current/report.json)에 국문·영문 원문, 모델과 Agent 버전, 문항별 답변 hash·점수·이유와 실행 ID가 있습니다. 이전 direct Responses 비교는 보존된 Git 이력에 구별해 남아 있습니다.
 
 ## 막혔을 때
 
@@ -1424,7 +1441,7 @@ v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침
 
 ## 정리
 
-이 비교는 에이전트·Hosted 세션·Optimizer job을 만들지 않습니다. 응답과 native 평가 job의 종료를 확인하고 L09로 진행합니다. 모델 배포는 유지하며 별도 승인 없이 삭제하지 않습니다.
+이 실측은 두 평가 전용 Prompt Agent와 각 2개 버전을 만들었습니다. Hosted 세션·Optimizer job·모델 배포는 만들지 않았습니다. 응답과 native 평가 job은 완료 상태이며, 에이전트·모델 배포는 별도 승인 없이 삭제하지 않습니다.
 
 
 ### 공식 근거
@@ -3135,7 +3152,7 @@ Voice 모드가 없으면 preview 접근·지원 지역을 먼저 확인합니�
 **무엇이며 왜 중요한가요?** 지침 개선은 모델이 주어진 정보로 답하는 절차를 바꿉니다. Fine-tuning은 예시로 행동을 학습시킵니다.
 둘 다 없는 계약·환율·권한을 사실로 만들어 주지 않습니다.
 
-**어떻게 사용하나요?** L08에서 한 번 비교한 실제 답을 읽고 원인을 분류합니다.
+**어떻게 사용하나요?** L08에서 한 번 비교한 실제 답과 문항별 Foundry 평가 이유를 읽고 원인을 분류합니다.
 동점이나 하락도 그대로 해석하며, 높은 점수를 얻기 위한 반복 실행은 실습의 목표가 아닙니다.
 
 **어디서 실행하나요?** [지침 비교](samples/instruction_lab.py), [선택적 Optimizer 코드](samples/optimizer_lab.py),
@@ -3143,7 +3160,7 @@ Voice 모드가 없으면 preview 접근·지원 지역을 먼저 확인합니�
 
 ## 준비
 
-L08의 v1/v2 원문과 고정 체크리스트가 있으면 됩니다. 이미 비교했다면 다시 호출하지 않습니다.
+L08의 12개 고정 질문에 대한 v1/v2 Prompt Agent 원문, 보조 체크리스트, native 점수와 행별 이유가 있으면 됩니다. 이미 비교했다면 다시 호출하지 않습니다.
 Optimizer와 실제 training job은 별도 승인·지원 모델·권한이 필요하며 기본 코스의 완료 조건이 아닙니다.
 
 ## 실행
@@ -3158,11 +3175,13 @@ Optimizer와 실제 training job은 별도 승인·지원 모델·권한이 필�
 | 반복되는 형식·스타일 문제 | 충분한 예시를 준비한 뒤 fine-tuning 검토 |
 
 v1을 일부러 약하게 고치거나 질문별 정답을 v2에 붙이지 않습니다. 두 지침에 같은 문맥·모델·질문·기준을 적용합니다.
+이번 교육용 v1은 역할과 목표를 담은 단순한 초기 지침입니다. v2는 관측된 누락 가능성을 겨냥해 요청을 나누고, 검증된 사실과 미확인 정보를 구분하고, 주장별 근거를 고르고, 경계와 도구 조건을 확인한 뒤 누락을 점검하는 일반 절차를 추가합니다. 점수를 낮추기 위해 v1을 일부러 틀리게 하거나 답변을 제한하지 않습니다.
 
 ### 2. 선택: Agent Optimizer의 역할 이해하기
 
 Agent Optimizer는 Limited preview이며, 사용 가능 여부와 모델 지원 범위를 별도로 확인합니다.
 기본 실습은 L08의 단일 비교로 충분합니다. Optimizer를 계속 제출하거나 후보를 자동 승격할 필요가 없습니다.
+현재 저장소의 Hosted Responses agent는 `contoso-chat`(GPT-4.1-mini)을 사용하지만 L08은 GPT-6 Sol 기반 Prompt Agent 버전으로 평가했습니다. 이 Hosted 경로의 모델은 비교 대상과 달라 같은 조건의 Optimizer 후보를 만들 수 없습니다. 이번 비교의 두 Prompt Agent는 평가 전용으로 생성했으며 Hosted agent를 재배포·변경하지 않았습니다. 직접 작성한 v2를 Optimizer 산출물로 표현하지 않습니다.
 
 ```bash
 python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/prompts/agent-v2.txt
@@ -3182,6 +3201,7 @@ python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_
 기존 고급 도구의 동결 검사·dev-only 입력·후보 최대 2개·stall 1회·시간 제한·취소·소유 세션 정리 보호는 유지됩니다.
 현재 수정본과 일치하지 않는 과거 동결이나 이미 소비한 시험지를 우회해서는 안 됩니다.
 서비스의 `succeeded`와 후보 개선은 다릅니다. 누락·오류·실패를 확인하고 개선이 없으면 그대로 기록합니다.
+서비스 생성 후보, 운영자가 수정한 후보, 직접 작성한 지침은 서로 다른 출처로 기록합니다. 영어 dev로 생성한 지침을 한국어로 옮긴 경우에는 번역·검토본이며, 한국어 응답은 별도 측정이 필요합니다.
 이 고급 경로를 준비하는 작업은 v1→v2 학습 비교의 필수 단계가 아닙니다.
 
 ### 3. 로컬 SFT 데이터 형식 익히기
@@ -3220,7 +3240,17 @@ python samples/prepare_tuning.py
 
 v2의 개선 의도와 실제 답의 차이를 설명하고, 검색·지침·도구 제약·학습 중 적절한 방법을 선택할 수 있습니다.
 학습 파일을 만들었다고 모델 학습이나 점수 향상을 완료했다고 쓰지 않습니다.
-[현재 비교](validation/current/report.json)는 국문·영문 모두 실제 측정했지만 v1/v2 점수는 동점입니다. 이번에는 Optimizer job과 holdout을 새로 실행하지 않았습니다. [이전 Optimizer 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json)의 실제 실행·실패 판정은 보존하며 현재 비교로 바꾸지 않습니다.
+
+### L08의 실제 결과를 다음 개선 판단에 연결하기
+
+| 언어 | 보조 체크리스트 v1→v2 | Native 완결성·관련성·근거성 |
+| --- | ---: | --- |
+| 한국어 | 33/40→33/40 (동점) | 완결성·근거성 5.0→5.0; 관련성 4.9167→5.0 (+0.0833) |
+| English | 29/40→28/40 (−1) | 세 지표 모두 5.0→5.0 동점 |
+
+한국어 Native 관련성에서 `compound-request-no-tools` 한 행만 4→5로 바뀌었고, 그 외 모든 지표는 동점입니다. 이는 작고 노출된 dev 비교에서 관측한 제한적인 관련성 향상이지 통계적 유의성·일반화·운영 승격 근거가 아닙니다. 체크리스트는 한국어 동점, 영어 −1이며 모든 변경 critical 플래그를 원문으로 검토했습니다. 일부는 v2가 권한·초안·자격 경계를 명시했지만 정규식이 표현을 놓쳤습니다. [문항별 원문과 Native 이유](validation/current/report.json)를 확인하고 결과에 맞춰 지침이나 기준을 바꾸지 않습니다. v2 토큰은 한국어 +7,376·영어 +5,157, 평균 지연은 각각 +0.427초·+0.496초 늘었습니다.
+
+[현재 Prompt Agent 비교](validation/current/report.json)에 국문·영문 v1/v2의 12개 문항, Agent 버전, 평가 점수와 실제 변화가 기록됩니다. Hosted Optimizer 경로의 GPT-4.1-mini가 비교 대상 GPT-6 Sol과 달라 같은 조건을 만들 수 없어 Optimizer job은 제출하지 않았습니다. v2는 직접 작성본이지 Optimizer 생성 후보가 아닙니다. 기존 holdout도 열지 않았습니다. [이전 Optimizer 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json)의 실제 실행·실패 판정은 보존하며 현재 비교로 바꾸지 않습니다.
 
 ## 막혔을 때
 
@@ -3766,7 +3796,7 @@ response 또는 request ID:
 | 5–15분 | L01 준비된 환경 확인 | 프로젝트·모델·권한 |
 | 15–35분 | L04 Prompt Agent | 없는 정보 유보 |
 | 35–60분 | L05 File search | citation 있는 답 2개 |
-| 60–80분 | L08 축약 평가 | 정책·모름·승인 경계 3건 |
+| 60–80분 | L08 평가·분석 | 12개 복합 dev 질문의 v1/v2 답과 행별 native 이유 |
 | 80–90분 | L12 정리 | 삭제/유지 자원 기록 |
 
 함수 실행·멀티에이전트·튜닝을 90분 안에 모두 “완료”시키려 하지 않습니다.
@@ -4094,11 +4124,11 @@ Microsoft Learn의 개요, capability reference, GA 표, 기능 문서와 공식
 지침 파일 이름이 v2라는 사실만으로 평가 점수가 올랐다고 판단하지 않습니다.
 
 [현재 지침 상태](validation/current/instructions.json)에는 새 v2의 준비 상태와 실제 비교 여부를 기록합니다.
-현재 v1/v2는 국문·영문 모두 `gpt-6-sol` / `2026-09-22`로 실제 비교했습니다. 지침별 같은 세 질문에서 native 완결성·관련성·근거성은 모두 평균 5.0/5로 동점이었고, 로컬 체크는 국문 9→9·영문 8→8입니다. 로컬 구조·브라우저·PDF 검사는 `validation/docs/`에 따로 두며 Azure 결과가 아닙니다.
+현재 v1/v2는 국문·영문 각각 12개 질문으로 버전 고정 GPT-6 Sol Prompt Agent를 통해 실측했습니다. 한국어 native 관련성은 4.9167/5→5.0/5로 한 문항만 변했고, 다른 한국어 지표와 영어 지표는 모두 5.0/5 동점입니다. 로컬 체크는 국문 33/40 동점·영문 29/40→28/40입니다. critical 플래그 변화는 원응답을 수동 대조했고 일부는 정규식의 표현 누락으로 확인했습니다. 비교 원문·Agent 버전·문항별 native 이유·토큰·지연은 [최신 보고서](validation/current/report.json)와 연결된 언어별 파일에서 확인합니다. 로컬 구조·브라우저·PDF 검사는 `validation/docs/`에 따로 두며 Azure 결과가 아닙니다.
 
 [가장 최근 실제 실행 원본](validation/current/report.json)은 이 국문·영문 비교의 응답과 native 판정을 연결합니다.
-최초 custom 평가의 숫자 형식 누락은 보존하고 출력 계약만 수정해 같은 응답의 완결성만 평가했습니다. 대상 재샘플링은 없습니다.
-기존 full-dev 실패·Optimizer 오류는 [고정된 Git 이력](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation)에 원래대로 보존하며 이번 동점을 v2 향상이나 독립 holdout 통과로 바꾸지 않습니다.
+48개 대상 응답은 한 번씩 수집했고 Native 평가 두 건은 각 24행으로 완료했습니다. v2 토큰과 평균 지연 증가는 한국어 +7,376·+0.427초, 영어 +5,157·+0.496초였습니다. Optimizer와 봉인 holdout은 새로 실행하지 않았습니다.
+이전 direct-response 비교의 지침과 측정 원본은 [보존된 기준선 커밋](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation)에 그대로 남습니다. 이번 제한적 한국어 관련성 관측은 독립 holdout 통과·통계적 유의성·출시 승인이 아닙니다.
 
 화면 이미지는 촬영 당시의 실제 포털 관찰입니다. 새 v2 실행 화면이나 새 모델 품질 증거로 사용하지 않습니다.
 선택 기능, 조직 정책·권한, 비용 조회, 리소스 삭제, 저장소 병합·게시는 각각 별도 승인 범위입니다.

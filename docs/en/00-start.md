@@ -35,9 +35,9 @@ The English edition uses a separate **`contoso-workshop-en` project and English 
 
 **English backend validation and portal observation are separate activities.** The English run created and invoked owned agents, retrieved English policies, and submitted approved evaluations. Consult the [English screenshot log](../../content/portal-screenshots.en.json) for exact capture scope, times, masking, and hashes. Fine-tuning image 14 is a product sample, not Contoso training; Voice image 15 records a canceled form, not a voice session. A screenshot is an observation, not deployment or release-quality certification.
 
-**Current learning path: baseline v1 → improved v2 → one comparison.** L08 uses three shared questions and one fixed checklist, without a release-experiment sequence. V2 must still answer verifiable public parts, select claim-specific sources, and preserve permission and tool boundaries.
+**Current learning path: educational initial v1 → evaluate → analyze and improve → reevaluate v2.** L08 uses the same 12 composite development questions and fixed criteria in both languages. V1 is a simple role-and-goal starting point; v2 adds request decomposition, verified-versus-unknown separation, claim-specific evidence, and omission checks. It does not memorize evaluation answers, and ties or regressions are reported as observed.
 
-The [current instruction status](../../validation/current/instructions.json) links the [latest actual Azure comparison](../../validation/current/report.json). Both languages used GPT-6 Sol: native completeness/relevance/groundedness tied at 5.0/5 for both v1/v2. No score improvement or independent release pass is claimed.
+The [current instruction status](../../validation/current/instructions.json) links the [latest Prompt Agent comparison](../../validation/current/report.json). Korean native relevance changed from 4.9167/5 to 5.0/5 on one question; the other Korean metrics and all English metrics tied at 5.0/5. This limited dev observation is not a generalized improvement or release pass.
 
 ### How to read the source code and commands
 

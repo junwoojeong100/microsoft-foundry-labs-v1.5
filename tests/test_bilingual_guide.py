@@ -298,10 +298,13 @@ class BilingualGuideTests(unittest.TestCase):
             self.assertIn("v1 → v2", labels[language]["reader_note"])
             self.assertIn("validation/current/instructions.json", labels[language]["reader_note"])
         current = json.loads((ROOT / "validation/current/instructions.json").read_text())
-        self.assertFalse(current["v2_live_improvement_established"])
+        self.assertTrue(current["v2_live_improvement_established"])
         self.assertFalse(current["quality_release"])
         self.assertTrue(current["latest_actual_azure"]["matches_new_v2_instructions"])
         self.assertEqual(current["latest_actual_azure"]["languages"], ["ko", "en"])
+        report = json.loads((ROOT / "validation/current/report.json").read_text())
+        self.assertEqual(report["languages"]["ko"]["native_delta"]["relevance"], 0.08333333333333304)
+        self.assertEqual(report["languages"]["en"]["native_delta"]["relevance"], 0.0)
 
     def test_missing_translation_fails_instead_of_falling_back_to_korean(self):
         read_json = build_guide.read_json

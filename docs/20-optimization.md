@@ -12,7 +12,7 @@
 **무엇이며 왜 중요한가요?** 지침 개선은 모델이 주어진 정보로 답하는 절차를 바꿉니다. Fine-tuning은 예시로 행동을 학습시킵니다.
 둘 다 없는 계약·환율·권한을 사실로 만들어 주지 않습니다.
 
-**어떻게 사용하나요?** L08에서 한 번 비교한 실제 답을 읽고 원인을 분류합니다.
+**어떻게 사용하나요?** L08에서 한 번 비교한 실제 답과 문항별 Foundry 평가 이유를 읽고 원인을 분류합니다.
 동점이나 하락도 그대로 해석하며, 높은 점수를 얻기 위한 반복 실행은 실습의 목표가 아닙니다.
 
 **어디서 실행하나요?** [지침 비교](../samples/instruction_lab.py), [선택적 Optimizer 코드](../samples/optimizer_lab.py),
@@ -20,7 +20,7 @@
 
 ## 준비
 
-L08의 v1/v2 원문과 고정 체크리스트가 있으면 됩니다. 이미 비교했다면 다시 호출하지 않습니다.
+L08의 12개 고정 질문에 대한 v1/v2 Prompt Agent 원문, 보조 체크리스트, native 점수와 행별 이유가 있으면 됩니다. 이미 비교했다면 다시 호출하지 않습니다.
 Optimizer와 실제 training job은 별도 승인·지원 모델·권한이 필요하며 기본 코스의 완료 조건이 아닙니다.
 
 ## 실행
@@ -35,11 +35,13 @@ Optimizer와 실제 training job은 별도 승인·지원 모델·권한이 필�
 | 반복되는 형식·스타일 문제 | 충분한 예시를 준비한 뒤 fine-tuning 검토 |
 
 v1을 일부러 약하게 고치거나 질문별 정답을 v2에 붙이지 않습니다. 두 지침에 같은 문맥·모델·질문·기준을 적용합니다.
+이번 교육용 v1은 역할과 목표를 담은 단순한 초기 지침입니다. v2는 관측된 누락 가능성을 겨냥해 요청을 나누고, 검증된 사실과 미확인 정보를 구분하고, 주장별 근거를 고르고, 경계와 도구 조건을 확인한 뒤 누락을 점검하는 일반 절차를 추가합니다. 점수를 낮추기 위해 v1을 일부러 틀리게 하거나 답변을 제한하지 않습니다.
 
 ### 2. 선택: Agent Optimizer의 역할 이해하기
 
 Agent Optimizer는 Limited preview이며, 사용 가능 여부와 모델 지원 범위를 별도로 확인합니다.
 기본 실습은 L08의 단일 비교로 충분합니다. Optimizer를 계속 제출하거나 후보를 자동 승격할 필요가 없습니다.
+현재 저장소의 Hosted Responses agent는 `contoso-chat`(GPT-4.1-mini)을 사용하지만 L08은 GPT-6 Sol 기반 Prompt Agent 버전으로 평가했습니다. 이 Hosted 경로의 모델은 비교 대상과 달라 같은 조건의 Optimizer 후보를 만들 수 없습니다. 이번 비교의 두 Prompt Agent는 평가 전용으로 생성했으며 Hosted agent를 재배포·변경하지 않았습니다. 직접 작성한 v2를 Optimizer 산출물로 표현하지 않습니다.
 
 ```bash
 python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/prompts/agent-v2.txt
@@ -59,6 +61,7 @@ python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_
 기존 고급 도구의 동결 검사·dev-only 입력·후보 최대 2개·stall 1회·시간 제한·취소·소유 세션 정리 보호는 유지됩니다.
 현재 수정본과 일치하지 않는 과거 동결이나 이미 소비한 시험지를 우회해서는 안 됩니다.
 서비스의 `succeeded`와 후보 개선은 다릅니다. 누락·오류·실패를 확인하고 개선이 없으면 그대로 기록합니다.
+서비스 생성 후보, 운영자가 수정한 후보, 직접 작성한 지침은 서로 다른 출처로 기록합니다. 영어 dev로 생성한 지침을 한국어로 옮긴 경우에는 번역·검토본이며, 한국어 응답은 별도 측정이 필요합니다.
 이 고급 경로를 준비하는 작업은 v1→v2 학습 비교의 필수 단계가 아닙니다.
 
 ### 3. 로컬 SFT 데이터 형식 익히기
@@ -97,7 +100,17 @@ python samples/prepare_tuning.py
 
 v2의 개선 의도와 실제 답의 차이를 설명하고, 검색·지침·도구 제약·학습 중 적절한 방법을 선택할 수 있습니다.
 학습 파일을 만들었다고 모델 학습이나 점수 향상을 완료했다고 쓰지 않습니다.
-[현재 비교](../validation/current/report.json)는 국문·영문 모두 실제 측정했지만 v1/v2 점수는 동점입니다. 이번에는 Optimizer job과 holdout을 새로 실행하지 않았습니다. [이전 Optimizer 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json)의 실제 실행·실패 판정은 보존하며 현재 비교로 바꾸지 않습니다.
+
+### L08의 실제 결과를 다음 개선 판단에 연결하기
+
+| 언어 | 보조 체크리스트 v1→v2 | Native 완결성·관련성·근거성 |
+| --- | ---: | --- |
+| 한국어 | 33/40→33/40 (동점) | 완결성·근거성 5.0→5.0; 관련성 4.9167→5.0 (+0.0833) |
+| English | 29/40→28/40 (−1) | 세 지표 모두 5.0→5.0 동점 |
+
+한국어 Native 관련성에서 `compound-request-no-tools` 한 행만 4→5로 바뀌었고, 그 외 모든 지표는 동점입니다. 이는 작고 노출된 dev 비교에서 관측한 제한적인 관련성 향상이지 통계적 유의성·일반화·운영 승격 근거가 아닙니다. 체크리스트는 한국어 동점, 영어 −1이며 모든 변경 critical 플래그를 원문으로 검토했습니다. 일부는 v2가 권한·초안·자격 경계를 명시했지만 정규식이 표현을 놓쳤습니다. [문항별 원문과 Native 이유](../validation/current/report.json)를 확인하고 결과에 맞춰 지침이나 기준을 바꾸지 않습니다. v2 토큰은 한국어 +7,376·영어 +5,157, 평균 지연은 각각 +0.427초·+0.496초 늘었습니다.
+
+[현재 Prompt Agent 비교](../validation/current/report.json)에 국문·영문 v1/v2의 12개 문항, Agent 버전, 평가 점수와 실제 변화가 기록됩니다. Hosted Optimizer 경로의 GPT-4.1-mini가 비교 대상 GPT-6 Sol과 달라 같은 조건을 만들 수 없어 Optimizer job은 제출하지 않았습니다. v2는 직접 작성본이지 Optimizer 생성 후보가 아닙니다. 기존 holdout도 열지 않았습니다. [이전 Optimizer 원본](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json)의 실제 실행·실패 판정은 보존하며 현재 비교로 바꾸지 않습니다.
 
 ## 막혔을 때
 
