@@ -93,7 +93,7 @@ def run(phase: str) -> None:
         if not re.fullmatch(r"[1-9]\d*", baseline_version):
             raise ValueError("Optimizer CI requires an explicitly pinned numeric baseline version.")
         optimizer_suite = DEFAULT_SUITE if LANGUAGE == "en" else "automated-v2"
-        optimizer_prompt = active_prompt() if LANGUAGE == "en" else DATA / "prompts/agent-v4.txt"
+        optimizer_prompt = active_prompt()
         from azure_environment import az
         group = az("group", "show", "--subscription", subscription, "--name", rg)
         project = az("rest", "--method", "get", "--url", project_id + "?api-version=2025-06-01")

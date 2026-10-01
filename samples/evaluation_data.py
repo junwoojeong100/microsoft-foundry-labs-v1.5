@@ -41,7 +41,7 @@ def verify_development_freeze(suite: str, *, root: Path = ROOT) -> dict:
         raise ValueError("Invalid development freeze; do not open or reseal the holdout.")
     for name, expected in freeze["files"].items():
         path = root / name
-        if (not path.resolve().is_relative_to(root.resolve()) or path.is_symlink()
+        if (not path.resolve().is_relative_to(root.resolve()) or path.is_symlink() or not path.is_file()
                 or hashlib.sha256(path.read_bytes()).hexdigest() != expected):
             raise ValueError(f"Frozen development input changed: {name}. Use a new experiment, not a holdout rewrite.")
     return freeze

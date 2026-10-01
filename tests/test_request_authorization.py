@@ -95,7 +95,7 @@ class RequestAuthorizationTests(unittest.TestCase):
         search = Obj(retrieve=Mock(return_value=policy_chunks()), policy_scope=Mock(return_value=[]))
         row = hosted_runtime.execute_turn(
             client, search, "fixture", {"query": query}, Obj(append=Mock()), Budget(),
-            instructions=(ROOT / "data/en/prompts/agent-v7.txt").read_text(),
+            instructions=(ROOT / "data/en/prompts/agent-v2.txt").read_text(),
         )
         return row, client
 
@@ -199,14 +199,15 @@ class RequestAuthorizationTests(unittest.TestCase):
             "required_tools": ["get_stock"], "forbidden_tools": ["prepare_purchase_request"],
         }, require_tool_authorization=True)["passed"])
 
-    def test_historical_v4_record_is_replayed_under_its_original_authorization_contract(self):
-        rows = [json.loads(line) for line in (
-            ROOT / "validation/english/automated-v4/attempts/initial-dev/partial-responses.jsonl"
-        ).read_text().splitlines()]
-        row = next(row for row in rows if row["id"] == "v4-dev-14")
-        self.assertEqual(row["tool_authorization_contract"], "explicit-request-v1")
+    def test_legacy_contract_is_replayed_without_reinterpreting_it_as_v2(self):
+        query = "What can an approved exchange rate establish? Do not create a draft."
+        required = request_contract.required_policy_citations(query, contract="explicit-request-v1")
         with patch.object(search_lab, "DATA", ROOT / "data/en"), patch.object(search_lab, "LANGUAGE", "en"), \
                 patch.object(grounding, "LANGUAGE", "en"):
+            row, _ = self.turn(query, citations=required, attribution=required)
+            row["tool_authorization_contract"] = "explicit-request-v1"
+            row["required_policy_citations"] = required
+            row["request_permissions"] = request_contract.tool_permissions(query, contract="explicit-request-v1")
             self.assertTrue(check_business_evidence(row, {}, require_tool_authorization=True)["passed"])
         row["tool_authorization_contract"] = "unrecognized"
         self.assertIn("tool_authorization_contract", check_business_evidence(row, {})["failures"])

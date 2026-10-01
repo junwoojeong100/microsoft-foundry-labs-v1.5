@@ -43,7 +43,7 @@ class OperationalFiles(unittest.TestCase):
             "agent": "contoso-agent", "version": "2", "optimizer_deployment": "reflection",
             "suite": "automated-v2", "resume": None, "command": "scheduled-test",
             "max_seconds": 600,
-            "prompt_file": optimizer_lab.DATA / "prompts/agent-v4.txt",
+            "prompt_file": optimizer_lab.DATA / "prompts/agent-v2.txt",
             "receipt": self.directory / "routine-v2.json", "delay_seconds": 120, "wait_seconds": 360,
         }
         return SimpleNamespace(**{**values, **changes})

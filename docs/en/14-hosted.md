@@ -122,15 +122,11 @@ The current engine performs question-specific search and retrieves the 13 sectio
 It does not wait for the model to select a search function. Internally, the answer is `answer`/`citation_ids` JSON;
 only the sections the model selects from the actual returned results are rendered as citations. Missing search results or citations are errors, not successes.
 In `tool_calls`, `execution=server_required` records a real server-side search; it does not pretend the model called it.
-The `agent-v7` candidate removes the old SKU-only `get_stock` prerequisite. Inventory calls now require explicit request permission, and every attempted business call is checked again before execution. Missing/invalid draft quantities do not authorize a preliminary stock check; a separately requested stock question can still be answered.
-Draft creation remains a separate function and does not place real orders or make payments. Check quantity input limits against actual `tool_definitions`, not an invented corporate policy.
-Read-only is not universally permitted: the old prefetch conflicted with two v3 no-tool cases. Preserve those failures. The v7 candidate has not passed a complete live dev or release gate.
+The current runtime requires explicit permission for inventory calls and rechecks every attempted business tool. Missing or invalid draft quantities do not authorize an unrequested lookup. Read-only calls are still tool execution.
+Both packages now load the current `agent-v2.txt`. Its improved answer procedure is not a new Azure deployment or quality pass; inspect the [current status](../../validation/current/instructions.json) before making that claim.
 
-The approved v4 run deployed both protocols as version **3** and passed their real business smokes. However, Invocations dev case 37 failed the citation guard after 36 completed responses. See the [v4 live report](../../validation/english/automated-v4/report.json); deployment, smoke, and complete quality are still separate outcomes.
+Use the actual service-issued deployment version, not the instruction number. When a session is already bound to a version, invoke it with `--session-id` only; combining that flag with `--version` is rejected by azd.
 
-The separate v5 run deployed each protocol once as version **4**, with the same effective v7 instructions and explicit-request-v2 runtime evidence. Both actual business smokes passed. An earlier local CLI invocation rejected the incompatible `--version` plus `--session-id` combination before contacting the target; that failure is [preserved](../../validation/english/automated-v5/attempts/responses-cli-rejection.json). The same already version-bound session then received its first actual smoke request with `--session-id` only. No target answer was resampled and neither agent was redeployed.
-
-The later offline `explicit-request-v2` change also recognizes explicit plain-price requests. If the supplied SKU is outside the function schema, the server performs only the authorized read-only validation and records its real error as `server_authorized`; it does not replace the SKU, invent a price, or ask the model to call an enum-invalid function. This is not the former SKU-only prefetch. The corrected source has not been deployed or live-validated and requires a new experiment.
 The tool-execution stage is skipped when no business tools are authorized. Otherwise it does not force an answer JSON format; a second bounded round lets the model request a draft after obtaining stock information.
 The answer-only stage uses a fresh input built from the user's question, actual retrieved documents, function definitions, and recorded tool results/errors—not pending function calls or planning text. It has no tools available and must produce exactly one strict `answer`/`citation_ids` JSON object.
 Do not publish a statement of intent to call a tool as an answer or as execution evidence.
@@ -249,7 +245,7 @@ When connecting a separate Toolbox, retain L07's authentication principal and on
 You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
 Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
 
-**Recorded English outcome:** Hosted Invocations **version 2** completed the `automated-v3` dev set at **29/30**, with **8/8** calibration controls and **0 critical dev failures**. All **10/10** independent holdout cases executed, but only **7/10** passed, with a critical safety citation-evidence failure. **The deployed candidate is not release-approved.** Read L08 and the [quality record](../../validation/english/automated-v3/quality.json) for the frozen-contract failures; neither a working runtime nor native judge results alone override them.
+The [current instruction status](../../validation/current/instructions.json) separates the edited v2 from the latest actual deployment evidence. A working package or a historical native score does not validate a new instruction edit.
 
 ## Troubleshooting
 
@@ -257,7 +253,7 @@ For health failures, check the entry point/dependencies; for 502, the preserved 
 the runtime identity's model/Search roles first. For a 424 cold start, inspect logs and retry only a bounded number of times.
 Do not turn an error message into a normal answer with HTTP 200.
 
-For multiple JSON objects or `incomplete` output, inspect the tool/answer boundary and actual results rather than increasing the 2048-token limit or weakening citation checks. L08 preserves the interrupted English dev attempt, its targeted local Azure-backed reproduction, and the later complete dev and failed release results separately. No candidate, data, or gate was adjusted after the holdout result, and that holdout was not rerun. A remote timeout likewise does not prove that the server did nothing: inspect preserved evidence and recorded session state before any bounded retry.
+For multiple JSON objects or `incomplete` output, inspect the tool/answer boundary and actual results rather than increasing the 2048-token limit or weakening citation checks. A remote timeout does not prove that the server did nothing: inspect existing evidence and the recorded session state before any separately approved action.
 
 ## Cleanup
 

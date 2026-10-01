@@ -136,7 +136,7 @@ python samples/hosted_client.py invoke --local --live
 두 모델의 실제 선택을 합쳐 표시합니다. 원문 답변과 출처 선택 응답 ID는 각각 보존합니다.
 초안·승인·권한 판단의 필수 인용이 빠지면 오류로 처리하며 서버가 자동 보충하지 않습니다. 아래 과거 Azure 기록은 당시 버전의 증거이며, 이번 공통 코드 수정의 실제 재검증은 아닙니다.
 
-`explicit-request-v2`는 일반적인 명시적 가격 조회도 인식합니다. 요청 SKU가 함수 schema 밖이면 허용된 읽기 전용 검증의 실제 오류만 `server_authorized`로 기록하며, SKU를 바꾸거나 가격을 만들지 않습니다. 단순한 SKU 언급만으로 선조회하는 동작은 복원하지 않았습니다. 별도 영어 v5에서는 양쪽 프로토콜을 버전 4로 한 번씩 배포하고 실제 smoke를 통과했지만, 전체 dev의 access 근거 실패로 품질 게이트는 실패했습니다. [v5 결과](../validation/english/automated-v5/quality.json)를 한국어 환경의 새 실행으로 해석하지 않으며 기존 기록은 그대로 보존합니다.
+현재 패키지는 `agent-v2.txt`를 사용합니다. 명시적인 요청·도구 권한·실제 결과·주장별 인용을 구분하며, 새 지침의 준비 상태를 실제 Azure 검증과 혼동하지 않습니다. [현재 상태](../validation/current/instructions.json)를 확인합니다.
 ### 3. 준비된 프로젝트에만 배포하기
 
 ![실제 Build → Agents 목록. 같은 Contoso 프로젝트에서 Hosted와 Prompt 종류, 숫자 버전, Running 상태가 구분되어 보인다.](../assets/portal/03-agents.png)

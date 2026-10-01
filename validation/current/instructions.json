@@ -1,0 +1,120 @@
+{
+  "schema": "contoso-current-instructions",
+  "instructions_version": "v2",
+  "updated_at": "2026-09-30T23:17:37.715753+00:00",
+  "status": "prepared_for_one_learning_comparison",
+  "new_azure_calls": 0,
+  "v2_live_improvement_established": false,
+  "score_improvement_guaranteed": false,
+  "quality_release": false,
+  "instructions": {
+    "ko": {
+      "baseline": "data/prompts/agent-v1.txt",
+      "current": "data/prompts/agent-v2.txt",
+      "baseline_sha256": "b443002ae5328133ee3f8bbf0b2f4543ecd86521c0738edbf99fa0c0f10bdc5e",
+      "current_sha256": "af5a564599a4c63810b9cc61e96578611f40977ee10420fa3a0787cb770855f9",
+      "baseline_unchanged": true
+    },
+    "en": {
+      "baseline": "data/en/prompts/agent-v1.txt",
+      "current": "data/en/prompts/agent-v2.txt",
+      "baseline_sha256": "4e19bac885816e883d03e634ba87aea94bf4cdfe8c72253032949ff387f32a21",
+      "current_sha256": "64737264fd77cff547246abb81d23a9a922001f86e5557776ae81c3641aab832",
+      "baseline_unchanged": true
+    }
+  },
+  "learning_comparison": {
+    "runner": "samples/instruction_lab.py",
+    "cases_per_prompt": 3,
+    "same_inputs_model_and_checklist": true,
+    "model_calls_if_separately_approved": 6,
+    "retries": 0,
+    "holdout_cases": 0,
+    "optimizer_jobs": 0,
+    "output": "results/instruction-comparison.json",
+    "score_kind": "Limited mechanical fact/citation coverage, not full semantic quality or a release gate."
+  },
+  "latest_actual_azure": {
+    "language": "en",
+    "report": "validation/current/report.json",
+    "original_experiment_id": "automated-v5",
+    "instructions_at_execution": "agent-v7.txt",
+    "authorization_contract_at_execution": "explicit-request-v2",
+    "matches_new_v2_instructions": false,
+    "dev_business_passed": 39,
+    "dev_total": 40,
+    "critical_failures": 1,
+    "quality_release": false,
+    "holdout_executed": 0,
+    "optimizer_outcome": "operational_failure",
+    "note": "Preserved actual results from before the instruction consolidation, not proof that the edited v2 has been validated."
+  },
+  "historical_archive": {
+    "commit": "6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde",
+    "url": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation",
+    "older_validation_files_removed_from_current_tree": 119,
+    "history_rewritten": false
+  },
+  "retained_originals": {
+    "report.json": {
+      "origin_path": "validation/english/automated-v5/report.json",
+      "sha256": "e43354d747c32c818c046acd14b2c519b5f1227fd0d3c07d10ea59511884ae59"
+    },
+    "quality.json": {
+      "origin_path": "validation/english/automated-v5/quality.json",
+      "sha256": "aec2100bbd9093d0bf0332c0283da39cf176bcf0cba6b55ef51ca1bd3b42bac4"
+    },
+    "optimizer.json": {
+      "origin_path": "validation/english/automated-v5/optimizer.json",
+      "sha256": "bda5500158dfd320e28d82567ec3046f0f83acc3f68fe2b2386c056f77db04ac"
+    },
+    "operations.json": {
+      "origin_path": "validation/english/automated-v5/operations.json",
+      "sha256": "fca961d58c3ee11318a40b9dd2409adcb1c3540de54d39210a37fa4b0cf7ce83"
+    },
+    "calibration.json": {
+      "origin_path": "validation/english/automated-v5/calibration.json",
+      "sha256": "50307a79dc46162da8e240a1e7f115069bd54feb84af0f588280328e0c501008"
+    },
+    "native-calibration.json": {
+      "origin_path": "validation/english/automated-v5/native-calibration.json",
+      "sha256": "909fee59aab2f3858a867d2a0dba102ba84ac02d9ddce05df9515dfd74a8d4fa"
+    },
+    "native-dev.json": {
+      "origin_path": "validation/english/automated-v5/native-dev.json",
+      "sha256": "706f4cb904dd6fdcac8f1b3b14cf1bd6870778ee003f0a503a964e10511714f6"
+    },
+    "dev-responses.jsonl": {
+      "origin_path": "validation/english/automated-v5/dev-responses.jsonl",
+      "sha256": "fbec5811ee56c3d7392dd7010de63c838d479df5d2e71d40d5d25e4d981fd310"
+    },
+    "optimizer-native.json": {
+      "origin_path": "validation/english/automated-v5/optimizer-native.json",
+      "sha256": "472552f32ef96a73d6a7ed6c25a663dc7fcbff7b328ecbc3f2d664644cd902b9"
+    },
+    "models.json": {
+      "origin_path": "validation/english/automated-v5/models.json",
+      "sha256": "d275cd2c2f1155dbe3cb130908f6de8fdee3cb1a655e18be13aceb50cd7f7be8"
+    },
+    "invocations-smoke.json": {
+      "origin_path": "validation/english/automated-v5/invocations-smoke.json",
+      "sha256": "6609e66f28ca97ce33666b5110a14153b2eb369248628a68f802d2905986d286"
+    },
+    "responses-smoke.json": {
+      "origin_path": "validation/english/automated-v5/responses-smoke.json",
+      "sha256": "29cb85bceb94c4c7a8bdcd97ca5c70cb7be6f9e0d8d7dd08999fb121f032dd76"
+    },
+    "dev30-diagnosis.json": {
+      "origin_path": "validation/english/automated-v5/dev30-diagnosis.json",
+      "sha256": "dfc552e06e53257d9efd97eaf53b03364fcf10e2b0526ad5ea9abd964cd43fcb"
+    },
+    "source-snapshot.zip": {
+      "origin_path": "validation/english/automated-v5/source-snapshot.zip",
+      "sha256": "aebd586c2b14c44492739540caa174249eed65855b6d57c0466162cef178173c"
+    },
+    "attempts/responses-cli-rejection.json": {
+      "origin_path": "validation/english/automated-v5/attempts/responses-cli-rejection.json",
+      "sha256": "b6531d1470451b6919223d10d359fea09d9e864f1fb22b88470cf5f1ca359555"
+    }
+  }
+}

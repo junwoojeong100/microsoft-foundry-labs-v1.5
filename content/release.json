@@ -13,9 +13,9 @@
       "readme": "README.md",
       "portal_manifest": "portal-screenshots.en.json",
       "portal_screenshots": 18,
-      "shell_blocks": 59,
-      "commands": 124,
-      "validation": "validation/english/current/report.json",
+      "shell_blocks": 50,
+      "commands": 106,
+      "validation": "validation/current/instructions.json",
       "receipt_html": "data/en/receipt.html"
     },
     "ko": {
@@ -26,9 +26,9 @@
       "readme": "README.ko.md",
       "portal_manifest": "portal-screenshots.json",
       "portal_screenshots": 17,
-      "shell_blocks": 55,
-      "commands": 120,
-      "validation": "validation/current/report.json",
+      "shell_blocks": 48,
+      "commands": 104,
+      "validation": "validation/current/instructions.json",
       "receipt_html": "data/receipt.html"
     }
   },
@@ -37,7 +37,7 @@
   "azure_cli": "2.86.0",
   "azd": "1.34.0",
   "agent_extension": "1.0.0-beta.10",
-  "validation": "validation/current/report.json",
+  "validation": "validation/current/instructions.json",
   "documentation_validation": "validation/docs",
-  "historical_validation": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/faa5ec26f15cfeb38f69de4036acedc3151c3df4/validation"
+  "historical_validation": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation"
 }

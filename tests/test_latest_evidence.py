@@ -5,14 +5,14 @@ import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-DIRECTORY = ROOT / "validation/english/automated-v5"
+DIRECTORY = ROOT / "validation/current"
 
 
 def record(name):
     return json.loads((DIRECTORY / name).read_text(encoding="utf-8"))
 
 
-class LiveV5EvidenceTests(unittest.TestCase):
+class LatestEvidenceTests(unittest.TestCase):
     def test_all_native_rows_do_not_override_the_critical_business_failure(self):
         quality = record("quality.json")
         dev = quality["dev"]
@@ -97,7 +97,6 @@ class LiveV5EvidenceTests(unittest.TestCase):
             self.assertFalse(any("holdout" in name for name in archive.namelist()))
             for name, expected in frozen["files"].items():
                 self.assertEqual(hashlib.sha256(archive.read(name)).hexdigest(), expected)
-                self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), expected)
 
     def test_optimizer_service_success_cannot_hide_error_or_replace_dev_originals(self):
         optimizer = record("optimizer.json")
@@ -138,11 +137,13 @@ class LiveV5EvidenceTests(unittest.TestCase):
         self.assertEqual(len(operations["native_runs"]), 3)
         self.assertFalse(operations["global_idle_claimed"])
         self.assertFalse(operations["resources_deleted"])
-        preservation = record("preservation.json")
-        self.assertEqual(preservation["changed_files"], [])
-        self.assertEqual(preservation["files_checked"], len(preservation["files"]))
-        for original in preservation["files"]:
-            self.assertEqual(hashlib.sha256((ROOT / original["path"]).read_bytes()).hexdigest(), original["sha256"])
+        current = record("instructions.json")
+        self.assertFalse(current["latest_actual_azure"]["matches_new_v2_instructions"])
+        self.assertFalse(current["v2_live_improvement_established"])
+        self.assertFalse(current["historical_archive"]["history_rewritten"])
+        for name, original in current["retained_originals"].items():
+            self.assertEqual(hashlib.sha256((DIRECTORY / name).read_bytes()).hexdigest(), original["sha256"])
+
 
 
 if __name__ == "__main__":

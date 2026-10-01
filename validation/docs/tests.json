@@ -1,9 +1,24 @@
 {
-  "checked_at": "2026-09-30T14:21:22.858938+00:00",
+  "scope": "Local regression and build checks only. Not Azure execution, a v1/v2 model comparison, or measured score improvement.",
   "status": "passed",
-  "scope": "Offline regression, English profile and bilingual guide checks; not Azure quality evidence.",
-  "tests": 174,
-  "failures": 0,
-  "errors": 0,
-  "skipped": 0
+  "command": "FOUNDRY_LAB_LANGUAGE=ko .venv-live/bin/python -m unittest discover -s tests -q",
+  "tests_passed": 237,
+  "tests_failed": 0,
+  "new_azure_calls": 0,
+  "live_instruction_comparison_executed": false,
+  "v1_baselines_unchanged": true,
+  "active_instructions": "v2",
+  "packaged_instruction_versions": ["v1", "v2"],
+  "korean_and_english_hosted_builds": "passed",
+  "same_input_same_checklist_and_no_forced_winner": "passed with explicitly local fixtures",
+  "partial_failure_and_no_retry": "passed with explicitly local fixtures",
+  "latest_actual_originals_preserved_byte_for_byte": 15,
+  "older_validation_files_preserved_in_git": 119,
+  "archive_commit": "6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde",
+  "existing_native_judges_datasets_and_business_gates_changed": false,
+  "repository_independence": {
+    "executable_files_checked": 66,
+    "reference_repository_dependencies": 0,
+    "personal_paths": 0
+  }
 }

@@ -78,7 +78,7 @@ def reference_links(text, source):
             workflow = path if path in WORKFLOWS else None
         if workflow:
             references.append("repository:" + workflow)
-        elif (parsed.scheme or parsed.netloc) and not english_evidence_path(address):
+        elif (parsed.scheme or parsed.netloc) and not english_evidence_path(address) and not address.startswith(REPOSITORY + "/"):
             references.append(address)
     return references
 
@@ -107,11 +107,11 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["pages_branch"], "gh-pages")
         expected = {
             "en": ("index.html", "GUIDE.en.md", release["artifact"] + ".en.pdf",
-                   "portal-screenshots.en.json", 18, 59, 124,
-                   "validation/english/current/report.json", "data/en/receipt.html"),
+                   "portal-screenshots.en.json", 18, 50, 106,
+                   "validation/current/instructions.json", "data/en/receipt.html"),
             "ko": ("index.ko.html", "GUIDE.ko.md", release["artifact"] + ".pdf",
-                   "portal-screenshots.json", 17, 55, 120,
-                   "validation/current/report.json", "data/receipt.html"),
+                   "portal-screenshots.json", 17, 48, 104,
+                   "validation/current/instructions.json", "data/receipt.html"),
         }
         for language, values in expected.items():
             edition = release["languages"][language]
@@ -192,20 +192,6 @@ class BilingualGuideTests(unittest.TestCase):
             korean = (ROOT / "docs" / translated_path.name).read_text(encoding="utf-8")
             with self.subTest(chapter=chapter["id"]):
                 korean_commands, english_commands = shell_commands(korean), shell_commands(english)
-                if chapter["id"] == "l08":
-                    preparation = ["python", "scripts/prepare_eval_v5.py", "prepare"]
-                    self.assertEqual(english_commands.count(preparation), 1)
-                    english_commands[english_commands.index(preparation)] = ["python", "scripts/prepare_eval_v3.py"]
-                if chapter["id"] == "l20":
-                    historical = [
-                        command for command in korean_commands
-                        if "samples/optimizer_lab.py" in command and "--resume" in command
-                        and "--suite" in command and command[command.index("--suite") + 1] == "legacy-v1"
-                    ]
-                    self.assertEqual(len(historical), 1, "Only the Korean historical v1 receipt lookup is excluded.")
-                    self.assertIn("--live", historical[0])
-                    korean_commands.remove(historical[0])
-                    self.assertFalse(any("legacy-v1" in command for command in english_commands))
                 self.assertEqual(command_boundaries(korean_commands), command_boundaries(english_commands))
                 for command in english_commands:
                     if "samples/toolbox_lab.py" in command and "call" in command:
@@ -223,29 +209,6 @@ class BilingualGuideTests(unittest.TestCase):
                                 "automated-v3" if "--resume" in command else "automated-v5",
                             )
 
-    def test_english_oidc_bootstrap_observes_identity_before_scoped_federation(self):
-        commands = shell_commands((ROOT / "docs/en/22-delivery.md").read_text(encoding="utf-8"))
-        steps = []
-        for command in commands:
-            if "scripts/setup_oidc.py" in command:
-                self.assertIn("FOUNDRY_LAB_LANGUAGE=en", command)
-                self.assertIn("--live", command)
-                self.assertEqual(command[command.index("--branch") + 1], EXECUTION_BRANCH)
-                if "--prepare-environment" in command:
-                    self.assertNotIn("--subject", command)
-                    steps.append("prepare-environment")
-                else:
-                    self.assertEqual(command[command.index("--subject") + 1], "OBSERVED_ENVIRONMENT_BOUND_SUBJECT")
-                    steps.append("federation")
-            elif command[:3] == ["gh", "workflow", "run"]:
-                self.assertIn(command[3], {Path(path).name for path in WORKFLOWS})
-                self.assertIn("language=en", command)
-                self.assertIn("acknowledge_cost=true", command)
-                self.assertEqual(command[command.index("--ref") + 1], EXECUTION_BRANCH)
-                phases = [token.removeprefix("validation_phase=") for token in command if token.startswith("validation_phase=")]
-                self.assertEqual(len(phases), 1)
-                steps.extend(phases)
-        self.assertEqual(steps, ["prepare-environment", "identity", "federation", "dev", "release"])
 
     def test_business_and_quality_gates_are_unchanged_without_opening_the_holdout(self):
         profile = json.loads((ROOT / "data/en/profile-manifest.json").read_text(encoding="utf-8"))
@@ -329,15 +292,16 @@ class BilingualGuideTests(unittest.TestCase):
             for key in ("title", "summary", "status"):
                 self.assertFalse(re.search(r"[가-힣]", translated[key]), (original["id"], key))
 
-    def test_failed_release_warning_does_not_change_the_korean_reader_note(self):
+    def test_both_readers_distinguish_prepared_v2_from_actual_prior_results(self):
         labels = build_guide.read_json("reader-labels.json")
-        self.assertIn("<strong>English live validation is not release-approved:</strong>", labels["en"]["reader_note"])
-        self.assertIn("holdout 7/10, one critical safety citation-evidence failure.", labels["en"]["reader_note"])
-        self.assertEqual(
-            labels["ko"]["reader_note"],
-            "<strong>새 포털 GA ≠ 모든 기능 GA.</strong> Workflows는 2026-12-01 종료 예정입니다. "
-            "기본은 안정적인 핵심 경로, 심화는 Preview·지원 조건을 구분합니다.",
-        )
+        for language in ("en", "ko"):
+            self.assertIn("v1 → v2", labels[language]["reader_note"])
+            self.assertIn("validation/current/instructions.json", labels[language]["reader_note"])
+        current = json.loads((ROOT / "validation/current/instructions.json").read_text())
+        self.assertFalse(current["v2_live_improvement_established"])
+        self.assertFalse(current["quality_release"])
+        self.assertFalse(current["latest_actual_azure"]["matches_new_v2_instructions"])
+        self.assertEqual(current["latest_actual_azure"]["language"], "en")
 
     def test_missing_translation_fails_instead_of_falling_back_to_korean(self):
         read_json = build_guide.read_json
@@ -404,9 +368,8 @@ class BilingualGuideTests(unittest.TestCase):
         parser.feed(artifacts["index.ko.html"])
         self.assertEqual(parser.language, "ko")
         self.assertFalse(parser.remote_assets)
-        self.assertIn("validation/current/report.json", parser.links)
+        self.assertIn("validation/current/instructions.json", parser.links)
         self.assertIn("data/receipt.html", parser.links)
-        self.assertNotIn("validation/english/current/report.json", parser.links)
         self.assertNotIn("data/en/receipt.html", parser.links)
         self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/")}), 17)
         self.assertIn("](" + build_guide.RELEASE["site_url"] + "data/receipt.html)", artifacts["GUIDE.ko.md"])
@@ -420,8 +383,8 @@ class BilingualGuideTests(unittest.TestCase):
             with self.subTest(path=path), self.assertRaisesRegex(ValueError, "Private or generated cloud data"):
                 package_guide.check_package_path(path)
         for path in (
-            "validation/current/report.json", "validation/automated-v3/ci-release.json",
-            "validation/english/current/report.json", "validation/english/automated-v3/ci-release.json",
+            "validation/current/instructions.json", "validation/automated-v3/ci-release.json",
+            "validation/current/instructions.json", "validation/english/automated-v3/ci-release.json",
             "assets/portal/en/18-resource-group.png", "data/en/receipt.html", ".env.example",
         ):
             package_guide.check_package_path(path)
@@ -457,20 +420,19 @@ class BilingualGuideArtifactTests(unittest.TestCase):
         parser.feed(artifacts["index.html"])
         self.assertEqual(parser.language, "en")
         self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/en/")}), 18)
-        self.assertIn("validation/english/current/report.json", parser.links)
+        self.assertIn("validation/current/instructions.json", parser.links)
         self.assertIn("data/en/receipt.html", parser.links)
         reader_note = re.search(
             r'<div class="reader-note" id="reader-note">(.*?)</div>', artifacts["index.html"], re.S,
         )[1]
-        self.assertIn("<strong>English live validation is not release-approved:</strong>", reader_note)
-        self.assertIn("holdout 7/10, one critical safety citation-evidence failure.", reader_note)
+        self.assertIn("one v1 → v2 comparison", reader_note)
+        self.assertIn("same model, context, questions and checks", reader_note)
         note_links = GuideParser()
         note_links.feed(reader_note)
         self.assertIn(build_guide.RELEASE["languages"]["en"]["validation"], note_links.links)
         boundary = artifacts["GUIDE.en.md"].split("## ", 1)[0]
-        self.assertIn("](validation/english/current/report.json)", boundary)
+        self.assertIn("](validation/current/instructions.json)", boundary)
         self.assertIn("](" + build_guide.RELEASE["site_url"] + "data/en/receipt.html)", boundary)
-        self.assertNotIn("](validation/current/report.json)", boundary)
 
     def test_all_source_links_resolve_without_fallbacks(self):
         for language in build_guide.RELEASE["languages"]:

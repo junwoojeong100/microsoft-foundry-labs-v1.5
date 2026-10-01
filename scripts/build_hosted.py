@@ -40,8 +40,7 @@ def build() -> dict:
     files = [
         *sorted((DATA / "policies").glob("*.md")),
         DATA / "inventory.csv",
-        *[DATA / f"prompts/agent-v{version}.txt" for version in range(1, 7)],
-        *([active_prompt()] if LANGUAGE == "en" else []),
+        *[DATA / f"prompts/agent-v{version}.txt" for version in (1, 2)],
         *[ROOT / "samples" / name for name in ("lab_profile.py", "workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
         ROOT / "requirements-hosted.txt", ROOT / "THIRD_PARTY_NOTICES",
     ]
