@@ -78,7 +78,7 @@ Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then u
 | Developer extensions | Core → L13 → L14 → L15 → L22 | Deeper SDK, deployment, and search work |
 | Enterprise adoption | Core → L16 → L17 → L21 → L22 → L24 | Collaboration with administrators and security teams |
 | Document and voice experiences | Core → L18 → L19 → L23 | Access to supported models and services |
-| Without an account | L01 local → L06 local → L08 gates → design exercises | Do not record these as successful live Azure runs |
+| Without an account | L01 local → L06 local → read existing L08 results → design exercises | Do not record these as successful live Azure runs |
 
 Times are **estimates of hands-on work**. They exclude waits for quota approval, model downloads, indexing, training, and administrator approval.
 

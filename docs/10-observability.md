@@ -31,9 +31,17 @@ Log Analytics/App Insights와 프로젝트 연결을 만듭니다. `monitoring`�
 
 Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 시작하는 경로입니다. 자체 클라이언트 함수 내부 로직까지 모두 자동으로 추적되는 것은 아닙니다.
 
-### 2. 새 실행을 만들고 찾기
+### 2. 자기 실행 하나를 찾아 연결하기
 
-합성 질문을 한 번 더 실행하고 response ID·시간을 기록합니다. 수집에 시간이 걸릴 수 있으므로 잠시 후 Traces에서 검색합니다. 현재 선택된 프로젝트와 시간 범위를 함께 확인하세요.
+연결 이후 수집된 L05/L06 실행이 있으면 먼저 그 결과를 사용합니다. 없다면 승인된 합성 질문 한 번만 실행하고 response ID·시간을 기록합니다. 목록이 비어 있다는 이유로 질문을 반복 전송하지 않습니다.
+
+| 필요한 값 | 어디서 가져오나요? | 바르게 연결됐는지 확인 |
+| --- | --- | --- |
+| 응답 JSONL | L05/L06 SDK 마지막 `Responses:`에 출력된 `results/contoso-lab-…-responses.jsonl` | 편집기로 한 행을 열어 `id`, `response_id`, `agent_name`, `configuration.agent_version` 확인 |
+| agent 이름·버전 | 그 행의 값 또는 포털에서 직접 실행한 agent의 설정 | L08 평가 전용 agent나 L14 Hosted 이름으로 바꾸지 않음 |
+| Application Insights 앱 ID | 관리자 제공 값. 동봉 환경은 `results/azure-environment.json`의 `monitoring.appId.value` | `monitoring.appInsightsId.value`의 자원이 현재 프로젝트 연결과 같은지 대조. 키/connection string을 복사하지 않음 |
+
+포털만 사용했다면 그 response ID로 **포털 경로만** 진행해도 됩니다. 존재하지 않는 JSONL을 만들거나 L08의 JSON 비교 파일을 아래 JSONL 입력으로 넘기지 않습니다. 동봉 CLI는 최근 24시간만 조회하므로 오래된 결과는 포털의 승인된 보존 범위에서 읽거나 미확인으로 남깁니다.
 
 ![실제 Prompt Agent의 Traces 화면. Trace/Conversation/Response 보기, ID 검색, 버전·상태·기간 필터와 실행 시간·토큰·예상 비용 열이 보인다. trace ID는 가렸다.](../assets/portal/06-traces.png)
 
@@ -43,11 +51,11 @@ trace에서 다음을 찾습니다.
 
 | 증거 | 기록 |
 | --- | --- |
-| agent/model 실행 | 이름·버전·전체 시간 |
-| 검색 호출 | 실제 반환 문서·빈 결과 여부 |
-| 함수/MCP 호출 | 도구 이름·인수·오류 |
-| model usage | input/output token, 가능한 비용 지표 |
-| conversation/response | 사용자 요청과 실행의 연결 |
+| agent/model 실행 | 이름·버전·시작 시각·전체 시간 |
+| 검색 호출 | 실제 반환 문서·빈 결과 여부. 본문을 볼 권한이 없으면 미관찰 |
+| 함수/MCP 호출 | 도구 이름·인수·오류. 로컬 함수 내부 span이 없으면 JSONL의 `tool_calls`로 별도 확인 |
+| model usage | input/output token, 가능한 비용 지표. 없으면 0이 아니라 미수집 |
+| conversation/response | 사용자 요청과 실행의 연결. 같은 trace의 `operation_Id`, 부모 `operation_ParentId`와 자식 `id` |
 
 ### 3. 세 가지 실패를 구분하기
 
@@ -56,6 +64,17 @@ trace에서 다음을 찾습니다.
 **느린 답변:** 전체 지연을 모델, 검색, 도구, 네트워크/대기 단계로 나눕니다. 도구가 느린데 모델을 바꾸는 처방을 하지 않습니다.
 
 **함수는 성공했는데 답변이 실패:** 도구 출력이 같은 conversation/call ID에 반영됐는지, final output이 완료됐는지 봅니다.
+
+**시간을 읽는 예시 — 설명용 합성이며 실제 Azure trace가 아닙니다.** 아래 자식 작업은 겹치지 않고 순차 실행됐다고 가정합니다.
+
+| 작업 | 시작~종료(ms) | 관찰 시간 | 판단 |
+| --- | ---: | ---: | --- |
+| 전체 요청 | 0~4,000 | 4,000ms | 부모 span; 아래 시간을 다시 더하지 않음 |
+| 정책 검색 | 100~800 | 700ms | 근거 절이 맞는지도 별도로 확인 |
+| 모델 응답 | 900~3,800 | 2,900ms | 가장 큰 관찰 구간; 출력 길이·토큰부터 조사 |
+| 재고 도구 | 3,800~3,850 | 50ms | 이 예시에서는 주된 병목이 아님 |
+
+관찰된 자식 합계는 3,650ms, 나머지는 350ms입니다. **350ms를 증거 없이 네트워크 지연이라고 단정하지 않습니다.** 병렬 span은 겹치므로 단순 합산도 불가능합니다. 실제 실행에서 모델이 길면 입력·출력 토큰과 반복 호출을, 검색이 길면 반환량·검색 단계를 먼저 봅니다. 정상 실행이라면 오류를 만들어내지 말고 가장 오래 걸린 관찰 구간과 미수집 구간을 구분해 설명하세요.
 
 동봉 CLI는 실제 응답 파일의 response/trace ID로 App Insights를 조회합니다.
 
@@ -77,7 +96,9 @@ python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실�
 
 먼저 KQL을 출력해 범위를 검토합니다. 최근 24시간, 최대 200행이며 token/본문 전체를 조회하지 않습니다.
 `app-id`는 계측 키나 connection string이 아닙니다. 조회 결과 0행은 **상관관계 미확인**으로 실패하며,
-request ID를 trace ID로 바꾸어 채우지 않습니다. Hosted 응답의 `contract.sha256`과 version도 함께 대조합니다.
+request ID를 trace ID로 바꾸어 채우지 않습니다. L14의 Hosted 결과를 선택했을 때만 `contract.sha256`과 version도 대조합니다. 기본 Prompt Agent JSONL에는 그 Hosted 계약을 요구하지 않습니다.
+
+출력의 `input_rows`와 `correlated_rows`가 같고 `missing_case_ids`가 비어 있으면 **입력과 로그의 연결**이 확인된 것입니다. `model_response_spans_observed`와 `request_trace_ids_observed`는 관찰 계층이 다릅니다. 이 CLI는 연결을 검사하지, 병목이나 답변 정답을 자동 판정하지 않습니다. 출력된 `Evidence:` 파일의 조회 행과 포털 상세를 읽어 위 표를 자신의 값으로 작성하세요.
 
 ### 4. 선택: 클라이언트 추적 추가하기
 
@@ -95,11 +116,16 @@ Monitoring dashboard와 continuous evaluation은 Preview 범위를 확인한 뒤
 
 ## 성공 기준
 
-새 실행 하나를 trace에서 찾았고, 실제 bottleneck 또는 실패 지점을 근거로 설명합니다. trace가 보이지 않는 상태를 “오류 없음”으로 기록하지 않습니다.
+자기 실행 하나의 **response/trace ID, 버전, 관찰된 작업·시간, 판단, 다음 조치**를 연결했습니다. 예시만 읽었다면 **설계 완료 / 실제 trace 미확인**으로 구분합니다. trace가 없는 상태를 “오류 없음”으로 기록하지 않습니다.
 
 ## 막혔을 때
 
-프로젝트 권한만으로 로그 조회가 허용되지 않을 수 있습니다. Application Insights/Log Analytics 쪽 읽기 권한, 연결 상태, 수집 지연, 시간 필터를 확인합니다. 보호 테이블에는 별도 권한이 필요할 수 있습니다.
+| 증상 | 먼저 볼 것 | 다음 행동 |
+| --- | --- | --- |
+| JSONL을 열지 못함 / 실제 ID 없음 | `Responses:` 경로와 파일의 한 행 | L05/L06 출력 파일을 선택. 예시 ID나 L08 비교 JSON으로 대체하지 않음 |
+| 403 | 프로젝트 역할과 별개인 로그 읽기 권한 | 정확한 App Insights/Log Analytics 범위로 관리자에게 요청 |
+| 0행 / 일부만 연결 | 프로젝트 연결, 실행 시각, 24시간 범위, 수집 지연 | 새 모델 요청 없이 범위와 ID를 먼저 대조. 여전히 없으면 상관관계 미확인 |
+| 부모만 있고 함수·내용 없음 | instrumentation과 민감 내용 읽기 권한 | 기본 JSONL과 관찰 범위를 함께 기록. 원문 수집을 무조건 켜지 않음 |
 
 ## 정리
 

@@ -15,7 +15,7 @@
 **어떻게 사용하나요?** L08에서 한 번 비교한 실제 답과 문항별 Foundry 평가 이유를 읽고 원인을 분류합니다.
 동점이나 하락도 그대로 해석하며, 높은 점수를 얻기 위한 반복 실행은 실습의 목표가 아닙니다.
 
-**어디서 실행하나요?** [지침 비교](../samples/instruction_lab.py), [선택적 Optimizer 코드](../samples/optimizer_lab.py),
+**어디서 실행하나요?** [L08 Prompt Agent 비교](../samples/instruction_prompt_agent_lab.py), [선택적 Optimizer 코드](../samples/optimizer_lab.py),
 [학습 데이터 준비](../samples/prepare_tuning.py)를 사용합니다. 포털은 Optimize/Fine-tune의 입력·제한·결과를 이해할 때 활용합니다.
 
 ## 준비
@@ -36,6 +36,8 @@ Optimizer와 실제 training job은 별도 승인·지원 모델·권한이 필�
 
 v1을 일부러 약하게 고치거나 질문별 정답을 v2에 붙이지 않습니다. 두 지침에 같은 문맥·모델·질문·기준을 적용합니다.
 이번 교육용 v1은 역할과 목표를 담은 단순한 초기 지침입니다. v2는 관측된 누락 가능성을 겨냥해 요청을 나누고, 검증된 사실과 미확인 정보를 구분하고, 주장별 근거를 고르고, 경계와 도구 조건을 확인한 뒤 누락을 점검하는 일반 절차를 추가합니다. 점수를 낮추기 위해 v1을 일부러 틀리게 하거나 답변을 제한하지 않습니다.
+
+**한 행으로 판단하기:** L08의 한국어 `compound-request-no-tools` 원문과 native 이유를 나란히 엽니다. 관련성 4→5만 보고 “v2가 전반적으로 우수”라고 쓰지 않습니다. 두 답이 어떤 하위 요청을 다뤘는지 표시하고, 점수 이유가 실제 차이를 설명하는지 확인한 뒤 **관찰 → 가능한 원인 → 다음 방법 → 아직 모르는 것**을 한 줄씩 적습니다. 영어는 관련성이 동점이므로 한국어 결론을 옮겨 쓰지 않습니다. 새 측정 없이 할 수 있는 분석 과제입니다.
 
 ### 2. 선택: Agent Optimizer의 역할 이해하기
 
@@ -80,8 +82,20 @@ python samples/prepare_tuning.py
 
 </div>
 
-이 예시는 형식을 익히는 작은 seed이지 충분한 학습 효과를 보장하는 데이터가 아닙니다.
-평가용 정답이나 holdout을 학습 데이터로 복사하지 않습니다.
+터미널의 `Prepared train=16, validation=8 in results/tuning-…` 경로를 편집기로 엽니다. 원본은 [tuning/examples.json](../data/tuning/examples.json)이며 결과는 `train.jsonl`과 `validation.jsonl`입니다. **한 줄이 한 학습 예제**입니다. 생성될 첫 줄은 다음과 같습니다. 모델 응답을 실측한 것이 아니라 체크인 예제를 변환한 결과입니다.
+
+```json
+{"messages":[{"role":"system","content":"문의 유형을 POLICY, STOCK, DRAFT, CLARIFY 중 하나로만 분류한다."},{"role":"user","content":"노트북 정기 교체 기간을 알려줘."},{"role":"assistant","content":"POLICY"}]}
+```
+
+| 확인할 것 | 어떻게 판단하나요? | 실패하면 다음 행동 |
+| --- | --- | --- |
+| `system` / `user` / `assistant` | 분류 규칙 / 문의 / 학습할 정답 라벨 순서 | 역할 순서와 라벨을 원본 예제에 대조 |
+| 네 라벨 | `POLICY` 규정, `STOCK` 조회, `DRAFT` 초안 요청, `CLARIFY` 모호한 요청 | 같은 뜻의 문의에 다른 라벨이 붙었는지 검토 |
+| train 16행 / validation 8행 | 입력 중복 없이 학습 예제와 별도 점검 예제를 분리 | 생성기 오류를 보존하고 빈 입력·중복·split/라벨 오타 확인 |
+| `DRAFT` 예제와 실제 실행 | **의도 분류**일 뿐 재고 확보·초안 생성 성공이 아님 | 품절이어도 요청 의도는 DRAFT일 수 있음. 실행 가능 여부는 L06 함수가 판단 |
+
+`validation.jsonl`은 학습 과정의 점검용이며 L08 dev 비교나 봉인된 release holdout과 다릅니다. 이 작은 seed는 형식 연습이지 유용한 모델 학습 효과를 보장하지 않습니다. 정답/holdout을 복사해 데이터를 늘리지 않습니다.
 
 ### 4. 학습 방식을 선택하기
 
@@ -114,8 +128,7 @@ v2의 개선 의도와 실제 답의 차이를 설명하고, 검색·지침·도
 
 ## 막혔을 때
 
-모델 지원 범위, Preview 접근, 실제 배포 지침, dev 입력과 평가 오류를 구분합니다.
-조건이 준비되지 않으면 미실행으로 남기고 L08의 한 번 비교만으로 학습을 마칩니다.
+Optimizer 계획이 막히면 Preview 접근·Responses protocol·대상 모델/배포 지침 일치부터 확인합니다. 보조 체크와 native 점수가 다르면 원문·체크 조건·judge 이유를 대조하고 한쪽 점수를 정답으로 단정하지 않습니다. SFT 생성 오류는 위 표의 입력/라벨/split부터 확인합니다. 조건이 준비되지 않은 cloud 작업은 미실행으로 남깁니다.
 
 ## 정리
 

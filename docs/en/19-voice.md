@@ -49,16 +49,16 @@ After saving, select **Start session** and, if needed, personally allow micropho
 
 ### 3. Check conversation quality
 
-| Check | Expected behavior |
-| --- | --- |
-| Recognizing “two laptops” | Understands the quantity as 2 and confirms it |
-| A brief silence while the user is speaking | Does not cut off the utterance too quickly |
-| The user interrupts the agent's speech | Handles stopping or redirecting the response correctly |
-| “Not two—one laptop, please” | Uses the latest quantity |
-| Tool failure | Does not say the order was placed |
-| End session | The microphone and session close correctly |
+Run the sequence below once in one session. The one-second pause is a **controlled input condition**, not a universal voice-application acceptance threshold.
 
-End the session before changing settings. Inspect the voice transcript, response/conversation, and latency, and compare the results with a text conversation. A long table may be easy to read in text but unsuitable for voice.
+| Input/observation | How to judge it | Next action on failure |
+| --- | --- | --- |
+| Say “two laptops,” then read the transcript | Quantity 2 is recognized and confirmed | If the transcript is wrong, check microphone/recognition language. If text is right but the answer is wrong, inspect instructions/conversation state |
+| “I'd like…” → one-second silence → “…two laptops” | Record whether the intended single utterance was split | End the session, then compare one turn-detection setting. Service defaults are not universal quality criteria |
+| Interrupt with “Not two—one laptop, please” | Previous speech stops; the next answer confirms quantity 1 | Compare interruption timing and transcript; distinguish missed recognition from playback of a stale response |
+| State after `End session` | Ended status, stopped audio, and no microphone use by that session | Confirm session state rather than relying on a closed browser tab |
+
+For end-of-utterance → first-audio latency, use the displayed measurement or label your own timing **manual measurement**. A session without tools does not test tool-failure handling. If a tool is connected, separately approve a failure input and inspect both execution evidence and the failure response. End the session before changing settings; record identical input, changed setting, and observed difference.
 
 ### 4. Separate Foundry Tools by purpose
 
@@ -78,7 +78,7 @@ Supported browser/avatar settings or the Hosted Agent real-time WebSocket path a
 
 ## Success criteria
 
-You have checked pronunciation, pauses, interruption, corrected quantities, and session termination as well as content accuracy. “It made a sound” is not enough to complete the lab.
+Record the transcript, actual quantity change 2→1, interruption handling, latency measurement method, and ended state. Leave unobserved items unverified; “it made a sound” is not sufficient.
 
 ## Troubleshooting
 

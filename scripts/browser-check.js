@@ -218,6 +218,17 @@ async (page) => {
         loaded: image.complete && image.naturalWidth > 0,
       })));
       check(imageBounds.length > 0 && imageBounds.every(image => image.loaded && image.width <= image.container + 1), `portal screenshots fit the reader at ${width}px`);
+      if ([1440, 390, 320].includes(width)) {
+        for (const id of ["l09", "l10", "l18", "l19", "l20", "l21", "l22", "l23", "l24"]) {
+          await page.goto(`${entry}#${id}`);
+          const layout = await page.locator(`#${id}.active`).evaluate(chapter => ({
+            viewport: innerWidth,
+            document: document.documentElement.scrollWidth,
+            tables: chapter.querySelectorAll(".table-wrap table").length,
+          }));
+          check(layout.document <= layout.viewport + 1 && layout.tables > 0, `${id} decision tables fit the reader at ${width}px`);
+        }
+      }
     }
     await page.setViewportSize({width: 390, height: 844});
     await page.locator("#menu-toggle").click();

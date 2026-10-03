@@ -25,11 +25,13 @@ L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-so
 Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.html`; use an editor to inspect code.
 The core course is L00–L12, about 5 hours 20 minutes. Choose advanced modules as needed. Reading requires no sign-in.
 
+Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, extraction, voice, training data, and releases, plus worked Contoso designs. Examples are not Azure results; record design completion separately from actual execution. L22's default CI/release-design path does not require Hosted deployment.
+
 ## Instructions and latest evidence
 
 - Educational baseline: `agent-v1.txt` in those folders is a deliberately simple role-and-goal starting instruction; it was not weakened to manufacture a lower score.
 - Current: `agent-v2.txt` in those same folders; Prompt/Hosted build defaults use v2.
-- One comparison: `samples/instruction_lab.py`; native evaluation of its originals: `samples/instruction_evaluation.py`. Both require explicit `--live`.
+- One Prompt Agent comparison: `samples/instruction_prompt_agent_lab.py`; native evaluation of its originals: `samples/instruction_evaluation.py`. Both require explicit `--live`.
 - [Current status](validation/current/instructions.json), [latest actual Azure originals](validation/current/report.json), and [current documentation checks](validation/docs/structure.json).
 
 **Both languages were measured through GPT-6 Sol Prompt Agent versions.** Korean native relevance moved from **4.9167/5 to 5.0/5** on one question; completeness and groundedness tied. All three English metrics tied at **5.0/5**. This is a limited Korean relevance gain observed in a small, exposed dev sample—not generalization, statistical significance, or operational approval. The supporting mechanical checklist tied at **33/40** in Korean and changed from **29/40 → 28/40 (−1)** in English. Every changed critical flag was reviewed against the answer originals; some wording was missed by the regex checks. The checklist is not a calibrated semantic or safety evaluator. The judge was the separate, fixed GPT-4.1 deployment.

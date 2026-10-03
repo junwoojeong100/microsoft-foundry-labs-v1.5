@@ -1,7 +1,13 @@
+from collections import defaultdict
+import csv
 import json
+import os
 from pathlib import Path
 import re
+import shlex
+import subprocess
 import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +44,73 @@ class GuideAuthoringTests(unittest.TestCase):
                     self.assertTrue((ROOT / source).is_file(), source)
         edition = json.loads((ROOT / "content/release.json").read_text())["languages"]["ko"]
         self.assertEqual(total, {"blocks": edition["shell_blocks"], "commands": edition["commands"]})
+
+    def test_search_walkthrough_changes_mode_not_question(self):
+        for directory in ("docs", "docs/en"):
+            text = (ROOT / directory / "13-iq.md").read_text()
+            commands = [
+                shlex.split(line) for line in text.splitlines()
+                if line.startswith("python samples/search_lab.py query ")
+            ]
+            with self.subTest(directory=directory):
+                self.assertEqual(len(commands), 3)
+                self.assertEqual({c[c.index("--mode") + 1] for c in commands}, {"keyword", "hybrid", "iq"})
+                self.assertEqual(len({c[c.index("--query") + 1] for c in commands}), 1)
+                self.assertTrue(all("--live" in command for command in commands))
+
+    def test_documented_tuning_row_matches_each_language_generator(self):
+        for language, directory in (("ko", "docs"), ("en", "docs/en")):
+            text = (ROOT / directory / "20-optimization.md").read_text()
+            blocks = re.findall(r"^```json\n(.*?)^```", text, re.M | re.S)
+            with self.subTest(language=language), tempfile.TemporaryDirectory() as temporary:
+                self.assertEqual(len(blocks), 1)
+                target = Path(temporary) / "tuning"
+                result = subprocess.run(
+                    [sys.executable, "-c",
+                     "import json, sys; from pathlib import Path; sys.path.insert(0, 'samples'); "
+                     "import prepare_tuning; print(json.dumps(prepare_tuning.prepare(Path(sys.argv[1]))))",
+                     str(target)],
+                    cwd=ROOT, env={**os.environ, "FOUNDRY_LAB_LANGUAGE": language, "PYTHONDONTWRITEBYTECODE": "1"},
+                    capture_output=True, text=True, timeout=30, check=True,
+                )
+                train_count, validation_count = json.loads(result.stdout)
+                train = [json.loads(line) for line in (target / "train.jsonl").read_text(encoding="utf-8-sig").splitlines()]
+                validation = [json.loads(line) for line in (target / "validation.jsonl").read_text(encoding="utf-8-sig").splitlines()]
+                self.assertEqual(json.loads(blocks[0]), train[0])
+                self.assertEqual((len(train), len(validation)), (train_count, validation_count))
+                self.assertIn(f"train={train_count}, validation={validation_count}", text)
+
+    def test_trace_timing_example_uses_intervals_without_double_counting(self):
+        for directory in ("docs", "docs/en"):
+            text = (ROOT / directory / "10-observability.md").read_text()
+            rows = re.findall(r"^\|[^|]+\|\s*([\d,]+)[~–]([\d,]+)\s*\|\s*([\d,]+)ms\s*\|", text, re.M)
+            with self.subTest(directory=directory):
+                self.assertEqual(len(rows), 4)
+                intervals = [tuple(int(value.replace(",", "")) for value in row) for row in rows]
+                for start, end, duration in intervals:
+                    self.assertEqual(end - start, duration)
+                parent = intervals[0][2]
+                children = sum(row[2] for row in intervals[1:])
+                self.assertIn(f"{children:,}ms", text)
+                self.assertIn(f"{parent - children}ms", text)
+                self.assertLessEqual(children, parent)
+                for previous, following in zip(intervals[1:], intervals[2:]):
+                    self.assertLessEqual(previous[1], following[0])
+
+    def test_documented_expense_totals_match_both_synthetic_sources(self):
+        for directory, data in (("docs", "data"), ("docs/en", "data/en")):
+            with (ROOT / data / "monthly-spend.csv").open() as handle:
+                rows = list(csv.DictReader(handle))
+            totals = defaultdict(int)
+            for row in rows:
+                totals[row["month"]] += int(row["amount_krw"])
+            for chapter in ("18-multimodal.md", "23-extensions.md"):
+                text = (ROOT / directory / chapter).read_text()
+                with self.subTest(directory=directory, chapter=chapter):
+                    self.assertEqual(len(rows), 9)
+                    self.assertEqual(len(totals), 3)
+                    for amount in (*totals.values(), sum(totals.values())):
+                        self.assertIn(f"{amount:,}", text)
 
     def test_comments_and_continuations_do_not_inflate_command_count(self):
         text = (

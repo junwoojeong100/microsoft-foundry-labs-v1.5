@@ -1,34 +1,46 @@
-> **What you will build:** A reproducible learning kit and a safe process for changing and delivering its sources.
+> **What you will build:** A CI interpretation record, agent release manifest, rollback decision table, and model/cost checklist. Design these without deploying, and distinguish plans from execution evidence.
 
 ## Objectives
 
-Keep the guide understandable as **baseline v1, improved v2, and one latest result set**.
-Publishing documentation is not an agent quality release; each edit does not require paid validation or another experiment number.
+**Passing source checks, deploying to Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.
 
 ## Concepts and lab map
 
-**What you will try:** Local CI, GitHub Actions, OIDC's purpose, deployment/rollback, and cost/resource lifecycle boundaries.
+**What you will try:** Reading local CI and GitHub Actions results, OIDC approval boundaries, version-pinned release/rollback design, and model-retirement/cost responses.
 
-**What is it, and why does it matter?** CI checks documents, data, and code against the same sources.
-A green CI check does not establish Azure execution or better model quality.
+**What is it, and why does it matter?** CI checks sources, data, and contracts after changes. CD delivers reviewed changes. A change to a model, knowledge source, or tool can alter responses, so recovery requires a bundle of source commit, actual deployed version, and evidence.
 
-**How do you use it?** Improve the v2 file and explain L08's single comparison.
-Keep only the latest originals in the current file tree; preserve previous failures, questions, and criteria in Git history.
+**How do you use it?** Read workflow conditions and reproduce local checks. Link existing results into a release manifest, then practice a rollback decision using one hypothetical failure. Do not expand L08's small instruction comparison into proof of integrated tools or release approval.
 
 **Where do you run it?** The reviewed [validate.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/validate.yml) demonstrates default checks;
 [azure-validation.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/azure-validation.yml) demonstrates separately approved execution.
-Inspect the current kit's sources locally. The short learning path uses terminal and GitHub Actions **offline/SDK checks**.
+Regardless of those online links, **use `.github/workflows/` in your own checked-out sources** as the authority. The default exercise is local checks and design. Live Hosted deployment is optional and requires L14 prerequisites plus separate approval.
 
 ## Prerequisites
 
-Use L01's environment and this repository's sources. Do not package `.env`, tokens, `.azure/`, `results/`, or virtual environments.
-Both languages use the same implementation with their own synthetic corpus and instructions.
+Use L01's environment and repository sources. **Search, Hosted, and Optimizer are not prerequisites for the default exercise.** Use L11/L14 results for a real manifest; without them, complete it as a design. Do not change the educational v1/v2 or historical evidence.
 
 ## Steps
 
-### 1. Build the guide from source
+### 1. Read what runs automatically
+
+Open `validate.yml` in an editor and locate `on`, `jobs`, `needs`, and `if`. Compare the table with the actual YAML.
+
+| What to inspect | How to judge it | Next action on failure |
+| --- | --- | --- |
+| `push` / `pull_request` → `offline`, `sdk` | Document/data/code and SDK contract checks, not Azure deployment | Read the failed job's **first error and command**, not just its final “failed” message |
+| `azure` with `needs: [offline, sdk]` | Both prerequisite checks must pass before the paid path can run | Do not call a failed/skipped job a successful deployment |
+| `workflow_dispatch`, `acknowledge_cost`, `repository_id` | Explicit opt-in and this repository's identity; forks do not inherit access | Keep the default false; do not remove repository or approval conditions for the exercise |
+| `environment`, `id-token: write` in `azure-validation.yml` | OIDC authenticates a workflow identity; Azure roles and environment approval remain separate | Escalate branch/environment/tenant/project mismatches; do not substitute a long-lived secret |
+
+If GitHub is available, open **Actions → run → job → failed step** and locate the same items. Otherwise inspect sources and record “workflow execution unverified.” The default exercise requires neither a new push nor a paid workflow dispatch.
+
+### 2. Check the same sources locally
+
+The first line is needed only if documentation dependencies are missing. L01's base dependencies must already be installed.
 
 ```bash
+python -m pip install -r requirements-docs.txt
 python scripts/build_guide.py
 FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -q
 python scripts/check_guide.py
@@ -40,56 +52,67 @@ python scripts/check_guide.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `build_guide.py` | Generate both HTML/Markdown editions from module sources and metadata. | Local files only; do not hand-edit generated output. |
-| 2. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and their explicit English checks. `-q` requests concise output. | Local checks, not a new Azure pass or measured score increase. |
-| 3. `check_guide.py` | Check all 25 modules, explained commands, links, and capture provenance. | Keep current documentation checks in `validation/docs/` only. |
+| 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Azure calls. |
+| 2. `build_guide.py` | Generate both HTML/Markdown editions from sources and metadata. | Local file changes; do not edit generated output manually. |
+| 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Azure or model quality. |
+| 4. `check_guide.py` | Check 25 modules, command explanations, links, and capture provenance. | Record current documentation checks only in `validation/docs/`. |
 
 </div>
 
-Generate PDFs and the ZIP from the same sources using the README commands. The [current status](../../validation/current/instructions.json)
-records the actual bilingual GPT-6 Sol measurement, tied scores, and preserved output-contract failure separately.
-Generated Markdown, PDF, and ZIP files are grouped under the root `downloads/` directory. Keep `index.html` and `index.ko.html` at the root for the existing Pages routes.
+Record success as **code/document checks passed** only. For import errors, inspect the virtual environment/requirements; for generated drift, inspect `docs/` and `content/`; for business assertions, inspect the relevant function/policy contract. Do not weaken assertions or evaluation criteria.
 
-### 2. Read GitHub Actions checks
+For PDF/ZIP delivery, continue with the README build path. Artifacts under `downloads/` and the root web entry points are **separate from agent deployment artifacts**. Documentation generation supports this chapter; it is not CD evidence.
 
-Push/PR workflows run offline/SDK checks by default. Do not dispatch paid Azure jobs without explicit opt-in.
-Main merges and Pages publication also require approval. Publication cannot turn a failed quality judgment into a pass.
+### 3. Write an agent release manifest
 
-Review OIDC only when needed. It authenticates a workflow identity instead of storing a long-lived secret.
-Check `repository_id`, branch/environment, tenant/subscription/project, and least-privilege roles; do not reuse another person's environment or access.
-This learning comparison does not require creating an identity, role, or Environment policy.
+This is a **Contoso worksheet example**. Where actual identifiers/results are absent, write “not executed”; do not copy historical results as evidence for the current candidate.
 
-### 3. Separate deployment and rollback
+| Manifest item | What to connect | If missing or different |
+| --- | --- | --- |
+| Sources | Your commit, changed files, actual v2 instruction hash | Hold promotion if the evaluated sources cannot be distinguished from the candidate |
+| Execution target | Language/project, model ID/version/deployment name | A different model version is a different candidate even under the same deployment name |
+| Agent | Name, service-issued numeric version, Prompt/Hosted kind and protocol | Instruction v2 does not imply service version 2 |
+| Data/tools | Policy/schema/dependency hashes and connection targets | Do not hide retrieval/function changes inside an instruction change |
+| Evidence | Same-target response/trace, actual tool results, applied evaluation and failures/missing rows | L08's 12 tool-free questions do not approve an integrated business release |
+| Recovery | Previous approved version/configuration bundle, owner, data compatibility | Hold deployment without a viable target and compatible state |
 
-| Object | Retain |
-| --- | --- |
-| Instructions | V1 baseline, current v2, exact instruction-file hashes |
-| Execution | Actual response/trace IDs, model, and data |
-| Deployment | The service-issued agent version, distinct from instruction v1/v2 |
-| Delivery | Source-matching HTML/Markdown/PDF/ZIP |
+For L11's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. L14 Hosted also requires package/runtime contract comparison. Using instruction v2 does not establish newly validated Hosted code; read the scope in [current status](../../validation/current/instructions.json).
 
-Do not relabel service deployment IDs or historical evidence IDs as “v2.” Keep the learning instructions at v2 while preserving actual IDs and hashes.
-Reconfirm the target and approval scope before deployment changes or rollback.
+### 4. Rehearse a rollback decision
 
-### 4. Understand cost and lifecycle
+**Synthetic teaching scenario:** An approved version exists, and a candidate describes a purchase draft as “order completed.” This is not an actual deployment record.
+
+| Step | Decision/action | Evidence to inspect |
+| --- | --- | --- |
+| Detect | Block promotion; stop expansion if a limited trial is underway | Failed input/response, candidate version, actual tool record |
+| Isolate | If the function says not ordered but the answer says otherwise, inspect synthesis/instructions first | Difference between function JSON and final answer |
+| Prepare recovery | Select the previous approved agent version with its model/connections/settings | Version availability and current data/schema compatibility |
+| Approved recovery | Restore L11's Active version or the Hosted consumer's **version binding** | Actual invoked version, not just an unchanged endpoint name |
+| Verify recovery | Within separate approval, repeat the same purchase question and check evidence/tools/not-ordered state | New response/trace and results; old success logs are insufficient |
+
+The default exercise stops at identifying what to restore. Actual switching and reinvocation require separate approval. An incompatible data migration is not undone by restoring the agent version alone. Preserve failed originals and earlier versions.
+
+### 5. Respond to model lifecycle and costs
 
 ![Operate monitoring. Distinguish requests, errors, and usage from actual quality judgments.](../../assets/portal/en/07-monitor.png)
 
-Inference, Search, Hosted compute, and retained data have separate charging mechanisms.
-Stopping a session is neither resource deletion nor proof of zero total cost. An empty billing response does not mean free usage.
-Actual cost queries, extra feature execution, and deletion each need the appropriate approved scope.
+| Signal/observation | Judgment | Next action |
+| --- | --- | --- |
+| L02 deployment's version, automatic-update policy, retirement date | The same deployment name can conceal changed behavior conditions | Assign an owner and a pre-retirement comparison date; record existing version/context/criteria |
+| Replacement model candidate | Responses, tools, output schema, region, and processing location must fit | Separately approve a same-dev-input comparison; never reuse a sealed holdout arbitrarily or relax gates |
+| 429 or increased latency | Separate quota/concurrency/token volume from an outage | Reduce calls and plan bounded recovery; no fallback to unapproved models/regions |
+| Costs rise without requests | Inspect Search/storage/logs/Hosted sessions separately | Use L12's per-resource stop/retention owners and next-check time; empty billing rows are not zero cost |
+
+Record **RTO (target service recovery time)** and **RPO (acceptable data-loss interval)** in the recovery design. For example, “restore read-only policy guidance within 30 minutes; allow no loss of approval records” is an **example requirement**, not a measured guarantee or a capability of this kit. Without an owner, recovery path, and rehearsal results, do not claim it was achieved.
 
 ## Success criteria
 
-Another learner can extract the ZIP, read both 25-module editions, and inspect the same v1/v2 comparison plan.
-They can distinguish latest originals, current instructions, local checks, Azure execution, and quality judgments.
+Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Azure not executed. Hold promotion without quality evidence for the same candidate.
 
 ## Troubleshooting
 
-First check `.env`/language selection, missing dependencies, and generated-file drift.
-Do not hide CI failures, lower paid-validation gates, or copy historical logs as new execution.
+If `azure` is skipped, read its opt-in condition; skipping on an ordinary push is not an error. If a workflow is green but the answer is wrong, check what actually ran. For deployment/rollback failures, inspect agent version, protocol, runtime identity, and model/connections in order rather than blindly redeploying.
 
 ## Cleanup
 
-Keep private settings and raw responses under `results/`; share only the latest reviewed originals.
-Do not rewrite Git history. Azure resource deletion is not a default part of this module.
+Exclude private settings, raw responses, and receipts from the kit. Generate HTML/Markdown/PDF/ZIP from the same sources. Main merges, Pages publication, paid runs, access changes, and Azure deletion each require separate approval; this exercise performs none automatically.

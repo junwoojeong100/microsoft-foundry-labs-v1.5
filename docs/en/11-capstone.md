@@ -52,6 +52,8 @@ Inspect JSONL `tool_calls`, `citations`, and `response_id`, not just the natural
 
 Bundle the model deployment/version, agent version, instructions file, tool schema, policy-document version, evaluation-data version, and evaluation results into one record. The SDK agents created by this guide are independent experiments; **do not treat them as production deployments as they stand**.
 
+Link your results into [L22's release-manifest example](../../docs/en/22-delivery.md). L08's tool-free instruction comparison differs from this `capstone` in model/tool/policy conditions; do not transfer its score into integrated-agent release approval. If operational checks are incomplete, record “integration lab complete / release on hold.”
+
 ### 3. Select a stable endpoint and active version
 
 Review how to select a specific version under the portal agent's **Details → Agent configuration → Active version**. `Always use latest` can automatically expose new versions to users; do not select it without an actual production policy.

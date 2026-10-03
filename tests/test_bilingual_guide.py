@@ -107,10 +107,10 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["pages_branch"], "gh-pages")
         expected = {
             "en": ("index.html", "downloads/GUIDE.en.md", "downloads/" + release["artifact"] + ".en.pdf",
-                   "portal-screenshots.en.json", 18, 50, 107,
+                   "portal-screenshots.en.json", 18, 50, 108,
                    "validation/current/instructions.json", "data/en/receipt.html"),
             "ko": ("index.ko.html", "downloads/GUIDE.ko.md", "downloads/" + release["artifact"] + ".pdf",
-                   "portal-screenshots.json", 17, 48, 105,
+                   "portal-screenshots.json", 17, 48, 106,
                    "validation/current/instructions.json", "data/receipt.html"),
         }
         for language, values in expected.items():
