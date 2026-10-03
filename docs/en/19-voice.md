@@ -55,7 +55,30 @@ Check whether connecting L05's English knowledge from `data/en/policies/` is sup
 
 ### 2. Start a short conversation
 
-After saving, select **Start session** and, if needed, personally allow microphone access in the browser. Say “I'd like to buy two laptops.”
+<div class="practice-block" markdown="1">
+
+**Try it:** Compare the [official voice configuration fields](https://learn.microsoft.com/azure/foundry/agents/how-to/configure-voice-agent) with this baseline. In the new lab agent, inspect **AI model / Voice / Advanced settings** and record actual selections and the agent version. This is a configuration example, not a new voice execution result.
+
+| Item | Baseline | Where/what to check |
+| --- | --- | --- |
+| Model type / model | managed / `gpt-realtime-2.1` | Confirm availability in this project; do not use L02's chat deployment name as a managed voice-model name |
+| Voice type / voice | azure-standard / `en-US-AvaNeural` | Select a compatible entry in Voice; ask the administrator about support if absent |
+| Language / speaking speed | English / `speed=1.0` | Match voice and instructions; use `en-US` when the model exposes recognition Language |
+| Input/output audio | PCM 24,000Hz | Match the browser/client format |
+| Turn detection | `server_vad` | Silence-based end-of-turn detection |
+| `threshold` / `prefix_padding_ms` | 0.5 / 300 | Detection sensitivity / retained audio before speech |
+| `silence_duration_ms` | 500 | Detect the end after 0.5 seconds of silence |
+| Tools, Avatar, automatic greeting | Do not add | Isolate voice turn behavior in the first experiment |
+
+**Availability is a prerequisite.** Do not mark execution complete if the model/voice is absent. If another supported combination is approved, record its actual values and compare it as a different condition. Defaults need not match this table. The property names correspond to SDK/YAML settings and the portal's **Advanced settings → Turn detection**.
+
+Save, select **Start session**, and personally grant microphone access. Say “I'd like to buy two laptops.” Keep the session **within two minutes**, run the questions/correction below once, and select **End**.
+
+**Change one thing:** End the session, change only `silence_duration_ms` from **500→1500**, and save a new version. Only after approval for another session, repeat the same sentence with the same one-second pause. Do not also change model, voice, threshold, or wording. The total is **two sessions within four minutes**.
+
+**Explain the result:** Record `version / silence setting / utterance split / time to first audio / interruption / ended state`. Compare whether 1,500ms waits better for the intended sentence and whether the response starts later. A setting is not a measured latency: device, recognition, and network delays also contribute, so an exact one-second difference is not guaranteed. Do not force unsupported settings or automatically deploy a new model.
+
+</div>
 
 ### 3. Check conversation quality
 
@@ -88,6 +111,7 @@ Supported browser/avatar settings or the Hosted Agent real-time WebSocket path a
 
 ## Success criteria
 
+Distinguish the baseline from the single-setting change; mark the comparison not executed if no additional session was run.
 Record the transcript, actual quantity change 2→1, interruption handling, latency measurement method, and ended state. Leave unobserved items unverified; “it made a sound” is not sufficient.
 
 ## Troubleshooting

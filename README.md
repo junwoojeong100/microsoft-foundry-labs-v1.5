@@ -16,6 +16,8 @@ Build a synthetic Contoso purchasing assistant through **25 labs and five refere
 
 Without an account, you can still use local functions and **read actual answers and scores** in L08. Administrator creation and optional execution are in expandable sections; L11 reuses L06's result. Teams publishing, Hosted, and Optimizer are not core-course prerequisites.
 
+L15 and L18–L24 include **change-and-compare exercises**: intermediate multi-agent answers and tokens/time, a complete CU schema, voice-setting comparisons, baseline-to-deployment SFT, and concrete Local/Fabric/Work IQ paths. Access, CI/CD, and migration use repairable local fixtures, clearly separate from Azure evidence. Install `requirements-local.txt` in a separate environment only when choosing the Local SDK path.
+
 <details>
 <summary>Instruction learning path and model conditions</summary>
 

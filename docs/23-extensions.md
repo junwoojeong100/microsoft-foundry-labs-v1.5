@@ -36,7 +36,85 @@
 
 ### 1. 선택 A: Foundry Local
 
-[Foundry Local quickstart](https://learn.microsoft.com/azure/foundry-local/get-started)에서 장치와 언어에 맞는 **현재 SDK 샘플**을 선택합니다. 모델 목록 확인 → 지원 모델 다운로드 → 짧은 추론 → 모델 unload 순서로 진행합니다.
+[Foundry Local quickstart](https://learn.microsoft.com/azure/foundry-local/get-started)의 native SDK 흐름을 동봉 [local_lab.py](../samples/local_lab.py)로 수행합니다. 다른 샘플 저장소를 복제하지 않습니다. 기본 예시는 `qwen2.5-0.5b`이며 작은 모델의 한국어 품질이나 업무 정확도를 보장하지 않습니다.
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기 — 먼저 계획:** 아래 명령은 SDK 초기화·모델 다운로드 없이 계획만 출력합니다.
+
+```bash
+python samples/local_lab.py chat
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `local_lab.py chat` | 기본 모델과 문장형 출력의 계획을 읽습니다. | `plan_only`, `sdk_initialized=false`, `azure_calls=0`. 설치나 모델 실행 없음. |
+
+</div>
+
+실제 장치 실습을 선택한 경우에만 별도 환경을 만듭니다. **Windows에서는 `.venv-local/bin/python` 대신 `.venv-local\Scripts\python.exe`**를 사용합니다. 첫 줄의 `python`은 L01에서 준비한 Python 3.13입니다. 영어 실습은 새 터미널마다 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다.
+
+```bash
+python -m venv .venv-local
+.venv-local/bin/python -m pip install -r requirements-local.txt
+.venv-local/bin/python samples/local_lab.py inspect --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `venv .venv-local` | 기본·MAF 환경과 분리된 로컬 모델용 환경을 만듭니다. | 내 PC의 폴더 생성. |
+| 2. `pip install` | OS별 선언된 SDK를 설치합니다: 비 Windows 2.1.0, Windows WinML 1.2.4. | 승인된 패키지 저장소 접속·설치. Azure 배포 없음. |
+| 3. `inspect --local` | SDK를 초기화하고 실제 선택 모델 ID·캐시·로드 상태를 확인합니다. | 카탈로그 메타데이터 조회가 네트워크를 사용할 수 있음. 모델 가중치를 자동 다운로드하거나 추론하지 않음. |
+
+</div>
+
+모델 사용 조건·디스크 공간·장치 지원을 확인한 뒤 **모델/실행 공급자 다운로드를 승인한 경우에만** 진행합니다.
+
+```bash
+.venv-local/bin/python samples/local_lab.py download --local --allow-download
+.venv-local/bin/python samples/local_lab.py chat --style sentence --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `download --allow-download` | 모델 및 필요한 실행 공급자를 다운로드합니다. 모델 캐시는 `.build/local-model-cache/ko`에 둡니다. | 다운로드·디스크 사용. Azure 구독이나 모델 호출은 없음. |
+| 2. `chat --style sentence --local` | 캐시된 모델을 로드해 합성 초안/주문 차이를 한 번 질문합니다. 최대 출력 256토큰입니다. | 실제 장치 추론. `load_seconds`, `inference_seconds`, `answer`, `unloaded=true`를 확인. 캐시가 없으면 자동 다운로드 대신 오류. |
+
+</div>
+
+`--local`은 이 파일의 **실제 장치 작업 허용**입니다. Azure 호출이 가능한 L14의 로컬 서버와 다른 경로입니다. 다운로드·로드·추론 시간을 구분하고, 오류나 잘린 답을 정상 응답으로 바꾸지 않습니다. 다운로드가 사내 정책으로 막히면 승인된 설치 경로를 사용하며 보안 설정을 우회하지 않습니다.
+
+**한 가지 바꾸기:** 다음에는 같은 모델·질문에서 출력 형식만 문장→체크리스트로 바꿉니다. 이는 한 번의 추가 장치 추론입니다.
+
+```bash
+.venv-local/bin/python samples/local_lab.py chat --style checklist --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--style checklist` | 같은 합성 질문을 짧은 세 항목으로 답하도록 지시만 변경합니다. | 추가 로컬 추론·로드/해제. Azure 호출 없음. 모델의 실제 출력 형식을 사람이 확인합니다. |
+
+</div>
+
+**결과 설명하기:** `모델 ID / 형식 / 실제 항목 수 / 초안≠승인·주문 의미 보존 / 추론 시간 / 해제 상태`를 비교합니다. 형식 지시를 못 지켰다면 실패로 기록합니다. 더 긴 응답이나 더 빠른 한 번의 결과만으로 품질 우월성을 주장하지 않습니다. 예제는 클라우드로 자동 전환하지 않습니다.
+
+</div>
 
 | 확인할 것 | 어떻게 판단하나요? | 실패하면 다음 행동 |
 | --- | --- | --- |
@@ -57,6 +135,22 @@
 
 관리자가 승인된 workspace와 data agent/semantic model을 제공한 경로로 시작합니다. [Fabric IQ 연결 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq)에서 그 항목의 지원과 호출 identity를 확인합니다. 준비되지 않았다면 모든 Fabric 구성 요소를 새로 만드는 대신 아래 명세를 작성합니다.
 
+**대표 경로를 하나로 고정합니다: CSV → Lakehouse 표 → Fabric data agent → Foundry Toolbox.** Ontology와 Power BI semantic model은 이번 경로에 추가하지 않습니다.
+
+| 사전 확인 | 받아야 할 값 |
+| --- | --- |
+| Fabric | 승인된 paid F2 이상 또는 Fabric이 켜진 P1 이상 용량의 workspace, 같은 리전의 실습 Lakehouse |
+| 접근 | 자기 테스트 사용자, 데이터·data agent 읽기 및 이 실습 항목의 작성 권한 |
+| 연결 | 관리자가 준비한 **data agent용** Foundry 연결 이름/ID와 위임된 사용자 인증. API key 아님 |
+| 비용·처리 범위 | 용량·AI 이용·지역 간 처리의 승인과 종료 담당자. 실습 중 구독/용량을 구매하지 않음 |
+
+1. 실습 Lakehouse의 **Files**에 동봉 `monthly-spend.csv` 하나만 업로드합니다. 파일 메뉴 **Load to tables → New table**에서 이름 `contoso_spend`, 첫 행 Column header 선택, 구분자 `,`를 지정합니다. 기존 표에 Append/Overwrite하지 않습니다. [Load to tables 필드](https://learn.microsoft.com/fabric/data-engineering/load-to-tables)와 대조해 **9행, month/category/amount_krw**, 금액의 숫자형 해석을 확인합니다.
+2. workspace의 **+ New item → Fabric data agent**에서 `contoso-spend-agent`를 만듭니다. OneLake catalog에서 해당 Lakehouse를 Add하고, Explorer에서 **`contoso_spend` 표만** 선택합니다. [Data agent 생성 절차](https://learn.microsoft.com/fabric/data-science/how-to-create-data-agent)를 이 한 표에 적용합니다.
+3. Agent instructions에 “선택한 contoso_spend만 사용하고 month별 amount_krw의 합과 전체 합을 KRW로 답한다. 없는 행을 만들지 않는다”를 넣습니다. Fabric 내부 대화에서 아래 질문을 한 번 보내 원본 집계를 먼저 확인하고 Publish합니다.
+4. 관리자는 **게시된 해당 data agent**의 workspace/item ID와 MCP endpoint가 Foundry 연결에 맞는지 확인합니다. 일반 endpoint 형태는 `https://api.fabric.microsoft.com/v1/mcp/workspaces/<workspaceId>/dataagents/<dataAgentId>/agent`입니다. 실제 값은 자기 항목에서 복사하며 private-link 환경의 별도 host는 담당자가 확인합니다.
+5. Foundry Toolkit의 **My Resources → 자신의 project → Tools → Toolbox → Add tools → Configured → Fabric IQ (OneLake Catalog)**에서 준비된 연결을 선택하고 **Add Tools → Publish/Save Changes**합니다. 첫 Fabric IQ 연결 생성은 Toolkit에서 직접 지원되지 않으므로 관리자가 Foundry 포털에서 먼저 준비해야 합니다. 다른 Fabric 항목의 연결을 대신 고르지 않습니다.
+6. 새 실습용 Text agent에 게시된 Toolbox의 정확한 버전을 연결하고 “이 도구로만 합성 지출을 조회하며 결과가 없으면 모른다고 답한다”는 지시를 넣습니다. 같은 집계 질문을 한 번 보내 아래 값과 **실제 도구 결과·연결 항목**을 대조합니다. 질문의 원본 제품 확인과 Foundry 확인은 별도 요청입니다.
+
 **Contoso 명세 예 — 실제 Fabric 실행 결과가 아닙니다.**
 
 | 단계 | 입력·선택 | 판단할 결과 |
@@ -69,11 +163,26 @@
 
 합계가 다르면 **원본 타입/중복 → measure와 필터 → 연결 item/identity → 답변 합성** 순으로 확인합니다. 원본 집계부터 틀린 경우 프롬프트를 바꾸지 않습니다. 숫자만 맞고 도구 근거가 없으면 연결 성공은 미확인입니다.
 
+**한 가지 변경 과제:** 추가 질문을 승인받았다면 필터만 “2026-09”로 바꿉니다. 기대는 **3행·4,759,000 KRW**이며 전체 11,154,000을 반환하면 필터가 적용되지 않은 것입니다. 데이터·도구·모델을 함께 바꾸지 않습니다.
+
 ### 3. 선택 C: Work IQ / SharePoint
 
 승인된 테스트 테넌트와 **관리자가 제공한 테스트 계정 A/B**만 사용합니다. [Work IQ 연결 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq)에서 위임·관리자 동의·라이선스 조건을 확인합니다. 계정이나 권한을 실습 중 임의 생성하지 않습니다.
 
-합성 구매 정책 한 문서를 A에게 허용하고 B에게는 허용하지 않는 **승인된 시험 설정**을 준비합니다. 원본 SharePoint에서 A는 열 수 있고 B는 열 수 없는지 먼저 확인합니다. 다음에는 서로 다른 로그인·새 대화에서 같은 정책 질문을 보냅니다. 기대 결과는 A의 허용 문서 근거와, B에게 그 제한 문서의 본문·제목·URL이 노출되지 않는 것입니다. B가 별도 공용 사실에 답한다면 그 근거가 다른 허용 자료인지도 구분합니다.
+이번에는 **Work IQ Chat의 A2A 연결** 하나만 사용합니다. 관리자가 Work IQ 서비스 주체·위임 권한 `WorkIQAgent.Ask`·동의·기존 연결을 준비합니다. 이 API 경로는 **Copilot Credits 사용량 청구**이며 모든 connector의 라이선스 조건과 같지 않습니다. 학습자에게 Global Administrator를 요구하거나 Outlook·메일 발송 도구까지 붙이지 않습니다.
+
+| 단계 | 직접 할 일·확인 |
+| --- | --- |
+| 합성 원본 | 승인된 테스트 SharePoint 위치에 문서 하나: 제목 “Contoso 제한 견적 실습”, 내용 “사례 LAB-73, 교육용 견적코드 CONTOSO-QUOTE-DEMO-73. 실제 거래 효력 없음.” |
+| 원본 권한 | 관리자가 A만 읽도록 격리. **원본에서 A는 열림, B는 거절**을 먼저 확인. B에게 상위 사이트/그룹 권한이 남아 있으면 진행하지 않음 |
+| Toolbox | Foundry Toolkit → My Resources → project → Tools → **+ Add Toolbox → Add tools → Work IQ → Work IQ Chat**. 준비된 연결 선택 → Add → Publish |
+| Agent | 별도 Text agent에 그 Toolbox 버전만 연결. File search·Web search·다른 업무 도구는 연결하지 않음 |
+| A/B 호출 | 각각 별도 로그인·새 대화에서 “교육용 사례 LAB-73의 견적코드와 원본문서를 확인해줘”를 한 번씩 보냄 |
+| 판독 | A는 실제 도구 근거와 코드가 있어야 함. B에게는 제공하지 않은 코드·본문·문서 URL이 나오면 안 됨. 실제 도구 결과도 같이 읽음 |
+
+견적코드를 질문·instructions·공용 검색 인덱스에 넣지 않습니다. 이 표의 코드가 모범 답으로 알려져 있다는 것과 모델이 권한 있는 원본을 조회했다는 것은 별개입니다. A/B 질문은 총 2건으로 제한하며 서비스 내부 처리·과금은 별도입니다. 접근할 문서가 모두 합성인 승인된 테스트 환경이 없으면 실행하지 않습니다.
+
+위 표의 격리된 견적 문서 하나로 확인합니다. L05의 공용 구매 정책을 대신 연결하면 B가 다른 허용 근거에서 정답을 얻을 수 있어 제한 문서 시험과 구분하기 어렵습니다.
 
 B에게 제한 근거가 보이면 반복 질의 전에 원본 ACL·위임된 사용자·대화/캐시 혼용을 점검합니다. 한 계정의 두 대화만으로 사용자 격리를 시험했다고 쓰지 않습니다.
 

@@ -1,0 +1,23 @@
+{
+  "analyzerId": "contoso_receipt_lab",
+  "description": "Extract only printed values from the synthetic Contoso receipt. Never approve a purchase.",
+  "baseAnalyzerId": "prebuilt-document",
+  "config": {
+    "enableOcr": true,
+    "enableLayout": true,
+    "returnDetails": true,
+    "estimateFieldSourceAndConfidence": true
+  },
+  "fieldSchema": {
+    "name": "ContosoReceipt",
+    "fields": {
+      "document_id": {"type": "string", "method": "extract", "description": "The complete document number, retaining its hyphens.", "estimateSourceAndConfidence": true},
+      "date": {"type": "date", "method": "extract", "description": "The issue date printed on the receipt.", "estimateSourceAndConfidence": true},
+      "currency": {"type": "string", "method": "generate", "description": "Normalize the document's Korean-won currency indication to KRW. Do not guess when absent."},
+      "quantity": {"type": "number", "method": "extract", "description": "Quantity in the single item row, not a monetary amount.", "estimateSourceAndConfidence": true},
+      "unit_price": {"type": "number", "method": "extract", "description": "The KRW price of one item, not the row or document total.", "estimateSourceAndConfidence": true},
+      "total": {"type": "number", "method": "extract", "description": "The final overall total printed on the document. Do not fill it by calculation.", "estimateSourceAndConfidence": true},
+      "approval_status": {"type": "string", "method": "classify", "enum": ["pending", "approved", "unknown"], "description": "Use pending when the document says approval is pending, approved only when it explicitly says approved, or unknown when absent. Classify the printed state; never perform approval."}
+    }
+  }
+}

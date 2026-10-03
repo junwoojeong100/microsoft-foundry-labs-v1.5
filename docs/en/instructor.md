@@ -109,6 +109,25 @@ Only [current instructions and latest evidence](../../validation/current/instruc
 
 ## Coaching the later modules
 
+### Require an explanation of the before/after change
+
+The reinforced L15 and L18–L24 exercises follow **Try it → Change one thing → Explain the result**. Ask learners to predict an outcome first, then connect one edited setting/code change to the observed difference.
+
+| Module | Learner change | Evidence to retain |
+| --- | --- | --- |
+| L15 | Single→two roles under the same model/policy; optional boundary question | Baseline/drafter/reviewer originals and actual tokens/time; missing usage stays null |
+| L18 | Add only SKU to the complete schema | Seven→eight fields, KB-01 source location, preserved original values |
+| L19 | Silence detection 500→1500ms | Identical utterance splitting/wait/end comparison; learners operate their own microphones |
+| L20 | Repair a label typo in a copy; optional approved SFT lifecycle | Rejection→16/8 files; optional job/checkpoint and identical eight questions |
+| L21 | Check permission before cache | Two of five local tests fail→five pass; not Azure permission verification |
+| L22 | Require quality/critical/missing checks beyond completion | Three of five fail→five pass; optional workflow has no Azure step |
+| L23 | Local output style or Fabric month filter | Changed condition and actual response/total under the same model/data |
+| L24 | Repair conversation ID, call_id, JSON string | Three of four fail→four pass; not a real migration |
+
+Flawed code and tests under `data/exercises/` are teaching originals. Learners repair **only exercise.py** in their `practice/` copy. Never weaken global tests/evaluation criteria or overwrite originals. Preparation rejects an existing destination; choose another folder for a fresh attempt.
+
+A complete procedure is not completed Azure/device execution. Local code/SDK contract checks do not establish real SFT, Voice, Local-model, Fabric, or Work IQ execution. Optional service waits, downloads, and approvals are outside the existing hands-on time estimates.
+
 Ask each learner **“Which value is evidence → what decision follows → what do you inspect first on failure?”** If that explanation is missing, revisit evidence for the same case rather than adding another feature.
 
 | Module | Minimum learning artifact | Judgment to check |

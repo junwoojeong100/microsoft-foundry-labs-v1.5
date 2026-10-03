@@ -16,6 +16,8 @@
 
 계정이 없어도 로컬 함수와 L08의 **실제 답변·점수 읽기**를 할 수 있습니다. 관리자 생성·선택 실행은 접힌 절로 분리했고, L11은 L06 결과를 재사용합니다. 기본 코스에 Teams 게시·Hosted·Optimizer는 필요하지 않습니다.
 
+심화 L15·L18–L24에는 **직접 변경하고 비교하는 과제**를 제공합니다. 멀티에이전트의 중간 답·토큰/시간, CU의 완성 schema, Voice 설정 비교, SFT의 기준선부터 학습·배포까지, Local/Fabric/Work IQ의 대표 경로를 따라갑니다. 권한·CI/CD·마이그레이션은 로컬 결함 복사본을 고치는 과제가 있으며 실제 Azure 검증과 구분합니다. Local SDK는 선택한 경우에만 `requirements-local.txt`로 별도 설치합니다.
+
 <details>
 <summary>학습 지침과 모델 조건</summary>
 

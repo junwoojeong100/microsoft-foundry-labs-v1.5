@@ -114,6 +114,30 @@ Open the terminal's `Prepared train=16, validation=8 in results/tuning-…` dire
 
 `validation.jsonl` checks training behavior; it is distinct from L08's dev comparison and the sealed release holdout. This small seed teaches format, not useful training performance. Never expand it by copying answer keys or holdout cases.
 
+<div class="practice-block" markdown="1">
+
+**Try it:** In VS Code, copy `data/en/tuning/examples.json` to **`results/l20-examples.json`**. Create `results` if absent; do not edit the original. In the copy's first training row, deliberately change `POLICY` to `POLCIY` and save.
+
+```bash
+python samples/prepare_tuning.py --input results/l20-examples.json --output results/l20-tuning
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--input ... --output ...` | Checks labels, duplicates, and splits in the synthetic copy before creating a new output folder. | Initially raises `Unrecognized training label` without writing training files. No Azure requests. |
+
+</div>
+
+**Change one thing:** Correct only the typo to `POLICY` and rerun **the same command**. Expect 16 rows in `train.jsonl` and eight in `validation.jsonl`. Existing output folders are not overwritten; use another name for a subsequent experiment. Files use UTF-8 BOM, and their first example matches the JSON above.
+
+**Explain the result:** Why can valid JSON still be rejected as training data? Why does the DRAFT classification not establish an order when quantity/stock are unknown? Separate data format, label meaning, and model performance. Completing only this local exercise means **data preparation complete / model training not executed**.
+
+</div>
+
 ### 4. Select a training approach
 
 | Method | Data | Main concern |
@@ -126,6 +150,74 @@ Open the terminal's `Prepared train=16, validation=8 in results/tuning-…` dire
 
 Real training requires separate approval after reviewing model/region support, data handling, and costs.
 Completing a training job, deploying a model, and improving evaluation results are separate outcomes. Do not default to automatic deployment or promotion.
+
+### 5. Optional execution: train and compare one SFT model end to end
+
+This complete path applies the [official fine-tuning portal procedure](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning) to synthetic **request-intent classification**. It is separate from L08's GPT-6 Sol instruction comparison and was not executed as part of this documentation update.
+
+<details class="optional-path" markdown="1">
+<summary>After separate cost approval: baseline → files → training → checkpoint → deployment → identical questions</summary>
+
+#### 5-1. Record the execution scope first
+
+Obtain the **training-capable resource/region, base deployment name, training permission, separate deployment permission, maximum budget/wait deadline, and stop owner** from the administrator. Without them, do not submit. Training can take hours; that wait is not included in the 45-minute hands-on estimate.
+
+| Item | Teaching configuration |
+| --- | --- |
+| Task | Four labels: POLICY / STOCK / DRAFT / CLARIFY |
+| Base model | `gpt-4.1-mini`, version `2025-04-14`; verify current support |
+| Region / training type | For example, supported **Standard** training in Sweden Central; first approve the processing location |
+| Training / validation | Your `results/l20-tuning/train.jsonl` / `validation.jsonl` |
+| Method | Supervised fine-tuning (SFT) |
+| `n_epochs` | 2 |
+| `batch_size` / `learning_rate_multiplier` | Service default / 0.1 |
+| Seed / Suffix | 42 / `contoso-intent` |
+| Automatic deployment | **Off** |
+| Run count | One training job; eight base answers plus eight candidate answers; no automatic retries |
+
+This small-data configuration teaches the procedure, not guaranteed improvement or minimum cost. **Sixteen training examples are a format exercise**; useful improvements generally need more diverse reviewed examples. Do not change or overwrite L02's base deployment.
+
+#### 5-2. Preserve eight baseline answers before training
+
+Open the base `gpt-4.1-mini` deployment's Playground. Use **the same classification rule as `messages[0].content` (system) in the generated JSONL** for Instructions. Connect no tools; where supported, fix temperature=0 and maximum output=64 tokens.
+
+Send only **`messages[1].content` (user)** from each of the eight validation rows once, in a new conversation. Do not append the expected `messages[2].content` (assistant). Record `row / question / expected label / actual answer / response ID / tokens / latency`. Missing tokens are uncollected; self-timed latency is a manual measurement.
+
+#### 5-3. Select files and submit one job
+
+Open **Build → Fine-tune → Fine-tune**. Select base model/version → SFT → Standard training → **Upload new dataset**. Do not swap training and validation files. Wait for upload validation and compare existing datasets with your actual files rather than their names alone.
+
+Enter the table's parameters, keep automatic deployment off, review scope, and select **Submit once**. Privately record the job ID, resource, input-file IDs, and parameters. Do not resubmit because the screen takes time to update.
+
+#### 5-4. Read metrics and checkpoints
+
+Open that job's **Job details → Monitor / Checkpoints**. `queued` and `running` are not completion; preserve original errors for `failed`. At the approved deadline, the owner uses the supported stop operation for that job and confirms its state. Closing the browser does not stop training.
+
+| Observation | Interpretation |
+| --- | --- |
+| `train_loss` | Fit to training data, not evidence of performance on new questions |
+| `full_valid_loss` | Validation loss during training; falling train loss with rising validation loss suggests possible overfitting |
+| `full_valid_mean_token_accuracy` | Validation token prediction, not the four-label per-question accuracy |
+| Checkpoints | Compare epoch-level validation metrics and available model IDs; do not blindly select the last |
+
+Do not estimate missing values. Record service completion, checkpoint creation, and quality improvement separately.
+
+#### 5-5. Deploy only an approved candidate under a separate name and compare
+
+On the selected checkpoint/model details, select **Deploy**, an approved nonproduction deployment type, and a distinct name such as `contoso-intent-ft`. Use a short-lived Developer evaluation type only when its support and terms are approved. Training approval does not automatically cover deployment/retention costs.
+
+After readiness, apply **the identical system rule, no tools, and the same parameters** in the candidate Playground. Send the same eight user questions once each. Record both models' actual versions and conditions.
+
+| Result to retain | Calculation/interpretation |
+| --- | --- |
+| Per-question correctness | Output must be exactly the expected single label; added explanation fails the output contract |
+| Accuracy for all eight completed questions | Correct ÷ 8. Missing/errored rows leave the comparison incomplete; do not calculate 100% from successful rows only |
+| Token/latency difference | Compare totals/means over the same eight questions; do not replace missing measurements with zero |
+| Adoption decision | Retain ties/regressions; training alone does not justify promotion |
+
+This validation set was used during training, so it is **not an independent holdout**. Preserve the existing sealed exam and business release gates. Record owners/deadlines for uploaded files, trained models, and deployments; delete only after separate approval.
+
+</details>
 
 ## Success criteria
 

@@ -2,9 +2,9 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 설계 · 기존 Classic 환경이 없어도 됩니다.
+**진행 방식:** 로컬 계약 변환 + 선택 설계 · 기존 Classic 환경이 없어도 됩니다.
 
-**먼저 할 일:** 가상 Contoso 사례에서 정의·사용자 상태·운영 상태를 세 묶음으로 나눕니다.
+**먼저 할 일:** 합성 요청 변환의 세 오류를 수정하고, 정의·사용자 상태·운영 상태의 차이를 설명합니다.
 
 **확인할 결과:** 이전 대상·검사·복구·보존 담당자 표를 만듭니다. 실제 자원 이전이나 삭제는 이 설계에 포함되지 않습니다.
 
@@ -29,6 +29,61 @@
 기존 시스템이 있으면 승인된 범위에서 읽기 전용으로 목록화합니다. 없으면 아래 **가상 Contoso Classic 사례**로 계획을 작성합니다. 실습을 위해 Classic 자원을 새로 만들 필요가 없습니다. 이 장은 기존 자원을 자동 업그레이드하거나 데이터를 옮기지 않습니다.
 
 ## 실행
+
+### 0. 직접 고치기: 새 API의 ID와 출력 계약
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** Classic 환경을 만들지 않고 새 Responses 요청의 작은 조각을 변환합니다. 기존 Threads/Runs의 `tool_call_id`와 달리, Responses의 출력 item `id`와 함수 결과에 붙일 `call_id`는 별개입니다. 모든 ID는 합성입니다.
+
+```bash
+python samples/prepare_practice.py migration --output practice/migration
+python -m unittest discover -s practice/migration -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `prepare_practice.py migration` | 변환 함수와 고정 계약 테스트를 새 폴더에 복사합니다. | 로컬 파일 생성만 수행. 구 SDK 설치·Azure 호출·실제 이관 없음. |
+| 2. `unittest discover` | 대화 ID, 함수 상관 ID, JSON 문자열, 출력 항목 개수를 확인합니다. | 처음에는 **4개 중 3개 실패**합니다. 나쁜 변환을 발견한 정상적인 검사 결과입니다. |
+
+</div>
+
+| 입력·출력 | 합성 값 | 유지해야 할 의미 |
+| --- | --- | --- |
+| 새 대화 | `conv_new_demo` | 이후 함수 결과를 돌려줄 같은 conversation |
+| 함수 요청 item의 `id` | `fc_item_demo` | 응답 안의 item 식별자 |
+| 함수 요청의 `call_id` | `call_demo_1` | 함수 결과와 요청을 연결할 식별자 |
+| 실제 함수 결과 | `{"sku":"NB-14","stock":8}` | `output`에는 이 객체의 JSON **문자열**을 전달 |
+
+**한 가지 바꾸기:** `practice/migration/exercise.py`의 변환 계약을 고칩니다. 대화에는 입력받은 `conversation_id`, 함수 상관관계에는 `function_call["call_id"]`, 결과에는 `json.dumps`를 사용합니다. 하나씩 고친 뒤 같은 테스트를 실행하여 어떤 실패가 사라지는지 확인합니다.
+
+<details markdown="1">
+<summary>완성된 변환 조각 — 새 API 요청의 일부이며 전체 이관기가 아님</summary>
+
+<!-- solution:migration -->
+```python
+import json
+
+def continuation(conversation_id: str, function_call: dict, result: dict) -> dict:
+    return {
+        "conversation": conversation_id,
+        "input": [{
+            "type": "function_call_output",
+            "call_id": function_call["call_id"],
+            "output": json.dumps(result, ensure_ascii=False),
+        }],
+    }
+```
+
+</details>
+
+**결과 설명하기:** 네 테스트가 모두 통과하면 각 필드가 왜 필요한지 설명하고 아래 마이그레이션 표의 **정의 / 사용자 상태 / 운영 상태** 중 어디에 속하는지 적습니다. 실제 호출에서는 새 서비스가 반환한 ID와 같은 agent/version 바인딩을 사용합니다. 이 과제는 과거 Thread/Run ID를 재사용하거나 사용자 이력을 실제로 옮기지 않습니다. 전체 호출·도구 루프는 동봉 `samples/workshop.py`의 `run_turn`과 비교합니다.
+
+</div>
 
 ### 1. 현재 사용 중인 것을 찾기
 
@@ -93,6 +148,7 @@ AI Search agentic retrieval은 stable `2026-04-01`와 최신 preview 간 기능�
 
 ## 성공 기준
 
+합성 변환 과제의 세 오류를 설명하고, 테스트를 바꾸지 않은 수정으로 4개 테스트가 통과합니다. 이는 로컬 계약 변환 확인이지 실제 서비스 이관 완료가 아닙니다.
 이전 대상, 유지할 Classic 기능, 사용자 상태의 처리, 종료 일정, 평가 결과, rollback 방법이 있습니다. “새 포털에서 보인다”만으로 마이그레이션 완료를 판정하지 않습니다.
 
 ## 막혔을 때

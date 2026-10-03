@@ -2,9 +2,9 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Optional design exercise · no existing Classic environment needed.
+**Format:** Local contract transformation plus optional design · no existing Classic environment needed.
 
-**Start here:** Divide the fictional Contoso case into definitions, user state, and operational state.
+**Start here:** Repair three errors in a synthetic request transform, then distinguish definitions, user state, and operational state.
 
 **What to check:** Produce a migration/check/recovery/retention table with owners. This design does not move or delete real resources.
 
@@ -29,6 +29,61 @@
 If an existing system is available, inventory it read-only within the approved scope. Otherwise use the **fictional Contoso Classic scenario** below. Do not create Classic resources just for this exercise. This chapter does not automatically upgrade resources or move data.
 
 ## Steps
+
+### 0. Fix it: identifiers and output contracts in the new API
+
+<div class="practice-block" markdown="1">
+
+**Try it:** Transform a small fragment of a Responses request without creating a Classic environment. Unlike the old Threads/Runs `tool_call_id` field, a Responses output item's `id` and the `call_id` needed for its function result are different. Every ID here is synthetic.
+
+```bash
+python samples/prepare_practice.py migration --output practice/migration
+python -m unittest discover -s practice/migration -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `prepare_practice.py migration` | Copies the transform function and fixed contract tests into a new folder. | Local files only; no old SDK installation, Azure calls, or real migration. |
+| 2. `unittest discover` | Checks conversation ID, function correlation ID, JSON string, and output-item count. | Initially **three of four tests fail**. The checks correctly detect a bad transform. |
+
+</div>
+
+| Input/output | Synthetic value | Meaning to preserve |
+| --- | --- | --- |
+| New conversation | `conv_new_demo` | The same conversation receiving the function result |
+| Function-call item's `id` | `fc_item_demo` | Identifies an item in the response |
+| Function call's `call_id` | `call_demo_1` | Correlates the result with its request |
+| Actual function result | `{"sku":"NB-14","stock":8}` | Send this object's JSON **string** in `output` |
+
+**Change one thing:** Repair the transform contract in `practice/migration/exercise.py`: use the supplied `conversation_id`, `function_call["call_id"]`, and `json.dumps`. Fix one field at a time and rerun the same tests to identify which failure disappears.
+
+<details markdown="1">
+<summary>Completed transform fragment — part of a new API request, not a full migration tool</summary>
+
+<!-- solution:migration -->
+```python
+import json
+
+def continuation(conversation_id: str, function_call: dict, result: dict) -> dict:
+    return {
+        "conversation": conversation_id,
+        "input": [{
+            "type": "function_call_output",
+            "call_id": function_call["call_id"],
+            "output": json.dumps(result, ensure_ascii=False),
+        }],
+    }
+```
+
+</details>
+
+**Explain the result:** After four passes, explain each field and place it under **definitions / user state / operational state** in the migration table below. Real calls use IDs issued by the new service and the same agent/version binding. This exercise neither reuses old Thread/Run IDs nor moves user history. Compare the complete invocation/tool loop with `run_turn` in the bundled `samples/workshop.py`.
+
+</div>
 
 ### 1. Identify what is currently in use
 
@@ -93,6 +148,7 @@ If any quality, access, or recovery item remains unverified, record **cutover on
 
 ## Success criteria
 
+Explain the three synthetic transform errors and obtain four passes without changing the tests. This verifies a local wire-shape transform, not a completed service migration.
 You have identified migration targets, Classic features to retain, handling of user state, retirement schedules, evaluation results, and a rollback method. “It appears in the new portal” is not enough to declare migration complete.
 
 ## Troubleshooting

@@ -37,7 +37,7 @@ def main():
         ROOT / name for name in (
             ".nojekyll",
             ".env.example", ".gitignore", "requirements.txt",
-            "requirements-docs.txt", "requirements-advanced.txt", "requirements-qa.txt",
+            "requirements-docs.txt", "requirements-advanced.txt", "requirements-local.txt", "requirements-qa.txt",
             "requirements-hosted.txt", "requirements-tools.txt", "requirements-live.lock.txt",
             "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
         )

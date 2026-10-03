@@ -2916,7 +2916,7 @@ not to the code directory. Do not include it in the package.
 
 **Advanced course · Use MAF / check each tool** · about 40 min
 
-> **Learning order: Independent elective** — A basic project and model, plus a separate MAF environment. MAF/A2A can run without other advanced modules; only the optional Hosted deployment requires L14.
+> **Learning order: Independent elective** — A basic project/model, administrator ownership receipt, and separate MAF environment. Single/two-role comparison makes at most three model calls. A2A is separate; only optional Hosted deployment needs L14.
 
 > **What you will build:** A two-stage flow that separates drafting and review without letting the model perform real approval.
 
@@ -2924,7 +2924,7 @@ not to the code directory. Do not include it in the package.
 
 **Format:** Advanced elective · two local roles and remote A2A are separate experiments.
 
-**Start here:** Run `python samples/multi_agent.py` to read the drafter → reviewer plan only.
+**Start here:** Run `python samples/multi_agent.py --mode compare` to inspect the single baseline and drafter → reviewer plan, at most three calls.
 
 **What to check:** If executed, record role outputs/additional latency separately from A2A delegation evidence. A reviewer's answer is not purchase approval.
 
@@ -2949,6 +2949,7 @@ not to the code directory. Do not include it in the package.
 ## Prerequisites
 
 You need the English project, model, and separate checkout's `.env` from L01, plus a separate Python environment. Keep `FOUNDRY_LAB_LANGUAGE=en` selected when switching Python environments. Do not overwrite the core-course environment.
+Live calls also require the administrator-supplied `results/azure-environment.json` ownership record. Execution stops if its project endpoint/language differs from `.env`. Obtain the record from the administrator rather than inventing one; without it, stop at plan/code inspection.
 
 As checked on 2026-09-29, `agent-framework-foundry==1.13.1` requires `azure-ai-projects<2.7.0`. The core course uses 2.7.0. **Separate environments with compatible dependencies** are provided.
 
@@ -2957,7 +2958,7 @@ As checked on 2026-09-29, `agent-framework-foundry==1.13.1` requires `azure-ai-p
 ### 1. Inspect the local plan
 
 ```bash
-python samples/multi_agent.py
+python samples/multi_agent.py --mode compare
 ```
 
 <div class="command-explanation" markdown="1">
@@ -2966,11 +2967,11 @@ python samples/multi_agent.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `multi_agent.py` | Prints only the sequential flow of the two roles. Without `--live`, it does not call a Foundry model. | Inspect the `drafter → reviewer` structure. No deployment or Azure charges. |
+| 1. `multi_agent.py --mode compare` | Plans one single-agent baseline plus two calls for drafter→reviewer: at most three calls total. | Without `--live`, no SDK initialization or Azure calls. |
 
 </div>
 
-This prints only the `drafter → reviewer` plan and makes no Azure calls.
+Check `mode=compare`, `model_calls_if_approved=3`, 180 seconds, 2,048 output tokens per response, and zero retries. The default `--mode sequential` preserves the original two-role path; it has a different call count.
 
 ### 2. Install the advanced environment
 
@@ -2994,10 +2995,10 @@ python3 -m venv .venv-advanced
 
 On Windows, use `.venv-advanced\Scripts\python.exe`. Use a package repository allowed by your administration policy.
 
-### 3. Run both agents live
+### 3. Compare one and two agents with the same question
 
 ```bash
-.venv-advanced/bin/python samples/multi_agent.py --live
+.venv-advanced/bin/python samples/multi_agent.py --mode compare --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -3006,7 +3007,7 @@ On Windows, use `.venv-advanced\Scripts\python.exe`. Use a package repository al
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `multi_agent.py --live` | Runs the drafter and reviewer sequentially in the MAF environment, calling Foundry models. | Model inference charges apply. Orchestration is local; this is neither a Hosted deployment nor completed real approval. Compare each role's output and the added latency. |
+| 1. `multi_agent.py --mode compare --live` | Uses the same purchase question, model, and policy for one baseline and one drafter→reviewer workflow. | At most three model calls/180 seconds. Prints intermediate/final answers, actual token usage, and elapsed time; preserves them in a unique `Evidence:` JSONL. No Hosted deployment or real approval. |
 
 </div>
 
@@ -3023,13 +3024,48 @@ The core flow is:
 workflow = WorkflowBuilder(
     start_executor=drafter,
     output_from=[reviewer],
+    intermediate_output_from=[drafter],
     max_iterations=4,
 ).add_edge(drafter, reviewer).build()
 ```
 
-### 4. Compare with a single agent
+### 4. Read the intermediate answer and change one question
 
-Record accuracy, tokens, and total latency for the same question. If the two-agent result is merely longer, return to a single agent. Calling a role “reviewer” does not create independent validation or a security boundary.
+<div class="practice-block" markdown="1">
+
+**Try it:** Inspect the terminal's `paths`. In the `Evidence:` file, open `payload.paths` in the final `event=completed` row. Record your returned values, not invented example measurements.
+
+| Result path | What to read |
+| --- | --- |
+| `single.stages[0].answer` | Single-agent baseline using the drafter's instructions and policy |
+| `sequential.stages[0].answer` | Actual intermediate draft, not a later summary or reconstruction |
+| `sequential.stages[1].answer` | Reviewer's final guidance after receiving that draft |
+| Each stage's `response_id`, `input_tokens`, `output_tokens` | That call's identifier and actual SDK usage |
+| Each path's `elapsed_seconds`, `total_tokens` | Whole-path elapsed time and summed call tokens |
+| `sequential_minus_single` | Two-stage minus single time/tokens, not a correctness-improvement score |
+
+Compare with **policy section 3**: did the drafter omit an approver for KRW 2,900,000, and did the reviewer fix it? If both answers are correct, “no additional quality benefit observed” is valid. Token `null` means uncollected, not zero. Do not add individual operation times to the whole-path duration again.
+Timing covers each path's execution after object construction. The single path runs first, so authentication, caching, and startup latency can affect the observation. One duration difference does not establish a difference in the model's intrinsic speed.
+
+**Change one thing:** Optionally approve a second run changing only the question to the boundary case. Keep model, policy, and instructions unchanged. This makes up to three **additional calls**, not a replay.
+
+```bash
+.venv-advanced/bin/python samples/multi_agent.py --mode compare --case boundary --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--case boundary` | Compares approvals for KRW 2,000,000 and KRW 2,000,001 through the same two paths. | At most three new model calls and new evidence. Running both cases totals at most six calls, each within its approved scope. |
+
+</div>
+
+**Explain the result:** Record `case / baseline errors / drafter errors / errors remaining after review / extra tokens and time / reason to keep two roles`. Exactly KRW 2,000,000 needs team-lead approval; KRW 2,000,001 also needs procurement approval. Single runs are variable observations, not statistical superiority. They do not establish human approval or A2A delegation.
+
+</div>
 
 <details markdown="1">
 <summary>When to choose other orchestration patterns</summary>
@@ -3550,9 +3586,9 @@ Apply the [custom analyzer procedure](https://learn.microsoft.com/azure/ai-servi
 | Field | Type | Expected value |
 | --- | --- | --- |
 | document_id | string | CONTOSO-2026-0929 |
-| date | date/string | 2026-09-29 |
+| date | date | 2026-09-29 |
 | currency | string | KRW |
-| quantity | integer | 2 |
+| quantity | number | 2; separately verify an integral quantity |
 | unit_price | number | 89000 |
 | total | number | 178000 |
 | approval_status | string | Normalize the document's pending approval to `pending`; never perform an approval |
@@ -3560,6 +3596,36 @@ Apply the [custom analyzer procedure](https://learn.microsoft.com/azure/ai-servi
 Review **`2025-11-01` GA** as the default production API. Agentic mode and some classification/metadata/signature features in **`2026-06-01-preview`** are separate experiments. The September 2026 CU Toolkit/CU CLI is also in Preview.
 
 For this single-item example, compare `quantity` and `unit_price` with `items[0]` in the expected-results file. Multiple-item documents need an array schema, not one representative value.
+
+<div class="practice-block" markdown="1">
+
+**Try it:** Open the [complete analyzer configuration](../data/en/exercises/receipt-analyzer.json) in an editor. It is a **GA `2025-11-01` configuration example**, not a creation/analysis result. In Studio, replace suggested fields with the same **seven names, types, descriptions, and methods** under `fieldSchema.fields`. Do not send the full JSON to a chat box.
+
+| Setting | Lab choice | Reason |
+| --- | --- | --- |
+| Base analyzer | `prebuilt-document` | Use the requested seven fields, not a receipt template's unrelated field names |
+| Date / quantity | `date` / `number` | Supported CU field types; `integer` is not a type in this field schema |
+| Literal values | `method=extract`, per-field `estimateSourceAndConfidence=true` | Request original locations and confidence |
+| Currency | `method=generate` | Normalize the printed won indication to `KRW`, not a new amount |
+| Approval state | `method=classify`, `pending/approved/unknown` | Classify the document; do not perform approval |
+| Details | `returnDetails=true` | Inspect source positions as well as values |
+| Model connections | Administrator-provided defaults on this resource | Do not insert L02's model name or enable automatic deployment |
+
+Use the [analyzer configuration reference](https://learn.microsoft.com/azure/ai-services/content-understanding/concepts/analyzer-reference) for supported types and options. If Studio does not expose an option, request an analyzer using this JSON from the administrator and compare its name/settings. Do not silently substitute “similar” settings and claim identical conditions.
+
+In the first result, inspect the target document under `contents` and its `fields`: the date value, numeric `quantity/unit_price/total`, and string `approval_status`. Record normalized values alongside highlighted source locations. Missing confidence means unavailable; do not enter an invented 1.0.
+
+**Change one thing:** Add **only the item-code field `sku`** for the same document. Add the definition below under `fieldSchema.fields` in a copy of the configuration and add/save the same field in Studio. Preserve the first result/settings and obtain approval for one additional analysis before running it.
+
+```json
+{"sku":{"type":"string","method":"extract","description":"Extract the SKU code printed in the item row. Do not infer a code from the item name.","estimateSourceAndConfidence":true}}
+```
+
+Expect seven→eight fields and a new `sku` value of **KB-01**. Existing total 178,000, quantity 2, and pending approval should remain unchanged. Record absent or different results as observed. This tests **a changed output contract**, not a claim that the model became smarter.
+
+**Explain the result:** Record `configuration change / new field / original values preserved / source evidence / unknowns`. Explain what new information you requested and why correct JSON types still need business-value checks. The baseline and additional analysis total at most two runs; do not repeat failed requests indefinitely.
+
+</div>
 
 | What to inspect | How to judge it | Next action on failure |
 | --- | --- | --- |
@@ -3691,7 +3757,30 @@ Check whether connecting L05's English knowledge from `data/en/policies/` is sup
 
 ### 2. Start a short conversation
 
-After saving, select **Start session** and, if needed, personally allow microphone access in the browser. Say “I'd like to buy two laptops.”
+<div class="practice-block" markdown="1">
+
+**Try it:** Compare the [official voice configuration fields](https://learn.microsoft.com/azure/foundry/agents/how-to/configure-voice-agent) with this baseline. In the new lab agent, inspect **AI model / Voice / Advanced settings** and record actual selections and the agent version. This is a configuration example, not a new voice execution result.
+
+| Item | Baseline | Where/what to check |
+| --- | --- | --- |
+| Model type / model | managed / `gpt-realtime-2.1` | Confirm availability in this project; do not use L02's chat deployment name as a managed voice-model name |
+| Voice type / voice | azure-standard / `en-US-AvaNeural` | Select a compatible entry in Voice; ask the administrator about support if absent |
+| Language / speaking speed | English / `speed=1.0` | Match voice and instructions; use `en-US` when the model exposes recognition Language |
+| Input/output audio | PCM 24,000Hz | Match the browser/client format |
+| Turn detection | `server_vad` | Silence-based end-of-turn detection |
+| `threshold` / `prefix_padding_ms` | 0.5 / 300 | Detection sensitivity / retained audio before speech |
+| `silence_duration_ms` | 500 | Detect the end after 0.5 seconds of silence |
+| Tools, Avatar, automatic greeting | Do not add | Isolate voice turn behavior in the first experiment |
+
+**Availability is a prerequisite.** Do not mark execution complete if the model/voice is absent. If another supported combination is approved, record its actual values and compare it as a different condition. Defaults need not match this table. The property names correspond to SDK/YAML settings and the portal's **Advanced settings → Turn detection**.
+
+Save, select **Start session**, and personally grant microphone access. Say “I'd like to buy two laptops.” Keep the session **within two minutes**, run the questions/correction below once, and select **End**.
+
+**Change one thing:** End the session, change only `silence_duration_ms` from **500→1500**, and save a new version. Only after approval for another session, repeat the same sentence with the same one-second pause. Do not also change model, voice, threshold, or wording. The total is **two sessions within four minutes**.
+
+**Explain the result:** Record `version / silence setting / utterance split / time to first audio / interruption / ended state`. Compare whether 1,500ms waits better for the intended sentence and whether the response starts later. A setting is not a measured latency: device, recognition, and network delays also contribute, so an exact one-second difference is not guaranteed. Do not force unsupported settings or automatically deploy a new model.
+
+</div>
 
 ### 3. Check conversation quality
 
@@ -3724,6 +3813,7 @@ Supported browser/avatar settings or the Hosted Agent real-time WebSocket path a
 
 ## Success criteria
 
+Distinguish the baseline from the single-setting change; mark the comparison not executed if no additional session was run.
 Record the transcript, actual quantity change 2→1, interruption handling, latency measurement method, and ended state. Leave unobserved items unverified; “it made a sound” is not sufficient.
 
 ## Troubleshooting
@@ -3868,6 +3958,30 @@ Open the terminal's `Prepared train=16, validation=8 in results/tuning-…` dire
 
 `validation.jsonl` checks training behavior; it is distinct from L08's dev comparison and the sealed release holdout. This small seed teaches format, not useful training performance. Never expand it by copying answer keys or holdout cases.
 
+<div class="practice-block" markdown="1">
+
+**Try it:** In VS Code, copy `data/en/tuning/examples.json` to **`results/l20-examples.json`**. Create `results` if absent; do not edit the original. In the copy's first training row, deliberately change `POLICY` to `POLCIY` and save.
+
+```bash
+python samples/prepare_tuning.py --input results/l20-examples.json --output results/l20-tuning
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--input ... --output ...` | Checks labels, duplicates, and splits in the synthetic copy before creating a new output folder. | Initially raises `Unrecognized training label` without writing training files. No Azure requests. |
+
+</div>
+
+**Change one thing:** Correct only the typo to `POLICY` and rerun **the same command**. Expect 16 rows in `train.jsonl` and eight in `validation.jsonl`. Existing output folders are not overwritten; use another name for a subsequent experiment. Files use UTF-8 BOM, and their first example matches the JSON above.
+
+**Explain the result:** Why can valid JSON still be rejected as training data? Why does the DRAFT classification not establish an order when quantity/stock are unknown? Separate data format, label meaning, and model performance. Completing only this local exercise means **data preparation complete / model training not executed**.
+
+</div>
+
 ### 4. Select a training approach
 
 | Method | Data | Main concern |
@@ -3880,6 +3994,74 @@ Open the terminal's `Prepared train=16, validation=8 in results/tuning-…` dire
 
 Real training requires separate approval after reviewing model/region support, data handling, and costs.
 Completing a training job, deploying a model, and improving evaluation results are separate outcomes. Do not default to automatic deployment or promotion.
+
+### 5. Optional execution: train and compare one SFT model end to end
+
+This complete path applies the [official fine-tuning portal procedure](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning) to synthetic **request-intent classification**. It is separate from L08's GPT-6 Sol instruction comparison and was not executed as part of this documentation update.
+
+<details class="optional-path" markdown="1">
+<summary>After separate cost approval: baseline → files → training → checkpoint → deployment → identical questions</summary>
+
+#### 5-1. Record the execution scope first
+
+Obtain the **training-capable resource/region, base deployment name, training permission, separate deployment permission, maximum budget/wait deadline, and stop owner** from the administrator. Without them, do not submit. Training can take hours; that wait is not included in the 45-minute hands-on estimate.
+
+| Item | Teaching configuration |
+| --- | --- |
+| Task | Four labels: POLICY / STOCK / DRAFT / CLARIFY |
+| Base model | `gpt-4.1-mini`, version `2025-04-14`; verify current support |
+| Region / training type | For example, supported **Standard** training in Sweden Central; first approve the processing location |
+| Training / validation | Your `results/l20-tuning/train.jsonl` / `validation.jsonl` |
+| Method | Supervised fine-tuning (SFT) |
+| `n_epochs` | 2 |
+| `batch_size` / `learning_rate_multiplier` | Service default / 0.1 |
+| Seed / Suffix | 42 / `contoso-intent` |
+| Automatic deployment | **Off** |
+| Run count | One training job; eight base answers plus eight candidate answers; no automatic retries |
+
+This small-data configuration teaches the procedure, not guaranteed improvement or minimum cost. **Sixteen training examples are a format exercise**; useful improvements generally need more diverse reviewed examples. Do not change or overwrite L02's base deployment.
+
+#### 5-2. Preserve eight baseline answers before training
+
+Open the base `gpt-4.1-mini` deployment's Playground. Use **the same classification rule as `messages[0].content` (system) in the generated JSONL** for Instructions. Connect no tools; where supported, fix temperature=0 and maximum output=64 tokens.
+
+Send only **`messages[1].content` (user)** from each of the eight validation rows once, in a new conversation. Do not append the expected `messages[2].content` (assistant). Record `row / question / expected label / actual answer / response ID / tokens / latency`. Missing tokens are uncollected; self-timed latency is a manual measurement.
+
+#### 5-3. Select files and submit one job
+
+Open **Build → Fine-tune → Fine-tune**. Select base model/version → SFT → Standard training → **Upload new dataset**. Do not swap training and validation files. Wait for upload validation and compare existing datasets with your actual files rather than their names alone.
+
+Enter the table's parameters, keep automatic deployment off, review scope, and select **Submit once**. Privately record the job ID, resource, input-file IDs, and parameters. Do not resubmit because the screen takes time to update.
+
+#### 5-4. Read metrics and checkpoints
+
+Open that job's **Job details → Monitor / Checkpoints**. `queued` and `running` are not completion; preserve original errors for `failed`. At the approved deadline, the owner uses the supported stop operation for that job and confirms its state. Closing the browser does not stop training.
+
+| Observation | Interpretation |
+| --- | --- |
+| `train_loss` | Fit to training data, not evidence of performance on new questions |
+| `full_valid_loss` | Validation loss during training; falling train loss with rising validation loss suggests possible overfitting |
+| `full_valid_mean_token_accuracy` | Validation token prediction, not the four-label per-question accuracy |
+| Checkpoints | Compare epoch-level validation metrics and available model IDs; do not blindly select the last |
+
+Do not estimate missing values. Record service completion, checkpoint creation, and quality improvement separately.
+
+#### 5-5. Deploy only an approved candidate under a separate name and compare
+
+On the selected checkpoint/model details, select **Deploy**, an approved nonproduction deployment type, and a distinct name such as `contoso-intent-ft`. Use a short-lived Developer evaluation type only when its support and terms are approved. Training approval does not automatically cover deployment/retention costs.
+
+After readiness, apply **the identical system rule, no tools, and the same parameters** in the candidate Playground. Send the same eight user questions once each. Record both models' actual versions and conditions.
+
+| Result to retain | Calculation/interpretation |
+| --- | --- |
+| Per-question correctness | Output must be exactly the expected single label; added explanation fails the output contract |
+| Accuracy for all eight completed questions | Correct ÷ 8. Missing/errored rows leave the comparison incomplete; do not calculate 100% from successful rows only |
+| Token/latency difference | Compare totals/means over the same eight questions; do not replace missing measurements with zero |
+| Adoption decision | Retain ties/regressions; training alone does not justify promotion |
+
+This validation set was used during training, so it is **not an independent holdout**. Preserve the existing sealed exam and business release gates. Record owners/deadlines for uploaded files, trained models, and deployments; delete only after separate approval.
+
+</details>
 
 ## Success criteria
 
@@ -3924,15 +4106,15 @@ Do not delete resources or change access without separate approval.
 
 **Advanced course · Mixed GA / Preview** · about 45 min
 
-> **Learning order: Independent elective** — Core concepts are sufficient for the synthetic design exercise. Actual access/network inspection requires read permissions; changes require an administrator and separate approval.
+> **Learning order: Independent elective** — Use Python for the local access/cache repair, then complete the synthetic design. Actual access/network inspection needs read permissions; changes require an administrator and separate approval.
 
 > **What you will build:** A one-page explanation of who is responsible for controlling identity, data, networks, policies, and costs when operating multiple agents.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Optional design exercise · the synthetic example needs no Azure account.
+**Format:** Local code repair plus optional design · no Azure account needed to start.
 
-**Start here:** Mark who may do what along user → agent → tool → data.
+**Start here:** Reproduce two failures in the synthetic cache/access exercise, then map responsibilities across user → agent → tool → data.
 
 **What to check:** Produce an allow/deny table, network paths, and owners. Writing the design neither grants access nor verifies security.
 
@@ -3957,6 +4139,58 @@ Do not delete resources or change access without separate approval.
 The default exercise is design and read-only inspection. Turn the Contoso example into your own **principal → operation → scope → deny condition → owner** table. Without Azure access, complete it as a design, not a verified permission test. Real roles, gateways, private endpoints, and policy changes require administrator involvement and separate approval.
 
 ## Steps
+
+### 0. Fix it: does a cache hit still check access?
+
+<div class="practice-block" markdown="1">
+
+**Try it:** This exercise uses only synthetic strings on your PC. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Azure roles nor real document ACLs.
+
+```bash
+python samples/prepare_practice.py governance --output practice/governance
+python -m unittest discover -s practice/governance -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `prepare_practice.py governance` | Copies the bundled flawed example into a new `practice/governance` folder. Refuses to overwrite an existing folder. | Creates local files only; no external connections or access changes. |
+| 2. `unittest discover` | Runs five copied cases for access, denial, caching, and revocation. | Initially, **two of five tests fail intentionally**. This is not a failure of the repository-wide suite. |
+
+</div>
+
+The failing names are `test_denied_user_after_cache` and `test_revocation_after_cache`. Open `practice/governance/exercise.py` and find **the cached return before the permission check**. Explain which line skips authorization when B reads after A, or after A's permission is revoked.
+
+**Change one thing:** Put authorization before the cache lookup. Do not change the tests or grant more users access. Rerun the same check and require all five cases to pass.
+
+<details markdown="1">
+<summary>Example repair and explanation — open after checking your own change</summary>
+
+<!-- solution:governance -->
+```python
+DOCUMENTS = {
+    "public-policy": "Contoso synthetic policy: drafts require human approval.",
+    "restricted-quote": "Contoso synthetic restricted quote: training data only.",
+}
+
+def read_document(user: str, document_id: str, grants: dict[str, set[str]], cache: dict) -> str:
+    if user not in grants[document_id]:
+        raise PermissionError("Access denied")
+    if document_id not in cache:
+        cache[document_id] = DOCUMENTS[document_id]
+    return cache[document_id]
+```
+
+A cache does not replace authentication or authorization. This example rechecks current grants on every read, so cached data remains denied after revocation. A real service additionally needs authenticated-user binding, source ACLs, cache isolation, and expiry.
+
+</details>
+
+**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Azure RBAC, network, or document ACL verification.**
+
+</div>
 
 ### 1. Separate four identities
 
@@ -4038,6 +4272,7 @@ Defender, Purview, and Entra integrations may each require product-specific conf
 
 ## Success criteria
 
+Reproduce the two initial local failures and explain why your repair passes all five tests without expanding access.
 Complete a per-principal allow/deny table, three network paths, one denied-case design, and audit/revocation owners. Distinguish **design example, read-only observation, and actual allow/deny tests**; claim a live test only with evidence from both sides.
 
 ## Troubleshooting
@@ -4066,15 +4301,15 @@ Record temporary roles, policies, gateways, and connections, and revoke/remove t
 
 **Advanced course · Check each component** · about 40 min
 
-> **Learning order: Run after source setup** — Use L01's local environment and sources for CI interpretation and release/rollback design. L14 is needed only for optional live Hosted deployment; repeated evaluation and Optimizer are not required.
+> **Learning order: Run after source setup** — Use L01's local environment and sources for synthetic CI failure/repair and release/rollback design. L14 is needed only for optional live Hosted deployment; repeated evaluation and Optimizer are not required.
 
 > **What you will build:** A CI interpretation record, agent release manifest, rollback decision table, and model/cost checklist. Design these without deploying, and distinguish plans from execution evidence.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Advanced elective · local source checks and release/recovery design by default.
+**Format:** Advanced elective · local CI failure→repair and release/recovery design by default.
 
-**Start here:** Read `validate.yml` and separate automatic checks from the approved paid-execution condition.
+**Start here:** Copy the synthetic candidate-selection exercise in 2-1 and reproduce three failures. Also distinguish the real workflow's approval conditions.
 
 **What to check:** Keep a CI interpretation, release manifest, rollback decision, and cost owner. This chapter does not require a Hosted deployment.
 
@@ -4117,6 +4352,8 @@ If GitHub is available, open **Actions → run → job → failed step** and loc
 
 ### 2. Check the same sources locally
 
+The repository-wide checks below are a reference. Start with **2-1's failure→repair exercise** to experience what CI blocks without deliberately breaking existing business code or evaluation criteria.
+
 The first line is needed only if documentation dependencies are missing. L01's base dependencies must already be installed.
 
 ```bash
@@ -4142,6 +4379,56 @@ python scripts/check_guide.py
 Record success as **code/document checks passed** only. For import errors, inspect the virtual environment/requirements; for generated drift, inspect `docs/` and `content/`; for business assertions, inspect the relevant function/policy contract. Do not weaken assertions or evaluation criteria.
 
 For PDF/ZIP delivery, continue with the README build path. Artifacts under `downloads/` and the root web entry points are **separate from agent deployment artifacts**. Documentation generation supports this chapter; it is not CD evidence.
+
+### 2-1. Fix it: completion alone must not promote a candidate
+
+<div class="practice-block" markdown="1">
+
+**Try it:** This pure function returns fictional version names. It changes no actual endpoint or Active version.
+
+```bash
+python samples/prepare_practice.py delivery --output practice/delivery
+python -m unittest discover -s practice/delivery -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `prepare_practice.py delivery` | Copies a flawed function, tests, and an optional workflow template into a new folder. | Local files only; no GitHub push or Azure deployment. |
+| 2. `unittest discover` | Separates a good candidate, failed run, quality failure, critical failure, and missing row. | Initially **three of five tests fail intentionally**. Do not hide these failures. |
+
+</div>
+
+`practice/delivery/exercise.py` chooses `candidate-2` from `status=completed` alone. A completed run with a quality failure, safety failure, or missing row must keep `approved-1`.
+
+**Change one thing:** Make candidate selection an AND of four conditions: completed status, `quality_passed is True`, zero critical failures, and zero missing rows. Change neither tests nor the original release gates. Rerun the same check and require five passes.
+
+<details markdown="1">
+<summary>Example repair — a local decision exercise, not the complete production gate</summary>
+
+<!-- solution:delivery -->
+```python
+def choose_version(previous: str, candidate: str, checks: dict) -> str:
+    if (
+        checks["status"] == "completed"
+        and checks["quality_passed"] is True
+        and checks["critical_failures"] == 0
+        and checks["missing_rows"] == 0
+    ):
+        return candidate
+    return previous
+```
+
+</details>
+
+**Explain the result:** Describe the incorrect promotion prevented by each of the three failed tests. Complete a `previous version / candidate / failure evidence / version to keep` table. This function performs neither deployment nor state migration, so do not call it completed remote rollback.
+
+**Optional: observe the same failure→repair in GitHub.** Use only a new branch in an approved personal training repository. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit, then on a commit changing only `exercise.py`; expect failure then success. The template has manual dispatch, read-only permissions, and Python checks—no Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
+
+</div>
 
 ### 3. Write an agent release manifest
 
@@ -4187,6 +4474,7 @@ Record **RTO (target service recovery time)** and **RPO (acceptable data-loss in
 
 ## Success criteria
 
+Reproduce the three local failures, repair only the function, and obtain five passes. If you use GitHub, distinguish failed/passing runs from their different commits.
 Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Azure not executed. Hold promotion without quality evidence for the same candidate.
 
 ## Troubleshooting
@@ -4254,7 +4542,85 @@ Before starting, record the selected path's **purpose, prepared runtime/resource
 
 ### 1. Option A: Foundry Local
 
-In the [Foundry Local quickstart](https://learn.microsoft.com/azure/foundry-local/get-started), choose a **current SDK sample** for your device and language. Proceed in this order: inspect the model list → download a supported model → run a short inference → unload the model.
+Use the native SDK flow from the [Foundry Local quickstart](https://learn.microsoft.com/azure/foundry-local/get-started) through the bundled [local_lab.py](../samples/local_lab.py). Do not clone another sample repository. The example uses `qwen2.5-0.5b`; a small model does not guarantee business accuracy or equal quality across languages.
+
+<div class="practice-block" markdown="1">
+
+**Try it — plan first:** This command prints a plan without initializing the SDK or downloading a model.
+
+```bash
+python samples/local_lab.py chat
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `local_lab.py chat` | Read the default model and sentence-style plan. | `plan_only`, `sdk_initialized=false`, `azure_calls=0`; no installation or model execution. |
+
+</div>
+
+Create a separate environment only when choosing real device execution. **On Windows use `.venv-local\Scripts\python.exe` instead of `.venv-local/bin/python`.** The first `python` is L01's Python 3.13. Keep `FOUNDRY_LAB_LANGUAGE=en` selected in each new terminal.
+
+```bash
+python -m venv .venv-local
+.venv-local/bin/python -m pip install -r requirements-local.txt
+.venv-local/bin/python samples/local_lab.py inspect --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `venv .venv-local` | Separate the local-model environment from core and MAF dependencies. | Creates a folder on your PC. |
+| 2. `pip install` | Install the declared OS-specific SDK: 2.1.0 on non-Windows, WinML 1.2.4 on Windows. | Approved package download/installation; no Azure deployment. |
+| 3. `inspect --local` | Initialize the SDK and inspect actual model ID/cache/load state. | Catalog metadata may use the network; no automatic weight download or inference. |
+
+</div>
+
+Check model terms, disk space, and device support. Continue **only after approval to download the model/execution providers**.
+
+```bash
+.venv-local/bin/python samples/local_lab.py download --local --allow-download
+.venv-local/bin/python samples/local_lab.py chat --style sentence --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `download --allow-download` | Download the model and required execution providers. The model cache is `.build/local-model-cache/en`. | Downloads/disk use; no Azure subscription or inference. |
+| 2. `chat --style sentence --local` | Load the cached model and ask once about a synthetic draft versus an order, with at most 256 output tokens. | Actual on-device inference. Inspect `load_seconds`, `inference_seconds`, `answer`, and `unloaded=true`. Missing cache errors rather than downloading automatically. |
+
+</div>
+
+In this file, `--local` permits **actual device work**, unlike L14's local server that can call Azure. Separate download, load, and inference times; retain errors or truncation as failures. If organizational policy blocks downloads, use the approved installation route, not a security bypass.
+
+**Change one thing:** Keep model/question unchanged and switch only the instruction's output format from sentence to checklist. This performs one additional device inference.
+
+```bash
+.venv-local/bin/python samples/local_lab.py chat --style checklist --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--style checklist` | Requests three short items for the same synthetic question. | Another local load/inference/unload; no Azure calls. A person checks the actual output format. |
+
+</div>
+
+**Explain the result:** Compare `model ID / requested format / actual item count / preserved draft≠approval or order meaning / inference time / unloaded state`. Record unmet formatting as a failure. A longer answer or one faster run does not establish superior quality. The example never automatically switches to cloud inference.
+
+</div>
 
 | What to inspect | How to judge it | Next action on failure |
 | --- | --- | --- |
@@ -4275,6 +4641,22 @@ The core of current Foundry Local is a **runtime/SDK** embedded in an applicatio
 
 Start with an approved workspace and data agent/semantic model supplied by an administrator. Check support and caller identity in the [Fabric IQ connection documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq). Without that setup, write the specification below rather than creating every Fabric component.
 
+**Use one concrete path: CSV → Lakehouse table → Fabric data agent → Foundry Toolbox.** Do not also create an ontology or Power BI semantic model.
+
+| Prerequisite | Values to obtain |
+| --- | --- |
+| Fabric | Approved paid F2+ or Fabric-enabled P1+ workspace and a lab Lakehouse in the same region |
+| Access | Your test user, read access to data/agent, and authoring permissions for these lab items |
+| Connection | An administrator-prepared **data-agent** Foundry connection name/ID with delegated user authentication, not an API key |
+| Cost/processing scope | Approved capacity/AI usage/cross-geo processing and a shutdown owner; no new subscription/capacity purchases in the lab |
+
+1. Upload only the bundled `data/en/monthly-spend.csv` under the lab Lakehouse's **Files**. Use **Load to tables → New table**, name `contoso_spend`, select Column header, and use separator `,`. Do not Append/Overwrite an existing table. Compare the [Load to tables fields](https://learn.microsoft.com/fabric/data-engineering/load-to-tables); check **nine rows, month/category/amount_krw**, and numeric amounts.
+2. In the workspace, select **+ New item → Fabric data agent**, name it `contoso-spend-agent`, Add the Lakehouse from the OneLake catalog, and select **only `contoso_spend`** in Explorer. Apply the [data-agent creation steps](https://learn.microsoft.com/fabric/data-science/how-to-create-data-agent) to that one table.
+3. Set Agent instructions to “Use only selected contoso_spend. Sum amount_krw by month and overall; report KRW. Do not invent rows.” Ask the aggregation question below once inside Fabric, check the source totals, then Publish.
+4. Have the administrator compare the **published data agent's** workspace/item IDs and MCP endpoint with the Foundry connection. The general URL is `https://api.fabric.microsoft.com/v1/mcp/workspaces/<workspaceId>/dataagents/<dataAgentId>/agent`; copy your own values and have the owner verify any workspace-private-link host.
+5. In Foundry Toolkit, select **My Resources → your project → Tools → Toolbox → Add tools → Configured → Fabric IQ (OneLake Catalog)**, choose the prepared connection, then **Add Tools → Publish/Save Changes**. Toolkit does not directly create the first Fabric IQ connection; the administrator must prepare it in the Foundry portal. Do not substitute another Fabric item's connection.
+6. Attach that exact published Toolbox version to a new lab Text agent. Instruct it to query only this synthetic expense tool and withhold unsupported answers. Ask the same aggregation question once and compare the values below with the **actual tool result and connected item**. Source-product and Foundry checks are separate requests.
+
 **Contoso specification example — not an actual Fabric result.**
 
 | Step | Input/choice | Result to judge |
@@ -4287,11 +4669,26 @@ Start with an approved workspace and data agent/semantic model supplied by an ad
 
 For mismatches, inspect **source types/duplicates → measure and filters → connected item/identity → answer synthesis**. Do not change the prompt when the source aggregation is already wrong. Correct numbers without tool evidence leave the connection unverified.
 
+**Single-change exercise:** If an additional question is approved, change only the filter to “2026-09.” Expect **three rows and KRW 4,759,000**; the overall 11,154,000 indicates that the filter was not applied. Do not also change data, tools, or models.
+
 ### 3. Option C: Work IQ / SharePoint
 
 Use only an approved test tenant and **administrator-provided test accounts A/B**. Check delegation, administrator consent, and licensing in the [Work IQ connection documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq). Do not create accounts or change permissions arbitrarily during the lab.
 
-Prepare an **approved test configuration** allowing A, but not B, to read one synthetic purchasing-policy document. First confirm access/denial directly in SharePoint. Then send the same policy question from separate logins and new conversations. Expect authorized document evidence for A and no restricted content, title, or URL for B. If B answers from separate public facts, verify that their evidence is a different authorized source.
+Use only **Work IQ Chat through A2A**. The administrator prepares the Work IQ service principal, delegated `WorkIQAgent.Ask`, consent, and an existing connection. This API path uses **Copilot Credits usage-based billing**, not every connector's licensing model. Learners do not need Global Administrator and must not add Outlook/mail-sending tools.
+
+| Step | Action/check |
+| --- | --- |
+| Synthetic source | One document in an approved test SharePoint location: title “Contoso restricted quote exercise”; content “Case LAB-73, training quote code CONTOSO-QUOTE-DEMO-73. Not a real transaction.” |
+| Source permission | Administrator isolates access to A. First verify **A can open the original and B is denied**. Stop if B retains inherited site/group access |
+| Toolbox | Foundry Toolkit → My Resources → project → Tools → **+ Add Toolbox → Add tools → Work IQ → Work IQ Chat**. Select the existing connection → Add → Publish |
+| Agent | Connect only that Toolbox version to a separate Text agent. No File search, Web search, or other business tools |
+| A/B calls | Separate logins/new conversations; each asks once: “Find the quote code and original document for training case LAB-73.” |
+| Interpretation | A needs actual tool evidence and the code. B must not receive the unprovided code, content, or document URL; inspect actual tool results too |
+
+Do not put the quote code into the question, instructions, or a public search index. Knowing the reference answer in this guide does not prove an authorized source lookup. Limit the A/B exercise to two user questions; service-internal processing/billing is separate. Without an approved test environment containing only synthetic target documents, do not execute it.
+
+Use only the isolated quote document in the table. Substituting L05's public purchasing policy could let B answer from another authorized source, confounding the restricted-document test.
 
 If B sees restricted evidence, inspect source ACLs, delegated identity, and conversation/cache mixing before repeating queries. Two conversations under one account do not test user isolation.
 
@@ -4344,15 +4741,15 @@ Unload local models and decide whether to retain the model cache. Work with each
 
 **Advanced course · Migration** · about 20 min
 
-> **Learning order: Independent elective** — The core-course concepts. Comparison and design are independent; perform a real migration only with an approved Classic environment.
+> **Learning order: Independent elective** — Repair a synthetic request contract with Python. No existing Classic environment is needed; real migration requires a separately approved environment.
 
 > **What you will build:** A migration table that distinguishes what to move to the new Foundry and the order of validation, while preserving existing resources.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Optional design exercise · no existing Classic environment needed.
+**Format:** Local contract transformation plus optional design · no existing Classic environment needed.
 
-**Start here:** Divide the fictional Contoso case into definitions, user state, and operational state.
+**Start here:** Repair three errors in a synthetic request transform, then distinguish definitions, user state, and operational state.
 
 **What to check:** Produce a migration/check/recovery/retention table with owners. This design does not move or delete real resources.
 
@@ -4377,6 +4774,61 @@ Unload local models and decide whether to retain the model cache. Work with each
 If an existing system is available, inventory it read-only within the approved scope. Otherwise use the **fictional Contoso Classic scenario** below. Do not create Classic resources just for this exercise. This chapter does not automatically upgrade resources or move data.
 
 ## Steps
+
+### 0. Fix it: identifiers and output contracts in the new API
+
+<div class="practice-block" markdown="1">
+
+**Try it:** Transform a small fragment of a Responses request without creating a Classic environment. Unlike the old Threads/Runs `tool_call_id` field, a Responses output item's `id` and the `call_id` needed for its function result are different. Every ID here is synthetic.
+
+```bash
+python samples/prepare_practice.py migration --output practice/migration
+python -m unittest discover -s practice/migration -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `prepare_practice.py migration` | Copies the transform function and fixed contract tests into a new folder. | Local files only; no old SDK installation, Azure calls, or real migration. |
+| 2. `unittest discover` | Checks conversation ID, function correlation ID, JSON string, and output-item count. | Initially **three of four tests fail**. The checks correctly detect a bad transform. |
+
+</div>
+
+| Input/output | Synthetic value | Meaning to preserve |
+| --- | --- | --- |
+| New conversation | `conv_new_demo` | The same conversation receiving the function result |
+| Function-call item's `id` | `fc_item_demo` | Identifies an item in the response |
+| Function call's `call_id` | `call_demo_1` | Correlates the result with its request |
+| Actual function result | `{"sku":"NB-14","stock":8}` | Send this object's JSON **string** in `output` |
+
+**Change one thing:** Repair the transform contract in `practice/migration/exercise.py`: use the supplied `conversation_id`, `function_call["call_id"]`, and `json.dumps`. Fix one field at a time and rerun the same tests to identify which failure disappears.
+
+<details markdown="1">
+<summary>Completed transform fragment — part of a new API request, not a full migration tool</summary>
+
+<!-- solution:migration -->
+```python
+import json
+
+def continuation(conversation_id: str, function_call: dict, result: dict) -> dict:
+    return {
+        "conversation": conversation_id,
+        "input": [{
+            "type": "function_call_output",
+            "call_id": function_call["call_id"],
+            "output": json.dumps(result, ensure_ascii=False),
+        }],
+    }
+```
+
+</details>
+
+**Explain the result:** After four passes, explain each field and place it under **definitions / user state / operational state** in the migration table below. Real calls use IDs issued by the new service and the same agent/version binding. This exercise neither reuses old Thread/Run IDs nor moves user history. Compare the complete invocation/tool loop with `run_turn` in the bundled `samples/workshop.py`.
+
+</div>
 
 ### 1. Identify what is currently in use
 
@@ -4441,6 +4893,7 @@ If any quality, access, or recovery item remains unverified, record **cutover on
 
 ## Success criteria
 
+Explain the three synthetic transform errors and obtain four passes without changing the tests. This verifies a local wire-shape transform, not a completed service migration.
 You have identified migration targets, Classic features to retain, handling of user state, retirement schedules, evaluation results, and a rollback method. “It appears in the new portal” is not enough to declare migration complete.
 
 ## Troubleshooting
@@ -4688,6 +5141,25 @@ No Optimizer, new holdout, or repeated release run is required for the lesson. T
 Only [current instructions and latest evidence](../validation/current/instructions.json) remain in the reader; older originals are preserved in Git history. Portal images retain their original capture provenance and are not fresh v2 validation.
 
 ## Coaching the later modules
+
+### Require an explanation of the before/after change
+
+The reinforced L15 and L18–L24 exercises follow **Try it → Change one thing → Explain the result**. Ask learners to predict an outcome first, then connect one edited setting/code change to the observed difference.
+
+| Module | Learner change | Evidence to retain |
+| --- | --- | --- |
+| L15 | Single→two roles under the same model/policy; optional boundary question | Baseline/drafter/reviewer originals and actual tokens/time; missing usage stays null |
+| L18 | Add only SKU to the complete schema | Seven→eight fields, KB-01 source location, preserved original values |
+| L19 | Silence detection 500→1500ms | Identical utterance splitting/wait/end comparison; learners operate their own microphones |
+| L20 | Repair a label typo in a copy; optional approved SFT lifecycle | Rejection→16/8 files; optional job/checkpoint and identical eight questions |
+| L21 | Check permission before cache | Two of five local tests fail→five pass; not Azure permission verification |
+| L22 | Require quality/critical/missing checks beyond completion | Three of five fail→five pass; optional workflow has no Azure step |
+| L23 | Local output style or Fabric month filter | Changed condition and actual response/total under the same model/data |
+| L24 | Repair conversation ID, call_id, JSON string | Three of four fail→four pass; not a real migration |
+
+Flawed code and tests under `data/exercises/` are teaching originals. Learners repair **only exercise.py** in their `practice/` copy. Never weaken global tests/evaluation criteria or overwrite originals. Preparation rejects an existing destination; choose another folder for a fresh attempt.
+
+A complete procedure is not completed Azure/device execution. Local code/SDK contract checks do not establish real SFT, Voice, Local-model, Fabric, or Work IQ execution. Optional service waits, downloads, and approvals are outside the existing hands-on time estimates.
 
 Ask each learner **“Which value is evidence → what decision follows → what do you inspect first on failure?”** If that explanation is missing, revisit evidence for the same case rather than adding another feature.
 

@@ -7,7 +7,7 @@ import inspect
 import json
 from pathlib import Path
 import sys
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
@@ -20,7 +20,7 @@ class OfflineCredential:
 
 async def check_workflow_execution():
     from agent_framework import BaseChatClient, ChatResponse, ChatResponseUpdate, Content, Message, ResponseStream
-    from multi_agent import build_workflow
+    from multi_agent import build_workflow, compare_paths
 
     class FixtureClient(BaseChatClient):
         def __init__(self):
@@ -28,9 +28,15 @@ async def check_workflow_execution():
             self.inputs = []
 
         def _inner_get_response(self, *, messages, stream, options, **kwargs):
+            messages = list(messages)
             self.inputs.append([message.text for message in messages])
-            text = "fixture-draft" if len(self.inputs) == 1 else "fixture-reviewed"
-            final = ChatResponse(messages=[Message("assistant", [text])], response_id=f"fixture-{len(self.inputs)}")
+            reviewing = any(message.text == "fixture-draft" for message in messages)
+            text = "fixture-reviewed" if reviewing else "fixture-draft"
+            final = ChatResponse(
+                messages=[Message("assistant", [text])], response_id=f"fixture-{len(self.inputs)}",
+                finish_reason="stop",
+                usage_details={"input_token_count": 10, "output_token_count": 5, "total_token_count": 15},
+            )
 
             async def complete():
                 return final
@@ -46,7 +52,17 @@ async def check_workflow_execution():
     assert len(client.inputs) == 2, "Both agent executors must run exactly once."
     assert any("fixture-draft" in message for message in client.inputs[1]), "Reviewer must receive the draft."
     assert any(getattr(output, "text", "") == "fixture-reviewed" for output in outputs), "Workflow must yield the reviewer's output."
-    return {"executors_run": 2, "reviewer_received_draft": True, "final_output_verified": True}
+    assert [item.text for item in events.get_intermediate_outputs()] == ["fixture-draft"]
+    comparison_client = FixtureClient()
+    report = await compare_paths(comparison_client, "compare", "Synthetic local fixture only.", Mock())
+    assert len(comparison_client.inputs) == 3
+    assert report["paths"]["single"]["total_tokens"] == 15
+    assert report["paths"]["sequential"]["total_tokens"] == 30
+    assert report["sequential_minus_single"]["total_tokens"] == 15
+    assert [stage["role"] for stage in report["paths"]["sequential"]["stages"]] == ["drafter", "reviewer"]
+    return {"executors_run": 2, "reviewer_received_draft": True, "final_output_verified": True,
+            "intermediate_output_verified": True, "comparison_fixture_calls": 3,
+            "fixture_usage_verified": True, "azure_measurement": False}
 
 
 def main(advanced=False):

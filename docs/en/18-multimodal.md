@@ -68,9 +68,9 @@ Apply the [custom analyzer procedure](https://learn.microsoft.com/azure/ai-servi
 | Field | Type | Expected value |
 | --- | --- | --- |
 | document_id | string | CONTOSO-2026-0929 |
-| date | date/string | 2026-09-29 |
+| date | date | 2026-09-29 |
 | currency | string | KRW |
-| quantity | integer | 2 |
+| quantity | number | 2; separately verify an integral quantity |
 | unit_price | number | 89000 |
 | total | number | 178000 |
 | approval_status | string | Normalize the document's pending approval to `pending`; never perform an approval |
@@ -78,6 +78,36 @@ Apply the [custom analyzer procedure](https://learn.microsoft.com/azure/ai-servi
 Review **`2025-11-01` GA** as the default production API. Agentic mode and some classification/metadata/signature features in **`2026-06-01-preview`** are separate experiments. The September 2026 CU Toolkit/CU CLI is also in Preview.
 
 For this single-item example, compare `quantity` and `unit_price` with `items[0]` in the expected-results file. Multiple-item documents need an array schema, not one representative value.
+
+<div class="practice-block" markdown="1">
+
+**Try it:** Open the [complete analyzer configuration](../../data/en/exercises/receipt-analyzer.json) in an editor. It is a **GA `2025-11-01` configuration example**, not a creation/analysis result. In Studio, replace suggested fields with the same **seven names, types, descriptions, and methods** under `fieldSchema.fields`. Do not send the full JSON to a chat box.
+
+| Setting | Lab choice | Reason |
+| --- | --- | --- |
+| Base analyzer | `prebuilt-document` | Use the requested seven fields, not a receipt template's unrelated field names |
+| Date / quantity | `date` / `number` | Supported CU field types; `integer` is not a type in this field schema |
+| Literal values | `method=extract`, per-field `estimateSourceAndConfidence=true` | Request original locations and confidence |
+| Currency | `method=generate` | Normalize the printed won indication to `KRW`, not a new amount |
+| Approval state | `method=classify`, `pending/approved/unknown` | Classify the document; do not perform approval |
+| Details | `returnDetails=true` | Inspect source positions as well as values |
+| Model connections | Administrator-provided defaults on this resource | Do not insert L02's model name or enable automatic deployment |
+
+Use the [analyzer configuration reference](https://learn.microsoft.com/azure/ai-services/content-understanding/concepts/analyzer-reference) for supported types and options. If Studio does not expose an option, request an analyzer using this JSON from the administrator and compare its name/settings. Do not silently substitute “similar” settings and claim identical conditions.
+
+In the first result, inspect the target document under `contents` and its `fields`: the date value, numeric `quantity/unit_price/total`, and string `approval_status`. Record normalized values alongside highlighted source locations. Missing confidence means unavailable; do not enter an invented 1.0.
+
+**Change one thing:** Add **only the item-code field `sku`** for the same document. Add the definition below under `fieldSchema.fields` in a copy of the configuration and add/save the same field in Studio. Preserve the first result/settings and obtain approval for one additional analysis before running it.
+
+```json
+{"sku":{"type":"string","method":"extract","description":"Extract the SKU code printed in the item row. Do not infer a code from the item name.","estimateSourceAndConfidence":true}}
+```
+
+Expect seven→eight fields and a new `sku` value of **KB-01**. Existing total 178,000, quantity 2, and pending approval should remain unchanged. Record absent or different results as observed. This tests **a changed output contract**, not a claim that the model became smarter.
+
+**Explain the result:** Record `configuration change / new field / original values preserved / source evidence / unknowns`. Explain what new information you requested and why correct JSON types still need business-value checks. The baseline and additional analysis total at most two runs; do not repeat failed requests indefinitely.
+
+</div>
 
 | What to inspect | How to judge it | Next action on failure |
 | --- | --- | --- |
