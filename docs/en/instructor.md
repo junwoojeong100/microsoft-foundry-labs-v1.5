@@ -31,7 +31,7 @@ This assumes **an environment with deployment and permissions already prepared**
 | 5–15 minutes | L01 check the prepared environment | Project, model, and permissions |
 | 15–35 minutes | L04 Prompt Agent | Withhold answers when information is absent |
 | 35–60 minutes | L05 File search | 2 answers with citations |
-| 60–80 minutes | L08 shortened evaluation | 3 cases covering policy, unknown information, and approval boundaries |
+| 60–80 minutes | L08 evaluation and analysis | Read and judge one row's v1/v2 answers and native reasons from the prepared 12-question comparison |
 | 80–90 minutes | L12 cleanup | Record resources deleted/retained |
 
 Do not try to mark function execution, multi-agent work, and tuning all “complete” within 90 minutes.
@@ -51,8 +51,9 @@ There is no guarantee that live execution of every optional service will finish 
 ## Sequential core / independent and connected advanced paths
 
 The core sequence is **L00 → L01 → … → L12**.
-L08's core learning evaluation uses the Prompt Agent and client-side function results from L05/L06;
-advanced Search and Hosted deployment do not need to be completed first.
+L08 is a **12-question fixed dev comparison using a tool-free Prompt Agent**.
+It does not reuse L05/L06 retrieval/function results; Search, Hosted, Optimizer, and holdout are not prerequisites.
+L09 separately inspects harmless boundary questions and L06 function evidence; L10 correlates actual L05/L06 responses with traces.
 L07's local steps 1–2 are required in the core course; cloud Toolbox/Skills are optional extensions.
 Actual Teams publishing in L11 is also a conditional extension, so lacking organizational publishing permission does not prevent core-course completion.
 
@@ -60,11 +61,12 @@ Actual Teams publishing in L11 is also a conditional extension, so lacking organ
 | --- | --- | --- |
 | Independent option | L13, L15, L16, L18, L19, L21, L23, L24 | After the shared core environment is ready, meet the chapter's prerequisites and optionally execute it |
 | Prerequisite lab required | L14 | Run Hosted after preparing L13's Search/index. If equivalent resources are already provided, the L13 lesson itself may be skipped |
-| Prerequisite lab required | L22 | L13 → L14 deployment and L08's Hosted automated-evaluation path. L20 Optimizer is not required |
+| Run after source setup | L22 | L01 environment/sources for CI interpretation and release/rollback design. Only optional live Hosted deployment needs L14 and separate approval |
 | Feature-specific branch | L17 | Prompt Routine is independent after L05. The Hosted long-running branch requires L14 |
 | Feature-specific branch | L20 | Hosted Optimizer requires L14's Responses deployment first. Fine-tuning data/model work is independent once its own prerequisites are met |
 
-The main connection is **L13 → L14 → {L20 Hosted Optimizer or L22 CI/CD}**.
+The live Hosted connection is **L13 → L14 → {L20 Hosted Optimizer or L22 optional live deployment}**.
+L22's default CI/design is independent of that chain; do not add paid prerequisites merely to complete another chapter.
 “Independent option” does not mean “no additional installations, permissions, or models.” Check each chapter's **Prerequisites** and execution-level label.
 Do not assume that completing the core course prepares every conditional lab requiring separate models, services, devices, or licenses.
 
@@ -96,6 +98,20 @@ Use L08's same 12 composite development questions once with the educational v1 b
 
 No Optimizer, new holdout, or repeated release run is required for the lesson. The separate full business gates remain strict and are not replaced by the small learning checklist.
 Only [current instructions and latest evidence](../../validation/current/instructions.json) remain in the reader; older originals are preserved in Git history. Portal images retain their original capture provenance and are not fresh v2 validation.
+
+## Coaching the later modules
+
+Ask each learner **“Which value is evidence → what decision follows → what do you inspect first on failure?”** If that explanation is missing, revisit evidence for the same case rather than adding another feature.
+
+| Module | Minimum learning artifact | Judgment to check |
+| --- | --- | --- |
+| L09/L10 | Three boundary judgments / one run's operations and durations | Separate natural-language refusal from function rejection, and trace correlation from correctness |
+| L18/L19 | Fields compared with sources / quantity correction, interruption, ended state | Attractive JSON or audible output alone is not execution success |
+| L20 | Explanation of one generated JSONL row and the 16/8 split | A classification label is neither a draft execution nor completed training |
+| L21/L23/L24 | Identity/access table, selected extension specification, migration/recovery table | Adapt worked examples to the learner's input/owners and mark unknowns |
+| L22 | CI interpretation and agent release/rollback manifest | Separate documentation generation, Azure deployment, and business release approval |
+
+Synthetic trace timings, Red teaming counts, and design tables are **teaching examples**. Do not copy them into actual Azure evidence fields. Without service access, record design/interpretation complete and execution incomplete separately. This does not replace or weaken existing evaluation gates.
 
 ## Failure signals instructors should watch for
 

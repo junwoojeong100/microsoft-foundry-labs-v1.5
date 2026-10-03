@@ -15,7 +15,7 @@ Neither establishes a missing contract, exchange rate, or permission.
 **How do you use it?** Read the originals and per-row Foundry evaluation reasons from L08's single comparison and classify the cause.
 Keep ties and regressions; repeatedly searching for a higher score is not the exercise.
 
-**Where do you run it?** Use the [instruction comparison](../../samples/instruction_lab.py), [optional Optimizer code](../../samples/optimizer_lab.py),
+**Where do you run it?** Use the [L08 Prompt Agent comparison](../../samples/instruction_prompt_agent_lab.py), [optional Optimizer code](../../samples/optimizer_lab.py),
 and [training-data preparation](../../samples/prepare_tuning.py). Use Optimize/Fine-tune in the portal to understand inputs, limits, and outcomes.
 
 ## Prerequisites
@@ -36,6 +36,8 @@ Optimizer and real training jobs require separate approval, supported models, an
 
 Do not weaken v1 or put question-specific answers into v2. Both receive the same context, model, questions, and criteria.
 The educational v1 is a simple starting instruction focused on role and goal. V2 adds a reusable procedure based on the possible omissions being studied: decompose the request, separate verified facts from unknown or restricted information, select evidence for each claim, check thresholds and tool boundaries, and review for omissions. V1 is not intentionally wrong or constrained to lower its score.
+
+**Make a decision from one row:** Open L08's Korean `compound-request-no-tools` originals alongside the native reasons. A relevance change from 4→5 does not establish overall superiority. Mark which subrequests each answer covers, inspect whether the reason explains an actual difference, then write one line each for **observation → possible cause → next method → remaining uncertainty**. English relevance is tied; do not transfer the Korean conclusion to English. This analysis requires no new measurement.
 
 ### 2. Optional: Understand Agent Optimizer
 
@@ -80,8 +82,20 @@ python samples/prepare_tuning.py
 
 </div>
 
-These small seeds teach the format; they do not guarantee useful training results.
-Never copy evaluation answer keys or holdout cases into training data.
+Open the terminal's `Prepared train=16, validation=8 in results/tuning-…` directory in an editor. The source is [tuning/examples.json](../../data/en/tuning/examples.json); outputs are `train.jsonl` and `validation.jsonl`. **One line is one training example.** The first generated line is shown below. It transforms a checked-in example; it is not a measured model response.
+
+```json
+{"messages":[{"role":"system","content":"Classify the request as exactly one of POLICY, STOCK, DRAFT, or CLARIFY."},{"role":"user","content":"What is the regular replacement period for a laptop?"},{"role":"assistant","content":"POLICY"}]}
+```
+
+| What to inspect | How to judge it | Next action on failure |
+| --- | --- | --- |
+| `system` / `user` / `assistant` | Classification rule / request / desired label | Compare role order and label with the source example |
+| Four labels | `POLICY` policy, `STOCK` lookup, `DRAFT` draft request, `CLARIFY` ambiguous request | Check for conflicting labels on equivalent requests |
+| 16 train / 8 validation rows | Separate training and checking examples without duplicate inputs | Preserve generator errors; inspect empty/duplicate input and split/label typos |
+| A `DRAFT` example versus execution | **Intent classification**, not successful stock allocation or draft creation | An out-of-stock request can still have DRAFT intent; L06 functions decide whether execution is allowed |
+
+`validation.jsonl` checks training behavior; it is distinct from L08's dev comparison and the sealed release holdout. This small seed teaches format, not useful training performance. Never expand it by copying answer keys or holdout cases.
 
 ### 4. Select a training approach
 
@@ -114,8 +128,7 @@ The [current Prompt Agent comparison](../../validation/current/report.json) reco
 
 ## Troubleshooting
 
-Distinguish model support, Preview access, deployed instructions, dev inputs, and evaluator failures.
-When prerequisites are absent, record not executed and finish the learning objective with L08's single comparison.
+If the Optimizer plan is blocked, first check Preview access, Responses protocol, and matching model/deployed instructions. If the supporting checklist and native scores disagree, compare the original, check condition, and judge reason rather than treating one score as ground truth. For SFT generation errors, inspect inputs/labels/splits in the table above. Leave cloud tasks not executed when their prerequisites are absent.
 
 ## Cleanup
 

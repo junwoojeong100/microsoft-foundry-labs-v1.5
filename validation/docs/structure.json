@@ -3,9 +3,9 @@
   "default_language": "en",
   "languages": {
     "en": {
-      "checked_at": "2026-10-01T18:33:53.893593+00:00",
+      "checked_at": "2026-10-03T06:51:08.669359+00:00",
       "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
-      "guide_sha256": "255bc519065cc0c091bded9eced2725e12e2a36113f97cd7bd8a3c8f148127be",
+      "guide_sha256": "e297426897ca7acc3dce5c175e4fbde2805de96f5a6ca310117049eed21c4a87",
       "language": "en",
       "html": "index.html",
       "markdown": "downloads/GUIDE.en.md",
@@ -19,7 +19,7 @@
       "remote_asset_dependencies": 0,
       "modules_with_concept_maps": 25,
       "explained_shell_blocks": 50,
-      "explained_commands": 107,
+      "explained_commands": 108,
       "portal_screenshots": 18,
       "portal_manifest": "portal-screenshots.en.json",
       "portal_capture_paths": [
@@ -44,9 +44,9 @@
       ]
     },
     "ko": {
-      "checked_at": "2026-10-01T18:33:53.943445+00:00",
+      "checked_at": "2026-10-03T06:51:08.744517+00:00",
       "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
-      "guide_sha256": "f8b8a1bc53a279b6e48144bf313b8694df26e4a9739a06f7a93bda97a7bbf3b8",
+      "guide_sha256": "b7b1a3b5e7b57d28028803929e362a340ebb8c4a187e7cc22d9e58c6c0f6a755",
       "language": "ko",
       "html": "index.ko.html",
       "markdown": "downloads/GUIDE.ko.md",
@@ -60,7 +60,7 @@
       "remote_asset_dependencies": 0,
       "modules_with_concept_maps": 25,
       "explained_shell_blocks": 48,
-      "explained_commands": 105,
+      "explained_commands": 106,
       "portal_screenshots": 17,
       "portal_manifest": "portal-screenshots.json",
       "portal_capture_paths": [

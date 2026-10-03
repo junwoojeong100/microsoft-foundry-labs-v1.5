@@ -16,7 +16,7 @@
 
 ## Prerequisites
 
-Create a read-only inventory of the existing system. This guide does not automatically upgrade existing Azure OpenAI/Classic resources or move data.
+If an existing system is available, inventory it read-only within the approved scope. Otherwise use the **fictional Contoso Classic scenario** below. Do not create Classic resources just for this exercise. This chapter does not automatically upgrade resources or move data.
 
 ## Steps
 
@@ -43,9 +43,31 @@ Sovereign clouds such as Azure Government have separate endpoints, authenticatio
 
 Do not assume that an API migration tool moving definitions has also moved all user conversations or business approval state.
 
+**Worked example — a fictional purchasing assistant, not an actual migration result.**
+
+| Existing state/item | New-path decision | Inspect / next action on failure |
+| --- | --- | --- |
+| Definition: instructions/function schema | Map separately to current v2 and L06 contracts; do not merely rename | Compare quantity 1–10 and not-ordered boundaries; correct/review functions or contracts if different |
+| Knowledge: 3 policy files/vector store | After approval, upload originals into the new environment and record new file/store IDs | L05 citations must identify new files and the same sections; inspect file→store→agent bindings on failure |
+| User state: Thread/Run | Test with a new conversation; do not reuse old IDs | Verify only intended context is passed; historical user-state migration needs separate scope/retention planning |
+| Operations: identity/endpoint/model | Bind each new environment and specify minimum permissions | Correlate L03 responses with L10 traces; separate permissions, addresses, and versions for 403/404 |
+| Publishing/recovery | Keep the old endpoint; route only test users to the new path | Confirm a return to L22's previous configuration bundle; separate deletion from cutover |
+
+Add **source location, owner, retention decision, evidence file/ID, and unresolved items** to your own table. Check current migration support before applying an example decision to a real system.
+
 ### 3. Check regressions in the new environment
 
-With the same English synthetic data in `data/en/` and L01's English profile selected, repeat L03's model call, L05's citations, L06's functions, L08's evaluation, and L10's traces in the separate new environment. Do not copy a Korean run's private settings or receipts. Record differences in endpoints/token audiences, response/tool schemas, retries, and storage/retention policies; historical Korean validation is not evidence that the new English environment passed.
+Only after approval for an actual migration, compare identical English synthetic inputs in the new nonproduction environment with L01's English profile. The default design exercise records the inputs and evidence locations below without executing them. Never reuse Korean private settings or receipts.
+
+| What to inspect | How to judge it | Next action on failure |
+| --- | --- | --- |
+| L03 model call | Completed response, actual deployment name/response ID | Check endpoint/token audience and model support |
+| L05 policy question | KRW 1,500,000 including VAT, 36 months, and actual new citations | Inspect originals, indexing, and store bindings |
+| L06 normal/failure inputs | NB-14 quantity 2 totals KRW 2,900,000 and remains not ordered; out-of-stock/negative inputs error | Inspect schema, dispatcher, and tool-result return loop |
+| L08 instruction comparison | Actual differences with the same language/context/model/questions/criteria | Do not claim superiority across changed conditions; never overwrite results or reuse sealed holdout data |
+| L10 tracing | New response correlated with the new environment's trace | Check connection/time/permissions rather than attaching an old environment's logs |
+
+L08's tool-free comparison does not replace integrated retrieval/function checks above. Record endpoint/schema/retry/retention differences separately, and mark unexecuted checks not executed rather than leaving a success-shaped blank.
 
 ### 4. Remove dependencies on retiring features first
 
@@ -55,7 +77,9 @@ AI Search agentic retrieval differs in capabilities and payloads between stable 
 
 ### 5. Define staged cutover and recovery criteria
 
-Do not delete the existing endpoint prematurely. Proceed from test users → limited traffic → approved expansion, and prepare a rollback path if quality, safety, latency, or cost thresholds are exceeded.
+Proceed from test users → limited traffic → approved expansion. In this scenario, **a candidate that gives an uncited answer or falsely claims order completion blocks expansion**. Preserve its failed original first; the owner then selects the approved earlier endpoint/version/configuration. Verify state compatibility and separately check the actual recovery invocation.
+
+If any quality, access, or recovery item remains unverified, record **cutover on hold / required next check**, not “migration complete.” Do not prematurely delete the earlier endpoint or user state.
 
 ## Success criteria
 

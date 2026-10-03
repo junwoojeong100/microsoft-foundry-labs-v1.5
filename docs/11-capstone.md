@@ -52,6 +52,8 @@ python samples/workshop.py capstone --live
 
 모델 배포/버전, agent version, instructions 파일, 도구 schema, 정책 문서 버전, 평가 데이터 버전, 평가 결과를 하나의 기록으로 묶습니다. 이 가이드의 생성 SDK agent는 독립된 실험용이므로 **그대로 운영 배포로 간주하지 않습니다.**
 
+[L22의 릴리스 명세 예](../docs/22-delivery.md)에 자기 결과를 연결합니다. L08의 도구 없는 지침 비교와 이번 `capstone`의 모델·도구·정책 조건이 다르므로 그 점수를 통합 agent의 출시 승인으로 옮겨 쓰지 않습니다. 실제 운영에 필요한 검사가 미완료면 “통합 실습 완료 / 출시 보류”로 구분합니다.
+
 ### 3. 안정된 endpoint와 active version 선택하기
 
 포털 agent의 **Details → Agent configuration → Active version**에서 특정 버전을 선택하는 흐름을 확인합니다. `Always use latest`는 새 버전이 자동으로 사용자에게 나갈 수 있으므로 실제 운영 정책 없이 선택하지 않습니다.

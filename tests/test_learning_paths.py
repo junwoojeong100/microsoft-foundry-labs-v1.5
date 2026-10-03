@@ -36,6 +36,35 @@ class LearningPathTests(unittest.TestCase):
         self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "core"), 320)
         self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "advanced"), 440)
 
+    def test_current_evaluation_path_is_consistent_in_both_guides(self):
+        for directory, marker, stale in (
+            ("docs", "도구 없는 Prompt Agent", "L08의 Hosted"),
+            ("docs/en", "tool-free Prompt Agent", "L08's Hosted"),
+        ):
+            with self.subTest(directory=directory):
+                instructor = (ROOT / directory / "instructor.md").read_text()
+                evaluation = (ROOT / directory / "08-evaluation.md").read_text()
+                self.assertIn(marker, instructor)
+                self.assertNotIn(stale, instructor)
+                self.assertIn("12", instructor)
+                self.assertIn("samples/instruction_prompt_agent_lab.py", evaluation)
+                self.assertIn("samples/instruction_prompt_agent_lab.py", (ROOT / directory / "20-optimization.md").read_text())
+
+    def test_delivery_default_is_local_with_explicit_optional_hosted_prerequisite(self):
+        paths = json.loads((ROOT / "content/learning-paths.json").read_text())
+        english = json.loads((ROOT / "content/learning-paths.en.json").read_text())
+        self.assertIn("L14는 선택형", paths["l22"]["requires"])
+        self.assertIn("L14 is needed only", english["l22"]["requires"])
+        for directory in ("docs", "docs/en"):
+            text = (ROOT / directory / "22-delivery.md").read_text()
+            with self.subTest(directory=directory):
+                self.assertIn("acknowledge_cost", text)
+                self.assertIn("repository_id", text)
+                self.assertIn("RTO", text)
+                self.assertIn("RPO", text)
+                self.assertNotIn("--live", text)
+                self.assertNotIn("azd deploy", text)
+
 
 if __name__ == "__main__":
     unittest.main()

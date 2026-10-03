@@ -31,9 +31,17 @@ Connect Application Insights through **Agents → Traces → Connect**. If that 
 
 Server-side tracing for Prompt/Hosted agents can begin after connection without code changes. It does not automatically trace every detail inside your client-side functions.
 
-### 2. Create and find a new run
+### 2. Find and correlate one of your runs
 
-Send one more synthetic question and record the response ID and time. Allow time for collection, then search in Traces. Check both the selected project and time range.
+First reuse an L05/L06 run collected after tracing was connected. If none exists, send one approved synthetic question and record its response ID/time. Do not repeatedly resend questions because the list is empty.
+
+| Required value | Where to obtain it | Check the binding |
+| --- | --- | --- |
+| Response JSONL | The `results/contoso-lab-…-responses.jsonl` path printed after `Responses:` by the L05/L06 SDK | Open one row in an editor; inspect `id`, `response_id`, `agent_name`, and `configuration.agent_version` |
+| Agent name/version | That row, or the configuration of the agent you invoked in the portal | Do not substitute the L08 evaluation agent or L14 Hosted name |
+| Application Insights app ID | Supplied by the administrator. Bundled environments store it at `monitoring.appId.value` in `results/azure-environment.json` | Compare `monitoring.appInsightsId.value` with the project's actual connection. Do not copy a key/connection string |
+
+With portal-only results, completing the **portal path** using the response ID is sufficient. Do not fabricate a JSONL file or pass L08's comparison JSON to this JSONL input. The CLI reads only the last 24 hours; read older evidence within the portal's approved retention scope or leave correlation unverified.
 
 ![Prompt Agent Traces for the English Contoso project. Locate ID search, version/status/date filters, durations, tokens, and estimated costs without exposing identifying values.](../../assets/portal/en/06-traces.png)
 
@@ -43,11 +51,11 @@ Find the following in the trace.
 
 | Evidence | What to record |
 | --- | --- |
-| Agent/model execution | Name, version, and total duration |
-| Retrieval call | Actual returned documents and whether results were empty |
-| Function/MCP call | Tool name, arguments, and errors |
-| Model usage | Input/output tokens and available cost indicators |
-| Conversation/response | The link between the user's request and the execution |
+| Agent/model execution | Name, version, start time, and total duration |
+| Retrieval call | Actual returned documents and empty results; mark content unobserved if access is unavailable |
+| Function/MCP call | Name, arguments, and errors; inspect JSONL `tool_calls` separately if local-function spans are absent |
+| Model usage | Input/output tokens and available cost indicators; absent means uncollected, not zero |
+| Conversation/response | Request-to-execution link; shared `operation_Id`, parent `operation_ParentId`, and child `id` |
 
 ### 3. Distinguish three types of failure
 
@@ -56,6 +64,17 @@ Find the following in the trace.
 **Slow answer:** Break total latency into model, retrieval, tool, and network/wait stages. Do not prescribe a model change when the tool is slow.
 
 **The function succeeded but the answer failed:** Check whether the tool output was returned to the same conversation/call ID and whether the final output completed.
+
+**Timing example — synthetic teaching data, not an Azure trace.** Assume these child operations run sequentially without overlap.
+
+| Operation | Start–end (ms) | Observed duration | Judgment |
+| --- | ---: | ---: | --- |
+| Whole request | 0–4,000 | 4,000ms | Parent span; do not add child durations to it again |
+| Policy retrieval | 100–800 | 700ms | Also check whether the evidence sections are correct |
+| Model response | 900–3,800 | 2,900ms | Largest observed interval; inspect output length/tokens first |
+| Inventory tool | 3,800–3,850 | 50ms | Not the primary bottleneck in this example |
+
+Observed children total 3,650ms, leaving 350ms. **Do not call the remaining 350ms network latency without evidence.** Parallel spans overlap and cannot simply be summed. If the model dominates, inspect token counts and repeated calls; if retrieval dominates, inspect returned volume and retrieval stages. For a successful request, explain the longest observed interval and missing intervals rather than inventing an error.
 
 The bundled CLI queries App Insights using response/trace IDs from an actual response file.
 
@@ -77,9 +96,9 @@ python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTU
 
 Print the KQL first and review its scope. It covers the last 24 hours, returns at most 200 rows, and does not retrieve raw tokens or full message bodies.
 `app-id` is not an instrumentation key or connection string. Zero returned rows fail as **unverified correlation**;
-do not relabel a request ID as a trace ID to fill the gap. Also compare the Hosted response's `contract.sha256` and version.
+do not relabel a request ID as a trace ID. Compare `contract.sha256` and version only when using L14 Hosted results; do not require that Hosted contract in the basic Prompt Agent JSONL.
 
-Request-level correlation and model-response spans are different evidence. Report only the scope actually observed; do not infer missing spans or resubmit completed questions merely to produce a better-looking trace.
+Equal `input_rows` and `correlated_rows`, with empty `missing_case_ids`, establish **input-to-log correlation**. `model_response_spans_observed` and `request_trace_ids_observed` measure different observation layers. This CLI checks correlation, not bottlenecks or answer correctness. Read the query rows in the printed `Evidence:` file and the portal details, then fill the table with your own values.
 
 ### 4. Optional: Add client-side tracing
 
@@ -97,11 +116,16 @@ User thumbs-up/down feedback is a useful signal, not a ground-truth label. Follo
 
 ## Success criteria
 
-You have found one new run in the traces and can explain an actual bottleneck or failure point using evidence. Do not record a missing trace as “no errors.”
+Link one of your runs' **response/trace IDs, version, observed operations/durations, judgment, and next action**. If you only read the example, record **design complete / actual trace unverified**. Missing traces are not “no errors.”
 
 ## Troubleshooting
 
-Project permissions alone may not permit log queries. Check read access on Application Insights/Log Analytics, connection status, collection delay, and time filters. Protected tables may require separate permissions.
+| Symptom | Inspect first | Next action |
+| --- | --- | --- |
+| Cannot open JSONL / no actual IDs | The `Responses:` path and one file row | Select the L05/L06 output, not example IDs or L08 comparison JSON |
+| 403 | Log-read permissions, separate from project roles | Request access to the exact App Insights/Log Analytics scope from the administrator |
+| Zero rows / partial correlation | Project connection, run time, 24-hour window, collection delay | Compare scope/IDs before any new model request. If still absent, leave correlation unverified |
+| Parent exists but function/content is absent | Instrumentation and sensitive-content read permissions | Record JSONL evidence and observation limits; do not indiscriminately enable content recording |
 
 ## Cleanup
 

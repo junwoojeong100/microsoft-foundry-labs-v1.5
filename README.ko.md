@@ -25,11 +25,13 @@ L02에 **`gpt-6-sol` / `2026-09-22`**, 배포 이름 `contoso-gpt-6-sol`을 명�
 ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `index.html`을 열고, 코드는 편집기에서 확인합니다.
 기본 코스는 L00–L12, 약 5시간 20분입니다. 고급 모듈은 필요에 따라 선택합니다. 읽기에는 로그인이 필요하지 않습니다.
 
+각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·추출·음성·학습 데이터·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L22의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
+
 ## 지침과 최신 검증
 
 - 교육용 기준선: 각 폴더의 `agent-v1.txt`는 역할·목표 중심의 단순한 시작 지침이며, 점수를 낮추려고 일부러 약화하지 않았습니다.
 - 현재 지침: 같은 폴더의 `agent-v2.txt`. Prompt/Hosted 기본값도 v2입니다.
-- 한 번 비교: `samples/instruction_lab.py`; 원문 native 평가: `samples/instruction_evaluation.py`. 둘 다 명시적인 `--live` 전에는 계획만 표시합니다.
+- 한 번 Prompt Agent 비교: `samples/instruction_prompt_agent_lab.py`; 원문 native 평가: `samples/instruction_evaluation.py`. 둘 다 명시적인 `--live` 전에는 계획만 표시합니다.
 - [현재 상태](validation/current/instructions.json), [최신 실제 Azure 원본](validation/current/report.json), [최신 문서 검사](validation/docs/structure.json).
 
 **국문·영문 모두 GPT-6 Sol Prompt Agent 버전으로 실측했습니다.** 한국어 Native 관련성은 v1 **4.9167/5**에서 v2 **5.0/5**로 한 문항만 상승했고, 완결성·근거성은 동점이었습니다. 영어는 세 지표 모두 v1/v2 **5.0/5** 동점입니다. 따라서 이번 소규모 dev 표본에서는 한국어 관련성의 제한적 향상만 관측했으며 일반화·통계적 유의성·운영 승인을 뜻하지 않습니다. 보조 기계식 체크리스트는 국문 **33/40→33/40**, 영문 **29/40→28/40(−1)**였습니다. 모든 변경 critical flag를 원문과 대조했고, 일부 표현 차이로 인한 정규식 누락을 확인했습니다. Judge는 별도로 고정한 GPT-4.1을 사용했습니다.

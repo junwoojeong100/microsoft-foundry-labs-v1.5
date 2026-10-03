@@ -15,7 +15,7 @@
       "portal_manifest": "portal-screenshots.en.json",
       "portal_screenshots": 18,
       "shell_blocks": 50,
-      "commands": 107,
+      "commands": 108,
       "validation": "validation/current/instructions.json",
       "receipt_html": "data/en/receipt.html"
     },
@@ -28,7 +28,7 @@
       "portal_manifest": "portal-screenshots.json",
       "portal_screenshots": 17,
       "shell_blocks": 48,
-      "commands": 105,
+      "commands": 106,
       "validation": "validation/current/instructions.json",
       "receipt_html": "data/receipt.html"
     }
