@@ -1,5 +1,15 @@
 > **What you will build:** An assistant that connects knowledge, tools, quality checks, and tracing, plus a process for deploying the version you validated.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Review L06's integrated result and design a release · Teams publishing is not required.
+
+**Start here:** Open the actual L06 response file and check the five items below. Do not call again if that result already exists.
+
+**What to check:** Record citations, function results, the not-ordered state, and configuration bundle. Production approval and publishing remain separate.
+
+</div>
+
 ## Objectives
 
 Go beyond “It answered in the demo” to **selecting the version users receive and knowing how to roll back if it fails**.
@@ -21,6 +31,8 @@ You need the L05–L10 results. Actual Teams/Microsoft Copilot publishing requir
 ## Steps
 
 ### 1. Complete the final user task
+
+**Reuse the L06 result first.** Open the JSONL path printed after `Responses:` and inspect the five items below. If it is missing, check the execution state and receipt first. Use the following command only after approval for a new collection.
 
 ```bash
 python samples/workshop.py capstone --live
@@ -56,6 +68,11 @@ Link your results into [L22's release-manifest example](../../docs/en/22-deliver
 
 ### 3. Select a stable endpoint and active version
 
+Steps 3–5 are **only for the optional publishing/production-transition path**. The default exercise reads the settings and writes a recovery plan.
+
+<details class="optional-path" markdown="1">
+<summary>Optional: switch production versions and publish to Teams — separate access and approval required</summary>
+
 Review how to select a specific version under the portal agent's **Details → Agent configuration → Active version**. `Always use latest` can automatically expose new versions to users; do not select it without an actual production policy.
 
 Test a new version, then select the earlier version again and send the same question. The URL can stay the same while behavior and version change.
@@ -84,9 +101,11 @@ The standard portal publishing flow may not support projects with public network
 
 Compare access for 1 permitted user and 1 unauthorized user. Successful publishing, discoverability, invocation permissions, and successful tool execution are separate checks. Do not stop at a “published successfully” message.
 
+</details>
+
 ## Success criteria
 
-You have verified all five final-result items and have a release record and a rollback target version. If you did not publish, record “Ready to publish / actual publishing not performed” as separate states.
+Record all five final-result items, the configuration bundle, and the recovery plan. If no previously approved version exists, write “no recovery target / release on hold”; do not invent an approved version. If you did not publish, record **“integration lab complete / publishing not performed.”** This does not establish production readiness.
 
 ## Troubleshooting
 

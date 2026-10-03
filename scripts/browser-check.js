@@ -45,6 +45,10 @@ async (page) => {
     check(await page.locator('#l20 .learning-badge').innerText() === (english ? "Separate feature paths" : "기능별 분기"), "Optimizer and fine-tuning paths are distinguished");
     check(await page.locator(".nav-learning").count() === 12, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === 25, "25 trackable labs");
+    check(await page.locator(".lab-brief").count() === 25, "all 25 modules have beginner start cards");
+    check(await page.locator('#l01 .operator-only').evaluateAll(nodes =>
+      nodes.length === 2 && nodes.every(node => !node.open)
+    ), "administrator provisioning and role tables are collapsed by default");
     check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: english ? "Concepts and lab map" : "개념과 실습 지도"}).count() === 25, "all 25 labs explain feature, purpose, method and execution surface");
     check(await page.locator(".command-explanation").count() === edition.shell_blocks, `all ${edition.shell_blocks} shell blocks have visible command explanations`);
     check(await page.locator(".command-explanation tbody tr").count() === edition.commands, `all ${edition.commands} logical CLI commands have individual explanation rows`);
@@ -120,6 +124,31 @@ async (page) => {
     });
     check(iconHash === "fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c", "official icon bytes match Microsoft's V24 distribution");
 
+    check(await page.locator(".hero .primary-link").getAttribute("href") === "#l00-first-steps", "the primary start action opens concepts, not provisioning");
+    await page.locator(".hero .primary-link").click();
+    await page.waitForFunction(() => document.activeElement.id === "l00-first-steps");
+    check(await page.locator(".chapter.active").getAttribute("id") === "l00", "first-time readers stay in L00");
+    check(await page.evaluate(() => document.activeElement.id) === "l00-first-steps", "first-step navigation moves keyboard focus");
+    check(await page.locator(`.hero a[href="${page.contosoGuideRelease.archive}"]`).count() === 1, "lab ZIP is available at the entry point");
+    await page.goto(`${entry}#l08`);
+    check(await page.locator("#l08 .recorded-answer:visible").count() === 2, "both actual localized answers are readable without opening JSON");
+    check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "new paid evaluation commands are separate from default reading");
+    const relevance = await page.locator("#l08 .worked-example tbody tr").filter({
+      hasText: english ? "Relevance" : "관련성",
+    }).innerText();
+    check(relevance.includes(english ? "5\t5" : "4\t5"), "reading example preserves this language's actual relevance scores");
+    await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+    check(await page.locator("details").evaluateAll(nodes => nodes.every(node => node.open)), "printing includes every optional and provenance section");
+    await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+    check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "printing restores the learner's collapsed sections");
+
+    await page.goto(`${entry}#l07`);
+    const hiddenHeading = await page.locator("#l07 .optional-path h3[id]").first().getAttribute("id");
+    await page.goto(`${entry}#${encodeURIComponent(hiddenHeading)}`);
+    await page.waitForFunction(id => document.activeElement.id === id, hiddenHeading);
+    check(await page.locator("#l07 .optional-path").evaluate(node => node.open), "deep links open the containing optional section");
+    check(await page.evaluate(() => document.activeElement.id) === hiddenHeading, "deep-linked optional heading receives keyboard focus");
+
     const search = page.locator("#guide-search");
     await search.fill("Foundry IQ");
     check(await page.locator("#search-results").isVisible(), "search opens a result view");
@@ -134,8 +163,19 @@ async (page) => {
     await page.locator("#l13.active").waitFor({state: "visible"});
     check(await page.locator(".chapter.active").getAttribute("id") === "l13", "Escape restores reading");
     await page.locator("#learning-path").selectOption("quick");
+    await page.locator("#l00.active").waitFor({state: "visible"});
     const quick = await page.locator(".chapter-link:visible").evaluateAll(nodes => nodes.map(node => node.dataset.chapter));
     check(quick.join(",") === "l00,l01,l04,l05,l08,l12,instructor", "90-minute path matches the instructor schedule");
+    await page.locator('.chapter-link[data-chapter="l01"]').click();
+    await page.locator("#l01.active").waitFor({state: "visible"});
+    for (const next of ["l04", "l05", "l08", "l12"]) {
+      check(await page.locator(".chapter.active .chapter-pagination .next").getAttribute("href") === `#${next}`, `90-minute next action follows ${next}`);
+      await page.locator(".chapter.active .chapter-pagination .next").click();
+      await page.locator(`#${next}.active`).waitFor({state: "visible"});
+      check(await page.locator("#learning-path").inputValue() === "quick", "next navigation preserves the selected learning path");
+    }
+    await page.locator("#learning-path").selectOption("core");
+    check(await page.locator("#l12 .chapter-pagination .next").getAttribute("href") === "#l00", "core completion does not require advanced electives");
     await page.locator("#learning-path").selectOption("all");
     await page.locator('.chapter-link[data-chapter="l06"]').click();
     await page.locator('[data-complete="l06"]').click();
@@ -160,6 +200,7 @@ async (page) => {
       });
     });
     const expectedCode = await page.locator("#l06 pre code").first().textContent();
+    check(await page.locator("#l06 .code-label").first().innerText() === (english ? "Terminal" : "터미널 명령"), "code labels identify where to use a block");
     await page.locator("#l06 .copy-button").first().click();
     check(await page.evaluate(() => window.__workshopCopiedText) === expectedCode, "copy includes code only, not labels");
     await page.evaluate(() => {
@@ -219,14 +260,18 @@ async (page) => {
       })));
       check(imageBounds.length > 0 && imageBounds.every(image => image.loaded && image.width <= image.container + 1), `portal screenshots fit the reader at ${width}px`);
       if ([1440, 390, 320].includes(width)) {
-        for (const id of ["l09", "l10", "l18", "l19", "l20", "l21", "l22", "l23", "l24"]) {
+        for (let index = 0; index < 25; index += 1) {
+          const id = `l${String(index).padStart(2, "0")}`;
           await page.goto(`${entry}#${id}`);
           const layout = await page.locator(`#${id}.active`).evaluate(chapter => ({
             viewport: innerWidth,
             document: document.documentElement.scrollWidth,
             tables: chapter.querySelectorAll(".table-wrap table").length,
+            briefWidth: chapter.querySelector(".lab-brief").getBoundingClientRect().width,
+            proseWidth: chapter.querySelector(".prose").getBoundingClientRect().width,
           }));
           check(layout.document <= layout.viewport + 1 && layout.tables > 0, `${id} decision tables fit the reader at ${width}px`);
+          check(layout.briefWidth > 0 && layout.briefWidth <= layout.proseWidth + 1, `${id} beginner card fits at ${width}px`);
         }
       }
     }

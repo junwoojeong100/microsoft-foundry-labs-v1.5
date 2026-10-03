@@ -1,5 +1,15 @@
 > **What you will build:** A call to a Foundry model without an API key, with its response and response ID verified.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Terminal · the default is a plan check followed by one approved model call.
+
+**Start here:** Select L01's environment and run `python samples/workshop.py model` to inspect the plan.
+
+**What to check:** Record the actual answer and `response_id`. Do not resend questions merely to reproduce a screenshot.
+
+</div>
+
 ## Objectives
 
 Understand the smallest unit of a model call. **This is not yet an agent or RAG.**
@@ -20,7 +30,12 @@ You need L01's `.env`, CLI sign-in, and `requirements.txt` installation, plus th
 
 ## Steps
 
-### First connect inputs and responses in the portal
+### Optional: understand input and output in the portal
+
+**The default path is terminal steps 1–3 below.** You do not need to call both the portal and the SDK. Expand this only for the screen reference.
+
+<details class="optional-path" markdown="1">
+<summary>Portal reference and the preserved one-call demonstration — no need to reproduce the image</summary>
 
 Open **Build → Models → Deployments → your deployment → Playground** in `contoso-workshop-en`. `contoso-chat` is an example deployment name; use your own approved deployment and verify its model/version. This is a model exercise: **do not click Save as agent**.
 
@@ -30,7 +45,7 @@ Open **Build → Models → Deployments → your deployment → Playground** in 
 
 ![The Parameters dialog for the English model Playground. Check Max Completion Tokens before any approved request.](../../assets/portal/en/17-model-parameters.png)
 
-**Before running:** Set **Parameters → Max Completion Tokens** to 256 where supported. Keep **Web search** and other unnecessary tools off in this model-only experiment; they can add charges or external data transfer. Do not modify existing agents or policies to match a screenshot. Temperature/Top P control generation variability, not monetary spending caps. Supported options vary by model.
+**Before running:** Inspect **Parameters → Max Completion Tokens**. The captured demonstration used 256; choose an approved, supported limit for your actual model rather than treating that screenshot value as universal. Keep **Web search** and other unnecessary tools off in this model-only experiment; they can add charges or external data transfer. Do not modify existing agents or policies to match a screenshot. Temperature/Top P control generation variability, not monetary spending caps. Supported options vary by model.
 
 For one separately approved, bounded portal request, use this English synthetic input:
 
@@ -43,6 +58,8 @@ What approval is required for a total of exactly KRW 2,000,000?
 The **expected** answer is team manager approval. In the captured English run, the actual answer was **“A total of exactly KRW 2,000,000 requires team lead approval.”** The completion cap was **256**, and the portal displayed **106 total tokens**. Web search was off, and the question was submitted once without resubmission. The [English capture log](../../content/portal-screenshots.en.json) records this observation. These are one model request's displayed values, not an evaluation score, proof of RAG, or the total lab cost.
 
 If a capture or wait times out, inspect the existing response before considering another request. Do not infer raw HTTP status or internal retries from the screen. The CLI path below is a separate execution for learning to read the response object and ID in code; there is no need to make extra calls merely to reproduce an image.
+
+</details>
 
 ### 1. Review the plan at no cost
 
@@ -80,7 +97,7 @@ python samples/workshop.py model --live
 
 You should see response text and `response_id=...`. The question asks how to respond when company policy has not been provided. Check that the model **does not fabricate company policy**.
 
-To call it with your own input:
+**Optional additional request:** Run this only if you want to send your own question. It is not required after the default response succeeds.
 
 ```bash
 python samples/workshop.py model --live --query "Without company policy, can you state a laptop purchase limit with certainty?"
@@ -127,6 +144,9 @@ The English `input` tests handling of missing policy information. `store=False` 
 
 ### 4. Locate the extension capabilities
 
+<details class="optional-path" markdown="1">
+<summary>Optional reference: streaming, structured output, and image input</summary>
+
 | Feature | How to try it | How to judge success |
 | --- | --- | --- |
 | Streaming | Receive stream events using the portal's View code or an official SDK example | Record time to first output separately from final completion |
@@ -135,6 +155,8 @@ The English `input` tests handling of missing policy information. `store=False` 
 | Vision | Send a synthetic receipt image to a supported model | Compare price, quantity, and total with the original |
 
 These extensions do not imply that every model supports the same API in the same way. Check the model card before adding a parameter. In particular, do not blindly copy an existing `temperature` setting to a reasoning model.
+
+</details>
 
 ## Success criteria
 

@@ -1,14 +1,25 @@
 > **Check these first:** The selected English profile, the current project and endpoint, the calling identity, and the SDK environment used to run the command.
 
+## Stuck before connecting to Azure?
+
+| Symptom | What to do now |
+| --- | --- |
+| Unsure where to enter a command | Open the lab folder in VS Code and choose **Terminal → New Terminal**, not the browser address bar |
+| `python3` / `python3.13` not found | Check the Python installation/version. On Windows use L01's `py -3.13` path |
+| `can't open file` / `No such file or directory` | Check that the opened folder contains `samples`, `data`, and `requirements.txt` together; do not run from inside `samples` |
+| Python `>>>` prompt or `SyntaxError` | Enter `exit()` and run commands in the terminal. Paste questions, JSON, and `.env` settings only where the step specifies |
+| Windows error for `source` / `curl --fail` | Use L01's `.venv\Scripts\python.exe` and use `curl.exe` for HTTP checks |
+| No project in the portal | Confirm the supplied account, organization, and project with the instructor; do not create a new project or subscription |
+
 ## A 60-second diagnostic sequence
 
 1. Classify where the error occurred: **local installation / management plane / model call / agent / tool / evaluation / logs**.
 2. Record the time, status/error code, and request/response ID. Do not record tokens or API keys.
-3. Reproduce it with the smallest possible request. Do not recreate every feature at once.
+3. Read existing output, files, and settings first. Reproduce a new paid request only after confirming its need and scope. Do not recreate every feature at once.
 
 ## Troubleshooting by symptom
 
-The [actual bilingual comparison](../../validation/current/quality.json) tied on GPT-6 Sol. Do not turn a tie into improvement. The initial custom-evaluator output-format error and polling timeout remain recorded in the [measurement report](../../validation/current/report.json); neither service completion nor missing numeric results count as a valid score.
+The [actual bilingual comparison](../../validation/current/quality.json) shows a limited Korean relevance increase and tied English native metrics on GPT-6 Sol. Do not transfer one language's result to the other. Use the [measurement report](../../validation/current/report.json) to distinguish preserved failures, completed collection, and actual scores; neither service completion nor missing numeric results count as a valid score.
 
 | Symptom | Check first | Next action | Do not |
 | --- | --- | --- | --- |
@@ -45,7 +56,7 @@ The [actual bilingual comparison](../../validation/current/quality.json) tied on
 | OpenAPI MCP argument validation fails | The inspected tool's `inputSchema` | Keep `api-version` at the top level and put `search`, `top`, and `select` inside `body`, as in L07 | Flatten the body fields or substitute the Microsoft Learn `query` schema |
 | Evaluation is `Partial` | Required evaluator fields, judge quota, and tool runtime | Identify and rerun the failed evaluator | Average only the completed subset |
 | Missing/`null` result at the automated gate | Incomplete code/native evidence or evaluator errors | Inspect the preserved originals and rerun only the failed evaluator under unchanged criteria when justified; human review remains optional | Fill values with `true`, lower gates, or recollect the sealed holdout until it passes |
-| No trace | App Insights connection, permissions, time range, and ingestion delay | Create a new request and search by its ID | Treat an empty screen as proof that execution had no problems |
+| No trace | App Insights connection, permissions, time range, and ingestion delay | Compare the existing response ID and query scope first | Repeated model calls or treating an empty screen as proof of no errors |
 | Request correlation is complete but model spans are partial | Span type, bounded query scope, and the request/model distinction | Report the observed English scope: 10/10 request trace IDs, only 7 model-response spans in the mixed query | Claim all 10 model spans were observed or invent missing spans |
 | Memory is not visible | Scope, new conversation, and update delay | Inspect the item/retrieval directly | Judge memory solely from output formatting |
 | No response after publishing to Teams | Active version, Bot route, and tool execution location | Test publishing and actual invocation separately | Treat an app listing as final success |

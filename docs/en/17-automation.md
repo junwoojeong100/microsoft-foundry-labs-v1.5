@@ -1,5 +1,15 @@
 > **What you will build:** Verify a real scheduled Contoso policy summary through its response/trace, then confirm that the routine is disabled.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · requires a server-executable agent and log-read access.
+
+**Start here:** Confirm the L05 agent and distinguish a manual invocation from a one-time schedule.
+
+**What to check:** An actual response after the scheduled time and `enabled=false`. Creation or manual dispatch alone is not successful scheduled execution.
+
+</div>
+
 ## Objectives
 
 **A Routine determines when to run, orchestration determines how to process the work, and Autopilot determines which organizational identity acts.**

@@ -1,5 +1,15 @@
 > **What you will build:** A Prompt Agent with a clear role and clear limits—a baseline version before adding knowledge and tools.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Foundry portal by default · the optional SDK comparison creates a separate agent.
+
+**Start here:** Create a Text agent with L02's model and the bundled English instructions.
+
+**What to check:** No invented policies or stock values; compare the same conversation with a new one. Keep this agent for L05.
+
+</div>
+
 ## Objectives
 
 A Prompt Agent is a managed agent declared through **model + instructions + tools**. You do not operate a separate server or container yourself. L14 explains how it differs from a Hosted Agent.

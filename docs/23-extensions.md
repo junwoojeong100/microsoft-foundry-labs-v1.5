@@ -1,5 +1,15 @@
 > **완성할 결과:** 로컬 실행과 업무 데이터 통합의 선택지를 비교하고, 내 프로젝트에 필요한 확장만 고릅니다.
 
+<div class="lab-brief" markdown="1">
+
+**진행 방식:** 선택 심화 · Local, Fabric, Work IQ 중 필요한 한 경로만 고릅니다.
+
+**먼저 할 일:** 목표가 장치 내 답변인지, 지출 집계인지, 권한 있는 문서 검색인지 정합니다.
+
+**확인할 결과:** 선택 이유·필요 조건·기대 결과·종료 방법을 적고, 실제 실행 여부는 따로 표시합니다.
+
+</div>
+
 ## 목표
 
 **Foundry cloud, Foundry Local, Foundry Local on Azure Local은 동일한 배포 방식이 아닙니다.** Fabric IQ·Work IQ·Foundry IQ도 서로 다른 지식 맥락을 제공합니다.

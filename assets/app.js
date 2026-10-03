@@ -91,6 +91,27 @@
     if (returnFocus) menu.focus();
   }
 
+  function updatePagination() {
+    const pages = data.filter(inPath);
+    const index = pages.findIndex(page => page.id === activeId);
+    const navigation = document.querySelector(`#${activeId} .chapter-pagination`);
+    const link = (page, label, next = false) => {
+      const node = document.createElement("a");
+      node.href = `#${page.id}`;
+      if (next) node.className = "next";
+      const caption = document.createElement("span");
+      caption.textContent = label;
+      node.append(caption, document.createTextNode(page.title));
+      return node;
+    };
+    navigation.replaceChildren(
+      index > 0 ? link(pages[index - 1], ui.previous) : document.createElement("span"),
+      index >= 0 && index + 1 < pages.length
+        ? link(pages[index + 1], ui.next, true)
+        : link(pageMap.get("l00"), ui.back, true),
+    );
+  }
+
   function showPage(focus = false) {
     let hash;
     try {
@@ -114,6 +135,12 @@
       persist();
     }
     filterNavigation();
+    updatePagination();
+    if (article && target !== article) {
+      for (let parent = target.parentElement; parent && parent !== article; parent = parent.parentElement) {
+        if (parent.tagName === "DETAILS") parent.open = true;
+      }
+    }
     document.querySelectorAll(".chapter-link").forEach(link => {
       if (link.dataset.chapter === id) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
@@ -123,10 +150,12 @@
     document.querySelectorAll("[data-language]").forEach(link => {
       link.setAttribute("href", `${link.getAttribute("href").split("#")[0]}#${id}`);
     });
-    if (focus) {
+    if (focus || (article && target !== article)) {
       const heading = document.getElementById(`${id}-title`);
       if (target && target !== article) {
         target.scrollIntoView({block: "start", behavior: "auto"});
+        target.setAttribute("tabindex", "-1");
+        target.focus({preventScroll: true});
       } else {
         const destination = id === "l00" ? hero : article;
         destination.scrollIntoView({block: "start", behavior: "auto"});
@@ -202,7 +231,9 @@
     const pre = code.parentElement;
     const label = document.createElement("span");
     label.className = "code-label";
-    label.textContent = (code.className.match(/language-([\w-]+)/) || [null, "TEXT"])[1];
+    const language = (code.className.match(/language-([\w-]+)/) || [null, "text"])[1];
+    label.textContent = ui.code_labels[language] || language;
+    label.title = language;
     label.setAttribute("aria-hidden", "true");
     const button = document.createElement("button");
     button.type = "button";
@@ -251,7 +282,11 @@
     persist();
     filterNavigation();
     if (search.value.trim()) runSearch();
-    else notify(state.path === "offline" ? ui.offline_path : ui.path_selected);
+    else {
+      if (!inPath(pageMap.get(activeId))) location.hash = data.find(inPath).id;
+      else updatePagination();
+      notify(state.path === "offline" ? ui.offline_path : ui.path_selected);
+    }
   });
   search.addEventListener("input", runSearch);
   search.addEventListener("keydown", event => {

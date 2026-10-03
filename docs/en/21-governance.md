@@ -1,5 +1,15 @@
 > **What you will build:** A one-page explanation of who is responsible for controlling identity, data, networks, policies, and costs when operating multiple agents.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Optional design exercise · the synthetic example needs no Azure account.
+
+**Start here:** Mark who may do what along user → agent → tool → data.
+
+**What to check:** Produce an allow/deny table, network paths, and owners. Writing the design neither grants access nor verifies security.
+
+</div>
+
 ## Objectives
 
 **Seeing a Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the Foundry AI Gateway experience include Preview capabilities.

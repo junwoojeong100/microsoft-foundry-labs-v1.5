@@ -1,5 +1,15 @@
 > **What you will build:** A CI interpretation record, agent release manifest, rollback decision table, and model/cost checklist. Design these without deploying, and distinguish plans from execution evidence.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · local source checks and release/recovery design by default.
+
+**Start here:** Read `validate.yml` and separate automatic checks from the approved paid-execution condition.
+
+**What to check:** Keep a CI interpretation, release manifest, rollback decision, and cost owner. This chapter does not require a Hosted deployment.
+
+</div>
+
 ## Objectives
 
 **Passing source checks, deploying to Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.

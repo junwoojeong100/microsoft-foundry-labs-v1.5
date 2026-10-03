@@ -1,5 +1,15 @@
 > **What you will build:** Store and search for a real Memory item, verify user isolation, and confirm that the item is absent after an approved deletion.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · requires Memory Preview and supported chat/embedding models.
+
+**Start here:** Review the plan and user scope for just one fictional user A preference: answers in table format.
+
+**What to check:** Search finds the same item for A only. Delete only that item if approved; otherwise record deletion as not executed.
+
+</div>
+
 ## Objectives
 
 **Conversation is dialogue history, Memory is context across conversations, and IQ is organizational knowledge.**

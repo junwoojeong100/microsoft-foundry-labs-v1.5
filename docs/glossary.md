@@ -4,6 +4,16 @@
 
 | 용어 | 쉬운 뜻 | 혼동하지 않을 것 |
 | --- | --- | --- |
+| Azure | Microsoft의 클라우드 서비스 | 내 PC에서만 실행되는 프로그램 |
+| Tenant / Microsoft Entra ID | 로그인 계정과 조직을 관리하는 경계 / ID 서비스 | 비용을 청구하는 구독 |
+| Subscription / Resource group | 비용·관리 범위 / 그 안의 자원 묶음 | Foundry 프로젝트와 같은 객체 |
+| Portal / Playground | 브라우저 관리 화면 / 입력을 보내 답변을 시험하는 화면 | 가이드를 읽는 이 웹페이지 |
+| Endpoint | 코드가 요청을 보내는 서비스 주소 | 로그인 권한이나 API key |
+| CLI / Terminal / SDK | 명령줄 도구 / 명령을 입력하는 창 / 코드에서 서비스를 쓰는 라이브러리 | 세 가지 모두 설치하는 하나의 앱 |
+| `.env` / venv | 프로젝트 설정 파일 / Python 패키지를 분리하는 폴더 | 같은 환경 기능 |
+| JSON / JSONL | 이름과 값으로 쓰는 데이터 / 한 줄에 JSON 하나인 기록 파일 | 터미널에서 실행할 명령 |
+| Receipt | 실습이 만든 자원 ID·소유 범위를 기록한 파일 | 결제 영수증이나 삭제 승인 자체 |
+| RBAC / Scope | 역할 기반 권한 / 그 권한이 적용되는 범위 | 로그인만 하면 얻는 전체 권한 |
 | Foundry resource | 보안·관리·청구 관련 자원을 묶는 상위 Azure 자원 | agent 한 개 |
 | Project | agent·연결·데이터 등의 작업 공간 | Classic hub |
 | Model ID | 공급자가 정의한 모델 이름 | 내 deployment name |
@@ -28,6 +38,8 @@
 | Routine | 시간/이벤트에 agent를 호출 | 복잡한 orchestration 자체 |
 | Autopilot | agent user account를 포함한 조직의 지속적 agent | 모든 자동 실행 |
 | Evaluation | 기대 행동과 실제 결과를 비교 | 문자열이 비어 있지 않은지 검사 |
+| Judge / Native evaluation | 채점용 모델 / Foundry 서비스에서 수행한 평가 | 답을 만든 모델이나 무조건 옳은 판정 |
+| Dev / Holdout | 개선 중 보는 연습 자료 / 개선에 노출하지 않는 별도 시험 자료 | 모든 `holdout` 이름 파일이 항상 미노출이라는 보장 |
 | Groundedness | 제공 근거에 답이 뒷받침되는 정도 | 세계의 모든 사실에 대한 진실성 |
 | Trace / Span | 실행 전체 경로 / 개별 작업 구간 | 원문을 무제한 저장할 허가 |
 | Guardrail | 위험 탐지와 대응 규칙 묶음 | 업무 시스템의 인증·승인 |

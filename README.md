@@ -6,10 +6,25 @@
 
 Build a synthetic Contoso purchasing assistant through **25 labs and five reference sections**. Both languages share the same implementation and use their own data and instructions.
 
+## First time here?
+
+**Azure is the cloud platform; Foundry is a workspace on it for building and managing AI.** Start with the concepts without prior product experience. Actual calls require an instructor-prepared project, permissions, and cost approval.
+
+1. Read [L00: the basics](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l00-first-steps) to see what you will build.
+2. Extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip), then follow [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01) for PC/project setup. Git commands are not required.
+3. Follow **Format → Start here → What to check** in each module. Take the 13 core modules in order; choose among 12 advanced electives.
+
+Without an account, you can still use local functions and **read actual answers and scores** in L08. Administrator creation and optional execution are in expandable sections; L11 reuses L06's result. Teams publishing, Hosted, and Optimizer are not core-course prerequisites.
+
+<details>
+<summary>Instruction learning path and model conditions</summary>
+
 **The learning path is educational initial v1 → evaluate → analyze and improve → reevaluate v2.** Keep current improvements in `agent-v2.txt`; do not create more instruction versions or accumulate release-experiment narratives.
 V2 explicitly separates public and restricted questions, covers every requested part, matches evidence to individual claims, preserves unknown facts, and respects actual tool permissions/results.
 
 L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-sol`. L08 compares 12 fixed composite questions once for each instruction in both languages, then evaluates those preserved answers in Foundry. No holdout, Hosted redeployment, or Optimizer is required. **Actual score increases are not guaranteed or prewritten.**
+
+</details>
 
 ## Read or download
 
@@ -23,11 +38,17 @@ L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-so
 | Synthetic receipt | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
 
 Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.html`; use an editor to inspect code.
+Open Markdown inside the kit's `downloads/` folder to resolve its images and source links. PDFs include the expandable reference and administrator sections.
 The core course is L00–L12, about 5 hours 20 minutes. Choose advanced modules as needed. Reading requires no sign-in.
 
 Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, extraction, voice, training data, and releases, plus worked Contoso designs. Examples are not Azure results; record design completion separately from actual execution. L22's default CI/release-design path does not require Hosted deployment.
 
 ## Instructions and latest evidence
+
+The existing measurement found only a limited Korean relevance gain; English native metrics tied. The detailed records below are neither the learner's own execution nor Azure validation of this documentation improvement.
+
+<details>
+<summary>Existing measurements, instructions, and verification scope</summary>
 
 - Educational baseline: `agent-v1.txt` in those folders is a deliberately simple role-and-goal starting instruction; it was not weakened to manufacture a lower score.
 - Current: `agent-v2.txt` in those same folders; Prompt/Hosted build defaults use v2.
@@ -38,6 +59,8 @@ Work through **what to inspect → a decision grounded in values → the next ac
 
 The comparison collected **48 target responses** once and completed **two native runs with 24 rows each**. Evaluation-only Prompt Agents pinned v1/v2 in each language. V2 used more tokens (Korean **+7,376**, English **+5,157**) and had higher mean response latency (Korean **+0.427 s**, English **+0.496 s**). Optimizer and holdout were not run; this exposed dev comparison is not a release pass. Earlier direct-response instructions and measurements remain in [Git history at the preserved baseline commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation).
 Original run/deployment IDs remain in raw evidence for provenance; they are not instruction versions.
+
+</details>
 
 ## Working safely
 

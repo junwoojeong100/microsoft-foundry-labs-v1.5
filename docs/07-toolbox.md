@@ -1,5 +1,15 @@
 > **완성할 결과:** 목록뿐 아니라 MCP/OpenAPI의 실제 결과, Toolbox/Skill 버전, 인증 주체와 승인 결정을 확인합니다.
 
+<div class="lab-brief" markdown="1">
+
+**진행 방식:** 기본은 로컬 1–2단계 · 클라우드 Toolbox/Skill은 선택입니다.
+
+**먼저 할 일:** 같은 실습 폴더에서 터미널 두 개를 열고 서버용·호출용을 구분합니다.
+
+**확인할 결과:** HTTP 재고 응답, MCP 도구 2종의 결과와 승인 없는 호출의 차단을 확인한 뒤 서버를 끕니다.
+
+</div>
+
 ## 목표
 
 **MCP는 연결 프로토콜, OpenAPI는 HTTP 계약, Toolbox는 버전 관리되는 도구 묶음,
@@ -57,7 +67,7 @@ python samples/inventory_api.py
 
 </div>
 
-두 번째 터미널에서 같은 리포 폴더로 이동한 뒤:
+두 번째 터미널에서 같은 실습 폴더를 열고 Python 환경을 다시 선택합니다. **Windows PowerShell에서는 아래 `curl` 대신 `curl.exe`를 사용**해 다른 PowerShell 명령과의 이름 충돌을 피합니다.
 
 ```bash
 curl --fail http://127.0.0.1:8766/health
@@ -105,6 +115,11 @@ stdio child process가 서버를 실행하고 initialize → tools/list → tool
 
 ### 3. 선택 확장: 버전 고정 Toolbox와 Skill 생성
 
+기본 코스 참여자는 여기서 **성공 기준 → 정리 → L08**로 이동합니다.
+
+<details class="optional-path" markdown="1">
+<summary>L13 준비 후에만: 클라우드 Toolbox·Skill 생성과 호출 (3–4단계)</summary>
+
 ```bash
 python samples/toolbox_lab.py create
 python samples/toolbox_lab.py create --live
@@ -140,10 +155,10 @@ python samples/toolbox_lab.py inspect --live
 
 ### 4. 선택 확장: 목록의 정확한 이름으로 클라우드 도구 호출
 
-`inspect`에서 반환된 이름을 복사합니다. 예시는 실제 이름을 추측해서 사용하지 마세요.
+`inspect`에서 반환된 **Contoso OpenAPI 검색 도구**의 정확한 이름을 복사합니다. Microsoft Learn 검색 도구는 다른 입력 형식을 쓰므로 섞지 않습니다.
 
 ```bash
-python samples/toolbox_lab.py call --tool 실제-검색도구명 --arguments '{"query":"Microsoft Foundry hosted agents"}' --approve-tool 실제-검색도구명 --live
+python samples/toolbox_lab.py call --tool 실제-OPENAPI-검색도구명 --arguments '{"api-version":"2024-07-01","body":{"search":"노트북 구매 승인","top":3,"select":"id,document_id,title,section,filename,content,content_sha256"}}' --approve-tool 실제-OPENAPI-검색도구명 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -152,18 +167,20 @@ python samples/toolbox_lab.py call --tool 실제-검색도구명 --arguments '{"
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `call --live` | 두 곳의 `실제-검색도구명`을 `inspect`에서 받은 같은 이름으로 바꿉니다. `--arguments`는 해당 도구 schema에 맞는 입력이며 `--approve-tool`은 한 번의 승인을 표시합니다. | 원격 도구에 질문이 전송됩니다. 이 예는 제품 공개 문서 검색이며 회사 데이터는 넣지 않습니다. 도구의 실제 결과·오류와 서비스별 비용을 확인합니다. |
+| 1. `call --live` | 두 곳의 `실제-OPENAPI-검색도구명`을 같은 실제 이름으로 바꿉니다. `api-version`은 최상위, `search`·`top`·`select`는 `body` 안에 둡니다. `--approve-tool`은 이 이름·인수의 1회 승인입니다. | 프로젝트 관리 ID로 한국어 합성 정책을 최대 3절 읽습니다. 원문·해시를 `data/policies/`와 대조합니다. Search 비용은 남으며 초안·주문은 생성하지 않습니다. |
 
 </div>
 
 OpenAPI 도구의 인수는 `tools/list`의 `inputSchema`를 따릅니다.
-`api-version=2024-07-01`, `search`, `top<=5`, 지정 `select`를 전달합니다.
-`python samples/toolbox_lab.py openapi`로 **A가 생성한 전체 계약**을 확인할 수 있습니다. `openapi`는 Search 설정/receipt로 계약 JSON을 구성해 출력하는 로컬 명령입니다. Azure 요청이나 도구 실행은 없지만 L13의 설정이 있어야 올바른 endpoint가 들어갑니다.
+`api-version=2024-07-01`을 최상위에, `search`, `top<=5`, 지정 `select`를 **`body` 안에** 전달합니다. `search`를 최상위에 놓거나 Learn 도구의 `query`를 대신 쓰지 않습니다.
+`python samples/toolbox_lab.py openapi`로 **이 저장소가 생성하는 전체 계약**을 확인할 수 있습니다. `openapi`는 Search 설정/receipt로 계약 JSON을 구성해 출력하는 로컬 명령입니다. Azure 요청이나 도구 실행은 없지만 L13의 설정이 있어야 올바른 endpoint가 들어갑니다.
 API version의 schema default만 적는 것은 실제 query parameter 전송이 아닙니다.
 
 실제 output과 tool error를 `results/contoso-toolbox-*.jsonl`에 보존합니다.
 Skill은 resources/list에 있어야 하며 resources/read의 본문까지 확인합니다.
 이것은 지침 발견/읽기 검증이고, 모델이 매번 지침을 따랐다는 품질 보증은 아닙니다.
+
+</details>
 
 ## 성공 기준
 

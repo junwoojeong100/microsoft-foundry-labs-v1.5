@@ -8,6 +8,7 @@ import hashlib
 from html import escape
 import json
 from pathlib import Path
+import posixpath
 import re
 from urllib.parse import unquote, urlparse, urlunparse
 
@@ -193,6 +194,66 @@ def sources_markdown(source_data, language="ko"):
     )
 
 
+def instruction_reading_example(language):
+    """Present one preserved answer pair without rerunning or rewriting evidence."""
+    folder = ROOT / "validation/current" / language
+    responses = json.loads((folder / "responses.json").read_text(encoding="utf-8"))
+    native = json.loads((folder / "native.json").read_text(encoding="utf-8"))
+    case_id = "compound-request-no-tools"
+    answers = [row for row in responses["rows"] if row["id"] == case_id]
+    judgments = [row for row in native["comparison"]["rows"] if row["case_id"] == case_id]
+    for record, rows in ((responses, answers), (native, judgments)):
+        if (
+            record["language"] != language or len(rows) != 2
+            or {row["instructions"] for row in rows} != {"v1", "v2"}
+        ):
+            raise ValueError(f"{language}: the reading example requires one actual v1/v2 pair.")
+    answers = {row["instructions"]: row for row in answers}
+    judgments = {row["instructions"]: row for row in judgments}
+    if not answers["v1"]["query"] or answers["v1"]["query"] != answers["v2"]["query"]:
+        raise ValueError("The reading example must compare the same actual question.")
+    english = language == "en"
+    labels = (
+        ("Preserved question", "Actual answer", "Metric / 5", "Original relevance reasons (English)")
+        if english else ("보존된 질문 원문", "실제 답변", "평가 항목 / 5", "관련성 채점 이유 원문 (영어)")
+    )
+    metrics = {
+        "completeness": "Completeness" if english else "완결성",
+        "relevance": "Relevance" if english else "관련성",
+        "groundedness": "Groundedness" if english else "근거성",
+    }
+    lines = [
+        '<div class="worked-example" markdown="1">',
+        "", f"**{labels[0]} · `{case_id}`**", "",
+        *("> " + escape(line) for line in answers["v1"]["query"].splitlines()),
+    ]
+    for version in ("v1", "v2"):
+        answer = json.loads(answers[version]["raw_answer"])
+        if (
+            not isinstance(answer["answer"], str) or not answer["answer"].strip()
+            or answers[version]["response_id"] != judgments[version]["response_id"]
+        ):
+            raise ValueError("The reading example must retain correlated, nonempty actual answers.")
+        lines += [
+            "", '<div class="recorded-answer" markdown="1">',
+            "", f"**{version} — {labels[1]}**", "", escape(answer["answer"]), "", "</div>",
+        ]
+    lines += ["", f"| {labels[2]} | v1 | v2 |", "| --- | ---: | ---: |"]
+    for key, title in metrics.items():
+        scores = [judgments[version]["metrics"][key]["score"] for version in ("v1", "v2")]
+        if any(type(score) not in (int, float) or not 1 <= score <= 5 for score in scores):
+            raise ValueError("The reading example requires actual native scores on the 1–5 scale.")
+        lines.append(f"| {title} | {scores[0]:g} | {scores[1]:g} |")
+    lines += ["", '<details class="judge-reasons" markdown="1">', f"<summary>{labels[3]}</summary>"]
+    for version in ("v1", "v2"):
+        reason = judgments[version]["metrics"]["relevance"]["reason"]
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError("The reading example requires the original judge reasons.")
+        lines += ["", f"**{version}**", "", escape(reason)]
+    lines += ["", "</details>", "", "</div>"]
+    return "\n".join(lines)
+
+
 def source_body(chapter, chapters, capabilities, source_data, language="ko"):
     sources = {s["id"]: s for s in source_data["sources"]}
     if chapter.get("generated") == "coverage":
@@ -207,6 +268,11 @@ def source_body(chapter, chapters, capabilities, source_data, language="ko"):
         return "](" + urlunparse(address._replace(path=relative)) + ")"
 
     body = re.sub(r"\]\((\.\./[^)]+)\)", normalize_link, body)
+    if chapter["id"] == "l08":
+        marker = "<!-- instruction-reading-example -->"
+        if body.count(marker) != 1:
+            raise ValueError("L08 must contain exactly one preserved-result reading example.")
+        body = body.replace(marker, instruction_reading_example(language))
     if chapter.get("learning"):
         learning = chapter["learning"]
         label = read_json("reader-labels.json")[language]["learning_order"]
@@ -284,6 +350,22 @@ def render_chapter(chapter, body, source_map, previous, following, captures, ui)
 """
 
 
+def portable_book_links(text, output_path):
+    def replace(match):
+        address = urlparse(match[1])
+        if address.scheme or address.netloc or not address.path:
+            return match[0]
+        if address.path.endswith(".html"):
+            target = RELEASE["site_url"] + match[1]
+        else:
+            target = urlunparse(address._replace(
+                path=posixpath.relpath(address.path, Path(output_path).parent.as_posix()),
+            ))
+        return f"]({target})"
+
+    return re.sub(r"\]\(([^)\s]+)\)", replace, text)
+
+
 def build_language(language):
     chapters, source_data, capabilities = load_content(language)
     ui = read_json("reader-labels.json")[language]
@@ -319,7 +401,9 @@ def build_language(language):
     css = (ROOT / "assets/styles.css").read_text(encoding="utf-8")
     js = (ROOT / "assets/app.js").read_text(encoding="utf-8")
     serialized = json.dumps(search_data, ensure_ascii=False).replace("<", "\\u003c").replace("&", "\\u0026")
-    serialized_ui = json.dumps(ui["js"], ensure_ascii=False).replace("<", "\\u003c").replace("&", "\\u0026")
+    serialized_ui = json.dumps(
+        {**ui["js"], **{key: ui[key] for key in ("previous", "next", "back")}}, ensure_ascii=False,
+    ).replace("<", "\\u003c").replace("&", "\\u0026")
     language_links = []
     for code, other in RELEASE["languages"].items():
         current = ' aria-current="true"' if code == language else ""
@@ -383,11 +467,11 @@ def build_language(language):
 </aside>
 <main id="main" tabindex="-1">
   <section class="hero" id="hero" aria-labelledby="hero-title">
-    <div class="hero-kicker">BUILD → GROUND → ACT → EVALUATE → OPERATE</div>
+    <div class="hero-kicker">{ui['hero_kicker']}</div>
     <h2 id="hero-title">{ui['hero_title']}</h2>
     <p>{ui['hero_description']}</p>
-    <div class="hero-actions"><a href="#l01" class="primary-link">{ui['start']} <span aria-hidden="true">→</span></a><a href="#instructor" class="secondary-link">{ui['tour']}</a></div>
-    <div class="hero-stats"><div><strong>25</strong><span>{ui['stat_modules']}</span></div><div><strong>{len(capabilities)}</strong><span>{ui['stat_features']}</span></div><div><strong>{len(sources)}</strong><span>{ui['stat_sources']}</span></div><div><strong>1</strong><span>{ui['stat_scenario']}</span></div></div>
+    <div class="hero-actions"><a href="#l00-first-steps" class="primary-link">{ui['start']} <span aria-hidden="true">→</span></a><a href="#l01" class="secondary-link">{ui['ready']}</a><a href="{RELEASE['archive']}" class="secondary-link">{ui['download_kit']}</a></div>
+    <div class="hero-stats"><div><strong>13</strong><span>{ui['stat_core']}</span></div><div><strong>12</strong><span>{ui['stat_electives']}</span></div><div><strong>1</strong><span>{ui['stat_scenario']}</span></div></div>
     <div class="hero-orbit" aria-hidden="true"><span></span><i></i><b>f</b></div>
   </section>
   <div class="reader-note" id="reader-note"><span class="note-mark" aria-hidden="true">i</span><p>{ui['reader_note']}</p><a href="#sources">{ui['view_basis']}</a></div>
@@ -422,7 +506,7 @@ def build_language(language):
         f"[{ui['web_guide']}]({RELEASE['site_url']}{edition['html']}) — {ui['book_web']}",
         "",
         " | ".join(
-            f"[{other['label']}]({Path(other['markdown']).name})"
+            f"[{other['label']}]({other['markdown']})"
             for other in RELEASE["languages"].values()
         ),
         "",
@@ -435,21 +519,18 @@ def build_language(language):
     ]
     book += [f'- [{c["number"]}. {c["title"]}](#{c["id"]})' for c in chapters]
     for chapter in chapters:
-        book_body = re.sub(
-            r"\]\(([^():#?\s]+\.html(?:#[^)]*)?)\)",
-            lambda match: f"]({RELEASE['site_url']}{match[1]})",
-            bodies[chapter["id"]],
-        )
         book += [
             "", "---", "", f'<a id="{chapter["id"]}"></a>', "",
             f'# {chapter["number"]}. {chapter["title"]}', "",
             f'**{ui["tracks"][chapter["track"]]} · {chapter["status"]}**' + (" · " + ui["book_time"].format(minutes=chapter["minutes"]) if chapter["minutes"] else ""),
-            "", book_body, "", f"### {ui['official']}", "",
+            "", bodies[chapter["id"]], "", f"### {ui['official']}", "",
         ]
         book += [f'- [{sources[key]["title"]}]({sources[key]["url"]})' for key in chapter["sources"]]
     markdown_path = ROOT / edition["markdown"]
     markdown_path.parent.mkdir(parents=True, exist_ok=True)
-    markdown_path.write_text("\n".join(book) + "\n", encoding="utf-8")
+    markdown_path.write_text(
+        portable_book_links("\n".join(book) + "\n", edition["markdown"]), encoding="utf-8",
+    )
     print(f"Built {language}: {len(chapters)} sections (25 labs), {len(capabilities)} coverage rows, {len(sources)} official sources.")
 
 

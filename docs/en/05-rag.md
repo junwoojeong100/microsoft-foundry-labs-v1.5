@@ -1,5 +1,15 @@
 > **What you will build:** An answer stating “The laptop limit is KRW 1,500,000, including VAT,” backed by evidence from an actual uploaded document.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Reuse L04's portal agent · check upload and retrieval costs first.
+
+**Start here:** Read the three English synthetic policies and find the laptop-cap and approval sections.
+
+**What to check:** Actual citations for two answerable questions and a withheld answer for missing policy. The SDK path is optional.
+
+</div>
+
 ## Objectives
 
 Make the agent answer from **retrieved documents** rather than the model's pretrained knowledge. This is the shortest path to Retrieval-Augmented Generation, or RAG.

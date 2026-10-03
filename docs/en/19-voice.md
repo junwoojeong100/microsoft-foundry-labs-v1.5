@@ -1,5 +1,15 @@
 > **What you will build:** A voice agent that speaks brief purchasing guidance, with interruption, silence, and session termination verified.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · requires Voice Preview, microphone/speakers, and approved voice costs.
+
+**Start here:** Check support. If unavailable, write the conversation scenario without creating an agent.
+
+**What to check:** If executed, record quantity correction 2→1, interruption, and ended state. Viewing setup is not voice execution.
+
+</div>
+
 ## Objectives
 
 **Speech STT/TTS, real-time Voice Live, and a voice Prompt Agent are not interchangeable terms.** Distinguish Speech's GA capabilities from the Voice Agent Preview experience.

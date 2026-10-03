@@ -1,4 +1,14 @@
-> **What you will build:** A Foundry project in the correct tenant, one callable model, a development environment, and a plan for stopping costs.
+> **What you will build:** Your lab project/model settings, a ready PC, and a plan for stopping costs. Check the deployment in L02 and the first call in L03.
+
+<div class="lab-brief" markdown="1">
+
+**Format:** Prepare your PC and inspect a supplied project · only an administrator creates a new Azure environment.
+
+**Start here:** Check whether the instructor supplied project details. Without them, stop after the local exercises.
+
+**What to check:** Keep the data-check result and your project endpoint/model deployment name. L03 verifies the actual connection.
+
+</div>
 
 ## Objectives
 
@@ -16,6 +26,17 @@ Separate the **permissions, incorrect endpoints, supported regions, and quota** 
 
 ## Prerequisites
 
+### Details to obtain from your instructor
+
+| Ask for | Why you need it |
+| --- | --- |
+| Sign-in account and organization (tenant) | Avoid creating resources because another organization's project list is empty |
+| Approved subscription, resource group, and project name | Identify the billing scope and work target |
+| Project endpoint and model deployment name | Configure the address and target used by the L03 code |
+| Budget, stop owner, and cleanup owner | Know when to stop and what to retain |
+
+If these are missing, **continue local exercises but stop before Azure creation or calls**. If the subscription is absent or access is denied, ask the instructor for these details. Registering a card or obtaining subscription Owner is not a learner setup step.
+
 | Item | Core course | Additional conditions |
 | --- | --- | --- |
 | Azure | An approved subscription and nonproduction resource group | Do not bypass organizational policies |
@@ -25,11 +46,19 @@ Separate the **permissions, incorrect endpoints, supported regions, and quota** 
 | Data | This guide's English synthetic data in `data/en/` | Do not upload real customer or employee information |
 | Budget | A per-person or team limit and someone responsible for stopping usage | Budget alerts do not enforce a hard billing cutoff |
 
+### Start on a new PC
+
+Use your organization's approved installation route for [Python 3.13](https://www.python.org/downloads/), [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli), and [VS Code](https://code.visualstudio.com/download). Do not reinstall existing tools. Local-only exercises need neither Azure CLI nor Azure sign-in.
+
+Extract the ZIP and choose **VS Code → File → Open Folder**, selecting the folder containing `samples`, `data`, and `requirements.txt` together. Use **Terminal → New Terminal** for the commands below. This is your PC's terminal, not Azure Cloud Shell or Python's `>>>` prompt. If you see `>>>`, enter `exit()` to leave Python.
+
+In Windows PowerShell, use **`py -3.13`** instead of the following `python3` commands before creating a virtual environment. Afterward use `.venv\Scripts\python.exe`. Execute **only your operating system's block**, not both the macOS/Linux and Windows alternatives.
+
 ## Steps
 
 ### 1. Select the English profile and prepare the project
 
-Start from a **separate clean checkout or worktree** for the English run. This revision uses `docs/english-live-validation`; do not merge it into `main` or change repository visibility as part of setup. Keep this checkout's `.env`, `.azure/`, `results/`, virtual environments, and generated Hosted packages separate. Never copy a Korean run's private configuration, ownership receipts, or response files into it.
+Use a **separate extracted lab folder or clean checkout** for English execution if you also run the Korean labs. Keep its `.env`, `.azure/`, `results/`, virtual environments, and generated Hosted packages separate. Never copy a Korean run's private settings, ownership receipts, or response files into it. You do not need an authoring branch or a repository merge to start the lesson.
 
 Before running any sample, management, or packaging command, select the English data profile in the current terminal.
 
@@ -65,13 +94,17 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 
 **All later commands assume this per-terminal selection**, including commands in separate server/client terminals. Reselect the profile and the appropriate Python environment after opening a new terminal. The browser's language switch does not set it, and an absent flag keeps the original Korean default. The [English profile manifest](../../data/en/profile-manifest.json) describes the inputs and unchanged business rules. Explicit file options must also point to `data/en/`; the flag does not translate an explicitly supplied Korean file. L14's generated Hosted packages record the selected language in `lab-profile.json`.
 
-Use the new Foundry experience at `https://ai.azure.com`. Learners can use an existing approved project.
-If none is available, the responsible administrator prepares a new environment. The English validation uses a **new dedicated resource group**, not the existing Korean-run resources.
-Keep personal execution files in the selected environment's `results/`. Only the latest reviewed originals remain in `validation/current/`, with their actual language and provenance. L08 uses one v1/v2 learning comparison, not a sequence of release runs.
+1. Open the [Foundry portal](https://ai.azure.com) and sign in with the account specified by your instructor.
+2. Check that **New Foundry** is on. Select the supplied project using the selector at the upper left.
+3. Compare **Name / Parent resource / Location** in **Manage → Project details** with the instructor's information. Your approved project may have a different name from the example `contoso-workshop-en`.
+4. If no project appears or only **Create project** is available, ask for access rather than creating one. Account-free participants can continue with the local checks in step 4 below.
 
-Record the nonproduction resource group, project name, and region. The English project is `contoso-workshop-en`; use your own approved resource names and endpoints.
-**Learner path:** Use the project and model supplied by the administrator, with the minimum data-plane roles.
-**Administrator path:** The script below creates only a uniquely named new resource group; it does not reuse or delete existing resources.
+**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in `results/`; do not overwrite published examples in `validation/current/`.
+
+<details class="operator-only" markdown="1">
+<summary>Administrators only: create a new environment after scope, cost, and access approval</summary>
+
+The following script creates only a uniquely named new resource group (RG); it does not reuse or delete existing resources. First prepare Python in step 4 and CLI sign-in in step 5 below. Do not execute placeholder commands before confirming models, region, quota, and the approved scope.
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription approved-subscription-id --location approved-region --cost-authorization "Approved amount and retention policy" --live
@@ -104,7 +137,14 @@ inspect the original deployment operation and use `foundation --resume` **only f
 
 The captured overview preserves an **inherited organizational diagnostic-policy failure** because its external governance workspace was missing. The English run's own foundation and observability deployments succeeded separately. Do not hide that warning, count it as an owned deployment failure, or change the out-of-scope policy/workspace; refer it to the responsible governance owner.
 
+</details>
+
 ### 2. Check roles by who needs to do what
+
+Confirm with the owner that you can **open the project, create an agent, and call the model**. Learners do not need to memorize the complete role table or assign roles themselves.
+
+<details class="operator-only" markdown="1">
+<summary>Administrator reference: minimum roles by identity</summary>
 
 | Identity | Starting point for the required scope | Action to verify |
 | --- | --- | --- |
@@ -122,12 +162,19 @@ Role names have recently changed—for example, **Azure AI User → Foundry User
 
 The administrator script resolves the administrator's object ID from the **authenticated Azure Resource Manager (ARM) credential** for scoped role assignments, rather than requiring a separate Microsoft Graph signed-in-user lookup. A Graph-specific Continuous Access Evaluation (CAE) challenge did not block ARM/Foundry authentication in this English run. Diagnose each service's actual response separately and follow organizational access policies.
 
+</details>
+
 ### 3. Check region, deployment, and cost
 
 Prepare just one model for L02. Start with a usage-based deployment if your data is synthetic and organizational policy allows it. **PTU, paid Search tiers, GPU managed compute, large Batch jobs, and fine-tuning are not needed for the core course.**
 L08's native automated evaluation also requires a separate judge deployment. Do not recreate one the administrator has already provided.
 
+<details class="provenance-note" markdown="1">
+<summary>Reference: the earlier English run's capacity decision</summary>
+
 The English run's foundation-model capacity was explicitly increased **10 → 50 → 100** after quota verification for the bounded evaluation workload. The current setting of **100** is a run-specific capacity decision, not a required learner setting or an evaluation pass. Capacity units vary by model and **are not a dollar cap**; retain explicit cost approval and bounded requests before increasing your own deployment capacity.
+
+</details>
 
 The project region, supported model regions, deployment type, and quota are separate conditions. A project in Korea Central does not, by itself, mean that all inference is processed in Korea. L02 covers Global, Data Zone, and geography-based processing scopes.
 
@@ -135,7 +182,7 @@ Review automated evaluation options under **Metrics** in the agent playground. D
 
 ### 4. Prepare the local exercise environment
 
-Run these commands from the separate English checkout's root, with `FOUNDRY_LAB_LANGUAGE=en` still selected.
+Run one line at a time from your English lab folder, with `FOUNDRY_LAB_LANGUAGE=en` still selected. On Windows use `py -3.13` as explained above.
 
 ```bash
 python3 samples/workshop.py doctor
@@ -153,7 +200,13 @@ python3 samples/workshop.py validate-data
 
 </div>
 
-The expected result is `dev=10, holdout=10`, with 0 duplicate scenarios, for the existing exposed learning data. It is not a fresh independent release test. L08 uses its own 12 fixed comparison questions; these remain separate from the sealed holdout. This check **requires no Azure account, network connection, or external packages**.
+The second command prints the following. `dev` and `holdout` name two groups in the bundled, already exposed learning data. For now, check the counts and lack of overlap; this is neither L08's 12-question comparison nor a fresh sealed release test.
+
+```text
+Validated 20 cases: dev=10, holdout=10; scenario overlap=0; inventory=3.
+```
+
+This check **requires no Azure account, network connection, or external packages**. A `doctor` entry saying `not installed (needed only for --live)` identifies a package needed before Azure calls, not a failure of this local data check.
 
 Install packages only when you are ready to call Azure from code.
 
@@ -205,7 +258,7 @@ Subsequent `python` commands refer to this environment's Python. If PowerShell a
 
 **Reading the screen:** Under **Manage → Project details**, first compare **Name / Parent resource / Location** with your English environment's records. Put your own **Project endpoint** in the local configuration. In **Connected resources**, read the connection target, Category, and Auth method. Masked areas are not example values to copy; do not reveal connection keys. The [English capture log](../../content/portal-screenshots.en.json) defines the observation scope. Viewing settings does not establish that a connection or permission change succeeded.
 
-Copy the project endpoint from **Manage → Project details** or the project's landing page in the portal. Edit these two values in `.env`.
+Copy the project endpoint from **Manage → Project details** or the project's landing page. **Open `.env` in VS Code**, replace only the right-hand sides of these two `=` signs, and save. Ensure the filename is `.env`, not `.env.txt`. Do not paste this settings block into the terminal.
 
 ```text
 FOUNDRY_PROJECT_ENDPOINT=https://your-foundry-resource.services.ai.azure.com/api/projects/contoso-workshop-en
@@ -214,7 +267,7 @@ FOUNDRY_MODEL_DEPLOYMENT_NAME=your-model-deployment-name
 
 Replace `your-foundry-resource` and `your-model-deployment-name` with your actual resource and model deployment names; verify the entire endpoint against your approved English project. **Do not append `/openai/v1` to the project endpoint.** The SDK constructs the correct path. Do not add an API key or copy another run's `.env`.
 
-Before L08, also set `.env`'s `FOUNDRY_JUDGE_DEPLOYMENT_NAME` to the actual judge deployment name supplied by your administrator. See `.env.example` for environment-variable definitions and defaults.
+Set `.env`'s `FOUNDRY_JUDGE_DEPLOYMENT_NAME` to the supplied grading-model deployment **only if running a new evaluation in L08**. Reading the existing results does not require it. Leave unused optional settings empty.
 
 ```bash
 az login

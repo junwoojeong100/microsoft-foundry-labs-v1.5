@@ -1,4 +1,14 @@
-> **What you will build:** One model deployment whose selection you can justify, and a comparison table of alternatives.
+> **What you will build:** The settings and rationale for one lab model deployment. Comparing alternatives is optional.
+
+<div class="lab-brief" markdown="1">
+
+**Format:** Foundry portal · do not recreate a model deployment already supplied.
+
+**Start here:** Record the model ID, version, and deployment name separately in your own project.
+
+**What to check:** Explain your selected deployment, processing location, and cost conditions. Send the two questions only within the approved scope.
+
+</div>
 
 ## Objectives
 
@@ -17,6 +27,8 @@
 ## Prerequisites
 
 You need the L01 project and permission to deploy models. If learners do not have deployment permissions, use a model deployed by the instructor.
+
+**If a model is supplied:** open your deployment under **Build → Models → Deployments** and compare it with the lab-settings table below. If the model ID/version match, record the actual deployment name and **skip creation in step 3**. A deployment called `contoso-chat` does not have a model ID of `contoso-chat`.
 
 ## Steps
 
@@ -49,6 +61,11 @@ Quota and capacity vary by subscription. A visible card does not establish deplo
 
 ### 2. Choose a deployment type
 
+Start with **one administrator-approved usage-based type**. `GlobalStandard` is this guide's example, not the correct choice for every organization. Deployment type affects data-processing location as well as cost.
+
+<details markdown="1">
+<summary>Optional reference: other deployment types and processing scopes</summary>
+
 | Type | When to use it | In this lab |
 | --- | --- | --- |
 | Standard / Global Standard / Data Zone Standard | Usage-based service | Choose one allowed by policy |
@@ -60,9 +77,13 @@ Quota and capacity vary by subscription. A visible card does not establish deplo
 
 **Storage location and inference processing location are different.** For Global, check the scope of available regions worldwide; for Data Zone, check the specified zone; for geography-based Standard, check the relevant Azure geography. An APAC zone does not mean Korea alone.
 
+</details>
+
 ### 3. Deploy and record the name
 
-From the model card's deployment action, select **`gpt-6-sol` / `2026-09-22`** with a supported type/capacity. If you name it `contoso-gpt-6-sol`, set `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-gpt-6-sol` in `.env`. The API uses the **actual deployment name**, not merely the catalog model ID.
+If a new deployment is needed and approved, select **Deploy → Custom settings** on the model card. Check **model `gpt-6-sol` / version `2026-09-22` / approved type and capacity / deployment name**, then select **Deploy**. Confirm **Succeeded/ready** in the deployment list. Do not record only the name of a failed deployment and proceed.
+
+If you name it `contoso-gpt-6-sol`, set `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-gpt-6-sol` in `.env`. The API uses the **actual deployment name**, not merely the catalog model ID.
 
 L01's administrator foundation script can deploy the same model under the name `contoso-chat`. If using that path, keep the actual returned deployment name and do not deploy it again. Changing a model deployment does not automatically redeploy an existing Hosted agent's code or configuration.
 
@@ -88,6 +109,9 @@ A public leaderboard is a starting point for narrowing candidates, not a guarant
 
 ### 4. Optional extension: Model router
 
+<details class="optional-path" markdown="1">
+<summary>Not required for the core lab: compare per-request model selection</summary>
+
 Model router is a **model deployment** that selects an appropriate model for each request. Where available, start by comparing `Balanced`, then review `Cost`, `Quality`, and the permitted model subset. Use the same 20 evaluation examples.
 
 The routing pool can change even under the same router version identifier. Check allowed models, the minimum context window, data-processing scope, and fallback behavior. Include only approved models in a custom subset; fallback experiments require at least two. **Do not assume the router is necessarily cheaper or more accurate.**
@@ -96,6 +120,8 @@ The routing pool can change even under the same router version identifier. Check
 <summary>Going deeper into cost and performance</summary>
 
 Prompt caching depends on conditions such as matching prefixes and the model actually selected. Batch is a separate asynchronous workflow, not just a different option on an online request. Flex/Priority are processing tiers on supported deployments, intended for latency-tolerant and prioritized processing respectively. Review PTU reservation costs, capacity, and cancellation terms, and obtain separate approval before proceeding.
+
+</details>
 
 </details>
 

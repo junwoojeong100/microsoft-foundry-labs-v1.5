@@ -1,5 +1,7 @@
 from collections import defaultdict
+from copy import deepcopy
 import csv
+from html import escape
 import json
 import os
 from pathlib import Path
@@ -9,10 +11,12 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from check_guide import command_coverage
+import build_guide
+from check_guide import BRIEF_LABELS, LAB_HEADINGS, command_coverage
 
 
 def explanation(rows):
@@ -26,6 +30,70 @@ def explanation(rows):
 
 
 class GuideAuthoringTests(unittest.TestCase):
+    def test_all_bilingual_labs_start_with_format_action_and_expected_evidence(self):
+        for language in ("ko", "en"):
+            chapters, _, _ = build_guide.load_content(language)
+            for chapter in chapters:
+                if chapter["track"] == "reference":
+                    continue
+                text = (ROOT / chapter["file"]).read_text()
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    self.assertEqual(text.count('class="lab-brief"'), 1)
+                    brief = re.search(r'<div class="lab-brief" markdown="1">(.*?)</div>', text, re.S)
+                    self.assertIsNotNone(brief)
+                    self.assertLess(brief.start(), text.index("## " + LAB_HEADINGS[language][1]))
+                    for label in BRIEF_LABELS[language]:
+                        self.assertIn("**" + label, brief[1])
+
+    def test_reading_example_retains_exact_localized_answers_scores_and_reasons(self):
+        for language in ("ko", "en"):
+            folder = ROOT / "validation/current" / language
+            responses = json.loads((folder / "responses.json").read_text())
+            native = json.loads((folder / "native.json").read_text())
+            example = build_guide.instruction_reading_example(language)
+            answers = {row["instructions"]: row for row in responses["rows"]
+                       if row["id"] == "compound-request-no-tools"}
+            judgments = {row["instructions"]: row for row in native["comparison"]["rows"]
+                         if row["case_id"] == "compound-request-no-tools"}
+            with self.subTest(language=language):
+                self.assertEqual(example.count('class="recorded-answer"'), 2)
+                self.assertIn(escape(answers["v1"]["query"]), example)
+                for version in ("v1", "v2"):
+                    self.assertIn(escape(json.loads(answers[version]["raw_answer"])["answer"]), example)
+                    self.assertIn(escape(judgments[version]["metrics"]["relevance"]["reason"]), example)
+                expected = "| 관련성 | 4 | 5 |" if language == "ko" else "| Relevance | 5 | 5 |"
+                self.assertIn(expected, example)
+
+    def test_reading_example_rejects_missing_or_mismatched_evidence(self):
+        folder = ROOT / "validation/current/en"
+        responses = json.loads((folder / "responses.json").read_text())
+        native = json.loads((folder / "native.json").read_text())
+        answers = [row for row in responses["rows"] if row["id"] == "compound-request-no-tools"]
+        judgments = [row for row in native["comparison"]["rows"] if row["case_id"] == "compound-request-no-tools"]
+        for defect in ("missing-version", "language", "response-id", "score", "reason", "question", "empty-answer"):
+            source = {"language": "en", "rows": deepcopy(answers)}
+            evaluation = {"language": "en", "comparison": {"rows": deepcopy(judgments)}}
+            if defect == "missing-version":
+                evaluation["comparison"]["rows"].pop()
+            elif defect == "language":
+                evaluation["language"] = "ko"
+            elif defect == "response-id":
+                evaluation["comparison"]["rows"][0]["response_id"] = "unrelated"
+            elif defect in {"score", "reason"}:
+                evaluation["comparison"]["rows"][0]["metrics"]["relevance"][defect] = None
+            elif defect == "question":
+                source["rows"][0]["query"] = "different question"
+            else:
+                source["rows"][0]["raw_answer"] = '{"answer":""}'
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                target = root / "validation/current/en"
+                target.mkdir(parents=True)
+                (target / "responses.json").write_text(json.dumps(source))
+                (target / "native.json").write_text(json.dumps(evaluation))
+                with patch.object(build_guide, "ROOT", root), self.assertRaises(ValueError):
+                    build_guide.instruction_reading_example("en")
+
     def test_all_25_labs_have_concepts_and_per_command_explanations(self):
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
         labs = [chapter for chapter in chapters if chapter["track"] != "reference"]

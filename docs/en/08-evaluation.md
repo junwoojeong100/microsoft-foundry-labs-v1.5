@@ -1,5 +1,15 @@
 > **What you will build:** An educational initial v1 → evaluate → analyze and improve → reevaluate v2 learning loop, grounded in actual answers and evaluation reasons.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Read preserved actual results by default · a new paid evaluation is optional.
+
+**Start here:** Read the v1/v2 answers to one question below. Mark whether both address the cap, stock, approval, and draft.
+
+**What to check:** Explain a tie or difference using answers, scores, and reasons. Reading these originals is not your own Azure execution.
+
+</div>
+
 ## Objectives
 
 **Explain how instruction changes affect the actual answer and evaluation.** A learning guide does not need an ever-growing sequence of release experiments.
@@ -12,7 +22,7 @@ V1 is a newly designed, simple educational starting instruction, held fixed with
 **What is it, and why does it matter?** Scores must follow the actual answer, not the label “v2.”
 Keep the model, policies, questions, output format, and checks identical; change only the instructions.
 
-**How do you use it?** Ask the same 12 fixed composite questions once per version, inspect the original answers and individual checks, and calculate the difference.
+**How do you use it?** Start with one already collected question below, then compare originals, scores, and reasons across all 12 questions. Only if a new collection is approved, ask each question once per version.
 Retain ties and regressions. Do not prewrite a winning result or keep sampling until a score increases.
 
 **Where do you run it?** Use the [Prompt Agent comparison runner](../../samples/instruction_prompt_agent_lab.py), [fixed questions/checklist](../../data/en/evaluation/instruction-comparison.json),
@@ -21,14 +31,38 @@ In the portal's Evaluations area, distinguish service completion from scores, er
 
 ## Prerequisites
 
-Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** deployment. Set its actual deployment name, `contoso-gpt-6-sol`, in `.env`. Native evaluation also needs `FOUNDRY_JUDGE_DEPLOYMENT_NAME`; this measurement held the existing `contoso-judge` (GPT-4.1) fixed in both environments. No Hosted-agent redeployment, Search service, Optimizer, or holdout is required. The evaluation created one tool-free Prompt Agent with v1/v2 versions in each Foundry project.
+**The default reading path needs no account or new model calls.** The [English response originals](../../validation/current/en/responses.json) and [English evaluation originals](../../validation/current/en/native.json) are also in the ZIP. The example below is generated from those records, not from newly authored ideal answers.
+
+| Term to know | Plain-language meaning |
+| --- | --- |
+| v1 / v2 | Starting instructions / improved instructions; not the service's agent-version numbers |
+| Judge / Native evaluation | The grading model / an evaluation run by Foundry's service |
+| Completeness / Relevance / Groundedness | Did it address all requested parts / fit the question / stay supported by the supplied material? |
+| Dev / Holdout | Practice data used while improving / a separate final exam excluded from improvement |
+
+<details class="optional-path" markdown="1">
+<summary>Optional execution prerequisites: collect and evaluate new responses</summary>
+
+Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** deployment. Set your actual deployment name in `.env`: the suggested name is `contoso-gpt-6-sol`, while L01's administrator path may use `contoso-chat`. Native evaluation also needs `FOUNDRY_JUDGE_DEPLOYMENT_NAME`; this measurement held the existing `contoso-judge` (GPT-4.1) fixed in both environments. No Hosted-agent redeployment, Search service, Optimizer, or holdout is required. The evaluation created one tool-free Prompt Agent with v1/v2 versions in each Foundry project.
 Both prompts receive the same **checked-in synthetic policy context**; it is not described as a live Search retrieval.
 The 12 questions use the same scenario IDs, expected behavior, and policy context in both languages. Expected behavior is not included in target-model inputs; it is supplied only to the native judge.
 Keep `FOUNDRY_LAB_LANGUAGE=en` selected for the English inputs and instructions.
 
+</details>
+
 ## Steps
 
-### 1. Read what v2 changes
+### 1. Read and judge one question first
+
+These are **actual English questions, answers, and native scores**. Locate **cap / current stock / approver / draft** in each answer. Unlike L06, this comparison has no tools: it must not claim a stock lookup or a created draft.
+
+<!-- instruction-reading-example -->
+
+**Interpretation:** Both answers address all four parts, and all three native scores tie at 5→5. The changed wording does not establish a measured English improvement. Read the expandable judge reasons critically; a maximum score on one exposed question is not proof of general quality.
+
+Write one line each for **observed difference / supporting original text / remaining uncertainty**. Then read the full results below and the other questions in the originals.
+
+### 2. Read what v2 changes
 
 | General v1 guidance | More explicit v2 behavior | Difference to look for |
 | --- | --- | --- |
@@ -39,12 +73,15 @@ Keep `FOUNDRY_LAB_LANGUAGE=en` selected for the English inputs and instructions.
 
 V2 contains a reusable answer procedure, not question-specific answers or evaluation case IDs.
 
-### 2. Inspect the plan, then compare once
+### 3. Optional: run a new comparison in your environment
+
+Skip this step when reading existing results. Expand it only after approval of the project, language, request limits, and costs for new collection/evaluation. First select English in your separate lab folder as shown in L01; these commands then work without a shell-specific variable prefix.
+
+<details class="optional-path" markdown="1">
+<summary>New paid execution: inspect the plan → collect answers → evaluate those originals</summary>
 
 ```bash
-FOUNDRY_LAB_LANGUAGE=en python samples/instruction_prompt_agent_lab.py
-FOUNDRY_LAB_LANGUAGE=en python samples/instruction_prompt_agent_lab.py --live --output results/instruction-prompt-agent-en.json
-FOUNDRY_LAB_LANGUAGE=en python samples/instruction_evaluation.py --input results/instruction-prompt-agent-en.json --output results/instruction-native-prompt-agent-en.json --live
+python samples/instruction_prompt_agent_lab.py
 ```
 
 <div class="command-explanation" markdown="1">
@@ -54,8 +91,24 @@ FOUNDRY_LAB_LANGUAGE=en python samples/instruction_evaluation.py --input results
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `instruction_prompt_agent_lab.py` | Displays v1/v2, 12 fixed questions, target deployment, and the comparison plan. | Plan only; zero Azure response calls. |
-| 2. `instruction_prompt_agent_lab.py --live` | In the approved existing project, invoke each pinned Prompt Agent version once per question with identical context and inputs. Create one Prompt Agent with v1/v2 in each language project. | At most 24 calls per language, 600 seconds, zero retries and 2,048 output tokens. Both languages together: at most 48 calls and 1,200 seconds. Agent definitions hold reasoning and JSON schema; do not resend them as request overrides when `agent_reference` is specified. Preserve originals, token/latency usage, and local checks in `results/`. |
-| 3. `instruction_evaluation.py --live` | Submit those 24 originals to Foundry native completeness, relevance, and groundedness evaluation. The anonymous judge receives precommitted expected behavior, not the v1/v2 labels. | Zero target reinvocations. One 24-row native run per language, 600 seconds and 90-second cancellation verification; preserve scores and reasons separately. |
+
+</div>
+
+Run the first line below only if the plan matches your approved scope. Wait for a complete collection file before running the second. **Do not run both lines together.**
+
+```bash
+python samples/instruction_prompt_agent_lab.py --live --output results/instruction-prompt-agent-en.json
+python samples/instruction_evaluation.py --input results/instruction-prompt-agent-en.json --output results/instruction-native-prompt-agent-en.json --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `instruction_prompt_agent_lab.py --live` | Creates one evaluation Agent with v1/v2 in the selected language's approved project, then collects answers under the same context and questions. | At most 24 calls, 600 seconds, zero retries, and 2,048 output tokens per language. If both languages are separately approved, the combined cap is 48 calls/1,200 seconds. Preserve originals, tokens, latency, and supporting checks in `results/`. |
+| 2. `instruction_evaluation.py --live` | Submits the 24 collected Prompt Agent originals to Foundry native evaluation. | Zero target reinvocations. One native run per language, 600 seconds plus 90-second cancellation verification. Preserve scores and reasons separately. |
 
 </div>
 
@@ -63,7 +116,11 @@ Run the same commands with the language and input/output paths set to `ko` or `e
 
 If the result file exists, read it rather than invoking the target again. Do not increment instruction or experiment versions. The first ownership preflight and the subsequent request-shape error each produced zero target responses; those originals remain recorded, followed by one complete collection within the approved bounds. Do not substitute earlier or authored answers. With a Prompt Agent reference, keep reasoning and output schema in its definition rather than duplicate them in the Responses request. Foundry-issued evaluation IDs are retained for traceability.
 
-### 3. Read the score and the underlying answers
+The `results/` paths above belong to the person who executed the commands. Personal run files are excluded from the kit; read the linked `validation/current/en/` originals for the existing example.
+
+</details>
+
+### 4. Read the score and the underlying answers
 
 The same 40 precommitted checks apply per instruction version, giving the local supporting checklist a score from **0 to 40**.
 A check requires both an explicit fact/refusal/confirmation path and a relevant selected policy section.
@@ -71,18 +128,25 @@ This is a **mechanical text-and-citation checklist**, not comprehensive semantic
 
 | Result field | Interpretation |
 | --- | --- |
-| `local_checklist.scores.v1`, `.v2` | Actual matched checks under identical criteria |
-| `local_checklist.delta`, `.outcome` | V2-v1 difference and actual `improved`, `unchanged`, or `regressed` result |
+| `comparison.local_checklist.scores.v1`, `.v2` | Actual matched checks in the response JSON under identical criteria |
+| `comparison.local_checklist.delta`, `.outcome` | V2-v1 difference and actual `improved`, `unchanged`, or `regressed` result |
 | `rows[].raw_answer`, `checklist` | Original answer, check-level judgments, and critical safety-check failures |
-| `usage_latency` | Per-version tokens, mean/total latency, and v2-v1 deltas |
+| `comparison.usage_latency` | Per-version tokens, mean/total latency, and v2-v1 deltas |
 | `instructions_sha256`, `cases_sha256`, `context_sha256` | Exact input fingerprints, not increasing instruction versions |
+
+Search for `compound-request-no-tools` in your editor to find v1/v2 under the response file's `rows`. In the native file, match `comparison.rows` by `case_id` and `instructions`, then read `metrics` for scores/reasons. `raw_answer` is a JSON-encoded string, so `\"` and `\n` are normal. The reading example above displays its decoded `answer` without editing the content.
 
 **A higher v2 score is not guaranteed.** V1 may already answer every part correctly, and model variation can produce a regression.
 Explain that result from the originals. Do not weaken v1 or change the checklist to manufacture improvement.
 
-### 4. Question types and Foundry native evaluation
+### 5. Question types and Foundry native evaluation
+
+<details class="provenance-note" markdown="1">
+<summary>Reference: why the earlier three questions became twelve</summary>
 
 Before freezing the new suite, inspect the earlier three cases (`public-and-restricted`, `quote-and-policy`, `approval-and-draft`). The preserved [previous report](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation) shows 5.0/5 on completeness, relevance, and groundedness for v1 and v2 in both languages. Both instructions answered these three composite cases well enough to reach the ceiling; with only three rows and saturated scores, that exercise could not distinguish the instructions. This does not prove equivalence or justify weakening v1. The new dev set was therefore fixed before measurement as 12 varied boundary, evidence, subquestion, and tool-limit cases; the earlier results were not replaced.
+
+</details>
 
 The fixed questions cover multiple item caps versus total approvals, exact thresholds, public facts versus restricted information, missing policy, uncertain contracts and currency conversion, quotes versus live inventory, tool-input constraints, untrusted approval claims, and compound requests. Both instructions receive the same context and no-tool boundary.
 
@@ -91,13 +155,20 @@ The Foundry native evaluator sees each question's precommitted expected behavior
 ![Foundry Evaluations. Separate completion status from individual scores, errors, and missing rows.](../../assets/portal/en/08-evaluations.png)
 
 Explore the run state, evaluator, inputs, row-level judgments, and errors in Evaluations.
-The first two commands collect real Azure model responses and calculate local checks. The third [native comparison runner](../../samples/instruction_evaluation.py) submits those exact responses to Foundry Evaluations. Relevance and groundedness use built-in evaluators; completeness uses one shared custom 1–5 rubric.
+The optional collection command records real Azure responses and local checks; the [native comparison runner](../../samples/instruction_evaluation.py) submits those exact responses to Foundry Evaluations. Relevance and groundedness use built-in evaluators; completeness uses one shared custom 1–5 rubric.
 This is a development comparison on exposed teaching questions, not an independent holdout or generalization test. No separate judge calibration is performed.
 The existing 90% overall and zero-safety/access-failure business gates are not replaced or relaxed by this small learning score.
 
-### 5. Actual Korean and English measurements
+### 6. Full Korean and English measurements
+
+These are actual results collected during guide production, not your own execution or guaranteed future scores. Read the score table first; expand the run configuration only when you need its reproduction conditions.
+
+<details class="provenance-note" markdown="1">
+<summary>Measurement configuration: model, agent versions, duration, and judge</summary>
 
 The precommitted set of 12 composite development questions was invoked once for each instruction in each language using **Foundry Prompt Agents**, not Hosted agents. The Korean `contoso-instruction-eval-ko-20261001` and English `contoso-instruction-eval-en-20261001` each have pinned active v1/version `1` and v2/version `2`. The target was `gpt-6-sol` / `2026-09-22`, reasoning `low`, and a 2,048-token output limit; within each language, context, questions, schema, and criteria were held constant. There were **48 target responses**. Korean and English collection took 88.707 and 77.389 seconds (166.096 seconds total, within the 1,200-second combined limit). The separate judge was `contoso-judge` / GPT-4.1 `2025-04-14`; it was not told which instruction was expected to win. One native run per language submitted 24 rows; both completed with zero errors or missing rows.
+
+</details>
 
 | Language | Instructions | Supporting local checklist / 40 | Native completeness / 5 | Relevance / 5 | Groundedness / 5 |
 | --- | --- | ---: | ---: | ---: | ---: |

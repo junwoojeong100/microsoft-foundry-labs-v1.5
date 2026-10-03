@@ -1,5 +1,15 @@
 > **이 모듈에서 만드는 것:** 지침 개선과 모델 학습을 구분하고, v1→v2 비교에서 확인한 원인에 맞는 다음 방법을 선택합니다.
 
+<div class="lab-brief" markdown="1">
+
+**진행 방식:** 선택 심화 · 기존 평가 읽기와 로컬 학습 파일 준비부터 합니다.
+
+**먼저 할 일:** L08의 실제 답변 한 쌍을 보고 지침·검색·도구 중 어디를 바꿔야 할지 적습니다.
+
+**확인할 결과:** 개선 방법의 이유와 학습 16행·검증 8행의 의미를 설명합니다. Optimizer 제출이나 실제 학습은 필수가 아닙니다.
+
+</div>
+
 ## 목표
 
 **새로운 사실은 RAG, 답변 절차와 누락은 지침 개선, 반복적으로 배울 행동은 fine-tuning**부터 검토합니다.
@@ -41,6 +51,11 @@ v1을 일부러 약하게 고치거나 질문별 정답을 v2에 붙이지 않�
 
 ### 2. 선택: Agent Optimizer의 역할 이해하기
 
+로컬 학습 데이터 준비가 목적이면 **3단계로 바로 이동**합니다. 이 선택 기능을 실행해야 v2를 사용할 수 있는 것은 아닙니다.
+
+<details class="optional-path" markdown="1">
+<summary>선택 참고: Optimizer의 조건과 제출 계획</summary>
+
 Agent Optimizer는 Limited preview이며, 사용 가능 여부와 모델 지원 범위를 별도로 확인합니다.
 기본 실습은 L08의 단일 비교로 충분합니다. Optimizer를 계속 제출하거나 후보를 자동 승격할 필요가 없습니다.
 현재 저장소의 Hosted Responses agent는 `contoso-chat`(GPT-4.1-mini)을 사용하지만 L08은 GPT-6 Sol 기반 Prompt Agent 버전으로 평가했습니다. 이 Hosted 경로의 모델은 비교 대상과 달라 같은 조건의 Optimizer 후보를 만들 수 없습니다. 이번 비교의 두 Prompt Agent는 평가 전용으로 생성했으며 Hosted agent를 재배포·변경하지 않았습니다. 직접 작성한 v2를 Optimizer 산출물로 표현하지 않습니다.
@@ -65,6 +80,8 @@ python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_
 서비스의 `succeeded`와 후보 개선은 다릅니다. 누락·오류·실패를 확인하고 개선이 없으면 그대로 기록합니다.
 서비스 생성 후보, 운영자가 수정한 후보, 직접 작성한 지침은 서로 다른 출처로 기록합니다. 영어 dev로 생성한 지침을 한국어로 옮긴 경우에는 번역·검토본이며, 한국어 응답은 별도 측정이 필요합니다.
 이 고급 경로를 준비하는 작업은 v1→v2 학습 비교의 필수 단계가 아닙니다.
+
+</details>
 
 ### 3. 로컬 SFT 데이터 형식 익히기
 

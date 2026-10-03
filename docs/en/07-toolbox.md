@@ -1,5 +1,15 @@
 > **What you will build:** Verification of actual MCP/OpenAPI results—not just tool lists—along with Toolbox/Skill versions, authentication identities, and approval decisions.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Local steps 1–2 are the core exercise · cloud Toolbox/Skills are optional.
+
+**Start here:** Open two terminals in the same lab folder, one for the server and one for calls.
+
+**What to check:** The HTTP inventory response, both MCP tool results, and rejection without approval. Stop the server afterward.
+
+</div>
+
 ## Objectives
 
 **MCP is a connection protocol, OpenAPI is an HTTP contract, Toolbox is a versioned collection of tools,
@@ -59,6 +69,8 @@ python samples/inventory_api.py
 
 In a second terminal, change to the same English checkout, reselect `FOUNDRY_LAB_LANGUAGE=en` as in L01 and the appropriate Python environment, then run:
 
+**In Windows PowerShell, use `curl.exe` instead of `curl` below** to avoid the alias for a different PowerShell command.
+
 ```bash
 curl --fail http://127.0.0.1:8766/health
 curl --fail http://127.0.0.1:8766/inventory/NB-14
@@ -104,6 +116,11 @@ Check inventory 8, unit price KRW 1,450,000, draft total KRW 2,900,000, and `ord
 Without `--approve-tool`, execution stops **before the call**. Do not interpret tool approval as actual order approval.
 
 ### 3. Optional extension: Create a version-pinned Toolbox and Skill
+
+Core-course participants can now go to **Success criteria → Cleanup → L08**.
+
+<details class="optional-path" markdown="1">
+<summary>Only after L13 preparation: cloud Toolbox/Skill creation and invocation (steps 3–4)</summary>
 
 ```bash
 python samples/toolbox_lab.py create
@@ -164,6 +181,8 @@ Specifying only an API version's schema default does not send the actual query p
 Preserve actual output and tool errors in `results/contoso-toolbox-*.jsonl`.
 The Skill must appear in resources/list; also inspect its body through resources/read.
 This verifies instruction discovery and reading, not that the model follows the instructions every time.
+
+</details>
 
 ## Success criteria
 
