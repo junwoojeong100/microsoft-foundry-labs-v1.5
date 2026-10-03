@@ -67,9 +67,9 @@ L03의 모델 Playground에서 이미지 입력을 지원하는 **자신의 배�
 | 필드 | 타입 | 확인 |
 | --- | --- | --- |
 | document_id | string | CONTOSO-2026-0929 |
-| date | date/string | 2026-09-29 |
+| date | date | 2026-09-29 |
 | currency | string | KRW |
-| quantity | integer | 2 |
+| quantity | number | 2; 정수 수량인지는 값 검사로 확인 |
 | unit_price | number | 89000 |
 | total | number | 178000 |
 | approval_status | string | 문서의 “승인 대기”를 `pending`으로 정규화; 실제 승인 수행 금지 |
@@ -77,6 +77,36 @@ L03의 모델 Playground에서 이미지 입력을 지원하는 **자신의 배�
 생산용 기본 API는 **`2025-11-01` GA**를 기준으로 검토합니다. **`2026-06-01-preview`**의 agentic mode, 일부 classification/metadata/signature 기능은 별도 실험입니다. 2026년 9월 CU Toolkit/CU CLI도 Preview입니다.
 
 이 단일 품목 예제의 `quantity`·`unit_price`는 정답 파일의 `items[0]`과 대조합니다. 여러 품목 문서라면 한 값을 대표값으로 쓰지 말고 배열 schema를 설계해야 합니다.
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** [완성된 분석기 설정](../data/exercises/receipt-analyzer.json)을 편집기로 엽니다. 이 파일은 **GA `2025-11-01`용 구성 예**이며 실제 생성·분석 결과가 아닙니다. Studio에서 템플릿의 제안 필드를 그대로 쓰지 말고 `fieldSchema.fields`의 **7개 이름·타입·설명·method**를 같은 값으로 맞춥니다. JSON 전체를 채팅창에 보내지 않습니다.
+
+| 설정 | 이번 선택 | 이유 |
+| --- | --- | --- |
+| 기본 분석기 | `prebuilt-document` | 고정 영수증 템플릿의 다른 필드명 대신 원하는 7개 필드를 사용 |
+| 날짜 / 수량 | `date` / `number` | CU의 지원 타입 사용. `integer`는 이 field schema의 타입이 아님 |
+| 원문 값 | `method=extract`, 필드별 `estimateSourceAndConfidence=true` | 원본 위치와 confidence를 함께 받도록 요청 |
+| 통화 | `method=generate` | 인쇄된 원화 표시를 `KRW`로 정규화; 새 금액 생성 아님 |
+| 승인 상태 | `method=classify`, `pending/approved/unknown` | 문서 상태만 분류; 업무 승인 아님 |
+| 상세 결과 | `returnDetails=true` | 값뿐 아니라 원문 위치를 판독 |
+| 모델 연결 | 관리자가 제공한 해당 리소스의 defaults | L02의 모델 이름을 임의로 넣거나 자동 배포하지 않음 |
+
+지원 타입·필드 옵션은 [분석기 구성 참조](https://learn.microsoft.com/azure/ai-services/content-understanding/concepts/analyzer-reference)를 기준으로 합니다. Studio에 해당 옵션이 없으면 관리자에게 같은 JSON 구성의 분석기를 요청하고 그 이름·설정을 대조합니다. “비슷한 설정”으로 바꾼 뒤 같은 조건이라고 쓰지 않습니다.
+
+첫 분석에서 `contents`의 대상 문서와 `fields`를 열어 `date`의 날짜 값, `quantity/unit_price/total`의 숫자 값, `approval_status`의 문자열을 확인합니다. 화면의 정규화 값과 원문 강조 위치를 함께 기록합니다. confidence가 없는 응답은 “미제공”이며 임의로 1.0을 적지 않습니다.
+
+**한 가지 바꾸기:** 같은 문서에서 **품목 코드 필드 `sku` 하나만 추가**합니다. 설정 복사본에 다음 정의를 `fieldSchema.fields` 안에 추가하고, Studio에서도 같은 필드를 추가·저장합니다. 첫 결과와 설정을 먼저 보관하고, 추가 분석 한 번을 승인받은 경우에만 다시 실행합니다.
+
+```json
+{"sku":{"type":"string","method":"extract","description":"품목 행에 인쇄된 SKU 코드를 그대로 추출한다. 품목명으로 코드를 추측하지 않는다.","estimateSourceAndConfidence":true}}
+```
+
+기대 차이는 필드 7개→8개, 새 `sku` 값 **KB-01**입니다. 기존 합계 178,000원·수량 2·승인 대기는 바뀌지 않아야 합니다. 실제 출력이 없거나 다르면 그대로 기록합니다. 이 변경은 “모델이 더 똑똑해졌다”가 아니라 **요청한 출력 계약이 달라졌다**는 실험입니다.
+
+**결과 설명하기:** `설정 변경 / 새 필드 / 기존 값 보존 여부 / 원문 근거 / 미확인 항목`을 작성합니다. 어떤 정보를 새로 요청했고, 왜 JSON 타입이 맞아도 업무 값 검사가 필요한지 설명하세요. 기본 분석과 추가 분석은 최대 2건이며, 실패했다고 반복 호출하지 않습니다.
+
+</div>
 
 | 확인할 것 | 어떻게 판단하나요? | 실패하면 다음 행동 |
 | --- | --- | --- |

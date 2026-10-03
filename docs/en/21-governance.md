@@ -2,9 +2,9 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Optional design exercise · the synthetic example needs no Azure account.
+**Format:** Local code repair plus optional design · no Azure account needed to start.
 
-**Start here:** Mark who may do what along user → agent → tool → data.
+**Start here:** Reproduce two failures in the synthetic cache/access exercise, then map responsibilities across user → agent → tool → data.
 
 **What to check:** Produce an allow/deny table, network paths, and owners. Writing the design neither grants access nor verifies security.
 
@@ -29,6 +29,58 @@
 The default exercise is design and read-only inspection. Turn the Contoso example into your own **principal → operation → scope → deny condition → owner** table. Without Azure access, complete it as a design, not a verified permission test. Real roles, gateways, private endpoints, and policy changes require administrator involvement and separate approval.
 
 ## Steps
+
+### 0. Fix it: does a cache hit still check access?
+
+<div class="practice-block" markdown="1">
+
+**Try it:** This exercise uses only synthetic strings on your PC. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Azure roles nor real document ACLs.
+
+```bash
+python samples/prepare_practice.py governance --output practice/governance
+python -m unittest discover -s practice/governance -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `prepare_practice.py governance` | Copies the bundled flawed example into a new `practice/governance` folder. Refuses to overwrite an existing folder. | Creates local files only; no external connections or access changes. |
+| 2. `unittest discover` | Runs five copied cases for access, denial, caching, and revocation. | Initially, **two of five tests fail intentionally**. This is not a failure of the repository-wide suite. |
+
+</div>
+
+The failing names are `test_denied_user_after_cache` and `test_revocation_after_cache`. Open `practice/governance/exercise.py` and find **the cached return before the permission check**. Explain which line skips authorization when B reads after A, or after A's permission is revoked.
+
+**Change one thing:** Put authorization before the cache lookup. Do not change the tests or grant more users access. Rerun the same check and require all five cases to pass.
+
+<details markdown="1">
+<summary>Example repair and explanation — open after checking your own change</summary>
+
+<!-- solution:governance -->
+```python
+DOCUMENTS = {
+    "public-policy": "Contoso synthetic policy: drafts require human approval.",
+    "restricted-quote": "Contoso synthetic restricted quote: training data only.",
+}
+
+def read_document(user: str, document_id: str, grants: dict[str, set[str]], cache: dict) -> str:
+    if user not in grants[document_id]:
+        raise PermissionError("Access denied")
+    if document_id not in cache:
+        cache[document_id] = DOCUMENTS[document_id]
+    return cache[document_id]
+```
+
+A cache does not replace authentication or authorization. This example rechecks current grants on every read, so cached data remains denied after revocation. A real service additionally needs authenticated-user binding, source ACLs, cache isolation, and expiry.
+
+</details>
+
+**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Azure RBAC, network, or document ACL verification.**
+
+</div>
 
 ### 1. Separate four identities
 
@@ -110,6 +162,7 @@ Defender, Purview, and Entra integrations may each require product-specific conf
 
 ## Success criteria
 
+Reproduce the two initial local failures and explain why your repair passes all five tests without expanding access.
 Complete a per-principal allow/deny table, three network paths, one denied-case design, and audit/revocation owners. Distinguish **design example, read-only observation, and actual allow/deny tests**; claim a live test only with evidence from both sides.
 
 ## Troubleshooting

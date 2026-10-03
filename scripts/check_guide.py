@@ -26,6 +26,11 @@ BRIEF_LABELS = {
     "ko": ("진행 방식:", "먼저 할 일:", "확인할 결과:"),
     "en": ("Format:", "Start here:", "What to check:"),
 }
+PRACTICE_LABS = {"l15", "l18", "l19", "l20", "l21", "l22", "l23", "l24"}
+PRACTICE_LABELS = {
+    "ko": ("직접 해보기", "한 가지 바꾸기", "결과 설명하기"),
+    "en": ("Try it", "Change one thing", "Explain the result"),
+}
 
 
 def command_coverage(text: str, source: str, language: str = "ko") -> dict:
@@ -136,6 +141,11 @@ def check_language(language) -> dict:
                 or brief.start() > text.index("## " + LAB_HEADINGS[language][1])
             ):
                 raise ValueError(f"{chapter['id']}: needs a beginner start card before the concept map")
+            if chapter["id"] in PRACTICE_LABS and (
+                text.count('class="practice-block"') != 1
+                or any("**" + label not in text for label in PRACTICE_LABELS[language])
+            ):
+                raise ValueError(f"{chapter['id']}: needs a try/change/explain exercise")
             coverage = command_coverage(text, chapter["file"], language)
             shell_blocks += coverage["blocks"]
             shell_commands += coverage["commands"]
@@ -222,6 +232,7 @@ def check_language(language) -> dict:
         "markdown_local_paths_checked": len(book_paths),
         "modules_with_concept_maps": len(labs),
         "modules_with_beginner_start_cards": len(labs),
+        "modules_with_guided_experiments": len(PRACTICE_LABS),
         "explained_shell_blocks": shell_blocks, "explained_commands": shell_commands,
         "portal_screenshots": portal_captures,
         "portal_manifest": edition["portal_manifest"],

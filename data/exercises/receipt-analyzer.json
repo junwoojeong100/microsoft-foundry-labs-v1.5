@@ -1,0 +1,23 @@
+{
+  "analyzerId": "contoso_receipt_lab",
+  "description": "합성 Contoso 영수증의 인쇄된 값만 추출한다. 실제 구매를 승인하지 않는다.",
+  "baseAnalyzerId": "prebuilt-document",
+  "config": {
+    "enableOcr": true,
+    "enableLayout": true,
+    "returnDetails": true,
+    "estimateFieldSourceAndConfidence": true
+  },
+  "fieldSchema": {
+    "name": "ContosoReceipt",
+    "fields": {
+      "document_id": {"type": "string", "method": "extract", "description": "문서 번호 전체. 하이픈을 유지한다.", "estimateSourceAndConfidence": true},
+      "date": {"type": "date", "method": "extract", "description": "영수증에 인쇄된 발행 날짜.", "estimateSourceAndConfidence": true},
+      "currency": {"type": "string", "method": "generate", "description": "문서의 원화 표시를 KRW로 정규화한다. 표시가 없으면 추측하지 않는다."},
+      "quantity": {"type": "number", "method": "extract", "description": "단일 품목 행의 수량. 금액이 아니다.", "estimateSourceAndConfidence": true},
+      "unit_price": {"type": "number", "method": "extract", "description": "단일 품목 한 개의 원화 단가. 행 합계나 전체 합계가 아니다.", "estimateSourceAndConfidence": true},
+      "total": {"type": "number", "method": "extract", "description": "문서에 인쇄된 최종 전체 합계. 계산으로 보충하지 않는다.", "estimateSourceAndConfidence": true},
+      "approval_status": {"type": "string", "method": "classify", "enum": ["pending", "approved", "unknown"], "description": "문서가 승인 대기라고 하면 pending, 승인 완료라고 명시하면 approved, 상태가 없으면 unknown. 인쇄된 문서의 상태만 분류하며 승인을 수행하지 않는다."}
+    }
+  }
+}

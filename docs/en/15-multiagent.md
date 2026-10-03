@@ -4,7 +4,7 @@
 
 **Format:** Advanced elective · two local roles and remote A2A are separate experiments.
 
-**Start here:** Run `python samples/multi_agent.py` to read the drafter → reviewer plan only.
+**Start here:** Run `python samples/multi_agent.py --mode compare` to inspect the single baseline and drafter → reviewer plan, at most three calls.
 
 **What to check:** If executed, record role outputs/additional latency separately from A2A delegation evidence. A reviewer's answer is not purchase approval.
 
@@ -29,6 +29,7 @@
 ## Prerequisites
 
 You need the English project, model, and separate checkout's `.env` from L01, plus a separate Python environment. Keep `FOUNDRY_LAB_LANGUAGE=en` selected when switching Python environments. Do not overwrite the core-course environment.
+Live calls also require the administrator-supplied `results/azure-environment.json` ownership record. Execution stops if its project endpoint/language differs from `.env`. Obtain the record from the administrator rather than inventing one; without it, stop at plan/code inspection.
 
 As checked on 2026-09-29, `agent-framework-foundry==1.13.1` requires `azure-ai-projects<2.7.0`. The core course uses 2.7.0. **Separate environments with compatible dependencies** are provided.
 
@@ -37,7 +38,7 @@ As checked on 2026-09-29, `agent-framework-foundry==1.13.1` requires `azure-ai-p
 ### 1. Inspect the local plan
 
 ```bash
-python samples/multi_agent.py
+python samples/multi_agent.py --mode compare
 ```
 
 <div class="command-explanation" markdown="1">
@@ -46,11 +47,11 @@ python samples/multi_agent.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `multi_agent.py` | Prints only the sequential flow of the two roles. Without `--live`, it does not call a Foundry model. | Inspect the `drafter → reviewer` structure. No deployment or Azure charges. |
+| 1. `multi_agent.py --mode compare` | Plans one single-agent baseline plus two calls for drafter→reviewer: at most three calls total. | Without `--live`, no SDK initialization or Azure calls. |
 
 </div>
 
-This prints only the `drafter → reviewer` plan and makes no Azure calls.
+Check `mode=compare`, `model_calls_if_approved=3`, 180 seconds, 2,048 output tokens per response, and zero retries. The default `--mode sequential` preserves the original two-role path; it has a different call count.
 
 ### 2. Install the advanced environment
 
@@ -74,10 +75,10 @@ python3 -m venv .venv-advanced
 
 On Windows, use `.venv-advanced\Scripts\python.exe`. Use a package repository allowed by your administration policy.
 
-### 3. Run both agents live
+### 3. Compare one and two agents with the same question
 
 ```bash
-.venv-advanced/bin/python samples/multi_agent.py --live
+.venv-advanced/bin/python samples/multi_agent.py --mode compare --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -86,7 +87,7 @@ On Windows, use `.venv-advanced\Scripts\python.exe`. Use a package repository al
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `multi_agent.py --live` | Runs the drafter and reviewer sequentially in the MAF environment, calling Foundry models. | Model inference charges apply. Orchestration is local; this is neither a Hosted deployment nor completed real approval. Compare each role's output and the added latency. |
+| 1. `multi_agent.py --mode compare --live` | Uses the same purchase question, model, and policy for one baseline and one drafter→reviewer workflow. | At most three model calls/180 seconds. Prints intermediate/final answers, actual token usage, and elapsed time; preserves them in a unique `Evidence:` JSONL. No Hosted deployment or real approval. |
 
 </div>
 
@@ -103,13 +104,48 @@ The core flow is:
 workflow = WorkflowBuilder(
     start_executor=drafter,
     output_from=[reviewer],
+    intermediate_output_from=[drafter],
     max_iterations=4,
 ).add_edge(drafter, reviewer).build()
 ```
 
-### 4. Compare with a single agent
+### 4. Read the intermediate answer and change one question
 
-Record accuracy, tokens, and total latency for the same question. If the two-agent result is merely longer, return to a single agent. Calling a role “reviewer” does not create independent validation or a security boundary.
+<div class="practice-block" markdown="1">
+
+**Try it:** Inspect the terminal's `paths`. In the `Evidence:` file, open `payload.paths` in the final `event=completed` row. Record your returned values, not invented example measurements.
+
+| Result path | What to read |
+| --- | --- |
+| `single.stages[0].answer` | Single-agent baseline using the drafter's instructions and policy |
+| `sequential.stages[0].answer` | Actual intermediate draft, not a later summary or reconstruction |
+| `sequential.stages[1].answer` | Reviewer's final guidance after receiving that draft |
+| Each stage's `response_id`, `input_tokens`, `output_tokens` | That call's identifier and actual SDK usage |
+| Each path's `elapsed_seconds`, `total_tokens` | Whole-path elapsed time and summed call tokens |
+| `sequential_minus_single` | Two-stage minus single time/tokens, not a correctness-improvement score |
+
+Compare with **policy section 3**: did the drafter omit an approver for KRW 2,900,000, and did the reviewer fix it? If both answers are correct, “no additional quality benefit observed” is valid. Token `null` means uncollected, not zero. Do not add individual operation times to the whole-path duration again.
+Timing covers each path's execution after object construction. The single path runs first, so authentication, caching, and startup latency can affect the observation. One duration difference does not establish a difference in the model's intrinsic speed.
+
+**Change one thing:** Optionally approve a second run changing only the question to the boundary case. Keep model, policy, and instructions unchanged. This makes up to three **additional calls**, not a replay.
+
+```bash
+.venv-advanced/bin/python samples/multi_agent.py --mode compare --case boundary --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--case boundary` | Compares approvals for KRW 2,000,000 and KRW 2,000,001 through the same two paths. | At most three new model calls and new evidence. Running both cases totals at most six calls, each within its approved scope. |
+
+</div>
+
+**Explain the result:** Record `case / baseline errors / drafter errors / errors remaining after review / extra tokens and time / reason to keep two roles`. Exactly KRW 2,000,000 needs team-lead approval; KRW 2,000,001 also needs procurement approval. Single runs are variable observations, not statistical superiority. They do not establish human approval or A2A delegation.
+
+</div>
 
 <details markdown="1">
 <summary>When to choose other orchestration patterns</summary>

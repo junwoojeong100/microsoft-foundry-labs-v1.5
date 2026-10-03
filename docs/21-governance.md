@@ -2,9 +2,9 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 설계 · Azure 계정 없이도 합성 사례로 작성할 수 있습니다.
+**진행 방식:** 로컬 코드 수정 + 선택 설계 · Azure 계정 없이 시작합니다.
 
-**먼저 할 일:** 사용자 → 에이전트 → 도구 → 데이터 경로에 누가 무엇을 할 수 있는지 적습니다.
+**먼저 할 일:** 합성 캐시/권한 과제의 두 실패를 재현한 뒤, 사용자 → 에이전트 → 도구 → 데이터의 책임을 연결합니다.
 
 **확인할 결과:** 허용·거절 조건, 네트워크 경로와 담당자 표를 만듭니다. 표 작성은 실제 권한 부여나 보안 검증이 아닙니다.
 
@@ -29,6 +29,58 @@
 기본 과제는 설계·읽기 전용 확인입니다. 아래 Contoso 예시를 자신의 **주체 → 작업 → 범위 → 거절 조건 → 담당자** 표로 바꾸어 작성합니다. Azure 접근이 없어도 예시로 완성할 수 있으며 실제 권한 검증으로 기록하지 않습니다. role assignment·gateway·private endpoint·정책 변경은 관리자와 별도 승인 후 진행합니다.
 
 ## 실행
+
+### 0. 직접 고치기: 캐시에 있어도 권한을 확인하는가?
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** 아래 과제는 내 PC의 합성 문자열만 사용합니다. A는 제한 견적을 볼 수 있고 B는 볼 수 없습니다. 공용 정책은 둘 다 볼 수 있습니다. Azure 역할·실제 문서 ACL을 바꾸는 과제가 아닙니다.
+
+```bash
+python samples/prepare_practice.py governance --output practice/governance
+python -m unittest discover -s practice/governance -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `prepare_practice.py governance` | 동봉된 결함 예제를 새 `practice/governance` 폴더로 복사합니다. 기존 폴더는 덮어쓰지 않습니다. | 로컬 파일만 생성. 외부 접속·권한 변경 없음. |
+| 2. `unittest discover` | 복사본의 다섯 사례로 접근 허용·거절·캐시·권한 회수를 확인합니다. | 처음에는 **5개 중 2개 실패**가 의도한 결과입니다. 저장소 전체 검사의 실패가 아닙니다. |
+
+</div>
+
+실패 이름은 `test_denied_user_after_cache`, `test_revocation_after_cache`입니다. `practice/governance/exercise.py`에서 **캐시 반환이 권한 확인보다 앞서는 순서**를 찾습니다. A가 읽은 뒤 B가 읽거나 A의 권한을 회수했을 때 어떤 줄이 검사를 건너뛰는지 설명하세요.
+
+**한 가지 바꾸기:** 권한 검사를 캐시 조회보다 앞에 놓습니다. 테스트나 `grants`의 허용 사용자를 바꾸지 않습니다. 같은 검사 명령을 다시 실행해 다섯 사례 모두 통과하는지 확인합니다.
+
+<details markdown="1">
+<summary>수정 예와 해설 — 먼저 자신의 수정 결과를 확인한 뒤 펼치기</summary>
+
+<!-- solution:governance -->
+```python
+DOCUMENTS = {
+    "public-policy": "Contoso synthetic policy: drafts require human approval.",
+    "restricted-quote": "Contoso synthetic restricted quote: training data only.",
+}
+
+def read_document(user: str, document_id: str, grants: dict[str, set[str]], cache: dict) -> str:
+    if user not in grants[document_id]:
+        raise PermissionError("Access denied")
+    if document_id not in cache:
+        cache[document_id] = DOCUMENTS[document_id]
+    return cache[document_id]
+```
+
+캐시는 인증·권한 검사를 대체하지 않습니다. 이 예제는 매번 현재 권한표를 확인하므로 회수 후 캐시가 남아 있어도 거절합니다. 실제 서비스에는 인증된 사용자 연결, 원본 ACL, 캐시 격리·만료가 추가로 필요합니다.
+
+</details>
+
+**결과 설명하기:** `A 첫 읽기 / B의 같은 문서 읽기 / A 권한 회수 후 읽기 / 공용 정책 읽기`의 수정 전·후를 적습니다. 이어 아래 identity 표의 어느 계층이 이 검사를 집행해야 하는지 표시합니다. **로컬 테스트 통과를 Azure RBAC·네트워크·문서 ACL 검증으로 기록하지 않습니다.**
+
+</div>
 
 ### 1. identity 네 가지를 분리하기
 
@@ -110,6 +162,7 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 ## 성공 기준
 
+로컬 과제는 처음의 두 실패를 재현하고, 권한을 넓히지 않은 수정으로 5개 테스트가 통과하는 이유를 설명합니다.
 주체별 허용/금지 작업표와 세 네트워크 경로, 거절 사례 한 개, 감사·회수 담당자를 작성했습니다. **설계 예시 / 읽기 관찰 / 실제 허용·거절 시험**을 따로 표시하고, 실제 시험은 양쪽 증거가 있을 때만 완료로 기록합니다.
 
 ## 막혔을 때

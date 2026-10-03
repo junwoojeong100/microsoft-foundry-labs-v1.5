@@ -1,14 +1,14 @@
 {
   "l13": {"label":"Independent elective","requires":"An L01 project and model. This module prepares Search, embeddings, and an index, which also provide the foundation for L14."},
   "l14": {"label":"Prerequisites required","requires":"The Search service and index from L13, or equivalent administrator-provided resources. Required for L20 Hosted Optimizer and only the optional live Hosted deployment in L22."},
-  "l15": {"label":"Independent elective","requires":"A basic project and model, plus a separate MAF environment. MAF/A2A can run without other advanced modules; only the optional Hosted deployment requires L14."},
+  "l15": {"label":"Independent elective","requires":"A basic project/model, administrator ownership receipt, and separate MAF environment. Single/two-role comparison makes at most three model calls. A2A is separate; only optional Hosted deployment needs L14."},
   "l16": {"label":"Independent elective","requires":"A basic project, chat and embedding deployments, and access to supported Memory features. No other advanced module is required."},
   "l17": {"label":"Separate feature paths","requires":"A routine can run independently with the server-side prompt agent from L05. The long-running Hosted path requires L14."},
   "l18": {"label":"Independent elective","requires":"The base environment and the models and permissions for your chosen Content Understanding or Code Interpreter path. Preparing the synthetic receipt also works locally."},
   "l19": {"label":"Independent elective","requires":"The base environment, a supported Voice/Speech model and region, and device permissions. No other advanced module is required."},
   "l20": {"label":"Separate feature paths","requires":"Read L08's single instruction comparison first. Local training-data preparation is independent; Hosted Optimizer and real training are optional and require separate approval and prerequisites."},
-  "l21": {"label":"Independent elective","requires":"Core concepts are sufficient for the synthetic design exercise. Actual access/network inspection requires read permissions; changes require an administrator and separate approval."},
-  "l22": {"label":"Run after source setup","requires":"Use L01's local environment and sources for CI interpretation and release/rollback design. L14 is needed only for optional live Hosted deployment; repeated evaluation and Optimizer are not required."},
+  "l21": {"label":"Independent elective","requires":"Use Python for the local access/cache repair, then complete the synthetic design. Actual access/network inspection needs read permissions; changes require an administrator and separate approval."},
+  "l22": {"label":"Run after source setup","requires":"Use L01's local environment and sources for synthetic CI failure/repair and release/rollback design. L14 is needed only for optional live Hosted deployment; repeated evaluation and Optimizer are not required."},
   "l23": {"label":"Independent elective","requires":"A supported Foundry Local device or the relevant Fabric/Work IQ licenses and permissions. These electives are independent of other advanced modules."},
-  "l24": {"label":"Independent elective","requires":"The core-course concepts. Comparison and design are independent; perform a real migration only with an approved Classic environment."}
+  "l24": {"label":"Independent elective","requires":"Repair a synthetic request contract with Python. No existing Classic environment is needed; real migration requires a separately approved environment."}
 }

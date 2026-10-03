@@ -4,7 +4,7 @@
 
 **진행 방식:** 선택 심화 · 로컬 두 역할과 원격 A2A는 서로 다른 실험입니다.
 
-**먼저 할 일:** `python samples/multi_agent.py`로 작성자 → 검토자 계획만 읽습니다.
+**먼저 할 일:** `python samples/multi_agent.py --mode compare`로 단일 기준선과 작성자 → 검토자의 최대 3회 호출 계획을 읽습니다.
 
 **확인할 결과:** 실행했다면 역할별 출력·추가 지연과 A2A 위임 근거를 따로 기록합니다. 검토자의 답은 실제 구매 승인이 아닙니다.
 
@@ -29,6 +29,7 @@
 ## 준비
 
 L01의 프로젝트·모델·`.env`, 별도 Python 환경이 필요합니다. 기본 코스의 환경을 그대로 덮어쓰지 마세요.
+실제 호출에는 관리자가 제공한 `results/azure-environment.json` 소유 기록이 필요합니다. 프로젝트 주소·언어가 `.env`와 다르면 중단합니다. 기록이 없다면 임의로 만들지 말고 관리자에게 받으며, 아래 계획·코드 읽기까지만 진행합니다.
 
 2026-09-29 확인 기준 `agent-framework-foundry==1.13.1`은 `azure-ai-projects<2.7.0`을 요구합니다. 기본 코스는 2.7.0입니다. **각각 호환되는 환경을 분리**했습니다.
 
@@ -37,7 +38,7 @@ L01의 프로젝트·모델·`.env`, 별도 Python 환경이 필요합니다. �
 ### 1. 로컬 계획 확인하기
 
 ```bash
-python samples/multi_agent.py
+python samples/multi_agent.py --mode compare
 ```
 
 <div class="command-explanation" markdown="1">
@@ -46,11 +47,11 @@ python samples/multi_agent.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `multi_agent.py` | 두 역할의 순차 흐름만 출력합니다. `--live`가 없으므로 Foundry 모델을 호출하지 않습니다. | `drafter → reviewer` 구조를 확인합니다. 배포·Azure 비용 없음. |
+| 1. `multi_agent.py --mode compare` | 단일 기준선 1회와 작성자→검토자 2회, 합계 최대 3회 호출 계획을 읽습니다. | `--live`가 없으므로 SDK 초기화·Azure 호출 없음. |
 
 </div>
 
-`drafter → reviewer` 계획만 출력하며 Azure를 호출하지 않습니다.
+`mode=compare`, `model_calls_if_approved=3`, 180초·응답당 2,048토큰·재시도 0회를 확인합니다. 기본 `--mode sequential`은 기존의 두 역할 경로이며 비교 모드와 호출 수가 다릅니다.
 
 ### 2. 심화 환경 설치하기
 
@@ -74,10 +75,10 @@ python3 -m venv .venv-advanced
 
 Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 관리 정책에 맞는 패키지 저장소를 이용하세요.
 
-### 3. 실제 두 agent 실행하기
+### 3. 같은 질문으로 단일·두 agent 비교하기
 
 ```bash
-.venv-advanced/bin/python samples/multi_agent.py --live
+.venv-advanced/bin/python samples/multi_agent.py --mode compare --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -86,7 +87,7 @@ Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 관리 정책
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `multi_agent.py --live` | MAF 환경에서 drafter와 reviewer를 순차 실행하여 Foundry 모델을 호출합니다. | 모델 추론 비용 발생. orchestration은 로컬이며 Hosted 배포나 실제 승인 완료가 아닙니다. 각 역할의 출력과 추가 지연을 비교합니다. |
+| 1. `multi_agent.py --mode compare --live` | 같은 구매 질문·모델·정책으로 단일 기준선을 한 번, 작성자→검토자 흐름을 한 번 실행합니다. | 최대 3회 모델 호출·180초. 중간/최종 답, 실제 토큰과 경과 시간을 출력하고 고유 `Evidence:` JSONL에 보존합니다. Hosted 배포·실제 승인은 없습니다. |
 
 </div>
 
@@ -103,13 +104,48 @@ Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 관리 정책
 workflow = WorkflowBuilder(
     start_executor=drafter,
     output_from=[reviewer],
+    intermediate_output_from=[drafter],
     max_iterations=4,
 ).add_edge(drafter, reviewer).build()
 ```
 
-### 4. 단일 agent와 비교하기
+### 4. 중간 답을 읽고 질문 하나 바꿔 보기
 
-같은 질문의 정확도·토큰·전체 지연을 기록합니다. 두 agent 결과가 더 길기만 하다면 단일 agent로 돌아갑니다. Reviewer라는 이름만으로 독립 검증이나 보안 경계가 생기지 않습니다.
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** 터미널의 `paths`를 읽습니다. 파일로 읽을 때는 `Evidence:` 경로의 마지막 `event=completed` 행에서 `payload.paths`를 엽니다. 예시 숫자가 아니라 자신의 반환값을 기록합니다.
+
+| 결과 경로 | 읽을 내용 |
+| --- | --- |
+| `single.stages[0].answer` | 작성자와 같은 지침·정책을 사용한 단일 기준선 |
+| `sequential.stages[0].answer` | 실제 작성자 중간 초안. 새로 요약하거나 추정한 답이 아님 |
+| `sequential.stages[1].answer` | 중간 초안을 받은 검토자의 최종 안내 |
+| 각 stage의 `response_id`, `input_tokens`, `output_tokens` | 그 호출의 식별자와 실제 SDK 사용량 |
+| 각 path의 `elapsed_seconds`, `total_tokens` | 경로 전체 경과 시간과 호출별 토큰 합 |
+| `sequential_minus_single` | 두 단계 − 단일의 시간·토큰 차이. 정답 개선 점수가 아님 |
+
+작성자가 290만 원의 승인 역할을 빠뜨렸는지, 검토자가 보완했는지 **정책 3절**과 대조합니다. 둘 다 맞으면 “추가 품질 이득을 관측하지 못함”도 올바른 결론입니다. 토큰이 `null`이면 미수집이며 0으로 채우지 않습니다. 전체 경로 시간에 각 작업 시간을 다시 더하지 않습니다.
+시간은 객체 구성 후 각 경로의 실행 구간입니다. 단일 경로를 먼저 실행하므로 인증·캐시·초기 지연의 영향을 받을 수 있습니다. 한 번의 시간 차이를 모델 자체의 성능 차이로 단정하지 않습니다.
+
+**한 가지 바꾸기:** 원하면 별도 승인 후 질문만 경계값 사례로 바꿉니다. 모델·정책·지침은 그대로입니다. 이 명령은 이전 결과 조회가 아니라 최대 3회의 **추가 호출**입니다.
+
+```bash
+.venv-advanced/bin/python samples/multi_agent.py --mode compare --case boundary --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--case boundary` | 합계 200만 원과 200만 1원의 승인 경계를 같은 두 실행 경로로 비교합니다. | 새 모델 호출 최대 3회·새 evidence. 두 사례를 모두 실행하면 합계 최대 6회이며 각각 승인 범위가 필요합니다. |
+
+</div>
+
+**결과 설명하기:** `사례 / 단일 답의 오류 / 작성자 오류 / 검토 후 남은 오류 / 추가 토큰·시간 / 두 역할을 유지할 이유`를 적습니다. 200만 원은 팀장, 200만 1원은 팀장+구매 담당자입니다. 한 번씩의 호출은 변동성이 있는 관찰이지 통계적 우월성 증명이 아닙니다. 사람 승인과 A2A 위임도 이 비교의 결과로 합산하지 않습니다.
+
+</div>
 
 <details markdown="1">
 <summary>다른 orchestration 패턴 선택 기준</summary>

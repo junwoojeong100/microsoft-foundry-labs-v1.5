@@ -2839,7 +2839,7 @@ Hosted의 `/app`은 읽기 전용입니다. 원격 원시 증거는 세션의 `$
 
 **심화 코스 · MAF 사용 / 도구별 확인** · 약 40분
 
-> **학습 순서: 독립 선택** — 기본 프로젝트·모델과 별도 MAF 환경. MAF/A2A는 다른 심화 장 없이 실행하며 Hosted 배포를 선택할 때만 L14가 필요합니다.
+> **학습 순서: 독립 선택** — 기본 프로젝트·모델, 관리자 소유 기록과 별도 MAF 환경. 단일/두 역할 비교는 최대 3회 모델 호출입니다. A2A는 별도 경로이며 Hosted를 선택할 때만 L14가 필요합니다.
 
 > **완성할 결과:** 초안 작성자와 검토자가 역할을 나누되, 실제 승인은 모델이 대신하지 않는 2단계 흐름.
 
@@ -2847,7 +2847,7 @@ Hosted의 `/app`은 읽기 전용입니다. 원격 원시 증거는 세션의 `$
 
 **진행 방식:** 선택 심화 · 로컬 두 역할과 원격 A2A는 서로 다른 실험입니다.
 
-**먼저 할 일:** `python samples/multi_agent.py`로 작성자 → 검토자 계획만 읽습니다.
+**먼저 할 일:** `python samples/multi_agent.py --mode compare`로 단일 기준선과 작성자 → 검토자의 최대 3회 호출 계획을 읽습니다.
 
 **확인할 결과:** 실행했다면 역할별 출력·추가 지연과 A2A 위임 근거를 따로 기록합니다. 검토자의 답은 실제 구매 승인이 아닙니다.
 
@@ -2872,6 +2872,7 @@ Hosted의 `/app`은 읽기 전용입니다. 원격 원시 증거는 세션의 `$
 ## 준비
 
 L01의 프로젝트·모델·`.env`, 별도 Python 환경이 필요합니다. 기본 코스의 환경을 그대로 덮어쓰지 마세요.
+실제 호출에는 관리자가 제공한 `results/azure-environment.json` 소유 기록이 필요합니다. 프로젝트 주소·언어가 `.env`와 다르면 중단합니다. 기록이 없다면 임의로 만들지 말고 관리자에게 받으며, 아래 계획·코드 읽기까지만 진행합니다.
 
 2026-09-29 확인 기준 `agent-framework-foundry==1.13.1`은 `azure-ai-projects<2.7.0`을 요구합니다. 기본 코스는 2.7.0입니다. **각각 호환되는 환경을 분리**했습니다.
 
@@ -2880,7 +2881,7 @@ L01의 프로젝트·모델·`.env`, 별도 Python 환경이 필요합니다. �
 ### 1. 로컬 계획 확인하기
 
 ```bash
-python samples/multi_agent.py
+python samples/multi_agent.py --mode compare
 ```
 
 <div class="command-explanation" markdown="1">
@@ -2889,11 +2890,11 @@ python samples/multi_agent.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `multi_agent.py` | 두 역할의 순차 흐름만 출력합니다. `--live`가 없으므로 Foundry 모델을 호출하지 않습니다. | `drafter → reviewer` 구조를 확인합니다. 배포·Azure 비용 없음. |
+| 1. `multi_agent.py --mode compare` | 단일 기준선 1회와 작성자→검토자 2회, 합계 최대 3회 호출 계획을 읽습니다. | `--live`가 없으므로 SDK 초기화·Azure 호출 없음. |
 
 </div>
 
-`drafter → reviewer` 계획만 출력하며 Azure를 호출하지 않습니다.
+`mode=compare`, `model_calls_if_approved=3`, 180초·응답당 2,048토큰·재시도 0회를 확인합니다. 기본 `--mode sequential`은 기존의 두 역할 경로이며 비교 모드와 호출 수가 다릅니다.
 
 ### 2. 심화 환경 설치하기
 
@@ -2917,10 +2918,10 @@ python3 -m venv .venv-advanced
 
 Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 관리 정책에 맞는 패키지 저장소를 이용하세요.
 
-### 3. 실제 두 agent 실행하기
+### 3. 같은 질문으로 단일·두 agent 비교하기
 
 ```bash
-.venv-advanced/bin/python samples/multi_agent.py --live
+.venv-advanced/bin/python samples/multi_agent.py --mode compare --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -2929,7 +2930,7 @@ Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 관리 정책
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `multi_agent.py --live` | MAF 환경에서 drafter와 reviewer를 순차 실행하여 Foundry 모델을 호출합니다. | 모델 추론 비용 발생. orchestration은 로컬이며 Hosted 배포나 실제 승인 완료가 아닙니다. 각 역할의 출력과 추가 지연을 비교합니다. |
+| 1. `multi_agent.py --mode compare --live` | 같은 구매 질문·모델·정책으로 단일 기준선을 한 번, 작성자→검토자 흐름을 한 번 실행합니다. | 최대 3회 모델 호출·180초. 중간/최종 답, 실제 토큰과 경과 시간을 출력하고 고유 `Evidence:` JSONL에 보존합니다. Hosted 배포·실제 승인은 없습니다. |
 
 </div>
 
@@ -2946,13 +2947,48 @@ Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 관리 정책
 workflow = WorkflowBuilder(
     start_executor=drafter,
     output_from=[reviewer],
+    intermediate_output_from=[drafter],
     max_iterations=4,
 ).add_edge(drafter, reviewer).build()
 ```
 
-### 4. 단일 agent와 비교하기
+### 4. 중간 답을 읽고 질문 하나 바꿔 보기
 
-같은 질문의 정확도·토큰·전체 지연을 기록합니다. 두 agent 결과가 더 길기만 하다면 단일 agent로 돌아갑니다. Reviewer라는 이름만으로 독립 검증이나 보안 경계가 생기지 않습니다.
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** 터미널의 `paths`를 읽습니다. 파일로 읽을 때는 `Evidence:` 경로의 마지막 `event=completed` 행에서 `payload.paths`를 엽니다. 예시 숫자가 아니라 자신의 반환값을 기록합니다.
+
+| 결과 경로 | 읽을 내용 |
+| --- | --- |
+| `single.stages[0].answer` | 작성자와 같은 지침·정책을 사용한 단일 기준선 |
+| `sequential.stages[0].answer` | 실제 작성자 중간 초안. 새로 요약하거나 추정한 답이 아님 |
+| `sequential.stages[1].answer` | 중간 초안을 받은 검토자의 최종 안내 |
+| 각 stage의 `response_id`, `input_tokens`, `output_tokens` | 그 호출의 식별자와 실제 SDK 사용량 |
+| 각 path의 `elapsed_seconds`, `total_tokens` | 경로 전체 경과 시간과 호출별 토큰 합 |
+| `sequential_minus_single` | 두 단계 − 단일의 시간·토큰 차이. 정답 개선 점수가 아님 |
+
+작성자가 290만 원의 승인 역할을 빠뜨렸는지, 검토자가 보완했는지 **정책 3절**과 대조합니다. 둘 다 맞으면 “추가 품질 이득을 관측하지 못함”도 올바른 결론입니다. 토큰이 `null`이면 미수집이며 0으로 채우지 않습니다. 전체 경로 시간에 각 작업 시간을 다시 더하지 않습니다.
+시간은 객체 구성 후 각 경로의 실행 구간입니다. 단일 경로를 먼저 실행하므로 인증·캐시·초기 지연의 영향을 받을 수 있습니다. 한 번의 시간 차이를 모델 자체의 성능 차이로 단정하지 않습니다.
+
+**한 가지 바꾸기:** 원하면 별도 승인 후 질문만 경계값 사례로 바꿉니다. 모델·정책·지침은 그대로입니다. 이 명령은 이전 결과 조회가 아니라 최대 3회의 **추가 호출**입니다.
+
+```bash
+.venv-advanced/bin/python samples/multi_agent.py --mode compare --case boundary --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--case boundary` | 합계 200만 원과 200만 1원의 승인 경계를 같은 두 실행 경로로 비교합니다. | 새 모델 호출 최대 3회·새 evidence. 두 사례를 모두 실행하면 합계 최대 6회이며 각각 승인 범위가 필요합니다. |
+
+</div>
+
+**결과 설명하기:** `사례 / 단일 답의 오류 / 작성자 오류 / 검토 후 남은 오류 / 추가 토큰·시간 / 두 역할을 유지할 이유`를 적습니다. 200만 원은 팀장, 200만 1원은 팀장+구매 담당자입니다. 한 번씩의 호출은 변동성이 있는 관찰이지 통계적 우월성 증명이 아닙니다. 사람 승인과 A2A 위임도 이 비교의 결과로 합산하지 않습니다.
+
+</div>
 
 <details markdown="1">
 <summary>다른 orchestration 패턴 선택 기준</summary>
@@ -3473,9 +3509,9 @@ L03의 모델 Playground에서 이미지 입력을 지원하는 **자신의 배�
 | 필드 | 타입 | 확인 |
 | --- | --- | --- |
 | document_id | string | CONTOSO-2026-0929 |
-| date | date/string | 2026-09-29 |
+| date | date | 2026-09-29 |
 | currency | string | KRW |
-| quantity | integer | 2 |
+| quantity | number | 2; 정수 수량인지는 값 검사로 확인 |
 | unit_price | number | 89000 |
 | total | number | 178000 |
 | approval_status | string | 문서의 “승인 대기”를 `pending`으로 정규화; 실제 승인 수행 금지 |
@@ -3483,6 +3519,36 @@ L03의 모델 Playground에서 이미지 입력을 지원하는 **자신의 배�
 생산용 기본 API는 **`2025-11-01` GA**를 기준으로 검토합니다. **`2026-06-01-preview`**의 agentic mode, 일부 classification/metadata/signature 기능은 별도 실험입니다. 2026년 9월 CU Toolkit/CU CLI도 Preview입니다.
 
 이 단일 품목 예제의 `quantity`·`unit_price`는 정답 파일의 `items[0]`과 대조합니다. 여러 품목 문서라면 한 값을 대표값으로 쓰지 말고 배열 schema를 설계해야 합니다.
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** [완성된 분석기 설정](../data/exercises/receipt-analyzer.json)을 편집기로 엽니다. 이 파일은 **GA `2025-11-01`용 구성 예**이며 실제 생성·분석 결과가 아닙니다. Studio에서 템플릿의 제안 필드를 그대로 쓰지 말고 `fieldSchema.fields`의 **7개 이름·타입·설명·method**를 같은 값으로 맞춥니다. JSON 전체를 채팅창에 보내지 않습니다.
+
+| 설정 | 이번 선택 | 이유 |
+| --- | --- | --- |
+| 기본 분석기 | `prebuilt-document` | 고정 영수증 템플릿의 다른 필드명 대신 원하는 7개 필드를 사용 |
+| 날짜 / 수량 | `date` / `number` | CU의 지원 타입 사용. `integer`는 이 field schema의 타입이 아님 |
+| 원문 값 | `method=extract`, 필드별 `estimateSourceAndConfidence=true` | 원본 위치와 confidence를 함께 받도록 요청 |
+| 통화 | `method=generate` | 인쇄된 원화 표시를 `KRW`로 정규화; 새 금액 생성 아님 |
+| 승인 상태 | `method=classify`, `pending/approved/unknown` | 문서 상태만 분류; 업무 승인 아님 |
+| 상세 결과 | `returnDetails=true` | 값뿐 아니라 원문 위치를 판독 |
+| 모델 연결 | 관리자가 제공한 해당 리소스의 defaults | L02의 모델 이름을 임의로 넣거나 자동 배포하지 않음 |
+
+지원 타입·필드 옵션은 [분석기 구성 참조](https://learn.microsoft.com/azure/ai-services/content-understanding/concepts/analyzer-reference)를 기준으로 합니다. Studio에 해당 옵션이 없으면 관리자에게 같은 JSON 구성의 분석기를 요청하고 그 이름·설정을 대조합니다. “비슷한 설정”으로 바꾼 뒤 같은 조건이라고 쓰지 않습니다.
+
+첫 분석에서 `contents`의 대상 문서와 `fields`를 열어 `date`의 날짜 값, `quantity/unit_price/total`의 숫자 값, `approval_status`의 문자열을 확인합니다. 화면의 정규화 값과 원문 강조 위치를 함께 기록합니다. confidence가 없는 응답은 “미제공”이며 임의로 1.0을 적지 않습니다.
+
+**한 가지 바꾸기:** 같은 문서에서 **품목 코드 필드 `sku` 하나만 추가**합니다. 설정 복사본에 다음 정의를 `fieldSchema.fields` 안에 추가하고, Studio에서도 같은 필드를 추가·저장합니다. 첫 결과와 설정을 먼저 보관하고, 추가 분석 한 번을 승인받은 경우에만 다시 실행합니다.
+
+```json
+{"sku":{"type":"string","method":"extract","description":"품목 행에 인쇄된 SKU 코드를 그대로 추출한다. 품목명으로 코드를 추측하지 않는다.","estimateSourceAndConfidence":true}}
+```
+
+기대 차이는 필드 7개→8개, 새 `sku` 값 **KB-01**입니다. 기존 합계 178,000원·수량 2·승인 대기는 바뀌지 않아야 합니다. 실제 출력이 없거나 다르면 그대로 기록합니다. 이 변경은 “모델이 더 똑똑해졌다”가 아니라 **요청한 출력 계약이 달라졌다**는 실험입니다.
+
+**결과 설명하기:** `설정 변경 / 새 필드 / 기존 값 보존 여부 / 원문 근거 / 미확인 항목`을 작성합니다. 어떤 정보를 새로 요청했고, 왜 JSON 타입이 맞아도 업무 값 검사가 필요한지 설명하세요. 기본 분석과 추가 분석은 최대 2건이며, 실패했다고 반복 호출하지 않습니다.
+
+</div>
 
 | 확인할 것 | 어떻게 판단하나요? | 실패하면 다음 행동 |
 | --- | --- | --- |
@@ -3614,7 +3680,30 @@ L05의 지식을 연결할 수 있는지 지원 여부를 확인합니다. 없�
 
 ### 2. 짧은 대화 시작하기
 
-Save 후 **Start session**을 선택하고, 필요한 경우 본인이 브라우저 마이크 접근을 허용합니다. “노트북 두 대를 구매하려고 해요”라고 말합니다.
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** [공식 음성 구성 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/configure-voice-agent)의 필드와 아래 기준 구성을 대조합니다. 새 실습 agent에서 **AI model / Voice / Advanced settings**를 확인하고, 실제 선택한 값·agent 버전을 기록합니다. 이 표는 구성 예이며 새 음성 실행 결과가 아닙니다.
+
+| 항목 | 기준 구성 | 확인 위치·뜻 |
+| --- | --- | --- |
+| Model type / model | managed / `gpt-realtime-2.1` | 현재 프로젝트에서 제공되는지 확인. L02의 채팅 배포 이름을 음성 모델명으로 넣지 않음 |
+| Voice type / voice | azure-standard / `ko-KR-SunHiNeural` | Voice 목록에서 호환 음성 선택. 선택지가 없으면 관리자와 지원 조건 확인 |
+| 언어·말하기 속도 | 한국어 / `speed=1.0` | 지시문과 음성 언어 일치. 인식 Language가 보이는 모델은 `ko-KR` |
+| 입력·출력 오디오 | PCM 24,000Hz | 브라우저/클라이언트와 같은 형식 |
+| Turn detection | `server_vad` | 무음 길이를 기준으로 발화 끝을 판단 |
+| `threshold` / `prefix_padding_ms` | 0.5 / 300 | 감지 민감도 / 발화 앞쪽 보존 길이 |
+| `silence_duration_ms` | 500 | 0.5초 무음 후 발화 종료 판단 |
+| 도구·Avatar·자동 인사 | 추가하지 않음 | 첫 실험에서 음성 턴 처리만 분리 |
+
+**가용성이 전제입니다.** 이 모델·음성이 보이지 않으면 표를 실행 완료로 체크하지 않습니다. 지원되는 다른 조합을 승인받았다면 실제 값을 기록하고 별도 조건으로 비교합니다. 기본값이 항상 위와 같다고 가정하지 않습니다. SDK/YAML에서의 속성명은 표의 이름이며, 포털의 **Advanced settings → Turn detection**에 대응합니다.
+
+Save 후 **Start session**을 선택하고 본인이 마이크 접근을 허용합니다. “노트북 두 대를 구매하려고 해요”라고 말합니다. 한 세션은 **2분 이내**, 아래 질문·수정 시나리오는 한 번씩만 진행하고 **End**로 종료합니다.
+
+**한 가지 바꾸기:** 세션을 종료한 뒤 `silence_duration_ms`만 **500→1500**으로 바꾸고 새 버전을 저장합니다. 추가 세션을 승인받았을 때만 같은 문장 중간에 같은 1초 침묵을 넣어 다시 말합니다. 모델·음성·threshold·문장을 함께 바꾸지 않습니다. 전체는 기준/변경 **두 세션, 합계 4분 이내**입니다.
+
+**결과 설명하기:** `버전 / 무음 설정 / 발화가 나뉜 위치 / 첫 음성까지 시간 / 끼어들기 결과 / 종료 상태` 표를 적습니다. 1,500ms에서 의도한 한 문장을 더 잘 기다렸는지와 응답 시작이 늦어졌는지를 함께 봅니다. 설정값이 관찰 시간 자체는 아니며, OS·인식·네트워크 지연도 있으므로 정확히 1초 차이를 보장하지 않습니다. 지원되지 않는 설정을 억지로 바꾸거나 새 모델을 자동 배포하지 않습니다.
+
+</div>
 
 ### 3. 대화 품질 검사하기
 
@@ -3647,6 +3736,7 @@ Translator의 `2026-06-06` GA는 v3.0와 요청·응답 계약이 달라질 수 
 
 ## 성공 기준
 
+기준 구성과 한 항목 변경을 구분하고, 추가 세션을 하지 않았다면 그 비교는 미실행으로 표시합니다.
 transcript·실제 수량 2→1·끼어들기 처리·지연의 측정 방식·종료 상태를 기록했습니다. 보지 못한 항목은 미확인으로 남기고, “소리가 났다”만으로 완료하지 않습니다.
 
 ## 막혔을 때
@@ -3791,6 +3881,30 @@ python samples/prepare_tuning.py
 
 `validation.jsonl`은 학습 과정의 점검용이며 L08 dev 비교나 봉인된 release holdout과 다릅니다. 이 작은 seed는 형식 연습이지 유용한 모델 학습 효과를 보장하지 않습니다. 정답/holdout을 복사해 데이터를 늘리지 않습니다.
 
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** VS Code에서 원본 `data/tuning/examples.json`을 **`results/l20-examples.json`으로 복사**합니다. `results` 폴더가 없으면 먼저 만듭니다. 원본은 수정하지 않습니다. 복사본의 첫 번째 학습 행에서 라벨 `POLICY`를 일부러 `POLCIY`로 바꾸고 저장합니다.
+
+```bash
+python samples/prepare_tuning.py --input results/l20-examples.json --output results/l20-tuning
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--input ... --output ...` | 합성 복사본의 라벨·중복·분리를 검사한 뒤 새 출력 폴더를 만듭니다. | 처음에는 `Unrecognized training label` 오류가 나며 학습 파일을 만들지 않습니다. Azure 요청 없음. |
+
+</div>
+
+**한 가지 바꾸기:** 오타만 `POLICY`로 되돌리고 **같은 명령**을 다시 실행합니다. 이제 `train.jsonl` 16행, `validation.jsonl` 8행이 생겨야 합니다. 기존 출력 폴더를 덮어쓰지 않으므로 다음 새 실험에는 다른 이름을 사용합니다. 파일은 UTF-8 BOM 형식이며 첫 생성 예시는 위 JSON과 같습니다.
+
+**결과 설명하기:** “JSON 문법이 맞아도 왜 학습 데이터로 거절됐는가?”, “수량·재고가 없는 분류 정답 DRAFT가 왜 주문 성공은 아닌가?”를 답합니다. 데이터 형식·라벨 의미·모델 성능을 세 칸으로 구분하세요. 이 로컬 과제만 했다면 **학습 데이터 준비 완료 / 모델 학습 미실행**입니다.
+
+</div>
+
 ### 4. 학습 방식을 선택하기
 
 | 방식 | 데이터 | 주의점 |
@@ -3803,6 +3917,74 @@ python samples/prepare_tuning.py
 
 실제 학습은 지원 모델·지역·데이터 처리·비용을 확인하고 별도 승인 후 수행합니다.
 학습 job 완료, 모델 배포, 평가 개선은 각각 다른 상태입니다. 자동 배포·승격을 기본값으로 삼지 않습니다.
+
+### 5. 선택 실행: SFT 모델 하나를 끝까지 학습·비교하기
+
+다음은 [공식 Fine-tuning 포털 절차](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning)를 합성 **문의 유형 분류**에 적용한 완결 경로입니다. L08의 GPT-6 Sol 지침 비교와는 다른 과제이며, 아래 과정을 이번 문서 보강에서 실제 실행한 것은 아닙니다.
+
+<details class="optional-path" markdown="1">
+<summary>별도 비용 승인 후: 기준선 → 파일 선택 → 학습 → checkpoint → 배포 → 같은 질문 비교</summary>
+
+#### 5-1. 먼저 실행 범위를 적기
+
+관리자에게 **학습 가능한 리소스·리전, 기본 모델 배포 이름, 학습 제출 권한, 별도 배포 권한, 최대 예산·대기 기한·중단 담당자**를 받습니다. 이 값이 없으면 Submit을 누르지 않습니다. 학습은 수시간 걸릴 수 있으며 45분의 순수 학습 시간에 대기가 포함되지 않습니다.
+
+| 항목 | 이번 학습용 기준 구성 |
+| --- | --- |
+| 과제 | POLICY / STOCK / DRAFT / CLARIFY 네 라벨 분류 |
+| 기본 모델 | `gpt-4.1-mini`, 버전 `2025-04-14` — 현재 지원 확인 |
+| 리전·학습 유형 | 예: 지원되는 Sweden Central의 **Standard** 학습. 승인된 데이터 처리 범위를 먼저 확인 |
+| 학습/검증 파일 | 자신의 `results/l20-tuning/train.jsonl` / `validation.jsonl` |
+| 방법 | Supervised fine-tuning (SFT) |
+| `n_epochs` | 2 |
+| `batch_size` / `learning_rate_multiplier` | 서비스 기본값 / 0.1 |
+| Seed / Suffix | 42 / `contoso-intent` |
+| Automatic deployment | **Off** |
+| 실행 수 | 학습 job 1개. 기본 모델 8문항 + 후보 8문항; 자동 재시도 없음 |
+
+이 구성은 작은 데이터로 절차를 배우는 예시이지 품질 향상이나 최소 비용을 보장하는 설정이 아닙니다. **16개 학습 예시는 형식 체험용**이며 일반적인 성능 개선에는 더 다양한 검토된 예시가 필요합니다. L02의 기본 배포를 바꾸거나 같은 이름으로 덮어쓰지 않습니다.
+
+#### 5-2. 학습 전 기준선 8개 남기기
+
+기본 `gpt-4.1-mini` 배포의 Playground를 열고, Instructions에 생성 JSONL의 `messages[0].content`(system)와 **동일한 분류 규칙**을 넣습니다. 도구는 연결하지 않고, 지원되는 경우 temperature=0, 최대 출력 64토큰으로 고정합니다.
+
+검증 파일의 8개 행에서 **`messages[1].content`(user)만** 한 번씩 보냅니다. `messages[2].content`(assistant) 정답을 질문에 붙이지 않습니다. 각 질문은 새 대화에서 보내고 `문항 번호 / 질문 / 기대 라벨 / 실제 답 / response ID / 토큰 / 지연`을 기록합니다. 토큰이 보이지 않으면 미수집, 직접 잰 시간은 수동 측정으로 표시합니다.
+
+#### 5-3. 파일을 선택하고 job 하나 제출하기
+
+**Build → Fine-tune → Fine-tune**을 엽니다. 기본 모델·버전 → SFT → Standard 학습 → **Upload new dataset** 순으로 선택합니다. 학습과 검증 파일을 서로 뒤바꾸지 말고 업로드 검사 완료를 확인합니다. 기존 데이터가 있다면 파일 이름만 보지 말고 자신이 준비한 파일과 같은지 대조합니다.
+
+위 표의 매개변수를 입력하고 자동 배포를 끈 상태에서 범위를 다시 확인한 뒤 **Submit을 한 번** 누릅니다. 생성된 job ID·리소스·입력 파일 ID·매개변수를 개인 기록에 남깁니다. 화면 대기가 길다고 다시 제출하지 않습니다.
+
+#### 5-4. 학습 결과와 checkpoint 읽기
+
+해당 job의 **Job details → Monitor / Checkpoints**를 엽니다. `queued`·`running`은 완료가 아니고, `failed`는 오류 원문을 보존합니다. 대기 기한에 도달하면 담당자가 해당 job의 지원되는 중지 동작을 수행하고 상태를 다시 확인합니다. 브라우저를 닫아서는 중지되지 않습니다.
+
+| 관찰할 값 | 판단 |
+| --- | --- |
+| `train_loss` | 학습 자료를 얼마나 잘 맞추는지. 낮아졌다고 새 질문에도 좋다는 뜻은 아님 |
+| `full_valid_loss` | 학습 중 검증 자료의 손실. train만 낮아지고 이것이 높아지면 과적합 후보 |
+| `full_valid_mean_token_accuracy` | 검증 토큰 예측 정확도. 네 라벨의 문항별 정답률과 다른 지표 |
+| Checkpoints | 마지막 것만 고르지 말고 epoch별 검증 지표와 사용 가능한 모델 ID를 비교 |
+
+수치가 없으면 추정하지 않습니다. 서비스 완료·checkpoint 생성·품질 개선을 따로 기록합니다.
+
+#### 5-5. 승인된 후보만 별도 이름으로 배포·비교하기
+
+선택한 checkpoint/model 상세의 **Deploy**에서 승인된 비운영 유형과 별도 이름(예: `contoso-intent-ft`)을 지정합니다. 짧은 평가용 Developer 유형은 지원·약관을 확인한 경우에만 선택합니다. 학습 승인만으로 배포·유지 비용까지 승인됐다고 가정하지 않습니다.
+
+배포 준비 완료 후 후보 Playground에 **동일한 system 규칙·도구 없음·같은 매개변수**를 적용하고, 기준선의 동일 8개 user 질문을 한 번씩 보냅니다. 두 모델의 조건과 실제 배포 버전을 기록합니다.
+
+| 남길 결과 | 계산·해석 |
+| --- | --- |
+| 문항별 정답 | 출력이 기대 라벨 한 개와 정확히 같은지. 설명문이 덧붙으면 출력 계약 실패 |
+| 완결된 8문항의 정답률 | 정답 수 ÷ 8. 누락·오류가 있으면 전체 비교 미완료이며 성공 행만으로 100%를 만들지 않음 |
+| 토큰·지연 차이 | 같은 8문항의 합계/평균 비교. 미수집을 0으로 대체하지 않음 |
+| 채택 결정 | 동점·악화도 기록. 학습했다는 이유만으로 후보를 승격하지 않음 |
+
+이 검증 파일은 학습 중 사용한 자료이므로 **독립 holdout이 아닙니다**. 기존 봉인 시험지와 업무 릴리스 게이트는 그대로 둡니다. 종료 시 업로드 파일·학습 모델·배포의 보존 담당자와 기한을 기록하고, 삭제는 별도 승인 후에만 합니다.
+
+</details>
 
 ## 성공 기준
 
@@ -3847,15 +4029,15 @@ Optimizer 계획이 막히면 Preview 접근·Responses protocol·대상 모델/
 
 **심화 코스 · GA / Preview 혼합** · 약 45분
 
-> **학습 순서: 독립 선택** — 기본 개념만으로 합성 설계 예제를 진행합니다. 실제 권한·네트워크 관찰에는 해당 읽기 권한, 변경에는 관리자와 별도 승인이 필요합니다.
+> **학습 순서: 독립 선택** — Python으로 로컬 권한/캐시 수정 과제를 진행하고 합성 설계표로 연결합니다. 실제 권한·네트워크 관찰에는 읽기 권한, 변경에는 관리자와 별도 승인이 필요합니다.
 
 > **완성할 결과:** 여러 agent를 운영할 때 identity·데이터·네트워크·정책·비용의 통제 책임을 한 장으로 설명합니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 설계 · Azure 계정 없이도 합성 사례로 작성할 수 있습니다.
+**진행 방식:** 로컬 코드 수정 + 선택 설계 · Azure 계정 없이 시작합니다.
 
-**먼저 할 일:** 사용자 → 에이전트 → 도구 → 데이터 경로에 누가 무엇을 할 수 있는지 적습니다.
+**먼저 할 일:** 합성 캐시/권한 과제의 두 실패를 재현한 뒤, 사용자 → 에이전트 → 도구 → 데이터의 책임을 연결합니다.
 
 **확인할 결과:** 허용·거절 조건, 네트워크 경로와 담당자 표를 만듭니다. 표 작성은 실제 권한 부여나 보안 검증이 아닙니다.
 
@@ -3880,6 +4062,58 @@ Optimizer 계획이 막히면 Preview 접근·Responses protocol·대상 모델/
 기본 과제는 설계·읽기 전용 확인입니다. 아래 Contoso 예시를 자신의 **주체 → 작업 → 범위 → 거절 조건 → 담당자** 표로 바꾸어 작성합니다. Azure 접근이 없어도 예시로 완성할 수 있으며 실제 권한 검증으로 기록하지 않습니다. role assignment·gateway·private endpoint·정책 변경은 관리자와 별도 승인 후 진행합니다.
 
 ## 실행
+
+### 0. 직접 고치기: 캐시에 있어도 권한을 확인하는가?
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** 아래 과제는 내 PC의 합성 문자열만 사용합니다. A는 제한 견적을 볼 수 있고 B는 볼 수 없습니다. 공용 정책은 둘 다 볼 수 있습니다. Azure 역할·실제 문서 ACL을 바꾸는 과제가 아닙니다.
+
+```bash
+python samples/prepare_practice.py governance --output practice/governance
+python -m unittest discover -s practice/governance -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `prepare_practice.py governance` | 동봉된 결함 예제를 새 `practice/governance` 폴더로 복사합니다. 기존 폴더는 덮어쓰지 않습니다. | 로컬 파일만 생성. 외부 접속·권한 변경 없음. |
+| 2. `unittest discover` | 복사본의 다섯 사례로 접근 허용·거절·캐시·권한 회수를 확인합니다. | 처음에는 **5개 중 2개 실패**가 의도한 결과입니다. 저장소 전체 검사의 실패가 아닙니다. |
+
+</div>
+
+실패 이름은 `test_denied_user_after_cache`, `test_revocation_after_cache`입니다. `practice/governance/exercise.py`에서 **캐시 반환이 권한 확인보다 앞서는 순서**를 찾습니다. A가 읽은 뒤 B가 읽거나 A의 권한을 회수했을 때 어떤 줄이 검사를 건너뛰는지 설명하세요.
+
+**한 가지 바꾸기:** 권한 검사를 캐시 조회보다 앞에 놓습니다. 테스트나 `grants`의 허용 사용자를 바꾸지 않습니다. 같은 검사 명령을 다시 실행해 다섯 사례 모두 통과하는지 확인합니다.
+
+<details markdown="1">
+<summary>수정 예와 해설 — 먼저 자신의 수정 결과를 확인한 뒤 펼치기</summary>
+
+<!-- solution:governance -->
+```python
+DOCUMENTS = {
+    "public-policy": "Contoso synthetic policy: drafts require human approval.",
+    "restricted-quote": "Contoso synthetic restricted quote: training data only.",
+}
+
+def read_document(user: str, document_id: str, grants: dict[str, set[str]], cache: dict) -> str:
+    if user not in grants[document_id]:
+        raise PermissionError("Access denied")
+    if document_id not in cache:
+        cache[document_id] = DOCUMENTS[document_id]
+    return cache[document_id]
+```
+
+캐시는 인증·권한 검사를 대체하지 않습니다. 이 예제는 매번 현재 권한표를 확인하므로 회수 후 캐시가 남아 있어도 거절합니다. 실제 서비스에는 인증된 사용자 연결, 원본 ACL, 캐시 격리·만료가 추가로 필요합니다.
+
+</details>
+
+**결과 설명하기:** `A 첫 읽기 / B의 같은 문서 읽기 / A 권한 회수 후 읽기 / 공용 정책 읽기`의 수정 전·후를 적습니다. 이어 아래 identity 표의 어느 계층이 이 검사를 집행해야 하는지 표시합니다. **로컬 테스트 통과를 Azure RBAC·네트워크·문서 ACL 검증으로 기록하지 않습니다.**
+
+</div>
 
 ### 1. identity 네 가지를 분리하기
 
@@ -3961,6 +4195,7 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 ## 성공 기준
 
+로컬 과제는 처음의 두 실패를 재현하고, 권한을 넓히지 않은 수정으로 5개 테스트가 통과하는 이유를 설명합니다.
 주체별 허용/금지 작업표와 세 네트워크 경로, 거절 사례 한 개, 감사·회수 담당자를 작성했습니다. **설계 예시 / 읽기 관찰 / 실제 허용·거절 시험**을 따로 표시하고, 실제 시험은 양쪽 증거가 있을 때만 완료로 기록합니다.
 
 ## 막혔을 때
@@ -3989,15 +4224,15 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 **심화 코스 · 구성 요소별 확인** · 약 40분
 
-> **학습 순서: 소스 준비 후 실행** — L01 로컬 환경·저장소 소스로 CI 판독과 릴리스/롤백 설계를 진행합니다. L14는 선택형 실제 Hosted 배포에만 필요하며 반복 평가·Optimizer는 필수가 아닙니다.
+> **학습 순서: 소스 준비 후 실행** — L01 로컬 환경·소스로 합성 CI 실패/수정과 릴리스/롤백 설계를 진행합니다. L14는 선택형 실제 Hosted 배포에만 필요하며 반복 평가·Optimizer는 필수가 아닙니다.
 
 > **이 모듈에서 만드는 것:** CI 결과, 에이전트 릴리스 명세, 롤백 판단표, 모델·비용 점검표. 실제 배포 없이도 작성할 수 있으며 실행 증거와 설계를 구분합니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 심화 · 로컬 소스 검사와 릴리스·복구 설계가 기본입니다.
+**진행 방식:** 선택 심화 · 로컬 CI 실패→수정과 릴리스·복구 설계가 기본입니다.
 
-**먼저 할 일:** `validate.yml`에서 자동 검사와 승인된 유료 실행의 조건을 구분합니다.
+**먼저 할 일:** 2-1의 합성 후보 선택 과제를 복사하고 세 실패를 재현합니다. 실제 workflow의 승인 조건도 구분합니다.
 
 **확인할 결과:** CI 판독표·릴리스 명세·롤백 결정·비용 담당자를 기록합니다. 이 장 때문에 Hosted를 배포할 필요는 없습니다.
 
@@ -4040,6 +4275,8 @@ GitHub를 사용할 수 있으면 **Actions → 해당 실행 → job → 실패
 
 ### 2. 같은 소스로 로컬 검사하기
 
+아래 저장소 전체 검사는 참고입니다. 먼저 이어지는 **2-1 실패→수정 실습**으로 CI가 무엇을 막는지 직접 확인할 수 있습니다. 기존 평가 기준이나 업무 코드를 일부러 망가뜨리지 않습니다.
+
 첫 줄은 문서 의존성이 아직 없는 경우에만 필요합니다. L01의 기본 의존성은 이미 설치되어 있어야 합니다.
 
 ```bash
@@ -4065,6 +4302,56 @@ python scripts/check_guide.py
 통과하면 **코드/문서 검사 통과**로만 기록합니다. import 오류는 가상환경과 requirements, 생성물 차이는 `docs/`·`content/` 원본, 업무 assertion 실패는 관련 함수·정책 계약부터 확인합니다. assertion이나 평가 기준을 낮춰 통과시키지 않습니다.
 
 PDF·ZIP이 필요하면 README의 생성 경로를 이어 사용합니다. `downloads/`의 전달물과 루트 웹 진입점은 **에이전트 배포물과 별개**입니다. 문서 빌드는 이 장의 보조 과제이지 CD 성공 증거가 아닙니다.
+
+### 2-1. 직접 고치기: 실행 완료만으로 후보를 내보내지 않기
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** 다음은 가짜 버전 이름을 반환하는 순수 함수입니다. 실제 endpoint나 Active version을 바꾸지 않습니다.
+
+```bash
+python samples/prepare_practice.py delivery --output practice/delivery
+python -m unittest discover -s practice/delivery -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `prepare_practice.py delivery` | 결함 함수·테스트·선택형 workflow 템플릿을 새 폴더에 복사합니다. | 로컬 파일만 생성. GitHub push나 Azure 배포 없음. |
+| 2. `unittest discover` | 정상 후보·실행 실패·품질 실패·critical 실패·행 누락을 구분합니다. | 처음에는 **5개 중 3개 실패**가 정상입니다. 이 실패를 숨기지 않습니다. |
+
+</div>
+
+`practice/delivery/exercise.py`는 `status=completed`만 보고 `candidate-2`를 선택합니다. 하지만 실행은 끝났어도 품질 실패·안전 실패·누락이 있으면 `approved-1`을 유지해야 합니다.
+
+**한 가지 바꾸기:** 후보 선택 조건을 네 조건의 AND로 고칩니다. 완료 상태, `quality_passed is True`, critical 실패 0, 누락 0입니다. 테스트·원본 릴리스 게이트는 바꾸지 않습니다. 같은 검사로 5개 모두 통과하는지 확인합니다.
+
+<details markdown="1">
+<summary>수정 예 — 실제 운영 게이트 전체가 아닌 로컬 결정 연습</summary>
+
+<!-- solution:delivery -->
+```python
+def choose_version(previous: str, candidate: str, checks: dict) -> str:
+    if (
+        checks["status"] == "completed"
+        and checks["quality_passed"] is True
+        and checks["critical_failures"] == 0
+        and checks["missing_rows"] == 0
+    ):
+        return candidate
+    return previous
+```
+
+</details>
+
+**결과 설명하기:** 실패한 세 테스트가 어떤 잘못된 승격을 막았는지 적고, `이전 버전 / 후보 / 실패 근거 / 유지할 버전` 표를 완성합니다. 이 함수에는 실제 배포·상태 이관이 없으므로 원격 롤백 완료라고 쓰지 않습니다.
+
+**선택: GitHub에서 같은 실패→수정 보기.** 승인된 개인 실습 저장소의 새 브랜치에서만 진행합니다. 복사된 `workflow.yml`을 `.github/workflows/contoso-practice.yml`로 두고 `practice/delivery` 코드·테스트를 함께 관리합니다. 초기 결함 상태로 Actions의 **Contoso local delivery practice → Run workflow**를 실행하면 실패하고, `exercise.py`만 고친 커밋으로 다시 실행하면 통과해야 합니다. 템플릿은 수동 실행·읽기 권한·Python 검사만 사용하며 Azure 로그인·secret·배포 단계가 없습니다. 이 저장소의 기존 `validate.yml`을 대체하거나 `acknowledge_cost`를 켜지 않습니다.
+
+</div>
 
 ### 3. 에이전트 릴리스 명세 작성하기
 
@@ -4110,6 +4397,7 @@ L11의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290�
 
 ## 성공 기준
 
+로컬 실패 3건을 재현하고 함수만 고쳐 5개 테스트를 통과시켰으며, GitHub 경로를 선택했다면 서로 다른 커밋의 실패·성공 실행을 구분합니다.
 **CI 판독표, 릴리스 명세, 실패 시 롤백 결정, 모델/비용 재확인 담당자**가 있습니다. 로컬 통과·설계 완료·Azure 미실행을 구분하고, 같은 후보의 품질 근거가 없으면 승격 보류라고 판단할 수 있습니다.
 
 ## 막혔을 때
@@ -4177,7 +4465,85 @@ L11의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290�
 
 ### 1. 선택 A: Foundry Local
 
-[Foundry Local quickstart](https://learn.microsoft.com/azure/foundry-local/get-started)에서 장치와 언어에 맞는 **현재 SDK 샘플**을 선택합니다. 모델 목록 확인 → 지원 모델 다운로드 → 짧은 추론 → 모델 unload 순서로 진행합니다.
+[Foundry Local quickstart](https://learn.microsoft.com/azure/foundry-local/get-started)의 native SDK 흐름을 동봉 [local_lab.py](../samples/local_lab.py)로 수행합니다. 다른 샘플 저장소를 복제하지 않습니다. 기본 예시는 `qwen2.5-0.5b`이며 작은 모델의 한국어 품질이나 업무 정확도를 보장하지 않습니다.
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기 — 먼저 계획:** 아래 명령은 SDK 초기화·모델 다운로드 없이 계획만 출력합니다.
+
+```bash
+python samples/local_lab.py chat
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `local_lab.py chat` | 기본 모델과 문장형 출력의 계획을 읽습니다. | `plan_only`, `sdk_initialized=false`, `azure_calls=0`. 설치나 모델 실행 없음. |
+
+</div>
+
+실제 장치 실습을 선택한 경우에만 별도 환경을 만듭니다. **Windows에서는 `.venv-local/bin/python` 대신 `.venv-local\Scripts\python.exe`**를 사용합니다. 첫 줄의 `python`은 L01에서 준비한 Python 3.13입니다. 영어 실습은 새 터미널마다 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다.
+
+```bash
+python -m venv .venv-local
+.venv-local/bin/python -m pip install -r requirements-local.txt
+.venv-local/bin/python samples/local_lab.py inspect --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `venv .venv-local` | 기본·MAF 환경과 분리된 로컬 모델용 환경을 만듭니다. | 내 PC의 폴더 생성. |
+| 2. `pip install` | OS별 선언된 SDK를 설치합니다: 비 Windows 2.1.0, Windows WinML 1.2.4. | 승인된 패키지 저장소 접속·설치. Azure 배포 없음. |
+| 3. `inspect --local` | SDK를 초기화하고 실제 선택 모델 ID·캐시·로드 상태를 확인합니다. | 카탈로그 메타데이터 조회가 네트워크를 사용할 수 있음. 모델 가중치를 자동 다운로드하거나 추론하지 않음. |
+
+</div>
+
+모델 사용 조건·디스크 공간·장치 지원을 확인한 뒤 **모델/실행 공급자 다운로드를 승인한 경우에만** 진행합니다.
+
+```bash
+.venv-local/bin/python samples/local_lab.py download --local --allow-download
+.venv-local/bin/python samples/local_lab.py chat --style sentence --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `download --allow-download` | 모델 및 필요한 실행 공급자를 다운로드합니다. 모델 캐시는 `.build/local-model-cache/ko`에 둡니다. | 다운로드·디스크 사용. Azure 구독이나 모델 호출은 없음. |
+| 2. `chat --style sentence --local` | 캐시된 모델을 로드해 합성 초안/주문 차이를 한 번 질문합니다. 최대 출력 256토큰입니다. | 실제 장치 추론. `load_seconds`, `inference_seconds`, `answer`, `unloaded=true`를 확인. 캐시가 없으면 자동 다운로드 대신 오류. |
+
+</div>
+
+`--local`은 이 파일의 **실제 장치 작업 허용**입니다. Azure 호출이 가능한 L14의 로컬 서버와 다른 경로입니다. 다운로드·로드·추론 시간을 구분하고, 오류나 잘린 답을 정상 응답으로 바꾸지 않습니다. 다운로드가 사내 정책으로 막히면 승인된 설치 경로를 사용하며 보안 설정을 우회하지 않습니다.
+
+**한 가지 바꾸기:** 다음에는 같은 모델·질문에서 출력 형식만 문장→체크리스트로 바꿉니다. 이는 한 번의 추가 장치 추론입니다.
+
+```bash
+.venv-local/bin/python samples/local_lab.py chat --style checklist --local
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--style checklist` | 같은 합성 질문을 짧은 세 항목으로 답하도록 지시만 변경합니다. | 추가 로컬 추론·로드/해제. Azure 호출 없음. 모델의 실제 출력 형식을 사람이 확인합니다. |
+
+</div>
+
+**결과 설명하기:** `모델 ID / 형식 / 실제 항목 수 / 초안≠승인·주문 의미 보존 / 추론 시간 / 해제 상태`를 비교합니다. 형식 지시를 못 지켰다면 실패로 기록합니다. 더 긴 응답이나 더 빠른 한 번의 결과만으로 품질 우월성을 주장하지 않습니다. 예제는 클라우드로 자동 전환하지 않습니다.
+
+</div>
 
 | 확인할 것 | 어떻게 판단하나요? | 실패하면 다음 행동 |
 | --- | --- | --- |
@@ -4198,6 +4564,22 @@ L11의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290�
 
 관리자가 승인된 workspace와 data agent/semantic model을 제공한 경로로 시작합니다. [Fabric IQ 연결 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq)에서 그 항목의 지원과 호출 identity를 확인합니다. 준비되지 않았다면 모든 Fabric 구성 요소를 새로 만드는 대신 아래 명세를 작성합니다.
 
+**대표 경로를 하나로 고정합니다: CSV → Lakehouse 표 → Fabric data agent → Foundry Toolbox.** Ontology와 Power BI semantic model은 이번 경로에 추가하지 않습니다.
+
+| 사전 확인 | 받아야 할 값 |
+| --- | --- |
+| Fabric | 승인된 paid F2 이상 또는 Fabric이 켜진 P1 이상 용량의 workspace, 같은 리전의 실습 Lakehouse |
+| 접근 | 자기 테스트 사용자, 데이터·data agent 읽기 및 이 실습 항목의 작성 권한 |
+| 연결 | 관리자가 준비한 **data agent용** Foundry 연결 이름/ID와 위임된 사용자 인증. API key 아님 |
+| 비용·처리 범위 | 용량·AI 이용·지역 간 처리의 승인과 종료 담당자. 실습 중 구독/용량을 구매하지 않음 |
+
+1. 실습 Lakehouse의 **Files**에 동봉 `monthly-spend.csv` 하나만 업로드합니다. 파일 메뉴 **Load to tables → New table**에서 이름 `contoso_spend`, 첫 행 Column header 선택, 구분자 `,`를 지정합니다. 기존 표에 Append/Overwrite하지 않습니다. [Load to tables 필드](https://learn.microsoft.com/fabric/data-engineering/load-to-tables)와 대조해 **9행, month/category/amount_krw**, 금액의 숫자형 해석을 확인합니다.
+2. workspace의 **+ New item → Fabric data agent**에서 `contoso-spend-agent`를 만듭니다. OneLake catalog에서 해당 Lakehouse를 Add하고, Explorer에서 **`contoso_spend` 표만** 선택합니다. [Data agent 생성 절차](https://learn.microsoft.com/fabric/data-science/how-to-create-data-agent)를 이 한 표에 적용합니다.
+3. Agent instructions에 “선택한 contoso_spend만 사용하고 month별 amount_krw의 합과 전체 합을 KRW로 답한다. 없는 행을 만들지 않는다”를 넣습니다. Fabric 내부 대화에서 아래 질문을 한 번 보내 원본 집계를 먼저 확인하고 Publish합니다.
+4. 관리자는 **게시된 해당 data agent**의 workspace/item ID와 MCP endpoint가 Foundry 연결에 맞는지 확인합니다. 일반 endpoint 형태는 `https://api.fabric.microsoft.com/v1/mcp/workspaces/<workspaceId>/dataagents/<dataAgentId>/agent`입니다. 실제 값은 자기 항목에서 복사하며 private-link 환경의 별도 host는 담당자가 확인합니다.
+5. Foundry Toolkit의 **My Resources → 자신의 project → Tools → Toolbox → Add tools → Configured → Fabric IQ (OneLake Catalog)**에서 준비된 연결을 선택하고 **Add Tools → Publish/Save Changes**합니다. 첫 Fabric IQ 연결 생성은 Toolkit에서 직접 지원되지 않으므로 관리자가 Foundry 포털에서 먼저 준비해야 합니다. 다른 Fabric 항목의 연결을 대신 고르지 않습니다.
+6. 새 실습용 Text agent에 게시된 Toolbox의 정확한 버전을 연결하고 “이 도구로만 합성 지출을 조회하며 결과가 없으면 모른다고 답한다”는 지시를 넣습니다. 같은 집계 질문을 한 번 보내 아래 값과 **실제 도구 결과·연결 항목**을 대조합니다. 질문의 원본 제품 확인과 Foundry 확인은 별도 요청입니다.
+
 **Contoso 명세 예 — 실제 Fabric 실행 결과가 아닙니다.**
 
 | 단계 | 입력·선택 | 판단할 결과 |
@@ -4210,11 +4592,26 @@ L11의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290�
 
 합계가 다르면 **원본 타입/중복 → measure와 필터 → 연결 item/identity → 답변 합성** 순으로 확인합니다. 원본 집계부터 틀린 경우 프롬프트를 바꾸지 않습니다. 숫자만 맞고 도구 근거가 없으면 연결 성공은 미확인입니다.
 
+**한 가지 변경 과제:** 추가 질문을 승인받았다면 필터만 “2026-09”로 바꿉니다. 기대는 **3행·4,759,000 KRW**이며 전체 11,154,000을 반환하면 필터가 적용되지 않은 것입니다. 데이터·도구·모델을 함께 바꾸지 않습니다.
+
 ### 3. 선택 C: Work IQ / SharePoint
 
 승인된 테스트 테넌트와 **관리자가 제공한 테스트 계정 A/B**만 사용합니다. [Work IQ 연결 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq)에서 위임·관리자 동의·라이선스 조건을 확인합니다. 계정이나 권한을 실습 중 임의 생성하지 않습니다.
 
-합성 구매 정책 한 문서를 A에게 허용하고 B에게는 허용하지 않는 **승인된 시험 설정**을 준비합니다. 원본 SharePoint에서 A는 열 수 있고 B는 열 수 없는지 먼저 확인합니다. 다음에는 서로 다른 로그인·새 대화에서 같은 정책 질문을 보냅니다. 기대 결과는 A의 허용 문서 근거와, B에게 그 제한 문서의 본문·제목·URL이 노출되지 않는 것입니다. B가 별도 공용 사실에 답한다면 그 근거가 다른 허용 자료인지도 구분합니다.
+이번에는 **Work IQ Chat의 A2A 연결** 하나만 사용합니다. 관리자가 Work IQ 서비스 주체·위임 권한 `WorkIQAgent.Ask`·동의·기존 연결을 준비합니다. 이 API 경로는 **Copilot Credits 사용량 청구**이며 모든 connector의 라이선스 조건과 같지 않습니다. 학습자에게 Global Administrator를 요구하거나 Outlook·메일 발송 도구까지 붙이지 않습니다.
+
+| 단계 | 직접 할 일·확인 |
+| --- | --- |
+| 합성 원본 | 승인된 테스트 SharePoint 위치에 문서 하나: 제목 “Contoso 제한 견적 실습”, 내용 “사례 LAB-73, 교육용 견적코드 CONTOSO-QUOTE-DEMO-73. 실제 거래 효력 없음.” |
+| 원본 권한 | 관리자가 A만 읽도록 격리. **원본에서 A는 열림, B는 거절**을 먼저 확인. B에게 상위 사이트/그룹 권한이 남아 있으면 진행하지 않음 |
+| Toolbox | Foundry Toolkit → My Resources → project → Tools → **+ Add Toolbox → Add tools → Work IQ → Work IQ Chat**. 준비된 연결 선택 → Add → Publish |
+| Agent | 별도 Text agent에 그 Toolbox 버전만 연결. File search·Web search·다른 업무 도구는 연결하지 않음 |
+| A/B 호출 | 각각 별도 로그인·새 대화에서 “교육용 사례 LAB-73의 견적코드와 원본문서를 확인해줘”를 한 번씩 보냄 |
+| 판독 | A는 실제 도구 근거와 코드가 있어야 함. B에게는 제공하지 않은 코드·본문·문서 URL이 나오면 안 됨. 실제 도구 결과도 같이 읽음 |
+
+견적코드를 질문·instructions·공용 검색 인덱스에 넣지 않습니다. 이 표의 코드가 모범 답으로 알려져 있다는 것과 모델이 권한 있는 원본을 조회했다는 것은 별개입니다. A/B 질문은 총 2건으로 제한하며 서비스 내부 처리·과금은 별도입니다. 접근할 문서가 모두 합성인 승인된 테스트 환경이 없으면 실행하지 않습니다.
+
+위 표의 격리된 견적 문서 하나로 확인합니다. L05의 공용 구매 정책을 대신 연결하면 B가 다른 허용 근거에서 정답을 얻을 수 있어 제한 문서 시험과 구분하기 어렵습니다.
 
 B에게 제한 근거가 보이면 반복 질의 전에 원본 ACL·위임된 사용자·대화/캐시 혼용을 점검합니다. 한 계정의 두 대화만으로 사용자 격리를 시험했다고 쓰지 않습니다.
 
@@ -4267,15 +4664,15 @@ LangGraph/LangChain 또는 Semantic Kernel을 이미 쓰는 팀은 전면 재작
 
 **심화 코스 · 마이그레이션** · 약 20분
 
-> **학습 순서: 독립 선택** — 기본 코스 개념. 비교·설계는 독립이며 실제 이관은 승인된 Classic 환경이 있을 때만 진행합니다.
+> **학습 순서: 독립 선택** — Python으로 합성 요청 계약을 수정합니다. 기존 Classic 환경 없이 진행하며 실제 이관은 별도 승인된 환경에서만 수행합니다.
 
 > **완성할 결과:** 기존 자원을 유지하면서 새 Foundry로 이동할 항목과 검증 순서를 구분한 마이그레이션 표.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 설계 · 기존 Classic 환경이 없어도 됩니다.
+**진행 방식:** 로컬 계약 변환 + 선택 설계 · 기존 Classic 환경이 없어도 됩니다.
 
-**먼저 할 일:** 가상 Contoso 사례에서 정의·사용자 상태·운영 상태를 세 묶음으로 나눕니다.
+**먼저 할 일:** 합성 요청 변환의 세 오류를 수정하고, 정의·사용자 상태·운영 상태의 차이를 설명합니다.
 
 **확인할 결과:** 이전 대상·검사·복구·보존 담당자 표를 만듭니다. 실제 자원 이전이나 삭제는 이 설계에 포함되지 않습니다.
 
@@ -4300,6 +4697,61 @@ LangGraph/LangChain 또는 Semantic Kernel을 이미 쓰는 팀은 전면 재작
 기존 시스템이 있으면 승인된 범위에서 읽기 전용으로 목록화합니다. 없으면 아래 **가상 Contoso Classic 사례**로 계획을 작성합니다. 실습을 위해 Classic 자원을 새로 만들 필요가 없습니다. 이 장은 기존 자원을 자동 업그레이드하거나 데이터를 옮기지 않습니다.
 
 ## 실행
+
+### 0. 직접 고치기: 새 API의 ID와 출력 계약
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** Classic 환경을 만들지 않고 새 Responses 요청의 작은 조각을 변환합니다. 기존 Threads/Runs의 `tool_call_id`와 달리, Responses의 출력 item `id`와 함수 결과에 붙일 `call_id`는 별개입니다. 모든 ID는 합성입니다.
+
+```bash
+python samples/prepare_practice.py migration --output practice/migration
+python -m unittest discover -s practice/migration -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `prepare_practice.py migration` | 변환 함수와 고정 계약 테스트를 새 폴더에 복사합니다. | 로컬 파일 생성만 수행. 구 SDK 설치·Azure 호출·실제 이관 없음. |
+| 2. `unittest discover` | 대화 ID, 함수 상관 ID, JSON 문자열, 출력 항목 개수를 확인합니다. | 처음에는 **4개 중 3개 실패**합니다. 나쁜 변환을 발견한 정상적인 검사 결과입니다. |
+
+</div>
+
+| 입력·출력 | 합성 값 | 유지해야 할 의미 |
+| --- | --- | --- |
+| 새 대화 | `conv_new_demo` | 이후 함수 결과를 돌려줄 같은 conversation |
+| 함수 요청 item의 `id` | `fc_item_demo` | 응답 안의 item 식별자 |
+| 함수 요청의 `call_id` | `call_demo_1` | 함수 결과와 요청을 연결할 식별자 |
+| 실제 함수 결과 | `{"sku":"NB-14","stock":8}` | `output`에는 이 객체의 JSON **문자열**을 전달 |
+
+**한 가지 바꾸기:** `practice/migration/exercise.py`의 변환 계약을 고칩니다. 대화에는 입력받은 `conversation_id`, 함수 상관관계에는 `function_call["call_id"]`, 결과에는 `json.dumps`를 사용합니다. 하나씩 고친 뒤 같은 테스트를 실행하여 어떤 실패가 사라지는지 확인합니다.
+
+<details markdown="1">
+<summary>완성된 변환 조각 — 새 API 요청의 일부이며 전체 이관기가 아님</summary>
+
+<!-- solution:migration -->
+```python
+import json
+
+def continuation(conversation_id: str, function_call: dict, result: dict) -> dict:
+    return {
+        "conversation": conversation_id,
+        "input": [{
+            "type": "function_call_output",
+            "call_id": function_call["call_id"],
+            "output": json.dumps(result, ensure_ascii=False),
+        }],
+    }
+```
+
+</details>
+
+**결과 설명하기:** 네 테스트가 모두 통과하면 각 필드가 왜 필요한지 설명하고 아래 마이그레이션 표의 **정의 / 사용자 상태 / 운영 상태** 중 어디에 속하는지 적습니다. 실제 호출에서는 새 서비스가 반환한 ID와 같은 agent/version 바인딩을 사용합니다. 이 과제는 과거 Thread/Run ID를 재사용하거나 사용자 이력을 실제로 옮기지 않습니다. 전체 호출·도구 루프는 동봉 `samples/workshop.py`의 `run_turn`과 비교합니다.
+
+</div>
 
 ### 1. 현재 사용 중인 것을 찾기
 
@@ -4364,6 +4816,7 @@ AI Search agentic retrieval은 stable `2026-04-01`와 최신 preview 간 기능�
 
 ## 성공 기준
 
+합성 변환 과제의 세 오류를 설명하고, 테스트를 바꾸지 않은 수정으로 4개 테스트가 통과합니다. 이는 로컬 계약 변환 확인이지 실제 서비스 이관 완료가 아닙니다.
 이전 대상, 유지할 Classic 기능, 사용자 상태의 처리, 종료 일정, 평가 결과, rollback 방법이 있습니다. “새 포털에서 보인다”만으로 마이그레이션 완료를 판정하지 않습니다.
 
 ## 막혔을 때
@@ -4585,6 +5038,25 @@ L22의 기본 CI/설계는 그 경로와 독립이며, 다른 장의 완료를 �
 이 기록은 웹 가이드의 진도 체크와 별개입니다. 브라우저 진도는 Azure에 연결하지 않습니다.
 
 ## 후반부를 지도하는 방법
+
+### 심화에서는 변경 전·후를 반드시 설명하기
+
+L15·L18–L24의 보강 과제는 **직접 해보기 → 한 가지 바꾸기 → 결과 설명하기**를 따릅니다. 먼저 어떤 결과가 나올지 예측하게 하고, 바꾼 코드·설정 하나와 실제 차이를 연결하게 합니다.
+
+| 모듈 | 참여자가 직접 바꾸는 것 | 남길 근거 |
+| --- | --- | --- |
+| L15 | 같은 모델·정책에서 단일→두 역할, 선택적으로 경계 질문 | 기준선·작성자·검토자 원문과 실제 토큰/시간. 미수집은 null |
+| L18 | 완성 schema에 SKU 필드 하나 추가 | 7→8개 필드, KB-01의 원문 위치, 기존 값 보존 여부 |
+| L19 | 무음 감지 500→1500ms | 같은 발화의 분할·대기·종료 비교; 실제 마이크는 참여자가 직접 |
+| L20 | 복사본 라벨 오타 수정; 승인된 경우 SFT 전체 경로 | 형식 오류→16/8 생성, 선택 학습 job/checkpoint와 동일 8문항 |
+| L21 | 캐시보다 먼저 권한 확인 | 로컬 5개 중 2개 실패→5개 통과; Azure 권한 검증과 구분 |
+| L22 | 완료 외 품질·critical·누락 조건 확인 | 로컬 5개 중 3개 실패→5개 통과; 선택 workflow도 Azure 단계 없음 |
+| L23 | Local 출력 형식 또는 Fabric 월 필터 | 같은 모델/데이터에서 바꾼 조건과 실제 응답·합계 |
+| L24 | 대화 ID·call_id·JSON 문자열 계약 수정 | 로컬 4개 중 3개 실패→4개 통과; 실제 이관 아님 |
+
+`data/exercises/`의 결함 코드와 테스트는 교육용 원본입니다. 참여자는 `practice/` 복사본의 **exercise.py만** 고칩니다. 글로벌 테스트·평가 기준을 낮추거나 원본을 덮어쓰지 않습니다. 같은 폴더 재생성은 거절되므로 재실습은 다른 출력 폴더를 선택합니다.
+
+실습 흐름이 충분하다는 것과 실제 Azure/장치 실행을 마쳤다는 것은 다릅니다. 새 보강의 로컬 코드·SDK 계약 확인을 SFT·Voice·Local 모델·Fabric·Work IQ의 실제 실행 증거로 표시하지 않습니다. 선택 서비스의 대기·다운로드·승인은 기존 순수 학습 시간에 포함하지 않습니다.
 
 각 장에서 학습자에게 **“어느 값이 근거인가 → 그래서 어떤 판단인가 → 실패하면 무엇부터 볼 것인가”**를 설명하게 합니다. 설명이 부족하면 새 기능을 추가하기보다 같은 사례의 증거를 다시 읽습니다.
 

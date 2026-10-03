@@ -46,6 +46,7 @@ async (page) => {
     check(await page.locator(".nav-learning").count() === 12, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === 25, "25 trackable labs");
     check(await page.locator(".lab-brief").count() === 25, "all 25 modules have beginner start cards");
+    check(await page.locator(".practice-block").count() === 8, "eight advanced modules expose a try-change-explain exercise");
     check(await page.locator('#l01 .operator-only').evaluateAll(nodes =>
       nodes.length === 2 && nodes.every(node => !node.open)
     ), "administrator provisioning and role tables are collapsed by default");
@@ -272,6 +273,9 @@ async (page) => {
           }));
           check(layout.document <= layout.viewport + 1 && layout.tables > 0, `${id} decision tables fit the reader at ${width}px`);
           check(layout.briefWidth > 0 && layout.briefWidth <= layout.proseWidth + 1, `${id} beginner card fits at ${width}px`);
+          if (["l15", "l18", "l19", "l20", "l21", "l22", "l23", "l24"].includes(id)) {
+            check(await page.locator(`#${id} .practice-block`).isVisible(), `${id} concrete practice remains readable at ${width}px`);
+          }
         }
       }
     }
@@ -307,6 +311,7 @@ async (page) => {
     }));
     check(printFonts.prose >= 14.66, "PDF body text >= 11pt");
     check(printFonts.code >= 12, "PDF code text >= 9pt");
+    check(await page.locator("#l20 h4").first().evaluate(node => getComputedStyle(node).breakAfter) === "avoid", "fine-tuning substeps stay with following content in print");
     await page.emulateMedia({media: null});
     await page.evaluate(() => { delete document.body.dataset.print; });
     await page.goto(`${entry}#%E0%A4%A`);

@@ -2,9 +2,9 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Advanced elective · local source checks and release/recovery design by default.
+**Format:** Advanced elective · local CI failure→repair and release/recovery design by default.
 
-**Start here:** Read `validate.yml` and separate automatic checks from the approved paid-execution condition.
+**Start here:** Copy the synthetic candidate-selection exercise in 2-1 and reproduce three failures. Also distinguish the real workflow's approval conditions.
 
 **What to check:** Keep a CI interpretation, release manifest, rollback decision, and cost owner. This chapter does not require a Hosted deployment.
 
@@ -47,6 +47,8 @@ If GitHub is available, open **Actions → run → job → failed step** and loc
 
 ### 2. Check the same sources locally
 
+The repository-wide checks below are a reference. Start with **2-1's failure→repair exercise** to experience what CI blocks without deliberately breaking existing business code or evaluation criteria.
+
 The first line is needed only if documentation dependencies are missing. L01's base dependencies must already be installed.
 
 ```bash
@@ -72,6 +74,56 @@ python scripts/check_guide.py
 Record success as **code/document checks passed** only. For import errors, inspect the virtual environment/requirements; for generated drift, inspect `docs/` and `content/`; for business assertions, inspect the relevant function/policy contract. Do not weaken assertions or evaluation criteria.
 
 For PDF/ZIP delivery, continue with the README build path. Artifacts under `downloads/` and the root web entry points are **separate from agent deployment artifacts**. Documentation generation supports this chapter; it is not CD evidence.
+
+### 2-1. Fix it: completion alone must not promote a candidate
+
+<div class="practice-block" markdown="1">
+
+**Try it:** This pure function returns fictional version names. It changes no actual endpoint or Active version.
+
+```bash
+python samples/prepare_practice.py delivery --output practice/delivery
+python -m unittest discover -s practice/delivery -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `prepare_practice.py delivery` | Copies a flawed function, tests, and an optional workflow template into a new folder. | Local files only; no GitHub push or Azure deployment. |
+| 2. `unittest discover` | Separates a good candidate, failed run, quality failure, critical failure, and missing row. | Initially **three of five tests fail intentionally**. Do not hide these failures. |
+
+</div>
+
+`practice/delivery/exercise.py` chooses `candidate-2` from `status=completed` alone. A completed run with a quality failure, safety failure, or missing row must keep `approved-1`.
+
+**Change one thing:** Make candidate selection an AND of four conditions: completed status, `quality_passed is True`, zero critical failures, and zero missing rows. Change neither tests nor the original release gates. Rerun the same check and require five passes.
+
+<details markdown="1">
+<summary>Example repair — a local decision exercise, not the complete production gate</summary>
+
+<!-- solution:delivery -->
+```python
+def choose_version(previous: str, candidate: str, checks: dict) -> str:
+    if (
+        checks["status"] == "completed"
+        and checks["quality_passed"] is True
+        and checks["critical_failures"] == 0
+        and checks["missing_rows"] == 0
+    ):
+        return candidate
+    return previous
+```
+
+</details>
+
+**Explain the result:** Describe the incorrect promotion prevented by each of the three failed tests. Complete a `previous version / candidate / failure evidence / version to keep` table. This function performs neither deployment nor state migration, so do not call it completed remote rollback.
+
+**Optional: observe the same failure→repair in GitHub.** Use only a new branch in an approved personal training repository. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit, then on a commit changing only `exercise.py`; expect failure then success. The template has manual dispatch, read-only permissions, and Python checks—no Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
+
+</div>
 
 ### 3. Write an agent release manifest
 
@@ -117,6 +169,7 @@ Record **RTO (target service recovery time)** and **RPO (acceptable data-loss in
 
 ## Success criteria
 
+Reproduce the three local failures, repair only the function, and obtain five passes. If you use GitHub, distinguish failed/passing runs from their different commits.
 Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Azure not executed. Hold promotion without quality evidence for the same candidate.
 
 ## Troubleshooting

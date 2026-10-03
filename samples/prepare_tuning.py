@@ -1,5 +1,6 @@
 """Generate small synthetic SFT format exercises; never submits training jobs."""
 
+import argparse
 import json
 from pathlib import Path
 from uuid import uuid4
@@ -12,8 +13,8 @@ SYSTEM = (
 )
 
 
-def prepare(destination: Path) -> tuple[int, int]:
-    examples = json.loads((DATA / "tuning/examples.json").read_text(encoding="utf-8"))
+def prepare(destination: Path, source: Path | None = None) -> tuple[int, int]:
+    examples = json.loads((source or DATA / "tuning/examples.json").read_text(encoding="utf-8-sig"))
     seen: set[str] = set()
     grouped: dict[str, list[dict]] = {"train": [], "validation": []}
     for example in examples:
@@ -40,8 +41,19 @@ def prepare(destination: Path) -> tuple[int, int]:
     return len(grouped["train"]), len(grouped["validation"])
 
 
-if __name__ == "__main__":
-    target = ROOT / "results" / f"tuning-{uuid4().hex[:12]}"
-    counts = prepare(target)
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--input", type=Path, help="A local synthetic copy; do not edit the checked-in examples.")
+    parser.add_argument("--output", type=Path, default=ROOT / "results" / f"tuning-{uuid4().hex[:12]}")
+    args = parser.parse_args(argv)
+    target = args.output.resolve()
+    if not target.is_relative_to(ROOT / "results") or target == ROOT / "results":
+        raise ValueError("Training-format outputs must use a new subfolder under results/.")
+    counts = prepare(target, args.input)
     print(f"Prepared train={counts[0]}, validation={counts[1]} in {target.relative_to(ROOT)}.")
     print("Synthetic FORMAT EXERCISE ONLY. No training job or cloud request was made.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

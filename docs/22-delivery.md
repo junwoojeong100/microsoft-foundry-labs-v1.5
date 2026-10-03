@@ -2,9 +2,9 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 심화 · 로컬 소스 검사와 릴리스·복구 설계가 기본입니다.
+**진행 방식:** 선택 심화 · 로컬 CI 실패→수정과 릴리스·복구 설계가 기본입니다.
 
-**먼저 할 일:** `validate.yml`에서 자동 검사와 승인된 유료 실행의 조건을 구분합니다.
+**먼저 할 일:** 2-1의 합성 후보 선택 과제를 복사하고 세 실패를 재현합니다. 실제 workflow의 승인 조건도 구분합니다.
 
 **확인할 결과:** CI 판독표·릴리스 명세·롤백 결정·비용 담당자를 기록합니다. 이 장 때문에 Hosted를 배포할 필요는 없습니다.
 
@@ -47,6 +47,8 @@ GitHub를 사용할 수 있으면 **Actions → 해당 실행 → job → 실패
 
 ### 2. 같은 소스로 로컬 검사하기
 
+아래 저장소 전체 검사는 참고입니다. 먼저 이어지는 **2-1 실패→수정 실습**으로 CI가 무엇을 막는지 직접 확인할 수 있습니다. 기존 평가 기준이나 업무 코드를 일부러 망가뜨리지 않습니다.
+
 첫 줄은 문서 의존성이 아직 없는 경우에만 필요합니다. L01의 기본 의존성은 이미 설치되어 있어야 합니다.
 
 ```bash
@@ -72,6 +74,56 @@ python scripts/check_guide.py
 통과하면 **코드/문서 검사 통과**로만 기록합니다. import 오류는 가상환경과 requirements, 생성물 차이는 `docs/`·`content/` 원본, 업무 assertion 실패는 관련 함수·정책 계약부터 확인합니다. assertion이나 평가 기준을 낮춰 통과시키지 않습니다.
 
 PDF·ZIP이 필요하면 README의 생성 경로를 이어 사용합니다. `downloads/`의 전달물과 루트 웹 진입점은 **에이전트 배포물과 별개**입니다. 문서 빌드는 이 장의 보조 과제이지 CD 성공 증거가 아닙니다.
+
+### 2-1. 직접 고치기: 실행 완료만으로 후보를 내보내지 않기
+
+<div class="practice-block" markdown="1">
+
+**직접 해보기:** 다음은 가짜 버전 이름을 반환하는 순수 함수입니다. 실제 endpoint나 Active version을 바꾸지 않습니다.
+
+```bash
+python samples/prepare_practice.py delivery --output practice/delivery
+python -m unittest discover -s practice/delivery -p "test_exercise.py" -v
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `prepare_practice.py delivery` | 결함 함수·테스트·선택형 workflow 템플릿을 새 폴더에 복사합니다. | 로컬 파일만 생성. GitHub push나 Azure 배포 없음. |
+| 2. `unittest discover` | 정상 후보·실행 실패·품질 실패·critical 실패·행 누락을 구분합니다. | 처음에는 **5개 중 3개 실패**가 정상입니다. 이 실패를 숨기지 않습니다. |
+
+</div>
+
+`practice/delivery/exercise.py`는 `status=completed`만 보고 `candidate-2`를 선택합니다. 하지만 실행은 끝났어도 품질 실패·안전 실패·누락이 있으면 `approved-1`을 유지해야 합니다.
+
+**한 가지 바꾸기:** 후보 선택 조건을 네 조건의 AND로 고칩니다. 완료 상태, `quality_passed is True`, critical 실패 0, 누락 0입니다. 테스트·원본 릴리스 게이트는 바꾸지 않습니다. 같은 검사로 5개 모두 통과하는지 확인합니다.
+
+<details markdown="1">
+<summary>수정 예 — 실제 운영 게이트 전체가 아닌 로컬 결정 연습</summary>
+
+<!-- solution:delivery -->
+```python
+def choose_version(previous: str, candidate: str, checks: dict) -> str:
+    if (
+        checks["status"] == "completed"
+        and checks["quality_passed"] is True
+        and checks["critical_failures"] == 0
+        and checks["missing_rows"] == 0
+    ):
+        return candidate
+    return previous
+```
+
+</details>
+
+**결과 설명하기:** 실패한 세 테스트가 어떤 잘못된 승격을 막았는지 적고, `이전 버전 / 후보 / 실패 근거 / 유지할 버전` 표를 완성합니다. 이 함수에는 실제 배포·상태 이관이 없으므로 원격 롤백 완료라고 쓰지 않습니다.
+
+**선택: GitHub에서 같은 실패→수정 보기.** 승인된 개인 실습 저장소의 새 브랜치에서만 진행합니다. 복사된 `workflow.yml`을 `.github/workflows/contoso-practice.yml`로 두고 `practice/delivery` 코드·테스트를 함께 관리합니다. 초기 결함 상태로 Actions의 **Contoso local delivery practice → Run workflow**를 실행하면 실패하고, `exercise.py`만 고친 커밋으로 다시 실행하면 통과해야 합니다. 템플릿은 수동 실행·읽기 권한·Python 검사만 사용하며 Azure 로그인·secret·배포 단계가 없습니다. 이 저장소의 기존 `validate.yml`을 대체하거나 `acknowledge_cost`를 켜지 않습니다.
+
+</div>
 
 ### 3. 에이전트 릴리스 명세 작성하기
 
@@ -117,6 +169,7 @@ L11의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290�
 
 ## 성공 기준
 
+로컬 실패 3건을 재현하고 함수만 고쳐 5개 테스트를 통과시켰으며, GitHub 경로를 선택했다면 서로 다른 커밋의 실패·성공 실행을 구분합니다.
 **CI 판독표, 릴리스 명세, 실패 시 롤백 결정, 모델/비용 재확인 담당자**가 있습니다. 로컬 통과·설계 완료·Azure 미실행을 구분하고, 같은 후보의 품질 근거가 없으면 승격 보류라고 판단할 수 있습니다.
 
 ## 막혔을 때
