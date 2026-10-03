@@ -1,5 +1,43 @@
 > **What you will build:** An agent that answers questions about company policy with supporting evidence, checks inventory, and prepares a purchase draft for human approval—plus the evaluation, tracing, and operational practices needed to explain whether it works correctly.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Reading · no Azure account or installation needed.
+
+**Start here:** Read “New to Azure? Start here” below, then choose your learning path.
+
+**What to check:** Explain one thing the purchasing assistant will do and one thing it must not do.
+
+</div>
+
+<a id="l00-first-steps"></a>
+
+## New to Azure? Start here
+
+**Azure is Microsoft's cloud platform. Foundry is a workspace on Azure for building and managing AI models and agents.** Here you build a purchasing assistant for the fictional company Contoso. Do not use real company accounts, purchasing records, or payment information as lab data.
+
+```text
+User: "Check policy and stock for two laptops, then prepare a draft."
+  → Model: interprets the question and writes an answer
+  → Document search: finds the relevant policy evidence
+  → Function tools: read synthetic stock and calculate a draft
+  → User: receives evidence and a draft awaiting approval — not an order
+```
+
+Start with these five terms. Learn other acronyms when you need them and use the [glossary](#glossary) as a reference.
+
+| Term | Meaning in this lab |
+| --- | --- |
+| Portal | A management website. Azure portal focuses on resources, access, and costs; Foundry portal focuses on AI work |
+| Project | A workspace organizing this assistant's agents and connections |
+| Model | The AI that receives input and generates text |
+| Agent | A program combining a model with instructions, knowledge, and tools |
+| Deployment | Making a model available to call in your environment; not training the model |
+
+**Recommended first sequence:** this module → L01 setup → L02 inspect the supplied model → L03 first call. You do not need to complete all 25 modules at once. L00–L12 is the core; L13–L24 are electives.
+
+**Without an account:** start with reading, L01's local data checks, L06's local functions, and L08's existing-result analysis. Mark Azure-only steps not executed. Do not create an account or add payment details on your own for the exercise.
+
 ## Objectives
 
 **Foundry is more than a screen for calling models.** It is a development and operations platform for selecting models, connecting agents to knowledge and tools, and managing quality, safety, and cost.
@@ -31,6 +69,11 @@
 
 **Reading the screen:** First confirm your own lab project in the project selector at the top. **Discover** is for exploring candidates, **Build** for configuring models, agents, and tools, **Operate** for operational status, and **Manage** for project and resource management. The **Project endpoint** and **Azure OpenAI endpoint** on Home are different addresses.
 
+Masked areas contain identifying information, not values to copy. Use your own project's values. If menus differ, first check new/Classic portal mode, the current project, and your access.
+
+<details class="provenance-note" markdown="1">
+<summary>Reference: screenshot scope and validation records</summary>
+
 The English edition uses a separate **`contoso-workshop-en` project and English synthetic data**. All **18 English portal screenshots** were captured from the signed-in English environment and are under `assets/portal/en/`, with identifying information masked or cropped—not translated overlays on the earlier Korean-data screenshots. The models, features, and versions you see depend on your permissions, region, and the date.
 
 **English backend validation and portal observation are separate activities.** The English run created and invoked owned agents, retrieved English policies, and submitted approved evaluations. Consult the [English screenshot log](../../content/portal-screenshots.en.json) for exact capture scope, times, masking, and hashes. Fine-tuning image 14 is a product sample, not Contoso training; Voice image 15 records a canceled form, not a voice session. A screenshot is an observation, not deployment or release-quality certification.
@@ -39,9 +82,14 @@ The English edition uses a separate **`contoso-workshop-en` project and English 
 
 The [current instruction status](../../validation/current/instructions.json) links the [latest Prompt Agent comparison](../../validation/current/report.json). Korean native relevance changed from 4.9167/5 to 5.0/5 on one question; the other Korean metrics and all English metrics tied at 5.0/5. This limited dev observation is not a generalized improvement or release pass.
 
+</details>
+
 ### How to read the source code and commands
 
-Open the complete kit from the repository's file list on GitHub or through **File → Open Folder** in VS Code. Extract the ZIP first if you downloaded it. Your browser's “View page source” shows only the guide's HTML.
+Download and extract the complete workshop ZIP, then use **File → Open Folder** in VS Code. The **lab folder (repository root)** contains `samples`, `data`, and `requirements.txt` together. Your browser's “View page source” shows the guide's HTML, not the executable samples. Git command knowledge is not required to start.
+
+<details markdown="1">
+<summary>Reference: what the source files do</summary>
 
 | What to look for | Source file |
 | --- | --- |
@@ -53,7 +101,11 @@ Open the complete kit from the repository's file list on GitHub or through **Fil
 | English synthetic inputs and unchanged business contracts | [data/en/profile-manifest.json](../../data/en/profile-manifest.json) |
 | Learner module sources | [docs/en/00-start.md](../../docs/en/00-start.md) in English and [docs/00-start.md](../../docs/00-start.md) in Korean — regenerate HTML/Markdown/PDF/ZIP after editing |
 
+</details>
+
 In `python samples/workshop.py model --live`, `python` is the interpreter, `samples/workshop.py` is the file, `model` is the subcommand to run, and `--live` is this sample's opt-in flag for real Azure execution. The numbered rows in the **Command walkthrough** below each executable block follow the commands in that block. Unless stated otherwise, run commands from the root of your separate English checkout. Descriptive placeholders such as `ACTUAL_NUMERIC_VERSION`, `approved-subscription-id`, and `results/actual-dev-responses.jsonl` must be replaced with your own verified values, not entered literally.
+
+**Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
 
 `--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Azure cost”: the local Hosted server in L14 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
@@ -103,7 +155,7 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 
 ### 4. Keep evidence of your results
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save personal originals in your English checkout's `results/`. Keep only the latest reviewed set under `validation/current/`, retaining its actual language and input hashes. Do not record personal information or tokens or relabel one environment's evidence as another's.
+Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`; do not overwrite the published examples under `validation/current/`. Do not record personal information or tokens or relabel one environment's evidence as another's.
 
 ## Success criteria
 

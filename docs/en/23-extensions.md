@@ -1,5 +1,15 @@
 > **What you will build:** Compare local execution and business-data integration options, and select only the extensions your project needs.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · choose only one needed path: Local, Fabric, or Work IQ.
+
+**Start here:** Decide whether you need on-device answers, expense totals, or authorized document retrieval.
+
+**What to check:** Record the selection reason, prerequisites, expected output, and shutdown method. Mark actual execution separately.
+
+</div>
+
 ## Objectives
 
 **Foundry cloud, Foundry Local, and Foundry Local on Azure Local are not the same deployment approach.** Fabric IQ, Work IQ, and Foundry IQ also provide different knowledge contexts.

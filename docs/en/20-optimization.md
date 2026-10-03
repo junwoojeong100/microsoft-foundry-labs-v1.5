@@ -1,5 +1,15 @@
 > **What you will build:** Connect the observed v1/v2 differences to the right improvement method, distinguishing instructions from model training.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · begin with existing evaluation results and local training-file preparation.
+
+**Start here:** Read one English answer pair from L08 and identify whether instructions, retrieval, or tools need attention.
+
+**What to check:** Explain the chosen improvement and the 16 training/8 validation rows. Optimizer submission and real training are optional.
+
+</div>
+
 ## Objectives
 
 Start with **RAG for new facts, instructions for procedure/omissions, and fine-tuning for repeated learned behavior**.
@@ -29,7 +39,7 @@ Optimizer and real training jobs require separate approval, supported models, an
 
 | Observed problem | First approach |
 | --- | --- |
-| Missing new policy facts | Check retrieval, documents, currency, and access scope |
+| Missing new policy facts | Check retrieval, documents, freshness, and access scope |
 | Omitted subquestions or evidence | V2's question separation, claim-specific sources, and final completeness check |
 | Invalid arguments or excessive actions | Function schemas and server-side intent/quantity validation |
 | Repeated format/style problems | Consider fine-tuning after preparing sufficient examples |
@@ -37,9 +47,14 @@ Optimizer and real training jobs require separate approval, supported models, an
 Do not weaken v1 or put question-specific answers into v2. Both receive the same context, model, questions, and criteria.
 The educational v1 is a simple starting instruction focused on role and goal. V2 adds a reusable procedure based on the possible omissions being studied: decompose the request, separate verified facts from unknown or restricted information, select evidence for each claim, check thresholds and tool boundaries, and review for omissions. V1 is not intentionally wrong or constrained to lower its score.
 
-**Make a decision from one row:** Open L08's Korean `compound-request-no-tools` originals alongside the native reasons. A relevance change from 4→5 does not establish overall superiority. Mark which subrequests each answer covers, inspect whether the reason explains an actual difference, then write one line each for **observation → possible cause → next method → remaining uncertainty**. English relevance is tied; do not transfer the Korean conclusion to English. This analysis requires no new measurement.
+**Make a decision from one row:** Read the **English** `compound-request-no-tools` pair displayed in L08 and its native reasons. Both answers cover the four requests, and all three metrics tie at 5→5. Identify the wording changes without calling them a measured quality gain, then write one line each for **observation → possible cause → next method → remaining uncertainty**. The Korean relevance change from 4→5 is a separate result, not a conclusion to transfer to English. This analysis requires no new measurement or Korean reading.
 
 ### 2. Optional: Understand Agent Optimizer
+
+Go straight to **step 3** if your goal is local training-data preparation. You do not need to run this optional feature to use v2.
+
+<details class="optional-path" markdown="1">
+<summary>Optional reference: Optimizer prerequisites and submission plan</summary>
 
 Agent Optimizer is Limited preview; verify availability and supported models separately.
 L08's one comparison is enough for the core exercise. Repeated jobs and automatic candidate promotion are unnecessary.
@@ -65,6 +80,8 @@ Do not bypass an old freeze that differs from current code or reuse a consumed e
 Service `succeeded` is not proof of improvement. Inspect missing, errored, and failed rows and retain a no-improvement outcome.
 Record service-generated, operator-edited, and manually authored instructions as different sources. A Korean translation/review of English dev instructions is not a Korean optimizer output, and Korean responses require separate measurement.
 Preparing this advanced path is not a prerequisite for the v1/v2 learning comparison.
+
+</details>
 
 ### 3. Learn the local SFT format
 

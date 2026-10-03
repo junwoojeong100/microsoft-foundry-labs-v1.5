@@ -1,10 +1,21 @@
 > **먼저 확인할 네 가지:** 지금 선택한 프로젝트, 실제 endpoint, 호출 identity, 실행한 SDK 환경.
 
+## Azure에 연결하기 전 막혔다면
+
+| 보이는 증상 | 지금 할 일 |
+| --- | --- |
+| 명령을 어디에 넣을지 모르겠음 | VS Code에서 실습 폴더를 열고 **터미널 → 새 터미널**. 브라우저 주소창에 넣지 않음 |
+| `python3` / `python3.13`을 찾지 못함 | Python 설치와 버전 확인. Windows는 L01의 `py -3.13` 경로 사용 |
+| `can't open file` / `No such file or directory` | 연 폴더에 `samples`·`data`·`requirements.txt`가 함께 있는지 확인. `samples` 안에서 명령을 실행하지 않음 |
+| Python의 `>>>` 또는 `SyntaxError` | `exit()`로 Python을 나온 뒤 터미널에서 명령 실행. 질문·JSON·`.env` 설정은 본문이 지정한 곳에 입력 |
+| Windows의 `source` / `curl --fail` 오류 | L01의 `.venv\Scripts\python.exe` 사용. HTTP 확인은 `curl.exe` 사용 |
+| 포털에서 프로젝트가 안 보임 | 올바른 계정·조직과 제공된 프로젝트 이름을 강사에게 확인. 새 프로젝트나 구독을 임의로 만들지 않음 |
+
 ## 60초 진단 순서
 
 1. 오류가 **로컬 설치 / 관리 평면 / 모델 호출 / agent / tool / 평가 / 로그** 중 어디서 났는지 분류합니다.
 2. 발생 시각, status/error code, request/response ID를 기록합니다. token·API key는 기록하지 않습니다.
-3. 가장 작은 요청으로 재현합니다. 기능을 한꺼번에 다시 만들지 않습니다.
+3. 기존 출력·파일·설정을 먼저 읽습니다. 새 유료 요청은 필요성과 범위를 확인한 뒤에만 재현합니다. 기능을 한꺼번에 다시 만들지 않습니다.
 
 ## 증상별 해결표
 
@@ -19,7 +30,7 @@
 | `PublicNetworkAccessDisabled` | 실행 위치가 승인된 경로 안인지 | VPN/개발 VM 등 지원 경로 사용 | 리소스 보안 해제 |
 | `ImportError` / module 없음 | Python 경로·venv·requirements | 해당 venv Python으로 설치/실행 | 전역 pip에 무작정 재설치 |
 | dependency conflict | 기본/advanced 환경 혼용 | 두 requirements와 venv 분리 | 최신 버전 하나만 억지로 올리기 |
-| `.env` 오류 | 이름·형식·placeholder | 지원되는 두 설정만 입력 | API key 추가 |
+| `.env` 오류 | 이름·형식·placeholder·저장 여부 | `.env.example`에서 현재 장에 필요한 값만 입력하고 나머지는 비움 | API key 추가·`.env.txt`로 저장 |
 | agent가 도구 성공을 주장하지만 호출 없음 | actual tool call·trace | 프롬프트와 도구 registration 검사 | 자연어 답변만 믿기 |
 | 함수 도구가 멈춤 | 클라이언트 실행 loop 유무 | SDK runner 또는 hosted로 전환 | 포털이 로컬 함수를 실행할 것이라 기대 |
 | file 검색 결과 없음 | ingest status·store ID·파일 내용 | 파일→store→agent 연결 순서 확인 | upload 완료=인덱싱 완료로 처리 |
@@ -28,8 +39,8 @@
 | MCP 승인 후 진행 안 됨 | approval request ID·동일 conversation | 올바른 승인 응답을 돌려주기 | 모든 요청 자동 승인 |
 | Toolbox 403 | developer·agent identity·user 위임 구분 | 실제 호출 주체에 최소 권한 | creator 권한이 자동 상속된다고 판단 |
 | 평가 `Partial` | evaluator 필수 필드·judge quota·tool runtime | 실패 evaluator를 확인하고 재실행 | 완료된 일부만으로 평균 산출 |
-| Gate에서 `null` 오류 | 사람 검토 누락 | 실제 응답과 근거를 검토해 boolean 기록 | `true` 일괄 입력 |
-| trace 없음 | App Insights 연결·권한·시간·수집 지연 | 새 요청을 만들고 ID로 검색 | 빈 화면=실행 문제 없음 |
+| Gate에서 `null` 오류 | 누락된 결과·평가자 오류·해당 기준 | 실제 원본과 요구 필드를 확인하고 미확인은 미확인으로 유지 | `true` 일괄 입력·기준 완화 |
+| trace 없음 | App Insights 연결·권한·시간·수집 지연 | 기존 response ID와 조회 범위를 먼저 대조 | 반복 모델 호출·빈 화면=오류 없음 |
 | memory가 안 보임 | scope·새 conversation·업데이트 지연 | item/retrieval을 직접 확인 | 출력 형식만으로 기억 여부 판정 |
 | Teams 게시 후 응답 없음 | active version·Bot route·도구 실행 위치 | 게시와 실제 호출을 따로 테스트 | 앱 목록 표시를 최종 성공으로 판단 |
 | 비용이 계속 증가 | routine·voice·지속 평가·Search/PTU/runtime | 활성·유휴·고정 비용 분리 | 브라우저 닫기만 하기 |

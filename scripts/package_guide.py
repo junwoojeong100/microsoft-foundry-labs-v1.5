@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import re
 from urllib.parse import unquote, urlparse
 import zipfile
 
@@ -79,6 +80,15 @@ def main():
                 raise ValueError(f"Missing package artifact: {essential}")
         local_paths = set()
         for edition in RELEASE["languages"].values():
+            book = ROOT / edition["markdown"]
+            for address in re.findall(r"\]\(([^)\s]+)\)", book.read_text(encoding="utf-8")):
+                parsed = urlparse(address)
+                if parsed.scheme or parsed.netloc or not parsed.path:
+                    continue
+                path = (book.parent / unquote(parsed.path)).resolve()
+                if not path.is_relative_to(ROOT):
+                    raise ValueError(f"Portable Markdown link escapes the kit: {address}")
+                local_paths.add(path.relative_to(ROOT).as_posix())
             for key in ("html", "receipt_html"):
                 parser = GuideParser()
                 parser.feed((ROOT / edition[key]).read_text(encoding="utf-8"))

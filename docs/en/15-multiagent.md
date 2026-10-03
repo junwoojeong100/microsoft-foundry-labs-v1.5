@@ -1,5 +1,15 @@
 > **What you will build:** A two-stage flow that separates drafting and review without letting the model perform real approval.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · two local roles and remote A2A are separate experiments.
+
+**Start here:** Run `python samples/multi_agent.py` to read the drafter → reviewer plan only.
+
+**What to check:** If executed, record role outputs/additional latency separately from A2A delegation evidence. A reviewer's answer is not purchase approval.
+
+</div>
+
 ## Objectives
 
 **Adding more agents is not the goal.** Add orchestration only when roles, tools, and evaluation criteria are genuinely separate.

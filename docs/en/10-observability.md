@@ -1,5 +1,15 @@
 > **What you will build:** An evidence-based explanation of “Why was it wrong?”, “Why was it slow?”, and “How much did it use?” for a single run.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Read logs from an existing run · an administrator prepares the connection and access.
+
+**Start here:** Find the same L05/L06 execution in Traces using its response ID, time, and agent version.
+
+**What to check:** Record observed operations, durations, and next actions. Without log access, use the synthetic example and leave actual tracing unverified.
+
+</div>
+
 ## Objectives
 
 **Evaluation shows whether it was good, Trace shows what happened, and Monitoring shows how behavior changes over time.**

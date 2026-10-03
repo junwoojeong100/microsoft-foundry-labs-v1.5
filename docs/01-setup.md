@@ -1,4 +1,14 @@
-> **완성할 결과:** 올바른 테넌트의 Foundry 프로젝트, 호출 가능한 모델 1개, 개발 환경, 비용 중단 계획.
+> **완성할 결과:** 자신의 실습 프로젝트·모델 정보, 실행할 PC 환경, 비용 중단 계획. 모델 배포는 L02, 첫 호출은 L03에서 확인합니다.
+
+<div class="lab-brief" markdown="1">
+
+**진행 방식:** 내 PC 준비 + 제공된 프로젝트 확인 · 새 Azure 환경 생성은 관리자만 합니다.
+
+**먼저 할 일:** 강사가 준 프로젝트 정보가 있는지 확인합니다. 없으면 로컬 연습까지만 진행합니다.
+
+**확인할 결과:** 데이터 검사 결과와 자신의 프로젝트 주소·모델 배포 이름을 준비합니다. 실제 연결 확인은 L03입니다.
+
+</div>
 
 ## 목표
 
@@ -16,6 +26,17 @@
 
 ## 준비
 
+### 시작 전에 강사에게 받을 정보
+
+| 받을 것 | 왜 필요한가요? |
+| --- | --- |
+| 로그인 계정과 조직(테넌트) | 다른 조직의 빈 프로젝트 목록을 보고 새 자원을 만들지 않기 위해 |
+| 승인된 구독·리소스 그룹·프로젝트 이름 | 비용과 작업 대상이 어디인지 대조하기 위해 |
+| 프로젝트 endpoint와 모델 배포 이름 | L03 코드가 호출할 주소와 대상을 설정하기 위해 |
+| 예산·중단 담당자·정리 담당자 | 언제 멈추고 무엇을 보존할지 정하기 위해 |
+
+정보가 없으면 **로컬 연습은 진행하되 Azure 생성·호출은 멈춥니다.** 구독이 보이지 않거나 프로젝트 접근이 거절되면 강사에게 위 정보를 요청합니다. 카드 등록이나 구독 Owner 권한을 학습자 혼자 해결하는 단계가 아닙니다.
+
 | 항목 | 기본 코스 | 추가 조건 |
 | --- | --- | --- |
 | Azure | 사용이 승인된 구독과 비운영 리소스 그룹 | 조직 정책을 우회하지 않음 |
@@ -25,17 +46,29 @@
 | 데이터 | 이 가이드의 합성 데이터 | 실제 고객·직원 자료 업로드 금지 |
 | 예산 | 개인/팀별 한도와 중단 담당자 | 예산 알림은 강제 과금 차단이 아님 |
 
+### 처음 쓰는 PC에서 시작하기
+
+조직이 허용한 설치 경로로 [Python 3.13](https://www.python.org/downloads/), [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli), [VS Code](https://code.visualstudio.com/download)를 준비합니다. 이미 설치되어 있으면 재설치하지 않습니다. 로컬 연습만 할 때 Azure CLI·Azure 로그인은 필요 없습니다.
+
+ZIP을 풀고 **VS Code → 파일 → 폴더 열기**로 `samples`·`data`·`requirements.txt`가 함께 있는 폴더를 엽니다. **터미널 → 새 터미널**에서 아래 명령을 실행합니다. 여기서 ‘터미널’은 내 PC의 입력창이며 Azure Cloud Shell이나 Python의 `>>>` 입력창이 아닙니다. `>>>`가 보이면 `exit()`로 Python을 나옵니다.
+
+Windows PowerShell은 가상환경을 만들기 전 아래 `python3` 대신 **`py -3.13`**을 사용합니다. 가상환경을 만든 뒤에는 `.venv\Scripts\python.exe`를 사용합니다. macOS/Linux와 Windows 블록은 **자기 운영체제 한쪽만** 실행합니다.
+
 ## 실행
 
 ### 1. 프로젝트를 준비하기
 
-`https://ai.azure.com`에서 새 Foundry 경험을 사용합니다. 기존 승인된 프로젝트가 있으면 학습자가 사용하고,
-없으면 담당자가 새 환경을 준비합니다. 이번 제작 검증은 기존 A/B 자원이 아닌 **새 전용 RG**에서 진행하며,
-제작 실행 결과는 `validation/current/report.json`에서 별도로 확인합니다.
+1. 브라우저에서 [Foundry 포털](https://ai.azure.com)을 열고 강사가 안내한 계정으로 로그인합니다.
+2. **New Foundry**가 켜져 있는지 확인합니다. 왼쪽 위 프로젝트 선택기에서 제공받은 프로젝트를 선택합니다.
+3. **Manage → Project details**의 **Name / Parent resource / Location**을 강사 정보와 대조합니다. 예시 이름 `contoso-workshop`과 다르더라도 승인된 자기 프로젝트라면 정상입니다.
+4. 프로젝트가 없거나 **Create project**만 보이면 새로 만들지 말고 강사에게 접근 권한을 확인합니다. 계정 없이 참여했다면 아래 4단계의 로컬 검사로 이동합니다.
 
-비운영 리소스 그룹, 프로젝트 이름, 지역을 기록하세요. 기본 예시는 `contoso-workshop`입니다.
-**학습자 경로:** 관리자가 제공한 프로젝트/모델과 최소 데이터 역할을 사용합니다.
-**관리자 경로:** 아래 스크립트가 고유 새 RG만 만들고 기존 자원을 재사용/삭제하지 않습니다.
+**프로젝트 선택은 ‘만들기’가 아닙니다.** 준비된 프로젝트를 사용하는 학습자는 아래 관리자 경로를 건너뜁니다. L02에서 모델 배포를 확인하기 전까지 `.env`의 모델 이름은 임시값일 수 있습니다.
+
+<details class="operator-only" markdown="1">
+<summary>관리자만: 새 환경 생성 — 비용·범위·권한 승인 후 실행</summary>
+
+아래 스크립트는 고유 새 리소스 그룹(RG)만 만들고 기존 자원을 재사용·삭제하지 않습니다. 먼저 아래 4단계의 Python 환경과 5단계의 CLI 로그인을 준비합니다. 모델·리전·quota와 승인 범위를 확정하지 않은 자리표시자 명령은 실행하지 않습니다.
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인 금액과 보존 정책" --live
@@ -62,7 +95,14 @@ L13이 필요할 때만 `python scripts/azure_environment.py search --live`로 S
 소유 기록은 `results/azure-environment.json`입니다. RequestConflict 등의 부분 실패는
 원본 deployment operation을 확인하고 **같은 소유 자원에 한해서만** `foundation --resume`로 재개합니다. `--resume`은 기록된 부분 배포를 이어가는 옵션이며 새 환경을 고르거나 원래 오류 기록을 지우는 옵션이 아닙니다.
 
+</details>
+
 ### 2. 역할을 “누가 무엇을 하는지”로 확인하기
+
+학습자는 **프로젝트 열기·에이전트 만들기·모델 호출에 필요한 권한을 받았는지** 담당자와 확인합니다. 아래 전체 역할표를 외우거나 직접 권한을 부여할 필요는 없습니다.
+
+<details class="operator-only" markdown="1">
+<summary>관리자 참고: 주체별 최소 권한표</summary>
 
 | 주체 | 필요한 범위의 출발점 | 확인할 동작 |
 | --- | --- | --- |
@@ -78,6 +118,8 @@ L13이 필요할 때만 `python scripts/azure_environment.py search --live`로 S
 
 **역할 부여는 담당 관리자에게 요청합니다.** 학습자 모두에게 구독 Owner를 주지 않습니다. 도구별 추가 권한은 해당 모듈에서 확인합니다.
 
+</details>
+
 ### 3. 지역·배포·비용 확인하기
 
 L02의 모델을 1개만 준비합니다. 합성 데이터이고 조직 정책이 허용하면 사용량 기반 배포부터 시작합니다. **PTU, 유료 Search tier, GPU managed compute, 대규모 Batch, fine-tuning은 기본 코스에 불필요**합니다.
@@ -89,7 +131,7 @@ Agent playground의 **Metrics**에서 자동 평가 항목을 확인합니다. �
 
 ### 4. 로컬 연습 환경 만들기
 
-가이드 폴더에서 실행합니다.
+실습 폴더의 터미널에서 한 줄씩 실행합니다. Windows는 앞서 안내한 `py -3.13`을 사용합니다.
 
 ```bash
 python3 samples/workshop.py doctor
@@ -107,7 +149,13 @@ python3 samples/workshop.py validate-data
 
 </div>
 
-기대 결과는 `dev=10, holdout=10`, 중복 시나리오 0개입니다. 이 단계는 **Azure 계정·네트워크·외부 패키지가 필요 없습니다.**
+두 번째 명령의 정상 출력은 다음과 같습니다. `dev`와 `holdout`은 동봉된 기존 학습 데이터의 두 묶음 이름입니다. 지금은 개수와 중복이 없다는 것만 확인하며, L08의 12문항 비교나 별도 봉인 시험지와 혼동하지 않습니다.
+
+```text
+Validated 20 cases: dev=10, holdout=10; scenario overlap=0; inventory=3.
+```
+
+이 단계는 **Azure 계정·네트워크·외부 패키지가 필요 없습니다.** `doctor`의 `not installed (needed only for --live)`는 로컬 검사 자체의 실패가 아니라 Azure 호출 전에 설치할 패키지 안내입니다.
 
 코드로 Azure를 호출할 때만 패키지를 설치합니다.
 
@@ -159,7 +207,7 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
 **화면 따라 읽기:** **Manage → Project details**에서 **Name / Parent resource / Location**을 먼저 대조합니다. **Project endpoint**의 자신의 값을 로컬 설정에 넣고, **Connected resources**에서는 연결 대상·Category·Auth method를 읽습니다. 회색 부분은 개인정보/연결 정보를 가린 것이며 복사할 예시 값이 아닙니다. 연결 키를 표시·복사할 필요는 없습니다. 이 화면 관찰에서는 **Add connection / Users의 권한 변경을 수행하지 않았습니다.**
 
-포털의 **Manage → Project details** 또는 프로젝트 시작 화면에서 project endpoint를 복사합니다. `.env`의 값 두 개를 수정하세요.
+포털의 **Manage → Project details** 또는 프로젝트 시작 화면에서 project endpoint를 복사합니다. VS Code 파일 목록의 **`.env`를 열어** 아래 두 줄의 `=` 오른쪽만 바꾸고 저장합니다. 파일 이름이 `.env.txt`가 되지 않게 합니다. 이 설정 블록은 터미널에 붙여넣지 않습니다.
 
 ```text
 FOUNDRY_PROJECT_ENDPOINT=https://리소스명.services.ai.azure.com/api/projects/프로젝트명
@@ -168,7 +216,7 @@ FOUNDRY_MODEL_DEPLOYMENT_NAME=실제-모델-배포이름
 
 위 예시의 한글 설명을 그대로 사용하지 않습니다. **프로젝트 endpoint에 `/openai/v1`을 추가하지 않습니다.** SDK가 올바른 경로를 구성합니다. API key는 넣지 않습니다.
 
-L08 전에 `.env`의 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`도 관리자가 제공한 실제 judge 배포 이름으로 설정합니다. 환경 변수의 뜻과 기본 예시는 `.env.example`에서 확인합니다.
+L08에서 **새 평가를 직접 실행할 때만** `.env`의 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`에 관리자가 준 채점용 모델 배포 이름을 넣습니다. 기존 결과 읽기에는 필요 없습니다. 그 외 선택 항목은 비워 둡니다.
 
 ```bash
 az login

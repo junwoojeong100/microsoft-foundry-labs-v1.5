@@ -1,4 +1,14 @@
-> **완성할 결과:** A에 들어 있는 같은 구매 도우미 코드를 패키징하고 로컬·Azure에서 호출합니다.
+> **완성할 결과:** 이 저장소의 구매 도우미 코드를 패키징하고 로컬·Azure에서 호출합니다.
+
+<div class="lab-brief" markdown="1">
+
+**진행 방식:** 선택 심화 · L13 검색 자원과 배포 담당자의 준비가 필요합니다.
+
+**먼저 할 일:** 전용 Python 환경에서 패키지를 만듭니다. 기본 Invocations 경로부터 진행하고 Optimizer용 adapter는 건너뜁니다.
+
+**확인할 결과:** 패키지·로컬 응답·원격 버전 응답·세션 정지를 각각 확인합니다. 로컬 서버도 Azure 호출 시 비용이 듭니다.
+
+</div>
 
 ## 목표
 
@@ -47,6 +57,8 @@ python scripts/check_sdk.py
 
 MAF 실습용 `.venv-advanced`는 별도입니다. 서로 다른 `azure-ai-projects` 제약을 단순 병합하지 않습니다.
 
+Windows는 L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, 이후 `.venv-live\Scripts\python.exe`로 실행합니다. 아래 `curl`은 Windows에서 `curl.exe`로 실행합니다. macOS/Linux의 `source` 명령은 PowerShell에 붙여넣지 않습니다.
+
 ## 실행
 
 ### 1. Azure 호출 없이 패키지부터 만들기
@@ -71,7 +83,7 @@ Optimizer용 Responses 프로필은 `.build/contoso-responses/`에 별도로 생
 구매 정책·재고·instructions·실행 코드·고정 의존성만 포함하고,
 `.env`, 인증, 평가 정답, 기존 결과, 개인 환경은 포함하지 않습니다.
 `package-manifest.json`의 파일별 hash와 runtime contract를 확인합니다.
-외부 샘플 저장소나 B를 clone할 필요가 없습니다.
+외부 샘플 저장소를 복제할 필요가 없습니다.
 
 ### 2. 로컬 실행과 호출
 
@@ -179,6 +191,9 @@ python scripts/runtime_roles.py --agent contoso-purchasing --live
 이 파일로 무심코 `azd provision`을 실행하지 않습니다. 리소스 생성은 L01 관리 경로입니다.
 배포마다 새 immutable version이 생깁니다. agent runtime identity에는 해당 Search 읽기 역할만 부여합니다.
 
+<details class="optional-path" markdown="1">
+<summary>선택: L20 Optimizer용 Responses adapter — 기본 Hosted 경로에는 불필요</summary>
+
 L20의 native optimizer는 현재 **Responses protocol만 지원**합니다.
 같은 업무 엔진을 사용하는 선택형 `contoso-purchasing-responses` adapter를 함께 동봉했습니다.
 필요할 때만 해당 service를 지정해 배포하고, 별도 agent/version/identity로 기록합니다.
@@ -206,6 +221,8 @@ azd ai agent invoke contoso-purchasing-responses "표준 노트북 상한은?" -
 
 Responses CLI에는 질문을 직접 전달합니다. JSON request 파일을 그대로 질문으로 감싸 보내지 않습니다.
 raw 응답이 SSE이면 `response.completed` terminal event를 확인하며, 출력 delta만으로 성공 처리하지 않습니다.
+
+</details>
 
 ### 4. 정확한 버전 원격 호출
 

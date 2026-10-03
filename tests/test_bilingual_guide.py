@@ -107,10 +107,10 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["pages_branch"], "gh-pages")
         expected = {
             "en": ("index.html", "downloads/GUIDE.en.md", "downloads/" + release["artifact"] + ".en.pdf",
-                   "portal-screenshots.en.json", 18, 50, 108,
+                   "portal-screenshots.en.json", 18, 51, 108,
                    "validation/current/instructions.json", "data/en/receipt.html"),
             "ko": ("index.ko.html", "downloads/GUIDE.ko.md", "downloads/" + release["artifact"] + ".pdf",
-                   "portal-screenshots.json", 17, 48, 106,
+                   "portal-screenshots.json", 17, 49, 106,
                    "validation/current/instructions.json", "data/receipt.html"),
         }
         for language, values in expected.items():
@@ -295,9 +295,13 @@ class BilingualGuideTests(unittest.TestCase):
 
     def test_both_readers_distinguish_prepared_v2_from_actual_prior_results(self):
         labels = build_guide.read_json("reader-labels.json")
-        for language in ("en", "ko"):
-            self.assertIn("v1 → v2", labels[language]["reader_note"])
-            self.assertIn("validation/current/instructions.json", labels[language]["reader_note"])
+        for language, reading in (("en", "Read → do one step"), ("ko", "읽기 → 한 단계 실행")):
+            self.assertIn(reading, labels[language]["reader_note"])
+            self.assertIn("validation/current/instructions.json", labels[language]["book_boundary"].format(
+                validation=build_guide.RELEASE["languages"][language]["validation"],
+            ))
+            directory = "docs/en" if language == "en" else "docs"
+            self.assertIn("validation/current/instructions.json", (ROOT / directory / "08-evaluation.md").read_text())
         current = json.loads((ROOT / "validation/current/instructions.json").read_text())
         self.assertTrue(current["v2_live_improvement_established"])
         self.assertFalse(current["quality_release"])
@@ -430,13 +434,13 @@ class BilingualGuideArtifactTests(unittest.TestCase):
         reader_note = re.search(
             r'<div class="reader-note" id="reader-note">(.*?)</div>', artifacts["index.html"], re.S,
         )[1]
-        self.assertIn("one v1 → v2 comparison", reader_note)
-        self.assertIn("same model, context, questions and checks", reader_note)
+        self.assertIn("Read → do one step → check the result", reader_note)
+        self.assertIn("approve live costs", reader_note)
         note_links = GuideParser()
         note_links.feed(reader_note)
-        self.assertIn(build_guide.RELEASE["languages"]["en"]["validation"], note_links.links)
+        self.assertIn("#sources", note_links.links)
         boundary = artifacts["GUIDE.en.md"].split("## ", 1)[0]
-        self.assertIn("](validation/current/instructions.json)", boundary)
+        self.assertIn("](../validation/current/instructions.json)", boundary)
         self.assertIn("](" + build_guide.RELEASE["site_url"] + "data/en/receipt.html)", boundary)
 
     def test_all_source_links_resolve_without_fallbacks(self):
@@ -463,8 +467,38 @@ class BilingualGuideArtifactTests(unittest.TestCase):
             self.assertTrue(html_links)
             self.assertTrue(all(link.startswith(build_guide.RELEASE["site_url"]) for link in html_links))
             boundary = text.split("## ", 1)[0]
-            self.assertIn(f"]({edition['validation']})", boundary)
+            self.assertIn(f"](../{edition['validation']})", boundary)
             self.assertIn(f"]({build_guide.RELEASE['site_url']}{edition['receipt_html']})", boundary)
+
+    def test_markdown_download_links_resolve_from_downloads_directory(self):
+        for edition in build_guide.RELEASE["languages"].values():
+            book = ROOT / edition["markdown"]
+            links = re.findall(r"\]\(([^)\s]+)\)", book.read_text(encoding="utf-8"))
+            checked = set()
+            for link in links:
+                address = urlparse(link)
+                if address.scheme or address.netloc or not address.path:
+                    continue
+                target = (book.parent / unquote(address.path)).resolve()
+                with self.subTest(book=book.name, link=link):
+                    self.assertTrue(target.is_relative_to(ROOT))
+                    self.assertTrue(target.is_file(), "Images and source links must work inside the extracted kit.")
+                checked.add(target)
+            self.assertGreater(len(checked), 60)
+
+    def test_book_link_rebasing_preserves_fragments_queries_and_external_links(self):
+        source = (
+            "[file](data/policy.md#rule) ![image](assets/portal/a%20b.png) "
+            "[English](downloads/GUIDE.en.md) [section](#l08) "
+            "[web](index.ko.html?print=1#l08) [external](https://example.invalid/a)"
+        )
+        converted = build_guide.portable_book_links(source, "downloads/GUIDE.ko.md")
+        self.assertIn("](../data/policy.md#rule)", converted)
+        self.assertIn("](../assets/portal/a%20b.png)", converted)
+        self.assertIn("[English](GUIDE.en.md)", converted)
+        self.assertIn("[section](#l08)", converted)
+        self.assertIn(f"]({build_guide.RELEASE['site_url']}index.ko.html?print=1#l08)", converted)
+        self.assertIn("[external](https://example.invalid/a)", converted)
 
     def test_pages_checker_compares_both_editions_and_both_receipts(self):
         base = build_guide.RELEASE["site_url"]

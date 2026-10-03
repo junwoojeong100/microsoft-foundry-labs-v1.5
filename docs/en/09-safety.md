@@ -1,5 +1,15 @@
 > **What you will build:** Layered protection across data, tools, permissions, and human approval, rather than relying on model filters alone.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Inspect existing policies and approved harmless questions · no required filter changes or Red teaming run.
+
+**Start here:** Confirm the L05 agent's name/version and read the expected behavior for the three questions.
+
+**What to check:** Record each answer, judgment, and failure layer. Distinguish a verbal refusal from L06's actual function rejection.
+
+</div>
+
 ## Objectives
 
 **A prohibition in a prompt is not an execution permission.** Model guardrails are GA, while aspects of agent guardrails and tool-stage interventions are Preview. Check the scope even when features share a name.

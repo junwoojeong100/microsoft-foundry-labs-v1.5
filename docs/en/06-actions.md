@@ -1,5 +1,15 @@
 > **What you will build:** A model requests a function, and the program validates and executes it. A purchase request always results in a **draft awaiting approval**.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Local functions first, then approved Azure integration · no real orders.
+
+**Start here:** Run `python samples/workshop.py tools` to check inventory and draft calculations without a model.
+
+**What to check:** The normal draft is KRW 2,900,000 and not ordered; invalid quantities error. Reuse the integration response file in L10/L11.
+
+</div>
+
 ## Objectives
 
 Understand who is responsible for executing function calls. **The model proposes which function to call and with which arguments; the application is responsible for actual execution and authorization.**

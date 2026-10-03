@@ -4,6 +4,16 @@
 
 | Term | Plain-language meaning | Do not confuse it with |
 | --- | --- | --- |
+| Azure | Microsoft's cloud platform | A program running only on your PC |
+| Tenant / Microsoft Entra ID | An organizational account boundary / identity service | The subscription used for billing |
+| Subscription / Resource group | A billing/management scope / a collection of resources within it | A Foundry project |
+| Portal / Playground | A management website / a screen for trying inputs and responses | The guide website you are reading |
+| Endpoint | The service address used by code | Sign-in permission or an API key |
+| CLI / Terminal / SDK | A command-line tool / its input window / libraries used by code | One application that provides all three |
+| `.env` / venv | A project settings file / a folder isolating Python packages | The same environment feature |
+| JSON / JSONL | Named data values / one JSON record per line | Commands to execute in a terminal |
+| Receipt | A record of resource IDs and the lab's ownership scope | A payment receipt or deletion approval |
+| RBAC / Scope | Role-based permissions / the boundary where they apply | Full access obtained by signing in |
 | Foundry resource | A parent Azure resource grouping resources related to security, management, and billing | A single agent |
 | Project | A workspace for agents, connections, data, and related work | A Classic hub |
 | Lab language profile | `FOUNDRY_LAB_LANGUAGE=en` selects English synthetic inputs; Hosted packages bind their language in `lab-profile.json` | The guide's browser-language switch or a new quality-pass result |
@@ -29,6 +39,8 @@
 | Routine | Invoking an agent on a schedule or event | Complex orchestration itself |
 | Autopilot | A persistent organizational agent, including an agent user account | Every form of automated execution |
 | Evaluation | Comparing expected behavior with actual results | Checking whether a string is nonempty |
+| Judge / Native evaluation | A grading model / evaluation run by Foundry's service | The answer-generating model or an infallible judgment |
+| Dev / Holdout | Practice data used while improving / separate exam data excluded from improvement | A guarantee that every file named `holdout` is unexposed |
 | Groundedness | The degree to which supplied evidence supports an answer | Truthfulness about every fact in the world |
 | Trace / Span | The full execution path / an individual operation within it | Permission to store unlimited raw content |
 | Guardrail | A set of risk detection and response rules | Business-system authentication or approval |

@@ -1,5 +1,15 @@
 > **What you will build:** Package this repository's purchasing assistant with English synthetic data and invoke it locally and in Azure.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · requires L13's retrieval resources and a prepared deployment environment.
+
+**Start here:** Build the package in its dedicated Python environment. Follow the default Invocations path; skip the Optimizer adapter initially.
+
+**What to check:** Verify the package, local response, remote version response, and stopped session separately. Local servers also incur costs when calling Azure.
+
+</div>
+
 ## Objectives
 
 A Prompt Agent uses instructions and service tools; a **Hosted Agent runs code you manage yourself**.
@@ -46,6 +56,8 @@ python scripts/check_sdk.py
 </div>
 
 The `.venv-advanced` environment for the MAF lab is separate. Do not simply merge incompatible `azure-ai-projects` constraints. Keep `FOUNDRY_LAB_LANGUAGE=en` selected in every terminal and use only this English checkout's configuration and receipts.
+
+On Windows, use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-live\Scripts\python.exe`. Use `curl.exe` for the `curl` commands below. Do not paste the macOS/Linux `source` command into PowerShell.
 
 ## Steps
 
@@ -180,6 +192,9 @@ The bundled `azure.yaml` uses **code deployment**; Docker/ACR is not required.
 Do not casually run `azd provision` with this file. Resource creation belongs to the L01 administration path.
 Each deployment creates a new immutable version. Grant the agent runtime identity only the relevant Search read role.
 
+<details class="optional-path" markdown="1">
+<summary>Optional: the Responses adapter for L20 Optimizer — not needed for the default Hosted path</summary>
+
 The native optimizer in L20 currently supports **only the Responses protocol**.
 An optional `contoso-purchasing-responses` adapter using the same business engine is also bundled.
 Deploy that service explicitly only when needed, and record its separate agent/version/identity.
@@ -207,6 +222,8 @@ azd ai agent invoke contoso-purchasing-responses "What is the price cap for a st
 
 Pass the question directly to the Responses CLI. Do not wrap a JSON request file as the question text.
 If the raw response is SSE, check for the `response.completed` terminal event; output deltas alone do not establish success.
+
+</details>
 
 ### 4. Invoke the exact remote version
 

@@ -2,6 +2,14 @@
 
 ## The day before the course
 
+### Readiness for participants new to Azure
+
+Do not make account/subscription registration an improvised classroom task. Supply each learner's **sign-in organization, project, model deployment name, and cost/cleanup owners** using L01's table. Participants without that setup start with reading/local exercises and are not counted as having completed Azure execution.
+
+Before the first call, check that each learner can open the lab root, distinguish the terminal from a portal input, and find placeholders and expected output. If not, use [local troubleshooting](#troubleshooting) before explaining another feature.
+
+Start each chapter with ‘Format → Start here → What to check.’ Only relevant participants expand **administrator-only/optional** sections. Read L08's actual answers in the learner's own language inside the guide first; new paid collection is a separate choice. L11 reuses L06's result.
+
 Recheck GA/Preview status, regions, and model support against official sources. The initial source check was on 2026-09-29. Consult [content/portal-screenshots.en.json](../../content/portal-screenshots.en.json) for the English project's actual capture times and scope; do not reuse the old Korean capture date as proof of a new observation. Neither a source date nor a screenshot means the material remains current forever.
 
 Have learners first explain each chapter's **Concepts and lab map** in their own words. After they locate the relevant portal screen, connect it to why the CLI is needed. Allow execution only after they read the **Result / cost or changes** column in the command walkthrough. Encourage pauses between plan → execute → verify instead of copying an entire group of commands at once.
@@ -87,7 +95,7 @@ The table below is an **educational completion record**, not service certificati
 | Model call | Record explicitly | Response ID | Judge explicitly | Record explicitly |
 | Document retrieval | Record explicitly | Citation + original text | Judge explicitly | Record explicitly |
 | Tools | Record explicitly | Arguments/output | Judge explicitly | Record explicitly |
-| Evaluation | Record explicitly | Actually reviewed JSONL | Judge explicitly | Record explicitly |
+| Evaluation | Record explicitly | L08 response/native JSON and case ID | Judge explicitly | Record explicitly |
 | Tracing | Record explicitly | Trace ID | Judge explicitly | Record explicitly |
 | Deployment/publishing | Record explicitly | Version + invocation result | Judge explicitly | Record explicitly |
 | Cleanup | Record explicitly | Per-resource status | Judge explicitly | Cost owner |

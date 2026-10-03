@@ -22,6 +22,10 @@ CONCEPT_LABELS = {
     "ko": ("경험할 기능", "무엇이며 왜 중요한가요?", "어떻게 사용하나요?", "어디서 실행하나요?"),
     "en": ("What you will try:", "What is it, and why does it matter?", "How do you use it?", "Where do you run it?"),
 }
+BRIEF_LABELS = {
+    "ko": ("진행 방식:", "먼저 할 일:", "확인할 결과:"),
+    "en": ("Format:", "Start here:", "What to check:"),
+}
 
 
 def command_coverage(text: str, source: str, language: str = "ko") -> dict:
@@ -125,6 +129,13 @@ def check_language(language) -> dict:
             for label in CONCEPT_LABELS[language]:
                 if f"**{label}" not in text:
                     raise ValueError(f"{chapter['id']}: missing learner explanation: {label}")
+            brief = re.search(r'<div class="lab-brief" markdown="1">(.*?)</div>', text, re.S)
+            if (
+                text.count('class="lab-brief"') != 1 or not brief
+                or any(f"**{label}" not in brief[1] for label in BRIEF_LABELS[language])
+                or brief.start() > text.index("## " + LAB_HEADINGS[language][1])
+            ):
+                raise ValueError(f"{chapter['id']}: needs a beginner start card before the concept map")
             coverage = command_coverage(text, chapter["file"], language)
             shell_blocks += coverage["blocks"]
             shell_commands += coverage["commands"]
@@ -184,9 +195,18 @@ def check_language(language) -> dict:
         if needle not in html:
             raise ValueError(f"Missing key caveat: {needle}")
     book = (ROOT / edition["markdown"]).read_text(encoding="utf-8")
-    for address in (edition["validation"], RELEASE["site_url"] + edition["receipt_html"]):
+    for address in ("../" + edition["validation"], RELEASE["site_url"] + edition["receipt_html"]):
         if f"]({address})" not in book:
             raise ValueError(f"{language}: Markdown book missing localized evidence/receipt link: {address}")
+    book_paths = set()
+    for address in re.findall(r"\]\(([^)\s]+)\)", book):
+        parsed = urlparse(address)
+        if parsed.scheme or parsed.netloc or not parsed.path:
+            continue
+        target = (ROOT / Path(edition["markdown"]).parent / unquote(parsed.path)).resolve()
+        if not target.is_relative_to(ROOT) or not target.is_file():
+            raise ValueError(f"{language}: broken portable Markdown link: {address}")
+        book_paths.add(target.relative_to(ROOT).as_posix())
     for chapter_id in ids:
         if f'<a id="{chapter_id}"></a>' not in book:
             raise ValueError("Markdown book missing an anchor.")
@@ -199,7 +219,9 @@ def check_language(language) -> dict:
         "coverage_rows": len(capabilities), "official_sources": len(sources),
         "core_minutes": core_minutes,
         "duplicate_ids": 0, "broken_local_links": 0, "remote_asset_dependencies": 0,
+        "markdown_local_paths_checked": len(book_paths),
         "modules_with_concept_maps": len(labs),
+        "modules_with_beginner_start_cards": len(labs),
         "explained_shell_blocks": shell_blocks, "explained_commands": shell_commands,
         "portal_screenshots": portal_captures,
         "portal_manifest": edition["portal_manifest"],

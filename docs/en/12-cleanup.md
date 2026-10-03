@@ -1,5 +1,15 @@
 > **What you will build:** A clean stopping point that accounts for lab resources, recurring runs, idle compute, and data retention without touching shared resources.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Required for every participant · inspect only resources you created.
+
+**Start here:** Use the table below to choose local-only, portal-created, or SDK-created resources.
+
+**What to check:** Record remaining state, owners, and the next cost review. Delete only exact targets covered by separate approval.
+
+</div>
+
 ## Objectives
 
 **Closing the browser does not stop billing.** Deleting an agent also does not automatically remove Search, logs, uploaded files, PTU, or published channels.
@@ -20,9 +30,25 @@ Collect the list of created English resources and `results/contoso-lab-....json`
 
 ## Steps
 
+### First: clean up only the paths you actually ran
+
+| What you did | What to do now |
+| --- | --- |
+| Reading, local data, or local functions only | If you started L07's server, press Ctrl+C in its terminal. Do not run Azure deletion commands when you created no Azure resources |
+| Created portal agents/files | Collect their names and compare with step 3; confirm sharing, owner, and retention deadline |
+| Ran L04/L05/L06 through the SDK | Find the `--receipt` path in the final `Cleanup:` command; review step 2 |
+| Ran Hosted, Routine, Voice, or other electives | In step 1, stop only that lab's recorded sessions/schedules and verify state |
+
+**Do not delete before confirming the retention/deletion decision.** Because costs may continue, record an owner and next review time, not just “retain.”
+
 ### 1. Stop recurring and long-running execution first
 
 First check active routines, voice sessions, Hosted agent executions/sessions, continuous evaluations, and training jobs. Prevent new runs before beginning deletion.
+
+Mark work you did not create as not applicable. The following is an **advanced/administrator path**, not a shared shutdown script where everyone runs all five commands.
+
+<details class="operator-only" markdown="1">
+<summary>Advanced/administrators only: stop and inspect work with owned receipts</summary>
 
 ```bash
 python scripts/stop_sessions.py
@@ -53,6 +79,8 @@ The final two commands are **read-only Azure queries scoped by ownership receipt
 **The English validation's default retention policy is to retain owned Azure resources until explicit deletion approval.**
 Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
 and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Existing `validation/current/` operational and cost records describe the historical Korean environment, not the new English one.
+
+</details>
 
 ### 2. Delete only the exact SDK lab resources
 
@@ -101,11 +129,16 @@ For environments where deletion is prohibited, record “Retain until explicit d
 Search Basic, logs, and storage may continue to incur costs without requests.
 A follow-up within 24 hours of validation completion is recommended. Do not conclude “zero cost” without someone responsible for checking.
 
+<details class="provenance-note" markdown="1">
+<summary>Reference: retained resources during guide production — not your shutdown state</summary>
+
 The English Memory lifecycle verified remember, user isolation, and deletion of **only the synthetic item**. Its store was retained; this result does not authorize store or resource-group deletion.
 
 In the **historical Korean validation**, Azure infrastructure and agents/stores were retained. Deletion of **1 synthetic item**
 for that Memory lifecycle check was recorded separately from deletion of an Azure store or resource group. Automatic expiration of that validation vector store was also disabled
 to preserve it. These are not English-run cleanup results. Record the new English environment's actual retained objects, verified stop states, and ongoing costs separately; storage costs can continue until a later approved cleanup.
+
+</details>
 
 ## Troubleshooting
 

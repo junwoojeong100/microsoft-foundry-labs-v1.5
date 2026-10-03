@@ -1,5 +1,15 @@
 > **What you will build:** Extract structured values from a fictional receipt, calculate totals from an expense CSV, and compare them with the originals.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Advanced elective · distinguish Vision, document extraction, and code-based calculations.
+
+**Start here:** Open the English synthetic receipt and check that its PDF/image text is not clipped.
+
+**What to check:** Compare the executed path's fields, totals, and source locations. File preparation alone is not service execution.
+
+</div>
+
 ## Objectives
 
 Distinguish **Vision model descriptions, OCR/layout, schema extraction with Content Understanding, and Code Interpreter calculations** according to their purpose.

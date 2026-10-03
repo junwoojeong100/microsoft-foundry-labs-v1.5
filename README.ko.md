@@ -6,10 +6,25 @@
 
 합성 Contoso 구매 도우미를 만들며 배우는 **25개 실습 모듈과 5개 참고 절**입니다. 두 언어가 같은 구현과 각각의 합성 데이터·지침을 사용합니다.
 
+## 처음 시작하는 분
+
+**Azure는 클라우드 서비스, Foundry는 그 안에서 AI를 만들고 관리하는 작업 공간입니다.** 사전 사용 경험 없이 개념부터 읽을 수 있습니다. 실제 호출에는 강사가 준비한 프로젝트·권한과 비용 승인이 필요합니다.
+
+1. [L00: 기초부터 읽기](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l00-first-steps)에서 무엇을 만들지 확인합니다.
+2. [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip)을 풀고 [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01)의 PC·프로젝트 준비를 진행합니다. Git 명령은 필수가 아닙니다.
+3. 각 장의 **진행 방식 → 먼저 할 일 → 확인할 결과**를 따라갑니다. 기본 13개는 순서대로, 심화 12개는 선택합니다.
+
+계정이 없어도 로컬 함수와 L08의 **실제 답변·점수 읽기**를 할 수 있습니다. 관리자 생성·선택 실행은 접힌 절로 분리했고, L11은 L06 결과를 재사용합니다. 기본 코스에 Teams 게시·Hosted·Optimizer는 필요하지 않습니다.
+
+<details>
+<summary>학습 지침과 모델 조건</summary>
+
 **학습 흐름은 교육용 초기 v1 → 평가 → 이유 분석·개선 → v2 재평가입니다.** 현재 개선은 `agent-v2.txt`에서 관리하며 지침 버전과 검증 이력을 계속 늘리지 않습니다.
 v2는 공용·비공개 질문 분리, 모든 하위 질문의 답변, 주장별 근거, 미확인 사실 보류, 실제 도구 권한·결과 확인을 구체화했습니다.
 
 L02에 **`gpt-6-sol` / `2026-09-22`**, 배포 이름 `contoso-gpt-6-sol`을 명시했습니다. L08에서는 같은 복합 질문 12개를 두 언어에서 지침별 한 번씩 호출한 뒤 그 원문을 Foundry로 평가합니다. Holdout·Hosted 재배포·Optimizer는 필수가 아니며 **실제 점수 상승을 미리 보장하거나 결과를 작성하지 않습니다.**
+
+</details>
 
 ## 읽기와 다운로드
 
@@ -23,11 +38,17 @@ L02에 **`gpt-6-sol` / `2026-09-22`**, 배포 이름 `contoso-gpt-6-sol`을 명�
 | 합성 영수증 | [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) |
 
 ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `index.html`을 열고, 코드는 편집기에서 확인합니다.
+Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다. PDF에는 접힌 참고·관리자 절까지 포함됩니다.
 기본 코스는 L00–L12, 약 5시간 20분입니다. 고급 모듈은 필요에 따라 선택합니다. 읽기에는 로그인이 필요하지 않습니다.
 
 각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·추출·음성·학습 데이터·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L22의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
 
 ## 지침과 최신 검증
+
+기존 실제 평가에서는 한국어 관련성의 제한적 향상만 관측했고, 영어 Native 지표는 동점이었습니다. 아래 상세 기록은 학습자 자신의 실행이나 이번 문서 개선의 Azure 검증 결과가 아닙니다.
+
+<details>
+<summary>기존 실제 측정·지침·검증 범위 상세</summary>
 
 - 교육용 기준선: 각 폴더의 `agent-v1.txt`는 역할·목표 중심의 단순한 시작 지침이며, 점수를 낮추려고 일부러 약화하지 않았습니다.
 - 현재 지침: 같은 폴더의 `agent-v2.txt`. Prompt/Hosted 기본값도 v2입니다.
@@ -39,6 +60,8 @@ ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `i
 대상 응답은 총 **48개**를 한 번씩 수집했고 Native 평가는 **24행씩 두 번** 완료했습니다. 평가 전용 Prompt Agent 두 개에 언어별 v1/v2 버전을 고정했습니다. v2 토큰 증가는 국문 **+7,376**, 영문 **+5,157**이며 평균 지연은 각각 **+0.427초**, **+0.496초**였습니다. Optimizer·holdout은 실행하지 않았고, 앞선 실패 시도는 대상 응답 0건으로 보존했습니다. 이 노출된 dev 비교는 출시 품질 승인이 아닙니다.
 이번 비교 전 공개된 지침과 측정 원본은 [보존된 기준선 커밋의 Git 이력](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation)에 남아 있습니다.
 원본의 실행·배포 ID는 추적용이며 지침 버전이 아닙니다.
+
+</details>
 
 ## 안전한 실행
 

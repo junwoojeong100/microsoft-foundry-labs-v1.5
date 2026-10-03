@@ -1,5 +1,15 @@
 > **What you will build:** A migration table that distinguishes what to move to the new Foundry and the order of validation, while preserving existing resources.
 
+<div class="lab-brief" markdown="1">
+
+**Format:** Optional design exercise · no existing Classic environment needed.
+
+**Start here:** Divide the fictional Contoso case into definitions, user state, and operational state.
+
+**What to check:** Produce a migration/check/recovery/retention table with owners. This design does not move or delete real resources.
+
+</div>
+
 ## Objectives
 
 **A brand rename, portal transition, resource upgrade, and SDK/API migration are different tasks.**

@@ -128,7 +128,7 @@ main { padding: 38px 48px 48px; min-width: 0; max-width: 1220px; margin: 0 auto;
 .primary-link { color: #102c32; background: #a2efcf; border-radius: 8px; padding: 10px 16px; text-decoration: none; font-size: 14px; font-weight: 750; }
 .primary-link span { margin-left: 12px; }
 .secondary-link { color: #e2f3f7; text-decoration: none; font-size: 14px; padding: 10px; }
-.hero-stats { border-top: 1px solid #ffffff26; padding-top: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; position: relative; z-index: 1; }
+.hero-stats { border-top: 1px solid #ffffff26; padding-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; position: relative; z-index: 1; }
 .hero-stats > div { display: flex; flex-direction: column; }
 .hero-stats strong { font-size: 24px; line-height: 1.35; font-weight: 550; font-variant-numeric: tabular-nums; }
 .hero-stats span { font-size: 12px; color: #aac5d2; margin-top: 5px; }
@@ -153,11 +153,16 @@ main { padding: 38px 48px 48px; min-width: 0; max-width: 1220px; margin: 0 auto;
 .chapter-header h1 { color: var(--heading); margin: 14px 0 12px; font-size: clamp(26px, 2.9vw, 34px); letter-spacing: -1.3px; line-height: 1.35; outline: none; }
 .chapter-summary { font-size: 16px; margin: 0 0 20px; color: var(--muted); }
 .section-nav { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
-.section-nav a { font-size: 12px; padding: 4px 9px; color: var(--muted); text-decoration: none; background: var(--surface-soft); border-radius: 5px; }
+.section-nav a { font-size: 14px; padding: 6px 10px; min-height: 36px; color: var(--muted); text-decoration: none; background: var(--surface-soft); border-radius: 5px; }
 .section-nav a:hover { color: var(--accent); background: var(--accent-soft); }
 .prose { font-size: 18px; line-height: 1.85; }
 .prose > :first-child { margin-top: 0; }
 .prose p { margin: 16px 0; }
+.lab-brief { padding: 16px 20px; margin: 22px 0; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 9px; background: var(--surface-soft); }
+.lab-brief p { margin: 8px 0; }
+.recorded-answer { padding: 16px 20px; margin: 20px 0; border: 1px solid var(--border); border-radius: 9px; }
+.recorded-answer > p:first-child { margin-top: 0; color: var(--accent); }
+.operator-only > summary::before { content: "↳ "; color: var(--amber); }
 .prose strong { color: var(--heading); font-weight: 750; }
 .prose h2 { font-size: 25px; color: var(--heading); letter-spacing: -.6px; margin: 44px 0 16px; line-height: 1.4; padding-top: 6px; }
 .prose h3 { font-size: 19px; color: var(--heading); letter-spacing: -.3px; margin: 30px 0 14px; line-height: 1.55; }
@@ -186,7 +191,7 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-soft), t
 pre { position: relative; background: var(--code); color: var(--code-text); margin: 23px 0; padding: 38px 20px 20px; border-radius: 10px; overflow: auto; tab-size: 4; line-height: 1.75; word-break: normal; }
 pre code { font: 15px/1.75 ui-monospace, SFMono-Regular, Consolas, "Apple SD Gothic Neo", "Malgun Gothic", monospace; white-space: pre; }
 pre code.language-text { white-space: pre-wrap; overflow-wrap: anywhere; }
-.code-label { position: absolute; top: 10px; left: 20px; color: #a6c3d1; text-transform: uppercase; font: 10px/1.5 ui-monospace, monospace; letter-spacing: .8px; }
+.code-label { position: absolute; top: 10px; left: 20px; color: #a6c3d1; font: 11px/1.5 ui-monospace, monospace; }
 .copy-button { position: absolute; right: 9px; top: 8px; color: #d4e9f2; background: #ffffff12; border: 1px solid #ffffff26; padding: 3px 10px; font-size: 12px; border-radius: 5px; min-height: 28px; }
 .copy-button:hover { background: #ffffff26; }
 details { margin: 26px 0; border: 1px solid var(--border); padding: 0 18px; border-radius: 9px; background: var(--surface-soft); }
@@ -273,6 +278,7 @@ details .table-wrap { background: var(--surface); }
   .prose h2 { font-size: 23px; }
   .prose h3 { font-size: 19px; }
   .prose blockquote { font-size: 15px; padding: 13px 15px; }
+  .lab-brief, .recorded-answer { padding: 12px; }
   table { min-width: 420px; }
   th, td { padding: 10px; font-size: 14px; }
   pre { padding-left: 14px; padding-right: 14px; }
@@ -310,6 +316,9 @@ details .table-wrap { background: var(--surface); }
   .chapter-meta { font-size: 9pt; }
   .prose { font-size: 11pt; line-height: 1.65; }
   .prose p { orphans: 3; widows: 3; }
+  .lab-brief { padding: 8pt 10pt; margin: 12pt 0; break-inside: avoid; }
+  .lab-brief p { margin: 5pt 0; }
+  .recorded-answer { padding: 8pt 10pt; margin: 12pt 0; }
   .prose h2 { font-size: 16pt; margin-top: 23pt; }
   .prose h3 { font-size: 12.5pt; margin-top: 17pt; }
   h1, h2, h3, summary { break-after: avoid; }
