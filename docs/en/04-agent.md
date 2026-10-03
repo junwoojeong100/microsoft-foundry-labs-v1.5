@@ -16,13 +16,13 @@ A Prompt Agent is a managed agent declared through **model + instructions + tool
 
 ## Concepts and lab map
 
-**What you will try:** Prompt Agent instructions, models, versions, and conversations.
+**What you will try:** Create a Prompt Agent with a role and continue a conversation.
 
-**What is it, and why does it matter?** A Prompt Agent is a managed execution unit whose role and rules are defined on the service and reused across requests. Instructions guide behavior; they do not automatically provide private company knowledge or permission to act. Naming an agent “inventory assistant” does not let it check inventory without an inventory tool. This chapter deliberately starts without knowledge or tools so that you can compare the actual difference those additions make in later chapters.
+**What is it, and why does it matter?** Instructions tell the agent how to behave. Calling it an “inventory assistant” does not provide inventory access. Starting without documents or tools makes the additions in L05 and L06 visible.
 
-**How do you use it?** Set the model and instructions in the portal, then test missing knowledge, missing tools, the same conversation, and a new conversation in turn. Record the instruction version separately from conversation context. Observe whether the agent respects the limits of its provided capabilities, not merely whether it produces plausible text.
+**How do you use it?** Save the model and instructions, then ask the questions. Check that the same conversation retains context and a new conversation starts separately.
 
-**Where do you run it?** The portal is the main path; the SDK provides an optional comparison. Read the [English instruction source](../../data/en/prompts/agent-v2.txt) first, then compare it with the [SDK implementation](../../samples/workshop.py). The two paths create separate agents; they do not automatically synchronize the same object.
+**Where do you run it?** Paste the [English instructions](../../data/en/prompts/agent-v2.txt) into the portal. The optional [SDK](../../samples/workshop.py) creates a **separate agent**; it does not synchronize the portal agent.
 
 ## Prerequisites
 
@@ -32,9 +32,12 @@ You need project `Foundry User` access, a callable model, and `data/en/prompts/a
 
 ### 1. Create the agent in the portal
 
-Select **Build → Agents → New agent → Build an agent**. Depending on the UI version, **New agent** may open a menu of Build, Code, template, and other paths, or the page may show **Build an agent** directly. Set the name to `contoso-procurement`, the mode to **Text**, and the model to the deployment from L02.
+1. Select **Build → Agents → New agent → Build an agent**. Some UI versions show **Build an agent** directly.
+2. Use a unique name with the instructor's lab number, such as `contoso-procurement-en-lab01`, and choose **Text**. If a goal is required, enter “Explain synthetic Contoso purchasing policies without placing real orders,” then choose the creation button once. If the name exists, confirm your own name rather than editing someone else's agent.
+3. In the editor that opens, select L02's deployment under **Model**. Open `data/en/prompts/agent-v2.txt` in VS Code and paste **the complete file contents** into Instructions, not the file path. Do not reuse Korean instructions.
+4. Select **Save** and record the agent name and displayed version. Confirm **the model matches, instructions are saved, and no knowledge or function tools are attached yet**, then move to Chat on the right.
 
-Paste the contents of `data/en/prompts/agent-v2.txt` into Instructions in your English project. Do not reuse a Korean agent's instructions. You have not yet attached File search or function tools, so the agent **must not claim to have used tools it does not have**.
+Reuse this agent in L05. It **must not claim to have used unavailable tools**. The exercise sends five inputs: two boundary questions, two in the same conversation, and one in a new conversation. Send each only once within the approved scope.
 
 ![The Prompt Agent Playground in contoso-workshop-en, with English instructions, model/tools settings, conversation input, and version controls.](../../assets/portal/en/04-prompt-playground.png)
 
@@ -44,13 +47,13 @@ The screenshot concerns the English lab project; its exact agent state and captu
 
 ### 2. Check the limits with baseline questions
 
-```text
+```prompt
 What is the price limit for our company's standard laptop?
 ```
 
 Without a policy file, the agent must not act as though it knows the KRW 1,500,000 limit. At this stage, the correct behavior is to say that it needs the policy or a knowledge connection.
 
-```text
+```prompt
 Check the real-time inventory for NB-14.
 ```
 
@@ -60,11 +63,11 @@ With no tool connected, a claim of a successful lookup is a failure. **“I don'
 
 Send these two inputs in order within the same conversation.
 
-```text
+```prompt
 In this conversation, I am considering buying a monitor.
 ```
 
-```text
+```prompt
 Tell me the item I am considering, in one word.
 ```
 
@@ -79,9 +82,12 @@ Check that the answer is “monitor.” Start a new conversation and send only t
 | Conversation | Starts an independent conversation context |
 | Response | Represents one model/agent execution within a conversation |
 
-Edit and save an instruction, then check that a new version is created. The “latest version” is not necessarily the “version approved for production.”
+Record the saved name/version separately from each response ID. Do not change instructions merely to increment a version. When you later change configuration, check the new version; “latest” does not mean “approved for production.”
 
 ### 5. Optional: Explore the same concepts with the SDK
+
+<details class="optional-path" markdown="1">
+<summary>Optional: a separate SDK agent — not needed to continue to L05</summary>
 
 ```bash
 python samples/workshop.py agent
@@ -99,7 +105,9 @@ python samples/workshop.py agent --live
 
 </div>
 
-To avoid name collisions, the SDK sample creates a **new agent** named `contoso-lab-...`. It does not modify the portal-created `contoso-procurement`. Created IDs are saved in `results/contoso-lab-....json`.
+To avoid name collisions, the SDK sample creates a **new agent** named `contoso-lab-...`. It does not modify your portal agent. Created IDs are saved in `results/contoso-lab-....json`.
+
+</details>
 
 ## Success criteria
 

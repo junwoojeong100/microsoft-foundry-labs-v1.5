@@ -16,13 +16,13 @@
 
 ## Concepts and lab map
 
-**What you will try:** Classifying resource, API, state, and operational differences between Classic and the new Foundry, then writing a migration plan.
+**What you will try:** Repair a new API request conversion and plan a service migration.
 
-**What is it, and why does it matter?** A portal rename does not automatically turn an existing endpoint into a new API. When moving code from Threads/Runs to Conversations/Responses, recheck not only the call structure but also tool execution loops, stored state, permissions, and retries. Seeing an agent on a screen does not establish that user conversations or deletion/retention policies have also been migrated.
+**What is it, and why does it matter?** Classic is the earlier Foundry environment. Moving from Threads/Runs to Conversations/Responses can change conversations, function-result handling, permissions, and retention—not just names.
 
-**How do you use it?** Inventory definitions, user state, and operational state without changing the existing system. Implement a small synthetic path in a new nonproduction environment and apply the same checks from L03/L05/L06/L08/L10. Switch over only after quality, permission, and recovery conditions pass, starting with a limited set of users.
+**How do you use it?** Repair three errors in a synthetic request. Then list the settings, user data, operational state, verification, and recovery steps to migrate.
 
-**Where do you run it?** The default deliverable is a migration table; there is no CLI that automatically makes changes in this chapter. Compare the [current SDK dependencies](../../requirements.txt), [Responses/tool-loop example](../../samples/workshop.py), and [deployment settings](../../azure.yaml) with your existing system. Retention and deletion require separate approval from the accountable owner.
+**Where do you run it?** Work on your PC without a Classic account. The [SDK dependencies](../../requirements.txt), [Responses example](../../samples/workshop.py), and [deployment settings](../../azure.yaml) are comparisons. No actual migration or deletion is performed.
 
 ## Prerequisites
 

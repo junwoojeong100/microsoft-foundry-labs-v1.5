@@ -18,13 +18,13 @@
 
 ## Concepts and lab map
 
-**What you will try:** Sequential orchestration in Microsoft Agent Framework, remote A2A delegation, and human approval boundaries.
+**What you will try:** Compare a drafter → reviewer flow with one agent.
 
-**What is it, and why does it matter?** Orchestration is code that defines the order of tasks and how results are passed between them. A drafter→reviewer flow in the same process has different failure and authentication boundaries from A2A requests to another service. Separating roles can separate expertise, but it also increases call counts, latency, and permission-management work. Do not mistake the reviewer's wording for real business approval or independent quality validation.
+**What is it, and why does it matter?** Orchestration controls task order and result handoff. A2A separately communicates with an agent in another service. More roles add calls and time; the reviewer's words are not purchasing approval.
 
-**How do you use it?** Read the local plan first, inspect the inputs and outputs of both stages, and compare them with a single agent. For A2A, verify the agent card's capabilities separately from the actual delegation result. The model saying “I delegated it” does not establish that a downstream network call occurred.
+**How do you use it?** Read the single answer, drafter's intermediate answer, and reviewer's answer for the same question. Compare added tokens and time. Verify A2A separately with actual downstream-call evidence.
 
-**Where do you run it?** [multi_agent.py](../../samples/multi_agent.py) uses a separate MAF environment; [a2a_lab.py](../../samples/a2a_lab.py) uses the core SDK environment. Be sure to distinguish the Python environments between these command groups. Do not introduce portal Workflows as a new dependency.
+**Where do you run it?** [multi_agent.py](../../samples/multi_agent.py) uses a separate MAF environment; [a2a_lab.py](../../samples/a2a_lab.py) uses the core SDK environment. Do not mix them.
 
 ## Prerequisites
 

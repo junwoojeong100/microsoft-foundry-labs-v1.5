@@ -12,22 +12,17 @@
 
 ## 목표
 
-**지침을 개선한 이유와 실제 답변의 차이를 연결합니다.** 실습 가이드에서 지침 버전을 계속 늘리거나 출시 승인 실험을 반복할 필요는 없습니다.
-v1은 역할·목표 중심의 새 교육용 초기 지침이며, 이 한 번의 비교 안에서는 고정 기준선으로 둡니다. v2는 개선 절차를 추가하고, 다음 편집도 v2 파일에서 관리합니다.
+**답변의 차이와 평가자의 판단을 구분합니다.** v1은 역할·목표 중심의 시작 지침, v2는 답변 절차를 구체화한 지침입니다. 이 비교에서는 v1을 고정하며, v2라는 이름만으로 더 좋은 답이라고 판단하지 않습니다.
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 동일 입력 비교, 고정 체크리스트, 인용 근거, Foundry 평가 결과의 해석입니다.
+**경험할 기능:** 같은 질문의 두 답변과 점수·채점 이유를 비교합니다.
 
-**무엇이며 왜 중요한가요?** 평가 점수는 “v2라고 이름 붙였는가”가 아니라 실제 답이 요청과 근거를 충족했는가를 나타내야 합니다.
-지침만 바꾸고 모델·정책·질문·출력 형식·채점 기준을 같게 해야 개선 효과를 비교할 수 있습니다.
+**무엇이며 왜 중요한가요?** 평가는 기대한 행동과 실제 답을 비교하는 일입니다. 지침만 바꾸고 모델·정책·질문·채점 기준을 같게 해야 차이를 해석할 수 있습니다.
 
-**어떻게 사용하나요?** 먼저 이미 수집된 한 문항을 아래에서 읽습니다. 이어 12문항 전체의 원문·점수·이유를 비교합니다. 직접 수집하기로 승인받은 경우에만 같은 질문을 v1과 v2에 각각 한 번 묻습니다.
-결과가 같거나 나빠졌다면 그대로 남깁니다. 기대 점수를 미리 적거나 통과할 때까지 반복하지 않습니다.
+**어떻게 사용하나요?** 아래 한 문항의 두 답을 먼저 읽고 점수를 봅니다. 동점·하락도 그대로 기록합니다. 새 유료 평가를 실행할 필요는 없습니다.
 
-**어디서 실행하나요?** [Prompt Agent 비교 실행 코드](../samples/instruction_prompt_agent_lab.py), [고정 질문·체크리스트](../data/evaluation/instruction-comparison.json),
-[v1](../data/prompts/agent-v1.txt), [v2](../data/prompts/agent-v2.txt)를 사용합니다.
-포털의 Evaluations에서는 서비스 완료 상태와 실제 점수·오류·누락을 구분해서 읽습니다.
+**어디서 실행하나요?** 이 페이지에서 읽습니다. [질문·체크리스트](../data/evaluation/instruction-comparison.json), [v1](../data/prompts/agent-v1.txt)·[v2](../data/prompts/agent-v2.txt), [선택 실행 코드](../samples/instruction_prompt_agent_lab.py)는 필요한 때 확인합니다.
 
 ## 준비
 
@@ -126,6 +121,9 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 체크는 질문에 미리 고정한 사실·거절·확인 경로가 답에 나타나는지와 관련 정책 절을 선택했는지를 확인합니다.
 이는 **기계적인 텍스트·인용 체크리스트**입니다. 표현 차이를 완벽히 이해하는 의미 평가나 업무 릴리스 게이트가 아닙니다.
 
+<details markdown="1">
+<summary>원본 JSON에서 다른 문항·점수·해시를 찾을 때</summary>
+
 | 결과 필드 | 읽는 방법 |
 | --- | --- |
 | `comparison.local_checklist.scores.v1`, `.v2` | 응답 원본 JSON에서 동일 기준으로 충족한 체크 수 |
@@ -135,6 +133,8 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 | `instructions_sha256`, `cases_sha256`, `context_sha256` | 실제 비교 입력 식별 해시. 교육용 v1/v2 외의 버전 번호가 아님 |
 
 편집기에서 `compound-request-no-tools`를 검색하면 응답의 `rows`에서 v1/v2를 찾을 수 있습니다. 평가 원본은 `comparison.rows`의 `case_id`와 `instructions`로 같은 두 행을 찾고 `metrics`의 점수·이유를 읽습니다. `raw_answer`는 JSON을 담은 문자열이라 `\"`·`\n`이 보일 수 있습니다. 위 읽기 예제는 그 문자열의 `answer`를 펼친 것이며 내용을 바꾸지 않습니다.
+
+</details>
 
 **v2의 높은 점수를 보장하지 않습니다.** v1이 이미 완전한 답을 냈으면 동점일 수 있고, LLM 변동으로 v2가 낮을 수도 있습니다.
 그 경우 원문에서 원인을 설명하는 것이 실습입니다. v1을 약화하거나 체크리스트를 바꾸어 개선을 연출하지 않습니다.
@@ -179,6 +179,9 @@ Evaluations에서 실행 상태, 평가자, 입력 데이터, 행별 판정과 �
 
 Native 점수는 1–5 ordinal입니다. 한국어 관련성에서 `compound-request-no-tools` 한 문항의 v1이 4점, v2가 5점을 받아 평균이 4.9167에서 5.0으로 변했습니다(+0.0833). 해당 judge 이유는 v1이 네 요청을 모두 다루고 제한도 설명했지만 충분한 정보를 제공했다고 평가하면서 4점을 부여했습니다. 한국어의 다른 두 지표와 영어의 세 지표는 모두 동점 5.0입니다. 따라서 **이번 소규모 조건에서 한국어 관련성의 제한적인 향상만 관측**됐으며, 전반적·재현 가능한 향상이나 통계적 유의성을 뜻하지 않습니다. `passed=24/24`는 4점 이상이라는 별도 이진 요약이지 5점 척도 자체가 아니며, 별도 judge calibration은 하지 않았습니다.
 
+<details class="provenance-note" markdown="1">
+<summary>상세 분석: 토큰·지연·체크리스트 차이·Optimizer와 holdout</summary>
+
 | 언어 | v1 입력 / 출력 / 총 토큰 | v2 입력 / 출력 / 총 토큰 | 총 토큰 차이 | 평균 응답 지연 v1 → v2 |
 | --- | ---: | ---: | ---: | ---: |
 | 한국어 | 34,242 / 3,437 / 37,679 | 40,218 / 4,837 / 45,055 | +7,376 | 3.473초 → 3.900초 (+0.427초) |
@@ -192,9 +195,11 @@ Native 점수는 1–5 ordinal입니다. 한국어 관련성에서 `compound-req
 
 **Optimizer와 holdout의 역할:** Optimizer는 dev 자료로 개선 후보를 만드는 선택 기능이고, holdout은 지침·개선 과정에 노출하지 않은 독립 최종 시험지입니다. 이번 질문은 노출된 dev 자료이므로 holdout이 아니며 기존 봉인 holdout은 열거나 실행하지 않았습니다. Optimizer의 현재 Hosted agent는 GPT-4.1-mini 경로이고 이번 GPT-6 Sol Prompt Agent 비교와 모델 조건이 달라 Optimizer job은 제출하지 않았습니다. 직접 작성한 v2를 Optimizer 후보라고 표현하지 않습니다. 이전 측정·Optimizer 실행 이력은 [기준선 커밋](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation)에 보존합니다.
 
+</details>
+
 ## 성공 기준
 
-v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침이 어떤 누락을 줄였는지 설명할 수 있습니다.
+v1/v2의 실제 답을 같은 기준으로 보고, 원문 근거로 **차이 또는 동점**을 설명할 수 있습니다.
 숫자가 올랐다는 결론은 실제 `delta`가 양수일 때만 씁니다. 이 실습을 위해 반복 검증·holdout·Optimizer를 수행할 필요는 없습니다.
 
 [현재 지침 상태](../validation/current/instructions.json)와 [최신 Prompt Agent 실측](../validation/current/report.json)에 국문·영문 원문, 모델과 Agent 버전, 문항별 답변 hash·점수·이유와 실행 ID가 있습니다. 이전 direct Responses 비교는 보존된 Git 이력에 구별해 남아 있습니다.
@@ -206,4 +211,11 @@ v1/v2의 실제 답과 같은 체크리스트를 나란히 보고, 어떤 지침
 
 ## 정리
 
+**기본 독해만 했다면 이 장에서 만든 Azure 자원은 없습니다.** 새 수집을 직접 했다면 자신의 실행 기록에 있는 자원만 L12에 적습니다.
+
+<details class="provenance-note" markdown="1">
+<summary>참고: 제작 당시 실측이 남긴 자원</summary>
+
 이 실측은 두 평가 전용 Prompt Agent와 각 2개 버전을 만들었습니다. Hosted 세션·Optimizer job·모델 배포는 만들지 않았습니다. 응답과 native 평가 job은 완료 상태이며, 에이전트·모델 배포는 별도 승인 없이 삭제하지 않습니다.
+
+</details>

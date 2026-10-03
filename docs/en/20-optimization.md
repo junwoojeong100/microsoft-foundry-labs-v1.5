@@ -17,16 +17,13 @@ The current improved instructions are [v2](../../data/en/prompts/agent-v2.txt). 
 
 ## Concepts and lab map
 
-**What you will try:** Instruction improvements, controlled comparison, optional Agent Optimizer, and SFT data preparation.
+**What you will try:** Choose an improvement method and prepare training files.
 
-**What is it, and why does it matter?** Instructions change how the model uses supplied information. Fine-tuning learns behavior from examples.
-Neither establishes a missing contract, exchange rate, or permission.
+**What is it, and why does it matter?** Instructions change the answering procedure; fine-tuning learns behavior from examples. SFT trains on input/answer pairs. Neither creates missing facts or permissions.
 
-**How do you use it?** Read the originals and per-row Foundry evaluation reasons from L08's single comparison and classify the cause.
-Keep ties and regressions; repeatedly searching for a higher score is not the exercise.
+**How do you use it?** Identify a cause in L08's answers, then repair a label in a local training example. Distinguish file generation from actual model training and score improvement.
 
-**Where do you run it?** Use the [L08 Prompt Agent comparison](../../samples/instruction_prompt_agent_lab.py), [optional Optimizer code](../../samples/optimizer_lab.py),
-and [training-data preparation](../../samples/prepare_tuning.py). Use Optimize/Fine-tune in the portal to understand inputs, limits, and outcomes.
+**Where do you run it?** Start with [L08 comparison](../../samples/instruction_prompt_agent_lab.py) reading and [local data preparation](../../samples/prepare_tuning.py). [Optimizer](../../samples/optimizer_lab.py) and portal training are separate options.
 
 ## Prerequisites
 

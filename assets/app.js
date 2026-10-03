@@ -13,9 +13,10 @@
   const list = document.getElementById("search-list");
   const hero = document.getElementById("hero");
   const quick = new Set(["l00", "l01", "l04", "l05", "l08", "l12", "instructor"]);
-  const offline = new Set(["l00", "l01", "l06", "l08", "l12", "l15", "l18", "l20", "l21", "l22", "l23", "l24", "instructor", "troubleshooting"]);
+  const offline = new Set(["l00", "l01", "l06", "l07", "l08", "l12", "l15", "l18", "l20", "l21", "l22", "l23", "l24", "instructor", "troubleshooting"]);
   let activeId = "l00";
-  let state = {done: [], theme: "light", path: "all"};
+  let lastLabId = "l00";
+  let state = {done: [], theme: "light", path: "core"};
   let toastTimer;
   let printDetails = [];
   let printLinks = [];
@@ -59,8 +60,14 @@
 
   function progress() {
     const done = new Set(state.done);
-    document.getElementById("progress").value = done.size;
-    document.getElementById("progress-label").textContent = `${done.size} / ${labs.length}`;
+    const selected = labs.filter(inPath);
+    const count = selected.filter(lab => done.has(lab.id)).length;
+    const meter = document.getElementById("progress");
+    meter.max = selected.length || 1;
+    meter.value = count;
+    meter.setAttribute("aria-label", ui.progress_aria.replace("{count}", selected.length));
+    document.querySelector(".progress-card").hidden = selected.length === 0;
+    document.getElementById("progress-label").textContent = `${count} / ${selected.length}`;
     document.querySelectorAll("[data-complete]").forEach(button => {
       const finished = done.has(button.dataset.complete);
       button.setAttribute("aria-pressed", String(finished));
@@ -82,6 +89,8 @@
     document.querySelectorAll(".nav-group").forEach(group => {
       group.hidden = ![...group.querySelectorAll(".chapter-link")].some(link => !link.hidden);
     });
+    document.getElementById("path-scope").hidden = state.path !== "offline";
+    progress();
   }
 
   function closeMenu(returnFocus = false) {
@@ -95,6 +104,7 @@
     const pages = data.filter(inPath);
     const index = pages.findIndex(page => page.id === activeId);
     const navigation = document.querySelector(`#${activeId} .chapter-pagination`);
+    const isReference = pageMap.get(activeId).track === "reference";
     const link = (page, label, next = false) => {
       const node = document.createElement("a");
       node.href = `#${page.id}`;
@@ -108,7 +118,7 @@
       index > 0 ? link(pages[index - 1], ui.previous) : document.createElement("span"),
       index >= 0 && index + 1 < pages.length
         ? link(pages[index + 1], ui.next, true)
-        : link(pageMap.get("l00"), ui.back, true),
+        : link(pageMap.get(isReference ? lastLabId : "l00"), isReference ? ui.return_to_lab : ui.back, true),
     );
   }
 
@@ -125,11 +135,17 @@
     const article = target && (target.matches(".chapter") ? target : target.closest(".chapter"));
     const id = article ? article.id : "l00";
     activeId = id;
+    const isReference = pageMap.get(id).track === "reference";
+    if (!isReference) lastLabId = id;
+    document.querySelectorAll(".return-to-lab").forEach(link => {
+      link.href = `#${lastLabId}`;
+      link.textContent = `${ui.return_to_lab} · L${pageMap.get(lastLabId).number}`;
+    });
     search.value = "";
     results.hidden = true;
     document.querySelectorAll(".chapter").forEach(page => page.classList.toggle("active", page.id === id));
     hero.hidden = id !== "l00";
-    if (!inPath(pageMap.get(id))) {
+    if (!isReference && !inPath(pageMap.get(id))) {
       state.path = "all";
       path.value = "all";
       persist();
@@ -239,12 +255,12 @@
     button.type = "button";
     button.className = "copy-button";
     button.textContent = ui.copy;
-    button.setAttribute("aria-label", ui.copy_aria);
+    button.setAttribute("aria-label", `${ui.copy_aria}: ${label.textContent}`);
     button.addEventListener("click", async () => {
       try {
         if (!navigator.clipboard) throw new Error("ClipboardUnavailable");
         await navigator.clipboard.writeText(code.textContent);
-        notify(ui.copied);
+        notify(ui.copy_messages[language] || ui.copied);
       } catch (error) {
         const range = document.createRange();
         range.selectNodeContents(code);
@@ -255,6 +271,13 @@
       }
     });
     pre.append(label, button);
+  });
+
+  document.querySelectorAll(".command-explanation table").forEach(table => {
+    const headers = [...table.querySelectorAll("thead th")].map(cell => cell.textContent);
+    table.querySelectorAll("tbody tr").forEach(row => {
+      [...row.cells].forEach((cell, index) => { cell.dataset.label = headers[index]; });
+    });
   });
 
   document.querySelectorAll("[data-complete]").forEach(button => button.addEventListener("click", () => {

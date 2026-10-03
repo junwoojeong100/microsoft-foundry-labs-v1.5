@@ -16,13 +16,13 @@ Make the agent answer from **retrieved documents** rather than the model's pretr
 
 ## Concepts and lab map
 
-**What you will try:** File search upload, indexing, retrieval, and citations.
+**What you will try:** Use File search to answer policy questions with evidence.
 
-**What is it, and why does it matter?** RAG first finds documents relevant to a question, then uses that evidence to produce an answer. It does not retrain the model. A vector store processes and stores documents for retrieval; a citation links an answer to the location of its supporting evidence. When policies change frequently, an answer that can be checked against current documents matters more than one based on memory. Merely printing a source name, however, does not prove that retrieval occurred.
+**What is it, and why does it matter?** RAG means **retrieve documents, then answer**. It does not retrain the model. A vector store holds documents for retrieval; a citation connects a claim to its evidence.
 
-**How do you use it?** Read the three source documents and mark where the answers appear before uploading them. Confirm that indexing has completed, then ask single-document, cross-document, and missing-information questions in order. Check not only the numbers in each answer, but also that opening its evidence leads to the relevant section of the actual document.
+**How do you use it?** Read and upload three policies, then wait for indexing to complete. Compare three answers and their actual citations with the sources. A printed filename alone is not a verified citation.
 
-**Where do you run it?** Observe the File search connection and citations in the portal, and optionally reproduce the same lifecycle through the SDK. The English [purchasing policy](../../data/en/policies/procurement-policy.md), [expense policy](../../data/en/policies/expense-policy.md), and [security policy](../../data/en/policies/security-policy.md) are the only sources of business-policy evidence. The implementation is in [workshop.py](../../samples/workshop.py).
+**Where do you run it?** Add the English [purchasing](../../data/en/policies/procurement-policy.md), [expense](../../data/en/policies/expense-policy.md), and [security policies](../../data/en/policies/security-policy.md) to L04's portal agent. The [SDK](../../samples/workshop.py) is optional.
 
 ## Prerequisites
 
@@ -42,9 +42,11 @@ You cannot evaluate RAG quality if you do not know where the correct answers are
 
 ### 2. Connect File search
 
-Add **File search** under **Tools/Knowledge** in the agent builder. If the UI offers a Toolbox connection, connect a Toolbox containing the file-search tool. Direct tool connections are also supported, but Toolbox is recommended for reuse and operational management.
-
-Create a new vector store and upload the 3 files. Wait until indexing is **Completed** before asking questions. Upload completion and search readiness are not the same.
+1. In **Build → Agents**, open **your agent name recorded in L04**. Do not create another agent.
+2. Open **Tools/Knowledge → File search** in the agent builder. If the UI requires a Toolbox connection, select the administrator-supplied file-search Toolbox, not another team's tools.
+3. Create your lab's vector store and upload **only the three Markdown files** from `data/en/policies/`. Do not upload the entire ZIP or `data/` folder.
+4. Confirm indexing is **Completed** for all three files. Upload completion is not search readiness. **Save** the connection and record the agent version and store name.
+5. Choose **New chat**, then submit each of the three questions below once. Keep this separate from L04's conversation without knowledge.
 
 ![Tools and Knowledge in the English Contoso agent. Distinguish File search over English policies from the get_stock and prepare_purchase_request functions.](../../assets/portal/en/05-agent-tools.png)
 
@@ -52,20 +54,20 @@ Create a new vector store and upload the 3 files. Wait until indexing is **Compl
 
 ### 3. Test known answers, cross-document reasoning, and unknowns
 
-```text
+```prompt
 What are the laptop price limit and the regular replacement cycle? Give the document name and section.
 ```
 
 Expected: **KRW 1,500,000, including VAT; 36 months; section 2 of procurement-policy.md**.
 
-```text
+```prompt
 I want to buy two laptops for a total of KRW 2,900,000.
 Whose approval is required, and can I claim the expense if I buy them without prior approval?
 ```
 
 Expected: Approval from **both the team manager and the purchasing representative**, and **expenses without prior approval are generally not reimbursable, subject to written exception review**. Distinguish the evidence from the two documents.
 
-```text
+```prompt
 Tell me the purchasing policy for the German branch too.
 ```
 
@@ -75,7 +77,10 @@ Expected: The agent says that the provided documents do not establish this. Inve
 
 A filename in an answer is not enough for success. Verify that portal citations or SDK `annotations` point to an **actual uploaded file or retrieval result**. Also check that the answer does not mix in unsupported numbers.
 
-SDK path:
+**After checking all three portal answers, skip the SDK below.** L06's integrated command prepares its own files; running `rag --live` first is not required.
+
+<details class="optional-path" markdown="1">
+<summary>Optional: the SDK creates new files, a store, and an agent</summary>
 
 ```bash
 python samples/workshop.py rag
@@ -94,6 +99,8 @@ python samples/workshop.py rag --live
 </div>
 
 The executable sample uploads the files, attaches them to a vector store, waits up to 180 seconds for indexing, creates an agent, and asks a question. If indexing does not finish within 180 seconds, it stops rather than pretending to have completed. Use the receipt to check remaining files and their status.
+
+</details>
 
 ### 5. Break down retrieval failures
 

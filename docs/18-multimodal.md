@@ -16,13 +16,13 @@
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 이미지/문서 이해, schema 기반 필드 추출, Code Interpreter의 CSV 계산입니다.
+**경험할 기능:** 영수증의 값을 읽고 지출 CSV의 합계를 계산합니다.
 
-**무엇이며 왜 중요한가요?** Vision은 이미지 내용을 설명하고, OCR/layout은 글자와 위치를 추출하며, Content Understanding은 원하는 필드의 구조로 문서를 해석합니다. Code Interpreter는 제공한 데이터를 코드로 계산하는 별도 도구입니다. 영수증 총액을 자연어로 읽는 것과 각 행을 합산해 검증하는 것은 다르므로, 업무에서는 출력 형식과 원본 대조를 함께 설계해야 합니다.
+**무엇이며 왜 중요한가요?** Vision은 이미지 이해, OCR은 글자 읽기, Content Understanding은 지정한 항목 추출입니다. Schema는 항목 이름·타입의 약속입니다. Code Interpreter는 데이터를 코드로 계산하는 별도 도구입니다.
 
-**어떻게 사용하나요?** 동일한 합성 영수증을 자유 설명과 구조화 추출로 각각 처리해 빠진 값·추측·근거를 비교합니다. 이어 CSV의 9개 행을 계산하고 알려진 월별/전체 합계와 대조합니다. 보기 좋은 JSON이나 그래프보다 실제 값과 원본 행 수가 맞는지가 중요합니다.
+**어떻게 사용하나요?** 영수증 원문과 추출값을 대조하고, CSV의 9행·월별 합계를 확인합니다. JSON이나 그래프가 예쁜 것보다 값과 근거가 맞는지가 중요합니다.
 
-**어디서 실행하나요?** [receipt.html](../data/receipt.html)을 브라우저에서 열고 [정답 파일](../data/receipt.expected.json), [지출 CSV](../data/monthly-spend.csv)를 함께 봅니다. 추론·analyzer·Code Interpreter는 각각 지원 포털/서비스와 비용 승인이 필요하며, 파일을 열어 보는 단계만으로 서비스 실행 완료가 되지는 않습니다.
+**어디서 실행하나요?** [영수증](../data/receipt.html)·[정답](../data/receipt.expected.json)·[CSV](../data/monthly-spend.csv)는 로컬 자료입니다. 실제 추출·계산에는 각 도구의 지원 환경·비용 승인이 필요합니다.
 
 ## 준비
 
@@ -46,7 +46,7 @@
 
 L03의 모델 Playground에서 이미지 입력을 지원하는 **자신의 배포**를 선택합니다. 첨부 입력에 준비한 PNG를 넣고 미리보기를 확인한 뒤 아래 질문을 한 번 전송합니다. 파일 첨부가 없거나 형식이 거절되면 모델·입력 지원부터 확인하며 `.env`의 기본 모델을 무작정 변경하지 않습니다.
 
-```text
+```prompt
 이 합성 영수증의 문서 번호, 날짜, 통화, 품목, 수량, 단가, 총액,
 구매 승인 상태를 정리해줘. 보이지 않는 값은 null로 두고 추측하지 마.
 ```
@@ -121,7 +121,7 @@ L03의 모델 Playground에서 이미지 입력을 지원하는 **자신의 배�
 
 실습용 agent의 **Tools**에서 Code Interpreter 또는 이를 담은 Toolbox를 연결하고 버전을 저장합니다. 기존 File search에 CSV를 올리는 것과 다릅니다. 새 대화의 파일 입력에서 `monthly-spend.csv`를 첨부하고 파일 이름을 확인합니다. 이 UI가 제공되지 않으면 [공식 Code Interpreter 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/code-interpreter)의 지원 경로를 관리자와 확인하며, 샘플 끝의 삭제 코드를 승인 없이 실행하지 않습니다.
 
-```text
+```prompt
 CSV의 월별 지출 합계를 계산하고 막대그래프를 만들어줘.
 원본 행 수, 월별 합계, 전체 합계를 함께 제시해줘.
 CSV에 없는 데이터는 추가하지 마.

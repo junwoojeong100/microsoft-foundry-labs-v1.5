@@ -16,28 +16,35 @@
 
 ## 개념과 실습 지도
 
-**경험할 기능:** Trace/span, Application Insights 연결, 응답과 로그의 상관관계, 시간에 따른 Monitoring입니다.
+**경험할 기능:** 이미 실행한 질문 하나의 작업 순서와 소요 시간을 읽습니다.
 
-**무엇이며 왜 중요한가요?** Trace는 한 요청이 지나간 경로이고 span은 그 안의 모델·검색·도구 같은 개별 작업입니다. 느린 답변이 검색 때문인지 모델 때문인지 알려면 전체 시간만 봐서는 부족합니다. 응답 ID와 trace ID도 서로 다른 식별자이므로 실제 연결을 찾아야 합니다. 로그가 없다는 것은 오류가 없다는 뜻이 아니라 아직 관찰하지 못했다는 뜻일 수 있습니다.
+**무엇이며 왜 중요한가요?** Trace는 한 요청의 실행 기록, span은 검색·모델·도구 같은 개별 작업입니다. 전체 시간만 보지 않고 어느 작업이 오래 걸렸는지 찾습니다. 로그가 없으면 “오류 없음”이 아니라 “미확인”입니다.
 
-**어떻게 사용하나요?** 프로젝트의 수집 연결과 읽기 권한을 확인하고, 이미 가진 합성 실행의 시간·agent·response ID로 범위를 좁힙니다. 부모/자식 span의 순서·시간·상태를 보고 가장 먼저 실패한 지점을 설명하세요. 품질 점수는 L08, 개별 실행 원인은 이 장, 장기 변화는 Monitoring으로 나눠 읽습니다.
+**어떻게 사용하나요?** L05·L06의 응답 ID·시간·버전으로 같은 실행을 찾습니다. 작업별 시간과 상태를 읽고 다음에 확인할 원인을 하나 고릅니다.
 
-**어디서 실행하나요?** 포털의 agent Traces와 [trace_lab.py](../samples/trace_lab.py)를 함께 사용합니다. 자동 수집이 로컬 함수 내부까지 모두 보여 주지는 않습니다. 로그 원문을 늘리기 전에 개인정보와 비용을 확인하세요.
+**어디서 실행하나요?** 기본은 포털의 **Traces**, [trace_lab.py](../samples/trace_lab.py)는 선택 조회입니다. 로그 접근이 없으면 아래 합성 시간표로 읽는 법만 연습합니다.
 
 ## 준비
 
-L05 또는 L06 실행 결과, 프로젝트에 연결 가능한 Application Insights, 로그 읽기 권한이 필요합니다. 로그 수집·보존에도 비용이 있습니다.
+L05 또는 L06 실행 결과, 프로젝트에 **이미 연결된 Application Insights**, 로그 읽기 권한이 필요합니다. Application Insights는 실행 로그를 수집·조회하는 Azure 서비스입니다. 로그 수집·보존에도 비용이 있습니다.
+
+<details class="operator-only" markdown="1">
+<summary>관리자만: 로그 수집 연결이 아직 없는 경우</summary>
 
 새 전용 환경의 관리자는 `python scripts/azure_environment.py monitoring --live`로
 Log Analytics/App Insights와 프로젝트 연결을 만듭니다. `monitoring`은 소유 receipt의 환경에 관측 자원을 추가하는 단계이며 `--live`가 실제 생성·연결을 허용합니다. 로그 보관 비용이 생길 수 있으므로 이미 연결된 프로젝트를 쓰는 학습자는 다시 실행하지 않습니다. 정의는 [observability.bicep](../infra/observability.bicep)에 있습니다.
 동봉 Bicep의 연결 비밀은 Azure 내부에서만 참조하고 출력·Git·패키지에 넣지 않습니다.
 30일 로그 보존과 일일 수집 제한은 총 과금의 강제 차단 장치가 아닙니다.
 
+**Agents → Traces → Connect** 또는 **Manage → Project details → Connected resources → Add connection → Application Insights**에서 승인된 대상에 연결합니다. 공유 프로젝트의 연결을 임의로 교체하지 않습니다.
+
+</details>
+
 ## 실행
 
-### 1. 서버 측 추적부터 연결하기
+### 1. 로그 수집 연결부터 확인하기
 
-**Agents → Traces → Connect**에서 Application Insights를 연결합니다. 버튼이 없으면 **Manage → Project details → Connected resources → Add connection → Application Insights** 경로를 사용합니다.
+자기 에이전트의 **Traces**를 엽니다. 로그 목록이 아니라 **Connect**가 보이면 직접 새 자원을 만들지 말고 담당자에게 수집 연결을 요청합니다. 로그를 볼 수 없다면 3단계의 합성 시간표를 읽고 실제 trace는 미확인으로 기록합니다.
 
 Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 시작하는 경로입니다. 자체 클라이언트 함수 내부 로직까지 모두 자동으로 추적되는 것은 아닙니다.
 
@@ -47,7 +54,7 @@ Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 �
 
 | 필요한 값 | 어디서 가져오나요? | 바르게 연결됐는지 확인 |
 | --- | --- | --- |
-| 응답 JSONL | L05/L06 SDK 마지막 `Responses:`에 출력된 `results/contoso-lab-…-responses.jsonl` | 편집기로 한 행을 열어 `id`, `response_id`, `agent_name`, `configuration.agent_version` 확인 |
+| 응답 JSONL | L05/L06 SDK 마지막 `Responses:`에 출력된 `results/contoso-lab-…-responses.jsonl` | L06의 `read-result`로 기록 ID·응답 ID·에이전트·버전을 읽기. 원본에서는 `id`, `response_id`, `agent_name`, `configuration.agent_version` |
 | agent 이름·버전 | 그 행의 값 또는 포털에서 직접 실행한 agent의 설정 | L08 평가 전용 agent나 L14 Hosted 이름으로 바꾸지 않음 |
 | Application Insights 앱 ID | 관리자 제공 값. 동봉 환경은 `results/azure-environment.json`의 `monitoring.appId.value` | `monitoring.appInsightsId.value`의 자원이 현재 프로젝트 연결과 같은지 대조. 키/connection string을 복사하지 않음 |
 

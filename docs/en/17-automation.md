@@ -17,13 +17,13 @@ Creating a schedule object is separate from a successful business result.
 
 ## Concepts and lab map
 
-**What you will try:** A Routine's trigger, action, and enabled state; manual dispatch; and verification of a real timer execution.
+**What you will try:** Schedule one policy summary and confirm execution and stopped state.
 
-**What is it, and why does it matter?** A Routine schedules an agent invocation at a specified time or in response to an event. The trigger defines “when,” and the action defines “what to run.” Acceptance of a creation request, the start of execution, and completion of a business response are different states. A schedule may run later even after you close the browser, so understanding recurrence and confirming that it has stopped are important.
+**What is it, and why does it matter?** A Routine schedules an agent. The trigger defines “when,” and the action defines “what.” It can run after the browser closes, so check the response and stopped state, not just creation.
 
-**How do you use it?** Use separate paths and fresh receipts for testing manual invocation and a one-time timer. Find and connect the trace and completed response for the same agent, input marker, and scheduled time, then recheck that the routine is disabled. If execution history looks empty, also check for limitations in the observation tool; do not blindly invoke it again.
+**How do you use it?** Record manual and scheduled executions separately. Find the actual response after the scheduled time and recheck `enabled=false`. Do not rerun merely because a list is empty.
 
-**Where do you run it?** Observe status under Agents → Routines in the portal and reproduce bounded execution with [routine_lab.py](../../samples/routine_lab.py). Long-running orchestration, Autopilot accounts, and business message delivery are design exercises separate from this timer lab.
+**Where do you run it?** Use portal **Agents → Routines** and [routine_lab.py](../../samples/routine_lab.py). Autopilot accounts, business messaging, and long-running work are separate design exercises.
 
 ## Prerequisites
 

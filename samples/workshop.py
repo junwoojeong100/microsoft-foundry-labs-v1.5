@@ -196,6 +196,85 @@ def validate_data() -> list[dict[str, Any]]:
     return cases
 
 
+def format_saved_responses(rows: list[dict[str, Any]]) -> str:
+    if not rows:
+        raise ValueError("No saved response records to read.")
+    english = LANGUAGE == "en"
+    labels = {
+        "boundary": "LOCAL READ ONLY: no Azure calls; no automatic quality verdict." if english else "로컬 결과 읽기: Azure 호출 없음 · 품질 자동 판정 아님",
+        "record": "Record" if english else "기록",
+        "status": "Status" if english else "상태",
+        "agent": "Agent / version" if english else "에이전트 / 버전",
+        "model": "Model deployment" if english else "모델 배포",
+        "question": "Question" if english else "질문",
+        "answer": "Original answer" if english else "원문 답변",
+        "tools": "Function calls" if english else "함수 호출",
+        "inputs": "Inputs" if english else "입력값",
+        "output": "Actual output" if english else "실제 결과",
+        "citations": "Citations" if english else "인용",
+        "missing": "Not recorded" if english else "미기록",
+        "failed": "Execution failed" if english else "실행 실패",
+        "completed": "completed means execution finished, not a quality pass" if english else "completed는 실행 완료이며 정답 판정이 아닙니다",
+    }
+    for number, row in enumerate(rows, 1):
+        if any(not isinstance(row.get(key), str) or not row[key].strip() for key in ("id", "query", "status")):
+            raise ValueError(f"Row {number}: use the SDK 'Responses:' JSONL, not a receipt or L08 evaluation file.")
+        if row["status"] not in {"completed", "failed"}:
+            raise ValueError(f"Row {number}: unsupported response status {row['status']!r}.")
+        configuration = row.get("configuration")
+        if not isinstance(configuration, dict) or configuration.get("language") != LANGUAGE:
+            raise ValueError(f"Row {number}: configuration language must match FOUNDRY_LAB_LANGUAGE={LANGUAGE}.")
+        for key in ("agent_name", "agent_version", "model_deployment"):
+            if not isinstance(configuration.get(key), str) or not configuration[key].strip():
+                raise ValueError(f"Row {number}: missing configuration.{key}.")
+        for key in ("agent_name", "agent_version"):
+            if key in row and row[key] != configuration[key]:
+                raise ValueError(f"Row {number}: {key} differs from the recorded configuration.")
+        if row["status"] == "failed":
+            if not isinstance(row.get("error_type"), str) or not row["error_type"].strip():
+                raise ValueError(f"Row {number}: failed record is missing error_type.")
+            continue
+        for key in ("response", "response_id"):
+            if not isinstance(row.get(key), str) or not row[key].strip():
+                raise ValueError(f"Row {number}: completed record is missing {key}.")
+        for key in ("tool_calls", "citations"):
+            if not isinstance(row.get(key), list) or any(not isinstance(item, dict) for item in row[key]):
+                raise ValueError(f"Row {number}: missing or invalid {key}; do not assume no calls or citations.")
+        for call in row["tool_calls"]:
+            if (
+                any(not isinstance(call.get(key), str) or not call[key].strip()
+                    for key in ("name", "call_id", "arguments"))
+                or not isinstance(call.get("output"), dict)
+            ):
+                raise ValueError(f"Row {number}: incomplete function-call record.")
+    lines = [labels["boundary"]]
+    for number, row in enumerate(rows, 1):
+        config = row["configuration"]
+        lines += [
+            "", f"--- {labels['record']} {number}: {row['id']} ---",
+            f"{labels['status']}: {row['status']}",
+            f"{labels['agent']}: {config['agent_name']} / {config['agent_version']}",
+            f"{labels['model']}: {config['model_deployment']}",
+            f"{labels['question']}:\n{row['query']}",
+        ]
+        if row["status"] == "failed":
+            lines += [f"{labels['failed']}: {row['error_type']}", f"{labels['answer']}: {labels['missing']}"]
+            continue
+        lines += [
+            labels["completed"], f"response_id: {row['response_id']}",
+            f"\n{labels['answer']}:\n{row['response']}",
+            f"\n{labels['tools']}: {len(row['tool_calls'])}",
+        ]
+        for call in row["tool_calls"]:
+            lines += [
+                f"- {call['name']} / call_id: {call['call_id']}",
+                f"{labels['inputs']}: {call['arguments']}",
+                f"{labels['output']}:\n{json.dumps(call['output'], ensure_ascii=False, indent=2)}",
+            ]
+        lines += [f"\n{labels['citations']}:\n{json.dumps(row['citations'], ensure_ascii=False, indent=2)}"]
+    return "\n".join(lines)
+
+
 def score_reviews(rows: list[dict[str, Any]], split: str = "all") -> dict[str, Any]:
     cases = [c for c in validate_data() if split == "all" or c["split"] == split]
     expected = {c["id"]: c for c in cases}
@@ -537,6 +616,7 @@ def run_live(args: argparse.Namespace) -> None:
                         output.flush()
                         print(f"[{case['id']}] {row['response']}\n")
                 print(f"Responses: {path.relative_to(ROOT)}")
+                print(f"Read again (local only): python samples/workshop.py read-result --input {path.relative_to(ROOT)}")
     except (AzureError, OpenAIError) as exc:
         evidence.failure(exc)
         status = getattr(exc, "status_code", None)
@@ -565,6 +645,8 @@ def main(argv: list[str] | None = None) -> int:
     score = sub.add_parser("score", help="Score complete human-reviewed records, not simulated success.")
     score.add_argument("--input", type=Path, required=True)
     score.add_argument("--split", choices=["all", "dev", "holdout"], default="all")
+    read_result = sub.add_parser("read-result", help="Read saved SDK answers, tool results and citations locally; no Azure calls.")
+    read_result.add_argument("--input", type=Path, required=True, help="The JSONL path printed after Responses: in L04/L05/L06.")
     for command in ("model", "agent", "rag", "capstone", "evaluate", "cleanup"):
         child = sub.add_parser(command, help="Plan only unless --live is set.")
         child.add_argument("--live", action="store_true", help="Allow billable Azure operations. Read the corresponding lab first.")
@@ -590,6 +672,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "tools":
         print(json.dumps({"stock": get_stock(args.sku), "draft": prepare_purchase_request(args.sku, args.quantity)}, ensure_ascii=False, indent=2))
         return 0
+    if args.command == "read-result":
+        rows = load_jsonl(args.input)
+        print(format_saved_responses(rows))
+        return 1 if any(row["status"] == "failed" for row in rows) else 0
     if args.command == "score":
         report = score_reviews(load_jsonl(args.input), args.split)
         print(json.dumps(report, ensure_ascii=False, indent=2))

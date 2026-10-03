@@ -14,8 +14,8 @@
       "readme": "README.md",
       "portal_manifest": "portal-screenshots.en.json",
       "portal_screenshots": 18,
-      "shell_blocks": 60,
-      "commands": 123,
+      "shell_blocks": 63,
+      "commands": 126,
       "validation": "validation/current/instructions.json",
       "receipt_html": "data/en/receipt.html"
     },
@@ -27,8 +27,8 @@
       "readme": "README.ko.md",
       "portal_manifest": "portal-screenshots.json",
       "portal_screenshots": 17,
-      "shell_blocks": 58,
-      "commands": 121,
+      "shell_blocks": 61,
+      "commands": 124,
       "validation": "validation/current/instructions.json",
       "receipt_html": "data/receipt.html"
     }

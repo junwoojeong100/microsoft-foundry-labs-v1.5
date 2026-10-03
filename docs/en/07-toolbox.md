@@ -17,17 +17,17 @@ and a Skill provides instructions for repeatable work.** A Skill is neither appr
 
 ## Concepts and lab map
 
-**What you will try:** A local HTTP API, an OpenAPI contract, MCP tool discovery and invocation, and optional Toolbox/Skill connections.
+**What you will try:** Call the same inventory lookup through HTTP and MCP.
 
-**What is it, and why does it matter?** OpenAPI describes the shape of HTTP requests and responses; MCP standardizes how clients discover and call tools. Toolbox lets you reuse multiple connections as a versioned collection, while a Skill supplies task instructions. These are not interchangeable names. As connections multiply, reproducing behavior and controlling access requires clarity about who called which tool with which arguments.
+**What is it, and why does it matter?** OpenAPI describes requests and responses; MCP is a common way to discover and call tools. A Toolbox groups tools; a Skill supplies instructions. None is business approval.
 
-**How do you use it?** First compare HTTP responses with the source contract, then distinguish MCP tool listing from actual calls. Review the tool name and arguments before approving that single call. The cloud extension adds remote authentication and version pinning to the same concepts.
+**How do you use it?** Read the local server's inventory response, then retrieve the same values through MCP. Distinguish a listed tool from an executed tool.
 
-**Where do you run it?** The core exercise runs locally in two terminals. Compare the [HTTP server](../../samples/inventory_api.py), [OpenAPI contract](../../samples/inventory.openapi.json), [MCP server](../../samples/mcp_server.py), [client](../../samples/toolbox_lab.py), and [English Skill source](../../data/en/skills/purchase-review/SKILL.md) to see the boundary between the protocol and business code.
+**Where do you run it?** Use two terminals on your PC. The [HTTP server](../../samples/inventory_api.py), [OpenAPI](../../samples/inventory.openapi.json), [MCP server](../../samples/mcp_server.py), and [client](../../samples/toolbox_lab.py) are included. The [English Skill](../../data/en/skills/purchase-review/SKILL.md) belongs to the optional extension.
 
 ## Prerequisites
 
-Install `requirements-tools.txt` in the base Python environment.
+Install `requirements-tools.txt` in L01's Python virtual environment. If it does not exist, first follow L01's **virtual-environment creation steps**, without Azure sign-in. Installation needs internet and an approved package repository, but **core steps 1–2 need no Azure account**.
 The cloud steps require Search from L13 and the Search Index Data Reader role for the project managed identity.
 **Only steps 1–2 below—local HTTP/OpenAPI and MCP—are required for the core course.**
 Cloud Toolbox/Skills in steps 3–4 are optional extensions after preparing the L13 resources.
@@ -71,6 +71,8 @@ In a second terminal, change to the same English checkout, reselect `FOUNDRY_LAB
 
 **In Windows PowerShell, use `curl.exe` instead of `curl` below** to avoid the alias for a different PowerShell command.
 
+Leave the first terminal's server running. If you are unsure about the second terminal, revisit [L01's new-terminal check](#l01-new-terminal).
+
 ```bash
 curl --fail http://127.0.0.1:8766/health
 curl --fail http://127.0.0.1:8766/inventory/NB-14
@@ -92,6 +94,8 @@ This unauthenticated loopback server is for local practice. It is expected to be
 Do not expose it publicly through a tunnel.
 
 ### 2. Make real calls to the bundled MCP server
+
+Continue in the **second terminal**, not the one waiting for server requests. These commands start the MCP server separately; no third terminal is needed.
 
 ```bash
 python samples/toolbox_lab.py inspect --local

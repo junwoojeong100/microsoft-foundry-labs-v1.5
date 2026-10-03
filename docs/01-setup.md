@@ -16,13 +16,13 @@
 
 ## 개념과 실습 지도
 
-**경험할 기능:** Foundry 프로젝트의 작업 범위, 모델 배포, Entra 로그인, Python 가상환경을 연결합니다.
+**경험할 기능:** 제공된 프로젝트를 확인하고 내 PC에서 실습 파일을 실행할 준비를 합니다.
 
-**무엇이며 왜 중요한가요?** 구독은 비용·관리의 범위, 리소스 그룹은 자원 묶음, Foundry 리소스는 서비스의 상위 경계, 프로젝트는 에이전트·연결을 다루는 작업 공간입니다. 프로젝트 주소를 안다고 호출 권한이 생기지는 않습니다. 로그인은 “누구인가”, 역할은 “무엇을 할 수 있는가”, quota는 “얼마나 사용할 수 있는가”에 답합니다. 이들을 분리하면 인증 오류 때문에 불필요하게 자원을 다시 만들거나 권한을 넓히는 일을 피할 수 있습니다.
+**무엇이며 왜 중요한가요?** 구독은 비용을 관리하는 범위, 프로젝트는 에이전트를 만드는 작업 공간입니다. 로그인은 “누구인가”, 역할은 “무엇을 할 수 있는가”, quota는 “얼마나 사용할 수 있는가”입니다. 주소를 안다고 권한이 생기지는 않습니다.
 
-**어떻게 사용하나요?** 포털에서 강사가 준 프로젝트와 모델을 확인하고, 로컬 환경을 준비한 뒤 주소와 배포 이름을 설정합니다. 이미 제공된 프로젝트가 있으면 관리자용 생성 명령은 건너뜁니다. L03에서 실제 응답을 받기 전까지는 “환경 준비”이지 “모델 호출 성공”이 아닙니다.
+**어떻게 사용하나요?** 강사 정보와 포털을 대조하고, Python을 준비한 뒤 `.env`에 주소와 배포 이름을 저장합니다. 실제 연결 성공은 L03에서 확인합니다.
 
-**어디서 실행하나요?** 포털은 프로젝트·엔드포인트 확인, 터미널은 Python 설치 확인·패키지 준비·CLI 로그인에 사용합니다. [.env.example](../.env.example), [관리 스크립트](../scripts/azure_environment.py), [인프라 정의](../infra/main.bicep)를 함께 열어 어떤 설정이 어느 자원을 만드는지 확인하세요.
+**어디서 실행하나요?** 브라우저에서는 프로젝트를, VS Code에서는 터미널과 [.env.example](../.env.example)을 엽니다. [관리 스크립트](../scripts/azure_environment.py)·[인프라 정의](../infra/main.bicep)는 관리자 참고이며 학습자가 먼저 읽을 파일이 아닙니다.
 
 ## 준비
 
@@ -46,6 +46,8 @@
 | 데이터 | 이 가이드의 합성 데이터 | 실제 고객·직원 자료 업로드 금지 |
 | 예산 | 개인/팀별 한도와 중단 담당자 | 예산 알림은 강제 과금 차단이 아님 |
 
+<a id="l01-pc"></a>
+
 ### 처음 쓰는 PC에서 시작하기
 
 조직이 허용한 설치 경로로 [Python 3.13](https://www.python.org/downloads/), [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli), [VS Code](https://code.visualstudio.com/download)를 준비합니다. 이미 설치되어 있으면 재설치하지 않습니다. 로컬 연습만 할 때 Azure CLI·Azure 로그인은 필요 없습니다.
@@ -57,6 +59,8 @@ Windows PowerShell은 가상환경을 만들기 전 아래 `python3` 대신 **`p
 ## 실행
 
 ### 1. 프로젝트를 준비하기
+
+**Azure 계정 없이 진행한다면 [4단계 로컬 검사](#l01-local)로 이동합니다.** 프로젝트 선택·역할 확인·CLI 로그인은 하지 않습니다.
 
 1. 브라우저에서 [Foundry 포털](https://ai.azure.com)을 열고 강사가 안내한 계정으로 로그인합니다.
 2. **New Foundry**가 켜져 있는지 확인합니다. 왼쪽 위 프로젝트 선택기에서 제공받은 프로젝트를 선택합니다.
@@ -129,6 +133,8 @@ L08의 native 자동 평가를 진행할 때는 별도 judge 배포도 필요합
 
 Agent playground의 **Metrics**에서 자동 평가 항목을 확인합니다. 필요하지 않은 평가는 선택 해제합니다. Playground 평가도 과금될 수 있습니다. 비용에는 추론뿐 아니라 File search, Search, Code Interpreter, 로그, hosted runtime 등이 추가될 수 있습니다.
 
+<a id="l01-local"></a>
+
 ### 4. 로컬 연습 환경 만들기
 
 실습 폴더의 터미널에서 한 줄씩 실행합니다. Windows는 앞서 안내한 `py -3.13`을 사용합니다.
@@ -144,18 +150,20 @@ python3 samples/workshop.py validate-data
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `doctor` | 현재 Python과 필요한 도구의 설치 상태를 확인합니다. 문제를 자동 설치·수정하는 명령은 아닙니다. | 터미널의 진단 항목을 읽습니다. Azure 로그인·모델 호출 없음. |
+| 1. `doctor` | Python 버전, `.env` 존재 여부, Azure SDK 패키지 설치 상태를 표시합니다. Azure CLI 설치·로그인·연결을 검사하거나 자동 수정하지 않습니다. | 터미널의 진단 항목을 읽습니다. Azure 로그인·모델 호출 없음. |
 | 2. `validate-data` | 동봉 합성 데이터의 형식·시나리오 ID·dev/holdout 분리를 로컬에서 검사합니다. | 오류 없이 검사 결과가 나와야 합니다. 데이터 구조 검사이지 모델 품질 평가가 아닙니다. |
 
 </div>
 
 두 번째 명령의 정상 출력은 다음과 같습니다. `dev`와 `holdout`은 동봉된 기존 학습 데이터의 두 묶음 이름입니다. 지금은 개수와 중복이 없다는 것만 확인하며, L08의 12문항 비교나 별도 봉인 시험지와 혼동하지 않습니다.
 
-```text
+```output
 Validated 20 cases: dev=10, holdout=10; scenario overlap=0; inventory=3.
 ```
 
 이 단계는 **Azure 계정·네트워크·외부 패키지가 필요 없습니다.** `doctor`의 `not installed (needed only for --live)`는 로컬 검사 자체의 실패가 아니라 Azure 호출 전에 설치할 패키지 안내입니다.
+
+**로컬만 할 분은 여기서 설치·로그인을 멈춥니다.** L06의 로컬 함수를 실행할 때도 지금 쓴 `python3`(Windows는 `py -3.13`)로 시작하세요. 아래 가상환경과 5단계는 Azure 코드 실습을 준비하는 사람의 경로입니다.
 
 코드로 Azure를 호출할 때만 패키지를 설치합니다.
 
@@ -199,7 +207,29 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
 </div>
 
-이후 `python` 명령은 해당 환경의 Python을 뜻합니다. PowerShell에서 활성화가 제한되면 `.venv\Scripts\python.exe`를 직접 사용하세요.
+**이후 명령을 읽는 규칙은 하나입니다:** 가이드의 `python`은 **방금 만든 가상환경의 Python**입니다. Windows에서는 모든 `python ...`을 `.\.venv\Scripts\python.exe ...`로 바꿉니다. 실행 정책을 변경하거나 전역 Python에 다시 설치하지 않습니다.
+
+<a id="l01-new-terminal"></a>
+
+#### 새 터미널을 열었거나 다음 날 다시 시작했다면
+
+같은 실습 폴더를 열고 아래 확인 명령 **하나만** 실행합니다. 표시된 경로에 이 폴더의 `.venv`가 있어야 합니다.
+
+```bash
+python -c "import sys; print(sys.executable)"
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `python -c` | `-c` 뒤의 짧은 Python 코드가 현재 실행기의 경로를 출력합니다. Windows는 `python`을 `.\.venv\Scripts\python.exe`로 바꿉니다. | 로컬 확인만 합니다. 경로가 다르면 macOS/Linux는 앞의 `source .venv/bin/activate`를 다시 실행합니다. 패키지를 재설치하지 않습니다. |
+
+</div>
+
+**중요:** 명령이 성공해도 `.venv`가 아닌 다른 Python이면 준비가 끝난 것이 아닙니다. L07에서 터미널을 두 개 열 때도 각각 확인합니다.
 
 ### 5. 엔드포인트와 인증 설정하기
 
@@ -209,7 +239,7 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
 포털의 **Manage → Project details** 또는 프로젝트 시작 화면에서 project endpoint를 복사합니다. VS Code 파일 목록의 **`.env`를 열어** 아래 두 줄의 `=` 오른쪽만 바꾸고 저장합니다. 파일 이름이 `.env.txt`가 되지 않게 합니다. 이 설정 블록은 터미널에 붙여넣지 않습니다.
 
-```text
+```env
 FOUNDRY_PROJECT_ENDPOINT=https://리소스명.services.ai.azure.com/api/projects/프로젝트명
 FOUNDRY_MODEL_DEPLOYMENT_NAME=실제-모델-배포이름
 ```
@@ -217,6 +247,8 @@ FOUNDRY_MODEL_DEPLOYMENT_NAME=실제-모델-배포이름
 위 예시의 한글 설명을 그대로 사용하지 않습니다. **프로젝트 endpoint에 `/openai/v1`을 추가하지 않습니다.** SDK가 올바른 경로를 구성합니다. API key는 넣지 않습니다.
 
 L08에서 **새 평가를 직접 실행할 때만** `.env`의 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`에 관리자가 준 채점용 모델 배포 이름을 넣습니다. 기존 결과 읽기에는 필요 없습니다. 그 외 선택 항목은 비워 둡니다.
+
+설정 파일 이름의 **`.env`**와 Python 폴더 **`.venv`**는 다릅니다. `.env`를 저장한다고 가상환경이 선택되거나 Azure에 로그인되는 것은 아닙니다.
 
 ```bash
 az login

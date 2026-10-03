@@ -16,28 +16,35 @@
 
 ## Concepts and lab map
 
-**What you will try:** Traces/spans, Application Insights connections, correlation between responses and logs, and Monitoring over time.
+**What you will try:** Read the operations and durations for one question you already ran.
 
-**What is it, and why does it matter?** A trace is the path a request takes; a span is an individual operation within it, such as a model call, retrieval, or tool call. Total duration alone cannot tell you whether a slow answer was caused by retrieval or the model. Response IDs and trace IDs are also different identifiers, so you must find the actual correlation. Missing logs may mean you have not observed the run yet, not that no error occurred.
+**What is it, and why does it matter?** A trace records one request; a span is an operation such as retrieval, a model call, or a tool call. Find the slow operation rather than judging only the total time. No logs means unverified, not error-free.
 
-**How do you use it?** Check the project's collection connection and read permissions, then narrow the scope using the time, agent, and response ID of a synthetic run you already have. Inspect parent/child span order, duration, and status to explain where failure first occurred. Read quality scores in L08, individual execution causes in this chapter, and long-term changes through Monitoring.
+**How do you use it?** Find an L05 or L06 execution by response ID, time, and version. Read its operation durations and status, then choose one cause to investigate.
 
-**Where do you run it?** Use the portal's agent Traces together with [trace_lab.py](../../samples/trace_lab.py). Automatic collection does not expose every detail inside local functions. Review privacy and cost before collecting more raw log content.
+**Where do you run it?** Use portal **Traces**; [trace_lab.py](../../samples/trace_lab.py) is an optional query path. Without log access, practice interpreting the synthetic timing table below.
 
 ## Prerequisites
 
-You need results from L05 or L06, Application Insights that can be connected to the project, and log-read permissions. Log collection and retention also incur costs.
+You need L05 or L06 results, Application Insights **already connected to the project**, and log-read permissions. Application Insights is the Azure service that collects and queries execution logs. Collection and retention incur costs.
+
+<details class="operator-only" markdown="1">
+<summary>Administrators only: log collection is not connected yet</summary>
 
 The administrator of a new dedicated environment uses `python scripts/azure_environment.py monitoring --live`
 to create Log Analytics/App Insights and the project connection. `monitoring` adds observability resources to the environment in the ownership receipt; `--live` permits actual creation and connection. Log-retention costs may apply, so learners using an already-connected project must not run it again. The definition is in [observability.bicep](../../infra/observability.bicep).
 Connection secrets in the bundled Bicep are referenced only within Azure and must not appear in output, Git, or packages.
 The 30-day log retention and daily ingestion limit do not enforce a hard cap on total charges.
 
+Connect the approved target through **Agents → Traces → Connect**, or **Manage → Project details → Connected resources → Add connection → Application Insights**. Do not replace a shared project's connection without approval.
+
+</details>
+
 ## Steps
 
-### 1. Connect server-side tracing first
+### 1. Check the log-collection connection
 
-Connect Application Insights through **Agents → Traces → Connect**. If that button is unavailable, use **Manage → Project details → Connected resources → Add connection → Application Insights**.
+Open your agent's **Traces**. If you see **Connect** instead of logs, request the connection from the owner rather than creating a resource yourself. Without log access, use step 3's synthetic timing table and record actual tracing as unverified.
 
 Server-side tracing for Prompt/Hosted agents can begin after connection without code changes. It does not automatically trace every detail inside your client-side functions.
 
@@ -47,7 +54,7 @@ First reuse an L05/L06 run collected after tracing was connected. If none exists
 
 | Required value | Where to obtain it | Check the binding |
 | --- | --- | --- |
-| Response JSONL | The `results/contoso-lab-…-responses.jsonl` path printed after `Responses:` by the L05/L06 SDK | Open one row in an editor; inspect `id`, `response_id`, `agent_name`, and `configuration.agent_version` |
+| Response JSONL | The `results/contoso-lab-…-responses.jsonl` path printed after `Responses:` by the L05/L06 SDK | Use L06's `read-result` for record/response IDs and agent/version. The source fields are `id`, `response_id`, `agent_name`, and `configuration.agent_version` |
 | Agent name/version | That row, or the configuration of the agent you invoked in the portal | Do not substitute the L08 evaluation agent or L14 Hosted name |
 | Application Insights app ID | Supplied by the administrator. Bundled environments store it at `monitoring.appId.value` in `results/azure-environment.json` | Compare `monitoring.appInsightsId.value` with the project's actual connection. Do not copy a key/connection string |
 

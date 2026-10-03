@@ -16,13 +16,13 @@
 
 ## Concepts and lab map
 
-**What you will try:** Comparing on-device inference, Fabric's business semantics layer, and Microsoft 365 knowledge integration.
+**What you will try:** Choose one path: on-device answers, expense totals, or work-document retrieval.
 
-**What is it, and why does it matter?** Foundry Local is a runtime/SDK for running models on a device; Fabric IQ and Work IQ connect to data and context in their respective business products. Choosing Local to reduce cloud costs means managing device memory and model deployment, while adding business integrations means managing source-data permissions and licenses. Assuming the same environment support just because products share “IQ” or the “Foundry” brand leads to flawed designs.
+**What is it, and why does it matter?** Foundry Local runs a model on your device. Fabric IQ connects analytical business data; Work IQ connects Microsoft 365 context. Similar names do not mean identical hardware, permissions, or licenses.
 
-**How do you use it?** First decide whether you need a short on-device inference, a query for analytical measures, or authorized retrieval of business documents. Execute only one path allowed in your environment, and record the support conditions and selection rationale for the others. This chapter does not ask you to install every additional product.
+**How do you use it?** Choose one path matching your goal and available environment. Record unprepared paths as designs; do not install every product.
 
-**Where do you run it?** Local requires a supported device and the official SDK; Fabric/M365 requires an approved test environment in the relevant product. Use this repository's English [synthetic monthly expenses](../../data/en/monthly-spend.csv) and [purchasing policy](../../data/en/policies/procurement-policy.md) as inputs, but do not assume that executors for every separate product are bundled.
+**Where do you run it?** Local needs a supported PC; Fabric and M365 need separately approved test environments. Use only the English [synthetic expenses](../../data/en/monthly-spend.csv) and [purchasing policy](../../data/en/policies/procurement-policy.md).
 
 ## Prerequisites
 

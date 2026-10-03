@@ -34,13 +34,21 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | Agent | A program combining a model with instructions, knowledge, and tools |
 | Deployment | Making a model available to call in your environment; not training the model |
 
-**Recommended first sequence:** this module → L01 setup → L02 inspect the supplied model → L03 first call. You do not need to complete all 25 modules at once. L00–L12 is the core; L13–L24 are electives.
+**Start with the 13 core modules, L00–L12.** The 12 advanced modules, L13–L24, are electives—not extra checkboxes required to finish the core course.
 
-**Without an account:** start with reading, L01's local data checks, L06's local functions, and L08's existing-result analysis. Mark Azure-only steps not executed. Do not create an account or add payment details on your own for the exercise.
+| Your situation | Start here | Ready to continue when |
+| --- | --- | --- |
+| The instructor supplied a project and cost approval | [L01 setup](#l01) → L02 deployment check → L03 first call | You have an actual answer and response ID from your project |
+| No Azure account/access, or setup is still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L08 result reading | Data checks pass, you calculate the KRW 2,900,000 draft, and compare two answers |
+
+The second path **does not count as passing Azure execution exercises**. Do not create an account or add payment details on your own; mark live calls not executed. Choose **Without Azure** in the web contents to find modules containing these steps.
 
 ## Objectives
 
 **Foundry is more than a screen for calling models.** It is a development and operations platform for selecting models, connecting agents to knowledge and tools, and managing quality, safety, and cost.
+
+<details markdown="1">
+<summary>Optional reference: which Foundry capabilities do the core labs use?</summary>
 
 | What you need | Responsible component | What you will do in this guide |
 | --- | --- | --- |
@@ -51,17 +59,19 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | A way to judge correctness | Evaluations / Red teaming | Test answers, tool use, refusals, and approval boundaries |
 | Execution paths and operations | Tracing / Monitoring / Control Plane | Inspect failures, costs, and permissions |
 
+</details>
+
 ![Contoso lab architecture. The user sends a request to the agent, which uses a model, policy documents, read-only tools, and a drafting tool. Human and business-system approval is required before an actual order.](../../assets/architecture.en.svg)
 
 ## Concepts and lab map
 
-**What you will try:** Connect Foundry's Home, Discover, Build, Operate, and Manage areas into a single development workflow.
+**What you will try:** Add company documents and inventory lookup to a model, one capability at a time.
 
-**What is it, and why does it matter?** A model is an engine that generates text. An agent is a program that connects that engine to a role, knowledge, and tools that perform actions. For example, a model can say, “I will check inventory,” but a tool must retrieve the actual inventory value. Foundry provides a shared workspace for building, evaluating, and observing both. Understanding each component's responsibility before memorizing menu names helps you avoid changing the model or prompt every time an answer is wrong.
+**What is it, and why does it matter?** A model writes an answer; an agent connects the model to instructions, documents, and tools. Saying “I will check inventory” is different from a tool returning eight units in stock.
 
-**How do you use it?** First locate the features in the portal, then carry out each chapter's small experiment and compare the result with the source material. Use the portal to inspect settings and results visually; use Python and the CLI to reproduce actions and inspect the details. Even in chapters with CLI commands, follow this sequence: observe the screen → read the code and configuration → review the plan → perform an approved live run → interpret the results.
+**How do you use it?** Add one capability per module and check the result. Compare policy claims with the documents, and quantities and amounts with function results. You do not need to memorize every menu.
 
-**Where do you run it?** This HTML guide is documentation, not an application that controls Azure. Code copy buttons only copy; they do not execute anything. Completing the full lab requires a terminal. Each chapter distinguishes portal-only steps from those that require an SDK.
+**Where do you run it?** This page is a guide. The portal is the AI workspace in your browser; the terminal is the command window on your PC. **Copy is not Run.**
 
 ### The five entry points in the live portal
 
@@ -109,7 +119,12 @@ In `python samples/workshop.py model --live`, `python` is the interpreter, `samp
 
 `--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Azure cost”: the local Hosted server in L14 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
+<details markdown="1">
+<summary>For advanced commands: environment variables, continued lines, and azd</summary>
+
 A `KEY=value` prefix passes an environment variable to **that command only** in macOS/Linux shells. In PowerShell, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in bash; do not paste it unchanged into PowerShell. Combine the command into one line instead. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill` only identifies the authoring tool; learners do not need to install a Copilot skill.
+
+</details>
 
 ## Prerequisites
 
@@ -156,6 +171,8 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 ### 4. Keep evidence of your results
 
 Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`; do not overwrite the published examples under `validation/current/`. Do not record personal information or tokens or relabel one environment's evidence as another's.
+
+Web progress counts **only the selected path**: 13 core modules or six in the 90-minute tour. Switching paths does not erase checkmarks. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
 
 ## Success criteria
 

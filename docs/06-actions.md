@@ -16,17 +16,17 @@ Function calling의 실행 책임을 이해합니다. **모델은 “어떤 함�
 
 ## 개념과 실습 지도
 
-**경험할 기능:** Function calling, JSON 인수 검사, 함수 결과 반환, 안전한 초안 경계입니다.
+**경험할 기능:** 모델의 요청에 따라 Python 함수로 재고를 읽고 초안을 계산합니다.
 
-**무엇이며 왜 중요한가요?** 함수 도구는 모델이 외부 기능을 요청하는 통로입니다. 모델은 함수 이름과 인수를 제안하지만 Python 프로그램이 입력을 검증하고 실제 함수를 실행합니다. 그래서 도구 정의만 포털에 등록했다고 내 노트북의 코드가 원격으로 실행되지는 않습니다. 이 책임을 분리해야 잘못된 수량·없는 SKU·승인 가장을 모델의 말과 상관없이 차단할 수 있습니다.
+**무엇이며 왜 중요한가요?** Function calling은 모델이 함수 이름과 입력값을 요청하는 방식입니다. **검사와 실행은 프로그램의 책임**입니다. 포털에 함수 이름을 등록하는 것만으로 내 PC의 코드가 실행되지는 않습니다.
 
-**어떻게 사용하나요?** 먼저 모델 없이 함수를 호출해 계산·재고·오류가 올바른지 확인합니다. 그다음 모델의 요청을 같은 함수로 전달하고 `call_id`에 맞춰 결과를 돌려줍니다. 최종 문장의 숫자를 실제 함수 JSON과 비교하세요. 이 순서가 있어야 “모델 문제”와 “업무 코드 문제”를 분리할 수 있습니다.
+**어떻게 사용하나요?** 로컬 함수의 정상·실패 입력부터 확인합니다. 이후 Azure 통합을 실행했다면 답변의 금액과 실제 함수 결과를 비교합니다.
 
-**어디서 실행하나요?** 이 장의 함수는 로컬 Python에서 실행되므로 터미널이 필요합니다. [workshop.py](../samples/workshop.py)의 `get_stock`, `prepare_purchase_request`, `dispatch_tool`과 [합성 재고 CSV](../data/inventory.csv)를 함께 읽습니다. 외부 주문 API는 연결하지 않습니다.
+**어디서 실행하나요?** 터미널에서 [workshop.py](../samples/workshop.py)를 실행합니다. 입력 자료는 [합성 재고 CSV](../data/inventory.csv)입니다. 실제 주문 API는 연결하지 않습니다.
 
 ## 준비
 
-로컬 실습은 Python만 필요합니다. Azure 통합은 L01–L05 준비가 필요합니다. `samples/workshop.py`에는 주문·결제·메일 발송 함수가 없습니다.
+로컬 실습은 Python만 필요합니다. 가상환경을 만들지 않았다면 아래 `python` 대신 L01의 `python3`(Windows는 `py -3.13`)을 사용합니다. Azure 통합은 L01–L05의 환경·문서 이해가 필요하지만 **L04·L05의 선택 SDK 명령을 먼저 실행할 필요는 없습니다.** `samples/workshop.py`에는 주문·결제·메일 발송 함수가 없습니다.
 
 ## 실행
 
@@ -94,6 +94,10 @@ JSON schema의 `strict`와 `additionalProperties: false`는 출력 계약을 강
 
 ### 4. 지식과 함수를 같은 agent에 연결하기
 
+**여기서부터 Azure 호출입니다.** 계정 없이 진행했다면 4단계는 건너뛰고 로컬 결과만 기록합니다.
+
+이제 포털이 아니라 터미널이 실행을 담당합니다. `capstone`은 **정책 3개와 함수 2개를 함께 갖춘 새 에이전트**를 만들며, L05의 포털 에이전트를 수정하지 않습니다. 포털 에이전트는 L09에서, 새 통합 결과는 L10·L11에서 다시 씁니다.
+
 ```bash
 python samples/workshop.py capstone
 python samples/workshop.py capstone --live
@@ -123,6 +127,28 @@ python samples/workshop.py capstone --live
 
 안전한 실습을 위해 최대 5회 응답 라운드·8회 함수 호출로 제한합니다. 에러는 명시적으로 전달하며 제한을 넘으면 중단합니다. 이 제한은 이 샘플의 교육용 값이지 Foundry 서비스 한도가 아닙니다.
 
+#### 저장된 답변을 읽기 쉽게 다시 보기
+
+실행 마지막의 **`Read again (local only):` 뒤 한 줄**을 복사해 실행합니다. 아래의 `실제ID`는 예시이므로 그대로 입력하지 말고 자신의 `Responses:` 경로를 사용합니다.
+
+```bash
+python samples/workshop.py read-result --input results/contoso-lab-실제ID-responses.jsonl
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `read-result --input` | L04/L05/L06 SDK의 응답 JSONL을 질문·원문 답변·함수 입력/결과·인용으로 나눠 보여 줍니다. | **로컬 읽기만** 합니다. Azure 호출·재채점·원본 수정이 없고 로그인도 필요 없습니다. `--live`는 지원하지 않습니다. |
+
+</div>
+
+`원문 답변` 다음에 `get_stock`, `prepare_purchase_request`의 실제 결과와 인용이 나옵니다. `total_krw=2900000`, `order_submitted=false`를 대조합니다. 함수가 거절했다면 오류가 그대로 보이며, 빠진 값을 정답으로 채우지 않습니다. **읽기 명령의 정상 종료는 품질 합격이 아닙니다.** `failed` 행은 실패로 표시하고 명령도 실패 종료합니다.
+
+파일을 찾지 못하면 실행했던 터미널의 경로와 현재 폴더를 확인합니다. 끝의 **`-responses.jsonl`**을 포함해야 합니다. 자원 소유 기록 `.json`이나 L08 평가 파일을 대신 넣지 않습니다.
+
 ### 5. 경계값을 확인하기
 
 `required_approvals(2_000_000)`은 팀장, `required_approvals(2_000_001)`은 팀장과 구매 담당자입니다. L08은 이런 경계를 평가 데이터에 포함합니다.
@@ -139,4 +165,4 @@ python samples/workshop.py capstone --live
 
 ## 정리
 
-로컬 함수는 외부 상태를 바꾸지 않습니다. Azure 통합으로 생성된 agent·conversation·파일은 receipt에 남고 L12에서 삭제합니다.
+로컬 함수는 외부 상태를 바꾸지 않습니다. Azure 통합으로 생성된 agent·conversation·파일은 receipt에 남습니다. L12에서 공유 여부·보존 담당자를 확인하고 **별도 삭제 승인 후에만** 정리합니다.

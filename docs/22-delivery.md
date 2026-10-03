@@ -16,15 +16,13 @@
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 로컬 CI와 GitHub Actions 결과 읽기, OIDC 승인 경계, 버전 고정 릴리스·롤백 설계, 모델 종료·비용 대응입니다.
+**경험할 기능:** 실패한 후보를 내보내지 않는 로컬 검사와 복구 계획을 만듭니다.
 
-**무엇이며 왜 중요한가요?** CI는 변경할 때마다 소스·데이터·계약을 검사합니다. CD는 검토한 변경을 배포하는 과정입니다. 모델·지식·도구 중 하나만 바뀌어도 응답이 달라질 수 있으므로 코드 commit뿐 아니라 실제 배포 버전과 근거를 묶어야 되돌릴 수 있습니다.
+**무엇이며 왜 중요한가요?** CI는 변경을 자동 검사하고 CD는 검토한 변경을 배포합니다. Rollback은 이전 승인 버전으로 되돌리기입니다. 실행 완료만으로 품질까지 통과한 것은 아닙니다.
 
-**어떻게 사용하나요?** workflow의 실행 조건을 읽고 로컬 검사를 재현합니다. 다음으로 이미 가진 결과를 릴리스 명세에 연결하고, 실패 가정 하나로 롤백 결정을 연습합니다. L08의 작은 지침 비교를 통합 도구 실행이나 출시 승인으로 확대하지 않습니다.
+**어떻게 사용하나요?** 세 실패를 재현하고 후보 선택 조건을 고칩니다. 기존 결과로 릴리스 명세·롤백 판단표를 작성합니다. 새 Hosted 배포는 필요 없습니다.
 
-**어디서 실행하나요?** [validate.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/validate.yml)은 기본 로컬 검사,
-[azure-validation.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/azure-validation.yml)은 별도 승인 실행 예제입니다.
-온라인 링크와 별개로 **자신이 받은 소스의 `.github/workflows/`를 기준**으로 읽습니다. 기본 과제는 로컬 검사·설계입니다. 실제 Hosted 배포는 L14와 별도 승인 범위가 준비된 경우에만 선택합니다.
+**어디서 실행하나요?** 내 PC에서 진행합니다. **받은 소스의 `.github/workflows/`**에서 [로컬 검사](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/validate.yml)와 [별도 승인 실행](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/azure-validation.yml)의 조건을 읽습니다.
 
 ## 준비
 

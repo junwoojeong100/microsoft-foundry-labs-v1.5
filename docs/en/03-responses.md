@@ -16,13 +16,13 @@ Understand the smallest unit of a model call. **This is not yet an agent or RAG.
 
 ## Concepts and lab map
 
-**What you will try:** Send input to a model through the Responses API and inspect the response object.
+**What you will try:** Send one question from code through the Responses API.
 
-**What is it, and why does it matter?** An API is a contract for requesting actions in code rather than clicking a screen. A Responses result can contain not only readable text but also status, identifiers, and tool requests. A successful HTTP request or printed text does not necessarily mean the business task is complete. Checking both completion status and actual content builds the habit needed for agents, evaluation, and tracing.
+**What is it, and why does it matter?** An API is how a program requests a service. The result includes an answer and a `response_id`, which helps you find the same execution later.
 
-**How do you use it?** First review the plan output to see which settings will be used, then send one synthetic question to the prepared model. Read the response text and response ID separately, and check that the model does not invent an answer when it has not been given company documents. The portal Playground provides a visual comparison for understanding inputs and outputs; this chapter's SDK path teaches reproducible calls.
+**How do you use it?** Read the plan, then make one approved call. Check the answer, completion state, and ID. Without company documents, acknowledging that the policy is unknown is correct.
 
-**Where do you run it?** The executable sample is [samples/workshop.py](../../samples/workshop.py). The Python excerpt below explains the core code; it is not a separate shell command. The full sample also handles authentication, errors, and output checks.
+**Where do you run it?** Run [samples/workshop.py](../../samples/workshop.py) in the terminal. The Python excerpt below is **code to read**, not an additional terminal command.
 
 ## Prerequisites
 
@@ -78,6 +78,8 @@ python samples/workshop.py model
 </div>
 
 The output should say `PLAN ONLY`, and no Azure request is made. A success message without `--live` is not evidence of a successful model call.
+
+This plan **describes the intended operation**; it does not validate `.env`, sign-in, or permissions. Compare L01's settings with L02's actual deployment name before execution.
 
 ### 2. Call the live model
 

@@ -9,6 +9,8 @@
 | `can't open file` / `No such file or directory` | Check that the opened folder contains `samples`, `data`, and `requirements.txt` together; do not run from inside `samples` |
 | Python `>>>` prompt or `SyntaxError` | Enter `exit()` and run commands in the terminal. Paste questions, JSON, and `.env` settings only where the step specifies |
 | Windows error for `source` / `curl --fail` | Use L01's `.venv\Scripts\python.exe` and use `curl.exe` for HTTP checks |
+| Packages disappear in a new terminal | Use [L01's new-terminal check](#l01-new-terminal), including the English profile. Do not reinstall packages into a different Python |
+| `read-result` reports a file, format, or language error | Check L06's `Responses:` path, the `-responses.jsonl` ending, and English profile. Ownership receipts and L08 JSON use different formats; do not fix this with another paid call |
 | No project in the portal | Confirm the supplied account, organization, and project with the instructor; do not create a new project or subscription |
 
 ## A 60-second diagnostic sequence

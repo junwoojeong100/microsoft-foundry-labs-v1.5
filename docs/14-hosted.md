@@ -18,13 +18,13 @@ Responses·Voice·Teams protocol을 검증한 것으로 표시하지 않습니�
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 직접 작성한 에이전트 코드의 패키징·로컬 서버·관리형 Hosted 배포·버전 고정 호출입니다.
+**경험할 기능:** 내 PC에서 실행하던 에이전트 코드를 Foundry 서버로 옮깁니다.
 
-**무엇이며 왜 중요한가요?** Prompt Agent는 서비스가 선언된 지시와 도구를 실행하고, Hosted Agent는 우리가 만든 서버 코드를 관리형 환경에서 실행합니다. L06의 로컬 함수가 Teams나 예약에서 자동으로 실행되지 않는 문제를 해결하려면 실행기를 서버로 옮겨야 합니다. 이때 코드뿐 아니라 데이터·의존성·환경 변수·입출력 protocol도 일치해야 합니다. 배포 성공과 업무 응답 성공을 나눠 확인하는 이유입니다.
+**무엇이며 왜 중요한가요?** Hosted Agent는 직접 작성한 코드를 Foundry에서 실행합니다. 내 PC의 터미널이 없어도 함수를 실행할 서버가 필요할 때 선택합니다. 코드·데이터·설정·통신 규약(protocol)을 함께 맞춰야 합니다.
 
-**어떻게 사용하나요?** 로컬 패키지의 파일·해시를 읽고 서버를 시작한 뒤 같은 계약의 요청을 보냅니다. 준비된 프로젝트에만 배포하고 숫자로 지정한 버전을 호출합니다. 응답의 함수 결과·인용·runtime hash를 로컬 계약과 비교하세요. Responses adapter는 Optimizer 연결용 별도 표면이며 기본 Invocations 경로와 혼동하지 않습니다.
+**어떻게 사용하나요?** 패키지 만들기 → 로컬 호출 → 승인된 배포 → 같은 버전 원격 호출 순서입니다. 기본 Invocations부터 진행하며 Optimizer용 Responses adapter는 선택입니다.
 
-**어디서 실행하나요?** [azure.yaml](../azure.yaml)은 서비스·진입점·protocol, [build_hosted.py](../scripts/build_hosted.py)는 동봉할 파일, [hosted/main.py](../hosted/main.py)는 서버 입구, [hosted_runtime.py](../samples/hosted_runtime.py)는 업무 엔진입니다. 포털에서는 Hosted/Prompt 종류와 버전을 확인하고, 코드 실행·배포는 터미널에서 진행합니다.
+**어디서 실행하나요?** 터미널에서 실행·배포하고 포털에서 종류·버전을 확인합니다. [설정](../azure.yaml)·[패키징](../scripts/build_hosted.py)·[서버 입구](../hosted/main.py)·[업무 코드](../samples/hosted_runtime.py)를 순서대로 찾습니다.
 
 ## 준비
 

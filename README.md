@@ -14,6 +14,10 @@ Build a synthetic Contoso purchasing assistant through **25 labs and five refere
 2. Extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip), then follow [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01) for PC/project setup. Git commands are not required.
 3. Follow **Format → Start here → What to check** in each module. Take the 13 core modules in order; choose among 12 advanced electives.
 
+The web reader starts with the **13-module core path** and counts progress only within the selected path. Action-led titles and shorter concept introductions across all 25 modules keep the next task clear. **Explain a term / I'm stuck** opens help with a return link to the original lab.
+
+Blocks distinguish **terminal commands / portal Chat / .env settings / expected output**. On narrow screens, command walkthroughs read vertically. L01 explains new-terminal and Windows Python selection. L06/L11's `read-result --input` displays saved answers, function results, and citations **without new Azure calls**, changing neither originals nor evaluation judgments.
+
 Without an account, you can still use local functions and **read actual answers and scores** in L08. Administrator creation and optional execution are in expandable sections; L11 reuses L06's result. Teams publishing, Hosted, and Optimizer are not core-course prerequisites.
 
 L15 and L18–L24 include **change-and-compare exercises**: intermediate multi-agent answers and tokens/time, a complete CU schema, voice-setting comparisons, baseline-to-deployment SFT, and concrete Local/Fabric/Work IQ paths. Access, CI/CD, and migration use repairable local fixtures, clearly separate from Azure evidence. Install `requirements-local.txt` in a separate environment only when choosing the Local SDK path.
