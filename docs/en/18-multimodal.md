@@ -16,13 +16,13 @@ Distinguish **Vision model descriptions, OCR/layout, schema extraction with Cont
 
 ## Concepts and lab map
 
-**What you will try:** Image/document understanding, schema-based field extraction, and CSV calculations with Code Interpreter.
+**What you will try:** Read receipt fields and calculate expense CSV totals.
 
-**What is it, and why does it matter?** Vision describes image content, OCR/layout extracts text and positions, and Content Understanding interprets documents using the field structure you want. Code Interpreter is a separate tool that calculates over supplied data using code. Reading a receipt total in natural language is different from summing its rows to verify it, so business applications need both an output format and a comparison with the source.
+**What is it, and why does it matter?** Vision understands images, OCR reads text, and Content Understanding extracts specified fields. A schema defines field names and types. Code Interpreter separately calculates over data using code.
 
-**How do you use it?** Process the same synthetic receipt once as a free-form description and once as structured extraction, then compare missing values, guesses, and evidence. Next, calculate over the CSV's 9 rows and compare with the known monthly/overall totals. Correct values and source row counts matter more than attractive JSON or charts.
+**How do you use it?** Compare extracted values with the receipt, then check the CSV's nine rows and monthly totals. Correct values and evidence matter more than attractive JSON or charts.
 
-**Where do you run it?** Open the English [receipt.html](../../data/en/receipt.html) in a browser and read it alongside the [expected-results file](../../data/en/receipt.expected.json) and [expense CSV](../../data/en/monthly-spend.csv). Inference, analyzers, and Code Interpreter each require a supported portal/service and cost approval; simply opening a file does not count as completing a service execution.
+**Where do you run it?** The English [receipt](../../data/en/receipt.html), [expected values](../../data/en/receipt.expected.json), and [CSV](../../data/en/monthly-spend.csv) are local files. Actual extraction and calculations need each tool's supported environment and cost approval.
 
 ## Prerequisites
 
@@ -46,7 +46,7 @@ Open `data/en/receipt.html` and choose **Print → Save as PDF**. Reopen it and 
 
 In L03's model Playground, select **your own image-capable deployment**. Attach the PNG, inspect its preview, and send the following question once. If attachments are unavailable or the format is rejected, check model/input support before changing the default model in `.env`.
 
-```text
+```prompt
 Extract the document number, date, currency, items, quantities, unit prices,
 total, and purchase approval status from this synthetic receipt.
 Use null for values that are not visible; do not guess.
@@ -122,7 +122,7 @@ For OCR/layout alone, compare Document Intelligence. One correct document does n
 
 In a lab agent's **Tools**, connect Code Interpreter or a Toolbox containing it and save the version. This is different from uploading the CSV to File search. Attach `data/en/monthly-spend.csv` in a new conversation and verify its name. If this UI is unavailable, review the supported path in the [official Code Interpreter documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/code-interpreter) with the administrator; do not run the sample's cleanup code without approval.
 
-```text
+```prompt
 Calculate monthly expense totals from the CSV and create a bar chart.
 Include the source row count, monthly totals, and overall total.
 Do not add data that is not in the CSV.

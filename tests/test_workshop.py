@@ -1,4 +1,5 @@
 import contextlib
+from copy import deepcopy
 import io
 import json
 from pathlib import Path
@@ -141,6 +142,98 @@ class BoundaryTests(unittest.TestCase):
             path.write_text(json.dumps(value))
             with self.assertRaises(ValueError):
                 w.read_receipt(path, "expected")
+
+
+class SavedResultTests(unittest.TestCase):
+    def setUp(self):
+        self.row = {
+            "id": "manual-01", "status": "completed", "query": "Synthetic Contoso request",
+            "response": "Original answer.\nNot a real order.", "response_id": "resp_synthetic",
+            "configuration": {
+                "language": w.LANGUAGE, "agent_name": "contoso-fixture",
+                "agent_version": "7", "model_deployment": "synthetic-chat",
+            },
+            "tool_calls": [{
+                "name": "prepare_purchase_request", "call_id": "call_synthetic",
+                "arguments": '{"sku":"NB-14","quantity":2}',
+                "output": {"ok": True, "result": {"total_krw": 2900000, "order_submitted": False}},
+            }],
+            "citations": [{"type": "file_citation", "file_id": "file_synthetic", "filename": "policy.md"}],
+        }
+
+    def test_reading_is_local_and_preserves_original_files_and_values(self):
+        for language in ("ko", "en"):
+            with self.subTest(language=language), tempfile.TemporaryDirectory() as directory:
+                row = deepcopy(self.row)
+                row["configuration"]["language"] = language
+                path = Path(directory) / "responses.jsonl"
+                path.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+                original = path.read_bytes()
+                with (
+                    patch.object(w, "LANGUAGE", language),
+                    patch.object(w, "run_live", side_effect=AssertionError("No Azure calls")),
+                    patch.object(w, "read_config", side_effect=AssertionError("No .env or credentials")),
+                    contextlib.redirect_stdout(io.StringIO()) as output,
+                ):
+                    self.assertEqual(w.main(["read-result", "--input", str(path)]), 0)
+                text = output.getvalue()
+                for value in (row["response"], row["response_id"], row["query"], "call_synthetic",
+                              "2900000", '"order_submitted": false', "file_synthetic", "policy.md"):
+                    self.assertIn(value, text)
+                self.assertIn("no automatic quality verdict" if language == "en" else "품질 자동 판정 아님", text)
+                self.assertEqual(path.read_bytes(), original)
+                self.assertEqual(list(Path(directory).iterdir()), [path])
+
+    def test_failed_rows_remain_failures_alongside_completed_rows(self):
+        failed = {
+            "id": "manual-02", "status": "failed", "query": "Synthetic failed request",
+            "response": "", "error_type": "RuntimeError", "configuration": self.row["configuration"],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "responses.jsonl"
+            path.write_text("\n".join(json.dumps(row) for row in (self.row, failed)) + "\n")
+            with contextlib.redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(w.main(["read-result", "--input", str(path)]), 1)
+            self.assertIn("failed", output.getvalue())
+            self.assertIn("RuntimeError", output.getvalue())
+            self.assertIn(self.row["response"], output.getvalue())
+
+    def test_empty_observations_do_not_invent_evidence(self):
+        self.row.update(tool_calls=[], citations=[])
+        text = w.format_saved_responses([self.row])
+        self.assertIn("[]", text)
+        self.assertNotIn("2900000", text)
+        self.assertNotIn("file_synthetic", text)
+
+    def test_rejected_tool_output_is_not_replaced_with_a_draft(self):
+        self.row["tool_calls"][0]["output"] = {
+            "ok": False, "error": {"code": "invalid_tool_request", "message": "Insufficient stock"},
+        }
+        text = w.format_saved_responses([self.row])
+        self.assertIn('"ok": false', text)
+        self.assertIn("Insufficient stock", text)
+        self.assertNotIn("2900000", text)
+
+    def test_malformed_and_foreign_records_are_explicit_errors(self):
+        defects = [
+            {"status": "incomplete"}, {"response": ""}, {"response_id": None},
+            {"tool_calls": None}, {"citations": None}, {"tool_calls": [{}]},
+            {"configuration": {"language": "other"}}, {"query": ""},
+            {"agent_name": "another-agent"}, {"agent_version": "different-version"},
+        ]
+        for changes in defects:
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                w.format_saved_responses([{**self.row, **changes}])
+        for record in ({}, {"schema": "contoso-lab-resources-v1"}, {"comparison": {}}):
+            with self.subTest(record=record), self.assertRaises(ValueError):
+                w.format_saved_responses([record])
+        with self.assertRaises(ValueError):
+            w.format_saved_responses([])
+
+    def test_live_option_is_not_supported_by_the_reader(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+            w.main(["read-result", "--input", "not-used.jsonl", "--live"])
+        self.assertEqual(error.exception.code, 2)
 
 
 if __name__ == "__main__":

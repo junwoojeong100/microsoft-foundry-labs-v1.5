@@ -45,7 +45,7 @@ button, select { cursor: pointer; }
 a { color: var(--accent); text-underline-offset: 4px; }
 a:hover { text-decoration-thickness: 2px; }
 button { color: inherit; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
   outline: 3px solid var(--accent); outline-offset: 4px;
 }
 [hidden] { display: none !important; }
@@ -95,6 +95,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .progress-card strong { color: var(--heading); }
 .progress-card span, .progress-card small { color: var(--muted); }
 .progress-card small { font-size: 11px; }
+.reader-help { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: -8px 0 20px; }
+.reader-help a { font-size: 13px; padding: 4px 0; }
+.path-scope { font-size: 13px; line-height: 1.65; padding: 10px; background: var(--amber-soft); color: var(--amber); border-radius: 8px; }
+.return-to-lab { display: inline-block; margin-bottom: 16px; font-size: 14px; }
 progress { display: block; width: 100%; height: 5px; border: 0; border-radius: 10px; margin: 10px 0 5px; background: var(--border); accent-color: var(--accent); }
 progress::-webkit-progress-bar { background: var(--border); border-radius: 10px; }
 progress::-webkit-progress-value { background: var(--accent); border-radius: 10px; }
@@ -192,7 +196,8 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-soft), t
 pre { position: relative; background: var(--code); color: var(--code-text); margin: 23px 0; padding: 38px 20px 20px; border-radius: 10px; overflow: auto; tab-size: 4; line-height: 1.75; word-break: normal; }
 pre code { font: 15px/1.75 ui-monospace, SFMono-Regular, Consolas, "Apple SD Gothic Neo", "Malgun Gothic", monospace; white-space: pre; }
 pre code.language-text { white-space: pre-wrap; overflow-wrap: anywhere; }
-.code-label { position: absolute; top: 10px; left: 20px; color: #a6c3d1; font: 11px/1.5 ui-monospace, monospace; }
+pre code:is(.language-bash, .language-powershell, .language-prompt, .language-instructions, .language-env, .language-output) { white-space: pre-wrap; overflow-wrap: anywhere; }
+.code-label { position: absolute; top: 10px; left: 20px; max-width: calc(100% - 95px); white-space: normal; color: #a6c3d1; font: 11px/1.5 ui-monospace, monospace; }
 .copy-button { position: absolute; right: 9px; top: 8px; color: #d4e9f2; background: #ffffff12; border: 1px solid #ffffff26; padding: 3px 10px; font-size: 12px; border-radius: 5px; min-height: 28px; }
 .copy-button:hover { background: #ffffff26; }
 details { margin: 26px 0; border: 1px solid var(--border); padding: 0 18px; border-radius: 9px; background: var(--surface-soft); }
@@ -239,6 +244,18 @@ details .table-wrap { background: var(--surface); }
   .hero-orbit { right: -130px; opacity: .45; }
   .edition { display: none; }
 }
+@media screen and (max-width: 1180px) {
+  .js .command-explanation { padding-left: 0; border-left: 0; }
+  .js .command-explanation .table-wrap { overflow: visible; border: 0; }
+  .js .command-explanation table { min-width: 0; }
+  .js .command-explanation thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .js .command-explanation tbody, .js .command-explanation tr, .js .command-explanation td { display: block; width: 100%; min-width: 0; }
+  .js .command-explanation tr { margin: 12px 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .js .command-explanation td { padding: 10px 12px; border: 0; }
+  .js .command-explanation td:first-child { font-weight: 750; background: var(--surface-soft); }
+  .js .command-explanation td + td::before { content: attr(data-label); display: block; font-weight: 700; font-size: 14px; color: var(--heading); margin-bottom: 4px; }
+  .js .command-explanation td:last-child { border-top: 1px solid var(--border); }
+}
 @media (max-width: 850px) {
   .topbar { height: 70px; padding: 0 20px; }
   .brand strong { font-size: 16px; }
@@ -282,7 +299,7 @@ details .table-wrap { background: var(--surface); }
   .lab-brief, .recorded-answer { padding: 12px; }
   table { min-width: 420px; }
   th, td { padding: 10px; font-size: 14px; }
-  pre { padding-left: 14px; padding-right: 14px; }
+  pre { padding: 56px 14px 20px; }
   pre code { font-size: 14px; }
   .source-notes summary { font-size: 13px; }
   .search-results { padding: 25px 20px; }
@@ -295,7 +312,7 @@ details .table-wrap { background: var(--surface); }
   @page { size: A4; margin: 15mm 13mm; }
   :root, :root[data-theme="dark"] { color-scheme: light; --surface: #fff; --surface-soft: #f4f6f7; --bg: #fff; --text: #192e3e; --heading: #142838; --muted: #4b606d; --border: #c5d2da; --accent: #006366; --accent-soft: #eef8f4; --amber: #664619; --amber-soft: #fff8e9; }
   body { font-size: 11pt; background: #fff; }
-  .topbar, .sidebar, .skip-link, .hero, .reader-note, .site-footer, .section-nav, .completion, .chapter-pagination, .copy-button, .code-label, .toast, .search-results, .storage-warning { display: none !important; }
+  .topbar, .sidebar, .skip-link, .hero, .reader-note, .site-footer, .section-nav, .completion, .chapter-pagination, .copy-button, .code-label, .toast, .search-results, .storage-warning, .return-to-lab { display: none !important; }
   .layout { display: block; max-width: none; }
   main { padding: 0; max-width: none; }
   body[data-print="all"] .print-cover { display: block; break-after: page; }

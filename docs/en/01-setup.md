@@ -16,13 +16,13 @@ Separate the **permissions, incorrect endpoints, supported regions, and quota** 
 
 ## Concepts and lab map
 
-**What you will try:** Connect the Foundry project's scope, a model deployment, Entra sign-in, and a Python virtual environment.
+**What you will try:** Find the supplied project and prepare your PC to run the lab files.
 
-**What is it, and why does it matter?** A subscription defines a billing and management scope; a resource group collects resources; a Foundry resource is the parent service boundary; and a project is a workspace for agents and connections. Knowing a project's address does not grant permission to call it. Sign-in answers “Who are you?”, roles answer “What can you do?”, and quota answers “How much can you use?” Keeping these separate helps you avoid unnecessarily recreating resources or expanding permissions to fix an authentication error.
+**What is it, and why does it matter?** A subscription is a billing scope; a project is a workspace for agents. Sign-in answers “Who are you?”, roles answer “What can you do?”, and quota answers “How much can you use?” Knowing an address does not grant access.
 
-**How do you use it?** Confirm the project and model supplied by your instructor in the portal, prepare the local environment, and configure the endpoint and deployment name. Skip the administrator-only creation commands if a project is already provided. Until you receive a real response in L03, you have prepared an environment—not demonstrated a successful model call.
+**How do you use it?** Match the portal to your instructor's information, prepare Python, and save the endpoint and deployment name in `.env`. L03 checks the actual connection.
 
-**Where do you run it?** Use the portal to check the project and endpoints, and a terminal to check Python, install packages, and sign in with the CLI. Open [.env.example](../../.env.example), the [management script](../../scripts/azure_environment.py), and the [infrastructure definition](../../infra/main.bicep) together to see which settings create which resources.
+**Where do you run it?** Use the browser for the project and VS Code for the terminal and [.env.example](../../.env.example). The [management script](../../scripts/azure_environment.py) and [infrastructure](../../infra/main.bicep) are administrator references, not required first reading.
 
 ## Prerequisites
 
@@ -46,6 +46,8 @@ If these are missing, **continue local exercises but stop before Azure creation 
 | Data | This guide's English synthetic data in `data/en/` | Do not upload real customer or employee information |
 | Budget | A per-person or team limit and someone responsible for stopping usage | Budget alerts do not enforce a hard billing cutoff |
 
+<a id="l01-pc"></a>
+
 ### Start on a new PC
 
 Use your organization's approved installation route for [Python 3.13](https://www.python.org/downloads/), [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli), and [VS Code](https://code.visualstudio.com/download). Do not reinstall existing tools. Local-only exercises need neither Azure CLI nor Azure sign-in.
@@ -55,6 +57,8 @@ Extract the ZIP and choose **VS Code → File → Open Folder**, selecting the f
 In Windows PowerShell, use **`py -3.13`** instead of the following `python3` commands before creating a virtual environment. Afterward use `.venv\Scripts\python.exe`. Execute **only your operating system's block**, not both the macOS/Linux and Windows alternatives.
 
 ## Steps
+
+<a id="l01-language"></a>
 
 ### 1. Select the English profile and prepare the project
 
@@ -93,6 +97,8 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 </div>
 
 **All later commands assume this per-terminal selection**, including commands in separate server/client terminals. Reselect the profile and the appropriate Python environment after opening a new terminal. The browser's language switch does not set it, and an absent flag keeps the original Korean default. The [English profile manifest](../../data/en/profile-manifest.json) describes the inputs and unchanged business rules. Explicit file options must also point to `data/en/`; the flag does not translate an explicitly supplied Korean file. L14's generated Hosted packages record the selected language in `lab-profile.json`.
+
+**Without an Azure account, continue to [step 4's local checks](#l01-local) now.** Skip project selection, access checks, and CLI sign-in.
 
 1. Open the [Foundry portal](https://ai.azure.com) and sign in with the account specified by your instructor.
 2. Check that **New Foundry** is on. Select the supplied project using the selector at the upper left.
@@ -180,6 +186,8 @@ The project region, supported model regions, deployment type, and quota are sepa
 
 Review automated evaluation options under **Metrics** in the agent playground. Deselect evaluations you do not need. Playground evaluations can also incur charges. Costs may include File search, Search, Code Interpreter, logs, and the hosted runtime—not just inference.
 
+<a id="l01-local"></a>
+
 ### 4. Prepare the local exercise environment
 
 Run one line at a time from your English lab folder, with `FOUNDRY_LAB_LANGUAGE=en` still selected. On Windows use `py -3.13` as explained above.
@@ -195,18 +203,20 @@ python3 samples/workshop.py validate-data
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `doctor` | Checks the current Python installation and required tools. It does not automatically install or repair them. | Read the diagnostic items in the terminal. No Azure sign-in or model calls. |
+| 1. `doctor` | Shows the Python version, whether `.env` exists, and Azure SDK package installation. It does not check Azure CLI installation, sign-in, connectivity, or repair anything. | Read the diagnostic items in the terminal. No Azure sign-in or model calls. |
 | 2. `validate-data` | Locally checks the English learning data's format, scenario IDs, and original split under `data/en/`. | Checks data structure only, not model quality or an independent release exam. |
 
 </div>
 
 The second command prints the following. `dev` and `holdout` name two groups in the bundled, already exposed learning data. For now, check the counts and lack of overlap; this is neither L08's 12-question comparison nor a fresh sealed release test.
 
-```text
+```output
 Validated 20 cases: dev=10, holdout=10; scenario overlap=0; inventory=3.
 ```
 
 This check **requires no Azure account, network connection, or external packages**. A `doctor` entry saying `not installed (needed only for --live)` identifies a package needed before Azure calls, not a failure of this local data check.
+
+**For local-only work, stop installation and sign-in here.** Use the same `python3` (Windows: `py -3.13`) for L06's local functions. The virtual environment below and step 5 prepare you for Azure code exercises.
 
 Install packages only when you are ready to call Azure from code.
 
@@ -250,7 +260,29 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
 </div>
 
-Subsequent `python` commands refer to this environment's Python. If PowerShell activation is restricted, use `.venv\Scripts\python.exe` directly.
+**One rule for later commands:** `python` means **the Python in this virtual environment**. On Windows, replace every `python ...` with `.\.venv\Scripts\python.exe ...`. Do not change execution policy or reinstall into global Python.
+
+<a id="l01-new-terminal"></a>
+
+#### When you open a new terminal or return another day
+
+Open the same lab folder and run **this one check**. The printed path must contain this folder's `.venv`. Also reselect the [English profile](#l01-language) in the new terminal.
+
+```bash
+python -c "import sys; print(sys.executable)"
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `python -c` | The short Python code after `-c` prints the current interpreter path. On Windows replace `python` with `.\.venv\Scripts\python.exe`. | Local inspection only. If the path is wrong, macOS/Linux users rerun `source .venv/bin/activate` from above. Do not reinstall packages. |
+
+</div>
+
+**A successful command using a different Python is not a ready environment.** Check both terminals when opening two in L07.
 
 ### 5. Configure endpoints and authentication
 
@@ -260,7 +292,7 @@ Subsequent `python` commands refer to this environment's Python. If PowerShell a
 
 Copy the project endpoint from **Manage → Project details** or the project's landing page. **Open `.env` in VS Code**, replace only the right-hand sides of these two `=` signs, and save. Ensure the filename is `.env`, not `.env.txt`. Do not paste this settings block into the terminal.
 
-```text
+```env
 FOUNDRY_PROJECT_ENDPOINT=https://your-foundry-resource.services.ai.azure.com/api/projects/contoso-workshop-en
 FOUNDRY_MODEL_DEPLOYMENT_NAME=your-model-deployment-name
 ```
@@ -268,6 +300,8 @@ FOUNDRY_MODEL_DEPLOYMENT_NAME=your-model-deployment-name
 Replace `your-foundry-resource` and `your-model-deployment-name` with your actual resource and model deployment names; verify the entire endpoint against your approved English project. **Do not append `/openai/v1` to the project endpoint.** The SDK constructs the correct path. Do not add an API key or copy another run's `.env`.
 
 Set `.env`'s `FOUNDRY_JUDGE_DEPLOYMENT_NAME` to the supplied grading-model deployment **only if running a new evaluation in L08**. Reading the existing results does not require it. Leave unused optional settings empty.
+
+The **`.env`** settings file and **`.venv`** Python folder are different. Saving `.env` does not select Python or sign in to Azure.
 
 ```bash
 az login

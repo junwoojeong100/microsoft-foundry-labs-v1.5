@@ -18,13 +18,13 @@ Do not describe this as validation of the Responses, Voice, or Teams protocols.
 
 ## Concepts and lab map
 
-**What you will try:** Packaging custom agent code, running a local server, deploying to managed Hosted infrastructure, and invoking a pinned version.
+**What you will try:** Move agent code from your PC to a Foundry server.
 
-**What is it, and why does it matter?** For a Prompt Agent, the service executes the declared instructions and tools; for a Hosted Agent, a managed environment runs server code that you wrote. To address the fact that L06's local functions do not run automatically from Teams or a schedule, you need to move the executor to a server. The data, dependencies, environment variables, and input/output protocol must match—not just the code. This is why you verify deployment success separately from a successful business response.
+**What is it, and why does it matter?** A Hosted Agent runs your code in Foundry. Choose it when functions need a server rather than your open terminal. Code, data, settings, and the communication protocol must agree.
 
-**How do you use it?** Inspect the local package's files and hashes, start the server, and send a request that follows the same contract. Deploy only to a prepared project and invoke a numerically specified version. Compare the function results, citations, and runtime hash in the response with the local contract. The Responses adapter is a separate interface for Optimizer integration; do not confuse it with the default Invocations path.
+**How do you use it?** Build the package → call locally → deploy with approval → call the same remote version. Start with Invocations; the Responses adapter for Optimizer is optional.
 
-**Where do you run it?** [azure.yaml](../../azure.yaml) defines the services, entry point, and protocol; [build_hosted.py](../../scripts/build_hosted.py) defines the bundled files; [hosted/main.py](../../hosted/main.py) is the server entry point; and [hosted_runtime.py](../../samples/hosted_runtime.py) is the business engine. Check Hosted/Prompt types and versions in the portal, and run and deploy the code from a terminal.
+**Where do you run it?** Execute and deploy in the terminal; inspect type and version in the portal. Find the [configuration](../../azure.yaml), [packaging](../../scripts/build_hosted.py), [server entry point](../../hosted/main.py), and [business code](../../samples/hosted_runtime.py).
 
 ## Prerequisites
 

@@ -16,17 +16,17 @@
 
 ## Concepts and lab map
 
-**What you will try:** Separating responsibilities across identities, RBAC scopes, Control Plane, AI Gateway, and private networks.
+**What you will try:** Repair the order of permission checks and map user → tool → data responsibilities.
 
-**What is it, and why does it matter?** RBAC defines what a particular principal may do within a particular scope, while networks define the paths over which connections are possible. A gateway is an entry point for routing requests or applying limits; it does not replace permissions on the source data. Putting a document authorized for employee A into a shared cache and serving it to B can happen even on a private network. That is why understanding actual authentication and data flows matters more than a green status on a screen.
+**What is it, and why does it matter?** Identity is the caller, RBAC defines role-based access, and scope is where access applies. A secure network or gateway does not fix a cache serving A's document to B.
 
-**How do you use it?** Draw the identities, permissions, and networks at each step of a request's path: user → agent → tool → data. In the portal, distinguish Manage for the current project from Operate's view across assets. Before changing policies, design the allow/deny conditions and identify who is responsible for auditing.
+**How do you use it?** Repair the local exercise, then record each step's caller, allowed operations, and rejection conditions. This does not change actual permissions or networks.
 
-**Where do you run it?** The default path is read-only portal inspection and design. [infra/main.bicep](../../infra/main.bicep) and [runtime_roles.py](../../scripts/runtime_roles.py) are reference code for understanding this kit's scope; opening them to read is different from executing them to grant roles.
+**Where do you run it?** Start with Python on your PC and a design table. The [infrastructure](../../infra/main.bicep) and [role setup](../../scripts/runtime_roles.py) are references to read, not execute.
 
 ## Prerequisites
 
-The default exercise is design and read-only inspection. Turn the Contoso example into your own **principal → operation → scope → deny condition → owner** table. Without Azure access, complete it as a design, not a verified permission test. Real roles, gateways, private endpoints, and policy changes require administrator involvement and separate approval.
+The default exercise is a local Python repair plus design. Prepare L01's Python, then turn the Contoso example into your **principal → operation → scope → deny condition → owner** table. No Azure account is needed; do not record it as verified Azure permissions. Real roles, gateways, private endpoints, and policy changes require administrator involvement and separate approval.
 
 ## Steps
 

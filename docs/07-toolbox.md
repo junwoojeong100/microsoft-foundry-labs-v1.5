@@ -17,17 +17,17 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 로컬 HTTP API, OpenAPI 계약, MCP 도구 발견·호출, 선택형 Toolbox/Skill 연결입니다.
+**경험할 기능:** 같은 재고 조회를 HTTP와 MCP라는 두 연결 방식으로 호출합니다.
 
-**무엇이며 왜 중요한가요?** OpenAPI는 HTTP 요청·응답의 모양을 설명하고, MCP는 클라이언트가 어떤 도구가 있는지 알아보고 호출하는 절차를 표준화합니다. Toolbox는 여러 연결을 버전 있는 묶음으로 재사용하게 하고, Skill은 작업 지침을 제공합니다. 서로 대체하는 이름이 아닙니다. 연결이 늘수록 “누가 어떤 이름의 도구를 어떤 인수로 실행했는가”를 분명히 해야 재현과 권한 통제가 가능합니다.
+**무엇이며 왜 중요한가요?** OpenAPI는 요청·응답 설명서, MCP는 도구를 찾아 호출하는 공통 통신 방식입니다. Toolbox는 도구 묶음, Skill은 수행 지침입니다. 어느 것도 업무 승인 자체는 아닙니다.
 
-**어떻게 사용하나요?** 먼저 HTTP 응답을 원본 계약과 비교하고, 다음으로 MCP의 목록 조회와 실제 호출을 구분합니다. 도구 이름·인수를 검토한 후 그 한 호출만 승인하세요. 클라우드 확장은 같은 개념에 원격 인증·버전 고정을 추가하는 단계입니다.
+**어떻게 사용하나요?** 로컬 서버의 재고 응답을 읽은 뒤 MCP로 같은 값을 조회합니다. 도구 목록에 있다는 것과 실제 호출됐다는 것을 구분합니다.
 
-**어디서 실행하나요?** 기본은 터미널 두 개를 쓰는 로컬 실습입니다. [HTTP 서버](../samples/inventory_api.py), [OpenAPI](../samples/inventory.openapi.json), [MCP 서버](../samples/mcp_server.py), [클라이언트](../samples/toolbox_lab.py), [Skill 원문](../data/skills/purchase-review/SKILL.md)을 비교하면 프로토콜과 업무 코드의 경계가 보입니다.
+**어디서 실행하나요?** 내 PC의 터미널 두 개를 사용합니다. [HTTP 서버](../samples/inventory_api.py)·[OpenAPI](../samples/inventory.openapi.json)·[MCP 서버](../samples/mcp_server.py)·[클라이언트](../samples/toolbox_lab.py)가 동봉되어 있습니다. [Skill](../data/skills/purchase-review/SKILL.md)은 선택 확장입니다.
 
 ## 준비
 
-Python 기본 환경에 `requirements-tools.txt`를 설치합니다.
+L01의 Python 가상환경에 `requirements-tools.txt`를 설치합니다. 가상환경이 없다면 L01의 **가상환경 생성 단계**를 먼저 진행하되 Azure 로그인은 하지 않아도 됩니다. 설치에는 인터넷과 승인된 패키지 저장소 접근이 필요하지만 **기본 1–2단계에는 Azure 계정이 필요 없습니다.**
 클라우드 단계는 L13의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
 **기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
 3–4단계의 클라우드 Toolbox/Skills는 L13 자원 준비 후 선택하는 확장입니다.
@@ -69,6 +69,8 @@ python samples/inventory_api.py
 
 두 번째 터미널에서 같은 실습 폴더를 열고 Python 환경을 다시 선택합니다. **Windows PowerShell에서는 아래 `curl` 대신 `curl.exe`를 사용**해 다른 PowerShell 명령과의 이름 충돌을 피합니다.
 
+첫 터미널의 대기 화면은 그대로 두세요. 두 번째 터미널의 준비가 기억나지 않으면 [L01 새 터미널 확인](#l01-new-terminal)으로 돌아갑니다.
+
 ```bash
 curl --fail http://127.0.0.1:8766/health
 curl --fail http://127.0.0.1:8766/inventory/NB-14
@@ -90,6 +92,8 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 터널로 외부 공개하지 않습니다.
 
 ### 2. 동봉 MCP 서버를 실제 호출
+
+서버가 대기 중인 첫 터미널이 아니라 **두 번째 터미널**에서 이어 실행합니다. 이 단계의 MCP 서버는 명령이 따로 시작하므로 서버 창을 하나 더 열 필요가 없습니다.
 
 ```bash
 python samples/toolbox_lab.py inspect --local

@@ -1,6 +1,6 @@
 > **모델은 생각하고, agent는 목표를 수행하고, 도구는 실제 기능을 제공하며, 운영 계층은 그 행동을 확인·통제합니다.**
 
-## 한 줄 용어 사전
+## 시작·PC 준비
 
 | 용어 | 쉬운 뜻 | 혼동하지 않을 것 |
 | --- | --- | --- |
@@ -12,18 +12,27 @@
 | CLI / Terminal / SDK | 명령줄 도구 / 명령을 입력하는 창 / 코드에서 서비스를 쓰는 라이브러리 | 세 가지 모두 설치하는 하나의 앱 |
 | `.env` / venv | 프로젝트 설정 파일 / Python 패키지를 분리하는 폴더 | 같은 환경 기능 |
 | JSON / JSONL | 이름과 값으로 쓰는 데이터 / 한 줄에 JSON 하나인 기록 파일 | 터미널에서 실행할 명령 |
+| `true` / `false` / `null` | 참 / 거짓 / 값 없음. 예: `order_submitted=false`는 주문하지 않았다는 뜻 | `null`을 성공·0원·문제없음으로 해석 |
 | Receipt | 실습이 만든 자원 ID·소유 범위를 기록한 파일 | 결제 영수증이나 삭제 승인 자체 |
 | RBAC / Scope | 역할 기반 권한 / 그 권한이 적용되는 범위 | 로그인만 하면 얻는 전체 권한 |
 | Foundry resource | 보안·관리·청구 관련 자원을 묶는 상위 Azure 자원 | agent 한 개 |
 | Project | agent·연결·데이터 등의 작업 공간 | Classic hub |
+
+## 모델·문서·도구
+
+| 용어 | 쉬운 뜻 | 혼동하지 않을 것 |
+| --- | --- | --- |
 | Model ID | 공급자가 정의한 모델 이름 | 내 deployment name |
 | Model version | 모델의 특정 버전 | agent version |
 | Deployment | API로 호출하도록 준비한 모델 | 모델 카탈로그 카드 |
+| Prompt / Instructions | 이번 요청에 보내는 입력 / 에이전트가 따를 공통 지시문 | 실제 권한이나 회사 문서 자체 |
+| Token / Latency | 모델이 입력·출력을 처리하는 조각 단위 / 응답까지 걸린 시간 | 토큰을 단어 수·글자 수·비용 금액과 같다고 생각 |
 | Prompt Agent | model·instructions·tools로 정의한 관리형 agent | prompt 문자열 하나 |
 | Hosted Agent | 내 코드/프레임워크를 Foundry에서 실행 | 로컬 Python 실행 |
 | Conversation | 여러 turn의 대화 맥락 | 장기 memory |
 | Response | 한 번의 모델/agent 실행 결과 | 최종 텍스트만 |
 | Tool | agent가 호출할 수 있는 기능 | 호출 허가 자체 |
+| SKU / Schema | 여기서는 `NB-14` 같은 품목 코드 / 입력·출력 이름과 타입의 약속 | Azure 배포의 SKU는 서비스 유형이며 품목 코드와 다른 문맥 |
 | Function calling | 모델 요청을 앱의 함수가 실행하는 패턴 | 모델 안의 Python 실행 |
 | MCP | 도구/맥락을 연결하는 공통 protocol | 권한을 주는 보안 정책 |
 | OpenAPI | HTTP API 입력·출력 계약 | API를 배포하는 플랫폼 |
@@ -31,9 +40,16 @@
 | Toolbox | 관리형 도구 묶음과 MCP endpoint | 모든 도구 유형을 무조건 담는 상자 |
 | Skill | 반복 수행 방법을 재사용 가능하게 묶음 | role assignment |
 | RAG | 검색한 근거를 이용한 답 생성 | 모델 가중치 학습 |
+| Vector store / Indexing | 검색용 문서 보관소 / 문서를 검색할 수 있게 처리하는 과정 | 파일 업로드 완료를 검색 준비 완료로 처리 |
+| Citation | 답변의 주장을 뒷받침하는 실제 근거 연결 | 모델이 적은 파일 이름만으로 근거 확인 완료 |
 | Embedding | 의미를 수치 벡터로 표현 | 자연어 정답 |
 | Hybrid search | keyword와 vector를 함께 사용 | multi-agent |
 | Foundry IQ | 여러 소스의 기업 지식 검색 계층 | Fabric/Work IQ의 새 이름 |
+
+## 평가·운영·심화
+
+| 용어 | 쉬운 뜻 | 혼동하지 않을 것 |
+| --- | --- | --- |
 | Memory | 대화 사이에 유지할 기억 | 원본 회사 규정 저장소 |
 | Routine | 시간/이벤트에 agent를 호출 | 복잡한 orchestration 자체 |
 | Autopilot | agent user account를 포함한 조직의 지속적 agent | 모든 자동 실행 |

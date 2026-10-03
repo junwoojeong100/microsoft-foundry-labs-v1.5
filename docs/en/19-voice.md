@@ -16,13 +16,13 @@
 
 ## Concepts and lab map
 
-**What you will try:** Speech recognition, speech synthesis, real-time turn detection, user interruption, and session termination.
+**What you will try:** Speak a quantity, correct it, and end the voice conversation.
 
-**What is it, and why does it matter?** STT converts sound into text, TTS converts text into sound, and a Voice Agent also manages conversation state and response timing between them. Even an answer that is correct in text can mishear an amount or miss a corrected quantity in voice. Usability requires checking not just content accuracy, but when the agent listens, speaks, and stops.
+**What is it, and why does it matter?** STT converts sound to text; TTS converts text to sound. A Voice Agent also decides when to listen and respond. Turn detection identifies the end of speech and can mistake a mid-sentence pause for the end.
 
-**How do you use it?** Start with a short synthetic sentence, then test quantity recognition → confirmation question → interruption → quantity correction → termination. The user grants microphone permission directly in the browser. End the session before changing settings, and compare the resulting transcripts and latency.
+**How do you use it?** Check the correction from two units to one, interruption, and session termination. For an additional comparison, end the session before changing only the silence setting.
 
-**Where do you run it?** Voice input takes place in a browser with a real microphone and speakers. This guide's headless portal captures show where settings are located; they are not evidence of a successful voice conversation. The supplied instructions use this chapter's synthetic scenario and do not include real customer calls or custom voice training.
+**Where do you run it?** Use a browser with a microphone and speakers, granting permission yourself. The supplied images show settings, not successful voice execution. Do not use real customer calls.
 
 ## Prerequisites
 
@@ -42,7 +42,7 @@ Learners proceeding with the lab should enter a **Voice agent goal** such as “
 
 Instructions:
 
-```text
+```instructions
 You are a Contoso purchasing guidance lab assistant.
 Speak briefly in English and confirm one thing at a time.
 Reconfirm amounts and quantities.

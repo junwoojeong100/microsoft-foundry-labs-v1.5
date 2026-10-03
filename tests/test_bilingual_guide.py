@@ -17,7 +17,7 @@ from check_guide import CONCEPT_LABELS, GuideParser, LAB_HEADINGS, command_cover
 
 
 def executable_blocks(text):
-    return re.findall(r"^```(bash|powershell|python|json|yaml)\n(.*?)^```[^\S\n]*$", text, re.M | re.S)
+    return re.findall(r"^```(bash|powershell|python|json|yaml|prompt|instructions|env)\n(.*?)^```[^\S\n]*$", text, re.M | re.S)
 
 
 def shell_commands(text):
@@ -107,10 +107,10 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["pages_branch"], "gh-pages")
         expected = {
             "en": ("index.html", "downloads/GUIDE.en.md", "downloads/" + release["artifact"] + ".en.pdf",
-                   "portal-screenshots.en.json", 18, 60, 123,
+                   "portal-screenshots.en.json", 18, 63, 126,
                    "validation/current/instructions.json", "data/en/receipt.html"),
             "ko": ("index.ko.html", "downloads/GUIDE.ko.md", "downloads/" + release["artifact"] + ".pdf",
-                   "portal-screenshots.json", 17, 58, 121,
+                   "portal-screenshots.json", 17, 61, 124,
                    "validation/current/instructions.json", "data/receipt.html"),
         }
         for language, values in expected.items():

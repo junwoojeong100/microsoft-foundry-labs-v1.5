@@ -16,13 +16,13 @@
 
 ## 개념과 실습 지도
 
-**경험할 기능:** File search의 파일 업로드·인덱싱·검색·citation입니다.
+**경험할 기능:** File search로 회사 규정을 찾아 근거와 함께 답합니다.
 
-**무엇이며 왜 중요한가요?** RAG는 질문과 관련된 문서를 먼저 찾고 그 근거로 답하게 하는 방식입니다. 모델을 다시 학습시키는 작업이 아닙니다. Vector store는 검색할 수 있도록 문서를 처리해 보관하는 공간이고, citation은 답변의 근거 위치를 연결하는 정보입니다. 규정이 자주 바뀌는 업무에서는 기억에 의존한 답보다 최신 문서를 확인할 수 있는 답이 중요합니다. 다만 출처 이름을 출력하는 것만으로 실제 검색이 증명되지는 않습니다.
+**무엇이며 왜 중요한가요?** RAG는 **문서 검색 후 답변하기**입니다. 모델을 다시 학습시키지 않습니다. Vector store는 검색용 문서 보관소, citation은 답의 근거로 연결되는 인용입니다.
 
-**어떻게 사용하나요?** 원문 세 개를 읽고 정답의 위치를 표시한 뒤 업로드합니다. 인덱싱 완료를 확인하고 단일 문서·교차 문서·없는 정보 질문을 순서대로 보냅니다. 답변 숫자뿐 아니라 클릭한 근거가 실제 문서의 해당 절인지 확인하세요.
+**어떻게 사용하나요?** 정책 3개를 읽고 업로드한 뒤 검색 준비 완료를 기다립니다. 세 질문의 답과 실제 인용을 원문에 대조합니다. 파일 이름만 적힌 답은 인용 확인이 아닙니다.
 
-**어디서 실행하나요?** 포털에서 File search 연결과 인용을 관찰하고, 선택 SDK로 같은 수명주기를 재현합니다. [구매 정책](../data/policies/procurement-policy.md), [경비 정책](../data/policies/expense-policy.md), [보안 정책](../data/policies/security-policy.md)이 유일한 업무 근거입니다. 구현은 [workshop.py](../samples/workshop.py)에 있습니다.
+**어디서 실행하나요?** L04의 포털 에이전트에 [구매](../data/policies/procurement-policy.md)·[경비](../data/policies/expense-policy.md)·[보안 정책](../data/policies/security-policy.md)을 연결합니다. [SDK](../samples/workshop.py)는 선택 경로입니다.
 
 ## 준비
 
@@ -42,9 +42,11 @@ L04의 agent와 `data/policies/`의 Markdown 파일 3개를 사용합니다. 저
 
 ### 2. File search 연결하기
 
-Agent builder의 **Tools/Knowledge**에서 **File search**를 추가합니다. UI가 Toolbox 연결을 제시하면 file-search 도구를 담은 Toolbox를 연결합니다. 직접 도구 연결도 지원되지만 재사용·운영 패턴은 Toolbox가 권장됩니다.
-
-새 vector store를 만들고 파일 3개를 업로드합니다. 인덱싱이 **Completed**인지 확인한 후 질문합니다. 업로드가 끝났다는 것과 검색 준비가 끝났다는 것은 다릅니다.
+1. **Build → Agents**에서 L04에 기록한 **자기 에이전트 이름**을 엽니다. 새 에이전트를 만들지 않습니다.
+2. Agent builder의 **Tools/Knowledge → File search**로 이동합니다. UI가 Toolbox 연결을 요구하면 관리자가 제공한 file-search Toolbox를 선택합니다. 다른 팀의 도구를 임의로 연결하지 않습니다.
+3. 자기 실습용 vector store를 만들고 `data/policies/`의 위 **Markdown 파일 3개만** 업로드합니다. ZIP 전체나 `data/` 폴더 전체를 올리지 않습니다.
+4. 파일 3개의 인덱싱이 **Completed**인지 확인합니다. 업로드 완료와 검색 준비 완료는 다릅니다. 연결을 **Save**하고 에이전트 버전과 store 이름을 기록합니다.
+5. **New chat**으로 새 대화를 열어 아래 세 질문을 각각 한 번씩 보냅니다. 지식 추가 전 L04 대화와 구분합니다.
 
 ![실제 agent의 Instructions를 접어 Tools와 Knowledge를 펼쳐 볼 수 있게 한 화면. File search 카드와 별도의 get_stock·prepare_purchase_request 함수가 구분되어 있다.](../assets/portal/05-agent-tools.png)
 
@@ -52,20 +54,20 @@ Agent builder의 **Tools/Knowledge**에서 **File search**를 추가합니다. U
 
 ### 3. 정답·교차 문서·모름을 차례로 실험하기
 
-```text
+```prompt
 노트북 가격 상한과 정기 교체 주기를 알려줘. 문서명과 절을 제시해줘.
 ```
 
 기대: **150만 원, 부가세 포함, 36개월, procurement-policy.md 2절**.
 
-```text
+```prompt
 노트북 2대를 총액 290만 원에 사려 합니다.
 누구의 승인이 필요하고, 사전 승인 없이 구매하면 비용 처리할 수 있나요?
 ```
 
 기대: **팀장 + 구매 담당자** 승인과, 사전 승인 없는 구매의 **원칙적 비용 처리 불가/서면 예외 검토**. 두 문서 근거를 구분합니다.
 
-```text
+```prompt
 독일 지사의 구매 규정도 알려줘.
 ```
 
@@ -75,7 +77,10 @@ Agent builder의 **Tools/Knowledge**에서 **File search**를 추가합니다. U
 
 대답에 파일 이름이 적혀 있는 것만으로 성공이 아닙니다. portal의 인용이나 SDK의 `annotations`가 **실제 업로드 파일/검색 결과**를 가리키는지 확인합니다. 근거에 없는 숫자를 섞지 않았는지도 점검합니다.
 
-SDK 경로:
+**포털에서 세 답을 확인했다면 아래 SDK는 건너뜁니다.** L06의 통합 명령은 필요한 파일을 스스로 준비하므로 `rag --live`가 선행 조건이 아닙니다.
+
+<details class="optional-path" markdown="1">
+<summary>선택: 파일·보관소·에이전트를 새로 만드는 SDK 경로</summary>
 
 ```bash
 python samples/workshop.py rag
@@ -94,6 +99,8 @@ python samples/workshop.py rag --live
 </div>
 
 실행 파일은 업로드 → vector store 파일 연결 → 최대 180초 인덱싱 대기 → agent 생성 → 질문을 진행합니다. 180초 안에 끝나지 않으면 완료로 가장하지 않고 중단합니다. receipt로 남은 파일과 상태를 확인하세요.
+
+</details>
 
 ### 5. 검색 실패를 분해하기
 

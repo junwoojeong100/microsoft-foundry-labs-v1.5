@@ -1,7 +1,7 @@
 from collections import defaultdict
 from copy import deepcopy
 import csv
-from html import escape
+from html import escape, unescape
 import json
 import os
 from pathlib import Path
@@ -30,6 +30,41 @@ def explanation(rows):
 
 
 class GuideAuthoringTests(unittest.TestCase):
+    def test_concept_introductions_remain_compact_in_both_languages(self):
+        for language in ("ko", "en"):
+            chapters, _, _ = build_guide.load_content(language)
+            for chapter in chapters:
+                if chapter["track"] == "reference":
+                    continue
+                text = (ROOT / chapter["file"]).read_text()
+                section = text.split("## " + LAB_HEADINGS[language][1], 1)[1]
+                intro = re.split(r"^#{2,3} ", section, maxsplit=1, flags=re.M)[0]
+                plain = unescape(re.sub(r"<[^>]+>", "", build_guide.markdown.markdown(intro)))
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    if language == "ko":
+                        self.assertLessEqual(len(plain), 500, "Keep the opening definition/method short.")
+                    else:
+                        self.assertLessEqual(len(plain.split()), 150, "Keep the opening definition/method short.")
+
+    def test_block_destinations_and_local_reentry_are_explicit(self):
+        labels = build_guide.read_json("reader-labels.json")
+        for language in ("ko", "en"):
+            chapters, _, _ = build_guide.load_content(language)
+            kinds = set()
+            for chapter in chapters:
+                if chapter["track"] == "reference":
+                    continue
+                text = (ROOT / chapter["file"]).read_text()
+                kinds.update(re.findall(r"^```([a-z]+)\s*$", text, re.M))
+            directory = ROOT / "docs" / ("en" if language == "en" else "")
+            with self.subTest(language=language):
+                self.assertLessEqual(kinds, set(labels[language]["js"]["code_labels"]))
+                self.assertLessEqual({"prompt", "env", "instructions", "output"}, kinds)
+                self.assertIn('id="l01-new-terminal"', (directory / "01-setup.md").read_text())
+                self.assertIn("#l01-new-terminal", (directory / "07-toolbox.md").read_text())
+                for chapter in ("06-actions.md", "11-capstone.md"):
+                    self.assertIn("workshop.py read-result --input", (directory / chapter).read_text())
+
     def test_all_bilingual_labs_start_with_format_action_and_expected_evidence(self):
         for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)

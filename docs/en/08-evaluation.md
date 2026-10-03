@@ -12,22 +12,17 @@
 
 ## Objectives
 
-**Explain how instruction changes affect the actual answer and evaluation.** A learning guide does not need an ever-growing sequence of release experiments.
-V1 is a newly designed, simple educational starting instruction, held fixed within this one comparison; v2 adds an answer procedure. Further instruction edits stay in v2.
+**Distinguish differences in the answers from the evaluator's judgment.** V1 is a role-and-goal starting instruction; v2 makes the answering procedure more explicit. Hold v1 fixed in this comparison. The label “v2” does not establish a better answer.
 
 ## Concepts and lab map
 
-**What you will try:** Controlled inputs, a fixed checklist, source evidence, and interpretation of Foundry evaluation results.
+**What you will try:** Compare two answers to the same question, their scores, and the reasons.
 
-**What is it, and why does it matter?** Scores must follow the actual answer, not the label “v2.”
-Keep the model, policies, questions, output format, and checks identical; change only the instructions.
+**What is it, and why does it matter?** Evaluation compares expected behavior with the actual answer. Change only the instructions; keep the model, policies, questions, and scoring rules the same.
 
-**How do you use it?** Start with one already collected question below, then compare originals, scores, and reasons across all 12 questions. Only if a new collection is approved, ask each question once per version.
-Retain ties and regressions. Do not prewrite a winning result or keep sampling until a score increases.
+**How do you use it?** Read the two answers below before looking at their scores. Keep ties and regressions. No new paid evaluation is required.
 
-**Where do you run it?** Use the [Prompt Agent comparison runner](../../samples/instruction_prompt_agent_lab.py), [fixed questions/checklist](../../data/en/evaluation/instruction-comparison.json),
-[v1](../../data/en/prompts/agent-v1.txt), and [v2](../../data/en/prompts/agent-v2.txt).
-In the portal's Evaluations area, distinguish service completion from scores, errors, and missing rows.
+**Where do you run it?** Read this page. Consult the [questions/checklist](../../data/en/evaluation/instruction-comparison.json), [v1](../../data/en/prompts/agent-v1.txt), [v2](../../data/en/prompts/agent-v2.txt), and [optional runner](../../samples/instruction_prompt_agent_lab.py) when needed.
 
 ## Prerequisites
 
@@ -126,6 +121,9 @@ The same 40 precommitted checks apply per instruction version, giving the local 
 A check requires both an explicit fact/refusal/confirmation path and a relevant selected policy section.
 This is a **mechanical text-and-citation checklist**, not comprehensive semantic evaluation or a business release gate.
 
+<details markdown="1">
+<summary>Finding other questions, scores, and hashes in the original JSON</summary>
+
 | Result field | Interpretation |
 | --- | --- |
 | `comparison.local_checklist.scores.v1`, `.v2` | Actual matched checks in the response JSON under identical criteria |
@@ -135,6 +133,8 @@ This is a **mechanical text-and-citation checklist**, not comprehensive semantic
 | `instructions_sha256`, `cases_sha256`, `context_sha256` | Exact input fingerprints, not increasing instruction versions |
 
 Search for `compound-request-no-tools` in your editor to find v1/v2 under the response file's `rows`. In the native file, match `comparison.rows` by `case_id` and `instructions`, then read `metrics` for scores/reasons. `raw_answer` is a JSON-encoded string, so `\"` and `\n` are normal. The reading example above displays its decoded `answer` without editing the content.
+
+</details>
 
 **A higher v2 score is not guaranteed.** V1 may already answer every part correctly, and model variation can produce a regression.
 Explain that result from the originals. Do not weaken v1 or change the checklist to manufacture improvement.
@@ -179,6 +179,9 @@ The precommitted set of 12 composite development questions was invoked once for 
 
 Native scores are 1–5 ordinal judgments. On Korean relevance, one `compound-request-no-tools` row changed from v1 score 4 to v2 score 5, moving the mean from 4.9167 to 5.0 (+0.0833). The judge reason said v1 addressed all four questions, cited policy, and explained the unavailable tools, while still assigning it 4. The other Korean metrics and all three English metrics tied at 5.0. **Only a limited Korean relevance improvement was observed in this small dev sample**; it does not establish a general, reproducible, or statistically significant improvement. `passed=24/24` is a separate binary summary for the threshold of 4 or higher, not the five-point score itself. No separate judge calibration was performed.
 
+<details class="provenance-note" markdown="1">
+<summary>Detailed analysis: tokens, latency, checklist differences, Optimizer, and holdout</summary>
+
 | Language | V1 input / output / total tokens | V2 input / output / total tokens | Total-token change | Mean response latency v1 → v2 |
 | --- | ---: | ---: | ---: | ---: |
 | Korean | 34,242 / 3,437 / 37,679 | 40,218 / 4,837 / 45,055 | +7,376 | 3.473 s → 3.900 s (+0.427 s) |
@@ -192,9 +195,11 @@ Original answers, all three native metric scores, and the judge reasons for ever
 
 **Optimizer and holdout:** Optimizer optionally generates candidates from dev data. A holdout is an independent final exam kept out of instruction development and optimization. These exposed development questions are not a holdout; the existing sealed holdout was neither opened nor run. The current Hosted agent for Optimizer uses a GPT-4.1-mini path, unlike the direct GPT-6 Sol comparison. No equivalent model path or new deployment was available, so no live Optimizer job was submitted; the manually written v2 is not an Optimizer candidate. Earlier instructions and measurements remain in [the preserved baseline commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation).
 
+</details>
+
 ## Success criteria
 
-You can compare the actual v1/v2 answers under the same checklist and explain which instruction addresses which omission.
+You can compare the actual v1/v2 answers under the same criteria and explain a **difference or tie** using the original text.
 Claim a measured improvement only when the actual `delta` is positive. Repeated validation, holdout runs, and Optimizer are not prerequisites.
 
 The [current instruction status](../../validation/current/instructions.json) and [latest Prompt Agent measurement](../../validation/current/report.json) link the bilingual originals, actual model and agent-version identities, per-question answer hashes, scores, reasons, and run IDs. Earlier direct Responses results remain distinct in Git history.
@@ -206,4 +211,11 @@ Do not overwrite an existing comparison. Never replace a model error with an “
 
 ## Cleanup
 
+**Reading only creates no Azure resources in this module.** If you collected new responses, record only your own run's resources in L12.
+
+<details class="provenance-note" markdown="1">
+<summary>Reference: resources retained while creating the guide</summary>
+
 This measurement created two evaluation-only Prompt Agents with two versions each. It created no Hosted sessions, Optimizer jobs, or model deployments. Both native runs are terminal; retain agents and model deployments unless their cleanup is separately approved.
+
+</details>

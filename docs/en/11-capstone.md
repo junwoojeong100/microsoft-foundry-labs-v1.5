@@ -4,7 +4,7 @@
 
 **Format:** Review L06's integrated result and design a release · Teams publishing is not required.
 
-**Start here:** Open the actual L06 response file and check the five items below. Do not call again if that result already exists.
+**Start here:** Use L06's `Read again` command to read the saved answer, then check the five items below. No new Azure call is needed.
 
 **What to check:** Record citations, function results, the not-ordered state, and configuration bundle. Production approval and publishing remain separate.
 
@@ -16,13 +16,13 @@ Go beyond “It answered in the demo” to **selecting the version users receive
 
 ## Concepts and lab map
 
-**What you will try:** Integrating knowledge, functions, and evaluation results, and distinguishing agent versions from publishing channels.
+**What you will try:** Review L06's purchasing assistant against five required results.
 
-**What is it, and why does it matter?** The latest development version may differ from the active version users call. A change to the model, knowledge, or tools can change the answer to the same question, so a release is a validated configuration bundle—not just one code file. An app appearing in Teams also does not guarantee invocation permissions or successful server-side tool execution.
+**What is it, and why does it matter?** Completion means correct evidence, calculations, and pending approval—not merely receiving an answer. Choose the version users will call separately from the latest development version.
 
-**How do you use it?** Complete the same purchasing task end to end, then verify five facts in the final response against citations and function JSON. Record the validated version and decide how to return to a previously approved version. Publishing to Teams/Microsoft Copilot is a separate optional step requiring organizational approval.
+**How do you use it?** Reread the saved response and compare its policy citations and function results. Record the configuration and recovery plan. Teams publishing is not required.
 
-**Where do you run it?** The [capstone code](../../samples/workshop.py) connects local functions with an Azure agent. Use the portal to inspect version and publishing settings. A remote channel cannot automatically run local functions, so actual publishing requires server-side tools or a Hosted runtime.
+**Where do you run it?** Read the [capstone's saved result](../../samples/workshop.py) in the terminal. Portal version and publishing settings are optional references. Remote channels do not automatically execute L06's local functions.
 
 ## Prerequisites
 
@@ -32,7 +32,26 @@ You need the L05–L10 results. Actual Teams/Microsoft Copilot publishing requir
 
 ### 1. Complete the final user task
 
-**Reuse the L06 result first.** Open the JSONL path printed after `Responses:` and inspect the five items below. If it is missing, check the execution state and receipt first. Use the following command only after approval for a new collection.
+**Reuse the L06 result first.** Use that run's `Read again` command or replace `ACTUAL_ID` below with your own response-file path.
+
+```bash
+python samples/workshop.py read-result --input results/contoso-lab-ACTUAL_ID-responses.jsonl
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `read-result --input` | Displays saved questions, answers, function results, and citations. | Local reading; zero Azure calls. It does not change records or issue a pass. Compare the five items yourself. |
+
+</div>
+
+If missing, check L06's folder and ownership record first. **Without an L06 Azure integration run, there is no actual integrated result to review.** Do not substitute local function output or L08 evaluation results and claim integration success. Keep the English profile selected.
+
+<details class="optional-path" markdown="1">
+<summary>Optional: only if no integrated result exists and a new collection is approved</summary>
 
 ```bash
 python samples/workshop.py capstone --live
@@ -48,6 +67,8 @@ python samples/workshop.py capstone --live
 
 </div>
 
+</details>
+
 Question: “Check the purchasing policy for two laptops and NB-14 inventory, then prepare a purchase request draft.” With `FOUNDRY_LAB_LANGUAGE=en` selected, the executable sample uses an English synthetic request, English instructions, and the policies in `data/en/policies/`.
 
 | Required result | Evidence for judging it |
@@ -58,7 +79,7 @@ Question: “Check the purchasing policy for two laptops and NB-14 inventory, th
 | Team manager and purchasing representative approval required | Policy and `required_approvals` |
 | A draft, not an order | `draft_requires_human_approval`, `order_submitted=false` |
 
-Inspect JSONL `tool_calls`, `citations`, and `response_id`, not just the natural-language answer. A definite stock claim without an inventory result is a failure.
+The reader's **Function calls / Citations / response_id** come from the original JSONL `tool_calls`, `citations`, and `response_id`. Check these alongside the answer. A definite stock claim without an inventory result is a failure.
 
 ### 2. Record the release bundle
 

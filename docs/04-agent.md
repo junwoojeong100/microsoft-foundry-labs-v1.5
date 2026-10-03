@@ -16,13 +16,13 @@ Prompt Agent는 **모델 + instructions + tools**로 선언하는 관리형 agen
 
 ## 개념과 실습 지도
 
-**경험할 기능:** Prompt Agent의 instructions·모델·버전·conversation입니다.
+**경험할 기능:** 역할을 정한 Prompt Agent를 만들고 대화를 이어갑니다.
 
-**무엇이며 왜 중요한가요?** Prompt Agent는 역할과 규칙을 서버에 정의해 여러 요청에서 재사용하는 관리형 실행 단위입니다. Instructions는 행동의 방향을 주지만 비공개 회사 지식이나 실행 권한을 자동으로 주지 않습니다. “재고 도우미”라는 이름을 붙여도 재고 도구가 없으면 조회할 수 없습니다. 이 장에서 일부러 지식·도구 없이 시작하는 이유는, 다음 장에서 추가한 기능이 실제로 어떤 차이를 만드는지 비교하기 위해서입니다.
+**무엇이며 왜 중요한가요?** Instructions는 에이전트가 따라야 할 지시문입니다. “재고 도우미”라고 지시해도 재고 조회 기능이 생기지는 않습니다. 문서·도구 없이 시작해야 L05·L06에서 무엇이 달라지는지 보입니다.
 
-**어떻게 사용하나요?** 포털에서 모델과 instructions를 지정하고, 없는 지식·없는 도구·같은 대화·새 대화를 차례로 시험합니다. Instructions를 수정한 버전과 대화 맥락을 따로 기록하세요. 모델이 그럴듯한 문장을 만들었는지가 아니라 제공한 능력의 한계를 지켰는지가 관찰 대상입니다.
+**어떻게 사용하나요?** 모델과 지시문을 저장한 뒤 질문합니다. 같은 대화는 앞선 내용을 이어받고, 새 대화는 별도로 시작하는지 확인합니다.
 
-**어디서 실행하나요?** 기본은 포털, SDK는 선택 비교입니다. [지시문 원본](../data/prompts/agent-v2.txt)을 먼저 읽고 [SDK 구현](../samples/workshop.py)과 비교하세요. 두 경로는 별도 agent를 만들므로 같은 객체가 자동 동기화되는 것이 아닙니다.
+**어디서 실행하나요?** 포털에 [지시문 원본](../data/prompts/agent-v2.txt)을 붙여넣습니다. 선택 [SDK 구현](../samples/workshop.py)은 **별도 에이전트**를 만들며 포털 에이전트와 자동 동기화하지 않습니다.
 
 ## 준비
 
@@ -32,9 +32,12 @@ Prompt Agent는 **모델 + instructions + tools**로 선언하는 관리형 agen
 
 ### 1. 포털에서 만들기
 
-**Build → Agents → New agent → Build an agent**를 선택합니다. 촬영 시점의 **New agent**는 Build/Code/template 등의 경로를 고르는 메뉴입니다. 이름은 `contoso-procurement`, 모드는 **Text**, 모델은 L02의 배포로 지정합니다. 다른 UI 버전에서는 바로 **Build an agent** 버튼이 표시될 수 있습니다.
+1. **Build → Agents → New agent → Build an agent**를 선택합니다. UI에 따라 **Build an agent**가 바로 표시될 수 있습니다.
+2. 이름은 강사가 정한 실습 번호를 붙인 `contoso-procurement-lab01` 같은 고유 이름, 모드는 **Text**로 지정합니다. 목표 입력이 필요하면 “합성 Contoso 구매 규정을 안내하며 실제 주문은 하지 않는다”를 적고 생성 버튼을 한 번 선택합니다. 같은 이름이 있으면 다른 사람의 에이전트를 수정하지 말고 자기 이름을 확인합니다.
+3. 열린 편집 화면의 **Model**을 L02의 배포로 선택합니다. VS Code에서 `data/prompts/agent-v2.txt`를 열고 **파일 내용 전체**를 Instructions에 붙여넣습니다. 파일 경로만 입력하는 것이 아닙니다.
+4. **Save**하고 에이전트 이름·표시된 버전을 기록합니다. **Model이 맞고, Instructions가 저장되어 있으며, 지식·함수 도구가 아직 없는지** 확인한 뒤 오른쪽 Chat으로 갑니다.
 
-Instructions에 `data/prompts/agent-v2.txt`의 내용을 붙여 넣습니다. 아직 File search와 함수 도구를 붙이지 않았으므로 **없는 도구를 사용했다고 주장하면 안 됩니다.**
+이 에이전트는 L05에서 그대로 사용합니다. 아직 File search와 함수 도구를 붙이지 않았으므로 **없는 도구를 사용했다고 주장하면 안 됩니다.** 아래 실험은 질문 5회(한계 2회·같은 대화 2회·새 대화 1회)이며 승인된 범위에서 각각 한 번씩만 전송합니다.
 
 ![실제 Contoso Prompt Agent의 Playground. 왼쪽에 Model·Instructions·Tools, 오른쪽에 Chat/YAML과 메시지 입력, 위쪽에 버전·Save·Publish·Traces 탭이 있다.](../assets/portal/04-prompt-playground.png)
 
@@ -44,13 +47,13 @@ Instructions에 `data/prompts/agent-v2.txt`의 내용을 붙여 넣습니다. �
 
 ### 2. 기준 질문으로 한계 확인하기
 
-```text
+```prompt
 우리 회사 표준 노트북의 가격 상한은 얼마인가요?
 ```
 
 정책 파일이 없는 상태에서 150만 원을 알고 있는 것처럼 답하면 안 됩니다. 제공된 규정이나 지식 연결이 필요하다고 답하는 것이 이 단계의 정상 동작입니다.
 
-```text
+```prompt
 NB-14의 실시간 재고를 확인해줘.
 ```
 
@@ -60,11 +63,11 @@ NB-14의 실시간 재고를 확인해줘.
 
 같은 대화에서 다음 두 입력을 순서대로 보냅니다.
 
-```text
+```prompt
 이번 대화에서는 모니터 구매를 검토하고 있어요.
 ```
 
-```text
+```prompt
 내가 검토하는 품목을 한 단어로 말해줘.
 ```
 
@@ -79,9 +82,12 @@ NB-14의 실시간 재고를 확인해줘.
 | Conversation | 독립적인 대화 맥락을 시작할 때 |
 | Response | 대화 중 모델/agent가 한 번 실행될 때 |
 
-instruction을 수정하고 저장한 뒤 새 버전이 생성되는지 확인합니다. “최신 버전”이 곧 “운영에 승인된 버전”은 아닙니다.
+지금 저장된 이름·버전과 각 질문의 응답 ID를 구분해 기록합니다. 버전을 늘리기 위해 지시문을 임의로 바꿀 필요는 없습니다. 나중에 설정을 바꿨다면 새 버전을 확인하되, “최신 버전”이 곧 “운영에 승인된 버전”은 아닙니다.
 
 ### 5. 선택: SDK로 같은 개념 확인하기
+
+<details class="optional-path" markdown="1">
+<summary>선택: 별도 에이전트를 만드는 SDK 비교 — L05 진행에는 불필요</summary>
 
 ```bash
 python samples/workshop.py agent
@@ -99,7 +105,9 @@ python samples/workshop.py agent --live
 
 </div>
 
-SDK 샘플은 충돌을 피하기 위해 `contoso-lab-...`라는 **새로운 agent**를 만듭니다. 포털에서 만든 `contoso-procurement`를 수정하지 않습니다. 생성 ID는 `results/contoso-lab-....json`에 저장됩니다.
+SDK 샘플은 충돌을 피하기 위해 `contoso-lab-...`라는 **새로운 agent**를 만듭니다. 앞서 포털에서 만든 에이전트를 수정하지 않습니다. 생성 ID는 `results/contoso-lab-....json`에 저장됩니다.
+
+</details>
 
 ## 성공 기준
 

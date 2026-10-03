@@ -16,13 +16,13 @@
 
 ## Concepts and lab map
 
-**What you will try:** The separate lifecycles of stopping execution, deleting objects, retaining data, and checking costs.
+**What you will try:** Identify what you created and who will stop or retain it.
 
-**What is it, and why does it matter?** Stopping compute leaves storage and always-on resources such as Search, files, and logs in place. Conversely, deleting an agent can lose evidence you need, so deleting everything solely to reduce cost is not necessarily safe either. A receipt is an ownership manifest of the names, IDs, and project created by this lab. It is the starting point for distinguishing your lab resources from shared ones.
+**What is it, and why does it matter?** Schedules, storage, and logs may incur charges after you close the browser. A receipt is an **ownership record** of created resources and IDs, not a payment receipt or deletion approval.
 
-**How do you use it?** First prevent recurring execution, verify the stopped state of recorded sessions, then assign an owner and retention deadline for each resource. Delete only exact objects covered by separate approval. Finally, account for billing delays by assigning someone to recheck costs.
+**How do you use it?** Follow only the row for work you performed. Check execution state, shared use, and ownership. Delete only approved targets and recheck costs after billing delays.
 
-**Where do you run it?** Compare portal status/cost screens with the [session-stop code](../../scripts/stop_sessions.py). Some management scripts below call Azure without `--live`. Do not assume a command is read-only or free based on its name alone.
+**Where do you run it?** For local-only work, stop your PC's server. For Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../../scripts/stop_sessions.py) acts without `--live`.
 
 ## Prerequisites
 
@@ -123,7 +123,13 @@ Retain only the minimum results needed for learning, and remove real PII, tokens
 
 ## Success criteria
 
-Each created resource has a recorded **deletion decision / shared-retention decision / retention deadline / responsible owner**, and no unintended routines, continuous evaluations, or voice sessions remain active.
+For each created resource, record **state (deleted / shared / retained)** together with **an owner and next check time**. Retained resources also need a deadline. Check that no unintended routines, continuous evaluations, or voice sessions remain active.
+
+| Resource name | State and evidence | Owner | Retention deadline / next cost check |
+| --- | --- | --- | --- |
+| Record each resource you created | Observed value; write unverified if you could not inspect it | Assign explicitly | Assign explicitly |
+
+If you created no Azure resources, write **“local exercises only / no Azure creation.”** If you started L07's server, confirm it stopped in that terminal.
 
 For environments where deletion is prohibited, record “Retain until explicit deletion approval.”
 Search Basic, logs, and storage may continue to incur costs without requests.

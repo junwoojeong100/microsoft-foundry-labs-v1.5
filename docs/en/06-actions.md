@@ -16,17 +16,17 @@ Understand who is responsible for executing function calls. **The model proposes
 
 ## Concepts and lab map
 
-**What you will try:** Function calling, JSON argument validation, returning function results, and a safe draft-only boundary.
+**What you will try:** Let the model request Python functions that read stock and calculate a draft.
 
-**What is it, and why does it matter?** A function tool is a channel through which a model requests an external capability. The model proposes the function name and arguments, but the Python program validates the input and executes the function. Registering a tool definition in the portal does not remotely execute code on your laptop. Separating these responsibilities lets you block invalid quantities, unknown SKUs, and fabricated approvals regardless of what the model says.
+**What is it, and why does it matter?** Function calling lets the model request a function and its inputs. **The program validates and executes it.** Registering a function name in the portal does not run code on your PC.
 
-**How do you use it?** First call the functions without a model to verify calculations, inventory, and error behavior. Then pass model requests to those same functions and return the results with the matching `call_id`. Compare the numbers in the final response with the actual function JSON. This sequence lets you distinguish model problems from business-code problems.
+**How do you use it?** Check valid and invalid inputs locally first. If you run the Azure integration, compare the answer's amounts with the actual function results.
 
-**Where do you run it?** The functions in this chapter run in local Python, so you need a terminal. Read `get_stock`, `prepare_purchase_request`, and `dispatch_tool` in [workshop.py](../../samples/workshop.py) alongside the [English synthetic inventory CSV](../../data/en/inventory.csv). Keep L01's English profile selected. Do not connect an external ordering API.
+**Where do you run it?** Run [workshop.py](../../samples/workshop.py) in the terminal with the [English synthetic inventory](../../data/en/inventory.csv). Keep L01's English profile selected. No actual ordering API is connected.
 
 ## Prerequisites
 
-The local exercise requires only Python. Azure integration requires preparation from L01–L05. `samples/workshop.py` contains no functions for placing orders, making payments, or sending email.
+The local exercise requires only Python. Without a virtual environment, use L01's `python3` (Windows: `py -3.13`) instead of `python` below. Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
 
 ## Steps
 
@@ -94,6 +94,10 @@ JSON schema's `strict` and `additionalProperties: false` strengthen the output c
 
 ### 4. Connect knowledge and functions to the same agent
 
+**Azure calls start here.** Without an account, skip step 4 and record only your local results.
+
+The terminal now runs the integration. `capstone` creates **a new agent with three policies and two functions**; it does not edit L05's portal agent. Reuse the portal agent in L09 and this new integrated result in L10/L11.
+
 ```bash
 python samples/workshop.py capstone
 python samples/workshop.py capstone --live
@@ -123,6 +127,28 @@ Question
 
 For safe lab execution, the sample limits a run to 5 response rounds and 8 function calls. Errors are returned explicitly, and execution stops if a limit is exceeded. These are educational limits in this sample, not Foundry service limits.
 
+#### Reread the saved answer in a readable format
+
+Copy and run the line after **`Read again (local only):`** at the end of the run. `ACTUAL_ID` below is a placeholder; use your own `Responses:` path instead.
+
+```bash
+python samples/workshop.py read-result --input results/contoso-lab-ACTUAL_ID-responses.jsonl
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `read-result --input` | Displays L04/L05/L06 SDK response JSONL as questions, original answers, function inputs/results, and citations. | **Local reading only.** No Azure calls, regrading, or source changes; no sign-in needed. `--live` is unsupported. |
+
+</div>
+
+After `Original answer`, read the actual `get_stock` and `prepare_purchase_request` outputs and citations. Check `total_krw=2900000` and `order_submitted=false`. Tool rejections remain errors; missing values are not filled with expected answers. **Successful reading is not a quality pass.** Failed rows remain marked `failed` and cause a nonzero exit.
+
+If the file is missing, check the original terminal's path and your current folder. Include the **`-responses.jsonl`** ending. Do not substitute an ownership `.json` receipt or L08 evaluation file. Keep the English profile selected when reading English results.
+
 ### 5. Check boundary values
 
 `required_approvals(2_000_000)` requires the team manager; `required_approvals(2_000_001)` requires both the team manager and the purchasing representative. L08 includes these boundaries in evaluation data.
@@ -139,4 +165,4 @@ Use the SDK if you cannot edit the function schema in the portal. Registering a 
 
 ## Cleanup
 
-Local functions do not change external state. Agents, conversations, and files created through Azure integration are recorded in receipts and deleted in L12.
+Local functions do not change external state. Azure-created agents, conversations, and files remain in the receipt. In L12, check shared use and retention ownership, then delete **only with separate approval**.

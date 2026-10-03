@@ -17,13 +17,13 @@ Do not judge memory success merely from a natural-language answer that happens t
 
 ## Concepts and lab map
 
-**What you will try:** A Memory store, items, user scopes, TTL, and verification through actual searches and deletion checks.
+**What you will try:** Store and retrieve one fictional user's response-format preference.
 
-**What is it, and why does it matter?** Memory stores useful user context so that it can be retrieved after a conversation ends. Its purpose differs from RAG over organizational policies or the current conversation's history. Applying fictional user A's preference for tables to user B would break the user boundary. Likewise, a deletion request requires checking that the item has disappeared from the store, not merely that the model says it has “forgotten.”
+**What is it, and why does it matter?** Memory holds user context for later conversations. A store holds items, scope identifies the user boundary, and TTL is retention time. User A's memory must not appear for B.
 
-**How do you use it?** Create a new store and save only one approved synthetic preference. Search for the same item ID in the A/B scopes to test isolation. Only if deletion is approved, remove that one item and search again. TTL expiry, immediate deletion, and log deletion are separate operations.
+**How do you use it?** Search for the saved item ID as A and B. After approved deletion, confirm its absence. The answer “I forgot it” is not enough.
 
-**Where do you run it?** Use the direct API path in [memory_lab.py](../../samples/memory_lab.py) and observe the store settings under Memory in the portal. This chapter covers the store/search/isolate/delete lifecycle, not the full process of automatic memory extraction.
+**Where do you run it?** Use [memory_lab.py](../../samples/memory_lab.py) and portal **Memory**. This covers one item's storage, retrieval, isolation, and deletion—not all automatic extraction.
 
 ## Prerequisites
 

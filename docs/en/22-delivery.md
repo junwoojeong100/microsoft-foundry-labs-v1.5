@@ -16,15 +16,13 @@
 
 ## Concepts and lab map
 
-**What you will try:** Reading local CI and GitHub Actions results, OIDC approval boundaries, version-pinned release/rollback design, and model-retirement/cost responses.
+**What you will try:** Prevent a failing candidate from shipping and plan recovery.
 
-**What is it, and why does it matter?** CI checks sources, data, and contracts after changes. CD delivers reviewed changes. A change to a model, knowledge source, or tool can alter responses, so recovery requires a bundle of source commit, actual deployed version, and evidence.
+**What is it, and why does it matter?** CI automatically checks changes; CD deploys reviewed changes. Rollback returns to a previously approved version. Completed execution is not a quality pass.
 
-**How do you use it?** Read workflow conditions and reproduce local checks. Link existing results into a release manifest, then practice a rollback decision using one hypothetical failure. Do not expand L08's small instruction comparison into proof of integrated tools or release approval.
+**How do you use it?** Reproduce three failures and repair the candidate-selection conditions. Use existing results to write a release manifest and rollback decision. No new Hosted deployment is required.
 
-**Where do you run it?** The reviewed [validate.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/validate.yml) demonstrates default checks;
-[azure-validation.yml](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/azure-validation.yml) demonstrates separately approved execution.
-Regardless of those online links, **use `.github/workflows/` in your own checked-out sources** as the authority. The default exercise is local checks and design. Live Hosted deployment is optional and requires L14 prerequisites plus separate approval.
+**Where do you run it?** Work on your PC. Read **`.github/workflows/` in your supplied sources** to distinguish [local checks](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/validate.yml) from [separately approved execution](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/azure-validation.yml).
 
 ## Prerequisites
 

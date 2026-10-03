@@ -33,6 +33,12 @@ async (page) => {
   await page.waitForLoadState("networkidle");
   const originalState = await page.evaluate(() => localStorage.getItem("foundry-lab-guide-20260929"));
   try {
+    await page.evaluate(() => localStorage.removeItem("foundry-lab-guide-20260929"));
+    await page.reload();
+    check(await page.locator("#learning-path").inputValue() === "core", "new readers start in the 13-module core path");
+    check(await page.locator("#progress-label").innerText() === "0 / 13", "new readers are not asked to complete all 25 electives and core labs");
+    check(await page.locator(".chapter-link:visible").count() === 13, "default contents contain the core sequence only");
+    check(await page.locator(".reader-help a:visible").count() === 2, "glossary and troubleshooting remain available outside path filtering");
     await page.evaluate(() => localStorage.setItem(
       "foundry-lab-guide-20260929", JSON.stringify({done: [], theme: "light", path: "all"})
     ));
@@ -46,6 +52,9 @@ async (page) => {
     check(await page.locator(".nav-learning").count() === 12, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === 25, "25 trackable labs");
     check(await page.locator(".lab-brief").count() === 25, "all 25 modules have beginner start cards");
+    check(await page.locator("pre code.language-prompt").count() === 14, "fourteen portal question blocks identify their input destination");
+    check(await page.locator("pre code.language-env").count() === 2, "settings blocks are distinguished from terminal commands");
+    check(await page.locator("pre code.language-instructions").count() === 1, "voice instructions identify the configuration field, not Chat");
     check(await page.locator(".practice-block").count() === 8, "eight advanced modules expose a try-change-explain exercise");
     check(await page.locator('#l01 .operator-only').evaluateAll(nodes =>
       nodes.length === 2 && nodes.every(node => !node.open)
@@ -143,6 +152,12 @@ async (page) => {
     await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
     check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "printing restores the learner's collapsed sections");
 
+    for (const id of ["l02", "l04", "l05", "l11"]) {
+      await page.goto(`${entry}#${id}`);
+      check(await page.locator(`#${id} .optional-path pre:visible`).count() === 0, `${id} extra paid paths are collapsed, not presented as required work`);
+    }
+    check(await page.locator("#l11 > .prose > pre code.language-bash").first().innerText().then(text => text.includes("read-result")), "capstone defaults to reading the saved result, not making another paid call");
+
     await page.goto(`${entry}#l07`);
     const hiddenHeading = await page.locator("#l07 .optional-path h3[id]").first().getAttribute("id");
     await page.goto(`${entry}#${encodeURIComponent(hiddenHeading)}`);
@@ -181,6 +196,37 @@ async (page) => {
     await page.locator('.chapter-link[data-chapter="l06"]').click();
     await page.locator('[data-complete="l06"]').click();
     check(await page.locator("#progress-label").innerText() === "1 / 25", "progress increments");
+    await page.locator("#learning-path").selectOption("core");
+    check(await page.locator("#progress-label").innerText() === "1 / 13", "core progress counts only core modules");
+    check(await page.locator("#progress").getAttribute("max") === "13", "progress meter matches its visible denominator");
+    await page.locator('.reader-help a[href="#glossary"]').click();
+    await page.locator("#glossary.active").waitFor({state: "visible"});
+    check(await page.locator("#learning-path").inputValue() === "core", "opening glossary does not reset the learning path");
+    check(await page.locator("#glossary .return-to-lab").getAttribute("href") === "#l06", "help remembers the originating lab");
+    check(await page.locator("#glossary .chapter-pagination .next").getAttribute("href") === "#l06", "help footer returns to the originating lab too");
+    await page.locator("#glossary .return-to-lab").click();
+    await page.locator("#l06.active").waitFor({state: "visible"});
+    await page.locator('.reader-help a[href="#troubleshooting"]').click();
+    await page.locator("#troubleshooting.active").waitFor({state: "visible"});
+    check(await page.locator("#learning-path").inputValue() === "core", "troubleshooting preserves the selected path");
+    await page.locator("#troubleshooting .return-to-lab").click();
+    await page.locator("#l06.active").waitFor({state: "visible"});
+    await page.locator("#learning-path").selectOption("quick");
+    await page.locator("#l00.active").waitFor({state: "visible"});
+    check(await page.locator("#progress-label").innerText() === "0 / 6", "quick tour excludes completed labs outside its six modules");
+    await page.locator("#learning-path").selectOption("advanced");
+    await page.locator("#l13.active").waitFor({state: "visible"});
+    check(await page.locator("#progress-label").innerText() === "0 / 12", "elective progress is separate from core progress");
+    await page.locator("#learning-path").selectOption("offline");
+    await page.locator("#l00.active").waitFor({state: "visible"});
+    check(await page.locator("#path-scope").isVisible(), "without-Azure scope warning persists beyond a transient toast");
+    check(await page.locator('.chapter-link[data-chapter="l07"]').isVisible(), "without-Azure path includes the local MCP exercise");
+    await page.locator("#learning-path").selectOption("reference");
+    await page.locator("#troubleshooting.active").waitFor({state: "visible"});
+    check(await page.locator(".progress-card").isHidden(), "reference material does not display a misleading completion target");
+    await page.locator("#learning-path").selectOption("all");
+    await page.goto(`${entry}#l06`);
+    check(await page.locator("#progress-label").innerText() === "1 / 25", "path switches preserve all existing completion records");
     await page.reload();
     check(await page.locator('[data-complete="l06"]').getAttribute("aria-pressed") === "true", "progress survives reload");
     check(await page.locator(".chapter.active").getAttribute("id") === "l06", "deep-link survives reload");
@@ -204,6 +250,16 @@ async (page) => {
     check(await page.locator("#l06 .code-label").first().innerText() === (english ? "Terminal" : "터미널 명령"), "code labels identify where to use a block");
     await page.locator("#l06 .copy-button").first().click();
     check(await page.evaluate(() => window.__workshopCopiedText) === expectedCode, "copy includes code only, not labels");
+    await page.goto(`${entry}#l01`);
+    const settings = page.locator("#l01 pre").filter({has: page.locator("code.language-env")});
+    await settings.locator(".copy-button").click();
+    check(await page.evaluate(() => window.__workshopCopiedText) === await settings.locator("code").textContent(), "settings copy keeps the exact file content");
+    check((await page.locator("#toast").innerText()).includes(".env"), "settings copy directs the learner to the file, not the terminal");
+    await page.goto(`${entry}#l04`);
+    const question = page.locator("#l04 pre").filter({has: page.locator("code.language-prompt")}).first();
+    await question.locator(".copy-button").click();
+    check((await page.locator("#toast").innerText()).includes("Chat"), "question copy directs the learner to portal Chat");
+    await page.goto(`${entry}#l06`);
     await page.evaluate(() => {
       Object.defineProperty(navigator, "clipboard", {
         configurable: true, value: {writeText: async () => { throw new Error("test-denied"); }},
@@ -270,9 +326,21 @@ async (page) => {
             tables: chapter.querySelectorAll(".table-wrap table").length,
             briefWidth: chapter.querySelector(".lab-brief").getBoundingClientRect().width,
             proseWidth: chapter.querySelector(".prose").getBoundingClientRect().width,
+            walkthroughsFit: [...chapter.querySelectorAll(".command-explanation .table-wrap")].every(node =>
+              !node.getClientRects().length || node.scrollWidth <= node.clientWidth + 1
+            ),
+            labelsFit: [...chapter.querySelectorAll(".code-label")].every(label => {
+              if (!label.getClientRects().length) return true;
+              const button = label.parentElement.querySelector(".copy-button");
+              const code = label.parentElement.querySelector("code");
+              return label.getBoundingClientRect().right <= button.getBoundingClientRect().left &&
+                label.getBoundingClientRect().bottom <= code.getBoundingClientRect().top;
+            }),
           }));
           check(layout.document <= layout.viewport + 1 && layout.tables > 0, `${id} decision tables fit the reader at ${width}px`);
           check(layout.briefWidth > 0 && layout.briefWidth <= layout.proseWidth + 1, `${id} beginner card fits at ${width}px`);
+          check(layout.walkthroughsFit, `${id} command explanations need no horizontal scrolling at ${width}px`);
+          check(layout.labelsFit, `${id} input labels do not overlap copy controls or code at ${width}px`);
           if (["l15", "l18", "l19", "l20", "l21", "l22", "l23", "l24"].includes(id)) {
             check(await page.locator(`#${id} .practice-block`).isVisible(), `${id} concrete practice remains readable at ${width}px`);
           }

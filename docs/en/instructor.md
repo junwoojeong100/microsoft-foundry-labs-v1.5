@@ -10,6 +10,10 @@ Before the first call, check that each learner can open the lab root, distinguis
 
 Start each chapter with ‘Format → Start here → What to check.’ Only relevant participants expand **administrator-only/optional** sections. Read L08's actual answers in the learner's own language inside the guide first; new paid collection is a separate choice. L11 reuses L06's result.
 
+The default web progress is **13 modules**, or **six** in the 90-minute path. Do not require all 25 checkmarks for core completion. L02 checks a supplied deployment; L04/L05 reuse one portal agent. L06's SDK creates a separate integrated agent, so record its name and response file separately.
+
+Start with **block destination → one command → expected-result comparison**, rather than more background reading. In a new terminal, recheck L01's Python path and English profile. Use L06's `Read again` to inspect originals, functions, and citations; do not rerun `capstone --live` just to see a saved result.
+
 Recheck GA/Preview status, regions, and model support against official sources. The initial source check was on 2026-09-29. Consult [content/portal-screenshots.en.json](../../content/portal-screenshots.en.json) for the English project's actual capture times and scope; do not reuse the old Korean capture date as proof of a new observation. Neither a source date nor a screenshot means the material remains current forever.
 
 Have learners first explain each chapter's **Concepts and lab map** in their own words. After they locate the relevant portal screen, connect it to why the CLI is needed. Allow execution only after they read the **Result / cost or changes** column in the command walkthrough. Encourage pauses between plan → execute → verify instead of copying an entire group of commands at once.

@@ -6,7 +6,7 @@
 
 **Start here:** Record the model ID, version, and deployment name separately in your own project.
 
-**What to check:** Explain your selected deployment, processing location, and cost conditions. Send the two questions only within the approved scope.
+**What to check:** Confirm the ready deployment, processing location, and cost conditions, then save its name in `.env`. L03 is the first required call.
 
 </div>
 
@@ -16,23 +16,30 @@
 
 ## Concepts and lab map
 
-**What you will try:** The model catalog, model cards, deployment names, and Playground comparisons.
+**What you will try:** Identify the one model deployment that the labs will call.
 
-**What is it, and why does it matter?** A model ID identifies the product, a version identifies a particular release, and a deployment name is the name your environment uses to address that deployment. Even the same model can have different usage conditions depending on its region, deployment type, and configuration. A larger model is not guaranteed to distinguish “greater than” from “at or below” in a purchasing rule more accurately. Compare accuracy on real task questions alongside latency and cost so you can explain your choice.
+**What is it, and why does it matter?** A model ID is the product name, a version is its release, and a deployment name is what your code calls. If `gpt-6-sol` is deployed as `contoso-chat`, your code uses `contoso-chat`.
 
-**How do you use it?** Find candidates in the catalog and read their cards for supported APIs, tools, and processing locations. If a deployment already exists, open its Playground rather than recreating it. Compare identical boundary-value questions, then record the selected **deployment name** in your configuration.
+**How do you use it?** Check the supplied deployment's model, version, and ready state. Save its **actual deployment name** in `.env`. Creating a deployment and comparing questions are optional.
 
-**Where do you run it?** This chapter is portal-focused. Browsing models and reading cards are not inference, but deployment and Playground submissions require permissions and cost approval. `FOUNDRY_MODEL_DEPLOYMENT_NAME` in [.env.example](../../.env.example) is the setting that connects to the L03 code.
+**Where do you run it?** Use the Foundry portal and [.env.example](../../.env.example). Reading a list is not a model call; deployment and Playground submissions need permissions and cost approval.
 
 ## Prerequisites
 
-You need the L01 project and permission to deploy models. If learners do not have deployment permissions, use a model deployed by the instructor.
+You need L01's project and permission to inspect and use the supplied model. **Learners using a ready deployment do not need permission to deploy a new model.**
 
-**If a model is supplied:** open your deployment under **Build → Models → Deployments** and compare it with the lab-settings table below. If the model ID/version match, record the actual deployment name and **skip creation in step 3**. A deployment called `contoso-chat` does not have a model ID of `contoso-chat`.
+**The default path is inspect → check cost conditions → save the name.** New deployment, extra questions, and Model router are in expandable optional sections.
 
 ## Steps
 
-### 1. Select gpt-6-sol in the model catalog
+### 1. Inspect the supplied deployment first
+
+1. Open **Build → Models → Deployments** in your project.
+2. Select the deployment name supplied by your instructor. Compare its **model ID / version / ready state** with the table below.
+3. If it is missing or failed, stop and check with the owner. **This is not a step to choose Create / Deploy and make a new resource.**
+
+<details markdown="1">
+<summary>Optional reference: reading the model catalog and model card</summary>
 
 In **Discover → Models**, search for **`gpt-6-sol`** and open the OpenAI model card. It is supplied directly through Azure; verify Responses API, structured-output, and function-calling support. Both v1 and v2 use the same model/version in the comparison.
 
@@ -49,6 +56,8 @@ In **Discover → Models**, search for **`gpt-6-sol`** and open the OpenAI model
 | Pricing, context length, and input/output limits | A larger maximum context does not mean a lower cost |
 | License and data-processing terms | Terms vary by provider and deployment method |
 
+</details>
+
 | Lab setting | Value |
 | --- | --- |
 | Publisher / model ID | OpenAI / `gpt-6-sol` |
@@ -59,7 +68,7 @@ In **Discover → Models**, search for **`gpt-6-sol`** and open the OpenAI model
 
 Quota and capacity vary by subscription. A visible card does not establish deployability in the selected project. Check supported versions and capacity; if unavailable, record that limitation rather than silently substituting another model.
 
-### 2. Choose a deployment type
+### 2. Check processing location and cost conditions
 
 Start with **one administrator-approved usage-based type**. `GlobalStandard` is this guide's example, not the correct choice for every organization. Deployment type affects data-processing location as well as cost.
 
@@ -79,22 +88,32 @@ Start with **one administrator-approved usage-based type**. `GlobalStandard` is 
 
 </details>
 
-### 3. Deploy and record the name
-
-If a new deployment is needed and approved, select **Deploy → Custom settings** on the model card. Check **model `gpt-6-sol` / version `2026-09-22` / approved type and capacity / deployment name**, then select **Deploy**. Confirm **Succeeded/ready** in the deployment list. Do not record only the name of a failed deployment and proceed.
+### 3. Save the actual deployment name in your settings
 
 If you name it `contoso-gpt-6-sol`, set `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-gpt-6-sol` in `.env`. The API uses the **actual deployment name**, not merely the catalog model ID.
 
 L01's administrator foundation script can deploy the same model under the name `contoso-chat`. If using that path, keep the actual returned deployment name and do not deploy it again. Changing a model deployment does not automatically redeploy an existing Hosted agent's code or configuration.
 
-Once ready, run each of the following two inputs once in a separately approved Playground check. L08's v1/v2 measurement uses its own 12 fixed composite questions.
+**Pause and check:** Does the portal deployment name match the saved `.env` value? If it is also ready, continue to **Success criteria → L03**. No question submission is required here.
 
-```text
+<details class="operator-only" markdown="1">
+<summary>Administrators only: no deployment exists and creation is approved</summary>
+
+On the model card, choose **Deploy → Custom settings**. Check **model `gpt-6-sol` / version `2026-09-22` / approved type and capacity / deployment name**, then choose **Deploy**. Confirm **Succeeded/ready** before giving learners the actual name. Do not proceed with only the name of a failed deployment.
+
+</details>
+
+<details class="optional-path" markdown="1">
+<summary>Optional: compare two model answers after additional cost approval</summary>
+
+In the ready deployment's **Playground → Chat**, submit each input once. L08's v1/v2 measurement uses its own 12 fixed composite questions.
+
+```prompt
 Summarize this rule in one sentence:
 A total of KRW 2,000,000 or less requires team manager approval; a total above KRW 2,000,000 requires approval from both the team manager and the purchasing representative.
 ```
 
-```text
+```prompt
 Rule: A total of KRW 2,000,000 or less requires team manager approval; a higher total requires approval from both the team manager and the purchasing representative.
 Compare a total of KRW 2,000,000 with a total of KRW 2,000,001 in a table.
 Do not add anything that is not in the rule.
@@ -106,6 +125,8 @@ Do not add anything that is not in the rule.
 | Separately approved alternative (optional) | Record only if executed | Record your result | Based on the model card | Comparison reason |
 
 A public leaderboard is a starting point for narrowing candidates, not a guarantee of performance on your business data.
+
+</details>
 
 ### 4. Optional extension: Model router
 

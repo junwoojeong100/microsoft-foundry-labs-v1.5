@@ -1,9 +1,9 @@
 {
-  "created_at": "2026-10-03T12:38:02.283562+00:00",
+  "created_at": "2026-10-03T16:12:51.622502+00:00",
   "archive": "Contoso-Foundry-Hands-on-2026-09-30.zip",
   "files": 322,
-  "bytes": 16625105,
-  "sha256": "b0e278e9d3273d57e2392bbf754a42807d99fba86ef6ac10b7cc13e93cbd4505",
+  "bytes": 16768760,
+  "sha256": "79c4c73f0c12e91ef5652d4f2e01e474bcd13a3d99c777e0ad4fb313d5663848",
   "languages": [
     "en",
     "ko"

@@ -334,9 +334,14 @@ def render_chapter(chapter, body, source_map, previous, following, captures, ui)
     )
     prev_link = f'<a href="#{previous["id"]}"><span>{ui["previous"]}</span>{escape(previous["title"])}</a>' if previous else '<span></span>'
     next_link = f'<a class="next" href="#{following["id"]}"><span>{ui["next"]}</span>{escape(following["title"])} <b aria-hidden="true">→</b></a>' if following else f'<a href="#l00">{ui["back"]}</a>'
+    return_link = (
+        f'<a class="return-to-lab" href="#l00">{ui["return_to_lab"]} · L00</a>'
+        if chapter["track"] == "reference" else ""
+    )
     return f"""
 <article class="chapter" id="{chapter_id}" data-track="{chapter['track']}" aria-labelledby="{chapter_id}-title">
   <header class="chapter-header">
+{return_link}
     <div class="chapter-meta"><span class="eyebrow">{label} / {ui['tracks'][chapter['track']]}</span>{time_label}{learning_badge}<span class="status-badge {badge}">{escape(chapter['status'])}</span></div>
     <h1 id="{chapter_id}-title" tabindex="-1">{escape(chapter['title'])}</h1>
     <p class="chapter-summary">{escape(chapter['summary'])}</p>
@@ -370,6 +375,7 @@ def build_language(language):
     chapters, source_data, capabilities = load_content(language)
     ui = read_json("reader-labels.json")[language]
     edition = RELEASE["languages"][language]
+    core_count = sum(chapter["track"] == "core" for chapter in chapters)
     sources = {s["id"]: s for s in source_data["sources"]}
     captures = {item["path"]: item for item in load_portal_captures(language)}
     bodies = {c["id"]: source_body(c, chapters, capabilities, source_data, language) for c in chapters}
@@ -402,7 +408,7 @@ def build_language(language):
     js = (ROOT / "assets/app.js").read_text(encoding="utf-8")
     serialized = json.dumps(search_data, ensure_ascii=False).replace("<", "\\u003c").replace("&", "\\u0026")
     serialized_ui = json.dumps(
-        {**ui["js"], **{key: ui[key] for key in ("previous", "next", "back")}}, ensure_ascii=False,
+        {**ui["js"], **{key: ui[key] for key in ("previous", "next", "back", "progress_aria", "return_to_lab")}}, ensure_ascii=False,
     ).replace("<", "\\u003c").replace("&", "\\u0026")
     language_links = []
     for code, other in RELEASE["languages"].items():
@@ -456,11 +462,13 @@ def build_language(language):
   <div class="search-box"><label for="guide-search">{ui['search']}</label><div class="search-field"><input id="guide-search" type="search" placeholder="{ui['placeholder']}" autocomplete="off" aria-controls="search-results"><kbd aria-hidden="true">/</kbd></div></div>
   <label for="learning-path" class="path-label">{ui['path']}</label>
   <select id="learning-path">
-    <option value="all">{ui['all']}</option><option value="core">{ui['core']}</option>
+    <option value="all">{ui['all']}</option><option value="core" selected>{ui['core']}</option>
     <option value="quick">{ui['quick']}</option><option value="offline">{ui['offline']}</option>
     <option value="advanced">{ui['advanced']}</option><option value="reference">{ui['reference']}</option>
   </select>
-  <div class="progress-card"><div><strong>{ui['progress']}</strong><span id="progress-label">0 / 25</span></div><progress id="progress" value="0" max="25" aria-label="{ui['progress_aria']}"></progress><small>{ui['progress_hint']}</small></div>
+  <p id="path-scope" class="path-scope" hidden>{ui['offline_path_hint']}</p>
+  <div class="progress-card"><div><strong>{ui['progress']}</strong><span id="progress-label">0 / {core_count}</span></div><progress id="progress" value="0" max="{core_count}" aria-label="{ui['progress_aria'].format(count=core_count)}"></progress><small>{ui['progress_hint']}</small></div>
+  <nav class="reader-help" aria-label="{ui['help']}"><a href="#glossary">{ui['help_glossary']}</a><a href="#troubleshooting">{ui['help_troubleshooting']}</a></nav>
   <nav id="chapter-nav" aria-label="{ui['toc']}">{''.join(nav)}</nav>
   <button id="reset-progress" class="text-button" type="button">{ui['reset']}</button>
   <div class="sidebar-note">{ui['offline_note']}</div>

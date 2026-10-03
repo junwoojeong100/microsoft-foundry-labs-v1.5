@@ -9,6 +9,8 @@
 | `can't open file` / `No such file or directory` | 연 폴더에 `samples`·`data`·`requirements.txt`가 함께 있는지 확인. `samples` 안에서 명령을 실행하지 않음 |
 | Python의 `>>>` 또는 `SyntaxError` | `exit()`로 Python을 나온 뒤 터미널에서 명령 실행. 질문·JSON·`.env` 설정은 본문이 지정한 곳에 입력 |
 | Windows의 `source` / `curl --fail` 오류 | L01의 `.venv\Scripts\python.exe` 사용. HTTP 확인은 `curl.exe` 사용 |
+| 어제 되던 `python`에서 패키지를 못 찾음 | [L01 새 터미널 확인](#l01-new-terminal)으로 현재 실행기 경로 확인. 다른 Python에 패키지를 다시 설치하지 않음 |
+| `read-result`에서 파일·형식·언어 오류 | L06의 `Responses:` 경로와 `-responses.jsonl` 끝부분 확인. 소유 receipt나 L08 JSON은 다른 형식이며 새 유료 호출로 해결하지 않음 |
 | 포털에서 프로젝트가 안 보임 | 올바른 계정·조직과 제공된 프로젝트 이름을 강사에게 확인. 새 프로젝트나 구독을 임의로 만들지 않음 |
 
 ## 60초 진단 순서
@@ -51,6 +53,8 @@
 기존 외부 진단 로그 의존성은 governance 담당자의 확인 대상입니다. 이번 지침 수정은 외부 workspace 조회·정책/권한 변경·remediation을 수행하지 않습니다. 정확한 자원·correlation ID는 승인된 비공개 경로로 전달하며, 실습을 통과하려고 실패를 숨기거나 광범위한 역할을 추가하지 않습니다.
 
 ## 문의에 첨부할 안전한 정보
+
+웹 도움말을 다 읽었으면 **읽던 실습으로 돌아가기**를 선택합니다. 기본·90분 경로와 진도는 그대로 유지됩니다. 휴대폰에서는 **목차**에서 도움말을 다시 찾을 수 있습니다.
 
 ```text
 모듈:
