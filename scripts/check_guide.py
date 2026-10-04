@@ -26,7 +26,7 @@ BRIEF_LABELS = {
     "ko": ("진행 방식:", "먼저 할 일:", "확인할 결과:"),
     "en": ("Format:", "Start here:", "What to check:"),
 }
-PRACTICE_LABS = {"l15", "l18", "l19", "l20", "l21", "l22", "l23", "l24"}
+PRACTICE_LABS = {"l15", "l21", "l22"}
 PRACTICE_LABELS = {
     "ko": ("직접 해보기", "한 가지 바꾸기", "결과 설명하기"),
     "en": ("Try it", "Change one thing", "Explain the result"),
@@ -119,8 +119,12 @@ def check_language(language) -> dict:
     for path in (edition["readme"], f"{docs}/00-start.md", f"{docs}/instructor.md"):
         if duration not in (ROOT / path).read_text(encoding="utf-8"):
             raise ValueError(f"{path}: course duration differs from chapter metadata")
-    if [chapter["id"] for chapter in labs] != [f"l{i:02}" for i in range(25)]:
-        raise ValueError("Expected contiguous L00-L24 labs.")
+    expected_numbers = [f"{number:02}" for number in (*range(18), 21, 22)]
+    if (
+        [chapter["id"] for chapter in labs] != ["l" + number for number in expected_numbers]
+        or [chapter["number"] for chapter in labs] != expected_numbers
+    ):
+        raise ValueError("Expected L00-L17 and L21-L22 labs with their original numbers.")
     for chapter in chapters:
         if not set(chapter["sources"]) <= source_ids:
             raise ValueError(f"{chapter['id']}: unresolved official source")
@@ -171,14 +175,16 @@ def check_language(language) -> dict:
     duplicates = [item for item, count in Counter(parser.ids).items() if count > 1]
     if duplicates:
         raise ValueError(f"Duplicate HTML IDs: {duplicates}")
-    if set(parser.articles) != ids:
-        raise ValueError("Generated article set differs from chapter manifest.")
+    if parser.articles != [chapter["id"] for chapter in chapters]:
+        raise ValueError("Generated article order differs from chapter manifest.")
     if parser.remote_assets:
         raise ValueError(f"Guide must not require remote assets: {parser.remote_assets}")
-    for path in (edition["validation"], edition["receipt_html"]):
+    for path in (edition["receipt_html"],):
         if path not in parser.links:
             raise ValueError(f"{language}: missing localized evidence/receipt link: {path}")
     for address in parser.links:
+        if address.startswith(("validation/", "results/")):
+            raise ValueError("Execution records must remain outside the reader.")
         parsed = urlparse(address)
         if parsed.scheme or parsed.netloc:
             continue
@@ -205,7 +211,7 @@ def check_language(language) -> dict:
         if needle not in html:
             raise ValueError(f"Missing key caveat: {needle}")
     book = (ROOT / edition["markdown"]).read_text(encoding="utf-8")
-    for address in ("../" + edition["validation"], RELEASE["site_url"] + edition["receipt_html"]):
+    for address in (RELEASE["site_url"] + edition["receipt_html"],):
         if f"]({address})" not in book:
             raise ValueError(f"{language}: Markdown book missing localized evidence/receipt link: {address}")
     book_paths = set()
@@ -246,7 +252,7 @@ def check_language(language) -> dict:
 def check() -> dict:
     languages = {language: check_language(language) for language in RELEASE["languages"]}
     for key, expected in {
-        "pages": 30, "labs": 25, "coverage_rows": 91, "official_sources": 80, "core_minutes": 320,
+        "pages": 25, "labs": 20, "coverage_rows": 68, "official_sources": 80, "core_minutes": 320,
     }.items():
         if {result[key] for result in languages.values()} != {expected}:
             raise ValueError(f"Language editions must each have {expected} {key}.")
@@ -255,7 +261,7 @@ def check() -> dict:
         for language, result in languages.items()
     }
     if capture_names["en"] != capture_names["ko"] | {"18-resource-group.png"}:
-        raise ValueError("English captures must cover the original 17 screens plus the English resource group.")
+        raise ValueError("English captures must cover the active Korean screens plus the English resource group.")
     result = {
         "scope": "Offline bilingual documentation checks only; no Azure execution.",
         "default_language": RELEASE["default_language"],
@@ -270,8 +276,8 @@ if __name__ == "__main__":
     parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
     args = parser.parse_args()
     report_dir = (ROOT / args.report_dir).resolve()
-    if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
-        raise ValueError("Reports must be inside validation/.")
+    if not report_dir.is_relative_to(ROOT / "results") or report_dir == ROOT / "results":
+        raise ValueError("Reports must be inside private results/.")
     report = check()
     target = report_dir / "structure.json"
     target.parent.mkdir(parents=True, exist_ok=True)

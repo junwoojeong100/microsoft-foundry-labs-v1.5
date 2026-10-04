@@ -31,35 +31,51 @@ async (page) => {
   await page.setViewportSize({width: 1440, height: 1000});
   await page.goto(`${entry}#l00`);
   await page.waitForLoadState("networkidle");
+  const chapters = await page.evaluate(async () => {
+    const response = await fetch("content/chapters.json");
+    if (!response.ok) throw new Error("Missing curriculum manifest.");
+    return response.json();
+  });
+  const labIds = chapters.filter(chapter => chapter.track !== "reference").map(chapter => chapter.id);
+  const expectedLabIds = [...Array.from({length: 18}, (_, index) => `l${String(index).padStart(2, "0")}`), "l21", "l22"];
+  const advancedCount = chapters.filter(chapter => chapter.track === "advanced").length;
+  const practiceIds = ["l15", "l21", "l22"];
+  check(JSON.stringify(labIds) === JSON.stringify(expectedLabIds), "the 20-lab curriculum retains L00-L17 and L21-L22 in order");
   const originalState = await page.evaluate(() => localStorage.getItem("foundry-lab-guide-20260929"));
   try {
     await page.evaluate(() => localStorage.removeItem("foundry-lab-guide-20260929"));
     await page.reload();
     check(await page.locator("#learning-path").inputValue() === "core", "new readers start in the 13-module core path");
-    check(await page.locator("#progress-label").innerText() === "0 / 13", "new readers are not asked to complete all 25 electives and core labs");
+    check(await page.locator("#progress-label").innerText() === "0 / 13", "new readers are not asked to complete every elective and core lab");
     check(await page.locator(".chapter-link:visible").count() === 13, "default contents contain the core sequence only");
     check(await page.locator(".reader-help a:visible").count() === 2, "glossary and troubleshooting remain available outside path filtering");
+    await page.evaluate(() => localStorage.setItem(
+      "foundry-lab-guide-20260929",
+      JSON.stringify({done: ["l18", "l19", "l20", "l21", "l23", "l24"], theme: "light", path: "all"})
+    ));
+    await page.reload();
+    check(await page.locator("#progress-label").innerText() === `1 / ${labIds.length}`, "saved progress excludes removed labs and retains L21");
+    check(await page.locator('[data-complete="l21"]').getAttribute("aria-pressed") === "true", "retained elective progress survives curriculum pruning");
     await page.evaluate(() => localStorage.setItem(
       "foundry-lab-guide-20260929", JSON.stringify({done: [], theme: "light", path: "all"})
     ));
     await page.reload();
     await page.waitForLoadState("networkidle");
-    check(await page.locator("article.chapter").count() === 30, "30 generated pages");
-    check(await page.locator('.chapter[data-track="advanced"] .learning-badge').count() === 12, "all advanced modules show execution dependency labels");
+    check(JSON.stringify(await page.locator("article.chapter").evaluateAll(nodes => nodes.map(node => node.id))) === JSON.stringify(chapters.map(chapter => chapter.id)), "generated articles exactly match curriculum order");
+    check(await page.locator('.chapter[data-track="advanced"] .learning-badge').count() === advancedCount, "all advanced modules show execution dependency labels");
     check(await page.locator('#l14 .learning-badge').innerText() === (english ? "Prerequisites required" : "선행 실습 필요"), "Hosted prerequisite is explicit");
     check(await page.locator('#l16 .learning-badge').innerText() === (english ? "Independent elective" : "독립 선택"), "Memory is marked independently selectable");
-    check(await page.locator('#l20 .learning-badge').innerText() === (english ? "Separate feature paths" : "기능별 분기"), "Optimizer and fine-tuning paths are distinguished");
-    check(await page.locator(".nav-learning").count() === 12, "advanced navigation exposes dependency labels");
-    check(await page.locator("[data-complete]").count() === 25, "25 trackable labs");
-    check(await page.locator(".lab-brief").count() === 25, "all 25 modules have beginner start cards");
-    check(await page.locator("pre code.language-prompt").count() === 14, "fourteen portal question blocks identify their input destination");
+    check(await page.locator('#l17 .learning-badge').innerText() === (english ? "Separate feature paths" : "기능별 분기"), "Prompt Routine and Hosted long-running paths are distinguished");
+    check(await page.locator(".nav-learning").count() === advancedCount, "advanced navigation exposes dependency labels");
+    check(await page.locator("[data-complete]").count() === labIds.length, "all active labs are trackable");
+    check(await page.locator(".lab-brief").count() === labIds.length, "all active modules have beginner start cards");
+    check(await page.locator("pre code.language-prompt").count() === 12, "twelve portal question blocks identify their input destination");
     check(await page.locator("pre code.language-env").count() === 2, "settings blocks are distinguished from terminal commands");
-    check(await page.locator("pre code.language-instructions").count() === 1, "voice instructions identify the configuration field, not Chat");
-    check(await page.locator(".practice-block").count() === 8, "eight advanced modules expose a try-change-explain exercise");
+    check(await page.locator(".practice-block").count() === practiceIds.length, "three advanced modules expose a try-change-explain exercise");
     check(await page.locator('#l01 .operator-only').evaluateAll(nodes =>
       nodes.length === 2 && nodes.every(node => !node.open)
     ), "administrator provisioning and role tables are collapsed by default");
-    check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: english ? "Concepts and lab map" : "개념과 실습 지도"}).count() === 25, "all 25 labs explain feature, purpose, method and execution surface");
+    check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: english ? "Concepts and lab map" : "개념과 실습 지도"}).count() === labIds.length, "all active labs explain feature, purpose, method and execution surface");
     check(await page.locator(".command-explanation").count() === edition.shell_blocks, `all ${edition.shell_blocks} shell blocks have visible command explanations`);
     check(await page.locator(".command-explanation tbody tr").count() === edition.commands, `all ${edition.commands} logical CLI commands have individual explanation rows`);
     const captures = await page.evaluate(async ({english, edition}) => {
@@ -67,10 +83,14 @@ async (page) => {
       if (!response.ok) throw new Error(`Missing capture manifest: ${edition.portal_manifest}`);
       const manifest = await response.json();
       const directory = english ? "assets/portal/en/" : "assets/portal/";
-      if (!manifest.captures.every(item =>
+      const allCaptures = [...manifest.captures, ...(manifest.archived_captures || [])];
+      if (new Set(allCaptures.map(item => item.path)).size !== allCaptures.length) {
+        throw new Error("Active and archived portal capture paths must be distinct.");
+      }
+      if (!allCaptures.every(item =>
         item.path.startsWith(directory) && /^\d{2}-[a-z0-9-]+\.png$/.test(item.path.slice(directory.length))
       )) throw new Error("Portal captures must use this language's local image directory.");
-      const hashes = await Promise.all(manifest.captures.map(async item => {
+      const hashes = await Promise.all(allCaptures.map(async item => {
         const response = await fetch(item.path);
         if (!response.ok) throw new Error(`Missing portal capture: ${item.path}`);
         const hash = await crypto.subtle.digest("SHA-256", await response.arrayBuffer());
@@ -84,7 +104,7 @@ async (page) => {
         scoped: manifest.scope?.repository_id === 1396573688 &&
           manifest.scope?.project === (english ? "contoso-workshop-en" : "contoso-workshop") &&
           Boolean(manifest.scope?.resource_group && manifest.scope?.ownership_receipt),
-        provenance: manifest.captures.every(item =>
+        provenance: allCaptures.every(item =>
           item.route && item.purpose && item.masked?.length &&
           /(?:Z|[+-]\d{2}:\d{2})$/.test(item.captured_at) && Number.isFinite(Date.parse(item.captured_at))
         ),
@@ -94,9 +114,10 @@ async (page) => {
       };
     }, {english, edition});
     check(captures.declared.length === edition.portal_screenshots && JSON.stringify(captures.declared) === JSON.stringify(captures.rendered), "language-specific portal capture manifest matches the rendered guide");
-    check(captures.genuine && captures.scoped && captures.provenance && captures.hashesMatch, "all portal captures retain genuine scoped provenance and original hashes");
+    check(captures.genuine && captures.scoped && captures.provenance && captures.hashesMatch, "active and archived portal captures retain genuine scoped provenance and original hashes");
     check(captures.loaded && captures.captioned, "all offline portal images load with provenance and execution boundaries");
-    for (const path of [edition.receipt_html, edition.validation]) {
+    check(await page.locator('a[href^="validation/"], a[href^="results/"]').count() === 0, "execution records remain outside the guide");
+    for (const path of [edition.receipt_html]) {
       check(await page.locator(`.site-footer a[href="${path}"]`).count() === 1, `footer uses localized link: ${path}`);
       check(await page.locator(`.print-cover a[href="${path}"]`).count() === 1, `print cover uses localized link: ${path}`);
       const response = await page.request.get(`${origin}/${path}`);
@@ -141,12 +162,15 @@ async (page) => {
     check(await page.evaluate(() => document.activeElement.id) === "l00-first-steps", "first-step navigation moves keyboard focus");
     check(await page.locator(`.hero a[href="${page.contosoGuideRelease.archive}"]`).count() === 1, "lab ZIP is available at the entry point");
     await page.goto(`${entry}#l08`);
-    check(await page.locator("#l08 .recorded-answer:visible").count() === 2, "both actual localized answers are readable without opening JSON");
+    check(await page.locator("#l08 .recorded-answer").count() === 0, "author execution answers are not embedded in the guide");
     check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "new paid evaluation commands are separate from default reading");
-    const relevance = await page.locator("#l08 .worked-example tbody tr").filter({
-      hasText: english ? "Relevance" : "관련성",
-    }).innerText();
-    check(relevance.includes(english ? "5\t5" : "4\t5"), "reading example preserves this language's actual relevance scores");
+    const dataPrefix = english ? "data/en" : "data";
+    for (const version of ["v1", "v2"]) {
+      check(await page.locator(`#l08 a[href="${dataPrefix}/prompts/agent-${version}.txt"]`).count() === 1,
+        `L08 exposes the localized ${version} instruction source`);
+    }
+    check(await page.locator("#l08").innerText().then(text => text.includes("compound-request-no-tools")),
+      "the default reading path identifies the fixed question without inventing a score");
     await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
     check(await page.locator("details").evaluateAll(nodes => nodes.every(node => node.open)), "printing includes every optional and provenance section");
     await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
@@ -195,7 +219,7 @@ async (page) => {
     await page.locator("#learning-path").selectOption("all");
     await page.locator('.chapter-link[data-chapter="l06"]').click();
     await page.locator('[data-complete="l06"]').click();
-    check(await page.locator("#progress-label").innerText() === "1 / 25", "progress increments");
+    check(await page.locator("#progress-label").innerText() === `1 / ${labIds.length}`, "progress increments");
     await page.locator("#learning-path").selectOption("core");
     check(await page.locator("#progress-label").innerText() === "1 / 13", "core progress counts only core modules");
     check(await page.locator("#progress").getAttribute("max") === "13", "progress meter matches its visible denominator");
@@ -216,9 +240,15 @@ async (page) => {
     check(await page.locator("#progress-label").innerText() === "0 / 6", "quick tour excludes completed labs outside its six modules");
     await page.locator("#learning-path").selectOption("advanced");
     await page.locator("#l13.active").waitFor({state: "visible"});
-    check(await page.locator("#progress-label").innerText() === "0 / 12", "elective progress is separate from core progress");
+    check(await page.locator("#progress-label").innerText() === `0 / ${advancedCount}`, "elective progress is separate from core progress");
+    await page.goto(`${entry}#l17`);
+    check(await page.locator("#l17 .chapter-pagination .next").getAttribute("href") === "#l21", "elective pagination skips removed IDs");
+    await page.locator("#l17 .chapter-pagination .next").click();
+    await page.locator("#l21.active").waitFor({state: "visible"});
+    check(await page.locator("#l21 .chapter-pagination a").first().getAttribute("href") === "#l17", "reverse pagination retains the non-contiguous curriculum");
     await page.locator("#learning-path").selectOption("offline");
-    await page.locator("#l00.active").waitFor({state: "visible"});
+    await page.locator("#l21.active").waitFor({state: "visible"});
+    check(await page.locator(".chapter.active").getAttribute("id") === "l21", "path switching retains a current lab that belongs to both paths");
     check(await page.locator("#path-scope").isVisible(), "without-Azure scope warning persists beyond a transient toast");
     check(await page.locator('.chapter-link[data-chapter="l07"]').isVisible(), "without-Azure path includes the local MCP exercise");
     await page.locator("#learning-path").selectOption("reference");
@@ -226,7 +256,7 @@ async (page) => {
     check(await page.locator(".progress-card").isHidden(), "reference material does not display a misleading completion target");
     await page.locator("#learning-path").selectOption("all");
     await page.goto(`${entry}#l06`);
-    check(await page.locator("#progress-label").innerText() === "1 / 25", "path switches preserve all existing completion records");
+    check(await page.locator("#progress-label").innerText() === `1 / ${labIds.length}`, "path switches preserve all existing completion records");
     await page.reload();
     check(await page.locator('[data-complete="l06"]').getAttribute("aria-pressed") === "true", "progress survives reload");
     check(await page.locator(".chapter.active").getAttribute("id") === "l06", "deep-link survives reload");
@@ -317,8 +347,7 @@ async (page) => {
       })));
       check(imageBounds.length > 0 && imageBounds.every(image => image.loaded && image.width <= image.container + 1), `portal screenshots fit the reader at ${width}px`);
       if ([1440, 390, 320].includes(width)) {
-        for (let index = 0; index < 25; index += 1) {
-          const id = `l${String(index).padStart(2, "0")}`;
+        for (const id of labIds) {
           await page.goto(`${entry}#${id}`);
           const layout = await page.locator(`#${id}.active`).evaluate(chapter => ({
             viewport: innerWidth,
@@ -341,7 +370,7 @@ async (page) => {
           check(layout.briefWidth > 0 && layout.briefWidth <= layout.proseWidth + 1, `${id} beginner card fits at ${width}px`);
           check(layout.walkthroughsFit, `${id} command explanations need no horizontal scrolling at ${width}px`);
           check(layout.labelsFit, `${id} input labels do not overlap copy controls or code at ${width}px`);
-          if (["l15", "l18", "l19", "l20", "l21", "l22", "l23", "l24"].includes(id)) {
+          if (practiceIds.includes(id)) {
             check(await page.locator(`#${id} .practice-block`).isVisible(), `${id} concrete practice remains readable at ${width}px`);
           }
         }
@@ -350,36 +379,34 @@ async (page) => {
     await page.setViewportSize({width: 390, height: 844});
     await page.locator("#menu-toggle").click();
     check(await page.locator("#menu-toggle").getAttribute("aria-expanded") === "true", "mobile menu opens");
-    await page.locator('.chapter-link[data-chapter="l19"]').click();
-    await page.locator("#l19.active").waitFor({state: "visible"});
-    check(await page.locator(".chapter.active").getAttribute("id") === "l19", "mobile navigation");
+    await page.locator('.chapter-link[data-chapter="l21"]').click();
+    await page.locator("#l21.active").waitFor({state: "visible"});
+    check(await page.locator(".chapter.active").getAttribute("id") === "l21", "mobile navigation");
     check(await page.locator("#menu-toggle").getAttribute("aria-expanded") === "false", "mobile menu closes after navigation");
     await page.locator(".brand").click();
     await page.locator("#l00.active").waitFor({state: "visible"});
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "official brand icon still links to the start");
 
     await page.setViewportSize({width: 1440, height: 1000});
-    for (let index = 0; index < 25; index += 1) {
-      const id = `l${String(index).padStart(2, "0")}`;
+    for (const id of labIds) {
       await page.goto(`${entry}#${id}`);
       await page.locator(`#${id}.active`).waitFor({state: "visible"});
       check(await page.locator(".chapter.active").getAttribute("id") === id, `direct route ${id}`);
     }
     await page.goto(`${entry}#coverage`);
-    check(await page.locator("#coverage tbody tr").count() === 95, "91 coverage rows plus 4 depth definitions");
+    check(await page.locator("#coverage tbody tr").count() === 72, "68 coverage rows plus 4 depth definitions");
     await page.goto(`${entry}#l05`);
     await page.emulateMedia({media: "print"});
     await page.evaluate(() => { document.body.dataset.print = "one"; });
     check(await page.locator(".chapter:visible").count() === 1, "single-module print");
     await page.evaluate(() => { document.body.dataset.print = "all"; });
-    check(await page.locator(".chapter:visible").count() === 30, "complete-book print");
+    check(await page.locator(".chapter:visible").count() === chapters.length, "complete-book print");
     const printFonts = await page.evaluate(() => ({
       prose: parseFloat(getComputedStyle(document.querySelector("#l05 .prose")).fontSize),
       code: parseFloat(getComputedStyle(document.querySelector("#l05 pre code")).fontSize),
     }));
     check(printFonts.prose >= 14.66, "PDF body text >= 11pt");
     check(printFonts.code >= 12, "PDF code text >= 9pt");
-    check(await page.locator("#l20 h4").first().evaluate(node => getComputedStyle(node).breakAfter) === "avoid", "fine-tuning substeps stay with following content in print");
     await page.emulateMedia({media: null});
     await page.evaluate(() => { delete document.body.dataset.print; });
     await page.goto(`${entry}#%E0%A4%A`);
@@ -390,7 +417,7 @@ async (page) => {
       await context.route("**/*", localOnly);
       const nojs = await context.newPage();
       await nojs.goto(entry);
-      check(await nojs.locator(".chapter:visible").count() === 30, "all content readable without JavaScript");
+      check(await nojs.locator(".chapter:visible").count() === chapters.length, "all content readable without JavaScript");
       await nojs.locator(`.language-switch [data-language="${other}"]`).click();
       check(await nojs.locator("html").getAttribute("lang") === other, "language switching works without JavaScript");
     } finally {

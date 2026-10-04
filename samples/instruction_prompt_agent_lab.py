@@ -7,13 +7,13 @@ import json
 import os
 from pathlib import Path
 import time
+from uuid import uuid4
 
 from azure.ai.projects.models import PromptAgentDefinition
 from cloud import project_client
 from evidence import Budget, digest, redacted, serializable
 from grounding import answer_format
 from instruction_lab import (
-    EXPECTED_SCOPE,
     MAX_CALLS_PER_LANGUAGE,
     MAX_OUTPUT_TOKENS,
     TARGET_DEPLOYMENT,
@@ -26,20 +26,20 @@ from instruction_lab import (
     verify_profile,
 )
 from search_lab import policy_chunks
-from workshop import DATA, LANGUAGE, RESULTS, ROOT, ensure_response
+from workshop import DATA, LANGUAGE, RESULTS, ROOT, config_values, ensure_response
 
 MAX_SECONDS_PER_LANGUAGE = 600
 MAX_BILINGUAL_SECONDS = 1200
 PROMPT_AGENT_NAMES = {
-    "ko": "contoso-instruction-eval-ko-20261001",
-    "en": "contoso-instruction-eval-en-20261001",
+    "ko": "contoso-instruction-eval-ko",
+    "en": "contoso-instruction-eval-en",
 }
 RUBRIC = ROOT / "data/evaluation/instruction-judge.txt"
 
 
-def _definition(instructions: str, schema: dict) -> PromptAgentDefinition:
+def _definition(instructions: str, schema: dict, model: str = TARGET_DEPLOYMENT) -> PromptAgentDefinition:
     return PromptAgentDefinition(
-        model=TARGET_DEPLOYMENT,
+        model=model,
         instructions=instructions,
         tools=[],
         tool_choice="none",
@@ -56,14 +56,15 @@ def _write(handle, report: dict) -> None:
     os.fsync(handle.fileno())
 
 
-def _create_versions(project, agent_name: str, prompts: dict[str, str], schema: dict, report: dict, persist) -> dict:
+def _create_versions(project, agent_name: str, prompts: dict[str, str], schema: dict, report: dict, persist,
+                     *, model: str = TARGET_DEPLOYMENT) -> dict:
     existing = {agent.name for agent in project.agents.list(limit=100)}
     if agent_name in existing:
         expected_labels = {"1": "v1", "2": "v2"}
         versions = {}
         for version, label in expected_labels.items():
             recorded = project.agents.get_version(agent_name, version).as_dict()
-            expected_definition = _definition(prompts[label], schema).as_dict()
+            expected_definition = _definition(prompts[label], schema, model).as_dict()
             if (
                 recorded.get("name") != agent_name
                 or str(recorded.get("version")) != version
@@ -89,7 +90,7 @@ def _create_versions(project, agent_name: str, prompts: dict[str, str], schema: 
     for label in ("v1", "v2"):
         created = project.agents.create_version(
             agent_name=agent_name,
-            definition=_definition(prompts[label], schema),
+            definition=_definition(prompts[label], schema, model),
             description="Evaluation-only Contoso purchasing Prompt Agent; synthetic data, no tools.",
             metadata={"instruction_version": label, "evaluation_only": "true"},
         )
@@ -168,7 +169,6 @@ def compare(output: Path, *, max_seconds: int = MAX_SECONDS_PER_LANGUAGE) -> dic
         "quality_release": False,
         "reasoning_effort": "low",
         "max_output_tokens": MAX_OUTPUT_TOKENS,
-        "target_model_deployment": TARGET_DEPLOYMENT,
         "target_model": TARGET_MODEL,
         "target_model_version": TARGET_MODEL_VERSION,
         "target_calls": 0,
@@ -181,24 +181,23 @@ def compare(output: Path, *, max_seconds: int = MAX_SECONDS_PER_LANGUAGE) -> dic
             with project_client() as (project, _, endpoint, model), project.get_openai_client(
                 max_retries=0, timeout=60,
             ) as client:
-                if model != TARGET_DEPLOYMENT:
-                    raise ValueError("Project configuration does not select the approved GPT-6 Sol deployment.")
+                ownership = verify_profile(endpoint, model)
                 target = project.deployments.get(model).as_dict()
-                if (target.get("name") != TARGET_DEPLOYMENT
+                if (target.get("name") != model
                         or target.get("modelName") != TARGET_MODEL
                         or target.get("modelVersion") != TARGET_MODEL_VERSION):
                     raise ValueError("Foundry deployment readback differs from gpt-6-sol / 2026-09-22.")
-                ownership = verify_profile(endpoint, model)
                 if ownership["language"] != LANGUAGE:
                     raise ValueError("The endpoint ownership receipt belongs to a different language project.")
                 report.update(
                     ownership=ownership,
                     project_endpoint_sha256=digest(endpoint),
                     model_deployment=model,
+                    target_model_deployment=model,
                     model_identity=serializable(target),
                 )
-                agent_name = PROMPT_AGENT_NAMES[LANGUAGE]
-                versions = _create_versions(project, agent_name, prompts, schema, report, persist)
+                agent_name = PROMPT_AGENT_NAMES[LANGUAGE] + "-" + uuid4().hex[:8]
+                versions = _create_versions(project, agent_name, prompts, schema, report, persist, model=model)
                 report["prompt_agent_versions"] = {
                     "agent_name": agent_name,
                     "versions": versions,
@@ -258,7 +257,7 @@ def compare(output: Path, *, max_seconds: int = MAX_SECONDS_PER_LANGUAGE) -> dic
                         report["target_calls"] = len(report["rows"])
                         persist()
                         raw = ensure_response(response)
-                        if response.model not in {TARGET_DEPLOYMENT, TARGET_MODEL}:
+                        if response.model not in {model, TARGET_MODEL}:
                             raise ValueError("Prompt Agent response model differs from the verified GPT-6 Sol deployment.")
                         row["checklist"] = score(raw, case, sources)
                         if response.usage:
@@ -298,9 +297,9 @@ def main() -> None:
         print(json.dumps({
             "plan_only": True,
             "language": LANGUAGE,
-            "agent_name": PROMPT_AGENT_NAMES.get(LANGUAGE),
+            "agent_name_prefix": PROMPT_AGENT_NAMES.get(LANGUAGE),
             "prompt_agent_versions": ["v1", "v2"],
-            "model_deployment": TARGET_DEPLOYMENT,
+            "model_deployment": config_values()["FOUNDRY_MODEL_DEPLOYMENT_NAME"] or TARGET_DEPLOYMENT,
             "model": TARGET_MODEL,
             "model_version": TARGET_MODEL_VERSION,
             "same_fixed_cases_per_version": 12,

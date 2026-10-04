@@ -76,7 +76,7 @@ Windows PowerShell은 가상환경을 만들기 전 아래 `python3` 대신 **`p
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인 금액과 보존 정책" --live
-python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model 지원-judge모델 --judge-version 실제버전 --embedding-model 지원-embedding모델 --embedding-version 실제버전 --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
 python3.13 scripts/azure_environment.py roles --live
 ```
 
@@ -87,13 +87,14 @@ python3.13 scripts/azure_environment.py roles --live
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `create` | `--subscription`은 승인된 구독, `--location`은 실제 리전입니다. `--cost-authorization`의 따옴표 안에는 승인된 금액·보존 조건을 기록합니다. `--live`가 새 전용 RG 생성을 허용합니다. | 소유 receipt를 `results/azure-environment.json`에 기록합니다. 기존 RG 재사용 명령이 아닙니다. 이후 자원 비용의 범위가 됩니다. |
-| 2. `foundation` | chat·judge·embedding 각각의 모델 ID와 버전을 지정합니다. `--model-sku`는 처리 범위/배포 유형, `--capacity 10`은 해당 모델의 용량 단위이며 10달러 한도가 아닙니다. | Foundry 리소스·프로젝트·모델을 실제 배포합니다. 정책·quota 확인과 비용 승인이 선행되어야 합니다. |
+| 2. `foundation` | 모델·버전·SKU를 지정합니다. `--learners 1`의 권장 TPM/RPM에서 모델별 초기 capacity를 계산합니다. `--max-capacity 100`은 새로 할당할 배포당 단위 상한이며 TPM이나 비용 금액이 아닙니다. | 지역별 SKU 지원·단위·가용 quota를 먼저 확인하고 권장값으로 처음부터 배포합니다. 조건이 부족하면 모델 생성 전에 중단하며, 생성 후 실제 TPM/RPM도 재확인합니다. |
 | 3. `roles` | 소유 receipt에 기록된 새 환경에 실습용 역할을 설정합니다. `--live`는 권한 변경까지 포함하는 실제 실행입니다. | 관리자 권한이 필요합니다. 역할 전파 후 데이터 접근을 확인하며, 다른 환경에 대한 권한 확대 용도로 쓰지 않습니다. |
 
 </div>
 
 명령의 설명값은 실제 값으로 바꿉니다. 모델 catalog·SKU·quota를 먼저 조회하고
 Global/Data Zone/Standard 처리 범위를 승인받습니다. capacity의 단위는 모델별로 다르며 비용 상한이 아닙니다.
+`foundation`은 chat·judge·embedding에 서로 다른 capacity를 전달합니다. 원본 ARM 카탈로그의 `AIServices`/`S0` 항목에서 기본 모델용 SKU를 선택합니다. 카탈로그가 명시한 증분·최소/최대 제약을 적용하며, 온라인 SKU에 최소·증분이 생략되면 양의 정수 capacity를 사용합니다. 단위별 TPM/RPM·최대 용량·quota를 확인할 수 없으면 임의의 작은 값으로 배포하지 않습니다. 함께 배포하는 역할들이 같은 quota를 사용하면 필요한 합계를 먼저 확인합니다.
 `infra/main.bicep`은 Foundry account/project와 명시한 모델만 배포합니다.
 L13이 필요할 때만 `python scripts/azure_environment.py search --live`로 Search를 추가합니다. `search`는 소유 RG에 검색 서비스를 생성하는 관리자 작업이며, 요청하지 않아도 고정 비용이 생길 수 있습니다. 이 명령은 “검색을 한 번 해 보기”가 아닙니다.
 소유 기록은 `results/azure-environment.json`입니다. RequestConflict 등의 부분 실패는
@@ -128,6 +129,17 @@ L13이 필요할 때만 `python scripts/azure_environment.py search --live`로 S
 
 L02의 모델을 1개만 준비합니다. 합성 데이터이고 조직 정책이 허용하면 사용량 기반 배포부터 시작합니다. **PTU, 유료 Search tier, GPU managed compute, 대규모 Batch, fine-tuning은 기본 코스에 불필요**합니다.
 L08의 native 자동 평가를 진행할 때는 별도 judge 배포도 필요합니다. 관리자가 이미 제공했다면 다시 만들지 않습니다.
+
+**실습 전 모델 처리량을 맞춥니다.** 한 명이 한 실습을 진행하는 조건의 최소 권장 시작값은 다음과 같습니다. TPM만 보지 말고 RPM도 함께 확인합니다.
+
+| 모델 역할 | 사용하는 실습 | 최소 권장 TPM | 최소 RPM |
+| --- | --- | ---: | ---: |
+| chat · `gpt-6-sol` | 모델·에이전트·L15 오케스트레이션 | 100,000 | 60 |
+| judge · `gpt-4.1` | L08의 선택형 native 평가 | 100,000 | 60 |
+| embedding · `text-embedding-3-small` | L13 검색·L16 Memory | 10,000 | 6 |
+
+이는 입력 약 8,192토큰, 최대 출력 2,048토큰, chat/judge 분당 6회 시작과 여유분을 가정한 **실습 계획값**이지 Azure의 절대 최소나 비용 상한이 아닙니다. 배포를 공유하는 동시 학습자 수만큼 예산을 늘립니다. 더 긴 문맥·관리형 평가·다른 사용자의 트래픽은 추가 여유가 필요할 수 있습니다.
+새 환경은 위 `foundation` 명령이 **배포할 때부터 역할별 권장값을 설정**합니다. 그다음 [L02에서 실제 한도를 확인하고 연결 시험](#l02-capacity)을 진행합니다. `apply`는 기존·수동 배포의 용량이 부족하거나 학습자 수가 늘었을 때만 사용합니다.
 
 프로젝트 지역, 모델 지원 지역, 배포 유형, quota는 서로 다른 조건입니다. “Korea Central 프로젝트”라는 사실만으로 모든 추론이 한국에서 처리된다고 가정하지 마세요. Global / Data Zone / geography 처리 범위는 L02에서 다룹니다.
 

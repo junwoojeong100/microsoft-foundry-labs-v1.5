@@ -1,6 +1,7 @@
 """Read-only closeout of the owned environment; no resource deletion or implicit cancellation."""
 
 from datetime import datetime, timedelta, timezone
+from itertools import islice
 import json
 from pathlib import Path
 import sys
@@ -9,10 +10,27 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from cloud import project_client
 from evidence import Evidence
-from lab_profile import validation_for
 from routine_lab import azd
 from workshop import RESULTS, save_json
 from azure_environment import owned
+
+
+def routine_receipts(endpoint: str) -> list[dict]:
+    receipts = {}
+    for path in sorted(RESULTS.glob("*.json")):
+        value = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(value, dict) or (
+            value.get("schema") != "contoso-routine-v2" and path.name != "routine.json"
+        ):
+            continue
+        if value.get("endpoint") != endpoint or not isinstance(value.get("name"), str):
+            raise ValueError(f"Routine receipt endpoint/name mismatch: {path.name}.")
+        if value["name"] in receipts:
+            raise ValueError("Duplicate routine receipts; inspect their ownership before closeout.")
+        receipts[value["name"]] = {**value, "receipt_file": path.name}
+    if len(receipts) > 20:
+        raise ValueError("Closeout supports at most 20 owned routines per bounded query.")
+    return list(receipts.values())
 
 
 def main():
@@ -24,12 +42,20 @@ def main():
         "next_check_by": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
         "resources_deleted": False, "hosted": [], "routine": None, "routines": [],
         "voice_sessions": "not_created",
-        "quality_status_source": "validation/current/instructions.json",
+        "quality_evaluation_performed": False, "not_deployed_agents": [],
     }
     with project_client(evidence) as (project, _, endpoint, _):
         if endpoint != state["project_endpoint"]:
             raise ValueError("Current project is not the owned validation environment.")
+        inventory = list(islice(project.agents.list(limit=100), 101))
+        if len(inventory) > 100:
+            raise ValueError("Agent inventory exceeds the bounded workshop scope.")
+        names = {agent.name for agent in inventory}
+        evidence.append("agent_inventory", {"names": sorted(names)})
         for name in ("contoso-purchasing", "contoso-purchasing-responses"):
+            if name not in names:
+                report["not_deployed_agents"].append(name)
+                continue
             agent = project.agents.get(name)
             sessions = list(project.agents.list_sessions(name))
             evidence.append("sessions", {"agent": name, "sessions": sessions})
@@ -48,40 +74,18 @@ def main():
         evidence.append("insight_monitors", monitors)
         report["enabled_evaluation_schedules"] = len(schedules)
         report["insight_monitors"] = len(monitors)
-        receipt = ROOT / "results/routine.json"
-        if receipt.exists():
-            routine = json.loads(receipt.read_text())
-            if routine["endpoint"] != endpoint:
-                raise ValueError("Routine receipt endpoint mismatch.")
+        for routine in routine_receipts(endpoint):
             current = azd(endpoint, evidence, "show", routine["name"])
-            history = azd(endpoint, evidence, "run", "list", routine["name"], "--top", "10")
-            report["routine"] = {
+            if current.get("name") != routine["name"] or type(current.get("enabled")) is not bool:
+                raise ValueError("Routine state readback is incomplete; closeout is unverified.")
+            record = {
                 "name": current["name"], "enabled": current["enabled"],
-                "history_observed": bool(history.get("value")),
-                "scheduled_execution_verified": False,
+                "receipt_file": routine["receipt_file"],
+                "execution_verification": "See the separate response/trace evidence; state is not execution proof.",
             }
-            report["routines"].append(report["routine"])
-        retained = validation_for(ROOT) / "current/routine.json"
-        if retained.exists():
-            proof = json.loads(retained.read_text())
-            verified = (
-                proof.get("verification") == "completed_action_trace"
-                and bool(proof.get("response_id")) and bool(proof.get("trace_id"))
-            )
-            if report["routine"] and proof["name"] == report["routine"]["name"]:
-                report["routine"].update(
-                    scheduled_execution_verified=verified,
-                    verification_source="retained actual completed action trace, not an invented run-history ID",
-                    response_id=proof.get("response_id"), trace_id=proof.get("trace_id"),
-                )
-            else:
-                current = azd(endpoint, evidence, "show", proof["name"])
-                report["routines"].append({
-                    "name": current["name"], "enabled": current["enabled"],
-                    "scheduled_execution_verified": verified,
-                    "verification_source": "retained actual completed action trace, not an invented run-history ID",
-                    "response_id": proof.get("response_id"), "trace_id": proof.get("trace_id"),
-                })
+            report["routines"].append(record)
+            if routine["receipt_file"] == "routine.json":
+                report["routine"] = record
     active = (
         any(item["active_sessions"] for item in report["hosted"])
         or any(item["status"] in {"queued", "in_progress"} for item in report["optimization_jobs"])

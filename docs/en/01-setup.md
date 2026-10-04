@@ -105,7 +105,7 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 3. Compare **Name / Parent resource / Location** in **Manage → Project details** with the instructor's information. Your approved project may have a different name from the example `contoso-workshop-en`.
 4. If no project appears or only **Create project** is available, ask for access rather than creating one. Account-free participants can continue with the local checks in step 4 below.
 
-**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in `results/`; do not overwrite published examples in `validation/current/`.
+**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in `results/`, outside the guide and kit.
 
 <details class="operator-only" markdown="1">
 <summary>Administrators only: create a new environment after scope, cost, and access approval</summary>
@@ -114,7 +114,7 @@ The following script creates only a uniquely named new resource group (RG); it d
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription approved-subscription-id --location approved-region --cost-authorization "Approved amount and retention policy" --live
-python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
 python3.13 scripts/azure_environment.py roles --live
 ```
 
@@ -125,13 +125,14 @@ python3.13 scripts/azure_environment.py roles --live
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `create` | `--subscription` identifies the approved subscription, and `--location` specifies the actual region. Inside the quotes after `--cost-authorization`, record the approved amount and retention terms. `--live` permits creation of a new dedicated resource group. | Writes an ownership receipt to `results/azure-environment.json`. This is not a command for reusing an existing resource group. The new group defines the scope of subsequent resource costs. |
-| 2. `foundation` | Specify a model ID and version for each of chat, judge, and embedding. `--model-sku` sets the processing scope/deployment type; `--capacity 10` means 10 of that model's capacity units, not a USD 10 spending limit. | Deploys the Foundry resource, project, and models. Check policies and quota and obtain cost approval first. |
+| 2. `foundation` | Specify models, versions, and SKU. Calculate each initial capacity from the recommended TPM/RPM for `--learners 1`. `--max-capacity 100` is the ceiling for newly allocated units per deployment, not TPM or money. | Precheck regional SKU support, unit rates, and available quota, then create models at the recommended capacity. Missing prerequisites stop model creation; actual TPM/RPM is checked after deployment. |
 | 3. `roles` | Assigns lab roles in the new environment recorded in the ownership receipt. `--live` permits a real run, including permission changes. | Requires administrator privileges. Verify data access after role propagation; do not use this to expand access to other environments. |
 
 </div>
 
 Replace the descriptive placeholders with actual approved values: the subscription ID, permitted region, approved amount and retention policy, supported chat/judge/embedding model IDs, and their actual versions. Check the model catalog, SKU, and quota first,
 and obtain approval for the Global, Data Zone, or Standard processing scope. Capacity units vary by model and are not a spending cap.
+`foundation` supplies separate chat, judge, and embedding capacities. It selects the base-model SKU from the raw ARM catalog's `AIServices`/`S0` entry and applies explicit minimum, maximum, and increment constraints. When an online SKU omits minimum/increment restrictions, capacity remains a positive integer. Missing TPM/RPM unit rates, maximum capacity, or quota stops deployment rather than choosing an arbitrary small value. Roles sharing a quota are checked against their combined allocation.
 `infra/main.bicep` deploys only the Foundry account/project and the specified models.
 Add Search with `python scripts/azure_environment.py search --live` only when you need L13. `search` is an administrator operation that creates a search service in the owned resource group; it can incur fixed costs even without requests. It does not mean “try one search.”
 The ownership record is `results/azure-environment.json`. For partial failures such as RequestConflict,
@@ -141,7 +142,7 @@ inspect the original deployment operation and use `foundation --resume` **only f
 
 **Reading the screen:** Compare the resource group, location, and ownership tags with `results/azure-environment.json` from the English checkout. Visible resources depend on capture time and filters; the image does not prescribe a fixed resource list or count. Consult the [English capture log](../../content/portal-screenshots.en.json) for its exact scope. An overview is not proof of successful model calls or a passed quality gate.
 
-The captured overview preserves an **inherited organizational diagnostic-policy failure** because its external governance workspace was missing. The English run's own foundation and observability deployments succeeded separately. Do not hide that warning, count it as an owned deployment failure, or change the out-of-scope policy/workspace; refer it to the responsible governance owner.
+If an overview shows an **inherited organizational diagnostic-policy failure**, inspect its scope separately from the lab's deployments. Do not hide the warning or change an out-of-scope policy/workspace; refer it to the responsible governance owner.
 
 </details>
 
@@ -166,7 +167,7 @@ Role names have recently changed—for example, **Azure AI User → Foundry User
 
 **Ask the responsible administrator to assign roles.** Do not give every learner subscription Owner access. Check each module for additional tool-specific permissions.
 
-The administrator script resolves the administrator's object ID from the **authenticated Azure Resource Manager (ARM) credential** for scoped role assignments, rather than requiring a separate Microsoft Graph signed-in-user lookup. A Graph-specific Continuous Access Evaluation (CAE) challenge did not block ARM/Foundry authentication in this English run. Diagnose each service's actual response separately and follow organizational access policies.
+The administrator script resolves the administrator's object ID from the **authenticated Azure Resource Manager (ARM) credential** for scoped role assignments, rather than requiring a separate Microsoft Graph signed-in-user lookup. Diagnose each service's actual authentication response separately and follow organizational access policies.
 
 </details>
 
@@ -175,12 +176,16 @@ The administrator script resolves the administrator's object ID from the **authe
 Prepare just one model for L02. Start with a usage-based deployment if your data is synthetic and organizational policy allows it. **PTU, paid Search tiers, GPU managed compute, large Batch jobs, and fine-tuning are not needed for the core course.**
 L08's native automated evaluation also requires a separate judge deployment. Do not recreate one the administrator has already provided.
 
-<details class="provenance-note" markdown="1">
-<summary>Reference: the earlier English run's capacity decision</summary>
+**Prepare model throughput before the lab.** These are the minimum recommended starting allocations for one learner running one lab at a time. Check RPM as well as TPM.
 
-The English run's foundation-model capacity was explicitly increased **10 → 50 → 100** after quota verification for the bounded evaluation workload. The current setting of **100** is a run-specific capacity decision, not a required learner setting or an evaluation pass. Capacity units vary by model and **are not a dollar cap**; retain explicit cost approval and bounded requests before increasing your own deployment capacity.
+| Model role | Used for | Minimum recommended TPM | Minimum RPM |
+| --- | --- | ---: | ---: |
+| chat · `gpt-6-sol` | Models, agents, and L15 orchestration | 100,000 | 60 |
+| judge · `gpt-4.1` | Optional L08 native evaluation | 100,000 | 60 |
+| embedding · `text-embedding-3-small` | L13 search and L16 Memory | 10,000 | 6 |
 
-</details>
+These are **planning values**, assuming about 8,192 input tokens, up to 2,048 output tokens, six chat/judge starts per minute, and headroom. They are not Azure's absolute minimum or a spending cap. Multiply the budget by the simultaneous learners sharing a deployment. Longer context, managed evaluation, and other traffic can require more headroom.
+For a new environment, `foundation` **sets each role's recommended capacity on the initial deployment**. Then [check actual limits and test connectivity in L02](#l02-capacity). Use `apply` only for insufficient existing/manual deployments or an increased learner count.
 
 The project region, supported model regions, deployment type, and quota are separate conditions. A project in Korea Central does not, by itself, mean that all inference is processed in Korea. L02 covers Global, Data Zone, and geography-based processing scopes.
 

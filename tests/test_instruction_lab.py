@@ -103,44 +103,35 @@ class InstructionLearningTests(unittest.TestCase):
             self.assertEqual(path.read_text(), '{"preserved":true}')
             client.assert_not_called()
 
-    def test_owned_receipt_accepts_the_checked_in_flat_deployment_contract(self):
-        endpoint = "https://fixture.services.ai.azure.com/api/projects/fixture"
+    def test_fresh_owned_environment_does_not_depend_on_historical_validation(self):
+        from test_model_capacity import scope
+        receipt = scope()
+        receipt["model_deployments"]["chat"] = "contoso-chat"
+        endpoint = receipt["project_endpoint"]
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "validation/current/ko").mkdir(parents=True)
             (root / "results").mkdir()
-            (root / "validation/current/operations.json").write_text(json.dumps({
-                "status": "recorded_jobs_terminal",
-                "policy_or_access_changed": False,
-                "resources_deleted": False,
-                "languages": {"ko": {
-                    "resource_group": "rg-contoso-a-26092979bea5",
-                    "project": "contoso-workshop",
-                    "target_deployment": {
-                        "deployment": instruction_lab.TARGET_DEPLOYMENT,
-                        "model": instruction_lab.TARGET_MODEL,
-                        "version": instruction_lab.TARGET_MODEL_VERSION,
-                    },
-                }},
-            }))
-            (root / "validation/current/ko/responses.json").write_text(json.dumps({
-                "project_endpoint_sha256": instruction_lab.digest(endpoint),
-            }))
-            (root / "results/azure-environment.json").write_text(json.dumps({
-                "repository_id": 1396573688,
-                "resource_group": "rg-contoso-a-26092979bea5",
-                "project_name": "contoso-workshop",
-                "project_endpoint": endpoint,
-            }))
+            (root / "results/azure-environment.json").write_text(json.dumps(receipt))
+            observed = {"chat": {"model": "gpt-6-sol", "version": "2026-09-22", "ready": True}}
             with patch.object(instruction_lab, "ROOT", root), \
-                    patch.object(instruction_lab, "RESULTS", root / "results"):
-                profile = instruction_lab.verify_profile(endpoint, instruction_lab.TARGET_DEPLOYMENT)
+                    patch.object(instruction_lab, "RESULTS", root / "results"), \
+                    patch.object(instruction_lab, "inspect_deployments", return_value=(observed, {})) as inspect:
+                profile = instruction_lab.verify_profile(endpoint, "contoso-chat")
+                inspect.assert_called_once()
+                with self.assertRaisesRegex(ValueError, "differs"):
+                    instruction_lab.verify_profile(endpoint, "not-owned")
+                self.assertEqual(inspect.call_count, 1)
+                observed["chat"]["ready"] = False
+                with self.assertRaisesRegex(ValueError, "TPM/RPM"):
+                    instruction_lab.verify_profile(endpoint, "contoso-chat")
             self.assertEqual(profile["model"], "gpt-6-sol")
             self.assertEqual(profile["model_version"], "2026-09-22")
+            self.assertEqual(profile["model_deployment"], "contoso-chat")
+            self.assertEqual(profile["receipt_sources"], ["results/azure-environment.json"])
 
     def mock_target(self, project):
         project.deployments.get.return_value.as_dict.return_value = {
-            "name": "contoso-gpt-6-sol", "modelName": "gpt-6-sol", "modelVersion": "2026-09-22",
+            "name": "fixture-model", "modelName": "gpt-6-sol", "modelVersion": "2026-09-22",
         }
 
     def test_one_pair_per_case_uses_identical_inputs_and_no_answer_key(self):

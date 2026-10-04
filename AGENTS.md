@@ -8,7 +8,7 @@ repository has a different ID (1390444066); do not confuse the two by name.
 
 Keep this repository independent. Use only synthetic Contoso purchasing data.
 Never rewrite historical validation, lower evaluation gates to pass a run, or
-claim local/fixture checks as Azure evidence. Preserve the Korean 25-module
+claim local/fixture checks as Azure evidence. Preserve the Korean 20-module
 reader and generate HTML/Markdown/PDF/ZIP from the checked-in sources.
 
 Azure operations require explicit live opt-in, scoped ownership receipts and

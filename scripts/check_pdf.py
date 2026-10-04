@@ -98,7 +98,7 @@ def check_pdf(language, report_dir):
         missing_images = [path for path, fingerprint in expected_images if fingerprint not in seen_images]
         if missing_images:
             raise ValueError(f"PDF is missing original portal screenshot pixels: {missing_images}")
-        if internal_links < 30 or not {chapter["id"] + "-title" for chapter in chapters} <= destinations:
+        if internal_links < len(chapters) or not {chapter["id"] + "-title" for chapter in chapters} <= destinations:
             raise ValueError("The PDF must preserve a usable internal table of contents.")
         phrase = "직접만들며이해하기" if language == "ko" else "learnbybuilding"
         if phrase not in combined.lower():
@@ -130,8 +130,8 @@ def main():
     parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
     args = parser.parse_args()
     report_dir = (ROOT / args.report_dir).resolve()
-    if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
-        raise ValueError("Reports must be inside validation/.")
+    if not report_dir.is_relative_to(ROOT / "results") or report_dir == ROOT / "results":
+        raise ValueError("Reports must be inside private results/.")
     report = {
         "scope": "Local bilingual PDF checks only; no Azure execution.",
         "languages": {

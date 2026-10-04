@@ -21,7 +21,7 @@
 
 ## Troubleshooting by symptom
 
-The [actual bilingual comparison](../../validation/current/quality.json) shows a limited Korean relevance increase and tied English native metrics on GPT-6 Sol. Do not transfer one language's result to the other. Use the [measurement report](../../validation/current/report.json) to distinguish preserved failures, completed collection, and actual scores; neither service completion nor missing numeric results count as a valid score.
+Inspect your own bilingual comparison files, keeping each language's results separate. Distinguish failed attempts, complete collections, and valid scores; neither service completion nor missing numeric results count as a valid score.
 
 | Symptom | Check first | Next action | Do not |
 | --- | --- | --- | --- |

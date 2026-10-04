@@ -65,7 +65,7 @@ python scripts/check_guide.py
 | 1. `pip install -r requirements-docs.txt` | 현재 가상환경에 선언된 Markdown 생성 의존성을 준비합니다. 이미 있으면 생략합니다. | 패키지 다운로드·로컬 설치. Azure 호출 없음. |
 | 2. `build_guide.py` | 두 언어의 원본·메타데이터로 HTML/Markdown을 생성합니다. | 로컬 파일 변경. 생성물을 손으로 수정하지 않습니다. |
 | 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | 공유 테스트를 한국어 기본값과 별도의 영어 검사로 실행합니다. | 로컬 계약 검사이며 Azure나 모델 품질 검사가 아닙니다. |
-| 4. `check_guide.py` | 25개 모듈, 명령 해설, 링크, 화면 출처를 확인합니다. | 최신 문서 검사만 `validation/docs/`에 기록합니다. |
+| 4. `check_guide.py` | 20개 모듈과 5개 참고 절, 명령 해설, 링크, 화면 출처를 확인합니다. | 문서 검사만 비공개 `results/documentation/`에 기록합니다. |
 
 </div>
 
@@ -136,7 +136,7 @@ def choose_version(previous: str, candidate: str, checks: dict) -> str:
 | 근거 | 같은 대상의 response/trace, 실제 도구 결과, 적용한 평가와 실패/누락 | L08의 도구 없는 12문항 비교만으로 통합 업무 출시 승인 불가 |
 | 복구 | 이전 승인 버전·설정 묶음, 전환 담당자, 데이터 호환 여부 | 돌아갈 대상이나 상태 호환성이 없으면 배포 보류 |
 
-L11의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290만 원·두 승인 역할·미주문**을 실제 도구/근거와 연결합니다. L14 Hosted는 package/runtime contract도 대조합니다. 지침이 v2인 것과 해당 Hosted 코드가 새로 검증된 것은 다릅니다. [최신 상태](../validation/current/instructions.json)의 검증 범위를 읽으세요.
+L11의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290만 원·두 승인 역할·미주문**을 실제 도구/근거와 연결합니다. L14 Hosted는 package/runtime contract도 대조합니다. 지침이 v2인 것과 해당 Hosted 코드가 실제로 검증된 것은 다릅니다. 자신의 실행 대상과 증거 범위를 확인하세요.
 
 ### 4. 실패 가정으로 롤백 연습하기
 

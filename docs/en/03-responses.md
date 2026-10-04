@@ -55,7 +55,7 @@ A higher total requires approval from both the team manager and the purchasing r
 What approval is required for a total of exactly KRW 2,000,000?
 ```
 
-The **expected** answer is team manager approval. In the captured English run, the actual answer was **“A total of exactly KRW 2,000,000 requires team lead approval.”** The completion cap was **256**, and the portal displayed **106 total tokens**. Web search was off, and the question was submitted once without resubmission. The [English capture log](../../content/portal-screenshots.en.json) records this observation. These are one model request's displayed values, not an evaluation score, proof of RAG, or the total lab cost.
+The **expected** answer is team manager approval. Inspect your actual response and its identifier. Displayed tokens describe that request, not an evaluation score, proof of RAG, or the total lab cost.
 
 If a capture or wait times out, inspect the existing response before considering another request. Do not infer raw HTTP status or internal retries from the screen. The CLI path below is a separate execution for learning to read the response object and ID in code; there is no need to make extra calls merely to reproduce an image.
 

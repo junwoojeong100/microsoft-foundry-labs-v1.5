@@ -10,5 +10,6 @@ __pycache__/
 .env
 .azure/
 results/
+validation/
 .DS_Store
 .playwright-mcp/

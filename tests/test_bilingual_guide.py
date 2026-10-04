@@ -1,4 +1,5 @@
 from collections import Counter
+from copy import deepcopy
 import json
 from pathlib import Path
 import re
@@ -107,17 +108,15 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["pages_branch"], "gh-pages")
         expected = {
             "en": ("index.html", "downloads/GUIDE.en.md", "downloads/" + release["artifact"] + ".en.pdf",
-                   "portal-screenshots.en.json", 18, 63, 126,
-                   "validation/current/instructions.json", "data/en/receipt.html"),
+                   "portal-screenshots.en.json", 16, "data/en/receipt.html"),
             "ko": ("index.ko.html", "downloads/GUIDE.ko.md", "downloads/" + release["artifact"] + ".pdf",
-                   "portal-screenshots.json", 17, 61, 124,
-                   "validation/current/instructions.json", "data/receipt.html"),
+                   "portal-screenshots.json", 15, "data/receipt.html"),
         }
         for language, values in expected.items():
             edition = release["languages"][language]
             self.assertEqual(tuple(edition[key] for key in (
                 "html", "markdown", "pdf", "portal_manifest", "portal_screenshots",
-                "shell_blocks", "commands", "validation", "receipt_html",
+                "receipt_html",
             )), values)
         self.assertEqual(release["archive"], "downloads/" + release["artifact"] + ".zip")
 
@@ -127,11 +126,12 @@ class BilingualGuideTests(unittest.TestCase):
         for chapters, sources, capabilities in (
             (korean, ko_sources, ko_capabilities), (english, en_sources, en_capabilities),
         ):
-            self.assertEqual(len(chapters), 30)
-            self.assertEqual(len([c for c in chapters if c["track"] != "reference"]), 25)
-            self.assertEqual(len(capabilities), 91)
+            self.assertEqual(len(chapters), 25)
+            self.assertEqual(len([c for c in chapters if c["track"] != "reference"]), 20)
+            self.assertEqual(len(capabilities), 68)
             self.assertEqual(len(sources["sources"]), 80)
             self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "core"), 320)
+            self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "advanced"), 310)
         for original, translation in zip(korean, english, strict=True):
             for key in ("id", "number", "track", "minutes", "sources"):
                 self.assertEqual(original[key], translation[key], (original["id"], key))
@@ -145,6 +145,39 @@ class BilingualGuideTests(unittest.TestCase):
             [(c["lab"], c["source"], c["mode"]) for c in ko_capabilities],
             [(c["lab"], c["source"], c["mode"]) for c in en_capabilities],
         )
+
+    def test_orchestration_coverage_distinguishes_hands_on_patterns_from_protocol_references(self):
+        for language in ("ko", "en"):
+            _, _, capabilities = build_guide.load_content(language)
+            rows = {row["source"]: row for row in capabilities if row["lab"] == "l15"}
+            with self.subTest(language=language):
+                self.assertEqual(rows["maf"]["mode"], "직접 실습")
+                for pattern in ("sequential", "concurrent", "group-chat", "handoff"):
+                    self.assertIn(pattern, rows["maf"]["name"])
+                self.assertEqual(rows["a2a"]["mode"], "참고")
+                self.assertEqual(rows["hitl"]["mode"], "참고")
+                self.assertNotIn("Magentic", json.dumps(rows))
+
+    def test_rendered_curriculum_counts_and_order_follow_the_manifest(self):
+        for language, edition in build_guide.RELEASE["languages"].items():
+            chapters, _, _ = build_guide.load_content(language)
+            lab_ids = [chapter["id"] for chapter in chapters if chapter["track"] != "reference"]
+            artifacts = render_without_writing(language)
+            html = artifacts[edition["html"]]
+            parser = GuideParser()
+            parser.feed(html)
+            labels = build_guide.read_json("reader-labels.json")[language]
+            with self.subTest(language=language):
+                self.assertEqual(parser.articles, [chapter["id"] for chapter in chapters])
+                self.assertEqual(re.findall(r'data-complete="([^"]+)"', html), lab_ids)
+                hero = re.search(r'<div class="hero-stats">(.*?)\n', html)[1]
+                self.assertEqual(re.findall(r"<strong>(\d+)</strong>", hero), ["13", "7", "1"])
+                cover = re.search(r'<section class="print-cover"[^>]*>(.*?)</section>', html, re.S)[1]
+                self.assertIn(labels["cover_edition"].format(count=len(lab_ids)), cover)
+                self.assertIn(
+                    labels["book_intro"].format(count=len(lab_ids)),
+                    artifacts[Path(edition["markdown"]).name],
+                )
 
     def test_all_modules_have_complete_english_authoring_structure(self):
         chapters, sources, capabilities = build_guide.load_content("en")
@@ -264,7 +297,7 @@ class BilingualGuideTests(unittest.TestCase):
         for address in links:
             self.assertRegex(address, rf"^{re.escape(REPOSITORY)}/blob/[0-9a-f]{{40}}/\.github/workflows/")
 
-    def test_source_image_sets_are_english_18_and_korean_17(self):
+    def test_source_image_sets_are_english_16_and_korean_15(self):
         paths = {}
         for language, edition in build_guide.RELEASE["languages"].items():
             chapters, sources, capabilities = build_guide.load_content(language)
@@ -273,10 +306,51 @@ class BilingualGuideTests(unittest.TestCase):
                 body = build_guide.source_body(chapter, chapters, capabilities, sources, language)
                 images.update(re.findall(r"!\[[^\]]*\]\((assets/portal/[^)]+)\)", body))
             self.assertEqual(len(images), edition["portal_screenshots"])
+            self.assertEqual(images, {capture["path"] for capture in build_guide.load_portal_captures(language)})
+            archived = build_guide.read_json(edition["portal_manifest"])["archived_captures"]
+            self.assertTrue(images.isdisjoint(capture["path"] for capture in archived))
             directory = "assets/portal/en" if language == "en" else "assets/portal"
             self.assertTrue(all(Path(path).parent == Path(directory) for path in images))
             paths[language] = {Path(path).name for path in images}
         self.assertEqual(paths["en"], paths["ko"] | {"18-resource-group.png"})
+
+    def test_archived_captures_keep_original_fingerprints_and_capture_times(self):
+        expected = {
+            "ko": [
+                ("14-fine-tuning.png", "2026-09-30T07:30:08.887Z", "7704db26c5dbad1c9ff85d30d85782017d586f94c7b7dba06f905d3bf805844b"),
+                ("15-voice-setup.png", "2026-09-30T07:31:46.072Z", "01cea0d080fe6d926ca36a30157e6952b7e3886c86c19963cb2d78185ac7dfff"),
+            ],
+            "en": [
+                ("14-fine-tuning.png", "2026-09-30T13:42:59.449Z", "ff932830fb6f47665d3ce63eb952e3ef488b647799080bb3b0c914dfbb1e25bb"),
+                ("15-voice-setup.png", "2026-09-30T13:44:56.166Z", "8d89de499d03f6aacc6063a40803ab65c11370bf5539f0f5557b0a29df970781"),
+            ],
+        }
+        for language, edition in build_guide.RELEASE["languages"].items():
+            manifest = build_guide.read_json(edition["portal_manifest"])
+            archived = manifest["archived_captures"]
+            with self.subTest(language=language):
+                self.assertEqual(
+                    [(Path(item["path"]).name, item["captured_at"], item["sha256"]) for item in archived],
+                    expected[language],
+                )
+                self.assertEqual(
+                    build_guide.load_portal_captures(language, include_archived=True),
+                    [*manifest["captures"], *archived],
+                )
+
+    def test_archived_captures_still_require_unique_paths_and_full_provenance(self):
+        for language, edition in build_guide.RELEASE["languages"].items():
+            original = build_guide.read_json(edition["portal_manifest"])
+            for defect in ("duplicate", "sha256", "captured_at", "route", "masked", "purpose"):
+                manifest = deepcopy(original)
+                if defect == "duplicate":
+                    manifest["archived_captures"].append(deepcopy(manifest["captures"][0]))
+                else:
+                    manifest["archived_captures"][0][defect] = ""
+                with self.subTest(language=language, defect=defect), patch.object(
+                    build_guide, "read_json", return_value=manifest,
+                ), self.assertRaises(ValueError):
+                    build_guide.load_portal_captures(language)
 
     def test_reader_labels_have_the_same_keys_and_are_translated(self):
         labels = build_guide.read_json("reader-labels.json")
@@ -286,30 +360,24 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertNotIn("Korean fixture", json.dumps(labels["en"]))
         for language, edition in build_guide.RELEASE["languages"].items():
             for key in ("cover_boundary", "book_boundary"):
-                self.assertIn(edition["validation"], labels[language][key].format(validation=edition["validation"]))
+                self.assertNotIn("{validation}", labels[language][key])
+                self.assertNotIn("validation/current", labels[language][key])
         for original, translated in zip(*[
             build_guide.load_content(language)[0] for language in ("ko", "en")
         ], strict=True):
             for key in ("title", "summary", "status"):
                 self.assertFalse(re.search(r"[가-힣]", translated[key]), (original["id"], key))
 
-    def test_both_readers_distinguish_prepared_v2_from_actual_prior_results(self):
+    def test_both_readers_keep_execution_records_outside_the_guide(self):
         labels = build_guide.read_json("reader-labels.json")
         for language, reading in (("en", "Read → do one step"), ("ko", "읽기 → 한 단계 실행")):
             self.assertIn(reading, labels[language]["reader_note"])
-            self.assertIn("validation/current/instructions.json", labels[language]["book_boundary"].format(
-                validation=build_guide.RELEASE["languages"][language]["validation"],
-            ))
+            self.assertNotIn("validation/current", labels[language]["book_boundary"])
             directory = "docs/en" if language == "en" else "docs"
-            self.assertIn("validation/current/instructions.json", (ROOT / directory / "08-evaluation.md").read_text())
-        current = json.loads((ROOT / "validation/current/instructions.json").read_text())
-        self.assertTrue(current["v2_live_improvement_established"])
-        self.assertFalse(current["quality_release"])
-        self.assertTrue(current["latest_actual_azure"]["matches_new_v2_instructions"])
-        self.assertEqual(current["latest_actual_azure"]["languages"], ["ko", "en"])
-        report = json.loads((ROOT / "validation/current/report.json").read_text())
-        self.assertEqual(report["languages"]["ko"]["native_delta"]["relevance"], 0.08333333333333304)
-        self.assertEqual(report["languages"]["en"]["native_delta"]["relevance"], 0.0)
+            text = (ROOT / directory / "08-evaluation.md").read_text()
+            self.assertNotIn("validation/current", text)
+            self.assertNotIn("4.9167", text)
+            self.assertIn("results/azure-environment.json", text)
 
     def test_missing_translation_fails_instead_of_falling_back_to_korean(self):
         read_json = build_guide.read_json
@@ -376,10 +444,10 @@ class BilingualGuideTests(unittest.TestCase):
         parser.feed(artifacts["index.ko.html"])
         self.assertEqual(parser.language, "ko")
         self.assertFalse(parser.remote_assets)
-        self.assertIn("validation/current/instructions.json", parser.links)
+        self.assertFalse(any(link.startswith(("validation/", "results/")) for link in parser.links))
         self.assertIn("data/receipt.html", parser.links)
         self.assertNotIn("data/en/receipt.html", parser.links)
-        self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/")}), 17)
+        self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/")}), 15)
         self.assertIn("](" + build_guide.RELEASE["site_url"] + "data/receipt.html)", artifacts["GUIDE.ko.md"])
         self.assertIn("[English](GUIDE.en.md)", artifacts["GUIDE.ko.md"])
 
@@ -388,13 +456,13 @@ class BilingualGuideTests(unittest.TestCase):
             ".env", ".venv/lib/package.py", "data/.azure/config.json", "content/.git/config",
             "samples/.foundry/results.json", "assets/node_modules/package.json",
             "validation/english/results/response.json", "tests/__pycache__/test.pyc",
+            "validation/current/instructions.json", "validation/automated-v3/ci-release.json",
         ):
             with self.subTest(path=path), self.assertRaisesRegex(ValueError, "Private or generated cloud data"):
                 package_guide.check_package_path(path)
         for path in (
-            "validation/current/instructions.json", "validation/automated-v3/ci-release.json",
-            "validation/current/instructions.json", "validation/english/automated-v3/ci-release.json",
             "assets/portal/en/18-resource-group.png", "data/en/receipt.html", ".env.example",
+            "downloads/replay/Contoso-Foundry-Replay.en.mp4",
         ):
             package_guide.check_package_path(path)
 
@@ -417,7 +485,7 @@ class BilingualGuideArtifactTests(unittest.TestCase):
             ):
                 links = GuideParser()
                 links.feed(section)
-                self.assertIn(edition["validation"], links.links)
+                self.assertFalse(any(link.startswith(("validation/", "results/")) for link in links.links))
                 self.assertIn(edition["receipt_html"], links.links)
         for relative in ("index.ko.html", "data/receipt.html", "data/en/receipt.html"):
             self.assertIn(release["site_url"] + relative, readme)
@@ -428,8 +496,8 @@ class BilingualGuideArtifactTests(unittest.TestCase):
         parser = GuideParser()
         parser.feed(artifacts["index.html"])
         self.assertEqual(parser.language, "en")
-        self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/en/")}), 18)
-        self.assertIn("validation/current/instructions.json", parser.links)
+        self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/en/")}), 16)
+        self.assertFalse(any(link.startswith(("validation/", "results/")) for link in parser.links))
         self.assertIn("data/en/receipt.html", parser.links)
         reader_note = re.search(
             r'<div class="reader-note" id="reader-note">(.*?)</div>', artifacts["index.html"], re.S,
@@ -440,7 +508,8 @@ class BilingualGuideArtifactTests(unittest.TestCase):
         note_links.feed(reader_note)
         self.assertIn("#sources", note_links.links)
         boundary = artifacts["GUIDE.en.md"].split("## ", 1)[0]
-        self.assertIn("](../validation/current/instructions.json)", boundary)
+        self.assertIn("Execution boundary", boundary)
+        self.assertNotIn("../validation/", boundary)
         self.assertIn("](" + build_guide.RELEASE["site_url"] + "data/en/receipt.html)", boundary)
 
     def test_all_source_links_resolve_without_fallbacks(self):
@@ -467,11 +536,11 @@ class BilingualGuideArtifactTests(unittest.TestCase):
             self.assertTrue(html_links)
             self.assertTrue(all(link.startswith(build_guide.RELEASE["site_url"]) for link in html_links))
             boundary = text.split("## ", 1)[0]
-            self.assertIn(f"](../{edition['validation']})", boundary)
+            self.assertNotIn("../validation/", boundary)
             self.assertIn(f"]({build_guide.RELEASE['site_url']}{edition['receipt_html']})", boundary)
 
     def test_markdown_download_links_resolve_from_downloads_directory(self):
-        for edition in build_guide.RELEASE["languages"].values():
+        for language, edition in build_guide.RELEASE["languages"].items():
             book = ROOT / edition["markdown"]
             links = re.findall(r"\]\(([^)\s]+)\)", book.read_text(encoding="utf-8"))
             checked = set()
@@ -484,7 +553,16 @@ class BilingualGuideArtifactTests(unittest.TestCase):
                     self.assertTrue(target.is_relative_to(ROOT))
                     self.assertTrue(target.is_file(), "Images and source links must work inside the extracted kit.")
                 checked.add(target)
-            self.assertGreater(len(checked), 60)
+            chapters, sources, capabilities = build_guide.load_content(language)
+            required = set()
+            for chapter in chapters:
+                body = build_guide.source_body(chapter, chapters, capabilities, sources, language)
+                for link in re.findall(r"\]\(([^)\s]+)\)", body):
+                    address = urlparse(link)
+                    if address.scheme or address.netloc or not address.path or address.path.endswith(".html"):
+                        continue
+                    required.add((ROOT / unquote(address.path)).resolve())
+            self.assertLessEqual(required, checked, "Every active source link must survive portable Markdown generation.")
 
     def test_book_link_rebasing_preserves_fragments_queries_and_external_links(self):
         source = (

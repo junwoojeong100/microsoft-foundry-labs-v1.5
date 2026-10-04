@@ -1,14 +1,9 @@
 {
   "l13": {"mode": "independent", "label": "독립 선택", "requires": "기본 L01 프로젝트·모델. 이 장에서 Search/embedding/index를 준비하며 L14의 기반이 됩니다."},
-  "l14": {"mode": "sequence", "label": "선행 실습 필요", "requires": "L13의 Search/index 또는 관리자가 제공한 동일 자원이 필요합니다. L20 Hosted Optimizer와 L22의 선택형 실제 Hosted 배포에만 선행합니다."},
-  "l15": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·모델, 관리자 소유 기록과 별도 MAF 환경. 단일/두 역할 비교는 최대 3회 모델 호출입니다. A2A는 별도 경로이며 Hosted를 선택할 때만 L14가 필요합니다."},
+  "l14": {"mode": "sequence", "label": "선행 실습 필요", "requires": "L13의 Search/index 또는 관리자가 제공한 동일 자원이 필요합니다. L22의 선택형 실제 Hosted 배포에만 선행합니다."},
+  "l15": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·모델, 소유권 기록, 별도 .venv-advanced 환경이 필요합니다. L02에서 선택한 패턴의 TPM과 호출 상한을 먼저 확인합니다. L14 Hosted 배포와 A2A 연결은 필요하지 않습니다."},
   "l16": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·chat/embedding 배포 및 Memory 지원 조건. 다른 심화 장 완료는 필요하지 않습니다."},
   "l17": {"mode": "mixed", "label": "기능별 분기", "requires": "Routine은 기본 L05의 서버 Prompt Agent로 독립 실행할 수 있습니다. Hosted 장기 실행 분기는 L14가 필요합니다."},
-  "l18": {"mode": "independent", "label": "독립 선택", "requires": "기본 환경과 선택한 Content Understanding/Code Interpreter의 모델·권한. 합성 영수증 준비는 로컬에서도 가능합니다."},
-  "l19": {"mode": "independent", "label": "독립 선택", "requires": "기본 환경과 Voice/Speech 지원 모델·리전·장치 권한. 다른 심화 장은 선행하지 않습니다."},
-  "l20": {"mode": "mixed", "label": "기능별 분기", "requires": "L08의 한 번 지침 비교를 먼저 읽습니다. 로컬 학습 데이터 준비는 독립 실행하며, Hosted Optimizer·실제 학습은 별도 승인과 선행 조건이 있을 때만 선택합니다."},
   "l21": {"mode": "independent", "label": "독립 선택", "requires": "Python으로 로컬 권한/캐시 수정 과제를 진행하고 합성 설계표로 연결합니다. 실제 권한·네트워크 관찰에는 읽기 권한, 변경에는 관리자와 별도 승인이 필요합니다."},
-  "l22": {"mode": "sequence", "label": "소스 준비 후 실행", "requires": "L01 로컬 환경·소스로 합성 CI 실패/수정과 릴리스/롤백 설계를 진행합니다. L14는 선택형 실제 Hosted 배포에만 필요하며 반복 평가·Optimizer는 필수가 아닙니다."},
-  "l23": {"mode": "independent", "label": "독립 선택", "requires": "Foundry Local 장치 조건 또는 Fabric/Work IQ 라이선스·권한. 다른 심화 장과 독립적인 선택 경로입니다."},
-  "l24": {"mode": "independent", "label": "독립 선택", "requires": "Python으로 합성 요청 계약을 수정합니다. 기존 Classic 환경 없이 진행하며 실제 이관은 별도 승인된 환경에서만 수행합니다."}
+  "l22": {"mode": "sequence", "label": "소스 준비 후 실행", "requires": "L01 로컬 환경·소스로 합성 CI 실패/수정과 릴리스/롤백 설계를 진행합니다. L14는 선택형 실제 Hosted 배포에만 필요하며 반복 평가·Optimizer는 필수가 아닙니다."}
 }

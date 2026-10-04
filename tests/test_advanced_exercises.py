@@ -42,12 +42,22 @@ class MultiAgentExerciseTests(unittest.TestCase):
             multi_agent, "read_config", return_value=(endpoint, "fixture-model"),
         ) as config, patch.object(multi_agent, "verify_scope") as verify, patch.object(
             multi_agent, "Evidence", return_value=evidence,
-        ), patch.object(multi_agent, "run", new_callable=AsyncMock, return_value=report) as run, \
+        ), patch.object(
+            multi_agent, "check_ready", return_value={"chat": {"subscription": "fixture-subscription"}},
+        ) as readiness, patch.object(
+            multi_agent, "run", new_callable=AsyncMock, return_value=report,
+        ) as run, \
                 contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(multi_agent.main(["--mode", "compare", "--live"]), 0)
         config.assert_called_once()
         verify.assert_called_once_with(endpoint, multi_agent.RESULTS / "azure-environment.json")
-        run.assert_awaited_once_with("compare", "purchase", evidence, endpoint, "fixture-model")
+        readiness.assert_called_once_with(
+            multi_agent.RESULTS / "azure-environment.json", ("chat",), 1,
+            expected_endpoint=endpoint, expected_deployment="fixture-model",
+        )
+        run.assert_awaited_once_with(
+            "compare", "purchase", evidence, endpoint, "fixture-model", subscription="fixture-subscription",
+        )
 
     def test_plan_never_initializes_sdk_or_writes_evidence(self):
         with contextlib.redirect_stdout(io.StringIO()) as output, patch.object(
@@ -201,8 +211,8 @@ class LocalExerciseTests(unittest.TestCase):
 
 
 class PracticeWalkthroughTests(unittest.TestCase):
-    chapters = {"governance": "21-governance.md", "delivery": "22-delivery.md", "migration": "24-migration.md"}
-    counts = {"governance": (5, 2), "delivery": (5, 3), "migration": (4, 3)}
+    chapters = {"governance": "21-governance.md", "delivery": "22-delivery.md"}
+    counts = {"governance": (5, 2), "delivery": (5, 3)}
 
     def test_documented_repairs_fix_real_copied_exercises_in_both_languages(self):
         for lab, chapter in self.chapters.items():
@@ -246,13 +256,24 @@ class PracticeWalkthroughTests(unittest.TestCase):
             ("ko", "docs", ("직접 해보기", "한 가지 바꾸기", "결과 설명하기")),
             ("en", "docs/en", ("Try it", "Change one thing", "Explain the result")),
         ):
-            for filename in ("15-multiagent.md", "18-multimodal.md", "19-voice.md", "20-optimization.md",
-                             "21-governance.md", "22-delivery.md", "23-extensions.md", "24-migration.md"):
+            for filename in ("15-multiagent.md", "21-governance.md", "22-delivery.md"):
                 text = (ROOT / directory / filename).read_text()
                 with self.subTest(language=language, filename=filename):
                     self.assertIn('class="practice-block"', text)
                     for label in labels:
                         self.assertIn("**" + label, text)
+
+    def test_orchestration_lesson_exposes_four_builders_and_capacity_preflight(self):
+        for directory in ("docs", "docs/en"):
+            text = (ROOT / directory / "15-multiagent.md").read_text()
+            with self.subTest(directory=directory):
+                for builder in ("SequentialBuilder", "ConcurrentBuilder", "GroupChatBuilder", "HandoffBuilder"):
+                    self.assertIn(builder, text)
+                for mode in multi_agent.ORCHESTRATIONS:
+                    self.assertIn(f"--mode {mode} --live", text)
+                self.assertIn("model_capacity.py check --roles chat --live", text)
+                self.assertIn("2,048", text)
+                self.assertIn("100,000", text)
 
     def test_cu_configuration_uses_supported_types_and_preserves_expected_fields(self):
         for data in ("data", "data/en"):

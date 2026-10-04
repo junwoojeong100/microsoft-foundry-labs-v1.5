@@ -28,7 +28,7 @@ Creating a schedule object is separate from a successful business result.
 ## Prerequisites
 
 You first need a Prompt Agent that runs on the server. Use L05's File search agent
-or L15's policy worker. Scheduling an agent with local client-side functions does not execute those local functions.
+for this routine. L15's Agent Framework roles execute in local code and are not remote routine targets. Scheduling an agent with local client-side functions does not execute those local functions.
 Distinguish the GA status of the Routines service from the Beta status of the azd extension, and check current conditions such as CMK limitations.
 
 ```bash
@@ -152,7 +152,7 @@ Real orders require separate approval and durable idempotency, so do not connect
 
 Long-running checkpoints, reconnection, and approval expiry, as well as Autopilot managers, Entra agent users,
 and mail/Teams permissions, are **design exercises**. The timer lab does not create an Autopilot account.
-If you selected L19 Voice or continuous evaluation, stop those sessions/schedules separately as well.
+If you selected continuous evaluation, stop its schedule separately as well.
 
 ## Success criteria
 
@@ -161,25 +161,6 @@ If you only created a schedule or manually dispatched it, record execution as co
 If the status query failed, do not write “it has probably stopped.”
 If you could not read the run ID, leave it `null`, distinct from response/trace IDs.
 Human content review is optional guidance; do not mark an unperformed review as completed.
-
-<details markdown="1">
-<summary>Historical Korean-run observations and recovery — not new English lab results</summary>
-
-The following observations belong to the **historical Korean run**, whose private configuration and receipts stay in their original checkout. They are not evidence that the English run succeeded. The original failure/observation records stating “CLI history was empty” remain preserved.
-A follow-up investigation found successful action spans and actual policy summary output (`finish_reason=stop`)
-for the same policy worker at the scheduled time `2026-09-29T22:38:35Z` and manual dispatch time `22:44:59Z`.
-The trace for the scheduled time is `8bf878b65509efa39d9643632629f506`,
-and the response is `resp_07018918263947dc006abc3deaaf34819787a318905a8318ad`.
-The 404 from direct response retrieval was also preserved; inability to retrieve a response was not reclassified as absence of a response.
-This evidence was not substituted with successful results from other File search, Hosted, or A2A executions.
-
-In a separate v2 validation of the corrected runner, `contoso-policy-timer-v2-9a3154d0` was scheduled only once.
-The trace `ebd60144b61d68788cb939b085f6c308` at `2026-09-30T01:58:35Z`
-and response `resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2`
-showed completed output matching the unique marker. No manual dispatch was performed, and `enabled=false` was rechecked.
-Those originals belong to their recorded environment; do not copy them into another run as new evidence. Keep personal execution receipts under `results/` and share only the latest reviewed set with its actual scope.
-
-</details>
 
 ## Troubleshooting
 

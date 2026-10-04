@@ -20,7 +20,7 @@ NAME = RELEASE["artifact"]
 def check_package_path(path):
     parts = Path(path).parts
     if any(
-        part.startswith(".venv") or part in {"__pycache__", "results", ".azure", ".git", ".foundry", "node_modules"}
+        part.startswith(".venv") or part in {"__pycache__", "results", "validation", ".azure", ".git", ".foundry", "node_modules"}
         for part in parts
     ) or parts[-1] == ".env":
         raise ValueError(f"Private or generated cloud data in package: {path}")
@@ -31,8 +31,8 @@ def main():
     parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
     args = parser.parse_args()
     report_dir = (ROOT / args.report_dir).resolve()
-    if not report_dir.is_relative_to(ROOT / "validation") or report_dir == ROOT / "validation":
-        raise ValueError("Reports must be inside validation/.")
+    if not report_dir.is_relative_to(ROOT / "results") or report_dir == ROOT / "results":
+        raise ValueError("Reports must be inside private results/.")
     files = [
         ROOT / name for name in (
             ".nojekyll",
@@ -43,10 +43,10 @@ def main():
         )
     ]
     for edition in RELEASE["languages"].values():
-        files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "pdf", "receipt_html", "validation"))
+        files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "pdf", "receipt_html"))
         files.append(ROOT / "content" / edition["portal_manifest"])
-    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "validation/current", RELEASE["documentation_validation"], ".github/workflows")
-    for directory in {*(ROOT / name for name in directories), report_dir}:
+    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "downloads/replay", ".github/workflows")
+    for directory in {ROOT / name for name in directories}:
         files.extend(
             path for path in directory.rglob("*")
             if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".tmp"}
@@ -59,6 +59,10 @@ def main():
         ):
             raise ValueError(f"Package input must be an existing regular file: {path.relative_to(ROOT)}")
     captures = {language: load_portal_captures(language) for language in RELEASE["languages"]}
+    all_captures = {
+        language: load_portal_captures(language, include_archived=True)
+        for language in RELEASE["languages"]
+    }
     target = ROOT / RELEASE["archive"]
     target.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
@@ -72,7 +76,7 @@ def main():
             check_package_path(name)
         essentials = [
             edition[key] for edition in RELEASE["languages"].values()
-            for key in ("readme", "html", "markdown", "pdf", "receipt_html", "validation")
+            for key in ("readme", "html", "markdown", "pdf", "receipt_html")
         ]
         essentials += ["content/" + edition["portal_manifest"] for edition in RELEASE["languages"].values()]
         for essential in (*essentials, "samples/workshop.py", "data/evaluation/cases.jsonl"):
@@ -105,7 +109,7 @@ def main():
         for local_path in local_paths:
             if f"{NAME}/{local_path}" not in names:
                 raise ValueError(f"Portable guide link missing from ZIP: {local_path}")
-        for localized_captures in captures.values():
+        for localized_captures in all_captures.values():
             for capture in localized_captures:
                 packed = archive.read(f"{NAME}/{capture['path']}")
                 if hashlib.sha256(packed).hexdigest() != capture["sha256"]:
@@ -120,6 +124,7 @@ def main():
         "portable_local_paths_checked": len(local_paths),
         "portal_screenshots": sum(len(items) for items in captures.values()),
         "portal_screenshots_by_language": {language: len(items) for language, items in captures.items()},
+        "archived_portal_screenshots": sum(len(all_captures[language]) - len(items) for language, items in captures.items()),
         "note": "This archive hash is kept outside the archive to avoid a self-referential checksum.",
     }
     report_dir.mkdir(parents=True, exist_ok=True)

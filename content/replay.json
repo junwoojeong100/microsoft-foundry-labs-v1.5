@@ -1,0 +1,151 @@
+{
+  "title": {"ko": "Contoso 구매 도우미 · 전체 실습 요약", "en": "Contoso purchasing assistant · complete lab walkthrough"},
+  "notice": {"ko": "내레이션·명령·도식으로 재구성한 실습 요약 · 실시간 포털 녹화나 검증 보고서가 아닙니다.", "en": "Narrated reconstruction with commands and diagrams, not a live portal recording or validation report."},
+  "chapters": [
+    {
+      "id": "l00",
+      "surface": "review",
+      "commands": ["Synthetic Contoso policies + inventory", "Question → evidence → tools → draft", "No real order · no payment · no approval"],
+      "ko": {"steps": ["합성 시나리오 이해", "기본·심화 경로 구분", "실행과 품질 구분"], "narration": "이 영상은 스무 개 실습을 내레이션, 명령 화면, 도식으로 재구성한 요약입니다. 실시간 포털 녹화나 검증 보고서는 아닙니다. 만드는 것은 합성 콘토소 구매 도우미입니다. 회사 규정을 찾고 재고를 조회하며 구매 요청 초안을 만들지만, 실제 승인이나 주문, 결제는 하지 않습니다. 기본 과정은 영 번부터 십이 번까지이고 심화 과정은 필요한 기능을 선택합니다. 명령의 정상 종료, 실제 클라우드 실행, 답변의 품질은 서로 다른 판단이라는 점을 기억하세요."},
+      "en": {"steps": ["Understand the synthetic scenario", "Separate core and advanced paths", "Separate execution from quality"], "narration": "This video reconstructs all twenty labs using narration, commands, and diagrams. It is not a live portal recording or a validation report. You will build a purchasing assistant using synthetic Contoso policies and inventory. The assistant retrieves evidence, checks stock, and prepares drafts, but never approves, orders, or pays. The core path runs from module zero through twelve, followed by optional advanced modules. A successful command, a completed cloud execution, and a correct business answer are three different outcomes."}
+    },
+    {
+      "id": "l01",
+      "surface": "terminal",
+      "commands": ["python samples/workshop.py doctor", "python samples/workshop.py validate-data", "python scripts/azure_environment.py create \\\n  --subscription APPROVED_SUBSCRIPTION \\\n  --location APPROVED_REGION \\\n  --cost-authorization \"APPROVED_SCOPE\" --live", "python scripts/azure_environment.py roles --live"],
+      "commands_by_step": [
+        ["python3.13 -m venv .venv", "source .venv/bin/activate", "python -m pip install -r requirements.txt", "python samples/workshop.py doctor", "python samples/workshop.py validate-data", "English folder: export FOUNDRY_LAB_LANGUAGE=en"],
+        ["az login", "az account show", "python scripts/azure_environment.py create \\\n  --subscription APPROVED_SUBSCRIPTION \\\n  --location APPROVED_REGION \\\n  --cost-authorization \"APPROVED_SCOPE\" --live", "Keep results/azure-environment.json"],
+        ["python scripts/azure_environment.py foundation \\\n  --chat-model gpt-6-sol --chat-version 2026-09-22 \\\n  --judge-model gpt-4.1 --judge-version 2025-04-14 \\\n  --embedding-model text-embedding-3-small \\\n  --embedding-version 1 --model-sku GlobalStandard \\\n  --learners 1 --max-capacity 100 --live", "python scripts/azure_environment.py roles --live", "Select the supported, approved SKU before execution"]
+      ],
+      "ko": {"steps": ["계정·언어·비용 확인", "새 RG와 소유 기록", "키 없는 인증"], "narration": "먼저 승인된 구독, 조직, 지역과 비용 범위를 확인합니다. 국문과 영문은 별도 실습 폴더를 사용하고 영어 폴더에서는 언어 설정을 영어로 유지합니다. Python 환경을 준비한 뒤 닥터와 데이터 검사 명령을 실행합니다. 관리자는 생성 명령으로 고유한 새 리소스 그룹을 만들고 소유 기록을 보관합니다. 프로젝트와 모델은 다음 모듈의 조건으로 준비하고 필요한 범위에만 역할을 부여합니다. 닷엔브에는 주소와 배포 이름만 저장합니다. 포털 로그인과 명령줄 인증은 별개이므로 같은 실습 조직인지 각각 확인하세요."},
+      "en": {"steps": ["Confirm account, language, and cost", "Create a new RG and ownership receipt", "Use keyless authentication"], "narration": "Start by confirming the approved subscription, directory, region, and spending scope. Use separate folders for Korean and English, keeping the English language profile selected in its folder. Prepare Python, then run doctor and the synthetic data check. An administrator creates a uniquely named resource group and preserves its ownership receipt. Provision the project and models using the next module's requirements, then assign only the required scoped roles. Store endpoint and deployment names, not credentials, in the environment file. Portal sign-in and command-line authentication are separate, so verify the directory in both."}
+    },
+    {
+      "id": "l02",
+      "surface": "terminal",
+      "commands": ["gpt-6-sol / 2026-09-22", "gpt-4.1 / 2025-04-14", "text-embedding-3-small / 1", "python samples/model_capacity.py plan --learners 1", "python samples/model_capacity.py check --live", "python samples/model_capacity.py test \\\n  --confirm OWN_RUN_ID --live"],
+      "ko": {"steps": ["모델·SKU·quota 선택", "권장 TPM으로 처음 배포", "실제 한도·연결 확인"], "narration": "모델 제품명, 모델 버전, 내가 정한 배포 이름을 구분합니다. 실습 대상은 지피티 식스 솔이며 평가자는 지피티 사 점 일, 임베딩은 텍스트 임베딩 쓰리 스몰입니다. 카탈로그에서 지역과 배포 유형을 확인하고 가용 할당량을 먼저 조회합니다. 한 명의 시작 권장값은 채팅과 평가자 각각 분당 십만 토큰, 임베딩 만 토큰입니다. 모델별 단위를 계산해 처음부터 권장값으로 배포하고 실제 토큰과 요청 한도를 재확인합니다. 연결 시험은 승인 후 한 번만 실행하며, 처리량 설정이 비용 상한이나 품질 보증은 아닙니다."},
+      "en": {"steps": ["Choose model, SKU, and quota", "Deploy at recommended throughput", "Verify actual limits and connectivity"], "narration": "Distinguish the product name, model version, and your deployment name. The target is GPT six Sol, with GPT four point one as judge and text embedding three small for vectors. Check regional catalog support, processing location, and available quota before deploying. For one learner, the starting recommendation is one hundred thousand tokens per minute for chat and judge, and ten thousand for embeddings. Convert these budgets using each model's actual capacity units, then read back both token and request limits. Run the bounded connectivity test only after approval. Throughput is neither a spending cap nor a quality guarantee."}
+    },
+    {
+      "id": "l03",
+      "surface": "terminal",
+      "commands": ["python samples/workshop.py model", "python samples/workshop.py model --live", "Read: status · output text · response_id"],
+      "ko": {"steps": ["계획만 먼저 읽기", "모델 한 번 호출", "응답과 식별자 확인"], "narration": "첫 모델 호출은 가장 작은 연결 실습입니다. 라이브 옵션 없이 실행하면 계획만 출력하고 클라우드에 요청하지 않습니다. 설정과 인증을 확인한 뒤 라이브 옵션으로 질문을 한 번 전송합니다. 완료 상태와 비어 있지 않은 답변, 응답 식별자를 확인하세요. 아직 회사 규정을 제공하지 않았으므로 모델이 구체적인 구매 상한을 지어내지 않아야 합니다. 원하는 문장이 나올 때까지 반복 전송하지 마세요. 이 단계는 모델 호출이며 에이전트 생성이나 문서 검색은 아닙니다."},
+      "en": {"steps": ["Read the plan first", "Send one model request", "Inspect response and identifier"], "narration": "The first model call is the smallest connectivity exercise. Without the live flag, the command prints a plan and makes no cloud request. After checking configuration and authentication, send the default question once with the live flag. Inspect completion status, nonempty output, and the response identifier. You have not supplied company policy, so the model should not invent a purchasing limit. Do not keep resending until you get preferred wording. This step invokes a model; it does not yet create an agent or retrieve documents."}
+    },
+    {
+      "id": "l04",
+      "surface": "portal",
+      "commands": ["Build → Agents → New agent", "Text · your model deployment", "Instructions: data/prompts/agent-v2.txt", "Same conversation → follow-up", "New chat → same follow-up"],
+      "ko": {"steps": ["역할과 한계 저장", "없는 지식·도구 확인", "대화 경계 비교"], "narration": "새 텍스트 에이전트에 자신의 모델 배포와 동봉된 지시문을 저장합니다. 이 단계에는 지식과 함수 도구를 연결하지 않습니다. 노트북 상한이나 실시간 재고를 물었을 때 확인할 수 없다고 답하는지 확인합니다. 이어 같은 대화에서 모니터 구매를 검토한다고 말한 뒤 품목을 다시 묻습니다. 새 대화에서는 앞선 품목을 알고 있는 것처럼 답하면 안 됩니다. 에이전트 이름, 설정 버전, 대화, 응답 식별자는 각각 다릅니다. 이 에이전트를 다음 문서 검색 실습에서 이어 사용합니다."},
+      "en": {"steps": ["Save role and limits", "Check missing knowledge and tools", "Compare conversation boundaries"], "narration": "Create a text agent with your model deployment and the supplied instructions. Do not attach knowledge or function tools yet. Ask about the laptop cap and real-time inventory; the agent should acknowledge that it cannot verify them. In one conversation, say you are considering a monitor, then ask which item you mean. Start a new conversation and ask the follow-up again. The earlier item should not silently carry over. Agent name, configuration version, conversation, and response identifiers are distinct. Reuse this agent in the next document-search exercise."}
+    },
+    {
+      "id": "l05",
+      "surface": "portal",
+      "commands": ["L04 agent → Tools / Knowledge → File search", "Upload only the three synthetic policy files", "Wait for indexing: Completed", "Ask: laptop cap · replacement period", "Open the actual citation"],
+      "ko": {"steps": ["정책 3개 읽기", "업로드·인덱싱 확인", "근거와 모름 확인"], "narration": "구매, 경비, 보안 정책 세 파일을 먼저 읽습니다. 기존 에이전트에 파일 검색을 연결하고 이 세 파일만 업로드합니다. 업로드가 끝난 것과 검색 준비가 끝난 것은 다르므로 인덱싱 완료를 기다리세요. 노트북 상한과 교체 주기, 총액 이백구십만 원의 승인과 비용 처리, 문서에 없는 독일 지사 규정을 차례로 묻습니다. 답변에 문서 이름이 적혔다고 끝내지 말고 실제 인용을 열어 숫자와 조항을 대조합니다. 없는 규정은 유보해야 합니다. 문서 검색은 모델을 다시 학습시키는 과정이 아닙니다."},
+      "en": {"steps": ["Read the three policies", "Upload and verify indexing", "Check citations and uncertainty"], "narration": "Read the purchasing, expense, and security policies first. Attach file search to your existing agent and upload only those three files. Upload completion is not indexing completion, so wait until the documents are searchable. Ask about the laptop cap and replacement period, approvals and reimbursement for a two-point-nine-million-won purchase, and an undocumented German-branch policy. A filename in the answer is not enough: open the actual citation and compare its numbers and clauses. Undocumented rules should remain unverified. Retrieval augments the answer; it does not retrain the model."}
+    },
+    {
+      "id": "l06",
+      "surface": "terminal",
+      "commands": ["python samples/workshop.py tools", "python samples/workshop.py tools --sku MON-27 --quantity 1", "python samples/workshop.py tools --sku KB-01 --quantity -1", "python samples/workshop.py capstone --live", "Check: total_krw=2900000 · order_submitted=false"],
+      "ko": {"steps": ["로컬 함수 먼저 확인", "잘못된 입력 차단", "모델 요청과 실제 결과 연결"], "narration": "먼저 인공지능 없이 재고 조회와 초안 함수를 실행합니다. 노트북 두 대의 합계는 이백구십만 원이고 상태는 사람 승인이 필요한 초안입니다. 품절 품목, 재고보다 많은 수량, 음수 수량은 명시적인 오류여야 합니다. 다음으로 통합 명령을 실행하면 모델이 함수 이름과 인수를 요청하고 프로그램이 다시 검사한 뒤 실행합니다. 실제 함수 출력의 금액, 필요한 승인자, 미주문 상태를 최종 답변과 대조하세요. 모델이 승인했다고 말해도 업무 승인이 생기지는 않습니다. 응답 파일은 이후 추적과 종합 검토에 재사용합니다."},
+      "en": {"steps": ["Check local functions first", "Reject invalid inputs", "Connect model requests to real outputs"], "narration": "First run the stock and draft functions without AI. Two laptops total two million nine hundred thousand won, and the result remains a draft requiring human approval. Out-of-stock items, excessive quantities, and negative quantities must produce explicit errors. The integrated command then lets the model request a function name and arguments, while the program validates and executes the request. Compare the actual function output with the final answer: amount, required approvers, and the false order-submitted flag. A model's statement cannot grant business approval. Reuse the saved response for tracing and the capstone review."}
+    },
+    {
+      "id": "l07",
+      "surface": "terminal",
+      "commands": ["python samples/inventory_api.py", "curl --fail http://127.0.0.1:8766/health", "python samples/toolbox_lab.py inspect --local", "python samples/toolbox_lab.py call --local \\\n  --tool get_stock --arguments '{\"sku\":\"NB-14\"}' \\\n  --approve-tool get_stock", "Cloud Toolbox / Skill: only after L13"],
+      "ko": {"steps": ["로컬 HTTP 계약", "MCP 발견·승인·호출", "선택형 클라우드 연결"], "narration": "서버용과 호출용 터미널을 구분합니다. 로컬 재고 서버를 켜고 상태 주소와 재고 주소를 조회합니다. 이 서버는 내 컴퓨터에서만 접근하도록 유지합니다. 다음으로 MCP 클라이언트에서 도구 목록을 읽고 정확한 도구 이름과 인수에 대해 한 번의 호출을 승인합니다. 승인 옵션을 빼면 실행 전에 차단되어야 합니다. 클라우드 Toolbox와 Skill은 검색 서비스가 준비된 뒤의 선택 확장입니다. 도구를 발견한 것, 지침을 읽은 것, 실제 호출한 것을 구분하고, 끝나면 로컬 서버를 종료하세요."},
+      "en": {"steps": ["Inspect the local HTTP contract", "Discover, approve, and call MCP tools", "Optionally connect cloud tools"], "narration": "Use separate server and client terminals. Start the local inventory server and inspect its health and stock endpoints. Keep this unauthenticated practice server on loopback only. Next, discover the MCP tools and approve one call with the exact tool name and arguments. Omitting approval must block execution before the function runs. Cloud Toolbox and Skill registration are optional extensions after Search is ready. Distinguish discovering a tool, reading instructions, and actually invoking it. When finished, stop the local server rather than exposing it through a tunnel."}
+    },
+    {
+      "id": "l08",
+      "surface": "terminal",
+      "commands": ["python samples/instruction_prompt_agent_lab.py", "python samples/instruction_prompt_agent_lab.py \\\n  --live --output results/my-responses.json", "python samples/instruction_evaluation.py \\\n  --input results/my-responses.json \\\n  --output results/my-native.json --live", "Same 12 questions · v1 / v2 · unchanged rubric"],
+      "ko": {"steps": ["비교 조건 고정", "응답 한 번씩 수집", "점수·이유·누락 읽기"], "narration": "평가는 같은 질문의 실제 답변과 사전에 정한 기준을 연결하는 과정입니다. 지침 브이원과 브이투에 같은 모델, 문맥, 열두 질문을 사용합니다. 자신의 소유 기록과 모델 배포를 확인한 뒤 응답을 한 번씩 수집합니다. 수집이 정상 완료된 경우에만 원문을 네이티브 평가에 제출하며 대상 모델을 다시 호출하지 않습니다. 완결성, 관련성, 근거성의 점수와 채점 이유를 행별로 읽으세요. 동점과 하락도 그대로 해석합니다. 체크리스트, 지침, 평가 기준을 나중에 바꿔 향상을 연출하거나 이 작은 개발 표본을 출시 승인으로 사용하지 않습니다."},
+      "en": {"steps": ["Freeze comparison conditions", "Collect each answer once", "Read scores, reasons, and missing rows"], "narration": "Evaluation connects actual answers with criteria fixed beforehand. Compare instructions version one and version two using the same model, context, and twelve questions. Verify your ownership receipt and deployment, then collect each answer once. Only after collection completes should you submit the originals to native evaluation, without reinvoking the target model. Read completeness, relevance, groundedness, and the judge's reasons row by row. Preserve ties and regressions. Do not alter checklists or criteria after seeing the results to manufacture improvement, and do not treat this small exposed development sample as release approval."}
+    },
+    {
+      "id": "l09",
+      "surface": "portal",
+      "commands": ["Keep the existing model protection policy", "Ask about an undocumented branch limit", "Ask to falsely claim approval / ordering", "Ask whether a document note grants authority", "Compare refusals with L06 function rejection"],
+      "ko": {"steps": ["기본 보호 유지", "무해한 경계 질문", "자연어와 실행 통제 분리"], "narration": "기본 보호 정책을 낮추지 않은 상태에서 세 가지 무해한 경계를 확인합니다. 문서에 없는 지사 상한을 지어내라는 요청, 승인과 주문이 끝났다고 가장하라는 요청, 문서 메모를 승인 권한으로 취급하라는 요청입니다. 각 답변을 실제 정책과 도구 기록에 대조하세요. 자연어로 거절한 것과 함수가 잘못된 입력을 차단한 것은 다른 증거입니다. 모델 필터가 업무 권한이나 문서 접근 통제를 대신하지 않습니다. 별도 레드팀 실행이나 사용자별 문서 권한 검사를 하지 않았다면 그 범위까지 검증했다고 말하지 않습니다."},
+      "en": {"steps": ["Keep default protections", "Test harmless boundaries", "Separate refusal from enforcement"], "narration": "Keep the existing protection policy and test three harmless boundaries: inventing an undocumented branch limit, falsely claiming approval and ordering, and treating a document note as authority to bypass approval. Compare each response with the policy and tool records. A natural-language refusal and a function rejecting invalid input are different evidence. Model filtering does not replace business authorization or document access control. If you did not run a separate red-team assessment or document-level access test, do not claim those broader protections were verified."}
+    },
+    {
+      "id": "l10",
+      "surface": "terminal",
+      "commands": ["Connect owned Application Insights before the request", "python samples/trace_lab.py \\\n  --input results/YOUR-responses.jsonl \\\n  --app-id YOUR_APP_ID --agent YOUR_AGENT --live", "Read: operation_Id · responseId · duration · success"],
+      "ko": {"steps": ["로그 연결 확인", "같은 응답 식별자로 조회", "관찰 구간별 원인 구분"], "narration": "평가는 답이 좋았는지, 추적은 실행 중 무슨 일이 있었는지를 보여줍니다. 요청 전에 연결한 Application Insights에서 기존 응답 식별자와 같은 실행을 찾습니다. 에이전트 버전과 시각을 대조하고 검색, 모델, 도구 작업의 시간과 상태를 읽으세요. 부모 작업 시간에 자식 작업 시간을 다시 더하지 않으며 병렬 구간도 단순 합산하지 않습니다. 로그가 없으면 오류가 없다는 뜻이 아니라 미확인입니다. 새 모델 질문을 반복하지 말고 연결, 조회 범위, 수집 지연을 먼저 확인합니다."},
+      "en": {"steps": ["Verify the logging connection", "Find the same response identifier", "Interpret the observed spans"], "narration": "Evaluation asks whether the answer was good; tracing shows what happened during execution. Use the Application Insights connection established before the request to locate the same response identifier. Compare agent version and time, then inspect search, model, and tool spans. Do not add child durations on top of their parent, or sum overlapping parallel spans as elapsed time. Missing logs mean unverified, not error-free. Instead of repeatedly invoking the model, first check the connection, query scope, and ingestion delay."}
+    },
+    {
+      "id": "l11",
+      "surface": "terminal",
+      "commands": ["python samples/workshop.py read-result \\\n  --input results/YOUR-responses.jsonl", "Policy · stock · amount · approvals · draft", "Use the L06 result; no extra Azure call"],
+      "ko": {"steps": ["L06 응답 재사용", "다섯 업무 항목 대조", "초안 상태로 마무리"], "narration": "종합 과제에서는 육 번 모듈에서 저장한 응답 파일을 로컬 읽기 명령으로 다시 엽니다. 새 클라우드 호출 없이 정책 근거, 재고, 금액, 필요한 승인자, 초안 상태를 검토합니다. 노트북 두 대의 계산은 실제 함수 출력과 대조하고 부가세 포함 여부처럼 확인되지 않은 조건은 확정하지 않습니다. 응답에 실제 인용과 함수 결과가 연결되어 있어야 합니다. 기본 과정은 이 검토로 완성할 수 있으며 Teams 게시나 Hosted 배포는 필수가 아닙니다. 초안 완성을 승인이나 주문 완료로 표현하지 마세요."},
+      "en": {"steps": ["Reuse the L06 response", "Review five business checks", "Finish in draft status"], "narration": "For the capstone, open the response saved in module six with the local result reader. Review policy evidence, stock, amount, required approvers, and draft status without another cloud call. Compare the two-laptop calculation with the actual function output, and keep unverified conditions such as VAT inclusion explicit. Citations and tool results must be traceable. This review can complete the core purchasing task; Teams publication and Hosted deployment are not prerequisites. A completed draft is neither approval nor a completed order."}
+    },
+    {
+      "id": "l12",
+      "surface": "terminal",
+      "commands": ["python scripts/stop_sessions.py", "python samples/routine_lab.py stop \\\n  --receipt results/YOUR-routine.json --live", "python scripts/operations_status.py", "python scripts/cost_status.py", "Retain resources unless deletion is explicitly approved"],
+      "ko": {"steps": ["실행·예약 중지", "남은 자원과 비용 확인", "보존 담당자 지정"], "narration": "브라우저를 닫는 것은 과금 중지가 아닙니다. 자신이 만든 세션과 예약만 중지하고 같은 식별자로 상태를 다시 확인합니다. 배포하지 않은 선택 기능은 없는 것으로 구분하고, 사용자 지정 이름의 예약 기록도 빠뜨리지 않습니다. 리소스를 보존하면 Search와 로그, 저장소 등의 비용이 남을 수 있습니다. 청구 데이터가 아직 비어 있어도 비용이 영이라고 결론내리지 마세요. 보존 담당자와 다음 확인 시각을 기록하고, 삭제는 정확한 대상에 대한 별도 승인이 있을 때만 수행합니다. 심화 실습 후에도 이 종료 절차로 돌아옵니다."},
+      "en": {"steps": ["Stop sessions and schedules", "Inspect retained resources and costs", "Assign retention ownership"], "narration": "Closing the browser does not stop billing. Stop only the sessions and routines you created, then read back those exact identifiers. Distinguish optional features that were never deployed, and do not overlook custom routine receipt filenames. Retaining resources can leave ongoing Search, logging, and storage charges. Empty billing rows do not establish zero cost. Record an owner and the next cost-review time. Delete only explicitly approved targets. After completing advanced modules, return to this same closeout procedure."}
+    },
+    {
+      "id": "l13",
+      "surface": "terminal",
+      "commands": ["python samples/search_lab.py corpus", "python scripts/azure_environment.py search --live", "python samples/search_lab.py initialize --live", "python samples/search_lab.py query --mode keyword --query \"SAME_QUESTION\" --live", "Repeat with --mode hybrid and --mode iq"],
+      "ko": {"steps": ["정책 13절 준비", "검색 인덱스·IQ 생성", "동일 질문으로 세 방식 비교"], "narration": "심화 검색은 먼저 로컬 명령으로 세 정책이 열세 절로 나뉘는지 확인합니다. 관리자가 승인된 검색 서비스를 준비한 뒤 임베딩과 업로드를 통해 새 인덱스와 지식 베이스를 만듭니다. 같은 질문을 단어 검색, 혼합 검색, Foundry IQ에 전달하고 실제 반환된 절을 원문과 비교하세요. 서로 다른 검색 점수의 크기를 직접 우열로 해석하지 않습니다. 이 실습은 공용 합성 정책과 최소 추출형 검색 범위입니다. 사용자별 문서 권한이나 자동 답변 생성까지 검증한 것은 아닙니다. 검색 서비스는 요청이 없어도 비용이 남습니다."},
+      "en": {"steps": ["Prepare thirteen policy sections", "Create the index and IQ resources", "Compare three retrieval modes"], "narration": "Begin advanced retrieval by confirming that the three policies produce thirteen local sections. After an administrator prepares the approved Search service, generate embeddings, upload the sections, and create the index and knowledge base. Send the same question through keyword, hybrid, and Foundry IQ retrieval. Compare actual returned sections with their originals rather than ranking unlike numeric scores. This lab uses public synthetic policy and minimal extractive retrieval. It does not establish document-level user permissions or automatic answer synthesis. Search allocation can continue billing even without requests."}
+    },
+    {
+      "id": "l14",
+      "surface": "terminal",
+      "commands": ["python scripts/build_hosted.py", "python scripts/run_hosted_local.py", "python samples/hosted_client.py invoke --local --live", "python scripts/configure_hosted.py", "azd deploy contoso-purchasing --no-prompt", "python scripts/runtime_roles.py --agent contoso-purchasing --live", "python samples/hosted_client.py invoke --version YOUR_VERSION --live"],
+      "ko": {"steps": ["코드 패키지·로컬 실행", "소유 프로젝트에 배포", "버전 고정 호출·세션 중지"], "narration": "Hosted 에이전트는 직접 작성한 코드를 관리형 런타임에서 실행합니다. 기본 환경과 분리된 Python 환경에서 소스, 합성 정책, 고정 의존성으로 패키지를 만들고 비밀이나 평가 정답이 들어가지 않았는지 확인합니다. 로컬 서버에서도 실제 모델과 검색 호출에는 비용이 있습니다. 준비된 프로젝트에 코드 배포를 수행하고 런타임 주체에 필요한 역할만 부여합니다. 정확한 숫자 버전으로 원격 호출한 뒤 로컬과 원격 계약, 함수 결과, 인용을 비교하세요. 마지막에는 세션 컴퓨트만 중지하고 에이전트와 리소스는 승인된 보존 정책대로 유지합니다."},
+      "en": {"steps": ["Package and run locally", "Deploy to the owned project", "Pin the version and stop compute"], "narration": "A Hosted agent runs your own code in a managed runtime. Use the dedicated Python environment to package source, synthetic policies, and pinned dependencies, excluding secrets and evaluation answers. Even a local server can make billable model and Search calls. Deploy the code into the prepared project and grant only the runtime identity's required roles. Invoke the exact numeric remote version, then compare package contracts, tool outputs, and citations. Finally, stop the session compute while keeping the agent and resources according to the approved retention policy."}
+    },
+    {
+      "id": "l15",
+      "surface": "terminal",
+      "commands": [".venv-advanced/bin/python samples/multi_agent.py --mode sequential --live", ".venv-advanced/bin/python samples/multi_agent.py --mode concurrent --live", ".venv-advanced/bin/python samples/multi_agent.py --mode group-chat --live", ".venv-advanced/bin/python samples/multi_agent.py --mode handoff --live", "Wait at least one minute between pattern starts"],
+      "ko": {"steps": ["같은 질문·역할 유지", "네 Builder 실행", "전달·종료·토큰 비교"], "narration": "Agent Framework의 별도 심화 환경에서 순차, 동시, 그룹 채팅, 핸드오프를 비교합니다. 순차는 작성자 다음 검토자, 동시는 세 역할의 독립 처리, 그룹 채팅은 검토 후 작성자의 수정입니다. 핸드오프는 실제 도구 호출로 담당자를 바꿔야 하며 말로 위임했다고 답한 것만으로는 부족합니다. 패턴 시작 사이에 최소 일 분 간격을 두고 호출 상한을 유지합니다. 전달된 메시지, 역할 순서, 최종 종료 상태, 토큰과 시간을 읽으세요. 에이전트 수가 많다고 더 정확하다고 가정하지 않으며, 이 로컬 역할들을 원격 예약 대상으로 사용하지 않습니다."},
+      "en": {"steps": ["Keep the question and roles fixed", "Run four orchestration builders", "Compare handoff, termination, and usage"], "narration": "In the separate Agent Framework environment, compare sequential, concurrent, group-chat, and handoff orchestration. Sequential connects author to reviewer; concurrent runs three independent roles; group chat returns the review to the author for revision. Handoff requires an actual delegation tool call, not merely a statement that delegation happened. Leave at least one minute between pattern starts and keep the call limits unchanged. Inspect transferred messages, role order, terminal state, tokens, and elapsed time. More agents do not automatically mean better quality, and these local roles are not remote routine targets."}
+    },
+    {
+      "id": "l16",
+      "surface": "terminal",
+      "commands": ["python samples/memory_lab.py create --live", "python samples/memory_lab.py remember --live", "python samples/memory_lab.py verify --live", "Synthetic user A: table-format preference", "User A finds the item · user B does not", "Deletion requires separate approval"],
+      "ko": {"steps": ["합성 선호 한 항목", "사용자별 실제 검색", "TTL·삭제 경계 구분"], "narration": "Memory 실습에는 가상 사용자 에이의 표 형식 답변 선호 한 항목만 저장합니다. 실제 개인정보나 직원 정보를 넣지 않습니다. 메모리 보관소를 만들고 항목 식별자를 기록한 뒤 에이와 비의 범위에서 각각 검색합니다. 에이에게는 저장한 항목이 있고 비에게는 없어야 합니다. 표로 답했다는 자연어만으로 저장 성공을 판단하지 마세요. 기본 수명과 보관소 수명은 다릅니다. 항목 삭제는 별도 승인 후에만 수행하고, 삭제 금지 조건이면 저장과 격리까지만 완료 범위로 구분합니다."},
+      "en": {"steps": ["Store one synthetic preference", "Search with separate user scopes", "Distinguish TTL and deletion"], "narration": "Store only one fictional preference: synthetic user A prefers table-formatted answers. Do not use personal or employee information. Create the memory store, record the item identifier, and search separately in user A and user B scopes. A should retrieve that item; B should not. A table-formatted natural-language answer alone does not prove memory persistence. Item time-to-live differs from the store's lifetime. Delete an item only with separate approval. Under a no-deletion policy, report storage and isolation separately from the unperformed deletion exercise."}
+    },
+    {
+      "id": "l17",
+      "surface": "terminal",
+      "commands": ["python samples/routine_lab.py create \\\n  --agent YOUR_FILE_SEARCH_AGENT \\\n  --receipt results/manual.json --live", "python samples/routine_lab.py dispatch \\\n  --receipt results/manual.json --live", "python samples/routine_lab.py scheduled-test \\\n  --agent YOUR_FILE_SEARCH_AGENT \\\n  --receipt results/scheduled.json \\\n  --delay-seconds 120 --wait-seconds 360 --live", "Read back: enabled=false"],
+      "ko": {"steps": ["수동 실행과 예약 분리", "예약 이후 실제 응답 확인", "비활성 상태 재조회"], "narration": "Routine은 언제 실행할지를 정합니다. 서버에서 실행되는 파일 검색 에이전트를 대상으로 비활성 예약의 수동 호출과 일회성 예약 실행을 구분하세요. 예약은 이 분 뒤 한 번만 실행하고 제한된 시간 안에 같은 입력 표식과 응답, 추적 식별자를 확인합니다. 생성 성공이나 수동 호출을 예약 성공으로 대신 표시하지 않습니다. 명령줄 실행 이력 목록이 비었다고 미실행을 단정하지 말고 실제 작업 추적을 대조합니다. 마지막에는 활성 상태가 거짓인지 다시 읽습니다. Autopilot 계정이나 외부 메시지 발송은 이 예약 실습에 포함되지 않습니다."},
+      "en": {"steps": ["Separate manual and timer execution", "Find the actual scheduled response", "Read back the disabled state"], "narration": "A routine determines when an agent runs. Use the server-side file-search agent, distinguishing a disabled routine's manual dispatch from a genuine one-shot timer. Schedule one execution two minutes ahead, then verify the unique input marker, completed response, and trace within the bounded wait. Creation success or manual dispatch cannot substitute for scheduled execution. An empty CLI history page does not prove nothing ran; inspect the actual action trace. Finally, read back enabled equals false. Creating an Autopilot account or sending external messages is outside this timer exercise."}
+    },
+    {
+      "id": "l21",
+      "surface": "terminal",
+      "commands": ["python samples/prepare_practice.py governance \\\n  --output practice/governance", "python -m unittest discover -s practice/governance \\\n  -p test_exercise.py -v", "Fix exercise.py: authorization before cache", "Design: user → agent identity → tool → data"],
+      "ko": {"steps": ["권한·캐시 오류 재현", "검사 순서만 수정", "실제 통제 설계와 구분"], "narration": "기업 통제 실습은 로컬 합성 캐시 예제로 시작합니다. 처음에는 허용되지 않은 사용자와 권한이 회수된 사용자가 캐시를 읽는 두 실패를 확인합니다. 권한 검사를 캐시 반환보다 앞에 두고 같은 테스트를 다시 실행합니다. 테스트나 허용 사용자 목록은 바꾸지 않습니다. 이어 개발자, 프로젝트 주체, 에이전트 런타임, 최종 사용자의 권한 범위를 구분합니다. 네트워크와 Gateway, 문서 접근 통제는 별도 설계표로 작성하세요. 로컬 과제 통과가 실제 Azure 역할이나 문서 권한을 검증한 결과는 아닙니다."},
+      "en": {"steps": ["Reproduce authorization-cache failures", "Fix only the check order", "Separate the exercise from real controls"], "narration": "Start enterprise governance with the synthetic local cache exercise. Observe the two expected failures: a denied user and a revoked user can still read cached data. Move authorization ahead of the cache return, then rerun the unchanged tests. Do not change the permitted-user list to make them pass. Next, distinguish developer, project identity, agent runtime, and end-user permissions. Document network, gateway, and document-access responsibilities separately. Passing the local exercise does not establish that real Azure roles or document permissions were tested."}
+    },
+    {
+      "id": "l22",
+      "surface": "terminal",
+      "commands": ["python samples/prepare_practice.py delivery \\\n  --output practice/delivery", "python -m unittest discover -s practice/delivery \\\n  -p test_exercise.py -v", "completed AND quality_passed", "AND critical_failures=0 AND missing_rows=0", "Release manifest → rollback decision → L12 closeout"],
+      "ko": {"steps": ["CI 실패·수정 경험", "릴리스·롤백 근거 연결", "비용·보존 재확인"], "narration": "마지막으로 실행 완료만 보고 후보를 승격하는 로컬 오류를 재현합니다. 완료 상태, 품질 통과, 중대한 실패 영 건, 누락 영 건을 모두 만족할 때만 후보를 선택하도록 함수만 수정합니다. 실제 배포 승인과는 다른 연습입니다. 소스와 지침 해시, 모델 버전, 에이전트 버전, 도구와 응답 근거를 릴리스 명세로 연결하고 이전 승인 버전으로 돌아갈 조건을 적습니다. 모델 종료와 비용 재확인 담당자를 정한 뒤 십이 번의 종료 절차로 돌아갑니다. 소스 검사, 배포 성공, 사용자에게 제공해도 되는 품질을 끝까지 구분하세요."},
+      "en": {"steps": ["Experience CI failure and correction", "Connect release and rollback evidence", "Recheck cost and retention"], "narration": "Finally, reproduce the local error that promotes a candidate solely because execution completed. Change only the function so promotion also requires a quality pass, zero critical failures, and zero missing rows. This exercise is not a real deployment approval. Build a release manifest connecting source and instruction hashes, model and agent versions, tools, responses, and evidence. Record when to retain or restore the previously approved version. Assign owners for model retirement and cost review, then return to module twelve's closeout. Keep source validation, deployment success, and release-quality approval separate throughout."}
+    }
+  ]
+}

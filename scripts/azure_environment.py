@@ -40,13 +40,20 @@ def az(*args: str, timeout: int = 180) -> object:
     return json.loads(result.stdout) if result.stdout.strip() else None
 
 
-def owned() -> dict:
+def owned(*, verify_location: bool = False) -> dict:
     state = json.loads(LEDGER.read_text(encoding="utf-8"))
     if state.get("language", "ko") != LANGUAGE:
         raise ValueError("Selected language differs from the owned environment. No changes are allowed.")
     group = az("group", "show", "--subscription", state["subscription"], "--name", state["resource_group"])
     if group["id"].lower() != state["resource_group_id"].lower() or group.get("tags", {}).get("validationRun") != state["run_id"]:
         raise ValueError("RG identity/ownership mismatch. No changes are allowed.")
+    if verify_location and (
+        state.get("repository_id") != 1396573688
+        or group.get("tags", {}).get("repository") != "microsoft-foundry-labs-v1.5"
+        or not isinstance(group.get("location"), str)
+        or group["location"].lower() != str(state.get("location", "")).lower()
+    ):
+        raise ValueError("Foundation repository/region does not match the owned resource group.")
     return state
 
 
@@ -105,7 +112,12 @@ def create(args: argparse.Namespace) -> None:
 
 
 def foundation(args: argparse.Namespace) -> None:
-    state = owned()
+    from model_capacity import (
+        Management, ROLES, initial_capacity_plan, inspect_deployments, model_catalog,
+        require_ready, requirements, validate_deployment,
+    )
+
+    state = owned(verify_location=True)
     required = ("chat_model", "chat_version", "judge_model", "judge_version", "embedding_model", "embedding_version", "model_sku")
     if any(not getattr(args, key) for key in required):
         raise ValueError("Explicit model names, versions, and SKU are required; check regional catalog/quota first.")
@@ -115,19 +127,65 @@ def foundation(args: argparse.Namespace) -> None:
     for resource in existing:
         if resource.get("tags", {}).get("validationRun") != state["run_id"]:
             raise ValueError("A resource is not tagged as owned by this run; resume refused.")
+    management = Management(az)
+    models = {
+        role: {"name": getattr(args, role + "_model"), "version": getattr(args, role + "_version")}
+        for role in ROLES
+    }
+    deployment_names = {role: "contoso-" + role for role in ROLES}
+    account_id = state["resource_group_id"] + "/providers/Microsoft.CognitiveServices/accounts/" + state["account_name"]
+    current_models = {}
+    if any(resource["id"].lower() == account_id.lower() for resource in existing):
+        inventory = management.call(
+            "cognitiveservices", "account", "deployment", "list", "--subscription", state["subscription"],
+            "--resource-group", state["resource_group"], "--name", state["account_name"],
+        )
+        if not isinstance(inventory, list):
+            raise ValueError("Cannot verify existing model allocations for resume.")
+        for current in inventory:
+            for role, name in deployment_names.items():
+                expected_id = account_id + "/deployments/" + name
+                if str(current.get("id", "")).lower() == expected_id.lower():
+                    validate_deployment(current, expected_id)
+                    tags = current.get("tags") or {}
+                    if not isinstance(tags, dict) or tags.get("validationRun", state["run_id"]) != state["run_id"]:
+                        raise ValueError("Existing model belongs to a different run; resume refused.")
+                    if role in current_models:
+                        raise ValueError("Duplicate model deployment readback; resume refused.")
+                    current_models[role] = current
+    catalog = model_catalog(state, management)
+    quota = management.call(
+        "cognitiveservices", "usage", "list", "--subscription", state["subscription"],
+        "--location", state["location"],
+    )
+    plan = initial_capacity_plan(
+        catalog, quota, models, args.model_sku, learners=args.learners,
+        max_capacity=args.max_capacity, existing=current_models,
+    )
     parameters = {
         "accountName": state["account_name"], "projectName": state["project_name"], "runId": state["run_id"],
         "chatModel": args.chat_model, "chatVersion": args.chat_version,
         "judgeModel": args.judge_model, "judgeVersion": args.judge_version,
         "embeddingModel": args.embedding_model, "embeddingVersion": args.embedding_version,
-        "modelSku": args.model_sku, "capacity": args.capacity,
+        "modelSku": args.model_sku,
+        **{role + "Capacity": plan["roles"][role]["capacity"] for role in ROLES},
+        "preservedDeployments": plan["preserved_deployments"],
     }
+    state["initial_model_capacity_plan"] = plan
+    state["model_configuration"] = parameters
+    state["model_deployments"] = deployment_names
+    state["operations"].append({"step": "foundation-capacity-plan", "status": "verified", "roles": plan["roles"]})
+    persist(state)
+    print(json.dumps({"initial_model_capacities": plan["roles"], "model_calls": 0}, ensure_ascii=False, indent=2))
     deployment = az(
         "deployment", "group", "create", "--subscription", state["subscription"],
         "--resource-group", state["resource_group"], "--name", "contoso-foundation",
         "--template-file", str(ROOT / "infra/main.bicep"), "--parameters",
-        *[f"{key}={value}" for key, value in parameters.items()], timeout=1200,
+        *[f"{key}={json.dumps(value) if isinstance(value, dict) else value}" for key, value in parameters.items()],
+        timeout=1200,
     )
+    if deployment["properties"]["provisioningState"] != "Succeeded":
+        raise RuntimeError("Foundation deployment did not complete successfully; no model test was sent.")
     state["foundation"] = deployment["properties"]["outputs"]
     project = az(
         "rest", "--method", "get",
@@ -135,8 +193,12 @@ def foundation(args: argparse.Namespace) -> None:
     )
     endpoints = project["properties"]["endpoints"]
     state["project_endpoint"] = endpoints["AI Foundry API"].rstrip("/")
-    state["model_deployments"] = {"chat": "contoso-chat", "judge": "contoso-judge", "embedding": "contoso-embedding"}
-    state["model_configuration"] = parameters
+    persist(state)
+    readiness, _ = inspect_deployments(state, requirements(args.learners), ROLES, Management(az))
+    require_ready(readiness)
+    state["initial_model_capacity_verified"] = {
+        "checked_at": datetime.now(timezone.utc).isoformat(), "deployments": readiness,
+    }
     state["operations"].append({"step": "foundation", "status": deployment["properties"]["provisioningState"]})
     persist(state)
     status()
@@ -315,7 +377,7 @@ def reflection(args: argparse.Namespace) -> None:
     raise RuntimeError("Reflection deployment was not confirmed within the bounded wait; inspect the receipt.")
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("step", choices=["create", "foundation", "roles", "search", "monitoring", "status", "throughput", "reflection"])
     parser.add_argument("--live", action="store_true")
@@ -326,19 +388,34 @@ def main() -> None:
                   "reflection-model", "reflection-version"):
         parser.add_argument("--" + field)
     parser.add_argument("--model-sku", choices=["GlobalStandard", "DataZoneStandard", "Standard"])
-    parser.add_argument("--capacity", type=int, default=10)
+    parser.add_argument("--capacity", type=int, help="Legacy throughput/reflection capacity units; not used for foundation.")
+    parser.add_argument("--learners", type=int, default=1, help="Simultaneous learners used to size initial model TPM/RPM.")
+    parser.add_argument("--max-capacity", type=int, default=100, help="Ceiling for new/increased capacity units per model.")
     parser.add_argument("--resume", action="store_true", help="Explicitly resume only owned partial foundation resources.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    if args.step == "foundation":
+        from model_capacity import requirements
+        plan = requirements(args.learners)
+        if args.capacity is not None:
+            raise ValueError("Foundation derives role capacities from recommended TPM/RPM; use --learners and --max-capacity, not --capacity.")
+        if not 1 <= args.max_capacity <= 10000:
+            raise ValueError("The capacity ceiling must be 1..10000 units per deployment.")
+    elif args.step in {"throughput", "reflection"} and args.capacity is None:
+        args.capacity = 10
     if not args.live:
         print(f"PLAN ONLY: {args.step}; no Azure calls or changes.")
+        if args.step == "foundation":
+            print(json.dumps({
+                "recommended": plan["roles"],
+                "capacity_resolution": "Resolve SKU unit rates, allowed capacity and quota before deployment.",
+                "max_capacity": args.max_capacity, "azure_calls": 0,
+            }, ensure_ascii=False, indent=2))
         return
     if args.step == "create":
         if not args.cost_authorization:
             raise ValueError("Record explicit --cost-authorization before creating the environment.")
         create(args)
     elif args.step == "foundation":
-        if not 1 <= args.capacity <= 100:
-            raise ValueError("Capacity must be 1..100; verify model-specific quota units.")
         foundation(args)
     elif args.step == "reflection":
         reflection(args)

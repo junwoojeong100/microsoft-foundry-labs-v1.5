@@ -195,26 +195,6 @@
       "sha256": "178dca0ac4e99c4c196b0c04375ba0d5883e4e1388ba58889eb2840f689f94a5"
     },
     {
-      "path": "assets/portal/en/14-fine-tuning.png",
-      "captured_at": "2026-09-30T13:42:59.449Z",
-      "route": "/build/fine-tune",
-      "masked": [
-        "profile button"
-      ],
-      "purpose": "The English fine-tuning landing page is a Microsoft product example, not Contoso training evidence. Only local English SFT-format data was prepared.",
-      "sha256": "ff932830fb6f47665d3ce63eb952e3ef488b647799080bb3b0c914dfbb1e25bb"
-    },
-    {
-      "path": "assets/portal/en/15-voice-setup.png",
-      "captured_at": "2026-09-30T13:44:56.166Z",
-      "route": "/build/agents -> New agent -> Build an agent",
-      "masked": [
-        "account and project surroundings excluded by dialog crop"
-      ],
-      "purpose": "English voice-agent setup form only. The form was canceled; no voice agent or session was created.",
-      "sha256": "8d89de499d03f6aacc6063a40803ab65c11370bf5539f0f5557b0a29df970781"
-    },
-    {
       "path": "assets/portal/en/16-model-response.png",
       "captured_at": "2026-09-30T13:47:14.367Z",
       "route": "/build/models/deployments/contoso-chat/playground",
@@ -245,6 +225,28 @@
       ],
       "purpose": "Actual new English resource group and resource inventory. Failed deployment history is deliberately not hidden.",
       "sha256": "050da9e5ce15de57395cd2dcb8783943256ed189976df1d3dcf1159585d5c3e6"
+    }
+  ],
+  "archived_captures": [
+    {
+      "path": "assets/portal/en/14-fine-tuning.png",
+      "captured_at": "2026-09-30T13:42:59.449Z",
+      "route": "/build/fine-tune",
+      "masked": [
+        "profile button"
+      ],
+      "purpose": "The English fine-tuning landing page is a Microsoft product example, not Contoso training evidence. Only local English SFT-format data was prepared.",
+      "sha256": "ff932830fb6f47665d3ce63eb952e3ef488b647799080bb3b0c914dfbb1e25bb"
+    },
+    {
+      "path": "assets/portal/en/15-voice-setup.png",
+      "captured_at": "2026-09-30T13:44:56.166Z",
+      "route": "/build/agents -> New agent -> Build an agent",
+      "masked": [
+        "account and project surroundings excluded by dialog crop"
+      ],
+      "purpose": "English voice-agent setup form only. The form was canceled; no voice agent or session was created.",
+      "sha256": "8d89de499d03f6aacc6063a40803ab65c11370bf5539f0f5557b0a29df970781"
     }
   ]
 }

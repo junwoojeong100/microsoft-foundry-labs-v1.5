@@ -135,7 +135,7 @@ It does not wait for the model to select a search function. Internally, the answ
 only the sections the model selects from the actual returned results are rendered as citations. Missing search results or citations are errors, not successes.
 In `tool_calls`, `execution=server_required` records a real server-side search; it does not pretend the model called it.
 The current runtime requires explicit permission for inventory calls and rechecks every attempted business tool. Missing or invalid draft quantities do not authorize an unrequested lookup. Read-only calls are still tool execution.
-Both packages now load the current `agent-v2.txt`. Its improved answer procedure is not a new Azure deployment or quality pass; inspect the [current status](../../validation/current/instructions.json) before making that claim.
+Both packages load `agent-v2.txt`. Its answer procedure is not evidence of a new Azure deployment or quality pass; compare your package hash with the actual invoked version.
 
 Use the actual service-issued deployment version, not the instruction number. When a session is already bound to a version, invoke it with `--session-id` only; combining that flag with `--version` is rejected by azd.
 
@@ -192,39 +192,6 @@ The bundled `azure.yaml` uses **code deployment**; Docker/ACR is not required.
 Do not casually run `azd provision` with this file. Resource creation belongs to the L01 administration path.
 Each deployment creates a new immutable version. Grant the agent runtime identity only the relevant Search read role.
 
-<details class="optional-path" markdown="1">
-<summary>Optional: the Responses adapter for L20 Optimizer — not needed for the default Hosted path</summary>
-
-The native optimizer in L20 currently supports **only the Responses protocol**.
-An optional `contoso-purchasing-responses` adapter using the same business engine is also bundled.
-Deploy that service explicitly only when needed, and record its separate agent/version/identity.
-Do not use success in the default Invocations lab as execution evidence for this adapter.
-
-```bash
-python scripts/run_hosted_local.py --protocol responses --port 8089
-azd deploy contoso-purchasing-responses --no-prompt
-python scripts/runtime_roles.py --agent contoso-purchasing-responses --live
-azd ai agent invoke contoso-purchasing-responses "What is the price cap for a standard laptop?" --protocol responses --version ACTUAL_NUMERIC_VERSION
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — This is the separate Responses path for when Optimizer is needed.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `run_hosted_local.py --protocol responses --port 8089` | Runs the Responses adapter on a different port from the default Invocations server. Keep this server in its own terminal and run the deployment commands in another. | Starts a local server. Stop it with Ctrl+C after use. The remote invocation below does not call this local server. |
-| 2. `azd deploy contoso-purchasing-responses --no-prompt` | Performs a real deployment of the Responses service/code rather than the default service. | Creates a separate agent/version; charges may apply. Do not reuse quality evidence from the default Invocations service. |
-| 3. `runtime_roles.py --agent contoso-purchasing-responses --live` | Configures data/model roles within the owned scope for that separate runtime identity. | A real permission change requiring administrator approval. |
-| 4. `azd ai agent invoke ... --protocol responses --version` | Sends the English question to the exact remote numeric version. `--protocol responses` selects the request/response contract. Replace `ACTUAL_NUMERIC_VERSION` with the version number from your English Responses deployment. | Real Hosted, model, and search charges. Check the completion event, content, and session state after invocation. |
-
-</div>
-
-Pass the question directly to the Responses CLI. Do not wrap a JSON request file as the question text.
-If the raw response is SSE, check for the `response.completed` terminal event; output deltas alone do not establish success.
-
-</details>
-
 ### 4. Invoke the exact remote version
 
 ```bash
@@ -262,7 +229,7 @@ When connecting a separate Toolbox, retain L07's authentication principal and on
 You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
 Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
 
-The [current instruction status](../../validation/current/instructions.json) separates the edited v2 from the latest actual deployment evidence. A working package or a historical native score does not validate a new instruction edit.
+A working package or a historical native score does not validate a new instruction edit. Keep the invoked version and its actual results together outside the guide.
 
 ## Troubleshooting
 
