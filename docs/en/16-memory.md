@@ -34,6 +34,16 @@ Prepare the core Python SDK environment and `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME` 
 The only permitted content is fictional user A's “prefers answers in table format.”
 Do not store real personal data, salaries, passwords, or employee information.
 
+### Choose your starting path
+
+| Requirement | Where to inspect | If missing |
+| --- | --- | --- |
+| Project, chat, and embedding deployment names | Your L01/L02 `.env` and deployment list | Read only the `create` plan until names, region, and access are checked |
+| Whether this is a new exercise | Presence of this folder's `results/memory.json` | Do not repeat `create` over an existing record |
+| Approval to delete the exact item | Confirm the actual `memory_id` and deletion scope with the administrator | Complete storage/isolation in steps 1–3; leave step 4 not performed |
+
+Follow **create store → store one item → compare A/B searches → delete only if approved**. Search and Hosted are not prerequisites. Open `results/memory.json` in an editor to read values without modifying the original.
+
 ## Steps
 
 ### 1. Create a dedicated store
@@ -62,6 +72,8 @@ The unique store name and A/B scopes are recorded in `results/memory.json`.
 Only profiles are enabled; summary/procedural extraction is disabled. The default TTL for new items is **3,600 seconds**.
 An existing receipt is not overwritten.
 
+After creation, inspect `name`, `endpoint`, `scope_a`, `scope_b`, and `ttl_seconds`. `memory_id` is added **after remember succeeds**. Do not confuse a store name with the item ID required by `--confirm`.
+
 ### 2. Store an item and search for it
 
 ```bash
@@ -87,10 +99,17 @@ This direct CRUD path does not validate automatic memory extraction from convers
 
 ### 3. Read the isolation checks
 
-Run the same search with scope A and scope B.
+`remember` already searches after writing; `verify` makes a fresh check of the same item. **Read their printed `Evidence:` files here**; no additional search command is needed.
 The item must be present for A, while B must be empty. Preserve the raw results for each.
 Scopes come only from the receipt; do not replace them with arbitrary user input.
 In a real service, the server must derive the scope from the authenticated principal.
+
+| Original event/value | Expected relationship after storage |
+| --- | --- |
+| ID in `memory_created` / receipt `memory_id` | The same actual item |
+| `memory_search` with `scope_label=scope_a` | Returns that item ID |
+| `memory_search` with `scope_label=scope_b` | Empty results |
+| `verified` | Storage/isolation judgment. Without deletion, do not read `deleted_item_absent` as deletion success |
 
 ### 4. Delete only the one item, then search again
 
@@ -128,6 +147,7 @@ Separately identify features not executed, such as automatic remember/forget pro
 
 Check model/embedding support, store settings, user scopes, and Preview API access.
 If the API fails, preserve the original error. Do not substitute a local dictionary and label it Azure Memory success.
+If creation failed but `memory.json` exists, first reconcile actual store creation with the administrator. Do not delete the record to repeat `create` or edit unverified ownership fields. An item expiring after its one-hour TTL does not prove an approved deletion ran; a new exercise needs separately approved ownership records.
 
 ## Cleanup
 

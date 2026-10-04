@@ -1,122 +1,142 @@
 [
   {
     "id": "l00",
+    "number": "00",
     "title": "Azure·Foundry 처음 시작하기",
     "start": 0.0,
-    "end": 34.433
+    "end": 38.033
   },
   {
     "id": "l01",
-    "title": "실습 준비: 계정·PC·비용 확인",
-    "start": 34.433,
-    "end": 71.914
+    "number": "01",
+    "title": "실습 준비: 계정·PC·비용 확인 (Project·RBAC)",
+    "start": 38.033,
+    "end": 75.514
   },
   {
     "id": "l02",
-    "title": "사용할 모델 배포 확인하기",
-    "start": 71.914,
-    "end": 110.614
+    "number": "02",
+    "title": "사용할 모델 배포 확인하기 (Model Deployment)",
+    "start": 75.514,
+    "end": 114.214
   },
   {
     "id": "l03",
-    "title": "코드로 첫 답변 받기",
-    "start": 110.614,
-    "end": 144.414
+    "number": "03",
+    "title": "코드로 첫 답변 받기 (Responses API)",
+    "start": 114.214,
+    "end": 148.014
   },
   {
     "id": "l04",
-    "title": "역할을 정한 에이전트 만들기",
-    "start": 144.414,
-    "end": 179.253
+    "number": "04",
+    "title": "역할을 정한 에이전트 만들기 (Prompt Agent)",
+    "start": 148.014,
+    "end": 182.853
   },
   {
     "id": "l05",
-    "title": "회사 문서로 답하기",
-    "start": 179.253,
-    "end": 215.42
+    "number": "05",
+    "title": "회사 문서로 답하기 (File search·RAG)",
+    "start": 182.853,
+    "end": 219.02
   },
   {
     "id": "l06",
-    "title": "재고 조회와 구매 초안 만들기",
-    "start": 215.42,
-    "end": 253.359
+    "number": "06",
+    "title": "재고 조회와 구매 초안 만들기 (Function Calling·Capstone)",
+    "start": 219.02,
+    "end": 261.364
   },
   {
     "id": "l07",
+    "number": "07",
     "title": "외부 기능 연결: MCP·OpenAPI",
-    "start": 253.359,
-    "end": 288.702
+    "start": 261.364,
+    "end": 296.707
   },
   {
     "id": "l08",
-    "title": "두 답변을 비교하고 평가 읽기",
-    "start": 288.702,
-    "end": 329.636
+    "number": "08",
+    "title": "두 답변을 비교하고 평가 읽기 (Evaluation)",
+    "start": 296.707,
+    "end": 337.641
   },
   {
     "id": "l09",
-    "title": "없는 정보·허위 승인 막기",
-    "start": 329.636,
-    "end": 367.144
+    "number": "09",
+    "title": "없는 정보·허위 승인 막기 (Safety·Guardrails)",
+    "start": 337.641,
+    "end": 375.149
   },
   {
     "id": "l10",
-    "title": "답변의 실행 과정 살펴보기",
-    "start": 367.144,
-    "end": 402.491
-  },
-  {
-    "id": "l11",
-    "title": "구매 도우미 완성 결과 확인",
-    "start": 402.491,
-    "end": 438.603
-  },
-  {
-    "id": "l12",
-    "title": "실습 종료와 남은 비용 확인",
-    "start": 438.603,
-    "end": 476.37
+    "number": "10",
+    "title": "답변의 실행 과정 살펴보기 (Tracing)",
+    "start": 375.149,
+    "end": 410.496
   },
   {
     "id": "l13",
+    "number": "11",
     "title": "AI Search·Foundry IQ·권한 검색",
-    "start": 476.37,
-    "end": 515.911
+    "start": 410.496,
+    "end": 450.037
   },
   {
     "id": "l14",
+    "number": "12",
     "title": "Hosted Agent와 개발 도구",
-    "start": 515.911,
-    "end": 556.611
+    "start": 450.037,
+    "end": 490.737
   },
   {
     "id": "l15",
-    "title": "Agent Framework 오케스트레이션",
-    "start": 556.611,
-    "end": 598.22
+    "number": "13",
+    "title": "Agent Framework: 순차·동시 실행",
+    "start": 490.737,
+    "end": 533.286
+  },
+  {
+    "id": "l15-collaboration",
+    "number": "14",
+    "title": "Agent Framework: 그룹 채팅·핸드오프",
+    "start": 533.286,
+    "end": 575.953
   },
   {
     "id": "l16",
+    "number": "15",
     "title": "Memory: 기억과 삭제",
-    "start": 598.22,
-    "end": 633.627
+    "start": 575.953,
+    "end": 611.36
   },
   {
     "id": "l17",
+    "number": "16",
     "title": "Routines·장기 실행·Autopilot",
-    "start": 633.627,
-    "end": 672.843
+    "start": 611.36,
+    "end": 650.576
   },
   {
     "id": "l21",
+    "number": "17",
     "title": "기업 보안·Control Plane·Gateway",
-    "start": 672.843,
-    "end": 710.676
+    "start": 650.576,
+    "end": 688.409
   },
   {
     "id": "l22",
-    "title": "CI/CD·비용·모델 수명주기",
-    "start": 710.676,
-    "end": 750.449
+    "number": "18",
+    "title": "CI/CD: 품질 게이트·게시·롤백",
+    "start": 688.409,
+    "end": 731.676
+  },
+  {
+    "id": "l12",
+    "number": "19",
+    "title": "실습 종료와 남은 비용 확인 (Cost Management)",
+    "start": 731.676,
+    "end": 771.409
   }
 ]

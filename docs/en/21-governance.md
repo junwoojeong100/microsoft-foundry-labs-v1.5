@@ -28,6 +28,16 @@
 
 The default exercise is a local Python repair plus design. Prepare L01's Python, then turn the Contoso example into your **principal → operation → scope → deny condition → owner** table. No Azure account is needed; do not record it as verified Azure permissions. Real roles, gateways, private endpoints, and policy changes require administrator involvement and separate approval.
 
+### Choose your starting path
+
+| Goal | Sequence | What to retain |
+| --- | --- | --- |
+| Experience the permission/cache boundary | Step 0 copy → two failures → edit `exercise.py` → five passes with unchanged tests | Local before/after behavior and explanation |
+| Design an organizational implementation | Above → step 1 identity table → steps 3–4 gateway/network boundaries | Your own design; Azure changes not performed |
+| Portal read access also available | Additionally observe **one owned asset** in step 2 | Observation time, filters, and read scope |
+
+Edit only `practice/governance/exercise.py`. Keep `test_exercise.py`, allowed users, and the `data/exercises/` originals unchanged. If the folder exists, choose another `--output` path and update the test command's path too.
+
 ## Steps
 
 ### 0. Fix it: does a cache hit still check access?
@@ -53,6 +63,8 @@ python -m unittest discover -s practice/governance -p "test_exercise.py" -v
 </div>
 
 The failing names are `test_denied_user_after_cache` and `test_revocation_after_cache`. Open `practice/governance/exercise.py` and find **the cached return before the permission check**. Explain which line skips authorization when B reads after A, or after A's permission is revoked.
+
+**Follow the concrete sequence:** A reads the restricted quote, populating the cache → B requests the same document → the flawed code returns cached content before checking permission. After repair, B must still be denied on a cache hit, and so must A after revocation. The point is **checking current access on every request**, not clearing the cache to make one test happen to pass.
 
 **Change one thing:** Put authorization before the cache lookup. Do not change the tests or grant more users access. Rerun the same check and require all five cases to pass.
 
@@ -84,7 +96,7 @@ A cache does not replace authentication or authorization. This example rechecks 
 
 ### 1. Separate four identities
 
-**Worked design — L14's public-policy Hosted path, not a record of actual role assignments.**
+**Worked design — L12's public-policy Hosted path, not a record of actual role assignments.**
 
 | Identity | Allowed operation/scope | Not allowed | Inspection/revocation owner |
 | --- | --- | --- | --- |
@@ -93,7 +105,7 @@ A cache does not replace authentication or authorization. This example rechecks 
 | Agent runtime identity | Invoke the designated model and read policies in owned Search | Index updates, arbitrary data sources, orders/payments | Runtime/data administrator |
 | End user | Invoke an allowed agent and receive authorized evidence | Edit agents or read another user's documents/conversations | Application/data owner |
 
-Do not assume L14's direct Search caller and L07's connection caller are identical. Read **connection authentication in Manage → that identity's role assignment/scope → target service**. A role listing shows potential permission, not a successful call. Actual testing requires a separately approved read request.
+Do not assume L12's direct Search caller and L07's connection caller are identical. Read **connection authentication in Manage → that identity's role assignment/scope → target service**. A role listing shows potential permission, not a successful call. Actual testing requires a separately approved read request.
 
 ### 2. Inspect the fleet in Control Plane
 

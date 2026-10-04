@@ -130,8 +130,9 @@ class BilingualGuideTests(unittest.TestCase):
             self.assertEqual(len([c for c in chapters if c["track"] != "reference"]), 20)
             self.assertEqual(len(capabilities), 68)
             self.assertEqual(len(sources["sources"]), 80)
-            self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "core"), 320)
-            self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "advanced"), 310)
+            self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "core"), 285)
+            self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "advanced"), 335)
+            self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "wrapup"), 10)
         for original, translation in zip(korean, english, strict=True):
             for key in ("id", "number", "track", "minutes", "sources"):
                 self.assertEqual(original[key], translation[key], (original["id"], key))
@@ -149,7 +150,7 @@ class BilingualGuideTests(unittest.TestCase):
     def test_orchestration_coverage_distinguishes_hands_on_patterns_from_protocol_references(self):
         for language in ("ko", "en"):
             _, _, capabilities = build_guide.load_content(language)
-            rows = {row["source"]: row for row in capabilities if row["lab"] == "l15"}
+            rows = {row["source"]: row for row in capabilities if row["lab"] in {"l15", "l15-collaboration"}}
             with self.subTest(language=language):
                 self.assertEqual(rows["maf"]["mode"], "직접 실습")
                 for pattern in ("sequential", "concurrent", "group-chat", "handoff"):
@@ -171,7 +172,7 @@ class BilingualGuideTests(unittest.TestCase):
                 self.assertEqual(parser.articles, [chapter["id"] for chapter in chapters])
                 self.assertEqual(re.findall(r'data-complete="([^"]+)"', html), lab_ids)
                 hero = re.search(r'<div class="hero-stats">(.*?)\n', html)[1]
-                self.assertEqual(re.findall(r"<strong>(\d+)</strong>", hero), ["13", "7", "1"])
+                self.assertEqual(re.findall(r"<strong>(\d+)</strong>", hero), ["11", "8", "1"])
                 cover = re.search(r'<section class="print-cover"[^>]*>(.*?)</section>', html, re.S)[1]
                 self.assertIn(labels["cover_edition"].format(count=len(lab_ids)), cover)
                 self.assertIn(

@@ -28,7 +28,7 @@
 ## 준비
 
 서버에서 실행되는 Prompt Agent가 먼저 필요합니다. L05의 File search agent를 사용하세요.
-L15의 Agent Framework 역할은 로컬 코드에서 실행되므로 예약 대상이 아닙니다. 로컬 client-side 함수 agent를 예약해도 로컬 함수는 실행되지 않습니다.
+L13·L14의 Agent Framework 역할은 로컬 코드에서 실행되므로 예약 대상이 아닙니다. 로컬 client-side 함수 agent를 예약해도 로컬 함수는 실행되지 않습니다.
 서비스 Routines의 GA와 azd 확장의 Beta 상태를 구분하고, CMK 제한 등 현재 조건을 확인합니다.
 
 ```bash
@@ -52,6 +52,16 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 SDK 기본 환경과 azd `azure.ai.routines` 확장을 준비합니다. 토큰을 파일에 저장하지 않습니다.
 `results/azure-environment.json`의 프로젝트와 App Insights만 조회합니다.
 CLI 확장/전역 설정을 자동 업그레이드하거나 다른 환경의 리소스를 이용하지 않습니다.
+
+### 먼저 경로 정하기
+
+| 필요한 값 | 어디서 가져오나요? | 확인할 관계 |
+| --- | --- | --- |
+| `실제-agent-name` | L05의 자기 프로젝트 → Build → Agents의 실제 이름, 또는 그 SDK 실행의 소유 receipt | File search가 서버에서 실행됨. L06의 로컬 함수 agent 이름을 넣지 않음 |
+| 프로젝트·App Insights | L01 관리자가 만든 `results/azure-environment.json`과 L10의 로그 연결 | `.env` 프로젝트와 일치하고 action trace를 읽을 수 있음 |
+| 두 `--receipt` 경로 | 아래 수동용·예약용 **서로 다른 새 파일** | 기존 기록·다른 언어 기록을 덮어쓰지 않음 |
+
+**수동 1회 → 예약 1회 → 둘 다 중지 확인** 순서입니다. Azure 승인이 없으면 첫 `create` 계획까지만 읽습니다. 로그 권한·응답 수집 조건이 준비되지 않았다면 예약을 만들기 전에 멈춥니다. 실행 후 trace가 없다는 이유로 다시 예약하지 않습니다.
 
 ## 실행
 
@@ -107,6 +117,9 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py sched
 `finish_reason=stop`, 비어 있지 않은 출력이 모두 있어야 검증됩니다.
 가려진 출력, 진행 중/실패 기록, 다른 입력의 응답은 성공 증거가 아닙니다.
 
+<details class="optional-path" markdown="1">
+<summary>왜 CLI 실행 이력 대신 trace를 확인하나요?</summary>
+
 **CLI run history의 빈 배열/null을 미실행으로 해석하지 마세요.**
 [현재 공식 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines#view-run-history)는
 azd의 history 조회를 지원하지 않는다고 명시합니다. 확인한 확장은 서비스의
@@ -115,6 +128,10 @@ azd의 history 조회를 지원하지 않는다고 명시합니다. 확인한 �
 Routine 생성·조회·중지는 계속 azd로 수행하며, 스크립트가 Routine REST/SDK로 우회하지는 않습니다.
 실행 증거는 소유 App Insights의 제한된 KQL로 별도 확보합니다.
 trace를 읽을 수 없다면 **실행 미확인**으로 종료하며 성공이나 미실행을 추측하지 않습니다.
+
+</details>
+
+`Evidence:` 원본과 receipt를 나란히 열어 **같은 agent → `trigger_at` 이후 → 같은 `marker`가 포함된 입력 → 완료 response/trace**를 연결합니다. 수동 receipt의 결과를 예약 receipt의 성공으로 복사하지 않습니다.
 
 ### 3. 중지 상태 재확인
 
@@ -143,6 +160,14 @@ receipt의 이름·endpoint만 대상으로 삼습니다. 반복 cron을 자동 
 원래 `results/routine.json`은 `status`/`stop`으로 계속 읽을 수 있으며 덮어쓰거나 재dispatch하지 않습니다.
 disable 호출이 timeout/디코딩 오류로 끝나도 `show`를 다시 수행해 **같은 이름의 `enabled=false`**를 확인합니다.
 
+| 남길 기록 | 수동 실행 | 예약 실행 |
+| --- | --- | --- |
+| 대상 | 수동 receipt의 이름·agent | 예약 receipt의 이름·agent·`trigger_at` |
+| 실행 근거 | 수동 요청 후 실제 response/trace | 예약 시각 이후 같은 입력의 실제 response/trace |
+| 종료 근거 | 해당 이름의 `enabled=false` | 해당 이름의 `enabled=false` |
+
+`dispatch`와 `scheduled-test`는 종료 시 중지를 시도하지만, 오류가 있었으면 **그때 사용한 receipt**로 3단계의 `stop`·`status`를 수행합니다. 수동 실행 오류에 예약용 경로를 복사하지 않습니다.
+
 ### 4. identity와 복구 경계
 
 routine creator, agent runtime identity, 도구 connection identity를 구분합니다.
@@ -166,7 +191,7 @@ run ID를 읽지 못했다면 response/trace ID와 구분해 `null`로 남깁니
 
 CLI JSON decode 오류는 서비스 작업이 이미 성공한 뒤 발생할 수도 있습니다.
 새 이름으로 무조건 재생성하지 말고 receipt 이름의 show/list를 먼저 확인합니다.
-권한·protocol·model quota·도구 인증 오류를 run history에서 구분합니다.
+권한·protocol·model quota·도구 인증 오류는 실제 action trace와 원본 오류에서 구분합니다. 빈 CLI run history로 원인을 단정하지 않습니다.
 
 ## 정리
 

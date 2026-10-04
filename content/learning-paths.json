@@ -1,9 +1,10 @@
 {
-  "l13": {"mode": "independent", "label": "독립 선택", "requires": "기본 L01 프로젝트·모델. 이 장에서 Search/embedding/index를 준비하며 L14의 기반이 됩니다."},
-  "l14": {"mode": "sequence", "label": "선행 실습 필요", "requires": "L13의 Search/index 또는 관리자가 제공한 동일 자원이 필요합니다. L22의 선택형 실제 Hosted 배포에만 선행합니다."},
-  "l15": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·모델, 소유권 기록, 별도 .venv-advanced 환경이 필요합니다. L02에서 선택한 패턴의 TPM과 호출 상한을 먼저 확인합니다. L14 Hosted 배포와 A2A 연결은 필요하지 않습니다."},
+  "l13": {"mode": "independent", "label": "독립 선택", "requires": "기본 L01 프로젝트·모델. 이 장에서 Search/embedding/index를 준비하며 L12의 기반이 됩니다."},
+  "l14": {"mode": "sequence", "label": "선행 실습 필요", "requires": "L11의 Search/index 또는 관리자가 제공한 동일 자원이 필요합니다. L18의 선택형 실제 Hosted 배포에만 선행합니다."},
+  "l15": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·모델, 소유권 기록, 별도 .venv-advanced 환경이 필요합니다. L02에서 선택한 패턴의 TPM과 호출 상한을 먼저 확인합니다. L12 Hosted 배포와 A2A 연결은 필요하지 않습니다."},
+  "l15-collaboration": {"mode": "sequence", "label": "환경 준비 후 선택", "requires": "L13의 .venv-advanced·모델 처리량 확인을 재사용합니다. 순차·동시 패턴의 유료 실행은 선행 조건이 아니며, 그룹 채팅·핸드오프 각각의 호출 상한을 승인받습니다."},
   "l16": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·chat/embedding 배포 및 Memory 지원 조건. 다른 심화 장 완료는 필요하지 않습니다."},
-  "l17": {"mode": "mixed", "label": "기능별 분기", "requires": "Routine은 기본 L05의 서버 Prompt Agent로 독립 실행할 수 있습니다. Hosted 장기 실행 분기는 L14가 필요합니다."},
+  "l17": {"mode": "mixed", "label": "기능별 분기", "requires": "Routine은 기본 L05의 서버 Prompt Agent로 독립 실행할 수 있습니다. Hosted 장기 실행 분기는 L12가 필요합니다."},
   "l21": {"mode": "independent", "label": "독립 선택", "requires": "Python으로 로컬 권한/캐시 수정 과제를 진행하고 합성 설계표로 연결합니다. 실제 권한·네트워크 관찰에는 읽기 권한, 변경에는 관리자와 별도 승인이 필요합니다."},
-  "l22": {"mode": "sequence", "label": "소스 준비 후 실행", "requires": "L01 로컬 환경·소스로 합성 CI 실패/수정과 릴리스/롤백 설계를 진행합니다. L14는 선택형 실제 Hosted 배포에만 필요하며 반복 평가·Optimizer는 필수가 아닙니다."}
+  "l22": {"mode": "sequence", "label": "운영 담당자 선택", "requires": "L01 로컬 환경·소스로 CI 실패/수정과 릴리스·게시·롤백 설계를 진행합니다. L12는 선택형 실제 Hosted 배포에만 필요합니다. 실제 게시에는 지원 protocol·서버 도구·조직 권한과 별도 승인이 필요하며 기본 완주 조건이 아닙니다."}
 }

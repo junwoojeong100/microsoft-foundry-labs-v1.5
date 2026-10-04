@@ -13,13 +13,16 @@ async function main() {
   if (!["ko", "en"].includes(language) || !output) throw new Error("Use render-replay.js ko|en OUTPUT_DIRECTORY");
   const source = JSON.parse(await fs.readFile(path.join(root, "content/replay.json"), "utf8"));
   const chapters = JSON.parse(await fs.readFile(path.join(root, `content/chapters${language === "en" ? ".en" : ""}.json`), "utf8"));
+  const base = JSON.parse(await fs.readFile(path.join(root, "content/chapters.json"), "utf8"));
   const titles = Object.fromEntries(chapters.map(chapter => [chapter.id, chapter.title]));
+  const numbers = Object.fromEntries(base.map(chapter => [chapter.id, chapter.number]));
   await fs.mkdir(output, { recursive: true });
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
   await page.route("**/*", route => route.abort());
   try {
     for (const [index, chapter] of source.chapters.entries()) {
+      const label = `L${numbers[chapter.id]}`;
       const text = chapter[language];
       const surface = {
         terminal: language === "ko" ? "터미널 명령" : "Terminal commands",
@@ -46,10 +49,10 @@ async function main() {
           .rail{position:absolute;bottom:0;left:0;height:8px;width:${100 * (index + 1) / source.chapters.length}%;background:#66e0cb}
         </style></head><body><main>
           <div class="top"><div class="brand">MICROSOFT FOUNDRY · CONTOSO LABS</div><div class="number">${String(index + 1).padStart(2, "0")} / ${source.chapters.length} · ${language.toUpperCase()}</div></div>
-          <h1>${escape(chapter.id.toUpperCase())} &nbsp; ${escape(titles[chapter.id])}</h1>
+          <h1>${escape(label)} &nbsp; ${escape(titles[chapter.id])}</h1>
           <div class="layout"><div class="flow">${text.steps.map((value, i) => `<div class="step ${i === step ? "active" : ""}"><b>0${i + 1}</b><span>${escape(value)}</span></div>`).join("")}
           <div class="boundary">${language === "ko" ? "합성 데이터만 사용<br>실제 호출은 승인·범위·한도 확인 후<br>정답·승인·주문 완료를 가장하지 않기" : "Synthetic data only<br>Live calls require scope, approval, and bounds<br>Never fabricate correctness, approval, or ordering"}</div></div>
-          <div class="terminal"><div class="bar"><span>● ● ● &nbsp; ${surface}</span><span>${escape(chapter.id.toUpperCase())}</span></div>
+          <div class="terminal"><div class="bar"><span>● ● ● &nbsp; ${surface}</span><span>${escape(label)}</span></div>
           <pre>${commands.map(command => `<div class="command"><span class="prompt">${chapter.surface === "terminal" && /^(python|curl|azd|\.venv)/.test(command) ? "$ " : "› "}</span>${escape(command)}</div>`).join("")}</pre></div></div>
           <footer><span>${escape(source.notice[language])}</span><span>20 MODULES · READ → RUN → INSPECT</span></footer><div class="rail"></div>
         </main></body></html>`);

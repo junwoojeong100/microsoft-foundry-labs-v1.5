@@ -115,7 +115,7 @@ L01의 관리자 foundation 스크립트는 같은 모델을 `contoso-chat`이�
 | judge | **100,000 / 60** | 같은 요청 예산. 관리형 평가의 실제 병렬 처리·문맥이 더 크면 추가 여유 필요 |
 | embedding | **10,000 / 6** | `입력 8,192 × 분당 1회 × 여유 1.2`를 1,000 단위로 올림 |
 
-**절대적인 서비스 최소나 429가 없다는 보장은 아닙니다.** 한 명이 한 실습을 진행하는 시작 기준입니다. 공유 배포는 동시 학습자 수만큼 늘리고, 입력이 길거나 다른 앱이 함께 호출하면 다시 산정합니다. L15는 최대 세 에이전트가 겹쳐 실행하지만 요청 시작은 최소 1초 간격으로 제한합니다.
+**절대적인 서비스 최소나 429가 없다는 보장은 아닙니다.** 한 명이 한 실습을 진행하는 시작 기준입니다. 공유 배포는 동시 학습자 수만큼 늘리고, 입력이 길거나 다른 앱이 함께 호출하면 다시 산정합니다. L13은 최대 세 에이전트가 겹쳐 실행하지만 요청 시작은 최소 1초 간격으로 제한합니다.
 상세한 서비스 계산은 [공식 quota·rate limit 안내](https://learn.microsoft.com/azure/foundry/openai/how-to/quota#understanding-rate-limits)를 확인합니다. TPM/RPM은 비용 금액 상한이 아닙니다.
 
 **기본 순서는 권장값으로 배포 → 실제 한도 확인 → 연결 시험입니다.** L01의 `foundation`은 모델을 만들기 전에 지역별 카탈로그의 SKU 단위·증분·quota를 확인하고 역할별 capacity를 설정합니다. 수동 배포도 위 Custom settings에서 권장 TPM을 먼저 지정합니다.
@@ -185,7 +185,7 @@ python samples/model_capacity.py test --learners 1 --confirm OWN_RUN_ID --live
 
 </details>
 
-한 역할만 필요하면 모든 명령에 `--roles chat`처럼 지정합니다. 기본 평가 준비는 `--roles chat judge`, L15는 `--roles chat`만 확인해도 됩니다.
+한 역할만 필요하면 모든 명령에 `--roles chat`처럼 지정합니다. 기본 평가 준비는 `--roles chat judge`, L13·L14는 `--roles chat`만 확인해도 됩니다.
 오류나 429가 발생하면 반복 호출하지 않습니다. 토큰·요청 한도, 인증·권한, 공유 배포의 다른 트래픽을 확인한 뒤 다음 행동을 승인받습니다. 이 시험은 **설정·연결 확인이지 최소 TPM의 부하 한계 측정이나 전체 과정 검증이 아닙니다.**
 
 <details class="optional-path" markdown="1">

@@ -55,7 +55,7 @@ Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 �
 | 필요한 값 | 어디서 가져오나요? | 바르게 연결됐는지 확인 |
 | --- | --- | --- |
 | 응답 JSONL | L05/L06 SDK 마지막 `Responses:`에 출력된 `results/contoso-lab-…-responses.jsonl` | L06의 `read-result`로 기록 ID·응답 ID·에이전트·버전을 읽기. 원본에서는 `id`, `response_id`, `agent_name`, `configuration.agent_version` |
-| agent 이름·버전 | 그 행의 값 또는 포털에서 직접 실행한 agent의 설정 | L08 평가 전용 agent나 L14 Hosted 이름으로 바꾸지 않음 |
+| agent 이름·버전 | 그 행의 값 또는 포털에서 직접 실행한 agent의 설정 | L08 평가 전용 agent나 L12 Hosted 이름으로 바꾸지 않음 |
 | Application Insights 앱 ID | 관리자 제공 값. 동봉 환경은 `results/azure-environment.json`의 `monitoring.appId.value` | `monitoring.appInsightsId.value`의 자원이 현재 프로젝트 연결과 같은지 대조. 키/connection string을 복사하지 않음 |
 
 포털만 사용했다면 그 response ID로 **포털 경로만** 진행해도 됩니다. 존재하지 않는 JSONL을 만들거나 L08의 JSON 비교 파일을 아래 JSONL 입력으로 넘기지 않습니다. 동봉 CLI는 최근 24시간만 조회하므로 오래된 결과는 포털의 승인된 보존 범위에서 읽거나 미확인으로 남깁니다.
@@ -113,7 +113,7 @@ python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실�
 
 먼저 KQL을 출력해 범위를 검토합니다. 최근 24시간, 최대 200행이며 token/본문 전체를 조회하지 않습니다.
 `app-id`는 계측 키나 connection string이 아닙니다. 조회 결과 0행은 **상관관계 미확인**으로 실패하며,
-request ID를 trace ID로 바꾸어 채우지 않습니다. L14의 Hosted 결과를 선택했을 때만 `contract.sha256`과 version도 대조합니다. 기본 Prompt Agent JSONL에는 그 Hosted 계약을 요구하지 않습니다.
+request ID를 trace ID로 바꾸어 채우지 않습니다. L12의 Hosted 결과를 선택했을 때만 `contract.sha256`과 version도 대조합니다. 기본 Prompt Agent JSONL에는 그 Hosted 계약을 요구하지 않습니다.
 
 출력의 `input_rows`와 `correlated_rows`가 같고 `missing_case_ids`가 비어 있으면 **입력과 로그의 연결**이 확인된 것입니다. `model_response_spans_observed`와 `request_trace_ids_observed`는 관찰 계층이 다릅니다. 이 CLI는 연결을 검사하지, 병목이나 답변 정답을 자동 판정하지 않습니다. 출력된 `Evidence:` 파일의 조회 행과 포털 상세를 읽어 위 표를 자신의 값으로 작성하세요.
 

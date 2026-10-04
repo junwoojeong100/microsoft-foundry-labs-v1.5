@@ -62,8 +62,35 @@ class GuideAuthoringTests(unittest.TestCase):
                 )
                 self.assertIn('id="l01-new-terminal"', (directory / "01-setup.md").read_text())
                 self.assertIn("#l01-new-terminal", (directory / "07-toolbox.md").read_text())
-                for chapter in ("06-actions.md", "11-capstone.md"):
-                    self.assertIn("workshop.py read-result --input", (directory / chapter).read_text())
+                self.assertIn("workshop.py read-result --input", (directory / "06-actions.md").read_text())
+                self.assertNotIn("workshop.py capstone --live", (directory / "11-capstone.md").read_text())
+
+    def test_advanced_labs_explain_starting_paths_and_inputs_in_both_languages(self):
+        for language, heading in (("ko", "### 먼저 경로 정하기"), ("en", "### Choose your starting path")):
+            chapters, _, _ = build_guide.load_content(language)
+            for chapter in chapters:
+                if chapter["track"] != "advanced":
+                    continue
+                text = (ROOT / chapter["file"]).read_text()
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    self.assertIn(heading, text)
+                    self.assertLess(text.index(heading), text.index("## " + LAB_HEADINGS[language][3]))
+                    self.assertTrue("results/" in text or "practice/" in text)
+
+    def test_advanced_result_reading_identifies_real_output_fields(self):
+        fields = {
+            "13-iq.md": ("FOUNDRY_EMBEDDING_ENDPOINT", "knowledge_source", "CONTOSO-PROC-2026-09-s3", "CONTOSO-EXP-2026-09-s1"),
+            "14-hosted.md": ("results/search.json", "results/azure-environment.json", "/readiness", "order_submitted=false"),
+            "15-collaboration.md": ("paths.group-chat.stages", "paths.handoff.stages", "handoff_calls", "final_messages"),
+            "16-memory.md": ("memory_created", "memory_search", "scope_label=scope_a", "scope_label=scope_b", "memory_id"),
+            "17-automation.md": ("trigger_at", "marker", "enabled=false", ".dispatch.json"),
+        }
+        for directory in ("docs", "docs/en"):
+            for filename, expected in fields.items():
+                text = (ROOT / directory / filename).read_text()
+                with self.subTest(directory=directory, filename=filename):
+                    for field in expected:
+                        self.assertIn(field, text)
 
     def test_all_bilingual_labs_start_with_format_action_and_expected_evidence(self):
         for language in ("ko", "en"):

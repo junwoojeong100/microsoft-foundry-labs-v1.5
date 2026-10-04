@@ -8,9 +8,9 @@ Do not make account/subscription registration an improvised classroom task. Supp
 
 Before the first call, check that each learner can open the lab root, distinguish the terminal from a portal input, and find placeholders and expected output. If not, use [local troubleshooting](#troubleshooting) before explaining another feature.
 
-Start each chapter with ‘Format → Start here → What to check.’ Only relevant participants expand **administrator-only/optional** sections. L08 starts with instructions and questions; collecting and evaluating the learner's own answers is optional. L11 reuses L06's result.
+Start each chapter with ‘Format → Start here → What to check.’ Only relevant participants expand **administrator-only/optional** sections. L08 starts with instructions and questions; collecting and evaluating the learner's own answers is optional. Review the integrated result once, in the second half of L06.
 
-The default web progress is **13 modules**, or **six** in the 90-minute path. Do not require all 20 checkmarks for core completion. L02 checks a supplied deployment; L04/L05 reuse one portal agent. L06's SDK creates a separate integrated agent, so record its name and response file separately.
+Default web progress is **11 core modules plus wrap-up**, advanced progress is **eight plus wrap-up**, and the 90-minute path has **six**. Do not require all 20 checkmarks for core completion. L02 checks a supplied deployment; L04/L05 reuse one portal agent. L06's SDK creates a separate integrated agent, so record its name and response file separately.
 
 Start with **block destination → one command → expected-result comparison**, rather than more background reading. In a new terminal, recheck L01's Python path and English profile. Use L06's `Read again` to inspect originals, functions, and citations; do not rerun `capstone --live` just to see a saved result.
 
@@ -44,16 +44,16 @@ This assumes **an environment with deployment and permissions already prepared**
 | 15–35 minutes | L04 Prompt Agent | Withhold answers when information is absent |
 | 35–60 minutes | L05 File search | 2 answers with citations |
 | 60–80 minutes | L08 evaluation and analysis | Read and judge one row's v1/v2 answers and native reasons from the prepared 12-question comparison |
-| 80–90 minutes | L12 cleanup | Record resources deleted/retained |
+| 80–90 minutes | L19 cleanup | Record resources deleted/retained |
 
 Do not try to mark function execution, orchestration, and Hosted deployment all “complete” within 90 minutes.
 
 ## One-day / two-day delivery
 
-The core L00–L12 hands-on time totals **320 minutes (5 hours 20 minutes)**. Add breaks, resource waits, and questions. Give faster teams failure analysis rather than more features to add.
+Core L00–L10 totals **285 minutes (4 hours 45 minutes)**, with **10 minutes** for shared wrap-up L19: 295 minutes (4 hours 55 minutes) combined. Add breaks, resource waits, and questions. Give faster teams failure analysis rather than more features to add.
 
-The seven advanced modules (L13–L17 and L21–L22) total **310 minutes (5 hours 10 minutes)**,
-and core plus advanced totals **630 minutes (10 hours 30 minutes)**. Plan for two days with a
+The eight advanced modules (L11–L18) total **335 minutes (5 hours 35 minutes)**,
+and core plus advanced plus wrap-up totals **630 minutes (10 hours 30 minutes)**. Plan for two days with a
 prepared environment, allowing additional time for breaks, questions, and Azure waits.
 These durations reflect the direct/conditional/design scope shown in each chapter.
 Allow separate time for beginners to read concepts, explore the portal, and ask about command walkthroughs. Do not treat the existing sum of hands-on durations as a fixed end time for the entire class.
@@ -62,22 +62,23 @@ There is no guarantee that live execution of every optional service will finish 
 
 ## Sequential core / independent and connected advanced paths
 
-The core sequence is **L00 → L01 → … → L12**.
+The core sequence is **L00 → L01 → … → L10 → L19**. If choosing electives, take them after L10 and finish with L19.
 L08 is a **12-question fixed dev comparison using a tool-free Prompt Agent**.
 It does not reuse L05/L06 retrieval/function results; Search, Hosted, Optimizer, and holdout are not prerequisites.
 L09 separately inspects harmless boundary questions and L06 function evidence; L10 correlates actual L05/L06 responses with traces.
 L07's local steps 1–2 are required in the core course; cloud Toolbox/Skills are optional extensions.
-Actual Teams publishing in L11 is also a conditional extension, so lacking organizational publishing permission does not prevent core-course completion.
+Integration review is consolidated into L06; publishing and active-version management are in L18 CI/CD. L18 is optional for deployment/operations owners, and organizational publishing access is not a core completion requirement.
 
 | Path type | Modules | How to proceed |
 | --- | --- | --- |
-| Independent option | L13, L15, L16, L21 | After the shared core environment is ready, meet the chapter's prerequisites and optionally execute it |
-| Prerequisite lab required | L14 | Run Hosted after preparing L13's Search/index. If equivalent resources are already provided, the L13 lesson itself may be skipped |
-| Run after source setup | L22 | L01 environment/sources for CI interpretation and release/rollback design. Only optional live Hosted deployment needs L14 and separate approval |
-| Feature-specific branch | L17 | Prompt Routine is independent after L05. The Hosted long-running branch requires L14 |
+| Independent option | L11, L13, L15, L17 | After the shared core environment is ready, meet the chapter's prerequisites and optionally execute it |
+| Prerequisite lab required | L12 | Run Hosted after preparing L11's Search/index. If equivalent resources are already provided, the L11 lesson itself may be skipped |
+| Choose after environment setup | L14 | Reuse L13's dedicated SDK environment and throughput check; paid runs in the preceding lab are not required |
+| Elective for operations owners | L18 | L01 environment/sources for CI, release, publishing, and rollback design; actual deployment/publishing needs separate preparation and approval |
+| Feature-specific branch | L16 | Prompt Routine is independent after L05. The Hosted long-running branch requires L12 |
 
-The live Hosted connection is **L13 → L14 → L22 optional live deployment**.
-L22's default CI/design is independent of that chain; do not add paid prerequisites merely to complete another chapter.
+The live Hosted connection is **L11 → L12 → L18 optional live deployment**.
+L18's default CI/design is independent of that chain; do not add paid prerequisites merely to complete another chapter.
 “Independent option” does not mean “no additional installations, permissions, or models.” Check each chapter's **Prerequisites** and execution-level label.
 Do not assume that completing the core course prepares every conditional lab requiring separate models, services, devices, or licenses.
 
@@ -85,8 +86,8 @@ Choose second-day work by team goals.
 
 | Team | Recommended advanced modules |
 | --- | --- |
-| Application development | L13 IQ, L14 Hosted, L15 orchestration, L22 CI/CD |
-| Platform/security | L16 memory, L17 automation, L21 governance, L22 CI/CD |
+| Application development | L11 IQ, L12 Hosted, L13/L14 orchestration, optional L18 CI/CD |
+| Platform/security | L15 memory, L16 automation, L17 governance, L18 CI/CD |
 
 ## Completion record
 
@@ -113,13 +114,13 @@ Keep execution records outside the reader and kit. Portal images retain their or
 
 ### Require an explanation of the before/after change
 
-The reinforced L15, L21, and L22 exercises follow **Try it → Change one thing → Explain the result**. Ask learners to predict an outcome first, then connect one edited setting/code change to the observed difference.
+The reinforced L13, L14, L17, and L18 exercises follow **Try it → Change one thing → Explain the result**. Ask learners to predict an outcome first, then connect one edited setting/code change to the observed difference.
 
 | Module | Learner change | Evidence to retain |
 | --- | --- | --- |
-| L15 | Compare sequential, concurrent, group-chat, and handoff under the same model/policy/question | Execution order, intermediate/final answers, and tokens/time; missing usage stays null |
-| L21 | Check permission before cache | Two of five local tests fail→five pass; not Azure permission verification |
-| L22 | Require quality/critical/missing checks beyond completion | Three of five fail→five pass; optional workflow has no Azure step |
+| L13/L14 | Compare sequential/concurrent and group-chat/handoff in two focused labs under the same model/policy/question | Execution order, intermediate/final answers, and tokens/time; missing usage stays null |
+| L17 | Check permission before cache | Two of five local tests fail→five pass; not Azure permission verification |
+| L18 | Require quality/critical/missing checks beyond completion | Three of five fail→five pass; optional workflow has no Azure step |
 
 Flawed code and tests under `data/exercises/` are teaching originals. Learners repair **only exercise.py** in their `practice/` copy. Never weaken global tests/evaluation criteria or overwrite originals. Preparation rejects an existing destination; choose another folder for a fresh attempt.
 
@@ -130,9 +131,9 @@ Ask each learner **“Which value is evidence → what decision follows → what
 | Module | Minimum learning artifact | Judgment to check |
 | --- | --- | --- |
 | L09/L10 | Three boundary judgments / one run's operations and durations | Separate natural-language refusal from function rejection, and trace correlation from correctness |
-| L15 | Compare the flow and intermediate/final answers of four patterns | Distinguish SDK execution order from remote protocols, and handoff from human approval |
-| L21 | Identity/access table and cache boundary | Adapt worked examples to the learner's input/owners and mark unknowns |
-| L22 | CI interpretation and agent release/rollback manifest | Separate documentation generation, Azure deployment, and business release approval |
+| L13/L14 | Compare flow and intermediate/final answers for the patterns selected in both labs | Distinguish SDK execution order from remote protocols, and handoff from human approval |
+| L17 | Identity/access table and cache boundary | Adapt worked examples to the learner's input/owners and mark unknowns |
+| L18 | CI interpretation and agent release/rollback manifest | Separate documentation generation, Azure deployment, and business release approval |
 
 Synthetic trace timings, Red teaming counts, and design tables are **teaching examples**. Do not copy them into actual Azure evidence fields. Without service access, record design/interpretation complete and execution incomplete separately. This does not replace or weaken existing evaluation gates.
 

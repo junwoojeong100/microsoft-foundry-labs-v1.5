@@ -123,7 +123,7 @@ Do not start by uploading the documents again. Check the connected vector store 
 
 ## Cleanup
 
-Keep the portal knowledge connection for the next lab. The SDK sample sets the vector store to expire **1 day after last activity**, but uploaded files are separate. Do not rely on expiration alone; delete them in L12.
+Keep the portal knowledge connection for the next lab. The SDK sample sets the vector store to expire **1 day after last activity**, but uploaded files are separate. Do not rely on expiration alone; delete them in L19.
 
 <details markdown="1">
 <summary>When should you choose File search or Foundry IQ?</summary>

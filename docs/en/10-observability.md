@@ -55,7 +55,7 @@ First reuse an L05/L06 run collected after tracing was connected. If none exists
 | Required value | Where to obtain it | Check the binding |
 | --- | --- | --- |
 | Response JSONL | The `results/contoso-lab-…-responses.jsonl` path printed after `Responses:` by the L05/L06 SDK | Use L06's `read-result` for record/response IDs and agent/version. The source fields are `id`, `response_id`, `agent_name`, and `configuration.agent_version` |
-| Agent name/version | That row, or the configuration of the agent you invoked in the portal | Do not substitute the L08 evaluation agent or L14 Hosted name |
+| Agent name/version | That row, or the configuration of the agent you invoked in the portal | Do not substitute the L08 evaluation agent or L12 Hosted name |
 | Application Insights app ID | Supplied by the administrator. Bundled environments store it at `monitoring.appId.value` in `results/azure-environment.json` | Compare `monitoring.appInsightsId.value` with the project's actual connection. Do not copy a key/connection string |
 
 With portal-only results, completing the **portal path** using the response ID is sufficient. Do not fabricate a JSONL file or pass L08's comparison JSON to this JSONL input. The CLI reads only the last 24 hours; read older evidence within the portal's approved retention scope or leave correlation unverified.
@@ -113,7 +113,7 @@ python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTU
 
 Print the KQL first and review its scope. It covers the last 24 hours, returns at most 200 rows, and does not retrieve raw tokens or full message bodies.
 `app-id` is not an instrumentation key or connection string. Zero returned rows fail as **unverified correlation**;
-do not relabel a request ID as a trace ID. Compare `contract.sha256` and version only when using L14 Hosted results; do not require that Hosted contract in the basic Prompt Agent JSONL.
+do not relabel a request ID as a trace ID. Compare `contract.sha256` and version only when using L12 Hosted results; do not require that Hosted contract in the basic Prompt Agent JSONL.
 
 Equal `input_rows` and `correlated_rows`, with empty `missing_case_ids`, establish **input-to-log correlation**. `model_response_spans_observed` and `request_trace_ids_observed` measure different observation layers. This CLI checks correlation, not bottlenecks or answer correctness. Read the query rows in the printed `Evidence:` file and the portal details, then fill the table with your own values.
 

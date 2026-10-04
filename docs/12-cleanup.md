@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 모든 참여자의 필수 마무리 · 자신이 만든 자원만 확인합니다.
+**진행 방식:** 모든 참여자의 공통 마무리 · 기본만 했다면 L10 다음, 심화를 선택했다면 그 마지막에 진행합니다.
 
 **먼저 할 일:** 로컬만 했는지, 포털 또는 SDK로 Azure 자원을 만들었는지 아래 표에서 고릅니다.
 
@@ -65,7 +65,7 @@ python scripts/cost_status.py
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `stop_sessions.py` | 기록된 Hosted client 세션에 실제 stop을 보내고 같은 ID를 다시 조회합니다. 이 스크립트에는 `--live` 안전 스위치가 없습니다. | 세션 compute 상태를 변경합니다. agent/RG/receipt 삭제는 하지 않으며 미확인 중지는 오류입니다. |
-| 2. `routine_lab.py stop --live` | 기본 `results/routine.json`에 기록된 예약을 disable합니다. 다른 receipt를 썼다면 L17처럼 `--receipt`를 명시합니다. | 실제 예약 상태 변경. 다른 예약이나 RG를 삭제하지 않습니다. |
+| 2. `routine_lab.py stop --live` | 기본 `results/routine.json`에 기록된 예약을 disable합니다. 다른 receipt를 썼다면 L16처럼 `--receipt`를 명시합니다. | 실제 예약 상태 변경. 다른 예약이나 RG를 삭제하지 않습니다. |
 | 3. `azure_environment.py status --live` | 소유 receipt의 Azure 환경 상태를 읽어 확인합니다. | Azure 읽기 요청 및 상태 기록. 모델 추론은 하지 않습니다. |
 | 4. `operations_status.py` | 소유 환경의 세션·optimizer·평가 schedule·routine을 읽습니다. `--live` 없이 실행되며 남은 작업은 실패 상태로 알립니다. | 승인된 읽기 범위에서 실행하고 비공개 `results/operations-status.json`에 저장합니다. 보존된 공개 검증 원본을 덮어쓰지 않습니다. |
 | 5. `cost_status.py` | 소유 RG의 생성 시각부터 현재까지 ActualCost를 서비스별로 조회합니다. `--live` 없이 실제 청구 API를 읽습니다. | 승인된 비용 조회 후 개인 `results/cost-status.json`에 저장합니다. 공개 검증 원본은 바꾸지 않습니다. 빈 청구 행은 비용 0의 증거가 아닙니다. |
@@ -75,7 +75,7 @@ python scripts/cost_status.py
 각 명령은 해당 실습을 실행해 receipt가 있는 경우에 사용합니다.
 마지막 두 명령은 **소유 receipt로 범위를 제한한 읽기 전용 Azure 조회**입니다.
 `operations_status.py`는 세션·optimizer job·활성 평가 schedule·routine을 확인하며,
-현재 프로젝트의 실제 agent 목록에서 배포하지 않은 선택형 adapter를 구분합니다. L17에서 `--receipt`로 지정한 이름이 달라도 `results/`의 소유 routine 기록을 조회하며, 현재 상태를 과거 검증 파일로 대신 판단하지 않습니다.
+현재 프로젝트의 실제 agent 목록에서 배포하지 않은 선택형 adapter를 구분합니다. L16에서 `--receipt`로 지정한 이름이 달라도 `results/`의 소유 routine 기록을 조회하며, 현재 상태를 과거 검증 파일로 대신 판단하지 않습니다.
 `cost_status.py`는 새 RG에 반영된 실제 비용만 조회합니다. 빈 비용 행을 0달러로 표시하지 않습니다.
 **삭제 금지 환경에서는 생성한 Azure 자원을 보존**합니다.
 routine은 disable, Hosted는 compute stop만 수행합니다. `cleanup --live`, `azd down`,
@@ -142,4 +142,4 @@ Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있�
 
 ## 정리
 
-기본 코스가 끝났습니다. 다음 기능은 필요할 때만 추가합니다. 진행 표시를 초기화해도 Azure 자원은 삭제되지 않습니다.
+선택한 실습과 공통 마무리가 끝났습니다. 나중에 심화를 추가했다면 그때 만든 자원도 이 절차로 다시 확인합니다. 진행 표시를 초기화해도 Azure 자원은 삭제되지 않습니다.

@@ -4,7 +4,7 @@
 
 **Format:** Advanced elective · local CI failure→repair and release/recovery design by default.
 
-**Start here:** Copy the synthetic candidate-selection exercise in 2-1 and reproduce three failures. Also distinguish the real workflow's approval conditions.
+**Start here:** Choose a path below, then reproduce three failures in step 2's synthetic candidate-selection exercise. No actual deployment or publishing is needed to start.
 
 **What to check:** Keep a CI interpretation, release manifest, rollback decision, and cost owner. This chapter does not require a Hosted deployment.
 
@@ -13,6 +13,8 @@
 ## Objectives
 
 **Passing source checks, deploying to Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.
+
+**Who needs this module?** You may skip it if your goal is learning models, agents, retrieval, and evaluation. Developers/platform owners responsible for delivery and operations can choose it to practice blocking bad releases and identifying a recovery target. Neither building documentation nor publishing to Teams is a core completion requirement.
 
 ## Concepts and lab map
 
@@ -26,7 +28,17 @@
 
 ## Prerequisites
 
-Use L01's environment and repository sources. **Search, Hosted, and Optimizer are not prerequisites for the default exercise.** Use L11/L14 results for a real manifest; without them, complete it as a design. Do not change the educational v1/v2 or historical evidence.
+Use L01's environment and repository sources. **Search, Hosted, and Optimizer are not prerequisites for the default exercise.** Use L06/L12 results for a real manifest; without them, complete it as a design. Do not change the educational v1/v2 or historical evidence.
+
+### Choose your starting path
+
+| Goal | Sequence | What completion means |
+| --- | --- | --- |
+| Understand how CI blocks bad promotion | Step 1 workflow → step 2's three failures → repair function → five passes with unchanged tests | Local code exercise |
+| Prepare for operations | Above → step 3 manifest → step 4 recovery decision → step 5 owners | Release design; deployment/publishing not performed |
+| Approved live publishing | Above plus every permission, protocol, and test-scope condition in 4-1 | Record only actual version changes, publishing, and invocations separately |
+
+Edit `practice/delivery/exercise.py`, not `test_exercise.py` beside it. If the folder already exists, choose another `--output` path and update the test path to match; do not delete or overwrite the existing exercise.
 
 ## Steps
 
@@ -43,9 +55,10 @@ Open `validate.yml` in an editor and locate `on`, `jobs`, `needs`, and `if`. Com
 
 If GitHub is available, open **Actions → run → job → failed step** and locate the same items. Otherwise inspect sources and record “workflow execution unverified.” The default exercise requires neither a new push nor a paid workflow dispatch.
 
-### 2. Check the same sources locally
+<details class="optional-path" markdown="1">
+<summary>Reference: repository checks and documentation build — the main exercise is step 2 below</summary>
 
-The repository-wide checks below are a reference. Start with **2-1's failure→repair exercise** to experience what CI blocks without deliberately breaking existing business code or evaluation criteria.
+The repository-wide checks below are a reference. Start with the **failure→repair exercise** to experience what CI blocks without deliberately breaking existing business code or evaluation criteria.
 
 The first line is needed only if documentation dependencies are missing. L01's base dependencies must already be installed.
 
@@ -73,7 +86,9 @@ Record success as **code/document checks passed** only. For import errors, inspe
 
 For PDF/ZIP delivery, continue with the README build path. Artifacts under `downloads/` and the root web entry points are **separate from agent deployment artifacts**. Documentation generation supports this chapter; it is not CD evidence.
 
-### 2-1. Fix it: completion alone must not promote a candidate
+</details>
+
+### 2. Fix it: completion alone must not promote a candidate
 
 <div class="practice-block" markdown="1">
 
@@ -136,7 +151,18 @@ This is a **Contoso worksheet example**. Where actual identifiers/results are ab
 | Evidence | Same-target response/trace, actual tool results, applied evaluation and failures/missing rows | L08's 12 tool-free questions do not approve an integrated business release |
 | Recovery | Previous approved version/configuration bundle, owner, data compatibility | Hold deployment without a viable target and compatible state |
 
-For L11's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. L14 Hosted also requires package/runtime contract comparison. Using instruction v2 does not validate Hosted code; inspect your actual target and evidence scope.
+For L06's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. L12 Hosted also requires package/runtime contract comparison. Using instruction v2 does not validate Hosted code; inspect your actual target and evidence scope.
+
+**Why publishing/version management belongs in CI/CD:** Deployment creates a runnable version; promotion selects a validated version for users; publishing exposes it through a channel such as Teams. Rollback restores the previously approved selection.
+
+| Easily confused value | What is versioned? | Where to inspect |
+| --- | --- | --- |
+| `agent-v2.txt` | Repository instructions | Actual file and hash |
+| Service-issued numeric agent version | Runnable agent definition/code | Agent Details / L12's `show` |
+| **Active version** | Execution version served by the stable endpoint | Details → Agent configuration |
+| **Publish version** (for example, `1.0.0`) | Teams/M365 app-package metadata | Publishing dialog / app `manifest.json` |
+
+Similar numbers do not make these the same thing. Changing only the active version preserves the stable endpoint URL; updating the app's display metadata is a separate operation.
 
 ### 4. Rehearse a rollback decision
 
@@ -147,10 +173,37 @@ For L11's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KR
 | Detect | Block promotion; stop expansion if a limited trial is underway | Failed input/response, candidate version, actual tool record |
 | Isolate | If the function says not ordered but the answer says otherwise, inspect synthesis/instructions first | Difference between function JSON and final answer |
 | Prepare recovery | Select the previous approved agent version with its model/connections/settings | Version availability and current data/schema compatibility |
-| Approved recovery | Restore L11's Active version or the Hosted consumer's **version binding** | Actual invoked version, not just an unchanged endpoint name |
+| Approved recovery | Restore the Active version below or the Hosted consumer's **version binding** | Actual invoked version, not just an unchanged endpoint name |
 | Verify recovery | Within separate approval, repeat the same purchase question and check evidence/tools/not-ordered state | New response/trace and results; old success logs are insufficient |
 
 The default exercise stops at identifying what to restore. Actual switching and reinvocation require separate approval. An incompatible data migration is not undone by restoring the agent version alone. Preserve failed originals and earlier versions.
+
+### 4-1. Optional: approved version selection and Teams publishing
+
+**The default assignment ends with the design above.** Unless every condition below is ready, do not publish; record “design complete / publishing not performed.”
+
+| Requirement | Where to find the value or condition |
+| --- | --- |
+| Agent and validated numeric version | Your project → Build → Agents → target Details. L05's File search Prompt Agent can provide policy guidance only |
+| Server-side tools and supported protocol | L06's local functions cannot handle remote users. L12's default Invocations deployment does not by itself verify the Teams `activity` path |
+| Publishing and resource-creation access | Actual project publish permission plus Bot Service `botServices/write` and `channels/write`; do not assume one role name grants everything |
+| User and data-processing approval | Agree on test users, audience, metadata/responses flowing to M365/Teams, and costs with the organization owner |
+| Recovery target | Previously approved version and configuration; without one, hold production release rather than invent an approval |
+
+<details class="optional-path" markdown="1">
+<summary>Portal steps only after separate change approval and all prerequisites above</summary>
+
+1. Open the owned agent's **Details → Agent configuration → Active version → Edit** and select the validated **specific version**. Do not default to `Always use latest`, which can expose newly created versions automatically. Record the prior version/endpoint and the new selection.
+2. Open **Publish → Teams and Microsoft Copilot**. Confirm the scope of the Bot Service being created or reused, then enter Name, Publish version, descriptions, and Developer. Keep secrets out of display metadata.
+3. Select **Next: Publish options → Direct publish → Just you**. Final **Publish** performs the separately approved change. **People in your organization** is an organization-wide/admin-approval path, not a scope to expand just for this lab.
+4. After publishing, make **one policy request with an approved test user** and **one access check with an unauthorized test user**, with zero retries. Use administrator-provided test identities; do not create new accounts. Record visibility, invocation authorization, and tool execution separately.
+5. Inspect policy citations and the actual invoked version. If the candidate is wrong, stop promotion and restore the previously approved version **only after separate recovery approval**. An unchanged endpoint name does not establish successful recovery.
+
+Publishing L05's policy agent does not make it an inventory or purchase-draft assistant. Publishing the full purchasing assistant requires separately prepared server-side business tools and a supported protocol.
+
+Projects with public network access disabled may not support portal publishing. Do not enable public access to bypass that limitation; review the official private-network publishing path separately with an administrator. For an invisible app, check audience/admin approval; for a visible but unresponsive app, check channel, authentication, active version, and server tools in that order.
+
+</details>
 
 ### 5. Respond to model lifecycle and costs
 
@@ -161,7 +214,7 @@ The default exercise stops at identifying what to restore. Actual switching and 
 | L02 deployment's version, automatic-update policy, retirement date | The same deployment name can conceal changed behavior conditions | Assign an owner and a pre-retirement comparison date; record existing version/context/criteria |
 | Replacement model candidate | Responses, tools, output schema, region, and processing location must fit | Separately approve a same-dev-input comparison; never reuse a sealed holdout arbitrarily or relax gates |
 | 429 or increased latency | Separate quota/concurrency/token volume from an outage | Reduce calls and plan bounded recovery; no fallback to unapproved models/regions |
-| Costs rise without requests | Inspect Search/storage/logs/Hosted sessions separately | Use L12's per-resource stop/retention owners and next-check time; empty billing rows are not zero cost |
+| Costs rise without requests | Inspect Search/storage/logs/Hosted sessions separately | Use L19's per-resource stop/retention owners and next-check time; empty billing rows are not zero cost |
 
 Record **RTO (target service recovery time)** and **RPO (acceptable data-loss interval)** in the recovery design. For example, “restore read-only policy guidance within 30 minutes; allow no loss of approval records” is an **example requirement**, not a measured guarantee or a capability of this kit. Without an owner, recovery path, and rehearsal results, do not claim it was achieved.
 
@@ -169,6 +222,7 @@ Record **RTO (target service recovery time)** and **RPO (acceptable data-loss in
 
 Reproduce the three local failures, repair only the function, and obtain five passes. If you use GitHub, distinguish failed/passing runs from their different commits.
 Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Azure not executed. Hold promotion without quality evidence for the same candidate.
+If you choose publishing, separately record the runnable agent version, app Publish version, audience, and invocation results. Publishing success alone is neither business-release approval nor a complete authorization assessment.
 
 ## Troubleshooting
 

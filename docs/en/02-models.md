@@ -115,7 +115,7 @@ On the model card, choose **Deploy → Custom settings**. Check **model `gpt-6-s
 | judge | **100,000 / 60** | Same request budget; larger managed-evaluation concurrency/context can need more headroom |
 | embedding | **10,000 / 6** | `8,192 input × 1 start/minute × 1.2 headroom`, rounded up in 1,000-token units |
 
-**These are not absolute service minima or a no-429 guarantee.** They are starting allocations for one learner running one lab at a time. Multiply shared budgets by simultaneous learners and resize for longer inputs or other applications. L15 allows up to three overlapping agents but spaces request starts by at least one second.
+**These are not absolute service minima or a no-429 guarantee.** They are starting allocations for one learner running one lab at a time. Multiply shared budgets by simultaneous learners and resize for longer inputs or other applications. L13 allows up to three overlapping agents but spaces request starts by at least one second.
 See the [official quota/rate-limit guidance](https://learn.microsoft.com/azure/foundry/openai/how-to/quota#understanding-rate-limits). TPM/RPM are not monetary spending caps.
 
 **The default flow is deploy at recommended capacity → verify actual limits → test connectivity.** L01's `foundation` checks the regional catalog's SKU unit rates, capacity increments, and quota before creating models with role-specific capacity. For manual deployment, set the recommended TPM in Custom settings first.
@@ -186,7 +186,7 @@ python samples/model_capacity.py test --learners 1 --confirm OWN_RUN_ID --live
 
 </details>
 
-Select only needed roles with options such as `--roles chat`. Use `--roles chat judge` for basic evaluation preparation; L15 needs only `--roles chat`.
+Select only needed roles with options such as `--roles chat`. Use `--roles chat judge` for basic evaluation preparation; L13/L14 need only `--roles chat`.
 On errors or 429, do not repeat calls. Inspect token/request limits, authentication, permissions, and other traffic before separately approving a next action. This is **configuration/connectivity checking, not a throughput-limit benchmark or full-course validation.**
 
 <details class="optional-path" markdown="1">

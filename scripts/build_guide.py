@@ -261,8 +261,8 @@ def render_chapter(chapter, body, source_map, previous, following, captures, ui)
     learning = chapter.get("learning")
     learning_badge = (
         f'<span class="learning-badge" data-learning-mode="{escape(learning["mode"])}">{escape(learning["label"])}</span>'
-        if learning else f'<span class="learning-badge" data-learning-mode="core">{ui["core_badge"]}</span>'
-        if chapter["track"] == "core" else ""
+        if learning else f'<span class="learning-badge" data-learning-mode="{chapter["track"]}">{ui[chapter["track"] + "_badge"]}</span>'
+        if chapter["track"] in {"core", "wrapup"} else ""
     )
     checkbox = (
         f'<button class="complete-button" type="button" data-complete="{chapter_id}" aria-pressed="false">'
@@ -314,7 +314,9 @@ def build_language(language):
     edition = RELEASE["languages"][language]
     core_count = sum(chapter["track"] == "core" for chapter in chapters)
     advanced_count = sum(chapter["track"] == "advanced" for chapter in chapters)
-    lab_count = core_count + advanced_count
+    wrapup_count = sum(chapter["track"] == "wrapup" for chapter in chapters)
+    core_path_count = core_count + wrapup_count
+    lab_count = core_count + advanced_count + wrapup_count
     sources = {s["id"]: s for s in source_data["sources"]}
     captures = {item["path"]: item for item in load_portal_captures(language)}
     bodies = {c["id"]: source_body(c, chapters, capabilities, source_data, language) for c in chapters}
@@ -404,7 +406,7 @@ def build_language(language):
     <option value="advanced">{ui['advanced']}</option><option value="reference">{ui['reference']}</option>
   </select>
   <p id="path-scope" class="path-scope" hidden>{ui['offline_path_hint']}</p>
-  <div class="progress-card"><div><strong>{ui['progress']}</strong><span id="progress-label">0 / {core_count}</span></div><progress id="progress" value="0" max="{core_count}" aria-label="{ui['progress_aria'].format(count=core_count)}"></progress><small>{ui['progress_hint']}</small></div>
+  <div class="progress-card"><div><strong>{ui['progress']}</strong><span id="progress-label">0 / {core_path_count}</span></div><progress id="progress" value="0" max="{core_path_count}" aria-label="{ui['progress_aria'].format(count=core_path_count)}"></progress><small>{ui['progress_hint']}</small></div>
   <nav class="reader-help" aria-label="{ui['help']}"><a href="#glossary">{ui['help_glossary']}</a><a href="#troubleshooting">{ui['help_troubleshooting']}</a></nav>
   <nav id="chapter-nav" aria-label="{ui['toc']}">{''.join(nav)}</nav>
   <button id="reset-progress" class="text-button" type="button">{ui['reset']}</button>

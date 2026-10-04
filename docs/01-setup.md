@@ -96,7 +96,7 @@ python3.13 scripts/azure_environment.py roles --live
 Global/Data Zone/Standard 처리 범위를 승인받습니다. capacity의 단위는 모델별로 다르며 비용 상한이 아닙니다.
 `foundation`은 chat·judge·embedding에 서로 다른 capacity를 전달합니다. 원본 ARM 카탈로그의 `AIServices`/`S0` 항목에서 기본 모델용 SKU를 선택합니다. 카탈로그가 명시한 증분·최소/최대 제약을 적용하며, 온라인 SKU에 최소·증분이 생략되면 양의 정수 capacity를 사용합니다. 단위별 TPM/RPM·최대 용량·quota를 확인할 수 없으면 임의의 작은 값으로 배포하지 않습니다. 함께 배포하는 역할들이 같은 quota를 사용하면 필요한 합계를 먼저 확인합니다.
 `infra/main.bicep`은 Foundry account/project와 명시한 모델만 배포합니다.
-L13이 필요할 때만 `python scripts/azure_environment.py search --live`로 Search를 추가합니다. `search`는 소유 RG에 검색 서비스를 생성하는 관리자 작업이며, 요청하지 않아도 고정 비용이 생길 수 있습니다. 이 명령은 “검색을 한 번 해 보기”가 아닙니다.
+L11이 필요할 때만 `python scripts/azure_environment.py search --live`로 Search를 추가합니다. `search`는 소유 RG에 검색 서비스를 생성하는 관리자 작업이며, 요청하지 않아도 고정 비용이 생길 수 있습니다. 이 명령은 “검색을 한 번 해 보기”가 아닙니다.
 소유 기록은 `results/azure-environment.json`입니다. RequestConflict 등의 부분 실패는
 원본 deployment operation을 확인하고 **같은 소유 자원에 한해서만** `foundation --resume`로 재개합니다. `--resume`은 기록된 부분 배포를 이어가는 옵션이며 새 환경을 고르거나 원래 오류 기록을 지우는 옵션이 아닙니다.
 
@@ -134,9 +134,9 @@ L08의 native 자동 평가를 진행할 때는 별도 judge 배포도 필요합
 
 | 모델 역할 | 사용하는 실습 | 최소 권장 TPM | 최소 RPM |
 | --- | --- | ---: | ---: |
-| chat · `gpt-6-sol` | 모델·에이전트·L15 오케스트레이션 | 100,000 | 60 |
+| chat · `gpt-6-sol` | 모델·에이전트·L13–L14 오케스트레이션 | 100,000 | 60 |
 | judge · `gpt-4.1` | L08의 선택형 native 평가 | 100,000 | 60 |
-| embedding · `text-embedding-3-small` | L13 검색·L16 Memory | 10,000 | 6 |
+| embedding · `text-embedding-3-small` | L11 검색·L15 Memory | 10,000 | 6 |
 
 이는 입력 약 8,192토큰, 최대 출력 2,048토큰, chat/judge 분당 6회 시작과 여유분을 가정한 **실습 계획값**이지 Azure의 절대 최소나 비용 상한이 아닙니다. 배포를 공유하는 동시 학습자 수만큼 예산을 늘립니다. 더 긴 문맥·관리형 평가·다른 사용자의 트래픽은 추가 여유가 필요할 수 있습니다.
 새 환경은 위 `foundation` 명령이 **배포할 때부터 역할별 권장값을 설정**합니다. 그다음 [L02에서 실제 한도를 확인하고 연결 시험](#l02-capacity)을 진행합니다. `apply`는 기존·수동 배포의 용량이 부족하거나 학습자 수가 늘었을 때만 사용합니다.
@@ -308,4 +308,4 @@ SDK 설치가 사내 미러에서 실패하면 허용된 미러의 동기화를 
 
 ## 정리
 
-리소스 그룹과 담당자를 기록하고 L12의 종료 체크리스트를 미리 읽습니다. `.env`를 공유·커밋하지 않습니다. 이 실습의 `.env`에는 비밀이 없어야 합니다.
+리소스 그룹과 담당자를 기록하고 L19의 종료 체크리스트를 미리 읽습니다. `.env`를 공유·커밋하지 않습니다. 이 실습의 `.env`에는 비밀이 없어야 합니다.

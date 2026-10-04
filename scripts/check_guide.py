@@ -26,7 +26,7 @@ BRIEF_LABELS = {
     "ko": ("진행 방식:", "먼저 할 일:", "확인할 결과:"),
     "en": ("Format:", "Start here:", "What to check:"),
 }
-PRACTICE_LABS = {"l15", "l21", "l22"}
+PRACTICE_LABS = {"l15", "l15-collaboration", "l21", "l22"}
 PRACTICE_LABELS = {
     "ko": ("직접 해보기", "한 가지 바꾸기", "결과 설명하기"),
     "en": ("Try it", "Change one thing", "Explain the result"),
@@ -119,12 +119,13 @@ def check_language(language) -> dict:
     for path in (edition["readme"], f"{docs}/00-start.md", f"{docs}/instructor.md"):
         if duration not in (ROOT / path).read_text(encoding="utf-8"):
             raise ValueError(f"{path}: course duration differs from chapter metadata")
-    expected_numbers = [f"{number:02}" for number in (*range(18), 21, 22)]
+    expected_numbers = [f"{number:02}" for number in range(20)]
     if (
-        [chapter["id"] for chapter in labs] != ["l" + number for number in expected_numbers]
-        or [chapter["number"] for chapter in labs] != expected_numbers
+        [chapter["number"] for chapter in labs] != expected_numbers
+        or [chapter["track"] for chapter in labs] != ["core"] * 11 + ["advanced"] * 8 + ["wrapup"]
+        or labs[-1]["id"] != "l12"
     ):
-        raise ValueError("Expected L00-L17 and L21-L22 labs with their original numbers.")
+        raise ValueError("Expected continuous L00-L19: 11 core, 8 advanced, then the shared wrap-up.")
     for chapter in chapters:
         if not set(chapter["sources"]) <= source_ids:
             raise ValueError(f"{chapter['id']}: unresolved official source")
@@ -234,6 +235,8 @@ def check_language(language) -> dict:
         "pages": len(chapters), "labs": len(labs),
         "coverage_rows": len(capabilities), "official_sources": len(sources),
         "core_minutes": core_minutes,
+        "advanced_minutes": sum(c["minutes"] for c in labs if c["track"] == "advanced"),
+        "wrapup_minutes": sum(c["minutes"] for c in labs if c["track"] == "wrapup"),
         "duplicate_ids": 0, "broken_local_links": 0, "remote_asset_dependencies": 0,
         "markdown_local_paths_checked": len(book_paths),
         "modules_with_concept_maps": len(labs),
@@ -252,7 +255,8 @@ def check_language(language) -> dict:
 def check() -> dict:
     languages = {language: check_language(language) for language in RELEASE["languages"]}
     for key, expected in {
-        "pages": 25, "labs": 20, "coverage_rows": 68, "official_sources": 80, "core_minutes": 320,
+        "pages": 25, "labs": 20, "coverage_rows": 68, "official_sources": 80,
+        "core_minutes": 285, "advanced_minutes": 335, "wrapup_minutes": 10,
     }.items():
         if {result[key] for result in languages.values()} != {expected}:
             raise ValueError(f"Language editions must each have {expected} {key}.")

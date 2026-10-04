@@ -28,7 +28,7 @@ Creating a schedule object is separate from a successful business result.
 ## Prerequisites
 
 You first need a Prompt Agent that runs on the server. Use L05's File search agent
-for this routine. L15's Agent Framework roles execute in local code and are not remote routine targets. Scheduling an agent with local client-side functions does not execute those local functions.
+for this routine. L13/L14 Agent Framework roles execute in local code and are not remote routine targets. Scheduling an agent with local client-side functions does not execute those local functions.
 Distinguish the GA status of the Routines service from the Beta status of the azd extension, and check current conditions such as CMK limitations.
 
 ```bash
@@ -52,6 +52,16 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 Prepare the core SDK environment and the azd `azure.ai.routines` extension. Keep L01's English profile selected and do not save tokens to files.
 Query only the English project and App Insights in this checkout's `results/azure-environment.json`.
 Do not automatically upgrade CLI extensions/global settings or use resources from another environment.
+
+### Choose your starting path
+
+| Required value | Where to get it | Relationship to verify |
+| --- | --- | --- |
+| `ACTUAL_AGENT_NAME` | Your L05 project → Build → Agents name, or that SDK run's owned receipt | File search runs server-side; do not substitute L06's local-function agent |
+| Project/App Insights | Administrator-created `results/azure-environment.json` from L01 and L10's log connection | Matches `.env` and allows reading action traces |
+| Two `--receipt` paths | The **distinct new manual/scheduled files** below | Never overwrite previous or other-language records |
+
+Follow **one manual execution → one timer execution → verify both disabled**. Without Azure approval, read only the first `create` plan. Resolve log access and response-collection prerequisites before scheduling. Do not reschedule merely because an execution's trace is absent.
 
 ## Steps
 
@@ -107,6 +117,9 @@ after the scheduled time, with exactly the same user input. Verification require
 a successful span, an actual response ID, an assistant `finish_reason=stop`, and nonempty output.
 Redacted output, in-progress/failed records, and responses to different inputs are not success evidence.
 
+<details class="optional-path" markdown="1">
+<summary>Why inspect traces instead of CLI run history?</summary>
+
 **Do not interpret an empty array/null in CLI run history as evidence that nothing ran.**
 The [current official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines#view-run-history)
 states that azd does not support history queries. The checked extension decodes `value`/`nextPageToken`
@@ -116,11 +129,15 @@ Routine creation, inspection, and stopping still use azd; the script does not wo
 Execution evidence is obtained separately through bounded KQL against the owned App Insights resource.
 If the trace cannot be read, end with **execution unverified** rather than assuming success or non-execution.
 
+</details>
+
+Open the `Evidence:` original beside its receipt and connect **same agent → after `trigger_at` → input with the same `marker` → completed response/trace**. Never copy a manual receipt's result as proof that a timer fired.
+
 ### 3. Recheck the stopped state
 
 ![Build → Agents → Routines in contoso-workshop-en. Inspect each English policy timer's target, trigger, last run, and actual enabled or paused state.](../../assets/portal/en/12-routines.png)
 
-**Read the screen:** Under **Agents → Routines**, first find your English schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. A **Last run** value does not prove that the business output was correct; connect it to the trace/response from the previous step. The [English capture log](../../content/portal-screenshots.en.json) records observed states separately from backend execution. The English one-shot Routine **succeeded and was disabled**, as recorded in the [execution report](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/current/report.json); this is a scoped timer result, not a release-quality pass or proof that every other job stopped.
+**Read the screen:** Under **Agents → Routines**, first find your English schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. A **Last run** value does not prove that the business output was correct; connect it to your trace/response from the previous step. The [English capture log](../../content/portal-screenshots.en.json) records observation scope, not evidence that your own timer ran or stopped.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live
@@ -142,6 +159,14 @@ Target only the name and endpoint in the receipt. Do not automatically enable re
 Run this stop command even after an exception or interruption. The script does not delete routines or RGs.
 A default `results/routine.json` in the same English checkout remains readable with `status`/`stop`; do not overwrite or redispatch it. Never import a historical Korean receipt into this checkout.
 Even if disable ends with a timeout/decoding error, run `show` again and confirm **`enabled=false` for the same name**.
+
+| Record to retain | Manual execution | Timer execution |
+| --- | --- | --- |
+| Target | Manual receipt's name and agent | Scheduled receipt's name, agent, and `trigger_at` |
+| Execution evidence | Actual response/trace after manual dispatch | Actual same-input response/trace after the timer |
+| Shutdown evidence | `enabled=false` for that name | `enabled=false` for that name |
+
+`dispatch` and `scheduled-test` attempt shutdown when finishing. After an error, use **the receipt from that attempt** with step 3's `stop` and `status`; do not copy the scheduled path when recovering a manual run.
 
 ### 4. Identity and recovery boundaries
 
@@ -166,7 +191,7 @@ Human content review is optional guidance; do not mark an unperformed review as 
 
 A CLI JSON decode error can occur after the service operation has already succeeded.
 Rather than immediately recreating it under a new name, first check show/list for the receipt's name.
-Distinguish permission, protocol, model quota, and tool authentication errors in run history.
+Distinguish permission, protocol, model quota, and tool authentication errors using actual action traces and original errors, not an empty CLI run-history result.
 
 ## Cleanup
 

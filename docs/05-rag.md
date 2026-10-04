@@ -123,7 +123,7 @@ python samples/workshop.py rag --live
 
 ## 정리
 
-다음 실습을 위해 포털 지식 연결을 유지합니다. SDK 샘플의 vector store는 **마지막 활동 후 1일** 만료를 설정하지만 업로드 파일은 별도입니다. 만료에만 의존하지 말고 L12에서 삭제합니다.
+다음 실습을 위해 포털 지식 연결을 유지합니다. SDK 샘플의 vector store는 **마지막 활동 후 1일** 만료를 설정하지만 업로드 파일은 별도입니다. 만료에만 의존하지 말고 L19에서 삭제합니다.
 
 <details markdown="1">
 <summary>File search와 Foundry IQ는 언제 나누나요?</summary>
