@@ -38,6 +38,7 @@ class InstructionPromptAgentTests(unittest.TestCase):
         self.assertEqual(value["tool_choice"], "none")
         self.assertEqual(value["text"], schema)
         self.assertEqual(value["reasoning"], {"effort": "low"})
+        self.assertEqual(instruction_prompt_agent_lab._definition("v1 only", schema, "contoso-chat").model, "contoso-chat")
 
     def test_creates_exactly_two_versioned_prompts_on_one_new_agent(self):
         project = MagicMock()

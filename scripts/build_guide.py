@@ -23,7 +23,7 @@ def read_json(name: str):
     return json.loads((ROOT / "content" / name).read_text(encoding="utf-8"))
 
 
-def load_portal_captures(language):
+def load_portal_captures(language, *, include_archived=False):
     edition = RELEASE["languages"][language]
     name = edition["portal_manifest"]
     if Path(name).name != name or not name.endswith(".json"):
@@ -45,8 +45,12 @@ def load_portal_captures(language):
     paths = [item["path"] for item in captures]
     if len(paths) != edition["portal_screenshots"] or len(paths) != len(set(paths)):
         raise ValueError(f"{language}: expected {edition['portal_screenshots']} distinct portal captures.")
+    all_captures = [*captures, *manifest.get("archived_captures", [])]
+    all_paths = [item["path"] for item in all_captures]
+    if len(all_paths) != len(set(all_paths)):
+        raise ValueError("Portal capture paths must be distinct across active and archived captures.")
     directory = Path("assets/portal/en" if language == "en" else "assets/portal")
-    for item in captures:
+    for item in all_captures:
         relative = Path(item["path"])
         path = ROOT / relative
         if relative.parent != directory or relative.suffix != ".png":
@@ -62,7 +66,7 @@ def load_portal_captures(language):
             raise ValueError("Portal capture time must include timezone.")
         if not item["route"] or not item["masked"] or not item["purpose"]:
             raise ValueError(f"Portal screenshot lacks provenance/caption: {item['path']}")
-    return captures
+    return all_captures if include_archived else captures
 
 
 def load_content(language):
@@ -109,6 +113,7 @@ def load_content(language):
 
 def coverage_markdown(capabilities, chapters, sources, language="ko"):
     title_map = {c["id"]: c for c in chapters}
+    lab_count = sum(chapter["track"] != "reference" for chapter in chapters)
     counts = Counter(c["mode"] for c in capabilities)
     if language == "en":
         modes = {
@@ -120,7 +125,7 @@ def coverage_markdown(capabilities, chapters, sources, language="ko"):
         lines = [
             "> **Coverage is explicit.** The official capability map and reference connect each capability group to labs, design exercises, or reference material.",
             "",
-            f"There are **{len(capabilities)} coverage entries** across 25 modules. This is not a count of individual product APIs or models.",
+            f"There are **{len(capabilities)} coverage entries** across {lab_count} modules. This is not a count of individual product APIs or models.",
             "", "## How to read the coverage levels", "",
             "| Depth | Meaning | Entries |", "| --- | --- | ---: |",
         ]
@@ -141,7 +146,7 @@ def coverage_markdown(capabilities, chapters, sources, language="ko"):
     lines = [
         "> **포함 범위를 공개합니다.** 공식 capability map/reference를 기준으로 기능군을 실습·설계·참고 항목에 연결했습니다.",
         "",
-        f"총 **{len(capabilities)}개 커버리지 항목**입니다. 25개 모듈에서 다룹니다. 항목 수는 제품의 개별 API나 모델 개수가 아닙니다.",
+        f"총 **{len(capabilities)}개 커버리지 항목**입니다. {lab_count}개 모듈에서 다룹니다. 항목 수는 제품의 개별 API나 모델 개수가 아닙니다.",
         "",
         "## 범위 읽는 법",
         "",
@@ -187,71 +192,8 @@ def sources_markdown(source_data, language="ko"):
     ]
     path = ROOT / ("docs/en/sources.md" if language == "en" else "docs/sources.md")
     return path.read_text(encoding="utf-8").format(
-        documentation_validation=RELEASE["documentation_validation"],
-        historical_validation=RELEASE["historical_validation"],
-        validation=RELEASE["languages"][language]["validation"],
         source_table="\n".join(table),
     )
-
-
-def instruction_reading_example(language):
-    """Present one preserved answer pair without rerunning or rewriting evidence."""
-    folder = ROOT / "validation/current" / language
-    responses = json.loads((folder / "responses.json").read_text(encoding="utf-8"))
-    native = json.loads((folder / "native.json").read_text(encoding="utf-8"))
-    case_id = "compound-request-no-tools"
-    answers = [row for row in responses["rows"] if row["id"] == case_id]
-    judgments = [row for row in native["comparison"]["rows"] if row["case_id"] == case_id]
-    for record, rows in ((responses, answers), (native, judgments)):
-        if (
-            record["language"] != language or len(rows) != 2
-            or {row["instructions"] for row in rows} != {"v1", "v2"}
-        ):
-            raise ValueError(f"{language}: the reading example requires one actual v1/v2 pair.")
-    answers = {row["instructions"]: row for row in answers}
-    judgments = {row["instructions"]: row for row in judgments}
-    if not answers["v1"]["query"] or answers["v1"]["query"] != answers["v2"]["query"]:
-        raise ValueError("The reading example must compare the same actual question.")
-    english = language == "en"
-    labels = (
-        ("Preserved question", "Actual answer", "Metric / 5", "Original relevance reasons (English)")
-        if english else ("보존된 질문 원문", "실제 답변", "평가 항목 / 5", "관련성 채점 이유 원문 (영어)")
-    )
-    metrics = {
-        "completeness": "Completeness" if english else "완결성",
-        "relevance": "Relevance" if english else "관련성",
-        "groundedness": "Groundedness" if english else "근거성",
-    }
-    lines = [
-        '<div class="worked-example" markdown="1">',
-        "", f"**{labels[0]} · `{case_id}`**", "",
-        *("> " + escape(line) for line in answers["v1"]["query"].splitlines()),
-    ]
-    for version in ("v1", "v2"):
-        answer = json.loads(answers[version]["raw_answer"])
-        if (
-            not isinstance(answer["answer"], str) or not answer["answer"].strip()
-            or answers[version]["response_id"] != judgments[version]["response_id"]
-        ):
-            raise ValueError("The reading example must retain correlated, nonempty actual answers.")
-        lines += [
-            "", '<div class="recorded-answer" markdown="1">',
-            "", f"**{version} — {labels[1]}**", "", escape(answer["answer"]), "", "</div>",
-        ]
-    lines += ["", f"| {labels[2]} | v1 | v2 |", "| --- | ---: | ---: |"]
-    for key, title in metrics.items():
-        scores = [judgments[version]["metrics"][key]["score"] for version in ("v1", "v2")]
-        if any(type(score) not in (int, float) or not 1 <= score <= 5 for score in scores):
-            raise ValueError("The reading example requires actual native scores on the 1–5 scale.")
-        lines.append(f"| {title} | {scores[0]:g} | {scores[1]:g} |")
-    lines += ["", '<details class="judge-reasons" markdown="1">', f"<summary>{labels[3]}</summary>"]
-    for version in ("v1", "v2"):
-        reason = judgments[version]["metrics"]["relevance"]["reason"]
-        if not isinstance(reason, str) or not reason.strip():
-            raise ValueError("The reading example requires the original judge reasons.")
-        lines += ["", f"**{version}**", "", escape(reason)]
-    lines += ["", "</details>", "", "</div>"]
-    return "\n".join(lines)
 
 
 def source_body(chapter, chapters, capabilities, source_data, language="ko"):
@@ -268,11 +210,6 @@ def source_body(chapter, chapters, capabilities, source_data, language="ko"):
         return "](" + urlunparse(address._replace(path=relative)) + ")"
 
     body = re.sub(r"\]\((\.\./[^)]+)\)", normalize_link, body)
-    if chapter["id"] == "l08":
-        marker = "<!-- instruction-reading-example -->"
-        if body.count(marker) != 1:
-            raise ValueError("L08 must contain exactly one preserved-result reading example.")
-        body = body.replace(marker, instruction_reading_example(language))
     if chapter.get("learning"):
         learning = chapter["learning"]
         label = read_json("reader-labels.json")[language]["learning_order"]
@@ -376,6 +313,8 @@ def build_language(language):
     ui = read_json("reader-labels.json")[language]
     edition = RELEASE["languages"][language]
     core_count = sum(chapter["track"] == "core" for chapter in chapters)
+    advanced_count = sum(chapter["track"] == "advanced" for chapter in chapters)
+    lab_count = core_count + advanced_count
     sources = {s["id"]: s for s in source_data["sources"]}
     captures = {item["path"]: item for item in load_portal_captures(language)}
     bodies = {c["id"]: source_body(c, chapters, capabilities, source_data, language) for c in chapters}
@@ -424,9 +363,7 @@ def build_language(language):
     print_toc = "".join(
         f'<li><a href="#{c["id"]}"><span>{c["number"]}</span> {escape(c["title"])}</a></li>' for c in chapters
     )
-    cover_boundary = ui["cover_boundary"].format(
-        validation=f'<a href="{escape(edition["validation"])}">{escape(edition["validation"])}</a>',
-    )
+    cover_boundary = ui["cover_boundary"]
     html = f"""<!doctype html>
 <html lang="{language}">
 <head>
@@ -479,7 +416,7 @@ def build_language(language):
     <h2 id="hero-title">{ui['hero_title']}</h2>
     <p>{ui['hero_description']}</p>
     <div class="hero-actions"><a href="#l00-first-steps" class="primary-link">{ui['start']} <span aria-hidden="true">→</span></a><a href="#l01" class="secondary-link">{ui['ready']}</a><a href="{RELEASE['archive']}" class="secondary-link">{ui['download_kit']}</a></div>
-    <div class="hero-stats"><div><strong>13</strong><span>{ui['stat_core']}</span></div><div><strong>12</strong><span>{ui['stat_electives']}</span></div><div><strong>1</strong><span>{ui['stat_scenario']}</span></div></div>
+    <div class="hero-stats"><div><strong>{core_count}</strong><span>{ui['stat_core']}</span></div><div><strong>{advanced_count}</strong><span>{ui['stat_electives']}</span></div><div><strong>1</strong><span>{ui['stat_scenario']}</span></div></div>
     <div class="hero-orbit" aria-hidden="true"><span></span><i></i><b>f</b></div>
   </section>
   <div class="reader-note" id="reader-note"><span class="note-mark" aria-hidden="true">i</span><p>{ui['reader_note']}</p><a href="#sources">{ui['view_basis']}</a></div>
@@ -487,7 +424,7 @@ def build_language(language):
     <p class="eyebrow">MICROSOFT FOUNDRY / HANDS-ON GUIDE</p>
     <h1>{ui['cover_title']}</h1>
     <p>{ui['cover_description']}</p>
-    <p><strong>{RELEASE['edition']} {ui['cover_edition']}</strong><br>{ui['duration']}</p>
+    <p><strong>{RELEASE['edition']} {ui['cover_edition'].format(count=lab_count)}</strong><br>{ui['duration']}</p>
     <p class="print-boundary">{cover_boundary}</p>
     <h2>{ui['reading_order']}</h2><ol class="print-toc">{print_toc}</ol>
     <p>{ui['kit_note']} {ui['web_guide']}: {edition['html']} / {ui['text_edition']}: {edition['markdown']} / <a href="{edition['receipt_html']}">{ui['receipt']}</a></p>
@@ -495,7 +432,7 @@ def build_language(language):
   <section id="search-results" class="search-results" aria-labelledby="search-title" hidden><h1 id="search-title">{ui['search_results']}</h1><p id="search-count" role="status" aria-live="polite"></p><div id="search-list"></div></section>
   <p id="storage-warning" class="storage-warning" role="status" hidden>{ui['storage_warning']}</p>
 {''.join(pages)}
-  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{edition['pdf']}">{ui['pdf']}</a><a href="{RELEASE['archive']}">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="{edition['validation']}">{ui['validation']}</a><a href="#sources">{ui['sources']}</a></footer>
+  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{edition['pdf']}">{ui['pdf']}</a><a href="{RELEASE['archive']}">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="#sources">{ui['sources']}</a></footer>
 </main>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -510,7 +447,7 @@ def build_language(language):
     book = [
         f"# {ui['title']} — {ui['tagline']}",
         "",
-        f"> {RELEASE['edition']} {ui['book_intro']} "
+        f"> {RELEASE['edition']} {ui['book_intro'].format(count=lab_count)} "
         f"[{ui['web_guide']}]({RELEASE['site_url']}{edition['html']}) — {ui['book_web']}",
         "",
         " | ".join(
@@ -518,7 +455,7 @@ def build_language(language):
             for other in RELEASE["languages"].values()
         ),
         "",
-        ui["book_boundary"].format(validation=edition["validation"]),
+        ui["book_boundary"],
         "",
         f"[{ui['receipt']}]({RELEASE['site_url']}{edition['receipt_html']})",
         "",
@@ -539,7 +476,7 @@ def build_language(language):
     markdown_path.write_text(
         portable_book_links("\n".join(book) + "\n", edition["markdown"]), encoding="utf-8",
     )
-    print(f"Built {language}: {len(chapters)} sections (25 labs), {len(capabilities)} coverage rows, {len(sources)} official sources.")
+    print(f"Built {language}: {len(chapters)} sections ({lab_count} labs), {len(capabilities)} coverage rows, {len(sources)} official sources.")
 
 
 def build():

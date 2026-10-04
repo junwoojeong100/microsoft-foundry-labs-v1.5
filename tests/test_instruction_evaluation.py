@@ -173,7 +173,8 @@ class InstructionNativeTests(unittest.TestCase):
             "cases_sha256": digest(cases), "context_sha256": digest(sources), "rows": rows,
             "comparison": instruction_lab.summarize(rows, cases),
             "reasoning_effort": "low", "max_output_tokens": 2048, "retries": 0,
-            "model_identity": {"name": "contoso-gpt-6-sol", "modelName": "gpt-6-sol", "modelVersion": "2026-09-22"},
+            "model_deployment": "contoso-chat",
+            "model_identity": {"name": "contoso-chat", "modelName": "gpt-6-sol", "modelVersion": "2026-09-22"},
             "prompt_agent_versions": {"agent_name": agent_name, "versions": versions, "status": "active"},
             "case_file_sha256": hashlib.sha256(
                 (instruction_evaluation.DATA / "evaluation/instruction-comparison.json").read_bytes()

@@ -1,10 +1,10 @@
 # Microsoft Foundry Lab Guide — Learn by building
 
-> 2026-09-30 Contoso independent lab guide · English · 25 modules. [Web guide](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html) — Open the web edition for search, progress tracking, and learning paths.
+> 2026-09-30 Contoso independent lab guide · English · 20 modules. [Web guide](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html) — Open the web edition for search, progress tracking, and learning paths.
 
 [English](GUIDE.en.md) | [한국어](GUIDE.ko.md)
 
-**Validation boundary:** [Current instruction status](../validation/current/instructions.json) separates the edited v2, latest actual originals and local checks. No new Azure improvement is implied.
+**Execution boundary:** Keep your responses, evaluations, and local checks outside this guide. Prepared instructions and completed execution do not establish improved quality.
 
 [Synthetic English receipt](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html)
 
@@ -25,21 +25,16 @@
 - [12. Finish the lab and check remaining costs](#l12)
 - [13. AI Search, Foundry IQ, and permission-aware retrieval](#l13)
 - [14. Hosted agents and developer tools](#l14)
-- [15. Multi-agent systems, A2A, and human oversight](#l15)
+- [15. Agent Framework orchestrations](#l15)
 - [16. Memory: remembering and forgetting](#l16)
 - [17. Routines, long-running agents, and Autopilot](#l17)
-- [18. Multimodal experiences and Content Understanding](#l18)
-- [19. Speech, voice agents, and language tools](#l19)
-- [20. Prompt optimization and fine-tuning](#l20)
 - [21. Enterprise security, Control Plane, and gateways](#l21)
 - [22. CI/CD, costs, and model lifecycle](#l22)
-- [23. Foundry Local, business integrations, and specialized models](#l23)
-- [24. Migrate from Classic to the latest Foundry](#l24)
 - [A. Troubleshooting by symptom](#troubleshooting)
 - [B. Instructor plan and completion checklist](#instructor)
 - [C. Glossary and decision guide](#glossary)
 - [D. Feature coverage](#coverage)
-- [E. Sources, currency, and validation scope](#sources)
+- [E. Sources, currency, and execution boundaries](#sources)
 
 ---
 
@@ -85,7 +80,7 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | Agent | A program combining a model with instructions, knowledge, and tools |
 | Deployment | Making a model available to call in your environment; not training the model |
 
-**Start with the 13 core modules, L00–L12.** The 12 advanced modules, L13–L24, are electives—not extra checkboxes required to finish the core course.
+**Start with the 13 core modules, L00–L12.** The seven advanced modules, L13–L17 and L21–L22, are electives—not extra checkboxes required to finish the core course.
 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
@@ -135,13 +130,13 @@ Masked areas contain identifying information, not values to copy. Use your own p
 <details class="provenance-note" markdown="1">
 <summary>Reference: screenshot scope and validation records</summary>
 
-The English edition uses a separate **`contoso-workshop-en` project and English synthetic data**. All **18 English portal screenshots** were captured from the signed-in English environment and are under `assets/portal/en/`, with identifying information masked or cropped—not translated overlays on the earlier Korean-data screenshots. The models, features, and versions you see depend on your permissions, region, and the date.
+The English edition uses a separate **`contoso-workshop-en` project and English synthetic data**. All **16 English portal screenshots used in this guide** were captured from the signed-in English environment and are under `assets/portal/en/`, with identifying information masked or cropped—not translated overlays on the earlier Korean-data screenshots. The models, features, and versions you see depend on your permissions, region, and the date.
 
-**English backend validation and portal observation are separate activities.** The English run created and invoked owned agents, retrieved English policies, and submitted approved evaluations. Consult the [English screenshot log](../content/portal-screenshots.en.json) for exact capture scope, times, masking, and hashes. Fine-tuning image 14 is a product sample, not Contoso training; Voice image 15 records a canceled form, not a voice session. A screenshot is an observation, not deployment or release-quality certification.
+**Backend execution and portal observation are separate activities.** Keep your agent, retrieval, and evaluation results outside the guide. Consult the [English screenshot provenance](../content/portal-screenshots.en.json) for capture scope, times, masking, and hashes. A screenshot is an observation, not deployment or release-quality certification.
 
 **Current learning path: educational initial v1 → evaluate → analyze and improve → reevaluate v2.** L08 uses the same 12 composite development questions and fixed criteria in both languages. V1 is a simple role-and-goal starting point; v2 adds request decomposition, verified-versus-unknown separation, claim-specific evidence, and omission checks. It does not memorize evaluation answers, and ties or regressions are reported as observed.
 
-The [current instruction status](../validation/current/instructions.json) links the [latest Prompt Agent comparison](../validation/current/report.json). Korean native relevance changed from 4.9167/5 to 5.0/5 on one question; the other Korean metrics and all English metrics tied at 5.0/5. This limited dev observation is not a generalized improvement or release pass.
+Keep your own comparison results outside the guide. A small dev observation does not establish general improvement or release approval.
 
 </details>
 
@@ -194,11 +189,10 @@ Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then u
 | 90-minute introduction | L00 → preconfigured L01 → L04 → L05 → shortened L08 → L12 | The instructor has prepared the project, models, and permissions |
 | Start to finish | L00–L12 | About 5 hours 20 minutes, plus resource waits and breaks |
 | Developer extensions | Core → L13 → L14 → L15 → L22 | Deeper SDK, deployment, and search work |
-| Enterprise adoption | Core → L16 → L17 → L21 → L22 → L24 | Collaboration with administrators and security teams |
-| Document and voice experiences | Core → L18 → L19 → L23 | Access to supported models and services |
+| Enterprise adoption | Core → L16 → L17 → L21 → L22 | Collaboration with administrators and security teams |
 | Without an account | L01 local → L06 local → read existing L08 results → design exercises | Do not record these as successful live Azure runs |
 
-Times are **estimates of hands-on work**. They exclude waits for quota approval, model downloads, indexing, training, and administrator approval.
+Times are **estimates of hands-on work**. They exclude waits for quota approval, resource preparation, indexing, and administrator approval.
 
 ### 2. Keep one scenario in mind
 
@@ -221,7 +215,7 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 
 ### 4. Keep evidence of your results
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`; do not overwrite the published examples under `validation/current/`. Do not record personal information or tokens or relabel one environment's evidence as another's.
+Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`, outside the guide. Do not record personal information or tokens or relabel one environment's evidence as another's.
 
 Web progress counts **only the selected path**: 13 core modules or six in the 90-minute tour. Switching paths does not erase checkmarks. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
 
@@ -368,7 +362,7 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 3. Compare **Name / Parent resource / Location** in **Manage → Project details** with the instructor's information. Your approved project may have a different name from the example `contoso-workshop-en`.
 4. If no project appears or only **Create project** is available, ask for access rather than creating one. Account-free participants can continue with the local checks in step 4 below.
 
-**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in `results/`; do not overwrite published examples in `validation/current/`.
+**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in `results/`, outside the guide and kit.
 
 <details class="operator-only" markdown="1">
 <summary>Administrators only: create a new environment after scope, cost, and access approval</summary>
@@ -377,7 +371,7 @@ The following script creates only a uniquely named new resource group (RG); it d
 
 ```bash
 python3.13 scripts/azure_environment.py create --subscription approved-subscription-id --location approved-region --cost-authorization "Approved amount and retention policy" --live
-python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model supported-judge-model --judge-version actual-judge-version --embedding-model supported-embedding-model --embedding-version actual-embedding-version --model-sku GlobalStandard --capacity 10 --live
+python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
 python3.13 scripts/azure_environment.py roles --live
 ```
 
@@ -388,13 +382,14 @@ python3.13 scripts/azure_environment.py roles --live
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `create` | `--subscription` identifies the approved subscription, and `--location` specifies the actual region. Inside the quotes after `--cost-authorization`, record the approved amount and retention terms. `--live` permits creation of a new dedicated resource group. | Writes an ownership receipt to `results/azure-environment.json`. This is not a command for reusing an existing resource group. The new group defines the scope of subsequent resource costs. |
-| 2. `foundation` | Specify a model ID and version for each of chat, judge, and embedding. `--model-sku` sets the processing scope/deployment type; `--capacity 10` means 10 of that model's capacity units, not a USD 10 spending limit. | Deploys the Foundry resource, project, and models. Check policies and quota and obtain cost approval first. |
+| 2. `foundation` | Specify models, versions, and SKU. Calculate each initial capacity from the recommended TPM/RPM for `--learners 1`. `--max-capacity 100` is the ceiling for newly allocated units per deployment, not TPM or money. | Precheck regional SKU support, unit rates, and available quota, then create models at the recommended capacity. Missing prerequisites stop model creation; actual TPM/RPM is checked after deployment. |
 | 3. `roles` | Assigns lab roles in the new environment recorded in the ownership receipt. `--live` permits a real run, including permission changes. | Requires administrator privileges. Verify data access after role propagation; do not use this to expand access to other environments. |
 
 </div>
 
 Replace the descriptive placeholders with actual approved values: the subscription ID, permitted region, approved amount and retention policy, supported chat/judge/embedding model IDs, and their actual versions. Check the model catalog, SKU, and quota first,
 and obtain approval for the Global, Data Zone, or Standard processing scope. Capacity units vary by model and are not a spending cap.
+`foundation` supplies separate chat, judge, and embedding capacities. It selects the base-model SKU from the raw ARM catalog's `AIServices`/`S0` entry and applies explicit minimum, maximum, and increment constraints. When an online SKU omits minimum/increment restrictions, capacity remains a positive integer. Missing TPM/RPM unit rates, maximum capacity, or quota stops deployment rather than choosing an arbitrary small value. Roles sharing a quota are checked against their combined allocation.
 `infra/main.bicep` deploys only the Foundry account/project and the specified models.
 Add Search with `python scripts/azure_environment.py search --live` only when you need L13. `search` is an administrator operation that creates a search service in the owned resource group; it can incur fixed costs even without requests. It does not mean “try one search.”
 The ownership record is `results/azure-environment.json`. For partial failures such as RequestConflict,
@@ -404,7 +399,7 @@ inspect the original deployment operation and use `foundation --resume` **only f
 
 **Reading the screen:** Compare the resource group, location, and ownership tags with `results/azure-environment.json` from the English checkout. Visible resources depend on capture time and filters; the image does not prescribe a fixed resource list or count. Consult the [English capture log](../content/portal-screenshots.en.json) for its exact scope. An overview is not proof of successful model calls or a passed quality gate.
 
-The captured overview preserves an **inherited organizational diagnostic-policy failure** because its external governance workspace was missing. The English run's own foundation and observability deployments succeeded separately. Do not hide that warning, count it as an owned deployment failure, or change the out-of-scope policy/workspace; refer it to the responsible governance owner.
+If an overview shows an **inherited organizational diagnostic-policy failure**, inspect its scope separately from the lab's deployments. Do not hide the warning or change an out-of-scope policy/workspace; refer it to the responsible governance owner.
 
 </details>
 
@@ -429,7 +424,7 @@ Role names have recently changed—for example, **Azure AI User → Foundry User
 
 **Ask the responsible administrator to assign roles.** Do not give every learner subscription Owner access. Check each module for additional tool-specific permissions.
 
-The administrator script resolves the administrator's object ID from the **authenticated Azure Resource Manager (ARM) credential** for scoped role assignments, rather than requiring a separate Microsoft Graph signed-in-user lookup. A Graph-specific Continuous Access Evaluation (CAE) challenge did not block ARM/Foundry authentication in this English run. Diagnose each service's actual response separately and follow organizational access policies.
+The administrator script resolves the administrator's object ID from the **authenticated Azure Resource Manager (ARM) credential** for scoped role assignments, rather than requiring a separate Microsoft Graph signed-in-user lookup. Diagnose each service's actual authentication response separately and follow organizational access policies.
 
 </details>
 
@@ -438,12 +433,16 @@ The administrator script resolves the administrator's object ID from the **authe
 Prepare just one model for L02. Start with a usage-based deployment if your data is synthetic and organizational policy allows it. **PTU, paid Search tiers, GPU managed compute, large Batch jobs, and fine-tuning are not needed for the core course.**
 L08's native automated evaluation also requires a separate judge deployment. Do not recreate one the administrator has already provided.
 
-<details class="provenance-note" markdown="1">
-<summary>Reference: the earlier English run's capacity decision</summary>
+**Prepare model throughput before the lab.** These are the minimum recommended starting allocations for one learner running one lab at a time. Check RPM as well as TPM.
 
-The English run's foundation-model capacity was explicitly increased **10 → 50 → 100** after quota verification for the bounded evaluation workload. The current setting of **100** is a run-specific capacity decision, not a required learner setting or an evaluation pass. Capacity units vary by model and **are not a dollar cap**; retain explicit cost approval and bounded requests before increasing your own deployment capacity.
+| Model role | Used for | Minimum recommended TPM | Minimum RPM |
+| --- | --- | ---: | ---: |
+| chat · `gpt-6-sol` | Models, agents, and L15 orchestration | 100,000 | 60 |
+| judge · `gpt-4.1` | Optional L08 native evaluation | 100,000 | 60 |
+| embedding · `text-embedding-3-small` | L13 search and L16 Memory | 10,000 | 6 |
 
-</details>
+These are **planning values**, assuming about 8,192 input tokens, up to 2,048 output tokens, six chat/judge starts per minute, and headroom. They are not Azure's absolute minimum or a spending cap. Multiply the budget by the simultaneous learners sharing a deployment. Longer context, managed evaluation, and other traffic can require more headroom.
+For a new environment, `foundation` **sets each role's recommended capacity on the initial deployment**. Then [check actual limits and test connectivity in L02](#l02-capacity). Use `apply` only for insufficient existing/manual deployments or an increased learner count.
 
 The project region, supported model regions, deployment type, and quota are separate conditions. A project in Korea Central does not, by itself, mean that all inference is processed in Korea. L02 covers Global, Data Zone, and geography-based processing scopes.
 
@@ -726,14 +725,100 @@ If you name it `contoso-gpt-6-sol`, set `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-g
 
 L01's administrator foundation script can deploy the same model under the name `contoso-chat`. If using that path, keep the actual returned deployment name and do not deploy it again. Changing a model deployment does not automatically redeploy an existing Hosted agent's code or configuration.
 
-**Pause and check:** Does the portal deployment name match the saved `.env` value? If it is also ready, continue to **Success criteria → L03**. No question submission is required here.
+**Pause and check:** Does the portal deployment name match the saved `.env` value? Complete the TPM/RPM readiness check below before **Success criteria → L03**. Learners need not repeat a paid connectivity test already completed by the administrator.
 
 <details class="operator-only" markdown="1">
 <summary>Administrators only: no deployment exists and creation is approved</summary>
 
-On the model card, choose **Deploy → Custom settings**. Check **model `gpt-6-sol` / version `2026-09-22` / approved type and capacity / deployment name**, then choose **Deploy**. Confirm **Succeeded/ready** before giving learners the actual name. Do not proceed with only the name of a failed deployment.
+On the model card, choose **Deploy → Custom settings**. Check **model `gpt-6-sol` / version `2026-09-22` / approved deployment type / deployment name**. Verify the displayed TPM units and set **chat to 100,000 TPM per learner before selecting Deploy**. Size shared deployments for simultaneous learners. If the recommended allocation is unavailable, check quota rather than deploying a smaller placeholder. Confirm **Succeeded/ready** and actual TPM/RPM before giving learners the name.
 
 </details>
+
+<a id="l02-capacity"></a>
+
+### 4. Configure TPM/RPM before testing connectivity
+
+**TPM is tokens per minute; RPM is requests per minute.** Do not size TPM from billed tokens alone. Azure estimates input plus the output reservation, and RPM also limits requests concentrated in short time windows.
+
+| Role | Per-learner minimum recommended TPM / RPM | Sizing assumption |
+| --- | --- | --- |
+| chat | **100,000 / 60** | `(8,192 input + 2,048 output) × 6 starts/minute × 1.5 headroom = 92,160`, rounded up in 10,000-token units |
+| judge | **100,000 / 60** | Same request budget; larger managed-evaluation concurrency/context can need more headroom |
+| embedding | **10,000 / 6** | `8,192 input × 1 start/minute × 1.2 headroom`, rounded up in 1,000-token units |
+
+**These are not absolute service minima or a no-429 guarantee.** They are starting allocations for one learner running one lab at a time. Multiply shared budgets by simultaneous learners and resize for longer inputs or other applications. L15 allows up to three overlapping agents but spaces request starts by at least one second.
+See the [official quota/rate-limit guidance](https://learn.microsoft.com/azure/foundry/openai/how-to/quota#understanding-rate-limits). TPM/RPM are not monetary spending caps.
+
+**The default flow is deploy at recommended capacity → verify actual limits → test connectivity.** L01's `foundation` checks the regional catalog's SKU unit rates, capacity increments, and quota before creating models with role-specific capacity. For manual deployment, set the recommended TPM in Custom settings first.
+Use your own administrator-provided `results/azure-environment.json` from L01. The `plan` command below displays the sizing assumptions; `check` verifies what was actually deployed.
+
+```bash
+python samples/model_capacity.py plan --learners 1
+python samples/model_capacity.py check --learners 1 --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `model_capacity.py plan --learners 1` | Calculate role-specific TPM/RPM from request budgets and headroom. Use the real simultaneous learner count for shared deployments. | Local calculation only; no Azure connection. |
+| 2. `check --learners 1 --live` | Inspect the owned RG and actual deployment `rateLimits`, SKU, model, and version. | Read-only. Insufficient TPM or RPM fails without sending a model test. |
+
+</div>
+
+Compare `tpm`, `rpm`, `minimum_tpm`, `minimum_rpm`, `proposed_capacity`, and `ready` under each `deployments.<role>`.
+**Do not apply capacity=100 uniformly to every model.** Initial deployment uses the raw ARM catalog's TPM/RPM per unit and explicit capacity constraints. CLI model listings may omit `rateLimits.key`; do not infer it. Match quota by the SKU's `usageName`, not a name constructed from the model ID. If actual limits fall below the recommendation afterward, readiness fails and no model test is sent.
+
+The embedding connectivity test uses `/openai/v1/embeddings` on the same owned Foundry resource. Responses support on the project endpoint does not imply embeddings support there.
+
+<details class="operator-only" markdown="1">
+<summary>Existing deployments only: correct insufficient throughput within approved scope</summary>
+
+Skip this step when a new `foundation` deployment meets the recommendation. Use it only for insufficient existing/manual deployments or increased learner counts. Quota-read and deployment-update permissions are required. Replace `OWN_RUN_ID` with the receipt's `run_id`. The value `100` is the allowed capacity-unit ceiling per deployment, not TPM or a monetary amount.
+
+```bash
+python samples/model_capacity.py apply --learners 1 --max-capacity 100 --confirm OWN_RUN_ID --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `apply ... --confirm OWN_RUN_ID --live` | Precheck required units and available quota for all targets, PATCH only insufficient SKU capacity, then read it back. | Changes actual Azure capacity. Models, versions, and safety policies stay unchanged; sufficient capacity is not reduced. No new resource or PTU is created. |
+
+</div>
+
+Missing quota or a target above the ceiling stops before changes. Adjust cohort size or the ceiling only with separate approval. If an error follows a partial update, inspect requested/verified changes in `Evidence:` and do not test models until every required role is ready.
+
+</details>
+
+<details class="optional-path" markdown="1">
+<summary>Optional: an approved connectivity test after configuration</summary>
+
+Do not repeat a test already completed by the administrator.
+
+```bash
+python samples/model_capacity.py test --learners 1 --confirm OWN_RUN_ID --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `test ... --confirm OWN_RUN_ID --live` | Recheck actual TPM/RPM, then test chat at most three times, judge once, and embedding once. | At most five model requests, 180 seconds, zero retries, and 2,048 reserved output tokens per generative request. Preserve a unique `Evidence:` record; this is not a full-course or quality pass. |
+
+</div>
+
+</details>
+
+Select only needed roles with options such as `--roles chat`. Use `--roles chat judge` for basic evaluation preparation; L15 needs only `--roles chat`.
+On errors or 429, do not repeat calls. Inspect token/request limits, authentication, permissions, and other traffic before separately approving a next action. This is **configuration/connectivity checking, not a throughput-limit benchmark or full-course validation.**
 
 <details class="optional-path" markdown="1">
 <summary>Optional: compare two model answers after additional cost approval</summary>
@@ -760,7 +845,7 @@ A public leaderboard is a starting point for narrowing candidates, not a guarant
 
 </details>
 
-### 4. Optional extension: Model router
+### 5. Optional extension: Model router
 
 <details class="optional-path" markdown="1">
 <summary>Not required for the core lab: compare per-request model selection</summary>
@@ -863,7 +948,7 @@ A higher total requires approval from both the team manager and the purchasing r
 What approval is required for a total of exactly KRW 2,000,000?
 ```
 
-The **expected** answer is team manager approval. In the captured English run, the actual answer was **“A total of exactly KRW 2,000,000 requires team lead approval.”** The completion cap was **256**, and the portal displayed **106 total tokens**. Web search was off, and the question was submitted once without resubmission. The [English capture log](../content/portal-screenshots.en.json) records this observation. These are one model request's displayed values, not an evaluation score, proof of RAG, or the total lab cost.
+The **expected** answer is team manager approval. Inspect your actual response and its identifier. Displayed tokens describe that request, not an evaluation score, proof of RAG, or the total lab cost.
 
 If a capture or wait times out, inspect the existing response before considering another request. Do not infer raw HTTP status or internal retries from the screen. The CLI path below is a separate execution for learning to read the response object and ID in code; there is no need to make extra calls merely to reproduce an image.
 
@@ -1253,7 +1338,7 @@ The 2 answerable questions have real supporting evidence, and the agent withhold
 
 ## Troubleshooting
 
-Do not start by uploading the documents again. Check the connected vector store ID, indexing failure reason, supported file formats, model/tool support, and the correct agent version. If a table appears only as an image in the file, use L18 to assess whether File search alone is sufficient.
+Do not start by uploading the documents again. Check the connected vector store ID, indexing failure reason, supported file formats, model/tool support, and the correct agent version. If a table appears only as an image in the file, first check for searchable text; do not assume File search has read it.
 
 ## Cleanup
 
@@ -1686,130 +1771,77 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 **Core course · GA / some Preview** · about 35 min
 
-> **What you will build:** An educational initial v1 → evaluate → analyze and improve → reevaluate v2 learning loop, grounded in actual answers and evaluation reasons.
+> **What you build:** A method for comparing v1/v2 answers under matched conditions and explaining differences, ties, or failures using scores and judge reasons.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Read preserved actual results by default · a new paid evaluation is optional.
+**Format:** Read instructions and questions first; collecting your own answers and running paid evaluation are optional.
 
-**Start here:** Read the v1/v2 answers to one question below. Mark whether both address the cap, stock, approval, and draft.
+**Start here:** Read both instruction files and the fixed questions, then identify what an answer must address.
 
-**What to check:** Explain a tie or difference using answers, scores, and reasons. Reading these originals is not your own Azure execution.
+**What to check:** Explain the comparison conditions and criteria. If you execute the optional path, connect your originals, scores, and reasons outside the guide.
 
 </div>
 
 ## Objectives
 
-**Distinguish differences in the answers from the evaluator's judgment.** V1 is a role-and-goal starting instruction; v2 makes the answering procedure more explicit. Hold v1 fixed in this comparison. The label “v2” does not establish a better answer.
+**Distinguish differences in answers from the evaluator's judgment.** Version one is a role-and-goal starting instruction; version two specifies an answer procedure. The v2 label does not establish better quality.
 
 ## Concepts and lab map
 
-**What you will try:** Compare two answers to the same question, their scores, and the reasons.
+**What you will try:** Compare two answers to the same question and interpret evaluation reasons.
 
-**What is it, and why does it matter?** Evaluation compares expected behavior with the actual answer. Change only the instructions; keep the model, policies, questions, and scoring rules the same.
+**What is it, and why does it matter?** Evaluation compares expected behavior with actual answers. Keep the model, policy, questions, and rubric unchanged so instruction differences can be interpreted.
 
-**How do you use it?** Read the two answers below before looking at their scores. Keep ties and regressions. No new paid evaluation is required.
+**How do you use it?** Read the instructions and questions first. If approved, collect and evaluate actual answers, preserving ties and regressions.
 
-**Where do you run it?** Read this page. Consult the [questions/checklist](../data/en/evaluation/instruction-comparison.json), [v1](../data/en/prompts/agent-v1.txt), [v2](../data/en/prompts/agent-v2.txt), and [optional runner](../samples/instruction_prompt_agent_lab.py) when needed.
+**Where do you run it?** Read the [questions and checklist](../data/en/evaluation/instruction-comparison.json), [v1](../data/en/prompts/agent-v1.txt), and [v2](../data/en/prompts/agent-v2.txt). Optionally use the [collection](../samples/instruction_prompt_agent_lab.py) and [evaluation](../samples/instruction_evaluation.py) scripts.
 
 ## Prerequisites
 
-**The default reading path needs no account or new model calls.** The [English response originals](../validation/current/en/responses.json) and [English evaluation originals](../validation/current/en/native.json) are also in the ZIP. The example below is generated from those records, not from newly authored ideal answers.
+**Reading the instructions and questions needs no account or model calls.** This guide does not contain the author's execution results or prewritten scores. Comparing actual answers requires your own collected originals or approved lab results provided separately by your instructor.
 
-| Term to know | Plain-language meaning |
+| Term | Plain-language meaning |
 | --- | --- |
-| v1 / v2 | Starting instructions / improved instructions; not the service's agent-version numbers |
-| Judge / Native evaluation | The grading model / an evaluation run by Foundry's service |
-| Completeness / Relevance / Groundedness | Did it address all requested parts / fit the question / stay supported by the supplied material? |
-| Dev / Holdout | Practice data used while improving / a separate final exam excluded from improvement |
+| v1 / v2 | Starting / improved instructions, not service-issued agent-version numbers |
+| Judge / Native evaluation | The grading model / an evaluation performed by Foundry |
+| Completeness / Relevance / Groundedness | Were all requests addressed / was the answer relevant / was it supported? |
+| Dev / Holdout | Practice data exposed during improvement / a separate final test excluded from improvement |
 
 <details class="optional-path" markdown="1">
-<summary>Optional execution prerequisites: collect and evaluate new responses</summary>
+<summary>Optional execution prerequisites: your project, deployments, and ownership receipt</summary>
 
-Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** deployment. Set your actual deployment name in `.env`: the suggested name is `contoso-gpt-6-sol`, while L01's administrator path may use `contoso-chat`. Native evaluation also needs `FOUNDRY_JUDGE_DEPLOYMENT_NAME`; this measurement held the existing `contoso-judge` (GPT-4.1) fixed in both environments. No Hosted-agent redeployment, Search service, Optimizer, or holdout is required. The evaluation created one tool-free Prompt Agent with v1/v2 versions in each Foundry project.
-Both prompts receive the same **checked-in synthetic policy context**; it is not described as a live Search retrieval.
-The 12 questions use the same scenario IDs, expected behavior, and policy context in both languages. Expected behavior is not included in target-model inputs; it is supplied only to the native judge.
-Keep `FOUNDRY_LAB_LANGUAGE=en` selected for the English inputs and instructions.
+Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** model. Set the actual deployment name in `.env`. The administrator path uses `contoso-chat`; a manually chosen name such as `contoso-gpt-6-sol` must match your ownership receipt.
+
+Native evaluation needs a separate **`gpt-4.1` / `2025-04-14`** judge and `FOUNDRY_JUDGE_DEPLOYMENT_NAME`. Verify both deployments' actual TPM/RPM in L02. Hosted redeployment, Search, Optimizer, and holdout are not prerequisites.
+
+New execution uses **your own `results/azure-environment.json` and `.env`**. Both languages read back current RG ownership tags, project, deployments, and throughput. An author's old RG or historical validation files are not runtime dependencies. Each comparison creates a collision-resistant Prompt Agent name and pins v1/v2 versions.
+
+Keep `FOUNDRY_LAB_LANGUAGE=en` selected in the separate English folder. Both instructions receive the same synthetic policy context; this is not live Search retrieval. Expected behavior and grading criteria are excluded from target-model input and supplied only to the judge.
 
 </details>
 
 ## Steps
 
-### 1. Read and judge one question first
+### 1. Compare the question and instructions first
 
-These are **actual English questions, answers, and native scores**. Locate **cap / current stock / approver / draft** in each answer. Unlike L06, this comparison has no tools: it must not claim a stock lookup or a created draft.
+Find `compound-request-no-tools` in the question file and separate **cap / current stock / approver / draft** requests. Read the answer procedure each instruction requires. No tools are available in this comparison, so neither stock lookup nor draft creation may be claimed as executed.
 
-<div class="worked-example" markdown="1">
-
-**Preserved question · `compound-request-no-tools`**
-
-> A synthetic work request states two laptops have a total of exactly KRW 2,000,000 and asks for the laptop cap, current stock, required approver, and a purchase draft. There are no business tools in this interaction. Answer each part even if you cannot actually create the draft.
-
-<div class="recorded-answer" markdown="1">
-
-**v1 — Actual answer**
-
-- **Laptop cap:** KRW 1,500,000 per standard laptop, including VAT (Contoso Procurement Policy, §2). A KRW 2,000,000 total for two laptops does not establish that each laptop is within the per-item cap; confirm both unit prices.
-- **Current stock:** I cannot verify stock or live unit prices in this interaction. The policy calls for stock-lookup results rather than an estimate (Contoso Procurement Policy, §4).
-- **Required approver:** Team lead approval is required for an order totaling exactly KRW 2,000,000 (Contoso Procurement Policy, §3).
-- **Purchase draft:** I cannot create a purchase-request draft here. Draft details to use once confirmed: two standard laptops; stated total KRW 2,000,000; team lead approval required. Confirm the models, each VAT-inclusive unit price, and stock before submitting it. This is not an approved or placed order (Contoso Procurement Policy, §§2–4).
-
-</div>
-
-<div class="recorded-answer" markdown="1">
-
-**v2 — Actual answer**
-
-**Conclusion:** The standard-laptop cap is KRW 1,500,000 **per laptop, including VAT**. For two laptops with an order total of exactly KRW 2,000,000 including VAT, **team lead approval** is required; procurement approval is not required at that threshold. The total alone does not show whether each laptop is within its per-item cap, so the two unit prices must be checked separately.
-
-**Current stock:** I cannot verify it. Stock quantities require a stock lookup, and no business tools are available in this interaction.
-
-**Purchase draft:** I could not create one. No draft tool is available, and the request does not specify an exact supported SKU. Provide the SKU and confirm the quantity of two when a draft tool is available. A draft would not itself be approval or a completed order.
-
-</div>
-
-| Metric / 5 | v1 | v2 |
-| --- | ---: | ---: |
-| Completeness | 5 | 5 |
-| Relevance | 5 | 5 |
-| Groundedness | 5 | 5 |
-
-<details class="judge-reasons" markdown="1">
-<summary>Original relevance reasons (English)</summary>
-
-**v1**
-
-The response thoroughly addresses each part of the user&#x27;s multi-part query: it provides the laptop cap, explains the need to confirm unit prices, clarifies stock lookup limitations, specifies the required approver, and outlines the purchase draft process. It also references relevant policy sections, adding context and insight.
-
-**v2**
-
-The response thoroughly addresses each part of the user&#x27;s multi-part request: it explains the laptop cap, approval requirements, and why stock and draft creation cannot be completed, referencing policy sources. It also adds insight about per-item cap checks and draft limitations, enhancing user understanding.
-
-</details>
-
-</div>
-
-**Interpretation:** Both answers address all four parts, and all three native scores tie at 5→5. The changed wording does not establish a measured English improvement. Read the expandable judge reasons critically; a maximum score on one exposed question is not proof of general quality.
-
-Write one line each for **observed difference / supporting original text / remaining uncertainty**. Then read the full results below and the other questions in the originals.
-
-### 2. Read what v2 changes
-
-| General v1 guidance | More explicit v2 behavior | Difference to look for |
+| General v1 instruction | Procedure specified in v2 | What to inspect in answers |
 | --- | --- | --- |
-| Do not guess missing information | Refuse restricted parts while still answering independently verifiable public parts | State the public cap's number, currency, and VAT basis |
-| Cite actual documents | Match separate evidence to access, missing information, public facts, and next steps | Do not substitute a general introduction for a specific rule |
-| Use policies and tools | Distinguish policy caps, quotes, actual prices, verified FX, and draft status | Do not confirm unavailable contract terms or exchange rates |
-| Create drafts safely | Require explicit intent, exact quantity, no duplication, and actual results | No placeholder quantity or fabricated approval/order/payment |
+| Do not guess unknown information | Answer available public parts even when restricted parts cannot be answered | Numbers, currency, and VAT basis |
+| Cite actual documents | Link each claim to its relevant section | Do not reuse a general introduction as evidence for unrelated judgments |
+| Use policy and tools | Distinguish caps, quotes, actual prices, exchange rates, and draft state | Keep unverified conditions unconfirmed |
+| Prepare drafts safely | Check explicit intent, quantity, and actual tool output | Never fabricate approval, ordering, or payment |
 
-V2 contains a reusable answer procedure, not question-specific answers or evaluation case IDs.
+Do not put case IDs or question-specific answers into instructions. Without an account, record **conditions to hold fixed / evidence to inspect / unexecuted scope**. Do not assign scores or claim a winner before collecting answers.
 
-### 3. Optional: run a new comparison in your environment
+### 2. Optional: collect and evaluate once in your environment
 
-Skip this step when reading existing results. Expand it only after approval of the project, language, request limits, and costs for new collection/evaluation. First select English in your separate lab folder as shown in L01; these commands then work without a shell-specific variable prefix.
+Execute only after confirming the project, language, request count, time, and cost scope.
 
 <details class="optional-path" markdown="1">
-<summary>New paid execution: inspect the plan → collect answers → evaluate those originals</summary>
+<summary>New paid execution: inspect the plan → collect answers → evaluate originals</summary>
 
 ```bash
 python samples/instruction_prompt_agent_lab.py
@@ -1821,11 +1853,11 @@ python samples/instruction_prompt_agent_lab.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `instruction_prompt_agent_lab.py` | Displays v1/v2, 12 fixed questions, target deployment, and the comparison plan. | Plan only; zero Azure response calls. |
+| 1. `instruction_prompt_agent_lab.py` | Read the two instruction versions, twelve fixed questions, model, and request bound. | Plan only; no Azure calls. |
 
 </div>
 
-Run the first line below only if the plan matches your approved scope. Wait for a complete collection file before running the second. **Do not run both lines together.**
+Run the first command only when the plan matches your scope. **Confirm collection completed successfully** before the second command. Do not execute both lines together.
 
 ```bash
 python samples/instruction_prompt_agent_lab.py --live --output results/instruction-prompt-agent-en.json
@@ -1838,123 +1870,60 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `instruction_prompt_agent_lab.py --live` | Creates one evaluation Agent with v1/v2 in the selected language's approved project, then collects answers under the same context and questions. | At most 24 calls, 600 seconds, zero retries, and 2,048 output tokens per language. If both languages are separately approved, the combined cap is 48 calls/1,200 seconds. Preserve originals, tokens, latency, and supporting checks in `results/`. |
-| 2. `instruction_evaluation.py --live` | Submits the 24 collected Prompt Agent originals to Foundry native evaluation. | Zero target reinvocations. One native run per language, 600 seconds plus 90-second cancellation verification. Preserve scores and reasons separately. |
+| 1. Collection with `--live` | Create a tool-free Prompt Agent and pinned instruction versions in your owned project, then collect matched answers. | At most 24 responses, 600 seconds, zero retries, and 2,048 output tokens per response for this language. Preserve originals and failures separately. |
+| 2. Native evaluation with `--live` | Submit the 24 actual answers from `--input` to Foundry evaluation. | Zero target reinvocations. One native run per language, at most 600 seconds plus 90 seconds for cancellation confirmation. Write scores and reasons to `--output`. |
 
 </div>
 
-Run the same commands with the language and input/output paths set to `ko` or `en`. Response collection is bounded to 600 seconds per language (1,200 seconds total); one native run per language is bounded to 600 seconds. The two language comparisons cannot exceed 48 target calls. Never overwrite an existing result. This measurement's completed originals are `results/instruction-prompt-agent-{ko,en}-attempt-3.json`, with native originals at `results/instruction-native-prompt-agent-{ko,en}-attempt-1.json`.
+Keep Korean and English input/output paths distinct. Across both languages, collection is bounded to 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count.
 
-If the result file exists, read it rather than invoking the target again. Do not increment instruction or experiment versions. The first ownership preflight and the subsequent request-shape error each produced zero target responses; those originals remain recorded, followed by one complete collection within the approved bounds. Do not substitute earlier or authored answers. With a Prompt Agent reference, keep reasoning and output schema in its definition rather than duplicate them in the Responses request. Foundry-issued evaluation IDs are retained for traceability.
-
-The `results/` paths above belong to the person who executed the commands. Personal run files are excluded from the kit; read the linked `validation/current/en/` originals for the existing example.
+When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request. Keep results under your own `results/`; do not insert them into HTML, Markdown, PDF, or the kit.
 
 </details>
 
-### 4. Read the score and the underlying answers
+### 3. Connect each answer with its score and reason
 
-The same 40 precommitted checks apply per instruction version, giving the local supporting checklist a score from **0 to 40**.
-A check requires both an explicit fact/refusal/confirmation path and a relevant selected policy section.
-This is a **mechanical text-and-citation checklist**, not comprehensive semantic evaluation or a business release gate.
+In the collection file, find the v1/v2 rows sharing an `id`. In the evaluation file, join `comparison.rows` by `case_id` and `instructions`.
 
-<details markdown="1">
-<summary>Finding other questions, scores, and hashes in the original JSON</summary>
-
-| Result field | Interpretation |
+| Field | How to read it |
 | --- | --- |
-| `comparison.local_checklist.scores.v1`, `.v2` | Actual matched checks in the response JSON under identical criteria |
-| `comparison.local_checklist.delta`, `.outcome` | V2-v1 difference and actual `improved`, `unchanged`, or `regressed` result |
-| `rows[].raw_answer`, `checklist` | Original answer, check-level judgments, and critical safety-check failures |
-| `comparison.usage_latency` | Per-version tokens, mean/total latency, and v2-v1 deltas |
-| `instructions_sha256`, `cases_sha256`, `context_sha256` | Exact input fingerprints, not increasing instruction versions |
+| `rows[].raw_answer`, `response_id` | The actual answer and its identifier |
+| `prompt_agent_versions` | Agent name and pinned versions |
+| `comparison.rows[].metrics` | Per-case native scores, verdicts, and reasons |
+| `comparison.local_checklist` | Supporting text-and-citation checks in the collection file |
+| `comparison.usage_latency` | Token and latency totals and differences |
+| `instructions_sha256`, `cases_sha256`, `context_sha256` | Input hashes for checking matched conditions |
 
-Search for `compound-request-no-tools` in your editor to find v1/v2 under the response file's `rows`. In the native file, match `comparison.rows` by `case_id` and `instructions`, then read `metrics` for scores/reasons. `raw_answer` is a JSON-encoded string, so `\"` and `\n` are normal. The reading example above displays its decoded `answer` without editing the content.
+Record **the request / both actual answers / relevant policy sections / the judge's reason / whether you agree**. `raw_answer` contains a JSON string; inspect its `answer` and `citation_ids` separately.
 
-</details>
+### 4. Distinguish scores from completed execution
 
-**A higher v2 score is not guaranteed.** V1 may already answer every part correctly, and model variation can produce a regression.
-Explain that result from the originals. Do not weaken v1 or change the checklist to manufacture improvement.
+Native completeness, relevance, and groundedness use **1–5 ordinal** scores. Relevance and groundedness use built-in evaluators; completeness uses the same custom rubric for both instructions. The binary summary of scores at least four is not the five-point scale itself.
 
-### 5. Question types and Foundry native evaluation
+The local checklist checks forty criteria across twelve questions using **mechanical text-and-citation matching**. It can miss paraphrases and is not a semantic evaluator or a business safety/access gate.
 
-<details class="provenance-note" markdown="1">
-<summary>Reference: why the earlier three questions became twelve</summary>
+![Foundry evaluation view. Locate execution status and per-row scores, errors, and omissions.](../assets/portal/en/08-evaluations.png)
 
-Before freezing the new suite, inspect the earlier three cases (`public-and-restricted`, `quote-and-policy`, `approval-and-draft`). The preserved [previous report](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation) shows 5.0/5 on completeness, relevance, and groundedness for v1 and v2 in both languages. Both instructions answered these three composite cases well enough to reach the ceiling; with only three rows and saturated scores, that exercise could not distinguish the instructions. This does not prove equivalence or justify weakening v1. The new dev set was therefore fixed before measurement as 12 varied boundary, evidence, subquestion, and tool-limit cases; the earlier results were not replaced.
+Find your run under **Build → Evaluations** and inspect status, evaluator identity, and row-level results. `completed` does not establish that every score is valid. Errors, omissions, and missing numeric scores remain failures; never fill them with zero or a passing verdict.
 
-</details>
+### 5. Explain improvements, ties, or regressions
 
-The fixed questions cover multiple item caps versus total approvals, exact thresholds, public facts versus restricted information, missing policy, uncertain contracts and currency conversion, quotes versus live inventory, tool-input constraints, untrusted approval claims, and compound requests. Both instructions receive the same context and no-tool boundary.
+Version one may already answer sufficiently, producing a tie; generation variability can also make version two worse. Inspect originals and reasons without weakening v1 or changing the rubric after observing results.
 
-The Foundry native evaluator sees each question's precommitted expected behavior and returns a **1-5 ordinal** score with an English reason. Means use all 12 rows per instruction. This is not the binary `TaskAdherence` score. Native scores and reasons are the primary quality evidence; the mechanical local checklist is supporting evidence only.
-
-![Foundry Evaluations. Separate completion status from individual scores, errors, and missing rows.](../assets/portal/en/08-evaluations.png)
-
-Explore the run state, evaluator, inputs, row-level judgments, and errors in Evaluations.
-The optional collection command records real Azure responses and local checks; the [native comparison runner](../samples/instruction_evaluation.py) submits those exact responses to Foundry Evaluations. Relevance and groundedness use built-in evaluators; completeness uses one shared custom 1–5 rubric.
-This is a development comparison on exposed teaching questions, not an independent holdout or generalization test. No separate judge calibration is performed.
-The existing 90% overall and zero-safety/access-failure business gates are not replaced or relaxed by this small learning score.
-
-### 6. Full Korean and English measurements
-
-These are actual results collected during guide production, not your own execution or guaranteed future scores. Read the score table first; expand the run configuration only when you need its reproduction conditions.
-
-<details class="provenance-note" markdown="1">
-<summary>Measurement configuration: model, agent versions, duration, and judge</summary>
-
-The precommitted set of 12 composite development questions was invoked once for each instruction in each language using **Foundry Prompt Agents**, not Hosted agents. The Korean `contoso-instruction-eval-ko-20261001` and English `contoso-instruction-eval-en-20261001` each have pinned active v1/version `1` and v2/version `2`. The target was `gpt-6-sol` / `2026-09-22`, reasoning `low`, and a 2,048-token output limit; within each language, context, questions, schema, and criteria were held constant. There were **48 target responses**. Korean and English collection took 88.707 and 77.389 seconds (166.096 seconds total, within the 1,200-second combined limit). The separate judge was `contoso-judge` / GPT-4.1 `2025-04-14`; it was not told which instruction was expected to win. One native run per language submitted 24 rows; both completed with zero errors or missing rows.
-
-</details>
-
-| Language | Instructions | Supporting local checklist / 40 | Native completeness / 5 | Relevance / 5 | Groundedness / 5 |
-| --- | --- | ---: | ---: | ---: | ---: |
-| Korean | v1 | 33 | 5.0 | 4.9167 | 5.0 |
-| Korean | v2 | 33 | 5.0 | 5.0 | 5.0 |
-| English | v1 | 29 | 5.0 | 5.0 | 5.0 |
-| English | v2 | 28 | 5.0 | 5.0 | 5.0 |
-
-Native scores are 1–5 ordinal judgments. On Korean relevance, one `compound-request-no-tools` row changed from v1 score 4 to v2 score 5, moving the mean from 4.9167 to 5.0 (+0.0833). The judge reason said v1 addressed all four questions, cited policy, and explained the unavailable tools, while still assigning it 4. The other Korean metrics and all three English metrics tied at 5.0. **Only a limited Korean relevance improvement was observed in this small dev sample**; it does not establish a general, reproducible, or statistically significant improvement. `passed=24/24` is a separate binary summary for the threshold of 4 or higher, not the five-point score itself. No separate judge calibration was performed.
-
-<details class="provenance-note" markdown="1">
-<summary>Detailed analysis: tokens, latency, checklist differences, Optimizer, and holdout</summary>
-
-| Language | V1 input / output / total tokens | V2 input / output / total tokens | Total-token change | Mean response latency v1 → v2 |
-| --- | ---: | ---: | ---: | ---: |
-| Korean | 34,242 / 3,437 / 37,679 | 40,218 / 4,837 / 45,055 | +7,376 | 3.473 s → 3.900 s (+0.427 s) |
-| English | 31,205 / 2,567 / 33,772 | 35,537 / 3,392 / 38,929 | +5,157 | 2.966 s → 3.462 s (+0.496 s) |
-
-The local checklist is supporting evidence only: Korean tied at 33/40, while English changed from 29/40 to 28/40 (−1). Manually review every changed critical flag against the originals. In both languages, the v2 answer to `untrusted-contract-instruction` explicitly rejects the document as authority; Korean also provides the authorized access route. English v2 states that contract access is unverified and distinguishes the missing policy from restricted information. Its answers on replacement eligibility and draft/order/payment status also satisfy the intended boundaries, though the regex patterns missed some wording. Preserve both originals and flags; do not change checks after measurement or treat them as a calibrated safety evaluation.
-
-Original answers, all three native metric scores, and the judge reasons for every question are available in [Korean responses](../validation/current/ko/responses.json), [Korean native results](../validation/current/ko/native.json), [English responses](../validation/current/en/responses.json), and [English native results](../validation/current/en/native.json). The summary links each case ID to answer hashes, Prompt Agent versions, metric-level scores/reasons, and v2-minus-v1 deltas. The Korean `compound-request-no-tools` case is the only sub-ceiling native result and the only nonzero mean delta.
-
-**Conclusion:** Under the precommitted comparison, Korean native relevance rose slightly, every other required native metric tied, and manual review of changed critical checklist flags found no safety/access regression. Record this as a limited observed improvement only. The small, exposed dev sample is not statistical significance, generalization, operational approval, or a repeatable guarantee. Report increased token use/latency and the lower English supporting checklist as well.
-
-**Optimizer and holdout:** Optimizer optionally generates candidates from dev data. A holdout is an independent final exam kept out of instruction development and optimization. These exposed development questions are not a holdout; the existing sealed holdout was neither opened nor run. The current Hosted agent for Optimizer uses a GPT-4.1-mini path, unlike the direct GPT-6 Sol comparison. No equivalent model path or new deployment was available, so no live Optimizer job was submitted; the manually written v2 is not an Optimizer candidate. Earlier instructions and measurements remain in [the preserved baseline commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation).
-
-</details>
+These are exposed **dev** questions, not an independent **holdout** or a generalization test. **Optimizer** candidate generation is a separate activity. Existing business gates, such as at least 90% overall and zero safety/access failures, must not be replaced or lowered by this small teaching comparison.
 
 ## Success criteria
 
-You can compare the actual v1/v2 answers under the same criteria and explain a **difference or tie** using the original text.
-Claim a measured improvement only when the actual `delta` is positive. Repeated validation, holdout runs, and Optimizer are not prerequisites.
-
-The [current instruction status](../validation/current/instructions.json) and [latest Prompt Agent measurement](../validation/current/report.json) link the bilingual originals, actual model and agent-version identities, per-question answer hashes, scores, reasons, and run IDs. Earlier direct Responses results remain distinct in Git history.
+For reading only, explain the comparison conditions and evidence to inspect, and record **actual evaluation not run**.
+For live execution, connect all twelve v1/v2 pairs with pinned versions, native scores, judge reasons, errors, and missing rows. Explain differences, ties, or regressions from evidence; never promise an improvement beforehand.
 
 ## Troubleshooting
 
-First confirm that model, context, questions, and checks were identical. Distinguish JSON errors, missing citations, and omitted answers.
-Do not overwrite an existing comparison. Never replace a model error with an “expected v2 answer.”
+For 401/403, check your project, caller identity, and roles. For 404, check the actual deployment name and endpoint. For 429, inspect TPM/RPM and shared traffic rather than retrying indefinitely. Do not submit a failed or partial collection to evaluation, or silently change the target or judge model.
 
 ## Cleanup
 
-**Reading only creates no Azure resources in this module.** If you collected new responses, record only your own run's resources in L12.
-
-<details class="provenance-note" markdown="1">
-<summary>Reference: resources retained while creating the guide</summary>
-
-This measurement created two evaluation-only Prompt Agents with two versions each. It created no Hosted sessions, Optimizer jobs, or model deployments. Both native runs are terminal; retain agents and model deployments unless their cleanup is separately approved.
-
-</details>
+Keep originals and evaluations outside the guide. Manage created agents and evaluation resources using your own ownership records and retention policy; do not delete without separate approval. Do not turn validation results into lab instructions or guaranteed scores.
 
 
 ### Official sources
@@ -2497,10 +2466,11 @@ python scripts/cost_status.py
 Use each command only if you ran the corresponding lab and have its receipt.
 The final two commands are **read-only Azure queries scoped by ownership receipts**.
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
+it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also discovers owned routine receipts under `results/` when L17 used a custom `--receipt` filename, rather than substituting a historical validation record for current state.
 `cost_status.py` queries only actual costs posted to the new resource group. It does not report empty cost rows as USD 0.
-**The English validation's default retention policy is to retain owned Azure resources until explicit deletion approval.**
+**In a no-deletion environment, retain owned Azure resources until explicit deletion approval.**
 Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
-and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Existing `validation/current/` operational and cost records describe the historical Korean environment, not the new English one.
+and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Inspect your own environment rather than reusing another run's status.
 
 </details>
 
@@ -2556,17 +2526,6 @@ If you created no Azure resources, write **“local exercises only / no Azure cr
 For environments where deletion is prohibited, record “Retain until explicit deletion approval.”
 Search Basic, logs, and storage may continue to incur costs without requests.
 A follow-up within 24 hours of validation completion is recommended. Do not conclude “zero cost” without someone responsible for checking.
-
-<details class="provenance-note" markdown="1">
-<summary>Reference: retained resources during guide production — not your shutdown state</summary>
-
-The English Memory lifecycle verified remember, user isolation, and deletion of **only the synthetic item**. Its store was retained; this result does not authorize store or resource-group deletion.
-
-In the **historical Korean validation**, Azure infrastructure and agents/stores were retained. Deletion of **1 synthetic item**
-for that Memory lifecycle check was recorded separately from deletion of an Azure store or resource group. Automatic expiration of that validation vector store was also disabled
-to preserve it. These are not English-run cleanup results. Record the new English environment's actual retained objects, verified stop states, and ongoing costs separately; storage costs can continue until a later approved cleanup.
-
-</details>
 
 ## Troubleshooting
 
@@ -2779,7 +2738,7 @@ Search has no session-stop mechanism to halt charges, so ongoing costs remain wh
 
 **Advanced course · Core GA / check feature details** · about 45 min
 
-> **Learning order: Prerequisites required** — The Search service and index from L13, or equivalent administrator-provided resources. Required for L20 Hosted Optimizer and only the optional live Hosted deployment in L22.
+> **Learning order: Prerequisites required** — The Search service and index from L13, or equivalent administrator-provided resources. Required only for the optional live Hosted deployment in L22.
 
 > **What you will build:** Package this repository's purchasing assistant with English synthetic data and invoke it locally and in Azure.
 
@@ -2918,7 +2877,7 @@ It does not wait for the model to select a search function. Internally, the answ
 only the sections the model selects from the actual returned results are rendered as citations. Missing search results or citations are errors, not successes.
 In `tool_calls`, `execution=server_required` records a real server-side search; it does not pretend the model called it.
 The current runtime requires explicit permission for inventory calls and rechecks every attempted business tool. Missing or invalid draft quantities do not authorize an unrequested lookup. Read-only calls are still tool execution.
-Both packages now load the current `agent-v2.txt`. Its improved answer procedure is not a new Azure deployment or quality pass; inspect the [current status](../validation/current/instructions.json) before making that claim.
+Both packages load `agent-v2.txt`. Its answer procedure is not evidence of a new Azure deployment or quality pass; compare your package hash with the actual invoked version.
 
 Use the actual service-issued deployment version, not the instruction number. When a session is already bound to a version, invoke it with `--session-id` only; combining that flag with `--version` is rejected by azd.
 
@@ -2975,39 +2934,6 @@ The bundled `azure.yaml` uses **code deployment**; Docker/ACR is not required.
 Do not casually run `azd provision` with this file. Resource creation belongs to the L01 administration path.
 Each deployment creates a new immutable version. Grant the agent runtime identity only the relevant Search read role.
 
-<details class="optional-path" markdown="1">
-<summary>Optional: the Responses adapter for L20 Optimizer — not needed for the default Hosted path</summary>
-
-The native optimizer in L20 currently supports **only the Responses protocol**.
-An optional `contoso-purchasing-responses` adapter using the same business engine is also bundled.
-Deploy that service explicitly only when needed, and record its separate agent/version/identity.
-Do not use success in the default Invocations lab as execution evidence for this adapter.
-
-```bash
-python scripts/run_hosted_local.py --protocol responses --port 8089
-azd deploy contoso-purchasing-responses --no-prompt
-python scripts/runtime_roles.py --agent contoso-purchasing-responses --live
-azd ai agent invoke contoso-purchasing-responses "What is the price cap for a standard laptop?" --protocol responses --version ACTUAL_NUMERIC_VERSION
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — This is the separate Responses path for when Optimizer is needed.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `run_hosted_local.py --protocol responses --port 8089` | Runs the Responses adapter on a different port from the default Invocations server. Keep this server in its own terminal and run the deployment commands in another. | Starts a local server. Stop it with Ctrl+C after use. The remote invocation below does not call this local server. |
-| 2. `azd deploy contoso-purchasing-responses --no-prompt` | Performs a real deployment of the Responses service/code rather than the default service. | Creates a separate agent/version; charges may apply. Do not reuse quality evidence from the default Invocations service. |
-| 3. `runtime_roles.py --agent contoso-purchasing-responses --live` | Configures data/model roles within the owned scope for that separate runtime identity. | A real permission change requiring administrator approval. |
-| 4. `azd ai agent invoke ... --protocol responses --version` | Sends the English question to the exact remote numeric version. `--protocol responses` selects the request/response contract. Replace `ACTUAL_NUMERIC_VERSION` with the version number from your English Responses deployment. | Real Hosted, model, and search charges. Check the completion event, content, and session state after invocation. |
-
-</div>
-
-Pass the question directly to the Responses CLI. Do not wrap a JSON request file as the question text.
-If the raw response is SSE, check for the `response.completed` terminal event; output deltas alone do not establish success.
-
-</details>
-
 ### 4. Invoke the exact remote version
 
 ```bash
@@ -3045,7 +2971,7 @@ When connecting a separate Toolbox, retain L07's authentication principal and on
 You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
 Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
 
-The [current instruction status](../validation/current/instructions.json) separates the edited v2 from the latest actual deployment evidence. A working package or a historical native score does not validate a new instruction edit.
+A working package or a historical native score does not validate a new instruction edit. Keep the invoked version and its actual results together outside the guide.
 
 ## Troubleshooting
 
@@ -3077,71 +3003,52 @@ not to the code directory. Do not include it in the package.
 
 <a id="l15"></a>
 
-# 15. Multi-agent systems, A2A, and human oversight
+# 15. Agent Framework orchestrations
 
-**Advanced course · Use MAF / check each tool** · about 40 min
+**Advanced course · Check each SDK and pattern** · about 75 min
 
-> **Learning order: Independent elective** — A basic project/model, administrator ownership receipt, and separate MAF environment. Single/two-role comparison makes at most three model calls. A2A is separate; only optional Hosted deployment needs L14.
+> **Learning order: Independent elective** — A basic project/model, ownership receipt, and separate .venv-advanced environment. Check the chosen pattern's TPM and request limit in L02 first. Neither L14 Hosted deployment nor an A2A connection is required.
 
-> **What you will build:** A two-stage flow that separates drafting and review without letting the model perform real approval.
+> **What you will build:** Run the same Contoso purchasing question through sequential, concurrent, group-chat, and handoff orchestration, then explain how roles exchange control and results.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Advanced elective · two local roles and remote A2A are separate experiments.
+**Format:** Run Agent Framework orchestration locally against an approved Foundry model. No Hosted deployment is performed.
 
-**Start here:** Run `python samples/multi_agent.py --mode compare` to inspect the single baseline and drafter → reviewer plan, at most three calls.
+**Start here:** Prepare the separate advanced environment, finish L02's TPM/RPM check, and read the plan for one selected pattern.
 
-**What to check:** If executed, record role outputs/additional latency separately from A2A delegation evidence. A reviewer's answer is not purchase approval.
+**What to check:** Compare actual roles, message flow, model-call counts, answers, tokens, and time. An agent's answer is not business approval.
 
 </div>
 
 ## Objectives
 
-**Adding more agents is not the goal.** Add orchestration only when roles, tools, and evaluation criteria are genuinely separate.
-
-**Important:** Foundry portal Workflows is in Preview and **scheduled to retire on 2026-12-01**. This module uses **Microsoft Agent Framework** for new implementation.
+**Experience how the same roles behave under different coordination patterns.** More agents do not automatically make an answer faster or more accurate.
+This module uses the official Builders in `agent_framework.orchestrations`. It is separate from the Foundry portal Workflows feature, scheduled to retire on **2026-12-01**.
 
 ## Concepts and lab map
 
-**What you will try:** Compare a drafter → reviewer flow with one agent.
+**What you will try:** Sequential, concurrent, group-chat, and handoff orchestration.
 
-**What is it, and why does it matter?** Orchestration controls task order and result handoff. A2A separately communicates with an agent in another service. More roles add calls and time; the reviewer's words are not purchasing approval.
+**What is it, and why does it matter?** Orchestration chooses who acts next and which conversation/results are passed along. Sequential chains work, concurrent divides work, group chat refines work, and handoff changes the responsible agent.
 
-**How do you use it?** Read the single answer, drafter's intermediate answer, and reviewer's answer for the same question. Compare added tokens and time. Verify A2A separately with actual downstream-call evidence.
+**How do you use it?** Change only `--mode` under the same policy and question. Compare role order and actual outputs while retaining request limits and termination conditions.
 
-**Where do you run it?** [multi_agent.py](../samples/multi_agent.py) uses a separate MAF environment; [a2a_lab.py](../samples/a2a_lab.py) uses the core SDK environment. Do not mix them.
+**Where do you run it?** Run [multi_agent.py](../samples/multi_agent.py) in a separate Python environment. Only the model is in Azure; this is not a remote A2A or business-approval exercise.
 
 ## Prerequisites
 
-You need the English project, model, and separate checkout's `.env` from L01, plus a separate Python environment. Keep `FOUNDRY_LAB_LANGUAGE=en` selected when switching Python environments. Do not overwrite the core-course environment.
-Live calls also require the administrator-supplied `results/azure-environment.json` ownership record. Execution stops if its project endpoint/language differs from `.env`. Obtain the record from the administrator rather than inventing one; without it, stop at plan/code inspection.
+Use L01's project, deployment, `.env`, and administrator-provided `results/azure-environment.json`. Stop if the project, language, or deployment name differs.
+L15 itself uses **only the chat deployment**. The per-learner starting minimum is **100,000 TPM / 60 RPM**; see [L02](#l02-capacity) for sizing assumptions and configuration.
 
-As checked on 2026-09-29, `agent-framework-foundry==1.13.1` requires `azure-ai-projects<2.7.0`. The core course uses 2.7.0. **Separate environments with compatible dependencies** are provided.
+Keep the advanced SDK in `requirements-advanced.txt` separate. `agent-framework-foundry==1.13.1` requires `azure-ai-projects<2.7.0`, unlike the core environment. Install `agent-framework-orchestrations==1.2.0` with it.
 
 ## Steps
 
-### 1. Inspect the local plan
+### 1. Prepare the separate SDK environment
 
 ```bash
-python samples/multi_agent.py --mode compare
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `multi_agent.py --mode compare` | Plans one single-agent baseline plus two calls for drafter→reviewer: at most three calls total. | Without `--live`, no SDK initialization or Azure calls. |
-
-</div>
-
-Check `mode=compare`, `model_calls_if_approved=3`, 180 seconds, 2,048 output tokens per response, and zero retries. The default `--mode sequential` preserves the original two-role path; it has a different call count.
-
-### 2. Install the advanced environment
-
-```bash
-python3 -m venv .venv-advanced
+python3.13 -m venv .venv-advanced
 .venv-advanced/bin/python -m pip install -r requirements-advanced.txt
 .venv-advanced/bin/python -m pip check
 ```
@@ -3150,17 +3057,156 @@ python3 -m venv .venv-advanced
 
 **Command walkthrough**
 
-| # / Command | What it does and options | Result / cost or changes |
+| Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `python3 -m venv .venv-advanced` | Creates a MAF environment separate from the core SDK. Also check the installed Python version against the requirements. | Creates a local environment without changing the core `.venv`. |
-| 2. `.venv-advanced/bin/python -m pip install` | Explicitly uses the advanced environment's Python to install the compatible combination in `-r requirements-advanced.txt`. | Downloads packages and changes the advanced environment. No Azure calls. |
-| 3. `.venv-advanced/bin/python -m pip check` | Checks that specific advanced environment for dependency conflicts. | If it fails, inspect the installed combination instead of indiscriminately mixing in core-environment packages. |
+| 1. `python3.13 -m venv` | Create the advanced environment separately from the core SDK. | Local environment creation; do not overwrite an existing environment. |
+| 2. `pip install -r requirements-advanced.txt` | Install compatible Foundry integration and orchestration Builders. | Package downloads only; no Azure request. |
+| 3. `pip check` | Check dependencies in that same environment. | Resolve conflicts before executing. |
 
 </div>
 
-On Windows, use `.venv-advanced\Scripts\python.exe`. Use a package repository allowed by your administration policy.
+On Windows use `.venv-advanced\Scripts\python.exe`. If an existing advanced environment uses another Python version, create a new environment folder.
 
-### 3. Compare one and two agents with the same question
+### 2. Check model throughput
+
+```bash
+.venv-advanced/bin/python samples/model_capacity.py plan --roles chat
+.venv-advanced/bin/python samples/model_capacity.py check --roles chat --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `model_capacity.py plan --roles chat` | Read the chat TPM/RPM plan for one learner running one lab. | Local calculation; no Azure request. |
+| 2. `check --roles chat --live` | Read the owned resource group and deployment's actual `rateLimits`. | Read-only. Below-minimum capacity fails without a model call. |
+
+</div>
+
+If insufficient, the administrator uses L02's `apply` path first. Sufficient capacity is not reduced. Each live orchestration also rechecks readiness instead of trusting an old confirmation file.
+
+### 3. Read the four execution plans
+
+```bash
+python samples/multi_agent.py --mode concurrent
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `multi_agent.py --mode concurrent` | Read the selected pattern's roles and call limit. Use the other modes below to inspect their plans. | Without `--live`, no SDK initialization, Azure request, or execution evidence is created. |
+
+</div>
+
+| Mode | Actual Builder | Flow | Maximum model calls |
+| --- | --- | --- | ---: |
+| `sequential` | `SequentialBuilder` | Drafter → reviewer | 2 |
+| `concurrent` | `ConcurrentBuilder` | Policy, budget, and risk work independently → collected outputs | 3 |
+| `group-chat` | `GroupChatBuilder` | Drafter → reviewer → revised draft | 3 |
+| `handoff` | `HandoffBuilder` | Coordinator transfers control to policy or budget | 4 |
+
+Every pattern is bounded to **180 seconds, 2,048 output tokens per response, and zero retries**. Do not run multiple terminals against the same deployment.
+Within one execution, request starts are spaced by at least one second and capped at six per minute. Start the next pattern **at least one minute after the previous execution began**. Size shared deployments for all simultaneous learners in L02.
+
+### 4. Run one pattern at a time
+
+Each command makes new model calls. Read its outputs before choosing the next pattern. Running all four has a combined maximum of **12 model calls**.
+
+**Sequential:** Confirm that the reviewer's input contains the drafter's actual answer.
+
+```bash
+.venv-advanced/bin/python samples/multi_agent.py --mode sequential --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode sequential --live` | Pass the same policy and conversation through the drafter and reviewer in order. | At most two model calls; preserve actual intermediate and final answers. |
+
+</div>
+
+**Concurrent:** The three roles do not first read one another's answers. Collecting outputs is not automatic consensus or a verified single answer.
+
+```bash
+.venv-advanced/bin/python samples/multi_agent.py --mode concurrent --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode concurrent --live` | Policy, budget, and risk independently handle the same question. | At most three calls. Starts are paced, while in-flight work can overlap. |
+
+</div>
+
+**Group chat:** Speaker selection is deterministic round-robin. No extra model-based moderator call is made; the conversation stops after three contributions.
+
+```bash
+.venv-advanced/bin/python samples/multi_agent.py --mode group-chat --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode group-chat --live` | Run three contributions so the drafter receives the review and replies again. | At most three calls. Do not increase termination or call limits. |
+
+</div>
+
+**Handoff:** The coordinator uses an actual `handoff_to_…` tool. Saying “delegated” is not sufficient. Specialists terminate after answering and do not hand off again in this exercise.
+
+```bash
+.venv-advanced/bin/python samples/multi_agent.py --mode handoff --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode handoff --live` | Transfer conversation control to an allowed policy or budget specialist. | At most four calls. Missing tool/specialist evidence fails. No business approval or A2A server invocation occurs. |
+
+</div>
+
+Handoff agents require `require_per_service_call_history_persistence=True`. The sample sets it so tool-call control changes retain the local conversation.
+Read `build_workflow` in `samples/multi_agent.py` to compare all four Builders. The official [group-chat](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python) and [handoff](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python) documentation explains their contracts.
+
+### 5. Compare message flow, termination, and cost
+
+<div class="practice-block" markdown="1">
+
+**Try it:** Find these fields under `paths` and in the `Evidence:` file. Record your actual values, not example numbers.
+
+| Field | What to inspect |
+| --- | --- |
+| `paths.<mode>.stages` | Actual per-call roles, answers, response IDs, and tokens |
+| `input_authors`, `input_sha256` | Clues linking the conversation passed to the next role |
+| `payload.input` in `model_call_completed` events | Actual messages and instructions; check prior-answer propagation in sequential/group chat |
+| `handoff_calls` | The actual requested handoff tool names |
+| `elapsed_seconds`, `total_tokens` | Elapsed time and token sum; `null` usage is not zero |
+| `final_messages`, `workflow_state` | Final messages and state for concurrent, group-chat, and handoff execution |
+
+**Change one thing:** With approval for additional calls, add only `--case boundary` to the same mode. Compare approval rules for exactly KRW 2,000,000 and KRW 2,000,001. Keep model, policy, and role instructions fixed.
+
+**Explain the result:** Record `pattern / message order / omissions / termination / extra tokens and time / reason to use this pattern`. Compare amounts, approvals, and unperformed-action claims with the policy. More agents alone do not establish better quality.
+
+</div>
+
+<details class="optional-path" markdown="1">
+<summary>Optional: compare one drafter with the sequential workflow</summary>
 
 ```bash
 .venv-advanced/bin/python samples/multi_agent.py --mode compare --live
@@ -3170,132 +3216,29 @@ On Windows, use `.venv-advanced\Scripts\python.exe`. Use a package repository al
 
 **Command walkthrough**
 
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `multi_agent.py --mode compare --live` | Uses the same purchase question, model, and policy for one baseline and one drafter→reviewer workflow. | At most three model calls/180 seconds. Prints intermediate/final answers, actual token usage, and elapsed time; preserves them in a unique `Evidence:` JSONL. No Hosted deployment or real approval. |
-
-</div>
-
-This example runs Microsoft Agent Framework locally and calls Foundry models. **It does not deploy a Hosted Agent.** Both roles explicitly receive the same English synthetic policies from `data/en/policies/`; this is not a RAG example for evaluating retrieval quality.
-
-| Role | Input | Result | Not allowed |
-| --- | --- | --- | --- |
-| drafter | Request and policies | Draft purchasing guidance | Claiming an order was completed when it was not |
-| reviewer | Draft and policies | Final guidance after reviewing boundary values and approval rules | Real business approval |
-
-The core flow is:
-
-```python
-workflow = WorkflowBuilder(
-    start_executor=drafter,
-    output_from=[reviewer],
-    intermediate_output_from=[drafter],
-    max_iterations=4,
-).add_edge(drafter, reviewer).build()
-```
-
-### 4. Read the intermediate answer and change one question
-
-<div class="practice-block" markdown="1">
-
-**Try it:** Inspect the terminal's `paths`. In the `Evidence:` file, open `payload.paths` in the final `event=completed` row. Record your returned values, not invented example measurements.
-
-| Result path | What to read |
-| --- | --- |
-| `single.stages[0].answer` | Single-agent baseline using the drafter's instructions and policy |
-| `sequential.stages[0].answer` | Actual intermediate draft, not a later summary or reconstruction |
-| `sequential.stages[1].answer` | Reviewer's final guidance after receiving that draft |
-| Each stage's `response_id`, `input_tokens`, `output_tokens` | That call's identifier and actual SDK usage |
-| Each path's `elapsed_seconds`, `total_tokens` | Whole-path elapsed time and summed call tokens |
-| `sequential_minus_single` | Two-stage minus single time/tokens, not a correctness-improvement score |
-
-Compare with **policy section 3**: did the drafter omit an approver for KRW 2,900,000, and did the reviewer fix it? If both answers are correct, “no additional quality benefit observed” is valid. Token `null` means uncollected, not zero. Do not add individual operation times to the whole-path duration again.
-Timing covers each path's execution after object construction. The single path runs first, so authentication, caching, and startup latency can affect the observation. One duration difference does not establish a difference in the model's intrinsic speed.
-
-**Change one thing:** Optionally approve a second run changing only the question to the boundary case. Keep model, policy, and instructions unchanged. This makes up to three **additional calls**, not a replay.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode compare --case boundary --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `--case boundary` | Compares approvals for KRW 2,000,000 and KRW 2,000,001 through the same two paths. | At most three new model calls and new evidence. Running both cases totals at most six calls, each within its approved scope. |
+| 1. `--mode compare --live` | Use the same drafting instruction, policy, and question for one direct answer and two sequential calls. | At most three additional calls. `sequential_minus_single` measures time/tokens, not quality. |
 
 </div>
 
-**Explain the result:** Record `case / baseline errors / drafter errors / errors remaining after review / extra tokens and time / reason to keep two roles`. Exactly KRW 2,000,000 needs team-lead approval; KRW 2,000,001 also needs procurement approval. Single runs are variable observations, not statistical superiority. They do not establish human approval or A2A delegation.
-
-</div>
-
-<details markdown="1">
-<summary>When to choose other orchestration patterns</summary>
-
-| Pattern | When to choose it | Cost/failure considerations |
-| --- | --- | --- |
-| Sequential | The next stage reviews the previous stage's result | Total latency accumulates |
-| Concurrent | Independent research or evaluation | Parallel token costs and conflicting results |
-| Handoff | Transfer conversation control to a specialist | Permission and history scope |
-| Group/Magentic | Complex work requiring planning and role coordination | Iteration limits and stop conditions |
-| Explicit workflow graph | Conditional branches, checkpoints, and human input | Managing failure/resume state |
+The single path runs first, so authentication, caching, and startup latency can differ. One timing difference does not establish general performance superiority.
 
 </details>
 
-### 5. Perform real A2A delegation
-
-A2A integrates an agent from another service or vendor. It differs from the in-process MAF flow above.
-Run this path in the **core/`.venv-live` SDK environment**. Do not mix A2A 1.0 GA with 0.3 Preview.
-
-```bash
-python samples/a2a_lab.py create
-python samples/a2a_lab.py create --live
-python scripts/runtime_roles.py --agent ACTUAL_CALLER_AGENT --live
-python samples/a2a_lab.py card --live
-python samples/a2a_lab.py invoke --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — Return to the core/`.venv-live` SDK environment first.
-
-| # / Command | What it does and options | Result / cost or changes |
-| --- | --- | --- |
-| 1. `a2a_lab.py create` | Reads the creation plan for the worker, coordinator, and connection. | No Azure requests. |
-| 2. `create --live` | Actually configures a new policy worker, coordinator, and A2A connection. | Creates remote objects and `results/a2a.json`. Do not assume it reuses an existing agent. |
-| 3. `runtime_roles.py --agent ... --live` | Replace `ACTUAL_CALLER_AGENT` with the `caller` value in your English checkout's `results/a2a.json`. Grants the project-scoped invocation role to the owned caller's runtime identity. | An administrator task because it changes real permissions. The JSON file path itself is not the agent name. |
-| 4. `card --live` | Reads the owned worker's actual incoming agent card to check the connection contract. | Reads remote metadata. This is separate from successfully answering a business question. |
-| 5. `invoke --live` | Sends a synthetic request to the coordinator and checks delegation to the remote worker and the returned items. | Real model/agent invocation charges. Do not mark delegation as successful without evidence of an A2A call. |
-
-</div>
-
-The bundled code creates a new Contoso policy worker and coordinator, connecting an incoming A2A agent card
-and an `agentic-identity` connection. The worker/caller versions in `results/a2a.json` are pinned.
-The administrator must grant the new caller identity the minimum project role needed to invoke that worker.
-When reading a card directly, the Foundry 1.0 path is `agentCard/v1.0`. Do not confuse it with the general `.well-known/agent-card.json` path.
-By contrast, an `A2ATool` pointing to Foundry omits `agent_card_path` to use the service's default resolution.
-If an existing lab caller's connection needs correction, `rebind --live` creates a new version while preserving the previous one.
-If the actual returned items contain no A2A call, a sentence saying “I delegated it” is not enough to count as success.
-Do not infer downstream responses hidden by the service; record response/task IDs only to the extent that they are actually exposed.
-
-At the approval stage, store an actual approval request ID and the human's decision instead of **a model-generated “I approve”**, and verify that the approved content has not changed. The L06 sample performs no real business action, so do not pretend it completed an approval process.
-
 ## Success criteria
 
-Verify execution evidence separately for both MAF stages and for remote A2A delegation.
-You can explain whether the added cost over a single agent is justified.
-HITL remains a design exercise; do not mark real business approval as completed.
+Distinguish the four patterns' message flow and termination, and explain actual responses from the patterns you chose to run.
+Check real control transfer for handoff, three contributions for group chat, and three independent perspectives for concurrent execution. Do not claim a business approval or remote A2A run.
 
 ## Troubleshooting
 
-For SDK import errors, first check for mixed environments. This sample uses the core `WorkflowBuilder` and does not require a separate `agent-framework-orchestrations` package. Other documentation examples using `SequentialBuilder` may require an additional package.
+For `agent_framework_orchestrations` import errors, check the advanced environment's installation path. If TPM/RPM is insufficient, return to L02. On 429, do not keep sending requests; inspect the error, limits, and other simultaneous users.
+An oversized input or truncated response is a failure. Inspect context length and actual output rather than fabricating results or blindly increasing limits.
 
 ## Cleanup
 
-Record model invocation costs. For production use, apply L14's hosted runtime and L22's release gates.
+This module performs local orchestration and model calls only. Hosted sessions and schedules created in other labs are separate; handle those in L12. Keep your own results under `results/` and do not share user or authentication information.
 
 
 ### Official sources
@@ -3498,7 +3441,7 @@ Creating a schedule object is separate from a successful business result.
 ## Prerequisites
 
 You first need a Prompt Agent that runs on the server. Use L05's File search agent
-or L15's policy worker. Scheduling an agent with local client-side functions does not execute those local functions.
+for this routine. L15's Agent Framework roles execute in local code and are not remote routine targets. Scheduling an agent with local client-side functions does not execute those local functions.
 Distinguish the GA status of the Routines service from the Beta status of the azd extension, and check current conditions such as CMK limitations.
 
 ```bash
@@ -3622,7 +3565,7 @@ Real orders require separate approval and durable idempotency, so do not connect
 
 Long-running checkpoints, reconnection, and approval expiry, as well as Autopilot managers, Entra agent users,
 and mail/Teams permissions, are **design exercises**. The timer lab does not create an Autopilot account.
-If you selected L19 Voice or continuous evaluation, stop those sessions/schedules separately as well.
+If you selected continuous evaluation, stop its schedule separately as well.
 
 ## Success criteria
 
@@ -3631,25 +3574,6 @@ If you only created a schedule or manually dispatched it, record execution as co
 If the status query failed, do not write “it has probably stopped.”
 If you could not read the run ID, leave it `null`, distinct from response/trace IDs.
 Human content review is optional guidance; do not mark an unperformed review as completed.
-
-<details markdown="1">
-<summary>Historical Korean-run observations and recovery — not new English lab results</summary>
-
-The following observations belong to the **historical Korean run**, whose private configuration and receipts stay in their original checkout. They are not evidence that the English run succeeded. The original failure/observation records stating “CLI history was empty” remain preserved.
-A follow-up investigation found successful action spans and actual policy summary output (`finish_reason=stop`)
-for the same policy worker at the scheduled time `2026-09-29T22:38:35Z` and manual dispatch time `22:44:59Z`.
-The trace for the scheduled time is `8bf878b65509efa39d9643632629f506`,
-and the response is `resp_07018918263947dc006abc3deaaf34819787a318905a8318ad`.
-The 404 from direct response retrieval was also preserved; inability to retrieve a response was not reclassified as absence of a response.
-This evidence was not substituted with successful results from other File search, Hosted, or A2A executions.
-
-In a separate v2 validation of the corrected runner, `contoso-policy-timer-v2-9a3154d0` was scheduled only once.
-The trace `ebd60144b61d68788cb939b085f6c308` at `2026-09-30T01:58:35Z`
-and response `resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2`
-showed completed output matching the unique marker. No manual dispatch was performed, and `enabled=false` was rechecked.
-Those originals belong to their recorded environment; do not copy them into another run as new evidence. Keep personal execution receipts under `results/` and share only the latest reviewed set with its actual scope.
-
-</details>
 
 ## Troubleshooting
 
@@ -3670,595 +3594,6 @@ If it targets Hosted, stop the agent session compute separately as well.
 - [What is an autopilot in Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/agents/concepts/autopilot-overview)
 - [Resilience for long-running hosted agents](https://learn.microsoft.com/azure/foundry/agents/concepts/long-running-agent-resilience)
 - [Build your first autopilot](https://learn.microsoft.com/azure/foundry/agents/how-to/agent-365)
-
----
-
-<a id="l18"></a>
-
-# 18. Multimodal experiences and Content Understanding
-
-**Advanced course · Check each service and API** · about 40 min
-
-> **Learning order: Independent elective** — The base environment and the models and permissions for your chosen Content Understanding or Code Interpreter path. Preparing the synthetic receipt also works locally.
-
-> **What you will build:** Extract structured values from a fictional receipt, calculate totals from an expense CSV, and compare them with the originals.
-
-<div class="lab-brief" markdown="1">
-
-**Format:** Advanced elective · distinguish Vision, document extraction, and code-based calculations.
-
-**Start here:** Open the English synthetic receipt and check that its PDF/image text is not clipped.
-
-**What to check:** Compare the executed path's fields, totals, and source locations. File preparation alone is not service execution.
-
-</div>
-
-## Objectives
-
-Distinguish **Vision model descriptions, OCR/layout, schema extraction with Content Understanding, and Code Interpreter calculations** according to their purpose.
-
-## Concepts and lab map
-
-**What you will try:** Read receipt fields and calculate expense CSV totals.
-
-**What is it, and why does it matter?** Vision understands images, OCR reads text, and Content Understanding extracts specified fields. A schema defines field names and types. Code Interpreter separately calculates over data using code.
-
-**How do you use it?** Compare extracted values with the receipt, then check the CSV's nine rows and monthly totals. Correct values and evidence matter more than attractive JSON or charts.
-
-**Where do you run it?** The English [receipt](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html), [expected values](../data/en/receipt.expected.json), and [CSV](../data/en/monthly-spend.csv) are local files. Actual extraction and calculations need each tool's supported environment and cost approval.
-
-## Prerequisites
-
-Use `data/en/receipt.html`, `data/en/receipt.expected.json`, and `data/en/monthly-spend.csv`. No real receipts, bank accounts, or identity documents are needed. Content Understanding additionally requires the service, model deployments, permissions, and cost approval.
-
-| Path | Prepare before execution | Retain |
-| --- | --- | --- |
-| Vision | An approved image-capable deployment and a readable PNG | Source image and extraction response |
-| Content Understanding | An administrator-provided Foundry resource with default analyzer model connections | Field values, source locations, and available confidence/warnings |
-| Code Interpreter | An agent supporting the tool and file-upload permissions | Actual execution record, 9-row aggregation, and an opening chart file |
-
-Record execution separately for each path. Without prerequisites, practice interpretation below but mark **service not executed**. A model answer alone does not establish analyzer or code execution.
-
-## Steps
-
-### 1. Prepare the synthetic receipt
-
-Open `data/en/receipt.html` and choose **Print → Save as PDF**. Reopen it and check that the document number, item row, total, and pending approval are not clipped. This PDF is the CU input. For Vision, capture the same document area or export it as a PNG from a viewer and check legibility. Do not supply a PDF to an image-only input. Use the English synthetic document, which has no validity as a real transaction.
-
-### 2. Compare Vision with structured extraction
-
-In L03's model Playground, select **your own image-capable deployment**. Attach the PNG, inspect its preview, and send the following question once. If attachments are unavailable or the format is rejected, check model/input support before changing the default model in `.env`.
-
-```prompt
-Extract the document number, date, currency, items, quantities, unit prices,
-total, and purchase approval status from this synthetic receipt.
-Use null for values that are not visible; do not guess.
-```
-
-The expected values are document `CONTOSO-2026-0929`, date `2026-09-29`, quantity 2, unit price KRW 89,000, total KRW 178,000, and **approval pending**. Understanding a printed document does not approve a real purchase.
-
-### 3. Process the same document with a Content Understanding analyzer
-
-Follow the entry point in the [Content Understanding Studio quickstart](https://learn.microsoft.com/azure/ai-services/content-understanding/quickstart/content-understanding-studio). **First check the administrator-provided resource and default model connections in Settings.** Do not enable automatic model deployment without approval. L02's single model does not necessarily meet every analyzer prerequisite.
-
-Apply the [custom analyzer procedure](https://learn.microsoft.com/azure/ai-services/content-understanding/how-to/customize-analyzer-content-understanding-studio) in this order. A Studio project is not the same object as L01's Foundry project.
-
-1. Select **Create project → Extract content and fields with a custom schema** and give it a lab name. With a supplied analyzer, start by inspecting its schema instead.
-2. Upload the synthetic PDF and choose a suitable document/receipt template. Review the fields and descriptions below, then **Save**. Do not accept every suggested field.
-3. Select **Run analysis** once. Open the source and results side by side and compare each value with its source location. Saving a schema alone is not successful analysis.
-4. Only if a reusable analyzer is needed, select **Build analyzer** and record its name/resource/API version. Do not share displayed keys or autogenerated credential-bearing code.
-
-| Field | Type | Expected value |
-| --- | --- | --- |
-| document_id | string | CONTOSO-2026-0929 |
-| date | date | 2026-09-29 |
-| currency | string | KRW |
-| quantity | number | 2; separately verify an integral quantity |
-| unit_price | number | 89000 |
-| total | number | 178000 |
-| approval_status | string | Normalize the document's pending approval to `pending`; never perform an approval |
-
-Review **`2025-11-01` GA** as the default production API. Agentic mode and some classification/metadata/signature features in **`2026-06-01-preview`** are separate experiments. The September 2026 CU Toolkit/CU CLI is also in Preview.
-
-For this single-item example, compare `quantity` and `unit_price` with `items[0]` in the expected-results file. Multiple-item documents need an array schema, not one representative value.
-
-<div class="practice-block" markdown="1">
-
-**Try it:** Open the [complete analyzer configuration](../data/en/exercises/receipt-analyzer.json) in an editor. It is a **GA `2025-11-01` configuration example**, not a creation/analysis result. In Studio, replace suggested fields with the same **seven names, types, descriptions, and methods** under `fieldSchema.fields`. Do not send the full JSON to a chat box.
-
-| Setting | Lab choice | Reason |
-| --- | --- | --- |
-| Base analyzer | `prebuilt-document` | Use the requested seven fields, not a receipt template's unrelated field names |
-| Date / quantity | `date` / `number` | Supported CU field types; `integer` is not a type in this field schema |
-| Literal values | `method=extract`, per-field `estimateSourceAndConfidence=true` | Request original locations and confidence |
-| Currency | `method=generate` | Normalize the printed won indication to `KRW`, not a new amount |
-| Approval state | `method=classify`, `pending/approved/unknown` | Classify the document; do not perform approval |
-| Details | `returnDetails=true` | Inspect source positions as well as values |
-| Model connections | Administrator-provided defaults on this resource | Do not insert L02's model name or enable automatic deployment |
-
-Use the [analyzer configuration reference](https://learn.microsoft.com/azure/ai-services/content-understanding/concepts/analyzer-reference) for supported types and options. If Studio does not expose an option, request an analyzer using this JSON from the administrator and compare its name/settings. Do not silently substitute “similar” settings and claim identical conditions.
-
-In the first result, inspect the target document under `contents` and its `fields`: the date value, numeric `quantity/unit_price/total`, and string `approval_status`. Record normalized values alongside highlighted source locations. Missing confidence means unavailable; do not enter an invented 1.0.
-
-**Change one thing:** Add **only the item-code field `sku`** for the same document. Add the definition below under `fieldSchema.fields` in a copy of the configuration and add/save the same field in Studio. Preserve the first result/settings and obtain approval for one additional analysis before running it.
-
-```json
-{"sku":{"type":"string","method":"extract","description":"Extract the SKU code printed in the item row. Do not infer a code from the item name.","estimateSourceAndConfidence":true}}
-```
-
-Expect seven→eight fields and a new `sku` value of **KB-01**. Existing total 178,000, quantity 2, and pending approval should remain unchanged. Record absent or different results as observed. This tests **a changed output contract**, not a claim that the model became smarter.
-
-**Explain the result:** Record `configuration change / new field / original values preserved / source evidence / unknowns`. Explain what new information you requested and why correct JSON types still need business-value checks. The baseline and additional analysis total at most two runs; do not repeat failed requests indefinitely.
-
-</div>
-
-| What to inspect | How to judge it | Next action on failure |
-| --- | --- | --- |
-| `total` and the document's total location | 178,000, matching 2 × 89,000 | Check clipping and whether unit price was mistaken for total |
-| `approval_status` and original text | Pending, not approved | Check the field's extraction/normalization description; do not fill results from the answer key |
-| Confidence, source grounding, warnings | Available evidence supports that field | An incorrect value fails even with high confidence. Missing confidence is unavailable, not zero |
-| Null or omitted field | Withhold absent information; a visible omitted field is an extraction failure | Inspect legibility, then field name/type/description, then analyzer settings |
-
-For OCR/layout alone, compare Document Intelligence. One correct document does not establish quality on other layouts or authority to approve real work.
-
-### 4. Analyze numbers with Code Interpreter
-
-In a lab agent's **Tools**, connect Code Interpreter or a Toolbox containing it and save the version. This is different from uploading the CSV to File search. Attach `data/en/monthly-spend.csv` in a new conversation and verify its name. If this UI is unavailable, review the supported path in the [official Code Interpreter documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/code-interpreter) with the administrator; do not run the sample's cleanup code without approval.
-
-```prompt
-Calculate monthly expense totals from the CSV and create a bar chart.
-Include the source row count, monthly totals, and overall total.
-Do not add data that is not in the CSV.
-```
-
-Expected values for comparison:
-
-| Month | Total (KRW) |
-| --- | ---: |
-| 2026-07 | 3,718,000 |
-| 2026-08 | 2,677,000 |
-| 2026-09 | 4,759,000 |
-| Overall | 11,154,000 |
-
-Inspect CSV-reading and aggregation code in the response's tool execution details. Require **9 rows excluding the header**, 3 monthly groups, and the correct overall total. Inspect the Code Interpreter execution item for a direct tool or the actual tool result for a Toolbox path. “I calculated it with Python” is not enough.
-
-Download and open the chart; compare its month axis and KRW units with the table. For incorrect totals, check column names, numeric parsing, and missing/duplicate rows. For a broken download, inspect generated-file identifiers and session lifetime first. Without execution evidence, Code Interpreter remains unverified. Additional sessions can incur costs beyond model tokens.
-
-### 5. Add image, video, and browser tools separately
-
-| Capability | Optional exercise | Boundary |
-| --- | --- | --- |
-| Image generation | An illustrative image of a fictional product without copyright concerns | Check each model/tool's status; do not use the image as factual evidence |
-| Video playground / video understanding | A time-based summary of a short synthetic scene | Generation and understanding are separate; check Preview status |
-| Web search / Bing grounding | Compare public product specifications with dates and sources | Check external data transmission and search terms of use |
-| Browser automation / Computer use | Read-only work on an approved test screen | Preview; exclude credentials, purchases, sending, and production UIs |
-
-This is not an exercise in enabling every tool in the menu at once. Choose one tool you need and one failure scenario, then proceed optionally.
-
-## Success criteria
-
-Extracted fields match the source, and the synthetic CSV totals match the table. Record confidence, warnings, and source locations together. Label optional tools you did not execute as design/reference material.
-
-## Troubleshooting
-
-Check supported file formats, image resolution, analyzer model deployments, roles, regions, and API versions. Correct JSON structure with incorrect values is still a failure.
-
-## Cleanup
-
-Review whether uploaded files, generated files, sandbox sessions, analyzers, and additional model deployments need to be retained.
-
-
-### Official sources
-
-- [Azure Content Understanding overview](https://learn.microsoft.com/azure/ai-services/content-understanding/overview)
-- [What's new in Content Understanding?](https://learn.microsoft.com/azure/ai-services/content-understanding/whats-new)
-- [Use Code Interpreter with Foundry agents](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/code-interpreter)
-- [Foundry capability reference — tools](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools)
-
----
-
-<a id="l19"></a>
-
-# 19. Speech, voice agents, and language tools
-
-**Advanced course · Voice Agent Preview** · about 30 min
-
-> **Learning order: Independent elective** — The base environment, a supported Voice/Speech model and region, and device permissions. No other advanced module is required.
-
-> **What you will build:** A voice agent that speaks brief purchasing guidance, with interruption, silence, and session termination verified.
-
-<div class="lab-brief" markdown="1">
-
-**Format:** Advanced elective · requires Voice Preview, microphone/speakers, and approved voice costs.
-
-**Start here:** Check support. If unavailable, write the conversation scenario without creating an agent.
-
-**What to check:** If executed, record quantity correction 2→1, interruption, and ended state. Viewing setup is not voice execution.
-
-</div>
-
-## Objectives
-
-**Speech STT/TTS, real-time Voice Live, and a voice Prompt Agent are not interchangeable terms.** Distinguish Speech's GA capabilities from the Voice Agent Preview experience.
-
-## Concepts and lab map
-
-**What you will try:** Speak a quantity, correct it, and end the voice conversation.
-
-**What is it, and why does it matter?** STT converts sound to text; TTS converts text to sound. A Voice Agent also decides when to listen and respond. Turn detection identifies the end of speech and can mistake a mid-sentence pause for the end.
-
-**How do you use it?** Check the correction from two units to one, interruption, and session termination. For an additional comparison, end the session before changing only the silence setting.
-
-**Where do you run it?** Use a browser with a microphone and speakers, granting permission yourself. The supplied images show settings, not successful voice execution. Do not use real customer calls.
-
-## Prerequisites
-
-You need voice Preview access for a supported region/project, a compatible voice model, a microphone/speakers, and an approved browser. Check usage/session costs and keep tests short.
-
-## Steps
-
-### 1. Create a Voice Agent
-
-Select **Build → Agents → New agent → Build an agent → Interaction mode: Voice**. The creation dialog states that interaction mode cannot be changed after creation, so use a separate voice lab agent. Record the current UI defaults for model, language, voice, and turn detection.
-
-![The Voice Preview creation dialog in contoso-workshop-en, using a synthetic lab-agent name. Inspect interaction mode and English-language configuration before creating anything.](../assets/portal/en/15-voice-setup.png)
-
-**Read the screen:** **Agent name** must be a synthetic name distinct from the other labs; **Interaction mode** is **Voice Preview**. The English capture's form was closed with **Cancel**, not **Create agent and open playground**. No voice-session success is claimed from that observation. Consult the [English capture log](../content/portal-screenshots.en.json) for exact capture actions. A Preview selection screen does not prove agent creation, microphone access, or a successful paid voice conversation.
-
-Learners proceeding with the lab should enter a **Voice agent goal** such as “Provide brief guidance in English on synthetic Contoso purchasing policies; do not place real orders or perform approvals.” After creating the agent in an approved environment, review the Playground's instructions, model, voice, and English-language settings; do not use automatically filled settings without checking them.
-
-Instructions:
-
-```instructions
-You are a Contoso purchasing guidance lab assistant.
-Speak briefly in English and confirm one thing at a time.
-Reconfirm amounts and quantities.
-Do not place real orders, grant approvals, or make payments.
-If a tool fails, report the failure and do not claim success.
-Do not read long tables or full identification numbers aloud.
-```
-
-Check whether connecting L05's English knowledge from `data/en/policies/` is supported. Do not answer as though you remember knowledge that is not available.
-
-### 2. Start a short conversation
-
-<div class="practice-block" markdown="1">
-
-**Try it:** Compare the [official voice configuration fields](https://learn.microsoft.com/azure/foundry/agents/how-to/configure-voice-agent) with this baseline. In the new lab agent, inspect **AI model / Voice / Advanced settings** and record actual selections and the agent version. This is a configuration example, not a new voice execution result.
-
-| Item | Baseline | Where/what to check |
-| --- | --- | --- |
-| Model type / model | managed / `gpt-realtime-2.1` | Confirm availability in this project; do not use L02's chat deployment name as a managed voice-model name |
-| Voice type / voice | azure-standard / `en-US-AvaNeural` | Select a compatible entry in Voice; ask the administrator about support if absent |
-| Language / speaking speed | English / `speed=1.0` | Match voice and instructions; use `en-US` when the model exposes recognition Language |
-| Input/output audio | PCM 24,000Hz | Match the browser/client format |
-| Turn detection | `server_vad` | Silence-based end-of-turn detection |
-| `threshold` / `prefix_padding_ms` | 0.5 / 300 | Detection sensitivity / retained audio before speech |
-| `silence_duration_ms` | 500 | Detect the end after 0.5 seconds of silence |
-| Tools, Avatar, automatic greeting | Do not add | Isolate voice turn behavior in the first experiment |
-
-**Availability is a prerequisite.** Do not mark execution complete if the model/voice is absent. If another supported combination is approved, record its actual values and compare it as a different condition. Defaults need not match this table. The property names correspond to SDK/YAML settings and the portal's **Advanced settings → Turn detection**.
-
-Save, select **Start session**, and personally grant microphone access. Say “I'd like to buy two laptops.” Keep the session **within two minutes**, run the questions/correction below once, and select **End**.
-
-**Change one thing:** End the session, change only `silence_duration_ms` from **500→1500**, and save a new version. Only after approval for another session, repeat the same sentence with the same one-second pause. Do not also change model, voice, threshold, or wording. The total is **two sessions within four minutes**.
-
-**Explain the result:** Record `version / silence setting / utterance split / time to first audio / interruption / ended state`. Compare whether 1,500ms waits better for the intended sentence and whether the response starts later. A setting is not a measured latency: device, recognition, and network delays also contribute, so an exact one-second difference is not guaranteed. Do not force unsupported settings or automatically deploy a new model.
-
-</div>
-
-### 3. Check conversation quality
-
-Run the sequence below once in one session. The one-second pause is a **controlled input condition**, not a universal voice-application acceptance threshold.
-
-| Input/observation | How to judge it | Next action on failure |
-| --- | --- | --- |
-| Say “two laptops,” then read the transcript | Quantity 2 is recognized and confirmed | If the transcript is wrong, check microphone/recognition language. If text is right but the answer is wrong, inspect instructions/conversation state |
-| “I'd like…” → one-second silence → “…two laptops” | Record whether the intended single utterance was split | End the session, then compare one turn-detection setting. Service defaults are not universal quality criteria |
-| Interrupt with “Not two—one laptop, please” | Previous speech stops; the next answer confirms quantity 1 | Compare interruption timing and transcript; distinguish missed recognition from playback of a stale response |
-| State after `End session` | Ended status, stopped audio, and no microphone use by that session | Confirm session state rather than relying on a closed browser tab |
-
-For end-of-utterance → first-audio latency, use the displayed measurement or label your own timing **manual measurement**. A session without tools does not test tool-failure handling. If a tool is connected, separately approve a failure input and inspect both execution evidence and the failure response. End the session before changing settings; record identical input, changed setting, and observed difference.
-
-### 4. Separate Foundry Tools by purpose
-
-| Capability | Short additional exercise |
-| --- | --- |
-| Speech-to-text | Recognize the same synthetic sentence 3 times and check quantity/amount errors |
-| Text-to-speech | Check natural English pronunciation of “KRW 1,450,000” |
-| Language / PII | Compare detection and masking of the synthetic `lab.user@example.invalid` |
-| Language / classification and summarization | Compare 3 labels: purchasing, inventory, and policy inquiries |
-| Translator | Translate the same English policy sentence into another supported language and back; check that amounts and obligations are preserved |
-
-Translator's `2026-06-06` GA request/response contract may differ from v3.0. Do not casually mix an existing `text` payload example with the new version; check that version's contract, including fields such as `inputs`/`value`.
-
-### 5. Conditional: Avatar and real-time transport
-
-Supported browser/avatar settings or the Hosted Agent real-time WebSocket path are separate experiments. Telephone connections, real customer calls, and custom voice training are not part of the core course and require separate consent, policies, and authorization.
-
-## Success criteria
-
-Distinguish the baseline from the single-setting change; mark the comparison not executed if no additional session was run.
-Record the transcript, actual quantity change 2→1, interruption handling, latency measurement method, and ended state. Leave unobserved items unverified; “it made a sound” is not sufficient.
-
-## Troubleshooting
-
-If Voice mode is absent, first check Preview access and supported regions. Check the microphone, model, voice language, and browser output device. Do not create a text agent instead and record it as a voice success.
-
-## Cleanup
-
-Select **End session** and verify that no active session remains. Define retention and access scope for audio and transcripts.
-
-
-### Official sources
-
-- [Create a voice-based prompt agent](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-voice-agent)
-- [What is Azure Speech in Foundry Tools?](https://learn.microsoft.com/azure/ai-services/speech-service/overview)
-- [What is Azure Language in Foundry Tools?](https://learn.microsoft.com/azure/ai-services/language-service/overview)
-- [Text translation overview](https://learn.microsoft.com/azure/ai-services/translator/text-translation/overview)
-
----
-
-<a id="l20"></a>
-
-# 20. Prompt optimization and fine-tuning
-
-**Advanced course · Fine-tuning GA / Optimizer Limited preview** · about 45 min
-
-> **Learning order: Separate feature paths** — Read L08's single instruction comparison first. Local training-data preparation is independent; Hosted Optimizer and real training are optional and require separate approval and prerequisites.
-
-> **What you will build:** Connect the observed v1/v2 differences to the right improvement method, distinguishing instructions from model training.
-
-<div class="lab-brief" markdown="1">
-
-**Format:** Advanced elective · begin with existing evaluation results and local training-file preparation.
-
-**Start here:** Read one English answer pair from L08 and identify whether instructions, retrieval, or tools need attention.
-
-**What to check:** Explain the chosen improvement and the 16 training/8 validation rows. Optimizer submission and real training are optional.
-
-</div>
-
-## Objectives
-
-Start with **RAG for new facts, instructions for procedure/omissions, and fine-tuning for repeated learned behavior**.
-The current improved instructions are [v2](../data/en/prompts/agent-v2.txt). Do not create v3/v4 files or growing evaluation numbers for each edit.
-
-## Concepts and lab map
-
-**What you will try:** Choose an improvement method and prepare training files.
-
-**What is it, and why does it matter?** Instructions change the answering procedure; fine-tuning learns behavior from examples. SFT trains on input/answer pairs. Neither creates missing facts or permissions.
-
-**How do you use it?** Identify a cause in L08's answers, then repair a label in a local training example. Distinguish file generation from actual model training and score improvement.
-
-**Where do you run it?** Start with [L08 comparison](../samples/instruction_prompt_agent_lab.py) reading and [local data preparation](../samples/prepare_tuning.py). [Optimizer](../samples/optimizer_lab.py) and portal training are separate options.
-
-## Prerequisites
-
-Use L08's v1/v2 Prompt Agent originals from the 12 fixed questions, supporting checklist, native scores, and per-row reasons. Do not call the model again if that comparison already exists.
-Optimizer and real training jobs require separate approval, supported models, and permissions; they are not core-course completion requirements.
-
-## Steps
-
-### 1. Select the right improvement
-
-| Observed problem | First approach |
-| --- | --- |
-| Missing new policy facts | Check retrieval, documents, freshness, and access scope |
-| Omitted subquestions or evidence | V2's question separation, claim-specific sources, and final completeness check |
-| Invalid arguments or excessive actions | Function schemas and server-side intent/quantity validation |
-| Repeated format/style problems | Consider fine-tuning after preparing sufficient examples |
-
-Do not weaken v1 or put question-specific answers into v2. Both receive the same context, model, questions, and criteria.
-The educational v1 is a simple starting instruction focused on role and goal. V2 adds a reusable procedure based on the possible omissions being studied: decompose the request, separate verified facts from unknown or restricted information, select evidence for each claim, check thresholds and tool boundaries, and review for omissions. V1 is not intentionally wrong or constrained to lower its score.
-
-**Make a decision from one row:** Read the **English** `compound-request-no-tools` pair displayed in L08 and its native reasons. Both answers cover the four requests, and all three metrics tie at 5→5. Identify the wording changes without calling them a measured quality gain, then write one line each for **observation → possible cause → next method → remaining uncertainty**. The Korean relevance change from 4→5 is a separate result, not a conclusion to transfer to English. This analysis requires no new measurement or Korean reading.
-
-### 2. Optional: Understand Agent Optimizer
-
-Go straight to **step 3** if your goal is local training-data preparation. You do not need to run this optional feature to use v2.
-
-<details class="optional-path" markdown="1">
-<summary>Optional reference: Optimizer prerequisites and submission plan</summary>
-
-Agent Optimizer is Limited preview; verify availability and supported models separately.
-L08's one comparison is enough for the core exercise. Repeated jobs and automatic candidate promotion are unnecessary.
-The existing Hosted Responses agent in this repository uses `contoso-chat` (GPT-4.1-mini), while L08 evaluated GPT-6 Sol Prompt Agent versions. The Hosted path cannot produce a same-model Optimizer candidate for that comparison. The two Prompt Agents created for L08 are evaluation-only; no Hosted agent was redeployed or changed. The manually authored v2 is not described as an Optimizer output.
-
-```bash
-python samples/optimizer_lab.py --agent ACTUAL_RESPONSES_AGENT --version ACTUAL_NUMERIC_VERSION --optimizer-deployment APPROVED_OPTIMIZER_DEPLOYMENT --prompt-file data/en/prompts/agent-v2.txt
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `optimizer_lab.py` | Inspect the plan for your actual Responses agent/version, reflection deployment, and current v2 instructions. Replace the placeholders with your own verified values. | Without `--live`, no Azure request occurs. Old deployment numbers or evaluations do not validate the edited v2. |
-
-</div>
-
-Only after separate live approval and verification of an equivalent model path, align the deployed instructions, input data, and evaluators.
-The advanced runner retains source-freeze checks, dev-only input, at most two candidates/one stall, time limits, cancellation, and owned-session cleanup.
-Do not bypass an old freeze that differs from current code or reuse a consumed exam.
-Service `succeeded` is not proof of improvement. Inspect missing, errored, and failed rows and retain a no-improvement outcome.
-Record service-generated, operator-edited, and manually authored instructions as different sources. A Korean translation/review of English dev instructions is not a Korean optimizer output, and Korean responses require separate measurement.
-Preparing this advanced path is not a prerequisite for the v1/v2 learning comparison.
-
-</details>
-
-### 3. Learn the local SFT format
-
-```bash
-python samples/prepare_tuning.py
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `prepare_tuning.py` | Prepare training/validation JSONL from checked-in synthetic examples. | Local files only; no Azure upload, training, or deployment. |
-
-</div>
-
-Open the terminal's `Prepared train=16, validation=8 in results/tuning-…` directory in an editor. The source is [tuning/examples.json](../data/en/tuning/examples.json); outputs are `train.jsonl` and `validation.jsonl`. **One line is one training example.** The first generated line is shown below. It transforms a checked-in example; it is not a measured model response.
-
-```json
-{"messages":[{"role":"system","content":"Classify the request as exactly one of POLICY, STOCK, DRAFT, or CLARIFY."},{"role":"user","content":"What is the regular replacement period for a laptop?"},{"role":"assistant","content":"POLICY"}]}
-```
-
-| What to inspect | How to judge it | Next action on failure |
-| --- | --- | --- |
-| `system` / `user` / `assistant` | Classification rule / request / desired label | Compare role order and label with the source example |
-| Four labels | `POLICY` policy, `STOCK` lookup, `DRAFT` draft request, `CLARIFY` ambiguous request | Check for conflicting labels on equivalent requests |
-| 16 train / 8 validation rows | Separate training and checking examples without duplicate inputs | Preserve generator errors; inspect empty/duplicate input and split/label typos |
-| A `DRAFT` example versus execution | **Intent classification**, not successful stock allocation or draft creation | An out-of-stock request can still have DRAFT intent; L06 functions decide whether execution is allowed |
-
-`validation.jsonl` checks training behavior; it is distinct from L08's dev comparison and the sealed release holdout. This small seed teaches format, not useful training performance. Never expand it by copying answer keys or holdout cases.
-
-<div class="practice-block" markdown="1">
-
-**Try it:** In VS Code, copy `data/en/tuning/examples.json` to **`results/l20-examples.json`**. Create `results` if absent; do not edit the original. In the copy's first training row, deliberately change `POLICY` to `POLCIY` and save.
-
-```bash
-python samples/prepare_tuning.py --input results/l20-examples.json --output results/l20-tuning
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--input ... --output ...` | Checks labels, duplicates, and splits in the synthetic copy before creating a new output folder. | Initially raises `Unrecognized training label` without writing training files. No Azure requests. |
-
-</div>
-
-**Change one thing:** Correct only the typo to `POLICY` and rerun **the same command**. Expect 16 rows in `train.jsonl` and eight in `validation.jsonl`. Existing output folders are not overwritten; use another name for a subsequent experiment. Files use UTF-8 BOM, and their first example matches the JSON above.
-
-**Explain the result:** Why can valid JSON still be rejected as training data? Why does the DRAFT classification not establish an order when quantity/stock are unknown? Separate data format, label meaning, and model performance. Completing only this local exercise means **data preparation complete / model training not executed**.
-
-</div>
-
-### 4. Select a training approach
-
-| Method | Data | Main concern |
-| --- | --- | --- |
-| SFT | Inputs and desired outputs | Avoid imitating incorrect answers |
-| DPO | Preferred and rejected responses | Consistent preferences |
-| RFT | Problems and a verifiable grader | Reward hacking and grader errors |
-
-![Fine-tuning. Distinguish the product example from an actual workshop training job.](../assets/portal/en/14-fine-tuning.png)
-
-Real training requires separate approval after reviewing model/region support, data handling, and costs.
-Completing a training job, deploying a model, and improving evaluation results are separate outcomes. Do not default to automatic deployment or promotion.
-
-### 5. Optional execution: train and compare one SFT model end to end
-
-This complete path applies the [official fine-tuning portal procedure](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning) to synthetic **request-intent classification**. It is separate from L08's GPT-6 Sol instruction comparison and was not executed as part of this documentation update.
-
-<details class="optional-path" markdown="1">
-<summary>After separate cost approval: baseline → files → training → checkpoint → deployment → identical questions</summary>
-
-#### 5-1. Record the execution scope first
-
-Obtain the **training-capable resource/region, base deployment name, training permission, separate deployment permission, maximum budget/wait deadline, and stop owner** from the administrator. Without them, do not submit. Training can take hours; that wait is not included in the 45-minute hands-on estimate.
-
-| Item | Teaching configuration |
-| --- | --- |
-| Task | Four labels: POLICY / STOCK / DRAFT / CLARIFY |
-| Base model | `gpt-4.1-mini`, version `2025-04-14`; verify current support |
-| Region / training type | For example, supported **Standard** training in Sweden Central; first approve the processing location |
-| Training / validation | Your `results/l20-tuning/train.jsonl` / `validation.jsonl` |
-| Method | Supervised fine-tuning (SFT) |
-| `n_epochs` | 2 |
-| `batch_size` / `learning_rate_multiplier` | Service default / 0.1 |
-| Seed / Suffix | 42 / `contoso-intent` |
-| Automatic deployment | **Off** |
-| Run count | One training job; eight base answers plus eight candidate answers; no automatic retries |
-
-This small-data configuration teaches the procedure, not guaranteed improvement or minimum cost. **Sixteen training examples are a format exercise**; useful improvements generally need more diverse reviewed examples. Do not change or overwrite L02's base deployment.
-
-#### 5-2. Preserve eight baseline answers before training
-
-Open the base `gpt-4.1-mini` deployment's Playground. Use **the same classification rule as `messages[0].content` (system) in the generated JSONL** for Instructions. Connect no tools; where supported, fix temperature=0 and maximum output=64 tokens.
-
-Send only **`messages[1].content` (user)** from each of the eight validation rows once, in a new conversation. Do not append the expected `messages[2].content` (assistant). Record `row / question / expected label / actual answer / response ID / tokens / latency`. Missing tokens are uncollected; self-timed latency is a manual measurement.
-
-#### 5-3. Select files and submit one job
-
-Open **Build → Fine-tune → Fine-tune**. Select base model/version → SFT → Standard training → **Upload new dataset**. Do not swap training and validation files. Wait for upload validation and compare existing datasets with your actual files rather than their names alone.
-
-Enter the table's parameters, keep automatic deployment off, review scope, and select **Submit once**. Privately record the job ID, resource, input-file IDs, and parameters. Do not resubmit because the screen takes time to update.
-
-#### 5-4. Read metrics and checkpoints
-
-Open that job's **Job details → Monitor / Checkpoints**. `queued` and `running` are not completion; preserve original errors for `failed`. At the approved deadline, the owner uses the supported stop operation for that job and confirms its state. Closing the browser does not stop training.
-
-| Observation | Interpretation |
-| --- | --- |
-| `train_loss` | Fit to training data, not evidence of performance on new questions |
-| `full_valid_loss` | Validation loss during training; falling train loss with rising validation loss suggests possible overfitting |
-| `full_valid_mean_token_accuracy` | Validation token prediction, not the four-label per-question accuracy |
-| Checkpoints | Compare epoch-level validation metrics and available model IDs; do not blindly select the last |
-
-Do not estimate missing values. Record service completion, checkpoint creation, and quality improvement separately.
-
-#### 5-5. Deploy only an approved candidate under a separate name and compare
-
-On the selected checkpoint/model details, select **Deploy**, an approved nonproduction deployment type, and a distinct name such as `contoso-intent-ft`. Use a short-lived Developer evaluation type only when its support and terms are approved. Training approval does not automatically cover deployment/retention costs.
-
-After readiness, apply **the identical system rule, no tools, and the same parameters** in the candidate Playground. Send the same eight user questions once each. Record both models' actual versions and conditions.
-
-| Result to retain | Calculation/interpretation |
-| --- | --- |
-| Per-question correctness | Output must be exactly the expected single label; added explanation fails the output contract |
-| Accuracy for all eight completed questions | Correct ÷ 8. Missing/errored rows leave the comparison incomplete; do not calculate 100% from successful rows only |
-| Token/latency difference | Compare totals/means over the same eight questions; do not replace missing measurements with zero |
-| Adoption decision | Retain ties/regressions; training alone does not justify promotion |
-
-This validation set was used during training, so it is **not an independent holdout**. Preserve the existing sealed exam and business release gates. Record owners/deadlines for uploaded files, trained models, and deployments; delete only after separate approval.
-
-</details>
-
-## Success criteria
-
-Explain the intended v2 improvements and actual answer differences, then choose retrieval, instructions, tool constraints, or training appropriately.
-Preparing files does not establish completed training or a score increase.
-
-### Carry the measured L08 result into the next decision
-
-| Language | Supporting checklist v1→v2 | Native completeness, relevance, groundedness |
-| --- | ---: | --- |
-| Korean | 33/40→33/40 (tie) | Completeness/groundedness 5.0→5.0; relevance 4.9167→5.0 (+0.0833) |
-| English | 29/40→28/40 (−1) | All three metrics tied at 5.0→5.0 |
-
-Only one Korean native relevance row, `compound-request-no-tools`, changed from 4 to 5; all other metrics tied. This is a limited gain observed on a small, exposed dev comparison, not statistical significance, generalization, or operational promotion. The supporting checklist tied in Korean and fell by one in English; every changed critical flag was manually checked against the original response. Some v2 answers explicitly state access, eligibility, and draft/order/payment boundaries that the regex missed. Do not alter the instructions or checks to fit the result; use the [per-question originals and native reasons](../validation/current/report.json). V2 used 7,376 more tokens in Korean and 5,157 more in English, with mean latency increases of 0.427 and 0.496 seconds.
-
-The [current Prompt Agent comparison](../validation/current/report.json) records actual bilingual v1/v2 results on 12 questions each and pins agent names/versions. The Hosted Optimizer path uses GPT-4.1-mini, unlike the GPT-6 Sol Prompt Agents, so an equivalent model condition was unavailable and no live Optimizer job was submitted. Two evaluation-only Prompt Agents were created, but no Hosted agent or model deployment was deployed or changed. V2 was authored directly, not generated by Optimizer. The existing holdout stayed sealed. The [previous Optimizer original](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation/english/automated-v5/optimizer.json) preserves its actual execution and failed outcome; it is not relabeled as the current comparison.
-
-## Troubleshooting
-
-If the Optimizer plan is blocked, first check Preview access, Responses protocol, and matching model/deployed instructions. If the supporting checklist and native scores disagree, compare the original, check condition, and judge reason rather than treating one score as ground truth. For SFT generation errors, inspect inputs/labels/splits in the table above. Leave cloud tasks not executed when their prerequisites are absent.
-
-## Cleanup
-
-Local data preparation creates no cloud job. If you separately approved a job, confirm that exact owned job and its sessions have stopped.
-Do not delete resources or change access without separate approval.
-
-
-### Official sources
-
-- [Customize a model with fine-tuning](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning)
-- [What is the agent optimizer?](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-optimizer-overview)
-- [Prompt optimizer](https://learn.microsoft.com/azure/foundry/observability/how-to/prompt-optimizer)
-- [Direct preference optimization](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning-direct-preference-optimization)
-- [Reinforcement fine-tuning](https://learn.microsoft.com/azure/foundry/openai/how-to/reinforcement-fine-tuning)
-- [Optimize agent instructions, skills, tools, and models](https://learn.microsoft.com/azure/foundry/agents/how-to/optimize-agent-targets)
 
 ---
 
@@ -4532,7 +3867,7 @@ python scripts/check_guide.py
 | 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Azure calls. |
 | 2. `build_guide.py` | Generate both HTML/Markdown editions from sources and metadata. | Local file changes; do not edit generated output manually. |
 | 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Azure or model quality. |
-| 4. `check_guide.py` | Check 25 modules, command explanations, links, and capture provenance. | Record current documentation checks only in `validation/docs/`. |
+| 4. `check_guide.py` | Check 20 modules and five reference sections, command explanations, links, and capture provenance. | Write documentation checks only to private `results/documentation/`. |
 
 </div>
 
@@ -4603,7 +3938,7 @@ This is a **Contoso worksheet example**. Where actual identifiers/results are ab
 | Evidence | Same-target response/trace, actual tool results, applied evaluation and failures/missing rows | L08's 12 tool-free questions do not approve an integrated business release |
 | Recovery | Previous approved version/configuration bundle, owner, data compatibility | Hold deployment without a viable target and compatible state |
 
-For L11's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. L14 Hosted also requires package/runtime contract comparison. Using instruction v2 does not establish newly validated Hosted code; read the scope in [current status](../validation/current/instructions.json).
+For L11's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. L14 Hosted also requires package/runtime contract comparison. Using instruction v2 does not validate Hosted code; inspect your actual target and evidence scope.
 
 ### 4. Rehearse a rollback decision
 
@@ -4656,425 +3991,6 @@ Exclude private settings, raw responses, and receipts from the kit. Generate HTM
 
 ---
 
-<a id="l23"></a>
-
-# 23. Foundry Local, business integrations, and specialized models
-
-**Advanced course · Check each product** · about 30 min
-
-> **Learning order: Independent elective** — A supported Foundry Local device or the relevant Fabric/Work IQ licenses and permissions. These electives are independent of other advanced modules.
-
-> **What you will build:** Compare local execution and business-data integration options, and select only the extensions your project needs.
-
-<div class="lab-brief" markdown="1">
-
-**Format:** Advanced elective · choose only one needed path: Local, Fabric, or Work IQ.
-
-**Start here:** Decide whether you need on-device answers, expense totals, or authorized document retrieval.
-
-**What to check:** Record the selection reason, prerequisites, expected output, and shutdown method. Mark actual execution separately.
-
-</div>
-
-## Objectives
-
-**Foundry cloud, Foundry Local, and Foundry Local on Azure Local are not the same deployment approach.** Fabric IQ, Work IQ, and Foundry IQ also provide different knowledge contexts.
-
-## Concepts and lab map
-
-**What you will try:** Choose one path: on-device answers, expense totals, or work-document retrieval.
-
-**What is it, and why does it matter?** Foundry Local runs a model on your device. Fabric IQ connects analytical business data; Work IQ connects Microsoft 365 context. Similar names do not mean identical hardware, permissions, or licenses.
-
-**How do you use it?** Choose one path matching your goal and available environment. Record unprepared paths as designs; do not install every product.
-
-**Where do you run it?** Local needs a supported PC; Fabric and M365 need separately approved test environments. Use only the English [synthetic expenses](../data/en/monthly-spend.csv) and [purchasing policy](../data/en/policies/procurement-policy.md).
-
-## Prerequisites
-
-This module consists of **optional mini-labs**. Perform one that fits your available environment and leave the others as selection/design records. Check additional licenses, administrator consent, model downloads, and hardware requirements beforehand.
-
-**Selection example:** Choose Fabric with the synthetic CSV for “exact monthly equipment totals,” Local for “brief guidance on a disconnected device,” or Work IQ for “authorized M365 document retrieval.” Success in one capability does not establish success in another.
-
-Before starting, record the selected path's **purpose, prepared runtime/resource, input, expected output, unsupported conditions, and shutdown action**. Without resources, use the worked examples to deliver a design, not a claim of execution.
-
-## Steps
-
-### 1. Option A: Foundry Local
-
-Use the native SDK flow from the [Foundry Local quickstart](https://learn.microsoft.com/azure/foundry-local/get-started) through the bundled [local_lab.py](../samples/local_lab.py). Do not clone another sample repository. The example uses `qwen2.5-0.5b`; a small model does not guarantee business accuracy or equal quality across languages.
-
-<div class="practice-block" markdown="1">
-
-**Try it — plan first:** This command prints a plan without initializing the SDK or downloading a model.
-
-```bash
-python samples/local_lab.py chat
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `local_lab.py chat` | Read the default model and sentence-style plan. | `plan_only`, `sdk_initialized=false`, `azure_calls=0`; no installation or model execution. |
-
-</div>
-
-Create a separate environment only when choosing real device execution. **On Windows use `.venv-local\Scripts\python.exe` instead of `.venv-local/bin/python`.** The first `python` is L01's Python 3.13. Keep `FOUNDRY_LAB_LANGUAGE=en` selected in each new terminal.
-
-```bash
-python -m venv .venv-local
-.venv-local/bin/python -m pip install -r requirements-local.txt
-.venv-local/bin/python samples/local_lab.py inspect --local
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `venv .venv-local` | Separate the local-model environment from core and MAF dependencies. | Creates a folder on your PC. |
-| 2. `pip install` | Install the declared OS-specific SDK: 2.1.0 on non-Windows, WinML 1.2.4 on Windows. | Approved package download/installation; no Azure deployment. |
-| 3. `inspect --local` | Initialize the SDK and inspect actual model ID/cache/load state. | Catalog metadata may use the network; no automatic weight download or inference. |
-
-</div>
-
-Check model terms, disk space, and device support. Continue **only after approval to download the model/execution providers**.
-
-```bash
-.venv-local/bin/python samples/local_lab.py download --local --allow-download
-.venv-local/bin/python samples/local_lab.py chat --style sentence --local
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `download --allow-download` | Download the model and required execution providers. The model cache is `.build/local-model-cache/en`. | Downloads/disk use; no Azure subscription or inference. |
-| 2. `chat --style sentence --local` | Load the cached model and ask once about a synthetic draft versus an order, with at most 256 output tokens. | Actual on-device inference. Inspect `load_seconds`, `inference_seconds`, `answer`, and `unloaded=true`. Missing cache errors rather than downloading automatically. |
-
-</div>
-
-In this file, `--local` permits **actual device work**, unlike L14's local server that can call Azure. Separate download, load, and inference times; retain errors or truncation as failures. If organizational policy blocks downloads, use the approved installation route, not a security bypass.
-
-**Change one thing:** Keep model/question unchanged and switch only the instruction's output format from sentence to checklist. This performs one additional device inference.
-
-```bash
-.venv-local/bin/python samples/local_lab.py chat --style checklist --local
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--style checklist` | Requests three short items for the same synthetic question. | Another local load/inference/unload; no Azure calls. A person checks the actual output format. |
-
-</div>
-
-**Explain the result:** Compare `model ID / requested format / actual item count / preserved draft≠approval or order meaning / inference time / unloaded state`. Record unmet formatting as a failure. A longer answer or one faster run does not establish superior quality. The example never automatically switches to cloud inference.
-
-</div>
-
-| What to inspect | How to judge it | Next action on failure |
-| --- | --- | --- |
-| Official sample's OS/SDK/device memory requirements | Your environment meets the chosen model's requirements | Stop or use another supported device; a cloud model is not Local execution |
-| Model ID and completed download state | The selected model is actually available on the device | Separate download failures from inference failures; inspect approved storage/network access |
-| Sample's single generation call with the input below | A draft prepares a request; an order requires separate approval/system execution | Check response language, truncation, and model support; do not conflate inference with a business API call |
-| State after unload | The running model is unloaded from memory | Inspect process/model state; distinguish unloading from deleting the cache |
-
-```text
-Input: "Explain the difference between a purchase request draft and an actual order in one sentence."
-```
-
-Distinguish the initial download time from subsequent inference time, and record model/version, memory use, hardware acceleration, and the response. After preparing the model and runtime, check whether the same inference also works in an approved offline test environment.
-
-The core of current Foundry Local is a **runtime/SDK** embedded in an application. An optional server/CLI is also available, but this does not mean “installing the cloud Agent Service locally.” On-device inference does not require an Azure subscription or cloud token charges, but initial model/component downloads, licensing, and optional diagnostics conditions still apply.
-
-### 2. Option B: Fabric IQ
-
-Start with an approved workspace and data agent/semantic model supplied by an administrator. Check support and caller identity in the [Fabric IQ connection documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq). Without that setup, write the specification below rather than creating every Fabric component.
-
-**Use one concrete path: CSV → Lakehouse table → Fabric data agent → Foundry Toolbox.** Do not also create an ontology or Power BI semantic model.
-
-| Prerequisite | Values to obtain |
-| --- | --- |
-| Fabric | Approved paid F2+ or Fabric-enabled P1+ workspace and a lab Lakehouse in the same region |
-| Access | Your test user, read access to data/agent, and authoring permissions for these lab items |
-| Connection | An administrator-prepared **data-agent** Foundry connection name/ID with delegated user authentication, not an API key |
-| Cost/processing scope | Approved capacity/AI usage/cross-geo processing and a shutdown owner; no new subscription/capacity purchases in the lab |
-
-1. Upload only the bundled `data/en/monthly-spend.csv` under the lab Lakehouse's **Files**. Use **Load to tables → New table**, name `contoso_spend`, select Column header, and use separator `,`. Do not Append/Overwrite an existing table. Compare the [Load to tables fields](https://learn.microsoft.com/fabric/data-engineering/load-to-tables); check **nine rows, month/category/amount_krw**, and numeric amounts.
-2. In the workspace, select **+ New item → Fabric data agent**, name it `contoso-spend-agent`, Add the Lakehouse from the OneLake catalog, and select **only `contoso_spend`** in Explorer. Apply the [data-agent creation steps](https://learn.microsoft.com/fabric/data-science/how-to-create-data-agent) to that one table.
-3. Set Agent instructions to “Use only selected contoso_spend. Sum amount_krw by month and overall; report KRW. Do not invent rows.” Ask the aggregation question below once inside Fabric, check the source totals, then Publish.
-4. Have the administrator compare the **published data agent's** workspace/item IDs and MCP endpoint with the Foundry connection. The general URL is `https://api.fabric.microsoft.com/v1/mcp/workspaces/<workspaceId>/dataagents/<dataAgentId>/agent`; copy your own values and have the owner verify any workspace-private-link host.
-5. In Foundry Toolkit, select **My Resources → your project → Tools → Toolbox → Add tools → Configured → Fabric IQ (OneLake Catalog)**, choose the prepared connection, then **Add Tools → Publish/Save Changes**. Toolkit does not directly create the first Fabric IQ connection; the administrator must prepare it in the Foundry portal. Do not substitute another Fabric item's connection.
-6. Attach that exact published Toolbox version to a new lab Text agent. Instruct it to query only this synthetic expense tool and withhold unsupported answers. Ask the same aggregation question once and compare the values below with the **actual tool result and connected item**. Source-product and Foundry checks are separate requests.
-
-**Contoso specification example — not an actual Fabric result.**
-
-| Step | Input/choice | Result to judge |
-| --- | --- | --- |
-| Source preparation | English `monthly-spend.csv`, 9 rows excluding the header | `month`, `category`, numeric `amount_krw` |
-| Aggregation | Sum `amount_krw` by `month`, with no filters | July 3,718,000 / August 2,677,000 / September 4,759,000 KRW |
-| Source-product check | Run that aggregation in Fabric first | Verify overall 11,154,000 and 9 rows before connecting Foundry |
-| Connection | Supply the approved item and read identity to a supported Fabric IQ tool | Same item/identity as the source check |
-| Question | “Give the monthly equipment expense totals and the overall total.” | Actual tool results and final answer match the source aggregation |
-
-For mismatches, inspect **source types/duplicates → measure and filters → connected item/identity → answer synthesis**. Do not change the prompt when the source aggregation is already wrong. Correct numbers without tool evidence leave the connection unverified.
-
-**Single-change exercise:** If an additional question is approved, change only the filter to “2026-09.” Expect **three rows and KRW 4,759,000**; the overall 11,154,000 indicates that the filter was not applied. Do not also change data, tools, or models.
-
-### 3. Option C: Work IQ / SharePoint
-
-Use only an approved test tenant and **administrator-provided test accounts A/B**. Check delegation, administrator consent, and licensing in the [Work IQ connection documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq). Do not create accounts or change permissions arbitrarily during the lab.
-
-Use only **Work IQ Chat through A2A**. The administrator prepares the Work IQ service principal, delegated `WorkIQAgent.Ask`, consent, and an existing connection. This API path uses **Copilot Credits usage-based billing**, not every connector's licensing model. Learners do not need Global Administrator and must not add Outlook/mail-sending tools.
-
-| Step | Action/check |
-| --- | --- |
-| Synthetic source | One document in an approved test SharePoint location: title “Contoso restricted quote exercise”; content “Case LAB-73, training quote code CONTOSO-QUOTE-DEMO-73. Not a real transaction.” |
-| Source permission | Administrator isolates access to A. First verify **A can open the original and B is denied**. Stop if B retains inherited site/group access |
-| Toolbox | Foundry Toolkit → My Resources → project → Tools → **+ Add Toolbox → Add tools → Work IQ → Work IQ Chat**. Select the existing connection → Add → Publish |
-| Agent | Connect only that Toolbox version to a separate Text agent. No File search, Web search, or other business tools |
-| A/B calls | Separate logins/new conversations; each asks once: “Find the quote code and original document for training case LAB-73.” |
-| Interpretation | A needs actual tool evidence and the code. B must not receive the unprovided code, content, or document URL; inspect actual tool results too |
-
-Do not put the quote code into the question, instructions, or a public search index. Knowing the reference answer in this guide does not prove an authorized source lookup. Limit the A/B exercise to two user questions; service-internal processing/billing is separate. Without an approved test environment containing only synthetic target documents, do not execute it.
-
-Use only the isolated quote document in the table. Substituting L05's public purchasing policy could let B answer from another authorized source, confounding the restricted-document test.
-
-If B sees restricted evidence, inspect source ACLs, delegated identity, and conversation/cache mixing before repeating queries. Two conversations under one account do not test user isolation.
-
-Do not treat Work IQ Preview, remote SharePoint search, the direct SharePoint tool, and a Foundry IQ knowledge source as the same feature. Record the search protocol and where source permissions are enforced.
-
-### 4. Summarize product boundaries on one page
-
-| Need | Option | Conditions beyond the core course |
-| --- | --- | --- |
-| Inference on an application user's device | Foundry Local | Model size, hardware, and SDK |
-| Inference on enterprise on-premises infrastructure | Foundry Local on Azure Local | Separate Preview access, Kubernetes/Arc, and operational infrastructure |
-| Knowledge retrieval over organizational documents | Foundry IQ | Search, knowledge sources, and permissions |
-| Analytics/business semantics layer | Fabric IQ | Fabric items and semantic context |
-| M365 work context | Work IQ | M365 permissions, delegation, and licenses |
-| Use from Copilot Studio | Foundry agent/knowledge connection | The connector's support and Preview conditions |
-
-### 5. Optional specialized model and framework exercises
-
-When considering community/Hugging Face models, Fireworks integration, healthcare models, or image/video/audio models, record **licenses, responsibilities, supported deployment options, and evaluation methods rather than focusing on names**. This is not an exercise in directly using healthcare-specific models for clinical judgment or diagnosis.
-
-Teams already using LangGraph/LangChain or Semantic Kernel should first consider integration with Foundry endpoints, Toolbox, tracing, and hosted runtime rather than a complete rewrite. Bringing existing code does not automatically make its state, retry, and security contracts compatible.
-
-## Success criteria
-
-Record one selected path's **input, runtime/identity, expected and actual values, next action on failure, and shutdown state**. If access is unavailable, retain the reason and completed design specification. Mark other paths not executed; Local inference does not count as Fabric/M365 authorization testing.
-
-## Troubleshooting
-
-Foundry project roles alone do not resolve other products' license, permission, region, or hardware requirements. If the required Preview access is missing, do not work around it using information from another tenant.
-
-## Cleanup
-
-Unload local models and decide whether to retain the model cache. Work with each product's owner to remove test connections, revoke permissions, and disconnect external sources.
-
-
-### Official sources
-
-- [What is Foundry Local?](https://learn.microsoft.com/azure/foundry-local/what-is-foundry-local)
-- [Get started with Foundry Local](https://learn.microsoft.com/azure/foundry-local/get-started)
-- [Foundry Local on Azure Local](https://learn.microsoft.com/azure/azure-sovereign-clouds/private/foundry-local/what-is-foundry-local-on-azure-local)
-- [Connect agents to Microsoft Fabric with Fabric IQ](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq)
-- [Connect agents to Work IQ](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq)
-- [Microsoft Foundry product and capability map](https://learn.microsoft.com/azure/foundry/concepts/capabilities)
-
----
-
-<a id="l24"></a>
-
-# 24. Migrate from Classic to the latest Foundry
-
-**Advanced course · Migration** · about 20 min
-
-> **Learning order: Independent elective** — Repair a synthetic request contract with Python. No existing Classic environment is needed; real migration requires a separately approved environment.
-
-> **What you will build:** A migration table that distinguishes what to move to the new Foundry and the order of validation, while preserving existing resources.
-
-<div class="lab-brief" markdown="1">
-
-**Format:** Local contract transformation plus optional design · no existing Classic environment needed.
-
-**Start here:** Repair three errors in a synthetic request transform, then distinguish definitions, user state, and operational state.
-
-**What to check:** Produce a migration/check/recovery/retention table with owners. This design does not move or delete real resources.
-
-</div>
-
-## Objectives
-
-**A brand rename, portal transition, resource upgrade, and SDK/API migration are different tasks.**
-
-## Concepts and lab map
-
-**What you will try:** Repair a new API request conversion and plan a service migration.
-
-**What is it, and why does it matter?** Classic is the earlier Foundry environment. Moving from Threads/Runs to Conversations/Responses can change conversations, function-result handling, permissions, and retention—not just names.
-
-**How do you use it?** Repair three errors in a synthetic request. Then list the settings, user data, operational state, verification, and recovery steps to migrate.
-
-**Where do you run it?** Work on your PC without a Classic account. The [SDK dependencies](../requirements.txt), [Responses example](../samples/workshop.py), and [deployment settings](../azure.yaml) are comparisons. No actual migration or deletion is performed.
-
-## Prerequisites
-
-If an existing system is available, inventory it read-only within the approved scope. Otherwise use the **fictional Contoso Classic scenario** below. Do not create Classic resources just for this exercise. This chapter does not automatically upgrade resources or move data.
-
-## Steps
-
-### 0. Fix it: identifiers and output contracts in the new API
-
-<div class="practice-block" markdown="1">
-
-**Try it:** Transform a small fragment of a Responses request without creating a Classic environment. Unlike the old Threads/Runs `tool_call_id` field, a Responses output item's `id` and the `call_id` needed for its function result are different. Every ID here is synthetic.
-
-```bash
-python samples/prepare_practice.py migration --output practice/migration
-python -m unittest discover -s practice/migration -p "test_exercise.py" -v
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `prepare_practice.py migration` | Copies the transform function and fixed contract tests into a new folder. | Local files only; no old SDK installation, Azure calls, or real migration. |
-| 2. `unittest discover` | Checks conversation ID, function correlation ID, JSON string, and output-item count. | Initially **three of four tests fail**. The checks correctly detect a bad transform. |
-
-</div>
-
-| Input/output | Synthetic value | Meaning to preserve |
-| --- | --- | --- |
-| New conversation | `conv_new_demo` | The same conversation receiving the function result |
-| Function-call item's `id` | `fc_item_demo` | Identifies an item in the response |
-| Function call's `call_id` | `call_demo_1` | Correlates the result with its request |
-| Actual function result | `{"sku":"NB-14","stock":8}` | Send this object's JSON **string** in `output` |
-
-**Change one thing:** Repair the transform contract in `practice/migration/exercise.py`: use the supplied `conversation_id`, `function_call["call_id"]`, and `json.dumps`. Fix one field at a time and rerun the same tests to identify which failure disappears.
-
-<details markdown="1">
-<summary>Completed transform fragment — part of a new API request, not a full migration tool</summary>
-
-<!-- solution:migration -->
-```python
-import json
-
-def continuation(conversation_id: str, function_call: dict, result: dict) -> dict:
-    return {
-        "conversation": conversation_id,
-        "input": [{
-            "type": "function_call_output",
-            "call_id": function_call["call_id"],
-            "output": json.dumps(result, ensure_ascii=False),
-        }],
-    }
-```
-
-</details>
-
-**Explain the result:** After four passes, explain each field and place it under **definitions / user state / operational state** in the migration table below. Real calls use IDs issued by the new service and the same agent/version binding. This exercise neither reuses old Thread/Run IDs nor moves user history. Compare the complete invocation/tool loop with `run_turn` in the bundled `samples/workshop.py`.
-
-</div>
-
-### 1. Identify what is currently in use
-
-| Earlier/existing approach | New path | Caution |
-| --- | --- | --- |
-| Azure AI Studio / Azure AI Foundry | Microsoft Foundry | A name change alone does not change the API |
-| Hub-based project | Project under a Foundry resource | Some Classic experiences remain separate |
-| Assistants / Threads / Runs | Agent Versions / Conversations / Responses | Calls, state, and tool loops change |
-| `azure-ai-projects` 1.x | 2.x project client | More than changing imports |
-| Multiple inference endpoints | Project/OpenAI-compatible surface | Check support by provider and API |
-| Role names such as Azure AI User | Foundry User and others | Check role IDs, scopes, and actual permissions |
-
-Standalone Azure OpenAI resources and Classic hub-based projects do not directly enter every path in the new portal. Follow the official upgrade/migration procedures.
-
-Sovereign clouds such as Azure Government have separate endpoints, authentication audiences, and service/model support. Do not reuse this public-cloud guide's environment files by changing only some addresses; base the migration plan on the official support documentation for that cloud.
-
-### 2. Plan migration for three kinds of state separately
-
-**Definitions:** instructions, models, tools, and connections.<br>
-**User state:** conversations, memory, files, and vector stores.<br>
-**Operational state:** endpoints, identities, permissions, monitoring, evaluation results, and publishing channels.
-
-Do not assume that an API migration tool moving definitions has also moved all user conversations or business approval state.
-
-**Worked example — a fictional purchasing assistant, not an actual migration result.**
-
-| Existing state/item | New-path decision | Inspect / next action on failure |
-| --- | --- | --- |
-| Definition: instructions/function schema | Map separately to current v2 and L06 contracts; do not merely rename | Compare quantity 1–10 and not-ordered boundaries; correct/review functions or contracts if different |
-| Knowledge: 3 policy files/vector store | After approval, upload originals into the new environment and record new file/store IDs | L05 citations must identify new files and the same sections; inspect file→store→agent bindings on failure |
-| User state: Thread/Run | Test with a new conversation; do not reuse old IDs | Verify only intended context is passed; historical user-state migration needs separate scope/retention planning |
-| Operations: identity/endpoint/model | Bind each new environment and specify minimum permissions | Correlate L03 responses with L10 traces; separate permissions, addresses, and versions for 403/404 |
-| Publishing/recovery | Keep the old endpoint; route only test users to the new path | Confirm a return to L22's previous configuration bundle; separate deletion from cutover |
-
-Add **source location, owner, retention decision, evidence file/ID, and unresolved items** to your own table. Check current migration support before applying an example decision to a real system.
-
-### 3. Check regressions in the new environment
-
-Only after approval for an actual migration, compare identical English synthetic inputs in the new nonproduction environment with L01's English profile. The default design exercise records the inputs and evidence locations below without executing them. Never reuse Korean private settings or receipts.
-
-| What to inspect | How to judge it | Next action on failure |
-| --- | --- | --- |
-| L03 model call | Completed response, actual deployment name/response ID | Check endpoint/token audience and model support |
-| L05 policy question | KRW 1,500,000 including VAT, 36 months, and actual new citations | Inspect originals, indexing, and store bindings |
-| L06 normal/failure inputs | NB-14 quantity 2 totals KRW 2,900,000 and remains not ordered; out-of-stock/negative inputs error | Inspect schema, dispatcher, and tool-result return loop |
-| L08 instruction comparison | Actual differences with the same language/context/model/questions/criteria | Do not claim superiority across changed conditions; never overwrite results or reuse sealed holdout data |
-| L10 tracing | New response correlated with the new environment's trace | Check connection/time/permissions rather than attaching an old environment's logs |
-
-L08's tool-free comparison does not replace integrated retrieval/function checks above. Record endpoint/schema/retry/retention differences separately, and mark unexecuted checks not executed rather than leaving a success-shaped blank.
-
-### 4. Remove dependencies on retiring features first
-
-Include portal Workflows' **scheduled retirement on 2026-12-01** in your timeline, and do not introduce new dependencies on it. Move required orchestration to currently supported paths such as Microsoft Agent Framework, then revalidate checkpoints, human approval, and resumption after failure.
-
-AI Search agentic retrieval differs in capabilities and payloads between stable `2026-04-01` and the latest preview. Compare changes in knowledge sources, client names, pagination, Work IQ authentication, and response handling with the official migration tables.
-
-### 5. Define staged cutover and recovery criteria
-
-Proceed from test users → limited traffic → approved expansion. In this scenario, **a candidate that gives an uncited answer or falsely claims order completion blocks expansion**. Preserve its failed original first; the owner then selects the approved earlier endpoint/version/configuration. Verify state compatibility and separately check the actual recovery invocation.
-
-If any quality, access, or recovery item remains unverified, record **cutover on hold / required next check**, not “migration complete.” Do not prematurely delete the earlier endpoint or user state.
-
-## Success criteria
-
-Explain the three synthetic transform errors and obtain four passes without changing the tests. This verifies a local wire-shape transform, not a completed service migration.
-You have identified migration targets, Classic features to retain, handling of user state, retirement schedules, evaluation results, and a rollback method. “It appears in the new portal” is not enough to declare migration complete.
-
-## Troubleshooting
-
-Even under the same brand, older documentation URLs/SDK examples may use a different resource model. First check for `foundry-classic`, `azure-ai-projects 1.x`, and Threads/Runs.
-
-## Cleanup
-
-After the new path passes actual usage and evaluation and the recovery period has ended, the responsible owner approves retention or deletion of the old resources.
-
-
-### Official sources
-
-- [Migrate to the new Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/migrate)
-- [Microsoft Foundry portal general availability overview](https://learn.microsoft.com/azure/foundry/concepts/general-availability)
-- [What is Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/what-is-foundry)
-- [Build a workflow in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/agents/concepts/workflow)
-- [Migrate agentic retrieval code to the latest version](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-migrate)
-
----
-
 <a id="troubleshooting"></a>
 
 # A. Troubleshooting by symptom
@@ -5104,7 +4020,7 @@ After the new path passes actual usage and evaluation and the recovery period ha
 
 ## Troubleshooting by symptom
 
-The [actual bilingual comparison](../validation/current/quality.json) shows a limited Korean relevance increase and tied English native metrics on GPT-6 Sol. Do not transfer one language's result to the other. Use the [measurement report](../validation/current/report.json) to distinguish preserved failures, completed collection, and actual scores; neither service completion nor missing numeric results count as a valid score.
+Inspect your own bilingual comparison files, keeping each language's results separate. Distinguish failed attempts, complete collections, and valid scores; neither service completion nor missing numeric results count as a valid score.
 
 | Symptom | Check first | Next action | Do not |
 | --- | --- | --- | --- |
@@ -5203,9 +4119,9 @@ Do not make account/subscription registration an improvised classroom task. Supp
 
 Before the first call, check that each learner can open the lab root, distinguish the terminal from a portal input, and find placeholders and expected output. If not, use [local troubleshooting](#troubleshooting) before explaining another feature.
 
-Start each chapter with ‘Format → Start here → What to check.’ Only relevant participants expand **administrator-only/optional** sections. Read L08's actual answers in the learner's own language inside the guide first; new paid collection is a separate choice. L11 reuses L06's result.
+Start each chapter with ‘Format → Start here → What to check.’ Only relevant participants expand **administrator-only/optional** sections. L08 starts with instructions and questions; collecting and evaluating the learner's own answers is optional. L11 reuses L06's result.
 
-The default web progress is **13 modules**, or **six** in the 90-minute path. Do not require all 25 checkmarks for core completion. L02 checks a supplied deployment; L04/L05 reuse one portal agent. L06's SDK creates a separate integrated agent, so record its name and response file separately.
+The default web progress is **13 modules**, or **six** in the 90-minute path. Do not require all 20 checkmarks for core completion. L02 checks a supplied deployment; L04/L05 reuse one portal agent. L06's SDK creates a separate integrated agent, so record its name and response file separately.
 
 Start with **block destination → one command → expected-result comparison**, rather than more background reading. In a new terminal, recheck L01's Python path and English profile. Use L06's `Read again` to inspect originals, functions, and citations; do not rerun `capstone --live` just to see a saved result.
 
@@ -5241,18 +4157,18 @@ This assumes **an environment with deployment and permissions already prepared**
 | 60–80 minutes | L08 evaluation and analysis | Read and judge one row's v1/v2 answers and native reasons from the prepared 12-question comparison |
 | 80–90 minutes | L12 cleanup | Record resources deleted/retained |
 
-Do not try to mark function execution, multi-agent work, and tuning all “complete” within 90 minutes.
+Do not try to mark function execution, orchestration, and Hosted deployment all “complete” within 90 minutes.
 
 ## One-day / two-day delivery
 
 The core L00–L12 hands-on time totals **320 minutes (5 hours 20 minutes)**. Add breaks, resource waits, and questions. Give faster teams failure analysis rather than more features to add.
 
-The current advanced L13–L24 learning time totals **440 minutes (7 hours 20 minutes)**,
-and core plus advanced totals **760 minutes (12 hours 40 minutes)**. With a prepared environment,
-breaks, questions, and Azure waits, **2–3 days (roughly 14–20 hours)** is a realistic course schedule.
+The seven advanced modules (L13–L17 and L21–L22) total **310 minutes (5 hours 10 minutes)**,
+and core plus advanced totals **630 minutes (10 hours 30 minutes)**. Plan for two days with a
+prepared environment, allowing additional time for breaks, questions, and Azure waits.
 These durations reflect the direct/conditional/design scope shown in each chapter.
 Allow separate time for beginners to read concepts, explore the portal, and ask about command walkthroughs. Do not treat the existing sum of hands-on durations as a fixed end time for the entire class.
-Actual fine-tuning, administrator approval, regional quota availability, and on-device model downloads can take several additional hours to a day or more.
+Administrator approval, regional quota availability, Hosted deployment, and indexing may require additional time.
 There is no guarantee that live execution of every optional service will finish within these times.
 
 ## Sequential core / independent and connected advanced paths
@@ -5266,13 +4182,12 @@ Actual Teams publishing in L11 is also a conditional extension, so lacking organ
 
 | Path type | Modules | How to proceed |
 | --- | --- | --- |
-| Independent option | L13, L15, L16, L18, L19, L21, L23, L24 | After the shared core environment is ready, meet the chapter's prerequisites and optionally execute it |
+| Independent option | L13, L15, L16, L21 | After the shared core environment is ready, meet the chapter's prerequisites and optionally execute it |
 | Prerequisite lab required | L14 | Run Hosted after preparing L13's Search/index. If equivalent resources are already provided, the L13 lesson itself may be skipped |
 | Run after source setup | L22 | L01 environment/sources for CI interpretation and release/rollback design. Only optional live Hosted deployment needs L14 and separate approval |
 | Feature-specific branch | L17 | Prompt Routine is independent after L05. The Hosted long-running branch requires L14 |
-| Feature-specific branch | L20 | Hosted Optimizer requires L14's Responses deployment first. Fine-tuning data/model work is independent once its own prerequisites are met |
 
-The live Hosted connection is **L13 → L14 → {L20 Hosted Optimizer or L22 optional live deployment}**.
+The live Hosted connection is **L13 → L14 → L22 optional live deployment**.
 L22's default CI/design is independent of that chain; do not add paid prerequisites merely to complete another chapter.
 “Independent option” does not mean “no additional installations, permissions, or models.” Check each chapter's **Prerequisites** and execution-level label.
 Do not assume that completing the core course prepares every conditional lab requiring separate models, services, devices, or licenses.
@@ -5282,8 +4197,7 @@ Choose second-day work by team goals.
 | Team | Recommended advanced modules |
 | --- | --- |
 | Application development | L13 IQ, L14 Hosted, L15 orchestration, L22 CI/CD |
-| Platform/security | L16 memory, L17 automation, L21 governance, L24 migration |
-| Documents/voice | L18 multimodal, L19 voice, L20 optimization, L23 extensions |
+| Platform/security | L16 memory, L17 automation, L21 governance, L22 CI/CD |
 
 ## Completion record
 
@@ -5304,37 +4218,31 @@ This record is separate from the web guide's progress checkboxes. Browser progre
 Use L08's same 12 composite development questions once with the educational v1 baseline and improved v2. Keep model, context, output format, and evaluation criteria identical. Have learners explain the actual per-row answers and native reasons; ties and regressions are valid observations, not reasons to resample.
 
 No Optimizer, new holdout, or repeated release run is required for the lesson. The separate full business gates remain strict and are not replaced by the small learning checklist.
-Only [current instructions and latest evidence](../validation/current/instructions.json) remain in the reader; older originals are preserved in Git history. Portal images retain their original capture provenance and are not fresh v2 validation.
+Keep execution records outside the reader and kit. Portal images retain their original capture provenance and do not validate a new instruction edit.
 
 ## Coaching the later modules
 
 ### Require an explanation of the before/after change
 
-The reinforced L15 and L18–L24 exercises follow **Try it → Change one thing → Explain the result**. Ask learners to predict an outcome first, then connect one edited setting/code change to the observed difference.
+The reinforced L15, L21, and L22 exercises follow **Try it → Change one thing → Explain the result**. Ask learners to predict an outcome first, then connect one edited setting/code change to the observed difference.
 
 | Module | Learner change | Evidence to retain |
 | --- | --- | --- |
-| L15 | Single→two roles under the same model/policy; optional boundary question | Baseline/drafter/reviewer originals and actual tokens/time; missing usage stays null |
-| L18 | Add only SKU to the complete schema | Seven→eight fields, KB-01 source location, preserved original values |
-| L19 | Silence detection 500→1500ms | Identical utterance splitting/wait/end comparison; learners operate their own microphones |
-| L20 | Repair a label typo in a copy; optional approved SFT lifecycle | Rejection→16/8 files; optional job/checkpoint and identical eight questions |
+| L15 | Compare sequential, concurrent, group-chat, and handoff under the same model/policy/question | Execution order, intermediate/final answers, and tokens/time; missing usage stays null |
 | L21 | Check permission before cache | Two of five local tests fail→five pass; not Azure permission verification |
 | L22 | Require quality/critical/missing checks beyond completion | Three of five fail→five pass; optional workflow has no Azure step |
-| L23 | Local output style or Fabric month filter | Changed condition and actual response/total under the same model/data |
-| L24 | Repair conversation ID, call_id, JSON string | Three of four fail→four pass; not a real migration |
 
 Flawed code and tests under `data/exercises/` are teaching originals. Learners repair **only exercise.py** in their `practice/` copy. Never weaken global tests/evaluation criteria or overwrite originals. Preparation rejects an existing destination; choose another folder for a fresh attempt.
 
-A complete procedure is not completed Azure/device execution. Local code/SDK contract checks do not establish real SFT, Voice, Local-model, Fabric, or Work IQ execution. Optional service waits, downloads, and approvals are outside the existing hands-on time estimates.
+Local code/SDK contract checks do not establish real Azure calls, permission changes, or deployment. Optional service waits and approvals are outside the hands-on time estimates.
 
 Ask each learner **“Which value is evidence → what decision follows → what do you inspect first on failure?”** If that explanation is missing, revisit evidence for the same case rather than adding another feature.
 
 | Module | Minimum learning artifact | Judgment to check |
 | --- | --- | --- |
 | L09/L10 | Three boundary judgments / one run's operations and durations | Separate natural-language refusal from function rejection, and trace correlation from correctness |
-| L18/L19 | Fields compared with sources / quantity correction, interruption, ended state | Attractive JSON or audible output alone is not execution success |
-| L20 | Explanation of one generated JSONL row and the 16/8 split | A classification label is neither a draft execution nor completed training |
-| L21/L23/L24 | Identity/access table, selected extension specification, migration/recovery table | Adapt worked examples to the learner's input/owners and mark unknowns |
+| L15 | Compare the flow and intermediate/final answers of four patterns | Distinguish SDK execution order from remote protocols, and handoff from human approval |
+| L21 | Identity/access table and cache boundary | Adapt worked examples to the learner's input/owners and mark unknowns |
 | L22 | CI interpretation and agent release/rollback manifest | Separate documentation generation, Azure deployment, and business release approval |
 
 Synthetic trace timings, Red teaming counts, and design tables are **teaching examples**. Do not copy them into actual Azure evidence fields. Without service access, record design/interpretation complete and execution incomplete separately. This does not replace or weaken existing evaluation gates.
@@ -5349,7 +4257,7 @@ Synthetic trace timings, Red teaming counts, and design tables are **teaching ex
 - Running English instructions against Korean data, importing another run's receipts, or labeling Korean results as new English evidence.
 - Presenting all Preview capabilities to customers as production-ready.
 - Teaching new-portal Workflows as the recommended path for new production implementations.
-- Forgetting routine, evaluation, voice, or Search costs after closing the browser.
+- Forgetting routine, evaluation, Hosted, or Search costs after closing the browser.
 
 ## Feature selection worksheet
 
@@ -5487,16 +4395,16 @@ Policy answers have real evidence, and answers are withheld when information is 
 
 > **Coverage is explicit.** The official capability map and reference connect each capability group to labs, design exercises, or reference material.
 
-There are **91 coverage entries** across 25 modules. This is not a count of individual product APIs or models.
+There are **68 coverage entries** across 20 modules. This is not a count of individual product APIs or models.
 
 ## How to read the coverage levels
 
 | Depth | Meaning | Entries |
 | --- | --- | ---: |
 | Direct lab | An executable main path or local exercise is provided. This does not mean every subfeature in the row was run in the cloud. | 21 |
-| Conditional lab | Follow the steps only when the required resources, permissions, licenses, and Preview access are available. | 31 |
-| Design | Design the decision criteria, configuration, and failure, permission, and operational checks. No real change is performed. | 28 |
-| Reference | Understand product boundaries and the current official implementation path. Not counted as a full implementation lab. | 11 |
+| Conditional lab | Follow the steps only when the required resources, permissions, licenses, and Preview access are available. | 18 |
+| Design | Design the decision criteria, configuration, and failure, permission, and operational checks. No real change is performed. | 21 |
+| Reference | Understand product boundaries and the current official implementation path. Not counted as a full implementation lab. | 8 |
 
 **A status label is not an unconditional guarantee for an entire row.** Check the source for API, SDK, portal, model, and regional details. If permissions or quota prevent a run, record it as not executed.
 
@@ -5511,7 +4419,6 @@ There are **91 coverage entries** across 25 modules. This is not a count of indi
 | Developer surfaces | VS Code Toolkit / Agent inspector / local tracing | [L14](#l14) | Conditional lab | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code) |
 | Developer surfaces | Foundry Agent Canvas | [L14](#l14) | Reference | Check current availability and access | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) |
 | Developer surfaces | Foundry Skill / coding agent / Foundry MCP Server | [L14](#l14) | Reference | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
-| Developer surfaces | LangChain, LangGraph, and Semantic Kernel integration | [L23](#l23) | Design | Check each framework | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capabilities) |
 | Models | Multi-provider model catalog / Azure direct, partner, and community models | [L02](#l02) | Direct lab | Check each model | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure) |
 | Models | Model comparison / benchmarks / leaderboards | [L02](#l02) | Direct lab | Leaderboards Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Models | Model deployment / endpoints / management APIs | [L02](#l02) | Direct lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) |
@@ -5523,15 +4430,13 @@ There are **91 coverage entries** across 25 modules. This is not a count of indi
 | Models | Model router / routing mode / subsets / fallback | [L02](#l02) | Conditional lab | Check each version and feature | [Official documentation](https://learn.microsoft.com/azure/foundry/openai/concepts/model-router) |
 | Models | Responses / streaming / structured outputs / embeddings | [L03](#l03) | Direct lab | Check each model | [Official documentation](https://learn.microsoft.com/azure/foundry/quickstarts/get-started-code) |
 | Models | Model versions, automatic updates, retirement, and migration | [L22](#l22) | Design | Check each policy and model | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/model-versions) |
-| Models | Hugging Face / Fireworks / custom and healthcare models | [L23](#l23) | Reference | Check each model and license | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
 | Agents | Prompt agents / instructions / models / tools | [L04](#l04) | Direct lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-agent) |
 | Agents | Agent versions / Conversations / Responses | [L04](#l04) | Direct lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/what-is-foundry) |
 | Agents | Hosted agents / source-code and container deployment | [L14](#l14) | Conditional lab | Check each feature and SDK | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/quickstart-hosted-agent) |
 | Agents | Runtime protocols / Responses, Invocations, WebSocket | [L14](#l14) | Design | Check each protocol | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) |
-| Agents | Microsoft Agent Framework / sequential, concurrent, and handoff patterns | [L15](#l15) | Direct lab | Check each SDK and pattern | [Official documentation](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) |
-| Agents | Portal Workflows / migration to MAF | [L24](#l24) | Design | Preview / scheduled retirement: 2026-12-01 | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
-| Agents | A2A / delegation to a remote policy worker | [L15](#l15) | Conditional lab | 1.0 GA, distinct from 0.3 Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/agent-to-agent) |
-| Agents | Human-in-the-loop / approvals / checkpoints | [L15](#l15) | Design | Foundry long-running HITL Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) |
+| Agents | Microsoft Agent Framework / sequential, concurrent, group-chat, and handoff patterns | [L15](#l15) | Direct lab | Check each SDK and pattern | [Official documentation](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) |
+| Agents | A2A / distinguish remote protocols from SDK orchestration | [L15](#l15) | Reference | 1.0 GA, distinct from 0.3 Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/agent-to-agent) |
+| Agents | Human-in-the-loop / distinguish handoff from business approval | [L15](#l15) | Reference | Foundry long-running HITL Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) |
 | Agents | Routines / timer, schedule, and event triggers / reminders | [L17](#l17) | Conditional lab | Routines GA / check details | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/routines) |
 | Agents | Long-running agents / state, recovery, reconnect, steering | [L17](#l17) | Design | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/long-running-agent-resilience) |
 | Agents | Agent identity / Entra Agent ID | [L21](#l21) | Design | Check each configuration and operation | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-identity) |
@@ -5539,39 +4444,23 @@ There are **91 coverage entries** across 25 modules. This is not a count of indi
 | Agents | Stable endpoints / active versions / publishing to Teams and Copilot | [L11](#l11) | Conditional lab | GA / check publishing requirements | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/publish-copilot) |
 | Tools | Function calling / structured arguments / client-side execution | [L06](#l06) | Direct lab | GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/function-calling) |
 | Tools | File search / vector stores / file uploads | [L05](#l05) | Direct lab | GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/file-search) |
-| Tools | Code Interpreter / data analysis and file generation | [L18](#l18) | Conditional lab | Check each tool and model | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/code-interpreter) |
 | Tools | MCP / project connections / approvals and allowed tools | [L07](#l07) | Conditional lab | Check authentication and connection type | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/model-context-protocol) |
 | Tools | OpenAPI / HTTP contracts / authentication | [L07](#l07) | Direct lab | OpenAPI 3.0/3.1 supported | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/openapi) |
 | Tools | Toolbox / shared endpoints / versions and central management | [L07](#l07) | Conditional lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
 | Tools | Tool search / large-scale tool discovery | [L07](#l07) | Reference | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
 | Tools | Create skills, pin versions, and read MCP resources / private catalog reference | [L07](#l07) | Conditional lab | Skills Preview / check details | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
-| Tools | Web search / Grounding with Bing | [L18](#l18) | Conditional lab | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
-| Tools | Browser automation / Computer use | [L18](#l18) | Design | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
-| Tools | Image generation / image and video experiences | [L18](#l18) | Conditional lab | Mixed status, including agent-tool and video Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
 | Tools | Azure Functions / connector-based actions | [L07](#l07) | Design | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
 | Knowledge | RAG / chunking / embeddings / keyword, vector, hybrid, and semantic retrieval | [L13](#l13) | Conditional lab | Check each feature | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/retrieval-augmented-generation) |
 | Knowledge | Foundry IQ / knowledge bases and knowledge sources | [L13](#l13) | Conditional lab | Partially GA / portal Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
 | Knowledge | Hands-on IQ minimal/extractive retrieval / query planning and answer synthesis reference | [L13](#l13) | Conditional lab | GA / Preview varies by API scope | [Official documentation](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-migrate) |
 | Knowledge | Document ACLs and user tokens / permission-aware retrieval | [L13](#l13) | Design | Separate from Search RBAC for shared policies; executable ACL code not included | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/foundry-iq-connect) |
 | Knowledge | Freshness / indexers / incremental updates / source deletion | [L13](#l13) | Design | Check each feature and API | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
-| Knowledge | Fabric IQ / data agents, ontologies, semantic models, OneLake | [L23](#l23) | Conditional lab | Preview / check each feature | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq) |
-| Knowledge | Work IQ / SharePoint / Microsoft 365 / Copilot Studio | [L23](#l23) | Conditional lab | Check Preview status and requirements by connection | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq) |
 | Knowledge | Memory / profiles, summaries, procedures / scope, TTL, CRUD | [L16](#l16) | Conditional lab | Preview / VNet not supported | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory) |
-| Multimodal | Content Understanding / OCR, layout, schema, confidence, grounding | [L18](#l18) | Conditional lab | 2025-11-01 GA / mixed Preview features | [Official documentation](https://learn.microsoft.com/azure/ai-services/content-understanding/overview) |
-| Multimodal | CU agentic mode, signatures, metadata / CU Toolkit and CLI | [L18](#l18) | Reference | Preview | [Official documentation](https://learn.microsoft.com/azure/ai-services/content-understanding/whats-new) |
-| Multimodal | Speech / STT, TTS / audio | [L19](#l19) | Conditional lab | Check each service and feature | [Official documentation](https://learn.microsoft.com/azure/ai-services/speech-service/overview) |
-| Multimodal | Voice-based prompt agents / Voice Live / avatars | [L19](#l19) | Conditional lab | Voice Agent Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-voice-agent) |
-| Multimodal | Language / PII, classification, summarization / Translator | [L19](#l19) | Conditional lab | Check each service and API | [Official documentation](https://learn.microsoft.com/azure/ai-services/language-service/overview) |
 | Evaluation and optimization | Model, Agent, and Dataset evaluation / single-turn | [L08](#l08) | Direct lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/evaluate-generative-ai-app) |
 | Evaluation and optimization | Built-in and custom evaluators / completeness, relevance, groundedness | [L08](#l08) | Direct lab | Check each evaluator / actual tool execution evaluation is separate | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/evaluate-generative-ai-app) |
 | Evaluation and optimization | Multi-turn simulation / multimodal evaluation | [L08](#l08) | Reference | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/evaluate-generative-ai-app) |
 | Evaluation and optimization | Fixed synthetic dev comparison / distinguish holdouts and human review | [L08](#l08) | Direct lab | GA / Preview varies by feature / holdout execution is not a core task | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluation-dataset-schema) |
 | Evaluation and optimization | Trace-to-dataset / cluster analysis / feedback | [L10](#l10) | Design | Some Preview features | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/observability) |
-| Evaluation and optimization | Prompt optimizer / Agent Optimizer | [L20](#l20) | Conditional lab | Agent Optimizer Limited preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-optimizer-overview) |
-| Evaluation and optimization | Hands-on SFT data preparation / conditional training, checkpoints, and deployment | [L20](#l20) | Conditional lab | GA varies by model / data preparation is not actual training | [Official documentation](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning) |
-| Evaluation and optimization | DPO / preference data | [L20](#l20) | Design | Check each model | [Official documentation](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning-direct-preference-optimization) |
-| Evaluation and optimization | RFT / grader calibration / reward hacking | [L20](#l20) | Design | GA varies by model / access may be restricted | [Official documentation](https://learn.microsoft.com/azure/foundry/openai/how-to/reinforcement-fine-tuning) |
-| Evaluation and optimization | Vision fine-tuning / distillation / synthetic training data | [L20](#l20) | Reference | Check each model | [Official documentation](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning) |
 | Observability and operations | Server-side tracing / replay / conversations and responses | [L10](#l10) | Direct lab | Prompt and Hosted GA | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/trace-agent-setup) |
 | Observability and operations | Client OpenTelemetry / App Insights / diagnostic logging | [L10](#l10) | Conditional lab | Check each integration path | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/trace-agent-setup) |
 | Observability and operations | Monitoring / continuous and scheduled evaluation / alerts | [L10](#l10) | Conditional lab | Check Preview scope | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/how-to-monitor-agents-dashboard) |
@@ -5591,10 +4480,6 @@ There are **91 coverage entries** across 25 modules. This is not a count of indi
 | Enterprise management | Quota / capacity / regions / cost management and cleanup | [L12](#l12) | Direct lab | Service-specific requirements | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/planning) |
 | Enterprise management | Hands-on local CI / OIDC, agent release, and rollback design | [L22](#l22) | Direct lab | Default source checks/design / live deployment requires L14 and separate approval | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/set-up-cicd-hosted-agent) |
 | Enterprise management | High availability / disaster recovery / RTO and RPO | [L22](#l22) | Design | Check each service and deployment | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/high-availability-resiliency) |
-| Enterprise management | Sovereign and Azure Government clouds | [L24](#l24) | Reference | Check support for each cloud | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
-| Enterprise management | Azure OpenAI upgrade / Classic migration | [L24](#l24) | Design | Check each migration path | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/migrate) |
-| Local and extensions | Foundry Local / SDK, ONNX runtime, hardware acceleration | [L23](#l23) | Conditional lab | Check each device and model | [Official documentation](https://learn.microsoft.com/azure/foundry-local/what-is-foundry-local) |
-| Local and extensions | Foundry Local on Azure Local / Kubernetes and Arc | [L23](#l23) | Reference | Preview / separate access | [Official documentation](https://learn.microsoft.com/azure/azure-sovereign-clouds/private/foundry-local/what-is-foundry-local-on-azure-local) |
 
 ### Official sources
 
@@ -5606,9 +4491,9 @@ There are **91 coverage entries** across 25 modules. This is not a count of indi
 
 <a id="sources"></a>
 
-# E. Sources, currency, and validation scope
+# E. Sources, currency, and execution boundaries
 
-**Reference · Execution checked on 2026-09-30**
+**Reference · Official documentation**
 
 > **Foundational sources reviewed: 2026-09-29 / Execution APIs rechecked: 2026-09-30, Asia/Seoul.** A review date does not make a source permanently current.
 
@@ -5630,17 +4515,14 @@ The monthly What's new roundup then covered August 2026; it was not relabeled as
 | Content Understanding | Distinguish 2025-11-01 GA and 2026-06-01-preview |
 | SDKs | Separate installable core and advanced combinations |
 
-## Current instructions and validation
+## Instructions and execution boundaries
 
 The learning instructions use only **baseline v1 and improved v2**. L08 compares the same questions, context, model, and checks once.
 The label v2 does not establish a score increase.
 
-The [current instruction status](../validation/current/instructions.json) records preparation and whether a real comparison exists.
-Both languages were measured on 12 questions each using version-pinned GPT-6 Sol Prompt Agents. Korean native relevance moved from 4.9167/5 to 5.0/5 on one row; all other Korean metrics and all English metrics tied at 5.0/5. The mechanical checklist tied at 33/40 in Korean and changed from 29/40→28/40 in English. Every changed critical flag was reviewed against its original answer; some regex checks missed paraphrased wording. The [latest report](../validation/current/report.json) links agent versions, responses, per-question native reasons, tokens, and latency. Local structure, browser and PDF checks live separately in `validation/docs/`; they are not Azure results.
-
-The [latest actual originals](../validation/current/report.json) link these bilingual responses to native judgments.
-The 48 target responses were collected once; two native runs completed with 24 rows each. V2 used 7,376 more tokens and 0.427 seconds more mean latency in Korean, and 5,157 more tokens and 0.496 seconds more in English. Neither Optimizer nor the sealed holdout was newly run.
-Earlier direct-response instructions and measurements remain unchanged in [the preserved baseline commit](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation). The limited observed Korean relevance change is not statistical significance, an independent holdout pass, or release approval.
+Keep actual responses, evaluations, traces, and cost records in your own `results/`, outside the guide and kit.
+Structure, browser, and PDF checks validate local documentation, not Azure execution or model quality.
+The fixed 12-question dev comparison is distinct from an independent holdout, generalization test, or release approval. Do not write scores or completion claims without actual execution.
 
 Screenshots are actual portal observations from their recorded capture times, not new v2 execution or quality evidence.
 Optional features, policy/access changes, cost queries, deletion, merges, and publication each require the applicable separate approval.

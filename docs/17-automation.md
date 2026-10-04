@@ -27,8 +27,8 @@
 
 ## 준비
 
-서버에서 실행되는 Prompt Agent가 먼저 필요합니다. L05의 File search agent 또는
-L15의 정책 worker를 사용하세요. 로컬 client-side 함수 agent를 예약해도 로컬 함수는 실행되지 않습니다.
+서버에서 실행되는 Prompt Agent가 먼저 필요합니다. L05의 File search agent를 사용하세요.
+L15의 Agent Framework 역할은 로컬 코드에서 실행되므로 예약 대상이 아닙니다. 로컬 client-side 함수 agent를 예약해도 로컬 함수는 실행되지 않습니다.
 서비스 Routines의 GA와 azd 확장의 Beta 상태를 구분하고, CMK 제한 등 현재 조건을 확인합니다.
 
 ```bash
@@ -152,7 +152,7 @@ routine creator, agent runtime identity, 도구 connection identity를 구분합
 
 장기 실행의 checkpoint·재연결·승인 만료와 Autopilot의 manager·Entra agent user·
 메일/Teams 권한은 **설계 과제**입니다. timer 실습이 Autopilot 계정 생성을 뜻하지 않습니다.
-L19 Voice와 지속 평가를 선택했다면 해당 세션·스케줄도 별도로 중지합니다.
+지속 평가를 선택했다면 해당 스케줄도 별도로 중지합니다.
 
 ## 성공 기준
 
@@ -161,25 +161,6 @@ L19 Voice와 지속 평가를 선택했다면 해당 세션·스케줄도 별도
 상태 조회가 실패했다면 “아마 중지됐을 것”이라고 쓰지 않습니다.
 run ID를 읽지 못했다면 response/trace ID와 구분해 `null`로 남깁니다.
 사람의 내용 검토는 선택 안내이며, 실행하지 않은 검토를 완료했다고 표시하지 않습니다.
-
-<details markdown="1">
-<summary>제작 당시의 관찰·복구 기록 — 학습자 자신의 새 실행 결과와 구분해서 읽기</summary>
-
-기존 실험에서 저장한 “CLI history가 비었다”는 실패/관측 기록은 그대로 보존합니다.
-후속 조사에서 같은 정책 worker의 예약 시각 `2026-09-29T22:38:35Z`와 수동 dispatch 시각
-`22:44:59Z`에 성공한 action span과 실제 정책 요약 출력(`finish_reason=stop`)을 찾았습니다.
-예약 시각의 trace는 `8bf878b65509efa39d9643632629f506`,
-response는 `resp_07018918263947dc006abc3deaaf34819787a318905a8318ad`입니다.
-직접 response 조회의 404도 보존했으며, 조회 불가를 응답 부재로 바꾸지 않았습니다.
-이 증거는 다른 File search·Hosted·A2A 실행의 성공으로 대체한 것이 아닙니다.
-
-수정한 runner의 별도 v2 검증에서는 `contoso-policy-timer-v2-9a3154d0`을 한 번만 예약했습니다.
-`2026-09-30T01:58:35Z`의 trace `ebd60144b61d68788cb939b085f6c308`과
-response `resp_0a4cb48ea4632934006abc6cca6314819390ca3283c545e1c2`에서
-고유 표식이 일치하는 완료 출력을 확인했습니다. 수동 dispatch는 하지 않았고 `enabled=false`를 재확인했습니다.
-원본은 `results/contoso-routine-04519d0f6e86.jsonl`과 `results/routine-v2-scheduled.json`에 보존합니다.
-
-</details>
 
 ## 막혔을 때
 

@@ -94,14 +94,100 @@ If you name it `contoso-gpt-6-sol`, set `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-g
 
 L01's administrator foundation script can deploy the same model under the name `contoso-chat`. If using that path, keep the actual returned deployment name and do not deploy it again. Changing a model deployment does not automatically redeploy an existing Hosted agent's code or configuration.
 
-**Pause and check:** Does the portal deployment name match the saved `.env` value? If it is also ready, continue to **Success criteria → L03**. No question submission is required here.
+**Pause and check:** Does the portal deployment name match the saved `.env` value? Complete the TPM/RPM readiness check below before **Success criteria → L03**. Learners need not repeat a paid connectivity test already completed by the administrator.
 
 <details class="operator-only" markdown="1">
 <summary>Administrators only: no deployment exists and creation is approved</summary>
 
-On the model card, choose **Deploy → Custom settings**. Check **model `gpt-6-sol` / version `2026-09-22` / approved type and capacity / deployment name**, then choose **Deploy**. Confirm **Succeeded/ready** before giving learners the actual name. Do not proceed with only the name of a failed deployment.
+On the model card, choose **Deploy → Custom settings**. Check **model `gpt-6-sol` / version `2026-09-22` / approved deployment type / deployment name**. Verify the displayed TPM units and set **chat to 100,000 TPM per learner before selecting Deploy**. Size shared deployments for simultaneous learners. If the recommended allocation is unavailable, check quota rather than deploying a smaller placeholder. Confirm **Succeeded/ready** and actual TPM/RPM before giving learners the name.
 
 </details>
+
+<a id="l02-capacity"></a>
+
+### 4. Configure TPM/RPM before testing connectivity
+
+**TPM is tokens per minute; RPM is requests per minute.** Do not size TPM from billed tokens alone. Azure estimates input plus the output reservation, and RPM also limits requests concentrated in short time windows.
+
+| Role | Per-learner minimum recommended TPM / RPM | Sizing assumption |
+| --- | --- | --- |
+| chat | **100,000 / 60** | `(8,192 input + 2,048 output) × 6 starts/minute × 1.5 headroom = 92,160`, rounded up in 10,000-token units |
+| judge | **100,000 / 60** | Same request budget; larger managed-evaluation concurrency/context can need more headroom |
+| embedding | **10,000 / 6** | `8,192 input × 1 start/minute × 1.2 headroom`, rounded up in 1,000-token units |
+
+**These are not absolute service minima or a no-429 guarantee.** They are starting allocations for one learner running one lab at a time. Multiply shared budgets by simultaneous learners and resize for longer inputs or other applications. L15 allows up to three overlapping agents but spaces request starts by at least one second.
+See the [official quota/rate-limit guidance](https://learn.microsoft.com/azure/foundry/openai/how-to/quota#understanding-rate-limits). TPM/RPM are not monetary spending caps.
+
+**The default flow is deploy at recommended capacity → verify actual limits → test connectivity.** L01's `foundation` checks the regional catalog's SKU unit rates, capacity increments, and quota before creating models with role-specific capacity. For manual deployment, set the recommended TPM in Custom settings first.
+Use your own administrator-provided `results/azure-environment.json` from L01. The `plan` command below displays the sizing assumptions; `check` verifies what was actually deployed.
+
+```bash
+python samples/model_capacity.py plan --learners 1
+python samples/model_capacity.py check --learners 1 --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `model_capacity.py plan --learners 1` | Calculate role-specific TPM/RPM from request budgets and headroom. Use the real simultaneous learner count for shared deployments. | Local calculation only; no Azure connection. |
+| 2. `check --learners 1 --live` | Inspect the owned RG and actual deployment `rateLimits`, SKU, model, and version. | Read-only. Insufficient TPM or RPM fails without sending a model test. |
+
+</div>
+
+Compare `tpm`, `rpm`, `minimum_tpm`, `minimum_rpm`, `proposed_capacity`, and `ready` under each `deployments.<role>`.
+**Do not apply capacity=100 uniformly to every model.** Initial deployment uses the raw ARM catalog's TPM/RPM per unit and explicit capacity constraints. CLI model listings may omit `rateLimits.key`; do not infer it. Match quota by the SKU's `usageName`, not a name constructed from the model ID. If actual limits fall below the recommendation afterward, readiness fails and no model test is sent.
+
+The embedding connectivity test uses `/openai/v1/embeddings` on the same owned Foundry resource. Responses support on the project endpoint does not imply embeddings support there.
+
+<details class="operator-only" markdown="1">
+<summary>Existing deployments only: correct insufficient throughput within approved scope</summary>
+
+Skip this step when a new `foundation` deployment meets the recommendation. Use it only for insufficient existing/manual deployments or increased learner counts. Quota-read and deployment-update permissions are required. Replace `OWN_RUN_ID` with the receipt's `run_id`. The value `100` is the allowed capacity-unit ceiling per deployment, not TPM or a monetary amount.
+
+```bash
+python samples/model_capacity.py apply --learners 1 --max-capacity 100 --confirm OWN_RUN_ID --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `apply ... --confirm OWN_RUN_ID --live` | Precheck required units and available quota for all targets, PATCH only insufficient SKU capacity, then read it back. | Changes actual Azure capacity. Models, versions, and safety policies stay unchanged; sufficient capacity is not reduced. No new resource or PTU is created. |
+
+</div>
+
+Missing quota or a target above the ceiling stops before changes. Adjust cohort size or the ceiling only with separate approval. If an error follows a partial update, inspect requested/verified changes in `Evidence:` and do not test models until every required role is ready.
+
+</details>
+
+<details class="optional-path" markdown="1">
+<summary>Optional: an approved connectivity test after configuration</summary>
+
+Do not repeat a test already completed by the administrator.
+
+```bash
+python samples/model_capacity.py test --learners 1 --confirm OWN_RUN_ID --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `test ... --confirm OWN_RUN_ID --live` | Recheck actual TPM/RPM, then test chat at most three times, judge once, and embedding once. | At most five model requests, 180 seconds, zero retries, and 2,048 reserved output tokens per generative request. Preserve a unique `Evidence:` record; this is not a full-course or quality pass. |
+
+</div>
+
+</details>
+
+Select only needed roles with options such as `--roles chat`. Use `--roles chat judge` for basic evaluation preparation; L15 needs only `--roles chat`.
+On errors or 429, do not repeat calls. Inspect token/request limits, authentication, permissions, and other traffic before separately approving a next action. This is **configuration/connectivity checking, not a throughput-limit benchmark or full-course validation.**
 
 <details class="optional-path" markdown="1">
 <summary>Optional: compare two model answers after additional cost approval</summary>
@@ -128,7 +214,7 @@ A public leaderboard is a starting point for narrowing candidates, not a guarant
 
 </details>
 
-### 4. Optional extension: Model router
+### 5. Optional extension: Model router
 
 <details class="optional-path" markdown="1">
 <summary>Not required for the core lab: compare per-request model selection</summary>

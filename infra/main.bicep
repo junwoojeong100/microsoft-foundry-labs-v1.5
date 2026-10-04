@@ -13,8 +13,20 @@ param embeddingVersion string
 @allowed(['GlobalStandard', 'DataZoneStandard', 'Standard'])
 param modelSku string
 @minValue(1)
-@maxValue(100)
-param capacity int = 10
+@maxValue(10000)
+param chatCapacity int
+@minValue(1)
+@maxValue(10000)
+param judgeCapacity int
+@minValue(1)
+@maxValue(10000)
+param embeddingCapacity int
+
+param preservedDeployments object = {
+  chat: { properties: {}, sku: {}, tags: {} }
+  judge: { properties: {}, sku: {}, tags: {} }
+  embedding: { properties: {}, sku: {}, tags: {} }
+}
 
 var ownership = {
   repository: 'microsoft-foundry-labs-v1.5'
@@ -53,33 +65,36 @@ resource project 'Microsoft.CognitiveServices/accounts/projects@2025-06-01' = {
 resource chat 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = {
   parent: account
   name: 'contoso-chat'
-  sku: { name: modelSku, capacity: capacity }
-  properties: {
+  sku: union(preservedDeployments.chat.sku, { name: modelSku, capacity: chatCapacity })
+  tags: union(preservedDeployments.chat.tags, ownership)
+  properties: union(preservedDeployments.chat.properties, {
     model: { format: 'OpenAI', name: chatModel, version: chatVersion }
     versionUpgradeOption: 'NoAutoUpgrade'
-  }
+  })
   dependsOn: [project]
 }
 
 resource judge 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = {
   parent: account
   name: 'contoso-judge'
-  sku: { name: modelSku, capacity: capacity }
-  properties: {
+  sku: union(preservedDeployments.judge.sku, { name: modelSku, capacity: judgeCapacity })
+  tags: union(preservedDeployments.judge.tags, ownership)
+  properties: union(preservedDeployments.judge.properties, {
     model: { format: 'OpenAI', name: judgeModel, version: judgeVersion }
     versionUpgradeOption: 'NoAutoUpgrade'
-  }
+  })
   dependsOn: [chat]
 }
 
 resource embedding 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = {
   parent: account
   name: 'contoso-embedding'
-  sku: { name: modelSku, capacity: capacity }
-  properties: {
+  sku: union(preservedDeployments.embedding.sku, { name: modelSku, capacity: embeddingCapacity })
+  tags: union(preservedDeployments.embedding.tags, ownership)
+  properties: union(preservedDeployments.embedding.properties, {
     model: { format: 'OpenAI', name: embeddingModel, version: embeddingVersion }
     versionUpgradeOption: 'NoAutoUpgrade'
-  }
+  })
   dependsOn: [judge]
 }
 

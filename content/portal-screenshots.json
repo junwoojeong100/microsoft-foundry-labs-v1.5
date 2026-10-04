@@ -146,22 +146,6 @@
       "sha256": "8fcdb4a47ff212f6e85528b51f924098cca5a7ab5a9e224cb215b3f70db6cd7e"
     },
     {
-      "path": "assets/portal/14-fine-tuning.png",
-      "captured_at": "2026-09-30T07:30:08.887Z",
-      "route": "/build/fine-tune",
-      "masked": ["profile button"],
-      "purpose": "Locate Start fine-tuning; the product's example scores/prices are not workshop training evidence.",
-      "sha256": "7704db26c5dbad1c9ff85d30d85782017d586f94c7b7dba06f905d3bf805844b"
-    },
-    {
-      "path": "assets/portal/15-voice-setup.png",
-      "captured_at": "2026-09-30T07:31:46.072Z",
-      "route": "/build/agents -> New agent -> Build an agent",
-      "masked": ["dialog crop excludes account and project identifiers"],
-      "purpose": "Select a synthetic name and Voice Preview to explain the form, then cancel without creating an agent.",
-      "sha256": "01cea0d080fe6d926ca36a30157e6952b7e3886c86c19963cb2d78185ac7dfff"
-    },
-    {
       "path": "assets/portal/16-model-response.png",
       "captured_at": "2026-09-30T07:39:29.051Z",
       "route": "/build/models/deployments/contoso-chat/playground",
@@ -176,6 +160,24 @@
       "masked": ["dialog crop excludes account and project identifiers"],
       "purpose": "Confirm the UI Max Completion Tokens value of 256; no further model request was sent.",
       "sha256": "2d3ddd808f17c9c95b7aa16807e220d8f6b40ec663ce37adc04164566bbafd08"
+    }
+  ],
+  "archived_captures": [
+    {
+      "path": "assets/portal/14-fine-tuning.png",
+      "captured_at": "2026-09-30T07:30:08.887Z",
+      "route": "/build/fine-tune",
+      "masked": ["profile button"],
+      "purpose": "Locate Start fine-tuning; the product's example scores/prices are not workshop training evidence.",
+      "sha256": "7704db26c5dbad1c9ff85d30d85782017d586f94c7b7dba06f905d3bf805844b"
+    },
+    {
+      "path": "assets/portal/15-voice-setup.png",
+      "captured_at": "2026-09-30T07:31:46.072Z",
+      "route": "/build/agents -> New agent -> Build an agent",
+      "masked": ["dialog crop excludes account and project identifiers"],
+      "purpose": "Select a synthetic name and Voice Preview to explain the form, then cancel without creating an agent.",
+      "sha256": "01cea0d080fe6d926ca36a30157e6952b7e3886c86c19963cb2d78185ac7dfff"
     }
   ]
 }

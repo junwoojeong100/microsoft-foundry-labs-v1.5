@@ -4,7 +4,7 @@
 
 **[한국어 온라인 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)** · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)
 
-합성 Contoso 구매 도우미를 만들며 배우는 **25개 실습 모듈과 5개 참고 절**입니다. 두 언어가 같은 구현과 각각의 합성 데이터·지침을 사용합니다.
+합성 Contoso 구매 도우미를 만들며 배우는 **20개 실습 모듈과 5개 참고 절(총 25개 문서)**입니다. 두 언어가 같은 구현과 각각의 합성 데이터·지침을 사용합니다.
 
 ## 처음 시작하는 분
 
@@ -12,15 +12,15 @@
 
 1. [L00: 기초부터 읽기](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l00-first-steps)에서 무엇을 만들지 확인합니다.
 2. [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip)을 풀고 [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01)의 PC·프로젝트 준비를 진행합니다. Git 명령은 필수가 아닙니다.
-3. 각 장의 **진행 방식 → 먼저 할 일 → 확인할 결과**를 따라갑니다. 기본 13개는 순서대로, 심화 12개는 선택합니다.
+3. 각 장의 **진행 방식 → 먼저 할 일 → 확인할 결과**를 따라갑니다. 기본 13개는 순서대로, 심화 7개는 선택합니다.
 
-웹 가이드는 **기본 13개 경로**로 시작하며 진도도 선택한 경로만 집계합니다. 모듈 제목은 할 일 중심으로, 25개 장의 개념 설명은 짧은 정의·진행 방법 중심으로 정리했습니다. **용어가 낯설어요 / 진행이 막혔어요**에서 도움말을 읽고 원래 실습으로 돌아갈 수 있습니다.
+웹 가이드는 **기본 13개 경로**로 시작하며 진도도 선택한 경로만 집계합니다. 모듈 제목은 할 일 중심으로, 20개 장의 개념 설명은 짧은 정의·진행 방법 중심으로 정리했습니다. **용어가 낯설어요 / 진행이 막혔어요**에서 도움말을 읽고 원래 실습으로 돌아갈 수 있습니다.
 
 블록에는 **터미널 명령 / 포털 Chat / .env 설정 / 정상 출력 예**를 구분해 표시합니다. 좁은 화면에서는 명령 해설을 세로로 읽을 수 있습니다. L01에는 새 터미널·Windows Python 경로 확인이 있고, L06·L11의 `read-result --input`은 저장된 답·함수 결과·인용을 **새 Azure 호출 없이** 보여 줍니다. 원본이나 평가 판정을 바꾸지 않습니다.
 
-계정이 없어도 로컬 함수와 L08의 **실제 답변·점수 읽기**를 할 수 있습니다. 관리자 생성·선택 실행은 접힌 절로 분리했고, L11은 L06 결과를 재사용합니다. 기본 코스에 Teams 게시·Hosted·Optimizer는 필요하지 않습니다.
+계정이 없어도 로컬 함수와 L08의 **지침·평가 질문 읽기**를 할 수 있습니다. 자신의 응답 수집과 유료 평가는 선택입니다. 관리자 생성은 접힌 절로 분리했고, L11은 L06 결과를 재사용합니다. 기본 코스에 Teams 게시·Hosted·Optimizer는 필요하지 않습니다.
 
-심화 L15·L18–L24에는 **직접 변경하고 비교하는 과제**를 제공합니다. 멀티에이전트의 중간 답·토큰/시간, CU의 완성 schema, Voice 설정 비교, SFT의 기준선부터 학습·배포까지, Local/Fabric/Work IQ의 대표 경로를 따라갑니다. 권한·CI/CD·마이그레이션은 로컬 결함 복사본을 고치는 과제가 있으며 실제 Azure 검증과 구분합니다. Local SDK는 선택한 경우에만 `requirements-local.txt`로 별도 설치합니다.
+심화 L15·L21·L22에는 **직접 변경하고 비교하는 과제**를 제공합니다. Agent Framework의 순차·동시·그룹 채팅·핸드오프 패턴으로 실행 흐름과 중간 답을 비교합니다. 권한·CI/CD는 로컬 결함 복사본을 고치는 과제가 있으며 실제 Azure 검증과 구분합니다.
 
 <details>
 <summary>학습 지침과 모델 조건</summary>
@@ -45,29 +45,21 @@ L02에 **`gpt-6-sol` / `2026-09-22`**, 배포 이름 `contoso-gpt-6-sol`을 명�
 
 ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `index.html`을 열고, 코드는 편집기에서 확인합니다.
 Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다. PDF에는 접힌 참고·관리자 절까지 포함됩니다.
-기본 코스는 L00–L12, 약 5시간 20분입니다. 고급 모듈은 필요에 따라 선택합니다. 읽기에는 로그인이 필요하지 않습니다.
+기본 코스는 L00–L12, 약 5시간 20분입니다. 심화 L13–L17·L21–L22는 필요에 따라 선택하며 각 장의 기존 번호를 유지합니다. 읽기에는 로그인이 필요하지 않습니다.
 
-각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·추출·음성·학습 데이터·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L22의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
+각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·오케스트레이션·권한·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L22의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
 
-## 지침과 최신 검증
+## 지침과 실행 경계
 
-기존 실제 평가에서는 한국어 관련성의 제한적 향상만 관측했고, 영어 Native 지표는 동점이었습니다. 아래 상세 기록은 학습자 자신의 실행이나 이번 문서 개선의 Azure 검증 결과가 아닙니다.
+`agent-v1.txt`는 역할·목표 중심의 기준선이고 `agent-v2.txt`는 현재 절차형 지침입니다. Prompt/Hosted 기본값은 v2입니다. 향상을 연출하기 위해 기준선을 약화하거나 평가 게이트를 낮추지 않습니다.
 
-<details>
-<summary>기존 실제 측정·지침·검증 범위 상세</summary>
+L08의 선택 수집은 `samples/instruction_prompt_agent_lab.py`, 같은 원문의 평가는 `samples/instruction_evaluation.py`를 사용하며 둘 다 명시적 `--live`가 필요합니다. 응답·점수·실패·소유 기록·비용은 비공개 `results/`에 보관하고 가이드와 패키지에 넣지 않습니다. 가이드는 제작자의 완료 기록이나 보장된 점수가 아니라 절차와 판단 기준을 설명합니다.
 
-- 교육용 기준선: 각 폴더의 `agent-v1.txt`는 역할·목표 중심의 단순한 시작 지침이며, 점수를 낮추려고 일부러 약화하지 않았습니다.
-- 현재 지침: 같은 폴더의 `agent-v2.txt`. Prompt/Hosted 기본값도 v2입니다.
-- 한 번 Prompt Agent 비교: `samples/instruction_prompt_agent_lab.py`; 원문 native 평가: `samples/instruction_evaluation.py`. 둘 다 명시적인 `--live` 전에는 계획만 표시합니다.
-- [현재 상태](validation/current/instructions.json), [최신 실제 Azure 원본](validation/current/report.json), [최신 문서 검사](validation/docs/structure.json).
+## 내레이션 실습 요약영상
 
-**국문·영문 모두 GPT-6 Sol Prompt Agent 버전으로 실측했습니다.** 한국어 Native 관련성은 v1 **4.9167/5**에서 v2 **5.0/5**로 한 문항만 상승했고, 완결성·근거성은 동점이었습니다. 영어는 세 지표 모두 v1/v2 **5.0/5** 동점입니다. 따라서 이번 소규모 dev 표본에서는 한국어 관련성의 제한적 향상만 관측했으며 일반화·통계적 유의성·운영 승인을 뜻하지 않습니다. 보조 기계식 체크리스트는 국문 **33/40→33/40**, 영문 **29/40→28/40(−1)**였습니다. 모든 변경 critical flag를 원문과 대조했고, 일부 표현 차이로 인한 정규식 누락을 확인했습니다. Judge는 별도로 고정한 GPT-4.1을 사용했습니다.
+[장별 재생 페이지](downloads/replay/index.html) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4). 두 영상 모두 음성·자막·20개 모듈 챕터를 포함합니다. 명령과 도식으로 재구성한 학습 영상이며 실시간 포털 녹화나 검증 보고서가 아닙니다.
 
-대상 응답은 총 **48개**를 한 번씩 수집했고 Native 평가는 **24행씩 두 번** 완료했습니다. 평가 전용 Prompt Agent 두 개에 언어별 v1/v2 버전을 고정했습니다. v2 토큰 증가는 국문 **+7,376**, 영문 **+5,157**이며 평균 지연은 각각 **+0.427초**, **+0.496초**였습니다. Optimizer·holdout은 실행하지 않았고, 앞선 실패 시도는 대상 응답 0건으로 보존했습니다. 이 노출된 dev 비교는 출시 품질 승인이 아닙니다.
-이번 비교 전 공개된 지침과 측정 원본은 [보존된 기준선 커밋의 Git 이력](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/39b2bd1a1c85cb18d3d46d8bf876a6e274d32958/validation)에 남아 있습니다.
-원본의 실행·배포 ID는 추적용이며 지침 버전이 아닙니다.
-
-</details>
+FFmpeg·시스템 음성과 선언된 Playwright가 설치된 macOS에서 `python scripts/build_replay.py`로 다시 만듭니다. 내레이션과 장면 원본은 `content/replay.json`입니다.
 
 ## 안전한 실행
 
@@ -91,7 +83,7 @@ python scripts/check_pdf.py
 python scripts/package_guide.py
 ```
 
-같은 체크인 소스로 두 언어의 HTML/Markdown/PDF와 ZIP을 만듭니다. 로컬 검사도 `validation/docs/`에 최신 한 묶음만 둡니다.
+같은 체크인 소스로 두 언어의 HTML/Markdown/PDF와 ZIP을 만듭니다. 로컬 검사 기록은 비공개 `results/documentation/`에 두고 패키지에 넣지 않습니다.
 이를 Azure 실행이나 모델 점수 향상 증거로 기록하지 않습니다.
 
 ## GitHub Pages

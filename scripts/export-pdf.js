@@ -10,8 +10,9 @@ async (page) => {
     window.dispatchEvent(new Event("beforeprint"));
   }, edition);
   await page.emulateMedia({media: "print"});
-  if (await page.locator(".chapter:visible").count() !== 30) {
-    throw new Error("All 30 guide sections must be visible before PDF export.");
+  const chapterCount = await page.locator(".chapter").count();
+  if (chapterCount === 0 || await page.locator(".chapter:visible").count() !== chapterCount) {
+    throw new Error(`All ${chapterCount} guide sections must be visible before PDF export.`);
   }
   if (await page.locator('a[href^="assets/"], a[href^="validation/"]').count() !== 0) {
     throw new Error("Local file links must become plain references in a portable PDF.");

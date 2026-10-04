@@ -75,10 +75,11 @@ python scripts/cost_status.py
 Use each command only if you ran the corresponding lab and have its receipt.
 The final two commands are **read-only Azure queries scoped by ownership receipts**.
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
+it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also discovers owned routine receipts under `results/` when L17 used a custom `--receipt` filename, rather than substituting a historical validation record for current state.
 `cost_status.py` queries only actual costs posted to the new resource group. It does not report empty cost rows as USD 0.
-**The English validation's default retention policy is to retain owned Azure resources until explicit deletion approval.**
+**In a no-deletion environment, retain owned Azure resources until explicit deletion approval.**
 Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
-and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Existing `validation/current/` operational and cost records describe the historical Korean environment, not the new English one.
+and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Inspect your own environment rather than reusing another run's status.
 
 </details>
 
@@ -134,17 +135,6 @@ If you created no Azure resources, write **“local exercises only / no Azure cr
 For environments where deletion is prohibited, record “Retain until explicit deletion approval.”
 Search Basic, logs, and storage may continue to incur costs without requests.
 A follow-up within 24 hours of validation completion is recommended. Do not conclude “zero cost” without someone responsible for checking.
-
-<details class="provenance-note" markdown="1">
-<summary>Reference: retained resources during guide production — not your shutdown state</summary>
-
-The English Memory lifecycle verified remember, user isolation, and deletion of **only the synthetic item**. Its store was retained; this result does not authorize store or resource-group deletion.
-
-In the **historical Korean validation**, Azure infrastructure and agents/stores were retained. Deletion of **1 synthetic item**
-for that Memory lifecycle check was recorded separately from deletion of an Azure store or resource group. Automatic expiration of that validation vector store was also disabled
-to preserve it. These are not English-run cleanup results. Record the new English environment's actual retained objects, verified stop states, and ongoing costs separately; storage costs can continue until a later approved cleanup.
-
-</details>
 
 ## Troubleshooting
 

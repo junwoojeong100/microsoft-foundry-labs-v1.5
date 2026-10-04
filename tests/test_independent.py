@@ -32,10 +32,11 @@ class ContosoTests(unittest.TestCase):
         self.assertIn("2,000,000원을 초과", policy["content"])
         self.assertEqual(workshop.prepare_purchase_request("NB-14", 2)["total_krw"], 2_900_000)
 
-    def test_receipt_and_multimodal_answer_match(self):
-        expected = json.loads((ROOT / "data/receipt.expected.json").read_text())
-        self.assertIn(expected["document_id"], (ROOT / "data/receipt.html").read_text())
-        self.assertIn(expected["document_id"], (ROOT / "docs/18-multimodal.md").read_text())
+    def test_receipt_html_matches_synthetic_expected_data(self):
+        for directory in (ROOT / "data", ROOT / "data/en"):
+            with self.subTest(directory=directory):
+                expected = json.loads((directory / "receipt.expected.json").read_text())
+                self.assertIn(expected["document_id"], (directory / "receipt.html").read_text())
 
     def test_independent_executable_surfaces(self):
         self.assertEqual(check()["reference_repository_dependencies"], 0)

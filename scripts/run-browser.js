@@ -24,9 +24,9 @@ async function main() {
     allowPositionals: true,
   });
   const [operation] = positionals;
-  if (positionals.length !== 1 || !["check", "pdf"].includes(operation)) throw new Error("Use check or pdf [--report-dir validation/PATH].");
+  if (positionals.length !== 1 || !["check", "pdf"].includes(operation)) throw new Error("Use check or pdf [--report-dir results/PATH].");
   const reportDir = path.resolve(root, values["report-dir"]);
-  if (!reportDir.startsWith(path.join(root, "validation") + path.sep)) throw new Error("Reports must be inside validation/.");
+  if (!reportDir.startsWith(path.join(root, "results") + path.sep)) throw new Error("Reports must be inside private results/.");
   const sitePath = new URL(release.site_url).pathname.replace(/\/$/, "");
   const server = http.createServer(async (request, response) => {
     try {

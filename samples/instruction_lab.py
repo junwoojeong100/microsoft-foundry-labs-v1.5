@@ -12,8 +12,9 @@ import time
 from cloud import project_client
 from evidence import Budget, digest, redacted, serializable
 from grounding import answer_format, parse_answer
+from model_capacity import Management, inspect_deployments, load_scope, require_ready, requirements
 from search_lab import policy_chunks
-from workshop import DATA, LANGUAGE, RESULTS, ROOT, ensure_response
+from workshop import DATA, LANGUAGE, RESULTS, ROOT, config_values, ensure_response
 
 TARGET_DEPLOYMENT = "contoso-gpt-6-sol"
 TARGET_MODEL = "gpt-6-sol"
@@ -21,12 +22,6 @@ TARGET_MODEL_VERSION = "2026-09-22"
 MAX_CALLS_PER_LANGUAGE = 24
 MAX_SECONDS_PER_LANGUAGE = 600
 MAX_OUTPUT_TOKENS = 2048
-
-EXPECTED_SCOPE = {
-    "ko": {"resource_group": "rg-contoso-a-26092979bea5", "project": "contoso-workshop"},
-    "en": {"resource_group": "rg-contoso-en-260930ae24ba", "project": "contoso-workshop-en"},
-}
-
 
 def cases() -> list[dict]:
     comparison = json.loads((DATA / "evaluation/instruction-comparison.json").read_text(encoding="utf-8"))
@@ -172,66 +167,27 @@ def summarize(rows: list[dict], expected: list[dict]) -> dict:
     }
 
 
-def verify_profile(endpoint: str, model: str) -> dict:
-    scope = EXPECTED_SCOPE[LANGUAGE]
-    operations_path = ROOT / "validation/current/operations.json"
-    operations = json.loads(operations_path.read_text(encoding="utf-8"))
-    profile = operations.get("languages", {}).get(LANGUAGE, {})
-    if (operations.get("status") != "recorded_jobs_terminal"
-            or operations.get("policy_or_access_changed") is not False
-            or profile.get("resource_group") != scope["resource_group"]
-            or profile.get("project") != scope["project"]
-            or operations.get("resources_deleted") is not False):
-        raise ValueError("The scoped operations receipt does not match this language/project.")
-    deployment = profile.get("target_deployment", {})
-    deployment_model = deployment.get("model", {})
-    if isinstance(deployment_model, str):
-        deployment_name = deployment.get("deployment")
-        deployment_version = deployment.get("version")
-        deployment_model_name = deployment_model
-    else:
-        deployment_name = deployment.get("name")
-        deployment_version = deployment_model.get("version")
-        deployment_model_name = deployment_model.get("name")
-    deployment_state = deployment.get("state")
-    if (
-        model != TARGET_DEPLOYMENT
-        or deployment_name != TARGET_DEPLOYMENT
-        or deployment_model_name != TARGET_MODEL
-        or deployment_version != TARGET_MODEL_VERSION
-        or (deployment_state is not None and deployment_state != "Succeeded")
-    ):
-        raise ValueError("The scoped receipt does not identify the required gpt-6-sol deployment/version.")
-
-    previous_path = ROOT / f"validation/current/{LANGUAGE}/responses.json"
-    previous = json.loads(previous_path.read_text(encoding="utf-8"))
-    if previous.get("project_endpoint_sha256") != digest(endpoint):
-        raise ValueError("The actual project endpoint does not match this language's preserved measurement fingerprint.")
-    receipt_sources = [
-        "validation/current/operations.json",
-        str(previous_path.relative_to(ROOT)),
-    ]
-    if LANGUAGE == "ko":
-        receipt_path = RESULTS / "azure-environment.json"
-        if not receipt_path.is_file():
-            raise ValueError("The Korean owned-environment receipt is missing.")
-        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
-        if (receipt.get("repository_id") != 1396573688
-                or receipt.get("resource_group") != scope["resource_group"]
-                or receipt.get("project_name") != scope["project"]
-                or receipt.get("project_endpoint") != endpoint):
-            raise ValueError("The Korean owner receipt does not match the repository/project endpoint.")
-        receipt_sources.append("results/azure-environment.json")
+def verify_profile(endpoint: str, model: str, *, roles: tuple[str, ...] = ("chat",)) -> dict:
+    receipt = load_scope(RESULTS / "azure-environment.json", language=LANGUAGE, roles=roles)
+    if receipt["project_endpoint"].rstrip("/") != endpoint.rstrip("/") or receipt["model_deployments"]["chat"] != model:
+        raise ValueError("The owned-environment receipt differs from the selected project/model.")
+    deployments, _ = inspect_deployments(receipt, requirements(), roles, Management())
+    require_ready(deployments)
+    target = deployments["chat"]
+    if target["model"] != TARGET_MODEL or target["version"] != TARGET_MODEL_VERSION:
+        raise ValueError("The owned deployment is not the required gpt-6-sol / 2026-09-22.")
     return {
         "repository_id": 1396573688,
         "language": LANGUAGE,
-        "resource_group": scope["resource_group"],
-        "project": scope["project"],
+        "resource_group": receipt["resource_group"],
+        "project": receipt["project_name"],
         "project_endpoint_sha256": digest(endpoint),
-        "receipt_sources": receipt_sources,
-        "model_deployment": TARGET_DEPLOYMENT,
+        "receipt_sources": ["results/azure-environment.json"],
+        "model_deployment": model,
+        "judge_deployment": receipt["model_deployments"].get("judge"),
         "model": TARGET_MODEL,
         "model_version": TARGET_MODEL_VERSION,
+        "capacity_readback": deployments,
     }
 
 
@@ -295,7 +251,7 @@ def compare(output: Path, *, reasoning_effort: str | None = "low", max_seconds: 
             ) as client:
                 ownership = verify_profile(endpoint, model)
                 target = project.deployments.get(model).as_dict()
-                if (target.get("name") != TARGET_DEPLOYMENT
+                if (target.get("name") != model
                         or target.get("modelName") != TARGET_MODEL
                         or target.get("modelVersion") != TARGET_MODEL_VERSION):
                     raise ValueError("Foundry deployment readback differs from gpt-6-sol / 2026-09-22.")
@@ -351,7 +307,7 @@ def compare(output: Path, *, reasoning_effort: str | None = "low", max_seconds: 
                         report["rows"].append(row)
                         persist()
                         raw = ensure_response(response)
-                        if response.model != model:
+                        if response.model not in {model, TARGET_MODEL}:
                             raise ValueError("Response model field differs from the verified target deployment.")
                         row["checklist"] = score(raw, case, sources)
                         if response.usage:
@@ -399,7 +355,7 @@ def main() -> None:
             "per_language_collection_max_seconds": args.max_seconds,
             "bilingual_collection_max_seconds": 1200,
             "maximum_local_checklist_score": sum(len(case["checks"]) for case in cases()),
-            "target_deployment": TARGET_DEPLOYMENT,
+            "target_deployment": config_values()["FOUNDRY_MODEL_DEPLOYMENT_NAME"] or TARGET_DEPLOYMENT,
             "target_model": TARGET_MODEL,
             "target_model_version": TARGET_MODEL_VERSION,
             "new_agent_deployments": 0,

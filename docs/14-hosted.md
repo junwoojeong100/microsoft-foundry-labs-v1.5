@@ -146,9 +146,9 @@ python samples/hosted_client.py invoke --local --live
 답변 단계에도 실제 함수 정의를 전달하여 도구의 1~10 입력 제약을 회사 정책으로 혼동하지 않게 합니다.
 마지막 출처 확인 단계는 실제 검색 자료와 작성된 답변만 보고 근거를 선택하며,
 두 모델의 실제 선택을 합쳐 표시합니다. 원문 답변과 출처 선택 응답 ID는 각각 보존합니다.
-초안·승인·권한 판단의 필수 인용이 빠지면 오류로 처리하며 서버가 자동 보충하지 않습니다. 아래 과거 Azure 기록은 당시 버전의 증거이며, 이번 공통 코드 수정의 실제 재검증은 아닙니다.
+초안·승인·권한 판단의 필수 인용이 빠지면 오류로 처리하며 서버가 자동 보충하지 않습니다.
 
-현재 패키지는 `agent-v2.txt`를 사용합니다. 명시적인 요청·도구 권한·실제 결과·주장별 인용을 구분하며, 새 지침의 준비 상태를 실제 Azure 검증과 혼동하지 않습니다. [현재 상태](../validation/current/instructions.json)를 확인합니다.
+현재 패키지는 `agent-v2.txt`를 사용합니다. 명시적인 요청·도구 권한·실제 결과·주장별 인용을 구분하며, 지침 준비를 실제 Azure 검증과 혼동하지 않습니다. 자신의 패키지 해시와 실행한 버전의 원문을 대조합니다.
 ### 3. 준비된 프로젝트에만 배포하기
 
 ![실제 Build → Agents 목록. 같은 Contoso 프로젝트에서 Hosted와 Prompt 종류, 숫자 버전, Running 상태가 구분되어 보인다.](../assets/portal/03-agents.png)
@@ -190,39 +190,6 @@ python scripts/runtime_roles.py --agent contoso-purchasing --live
 동봉 `azure.yaml`은 **code deployment**이며 Docker/ACR가 필수는 아닙니다.
 이 파일로 무심코 `azd provision`을 실행하지 않습니다. 리소스 생성은 L01 관리 경로입니다.
 배포마다 새 immutable version이 생깁니다. agent runtime identity에는 해당 Search 읽기 역할만 부여합니다.
-
-<details class="optional-path" markdown="1">
-<summary>선택: L20 Optimizer용 Responses adapter — 기본 Hosted 경로에는 불필요</summary>
-
-L20의 native optimizer는 현재 **Responses protocol만 지원**합니다.
-같은 업무 엔진을 사용하는 선택형 `contoso-purchasing-responses` adapter를 함께 동봉했습니다.
-필요할 때만 해당 service를 지정해 배포하고, 별도 agent/version/identity로 기록합니다.
-기본 Invocations 실습의 성공을 이 adapter의 실행 증거로 대신 사용하지 않습니다.
-
-```bash
-python scripts/run_hosted_local.py --protocol responses --port 8089
-azd deploy contoso-purchasing-responses --no-prompt
-python scripts/runtime_roles.py --agent contoso-purchasing-responses --live
-azd ai agent invoke contoso-purchasing-responses "표준 노트북 상한은?" --protocol responses --version 실제숫자
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — Optimizer가 필요한 경우의 별도 Responses 경로입니다.**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `run_hosted_local.py --protocol responses --port 8089` | Responses adapter를 기본 Invocations와 다른 포트에서 실행합니다. 이 서버는 별도 터미널에 두고 배포 명령은 다른 터미널에서 실행합니다. | 로컬 서버 시작. 사용 후 Ctrl+C로 종료합니다. 아래 원격 호출은 이 로컬 서버를 호출하지 않습니다. |
-| 2. `azd deploy contoso-purchasing-responses --no-prompt` | 기본 서비스가 아닌 Responses용 서비스/코드를 실제 배포합니다. | 별도 agent/version 생성·비용 가능. 기본 Invocations의 품질 증거를 재사용하지 않습니다. |
-| 3. `runtime_roles.py --agent contoso-purchasing-responses --live` | 그 별도 runtime ID에 소유 범위의 데이터·모델 역할을 설정합니다. | 실제 권한 변경. 관리자 승인 필요. |
-| 4. `azd ai agent invoke ... --protocol responses --version` | 질문 문자열을 정확한 원격 숫자 버전으로 보냅니다. `--protocol responses`는 요청/응답 계약 선택입니다. | 실제 Hosted·모델·검색 비용 발생. 완료 이벤트와 내용, 호출 후 세션 상태를 확인합니다. |
-
-</div>
-
-Responses CLI에는 질문을 직접 전달합니다. JSON request 파일을 그대로 질문으로 감싸 보내지 않습니다.
-raw 응답이 SSE이면 `response.completed` terminal event를 확인하며, 출력 delta만으로 성공 처리하지 않습니다.
-
-</details>
 
 ### 4. 정확한 버전 원격 호출
 

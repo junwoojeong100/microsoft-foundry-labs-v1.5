@@ -13,10 +13,9 @@
       "pdf": "downloads/Contoso-Foundry-Hands-on-2026-09-30.en.pdf",
       "readme": "README.md",
       "portal_manifest": "portal-screenshots.en.json",
-      "portal_screenshots": 18,
-      "shell_blocks": 63,
-      "commands": 126,
-      "validation": "validation/current/instructions.json",
+      "portal_screenshots": 16,
+      "shell_blocks": 60,
+      "commands": 114,
       "receipt_html": "data/en/receipt.html"
     },
     "ko": {
@@ -26,10 +25,9 @@
       "pdf": "downloads/Contoso-Foundry-Hands-on-2026-09-30.pdf",
       "readme": "README.ko.md",
       "portal_manifest": "portal-screenshots.json",
-      "portal_screenshots": 17,
-      "shell_blocks": 61,
-      "commands": 124,
-      "validation": "validation/current/instructions.json",
+      "portal_screenshots": 15,
+      "shell_blocks": 58,
+      "commands": 112,
       "receipt_html": "data/receipt.html"
     }
   },
@@ -38,7 +36,5 @@
   "azure_cli": "2.86.0",
   "azd": "1.34.0",
   "agent_extension": "1.0.0-beta.10",
-  "validation": "validation/current/instructions.json",
-  "documentation_validation": "validation/docs",
-  "historical_validation": "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/tree/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/validation"
+  "documentation_validation": "results/documentation"
 }

@@ -13,7 +13,7 @@
   const list = document.getElementById("search-list");
   const hero = document.getElementById("hero");
   const quick = new Set(["l00", "l01", "l04", "l05", "l08", "l12", "instructor"]);
-  const offline = new Set(["l00", "l01", "l06", "l07", "l08", "l12", "l15", "l18", "l20", "l21", "l22", "l23", "l24", "instructor", "troubleshooting"]);
+  const offline = new Set(["l00", "l01", "l06", "l07", "l08", "l12", "l15", "l21", "l22", "instructor", "troubleshooting"]);
   let activeId = "l00";
   let lastLabId = "l00";
   let state = {done: [], theme: "light", path: "core"};

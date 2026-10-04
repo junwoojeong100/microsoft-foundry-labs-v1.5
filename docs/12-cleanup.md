@@ -75,8 +75,9 @@ python scripts/cost_status.py
 각 명령은 해당 실습을 실행해 receipt가 있는 경우에 사용합니다.
 마지막 두 명령은 **소유 receipt로 범위를 제한한 읽기 전용 Azure 조회**입니다.
 `operations_status.py`는 세션·optimizer job·활성 평가 schedule·routine을 확인하며,
+현재 프로젝트의 실제 agent 목록에서 배포하지 않은 선택형 adapter를 구분합니다. L17에서 `--receipt`로 지정한 이름이 달라도 `results/`의 소유 routine 기록을 조회하며, 현재 상태를 과거 검증 파일로 대신 판단하지 않습니다.
 `cost_status.py`는 새 RG에 반영된 실제 비용만 조회합니다. 빈 비용 행을 0달러로 표시하지 않습니다.
-**이번 제작 검증은 생성한 Azure 자원을 삭제하지 않고 보존**합니다.
+**삭제 금지 환경에서는 생성한 Azure 자원을 보존**합니다.
 routine은 disable, Hosted는 compute stop만 수행합니다. `cleanup --live`, `azd down`,
 resource group 삭제를 자동 실행하지 않습니다. 아래 삭제 경로는 별도 승인이 있는 학습자를 위한 설명입니다.
 
@@ -134,15 +135,6 @@ Azure 자원을 만들지 않았다면 **“로컬 실습만 수행 / Azure 생�
 삭제 금지 환경은 “명시적 삭제 승인까지 보존”으로 기록합니다.
 Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있습니다.
 다음 확인은 검증 종료 후 24시간 이내를 권장하며, 확인 담당자 없이 “비용 0”이라고 결론내리지 않습니다.
-
-<details class="provenance-note" markdown="1">
-<summary>참고: 제작 당시의 보존 기록 — 자신의 종료 상태와 구분</summary>
-
-이번 검증의 Azure 인프라와 agent/store는 보존했습니다. Memory 수명주기 검증의 **합성 item 1개**
-삭제와 Azure store/RG 삭제는 구분하여 기록했습니다. 검증용 vector store의 자동 만료도 해제하여
-보존하므로, 이후 승인된 정리 전까지 저장 비용 가능성이 남습니다.
-
-</details>
 
 ## 막혔을 때
 

@@ -43,7 +43,9 @@ def prepare(source: Path) -> tuple[dict, list[dict], dict]:
                 or prompt_agents.get("status") != "active"
                 or not prompt_agents.get("agent_name")
                 or set(versions) != {"v1", "v2"}
-                or model_identity.get("name") != "contoso-gpt-6-sol"
+                or not isinstance(recorded.get("model_deployment"), str)
+                or not recorded["model_deployment"]
+                or model_identity.get("name") != recorded["model_deployment"]
                 or model_identity.get("modelName") != "gpt-6-sol"
                 or model_identity.get("modelVersion") != "2026-09-22"):
             raise ValueError("Prompt Agent native evaluation requires two verified, active instruction versions.")
@@ -164,10 +166,10 @@ def evaluate(source: Path, output: Path) -> dict:
             with project_client(evidence) as (project, _, endpoint, model), project.get_openai_client(max_retries=0, timeout=60) as client:
                 if recorded["project_endpoint_sha256"] != digest(endpoint) or recorded["model_deployment"] != model:
                     raise ValueError("Native evaluator project/model differs from the collected answers.")
-                ownership = verify_profile(endpoint, model)
+                ownership = verify_profile(endpoint, model, roles=("chat", "judge"))
                 judge = config_values()["FOUNDRY_JUDGE_DEPLOYMENT_NAME"]
-                if judge != "contoso-judge" or judge == model:
-                    raise ValueError("Use the precommitted, distinct contoso-judge deployment.")
+                if not judge or judge != ownership["judge_deployment"] or judge == model:
+                    raise ValueError("Use the distinct judge deployment in the owned-environment receipt.")
                 judge_identity = project.deployments.get(judge).as_dict()
                 if (judge_identity.get("modelName") != "gpt-4.1"
                         or judge_identity.get("modelVersion") != "2025-04-14"):

@@ -34,7 +34,7 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | Agent | A program combining a model with instructions, knowledge, and tools |
 | Deployment | Making a model available to call in your environment; not training the model |
 
-**Start with the 13 core modules, L00–L12.** The 12 advanced modules, L13–L24, are electives—not extra checkboxes required to finish the core course.
+**Start with the 13 core modules, L00–L12.** The seven advanced modules, L13–L17 and L21–L22, are electives—not extra checkboxes required to finish the core course.
 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
@@ -84,13 +84,13 @@ Masked areas contain identifying information, not values to copy. Use your own p
 <details class="provenance-note" markdown="1">
 <summary>Reference: screenshot scope and validation records</summary>
 
-The English edition uses a separate **`contoso-workshop-en` project and English synthetic data**. All **18 English portal screenshots** were captured from the signed-in English environment and are under `assets/portal/en/`, with identifying information masked or cropped—not translated overlays on the earlier Korean-data screenshots. The models, features, and versions you see depend on your permissions, region, and the date.
+The English edition uses a separate **`contoso-workshop-en` project and English synthetic data**. All **16 English portal screenshots used in this guide** were captured from the signed-in English environment and are under `assets/portal/en/`, with identifying information masked or cropped—not translated overlays on the earlier Korean-data screenshots. The models, features, and versions you see depend on your permissions, region, and the date.
 
-**English backend validation and portal observation are separate activities.** The English run created and invoked owned agents, retrieved English policies, and submitted approved evaluations. Consult the [English screenshot log](../../content/portal-screenshots.en.json) for exact capture scope, times, masking, and hashes. Fine-tuning image 14 is a product sample, not Contoso training; Voice image 15 records a canceled form, not a voice session. A screenshot is an observation, not deployment or release-quality certification.
+**Backend execution and portal observation are separate activities.** Keep your agent, retrieval, and evaluation results outside the guide. Consult the [English screenshot provenance](../../content/portal-screenshots.en.json) for capture scope, times, masking, and hashes. A screenshot is an observation, not deployment or release-quality certification.
 
 **Current learning path: educational initial v1 → evaluate → analyze and improve → reevaluate v2.** L08 uses the same 12 composite development questions and fixed criteria in both languages. V1 is a simple role-and-goal starting point; v2 adds request decomposition, verified-versus-unknown separation, claim-specific evidence, and omission checks. It does not memorize evaluation answers, and ties or regressions are reported as observed.
 
-The [current instruction status](../../validation/current/instructions.json) links the [latest Prompt Agent comparison](../../validation/current/report.json). Korean native relevance changed from 4.9167/5 to 5.0/5 on one question; the other Korean metrics and all English metrics tied at 5.0/5. This limited dev observation is not a generalized improvement or release pass.
+Keep your own comparison results outside the guide. A small dev observation does not establish general improvement or release approval.
 
 </details>
 
@@ -143,11 +143,10 @@ Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then u
 | 90-minute introduction | L00 → preconfigured L01 → L04 → L05 → shortened L08 → L12 | The instructor has prepared the project, models, and permissions |
 | Start to finish | L00–L12 | About 5 hours 20 minutes, plus resource waits and breaks |
 | Developer extensions | Core → L13 → L14 → L15 → L22 | Deeper SDK, deployment, and search work |
-| Enterprise adoption | Core → L16 → L17 → L21 → L22 → L24 | Collaboration with administrators and security teams |
-| Document and voice experiences | Core → L18 → L19 → L23 | Access to supported models and services |
+| Enterprise adoption | Core → L16 → L17 → L21 → L22 | Collaboration with administrators and security teams |
 | Without an account | L01 local → L06 local → read existing L08 results → design exercises | Do not record these as successful live Azure runs |
 
-Times are **estimates of hands-on work**. They exclude waits for quota approval, model downloads, indexing, training, and administrator approval.
+Times are **estimates of hands-on work**. They exclude waits for quota approval, resource preparation, indexing, and administrator approval.
 
 ### 2. Keep one scenario in mind
 
@@ -170,7 +169,7 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 
 ### 4. Keep evidence of your results
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`; do not overwrite the published examples under `validation/current/`. Do not record personal information or tokens or relabel one environment's evidence as another's.
+Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`, outside the guide. Do not record personal information or tokens or relabel one environment's evidence as another's.
 
 Web progress counts **only the selected path**: 13 core modules or six in the 90-minute tour. Switching paths does not erase checkmarks. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
 

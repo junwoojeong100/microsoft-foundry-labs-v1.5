@@ -119,7 +119,7 @@ The 2 answerable questions have real supporting evidence, and the agent withhold
 
 ## Troubleshooting
 
-Do not start by uploading the documents again. Check the connected vector store ID, indexing failure reason, supported file formats, model/tool support, and the correct agent version. If a table appears only as an image in the file, use L18 to assess whether File search alone is sufficient.
+Do not start by uploading the documents again. Check the connected vector store ID, indexing failure reason, supported file formats, model/tool support, and the correct agent version. If a table appears only as an image in the file, first check for searchable text; do not assume File search has read it.
 
 ## Cleanup
 

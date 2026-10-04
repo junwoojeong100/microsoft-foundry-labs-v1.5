@@ -29,19 +29,10 @@ class RepositoryLayoutTests(unittest.TestCase):
 
     def test_validation_has_no_superseded_snapshots(self):
         release = json.loads((ROOT / "content/release.json").read_text())
-        self.assertEqual(release["documentation_validation"], "validation/docs")
-        self.assertFalse(list((ROOT / "validation").glob("*.json")))
-        self.assertEqual({path.name for path in (ROOT / "validation").iterdir()}, {"current", "docs"})
-        self.assertFalse((ROOT / "validation/current/holdout-responses.jsonl").exists())
-        self.assertTrue((ROOT / "validation/current/quality.json").is_file())
-        self.assertTrue((ROOT / release["validation"]).is_file())
-
-    def test_historical_evidence_is_linked_to_an_immutable_commit(self):
-        release = json.loads((ROOT / "content/release.json").read_text())
-        address = urlparse(release["historical_validation"])
-        self.assertEqual(address.scheme, "https")
-        self.assertEqual(address.hostname, "github.com")
-        self.assertRegex(address.path, r"/tree/[0-9a-f]{40}/validation$")
+        self.assertEqual(release["documentation_validation"], "results/documentation")
+        self.assertFalse(list((ROOT / "validation").rglob("*.json")))
+        self.assertNotIn("validation", release)
+        self.assertTrue(all("validation" not in edition for edition in release["languages"].values()))
 
     def test_readme_html_link_opens_github_pages(self):
         readme = (ROOT / "README.md").read_text()

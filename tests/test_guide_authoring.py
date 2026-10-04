@@ -1,13 +1,9 @@
-from collections import defaultdict
 from copy import deepcopy
-import csv
 from html import escape, unescape
 import json
-import os
 from pathlib import Path
 import re
 import shlex
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -59,7 +55,11 @@ class GuideAuthoringTests(unittest.TestCase):
             directory = ROOT / "docs" / ("en" if language == "en" else "")
             with self.subTest(language=language):
                 self.assertLessEqual(kinds, set(labels[language]["js"]["code_labels"]))
-                self.assertLessEqual({"prompt", "env", "instructions", "output"}, kinds)
+                self.assertLessEqual({"prompt", "env", "output"}, kinds)
+                self.assertNotEqual(
+                    labels[language]["js"]["code_labels"]["prompt"],
+                    labels[language]["js"]["code_labels"]["instructions"],
+                )
                 self.assertIn('id="l01-new-terminal"', (directory / "01-setup.md").read_text())
                 self.assertIn("#l01-new-terminal", (directory / "07-toolbox.md").read_text())
                 for chapter in ("06-actions.md", "11-capstone.md"):
@@ -80,59 +80,38 @@ class GuideAuthoringTests(unittest.TestCase):
                     for label in BRIEF_LABELS[language]:
                         self.assertIn("**" + label, brief[1])
 
-    def test_reading_example_retains_exact_localized_answers_scores_and_reasons(self):
+    def test_evaluation_chapter_uses_learner_results_not_embedded_measurements(self):
         for language in ("ko", "en"):
-            folder = ROOT / "validation/current" / language
-            responses = json.loads((folder / "responses.json").read_text())
-            native = json.loads((folder / "native.json").read_text())
-            example = build_guide.instruction_reading_example(language)
-            answers = {row["instructions"]: row for row in responses["rows"]
-                       if row["id"] == "compound-request-no-tools"}
-            judgments = {row["instructions"]: row for row in native["comparison"]["rows"]
-                         if row["case_id"] == "compound-request-no-tools"}
+            directory = ROOT / "docs" / ("en" if language == "en" else "")
+            text = (directory / "08-evaluation.md").read_text()
             with self.subTest(language=language):
-                self.assertEqual(example.count('class="recorded-answer"'), 2)
-                self.assertIn(escape(answers["v1"]["query"]), example)
-                for version in ("v1", "v2"):
-                    self.assertIn(escape(json.loads(answers[version]["raw_answer"])["answer"]), example)
-                    self.assertIn(escape(judgments[version]["metrics"]["relevance"]["reason"]), example)
-                expected = "| 관련성 | 4 | 5 |" if language == "ko" else "| Relevance | 5 | 5 |"
-                self.assertIn(expected, example)
+                self.assertNotIn("validation/current", text)
+                self.assertNotIn("instruction-reading-example", text)
+                self.assertIn("results/azure-environment.json", text)
+                self.assertIn("compound-request-no-tools", text)
+                self.assertIn("instruction_prompt_agent_lab.py --live", text)
+                self.assertIn("instruction_evaluation.py --input", text)
+                self.assertIn("90%", text)
+                self.assertIn("safety/access", text)
 
-    def test_reading_example_rejects_missing_or_mismatched_evidence(self):
-        folder = ROOT / "validation/current/en"
-        responses = json.loads((folder / "responses.json").read_text())
-        native = json.loads((folder / "native.json").read_text())
-        answers = [row for row in responses["rows"] if row["id"] == "compound-request-no-tools"]
-        judgments = [row for row in native["comparison"]["rows"] if row["case_id"] == "compound-request-no-tools"]
-        for defect in ("missing-version", "language", "response-id", "score", "reason", "question", "empty-answer"):
-            source = {"language": "en", "rows": deepcopy(answers)}
-            evaluation = {"language": "en", "comparison": {"rows": deepcopy(judgments)}}
-            if defect == "missing-version":
-                evaluation["comparison"]["rows"].pop()
-            elif defect == "language":
-                evaluation["language"] = "ko"
-            elif defect == "response-id":
-                evaluation["comparison"]["rows"][0]["response_id"] = "unrelated"
-            elif defect in {"score", "reason"}:
-                evaluation["comparison"]["rows"][0]["metrics"]["relevance"][defect] = None
-            elif defect == "question":
-                source["rows"][0]["query"] = "different question"
-            else:
-                source["rows"][0]["raw_answer"] = '{"answer":""}'
-            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as temporary:
-                root = Path(temporary)
-                target = root / "validation/current/en"
-                target.mkdir(parents=True)
-                (target / "responses.json").write_text(json.dumps(source))
-                (target / "native.json").write_text(json.dumps(evaluation))
-                with patch.object(build_guide, "ROOT", root), self.assertRaises(ValueError):
-                    build_guide.instruction_reading_example("en")
+    def test_reader_build_does_not_open_execution_records(self):
+        original = Path.read_text
 
-    def test_all_25_labs_have_concepts_and_per_command_explanations(self):
+        def read(path, *args, **kwargs):
+            if path.is_relative_to(ROOT) and path.relative_to(ROOT).parts[0] in {"validation", "results"}:
+                raise AssertionError("A guide build must not read execution records.")
+            return original(path, *args, **kwargs)
+
+        with patch.object(Path, "read_text", read):
+            for language in ("ko", "en"):
+                chapters, sources, capabilities = build_guide.load_content(language)
+                for chapter in chapters:
+                    build_guide.source_body(chapter, chapters, capabilities, sources, language)
+
+    def test_all_active_labs_have_concepts_and_per_command_explanations(self):
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
         labs = [chapter for chapter in chapters if chapter["track"] != "reference"]
-        self.assertEqual(len(labs), 25)
+        self.assertEqual(len(labs), 20)
         total = {"blocks": 0, "commands": 0}
         for chapter in labs:
             text = (ROOT / chapter["file"]).read_text()
@@ -161,28 +140,6 @@ class GuideAuthoringTests(unittest.TestCase):
                 self.assertEqual(len({c[c.index("--query") + 1] for c in commands}), 1)
                 self.assertTrue(all("--live" in command for command in commands))
 
-    def test_documented_tuning_row_matches_each_language_generator(self):
-        for language, directory in (("ko", "docs"), ("en", "docs/en")):
-            text = (ROOT / directory / "20-optimization.md").read_text()
-            blocks = re.findall(r"^```json\n(.*?)^```", text, re.M | re.S)
-            with self.subTest(language=language), tempfile.TemporaryDirectory() as temporary:
-                self.assertEqual(len(blocks), 1)
-                target = Path(temporary) / "tuning"
-                result = subprocess.run(
-                    [sys.executable, "-c",
-                     "import json, sys; from pathlib import Path; sys.path.insert(0, 'samples'); "
-                     "import prepare_tuning; print(json.dumps(prepare_tuning.prepare(Path(sys.argv[1]))))",
-                     str(target)],
-                    cwd=ROOT, env={**os.environ, "FOUNDRY_LAB_LANGUAGE": language, "PYTHONDONTWRITEBYTECODE": "1"},
-                    capture_output=True, text=True, timeout=30, check=True,
-                )
-                train_count, validation_count = json.loads(result.stdout)
-                train = [json.loads(line) for line in (target / "train.jsonl").read_text(encoding="utf-8-sig").splitlines()]
-                validation = [json.loads(line) for line in (target / "validation.jsonl").read_text(encoding="utf-8-sig").splitlines()]
-                self.assertEqual(json.loads(blocks[0]), train[0])
-                self.assertEqual((len(train), len(validation)), (train_count, validation_count))
-                self.assertIn(f"train={train_count}, validation={validation_count}", text)
-
     def test_trace_timing_example_uses_intervals_without_double_counting(self):
         for directory in ("docs", "docs/en"):
             text = (ROOT / directory / "10-observability.md").read_text()
@@ -199,21 +156,6 @@ class GuideAuthoringTests(unittest.TestCase):
                 self.assertLessEqual(children, parent)
                 for previous, following in zip(intervals[1:], intervals[2:]):
                     self.assertLessEqual(previous[1], following[0])
-
-    def test_documented_expense_totals_match_both_synthetic_sources(self):
-        for directory, data in (("docs", "data"), ("docs/en", "data/en")):
-            with (ROOT / data / "monthly-spend.csv").open() as handle:
-                rows = list(csv.DictReader(handle))
-            totals = defaultdict(int)
-            for row in rows:
-                totals[row["month"]] += int(row["amount_krw"])
-            for chapter in ("18-multimodal.md", "23-extensions.md"):
-                text = (ROOT / directory / chapter).read_text()
-                with self.subTest(directory=directory, chapter=chapter):
-                    self.assertEqual(len(rows), 9)
-                    self.assertEqual(len(totals), 3)
-                    for amount in (*totals.values(), sum(totals.values())):
-                        self.assertIn(f"{amount:,}", text)
 
     def test_comments_and_continuations_do_not_inflate_command_count(self):
         text = (
