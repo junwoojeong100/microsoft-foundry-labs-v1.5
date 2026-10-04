@@ -256,16 +256,18 @@ class PracticeWalkthroughTests(unittest.TestCase):
             ("ko", "docs", ("직접 해보기", "한 가지 바꾸기", "결과 설명하기")),
             ("en", "docs/en", ("Try it", "Change one thing", "Explain the result")),
         ):
-            for filename in ("15-multiagent.md", "21-governance.md", "22-delivery.md"):
+            for filename in ("15-multiagent.md", "15-collaboration.md", "21-governance.md", "22-delivery.md"):
                 text = (ROOT / directory / filename).read_text()
                 with self.subTest(language=language, filename=filename):
                     self.assertIn('class="practice-block"', text)
                     for label in labels:
                         self.assertIn("**" + label, text)
 
-    def test_orchestration_lesson_exposes_four_builders_and_capacity_preflight(self):
+    def test_two_orchestration_lessons_preserve_four_builders_and_capacity_preflight(self):
         for directory in ("docs", "docs/en"):
-            text = (ROOT / directory / "15-multiagent.md").read_text()
+            first = (ROOT / directory / "15-multiagent.md").read_text()
+            second = (ROOT / directory / "15-collaboration.md").read_text()
+            text = first + second
             with self.subTest(directory=directory):
                 for builder in ("SequentialBuilder", "ConcurrentBuilder", "GroupChatBuilder", "HandoffBuilder"):
                     self.assertIn(builder, text)
@@ -274,6 +276,12 @@ class PracticeWalkthroughTests(unittest.TestCase):
                 self.assertIn("model_capacity.py check --roles chat --live", text)
                 self.assertIn("2,048", text)
                 self.assertIn("100,000", text)
+                for mode in ("group-chat", "handoff"):
+                    self.assertNotIn(f"--mode {mode} --live", first)
+                    self.assertIn(f"--mode {mode} --live", second)
+                for mode in ("sequential", "concurrent"):
+                    self.assertIn(f"--mode {mode} --live", first)
+                    self.assertNotIn(f"--mode {mode} --live", second)
 
     def test_cu_configuration_uses_supported_types_and_preserves_expected_fields(self):
         for data in ("data", "data/en"):

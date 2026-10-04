@@ -12,7 +12,7 @@
 
 ## Objectives
 
-A Prompt Agent is a managed agent declared through **model + instructions + tools**. You do not operate a separate server or container yourself. L14 explains how it differs from a Hosted Agent.
+A Prompt Agent is a managed agent declared through **model + instructions + tools**. You do not operate a separate server or container yourself. L12 explains how it differs from a Hosted Agent.
 
 ## Concepts and lab map
 
@@ -101,7 +101,7 @@ python samples/workshop.py agent --live
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. With the English profile selected, the default instruction file is `data/en/prompts/agent-v2.txt`. | No Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
-| 2. `agent --live` | Creates a uniquely named `contoso-lab-...` agent and conversation, then obtains a real model response. It does not modify the agent created in the portal. | Incurs inference/service costs and creates new lab objects. Keep the printed receipt path for cleanup in L12. |
+| 2. `agent --live` | Creates a uniquely named `contoso-lab-...` agent and conversation, then obtains a real model response. It does not modify the agent created in the portal. | Incurs inference/service costs and creates new lab objects. Keep the printed receipt path for cleanup in L19. |
 
 </div>
 
@@ -119,4 +119,4 @@ Earlier conversation context can mask an instruction change. After selecting the
 
 ## Cleanup
 
-Reuse the portal agent in the next lab. Keep the receipt for the separate SDK-created agent and clean it up in L12.
+Reuse the portal agent in the next lab. Keep the receipt for the separate SDK-created agent and clean it up in L19.

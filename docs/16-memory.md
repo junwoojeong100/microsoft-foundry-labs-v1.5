@@ -34,6 +34,16 @@ Python 기본 SDK 환경과 `.env`의 `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME`을 준
 허용 내용은 가상 사용자 A의 “표 형식 답변 선호”뿐입니다.
 실제 개인정보·급여·비밀번호·직원 정보는 저장하지 않습니다.
 
+### 먼저 경로 정하기
+
+| 준비할 것 | 어디서 확인하나요? | 없으면 |
+| --- | --- | --- |
+| 프로젝트·chat·embedding 배포 이름 | L01·L02에서 준비한 자기 `.env`와 모델 배포 목록 | 이름·지역·권한 확인 전 `create` 계획만 읽기 |
+| 새 실습인지 여부 | 자기 폴더의 `results/memory.json` 존재 여부 | 기존 기록이 있으면 새 `create`를 반복하지 않기 |
+| 실제 항목 삭제 승인 | 관리자에게 정확한 `memory_id`의 삭제 범위 확인 | 1–3단계 저장·격리까지만, 4단계는 미실행 |
+
+흐름은 **store 생성 → item 1개 저장 → A/B 검색 비교 → 승인된 경우만 item 삭제**입니다. Search나 Hosted는 필요하지 않습니다. 편집기로 `results/memory.json`을 열어 값을 읽으며 원본을 수정하지 않습니다.
+
 ## 실행
 
 ### 1. 전용 store 만들기
@@ -62,6 +72,8 @@ python samples/memory_lab.py create --live
 profile만 켜고 summary/procedural 추출은 끕니다. 새 item의 기본 TTL은 **3,600초**입니다.
 기존 receipt는 덮어쓰지 않습니다.
 
+생성 후 receipt의 `name`, `endpoint`, `scope_a`, `scope_b`, `ttl_seconds`를 확인합니다. `memory_id`는 **다음 remember 성공 뒤**에 추가됩니다. store 이름과 item ID를 혼동해 `--confirm`에 넣지 않습니다.
+
 ### 2. 저장하고 실제 검색하기
 
 ```bash
@@ -87,10 +99,17 @@ eventual consistency는 최대 6회/3초 간격으로만 기다립니다.
 
 ### 3. 격리 검사 읽기
 
-같은 검색을 A scope와 B scope로 실행합니다.
+앞의 `remember`는 저장 후 검색까지 수행하며, `verify`는 같은 항목을 새 요청으로 재확인합니다. **여기서는 그 출력의 `Evidence:` 파일을 읽습니다.** 새 검색 명령을 추가할 필요는 없습니다.
 A에는 해당 item이 있고, B는 비어 있어야 합니다. 결과 원문을 각각 보존합니다.
 scope는 receipt에서만 가져오며 임의 사용자 입력으로 바꾸지 않습니다.
 실제 서비스에서는 인증된 주체로부터 서버가 scope를 결정해야 합니다.
+
+| 원본의 이벤트·값 | 저장 후 기대하는 관계 |
+| --- | --- |
+| `memory_created`의 ID / receipt의 `memory_id` | 같은 실제 항목 |
+| `memory_search`의 `scope_label=scope_a` | 그 항목 ID가 검색됨 |
+| `memory_search`의 `scope_label=scope_b` | 결과가 비어 있음 |
+| `verified` | 저장·격리 판정. 삭제하지 않았다면 `deleted_item_absent`를 삭제 성공으로 읽지 않음 |
 
 ### 4. item 하나만 삭제하고 다시 검색하기
 
@@ -128,6 +147,7 @@ store/item ID, A 검색 결과, B 격리 결과가 있고, 삭제를 수행했�
 
 모델/embedding 지원, store 설정, 사용자 scope, API Preview 접근을 확인합니다.
 API가 실패하면 원본 오류를 보존하고 로컬 dict로 대체한 것을 Azure Memory 성공으로 표시하지 않습니다.
+`memory.json`이 있는데 생성이 실패했다면 원격 store의 생성 여부를 담당자와 먼저 대조합니다. 기록을 지워 `create`를 다시 실행하거나 확인하지 않은 소유 정보를 수정하지 않습니다. 1시간 TTL 이후 항목이 사라진 것은 승인된 삭제 실행의 증거가 아니며, 새 실습은 별도의 승인·소유 기록으로 준비합니다.
 
 ## 정리
 

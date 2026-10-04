@@ -1,4 +1,4 @@
-> **What you will build:** Run the same Contoso purchasing question through sequential, concurrent, group-chat, and handoff orchestration, then explain how roles exchange control and results.
+> **What you will build:** Run one Contoso purchasing question sequentially and concurrently, then explain passing a prior answer versus dividing independent work.
 
 <div class="lab-brief" markdown="1">
 
@@ -17,20 +17,29 @@ This module uses the official Builders in `agent_framework.orchestrations`. It i
 
 ## Concepts and lab map
 
-**What you will try:** Sequential, concurrent, group-chat, and handoff orchestration.
+**What you will try:** Sequential and concurrent execution with `SequentialBuilder` and `ConcurrentBuilder`.
 
 **What is it, and why does it matter?** Orchestration chooses who acts next and which conversation/results are passed along. Sequential chains work, concurrent divides work, group chat refines work, and handoff changes the responsible agent.
 
-**How do you use it?** Change only `--mode` under the same policy and question. Compare role order and actual outputs while retaining request limits and termination conditions.
+**How do you use it?** Change only `--mode` under the same policy and question. Compare role order and actual outputs. Revision after review and specialist delegation have their own [L14 exercise](#l15-collaboration).
 
 **Where do you run it?** Run [multi_agent.py](../../samples/multi_agent.py) in a separate Python environment. Only the model is in Azure; this is not a remote A2A or business-approval exercise.
 
 ## Prerequisites
 
 Use L01's project, deployment, `.env`, and administrator-provided `results/azure-environment.json`. Stop if the project, language, or deployment name differs.
-L15 itself uses **only the chat deployment**. The per-learner starting minimum is **100,000 TPM / 60 RPM**; see [L02](#l02-capacity) for sizing assumptions and configuration.
+L13/L14 use **only the chat deployment**. The per-learner starting minimum is **100,000 TPM / 60 RPM**; see [L02](#l02-capacity) for sizing assumptions and configuration.
 
 Keep the advanced SDK in `requirements-advanced.txt` separate. `agent-framework-foundry==1.13.1` requires `azure-ai-projects<2.7.0`, unlike the core environment. Install `agent-framework-orchestrations==1.2.0` with it.
+
+### Choose your starting path
+
+| Current state | Steps to follow | What to retain |
+| --- | --- | --- |
+| No Azure approval | Step 1 environment → step 3 plan | Explain roles and call limits; model execution remains not performed |
+| Model, ownership receipt, and cost approval ready | 1 → 2 → 3 → 4 → 5 | Sequential/concurrent answers to one question and a comparison |
+
+Get the project/model deployment names in `.env` from L01/L02 and `results/azure-environment.json` from that environment's administrator. No new Hosted or Search resources are needed. **Unlike L06, these roles review supplied policy and a question without calling a stock function.** Keep the English profile selected in this terminal.
 
 ## Steps
 
@@ -76,10 +85,10 @@ On Windows use `.venv-advanced\Scripts\python.exe`. If an existing advanced envi
 
 If insufficient, the administrator uses L02's `apply` path first. Sufficient capacity is not reduced. Each live orchestration also rechecks readiness instead of trusting an old confirmation file.
 
-### 3. Read the four execution plans
+### 3. Read the sequential and concurrent plans
 
 ```bash
-python samples/multi_agent.py --mode concurrent
+.venv-advanced/bin/python samples/multi_agent.py --mode concurrent
 ```
 
 <div class="command-explanation" markdown="1">
@@ -96,15 +105,15 @@ python samples/multi_agent.py --mode concurrent
 | --- | --- | --- | ---: |
 | `sequential` | `SequentialBuilder` | Drafter → reviewer | 2 |
 | `concurrent` | `ConcurrentBuilder` | Policy, budget, and risk work independently → collected outputs | 3 |
-| `group-chat` | `GroupChatBuilder` | Drafter → reviewer → revised draft | 3 |
-| `handoff` | `HandoffBuilder` | Coordinator transfers control to policy or budget | 4 |
+
+This module covers those two patterns only. **GroupChatBuilder and HandoffBuilder belong to L14**, which reuses the same environment; do not run them yet.
 
 Every pattern is bounded to **180 seconds, 2,048 output tokens per response, and zero retries**. Do not run multiple terminals against the same deployment.
 Within one execution, request starts are spaced by at least one second and capped at six per minute. Start the next pattern **at least one minute after the previous execution began**. Size shared deployments for all simultaneous learners in L02.
 
 ### 4. Run one pattern at a time
 
-Each command makes new model calls. Read its outputs before choosing the next pattern. Running all four has a combined maximum of **12 model calls**.
+Each command makes new model calls. Read its outputs before choosing the next pattern. These two patterns total **at most five calls**, or **12 calls** if you also choose both L14 patterns.
 
 **Sequential:** Confirm that the reviewer's input contains the drafter's actual answer.
 
@@ -138,40 +147,7 @@ Each command makes new model calls. Read its outputs before choosing the next pa
 
 </div>
 
-**Group chat:** Speaker selection is deterministic round-robin. No extra model-based moderator call is made; the conversation stops after three contributions.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode group-chat --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--mode group-chat --live` | Run three contributions so the drafter receives the review and replies again. | At most three calls. Do not increase termination or call limits. |
-
-</div>
-
-**Handoff:** The coordinator uses an actual `handoff_to_…` tool. Saying “delegated” is not sufficient. Specialists terminate after answering and do not hand off again in this exercise.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode handoff --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--mode handoff --live` | Transfer conversation control to an allowed policy or budget specialist. | At most four calls. Missing tool/specialist evidence fails. No business approval or A2A server invocation occurs. |
-
-</div>
-
-Handoff agents require `require_per_service_call_history_persistence=True`. The sample sets it so tool-call control changes retain the local conversation.
-Read `build_workflow` in `samples/multi_agent.py` to compare all four Builders. The official [group-chat](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python) and [handoff](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python) documentation explains their contracts.
+Open each command's **`Evidence:` file in an editor**. Under `paths.sequential.stages`, connect the drafter's answer to the reviewer's actual input. Under `paths.concurrent.stages`, use `input_authors` and the original inputs to check that the three roles did not wait for one another's answers. The implementation is `build_workflow` in `samples/multi_agent.py`.
 
 ### 5. Compare message flow, termination, and cost
 
@@ -183,10 +159,9 @@ Read `build_workflow` in `samples/multi_agent.py` to compare all four Builders. 
 | --- | --- |
 | `paths.<mode>.stages` | Actual per-call roles, answers, response IDs, and tokens |
 | `input_authors`, `input_sha256` | Clues linking the conversation passed to the next role |
-| `payload.input` in `model_call_completed` events | Actual messages and instructions; check prior-answer propagation in sequential/group chat |
-| `handoff_calls` | The actual requested handoff tool names |
+| `payload.input` in `model_call_completed` events | Actual messages and instructions; sequential passes the draft to the reviewer |
 | `elapsed_seconds`, `total_tokens` | Elapsed time and token sum; `null` usage is not zero |
-| `final_messages`, `workflow_state` | Final messages and state for concurrent, group-chat, and handoff execution |
+| `final_messages`, `workflow_state` | Collected concurrent results and termination state |
 
 **Change one thing:** With approval for additional calls, add only `--case boundary` to the same mode. Compare approval rules for exactly KRW 2,000,000 and KRW 2,000,001. Keep model, policy, and role instructions fixed.
 
@@ -217,8 +192,8 @@ The single path runs first, so authentication, caching, and startup latency can 
 
 ## Success criteria
 
-Distinguish the four patterns' message flow and termination, and explain actual responses from the patterns you chose to run.
-Check real control transfer for handoff, three contributions for group chat, and three independent perspectives for concurrent execution. Do not claim a business approval or remote A2A run.
+Distinguish actual draft propagation in sequential execution from the three independent concurrent results. Explain the responses, elapsed time, and tokens for the patterns you ran.
+A reviewer's agreement is neither human approval nor an automatic quality pass. If you only read plans, model execution remains not performed.
 
 ## Troubleshooting
 
@@ -227,4 +202,4 @@ An oversized input or truncated response is a failure. Inspect context length an
 
 ## Cleanup
 
-This module performs local orchestration and model calls only. Hosted sessions and schedules created in other labs are separate; handle those in L12. Keep your own results under `results/` and do not share user or authentication information.
+This module performs local orchestration and model calls only. Hosted sessions and schedules created in other labs are separate; handle those in L19. Keep your own results under `results/` and do not share user or authentication information.

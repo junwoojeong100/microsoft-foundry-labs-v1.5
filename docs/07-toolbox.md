@@ -28,10 +28,10 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 ## 준비
 
 L01의 Python 가상환경에 `requirements-tools.txt`를 설치합니다. 가상환경이 없다면 L01의 **가상환경 생성 단계**를 먼저 진행하되 Azure 로그인은 하지 않아도 됩니다. 설치에는 인터넷과 승인된 패키지 저장소 접근이 필요하지만 **기본 1–2단계에는 Azure 계정이 필요 없습니다.**
-클라우드 단계는 L13의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
+클라우드 단계는 L11의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
 **기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
-3–4단계의 클라우드 Toolbox/Skills는 L13 자원 준비 후 선택하는 확장입니다.
-기본 코스 학습자가 L13을 먼저 진행할 필요는 없습니다.
+3–4단계의 클라우드 Toolbox/Skills는 L11 자원 준비 후 선택하는 확장입니다.
+기본 코스 학습자가 L11을 먼저 진행할 필요는 없습니다.
 
 ```bash
 python -m pip install -r requirements-tools.txt
@@ -122,7 +122,7 @@ stdio child process가 서버를 실행하고 initialize → tools/list → tool
 기본 코스 참여자는 여기서 **성공 기준 → 정리 → L08**로 이동합니다.
 
 <details class="optional-path" markdown="1">
-<summary>L13 준비 후에만: 클라우드 Toolbox·Skill 생성과 호출 (3–4단계)</summary>
+<summary>L11 준비 후에만: 클라우드 Toolbox·Skill 생성과 호출 (3–4단계)</summary>
 
 ```bash
 python samples/toolbox_lab.py create
@@ -132,7 +132,7 @@ python samples/toolbox_lab.py inspect --live
 
 <div class="command-explanation" markdown="1">
 
-**명령 해설 — L13 자원과 관리 ID 권한이 준비된 경우에만 선택합니다.**
+**명령 해설 — L11 자원과 관리 ID 권한이 준비된 경우에만 선택합니다.**
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
@@ -177,7 +177,7 @@ python samples/toolbox_lab.py call --tool 실제-OPENAPI-검색도구명 --argum
 
 OpenAPI 도구의 인수는 `tools/list`의 `inputSchema`를 따릅니다.
 `api-version=2024-07-01`을 최상위에, `search`, `top<=5`, 지정 `select`를 **`body` 안에** 전달합니다. `search`를 최상위에 놓거나 Learn 도구의 `query`를 대신 쓰지 않습니다.
-`python samples/toolbox_lab.py openapi`로 **이 저장소가 생성하는 전체 계약**을 확인할 수 있습니다. `openapi`는 Search 설정/receipt로 계약 JSON을 구성해 출력하는 로컬 명령입니다. Azure 요청이나 도구 실행은 없지만 L13의 설정이 있어야 올바른 endpoint가 들어갑니다.
+`python samples/toolbox_lab.py openapi`로 **이 저장소가 생성하는 전체 계약**을 확인할 수 있습니다. `openapi`는 Search 설정/receipt로 계약 JSON을 구성해 출력하는 로컬 명령입니다. Azure 요청이나 도구 실행은 없지만 L11의 설정이 있어야 올바른 endpoint가 들어갑니다.
 API version의 schema default만 적는 것은 실제 query parameter 전송이 아닙니다.
 
 실제 output과 tool error를 `results/contoso-toolbox-*.jsonl`에 보존합니다.

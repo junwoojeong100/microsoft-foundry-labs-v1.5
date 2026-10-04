@@ -1,4 +1,4 @@
-> **완성할 결과:** 같은 Contoso 구매 질문을 순차·병렬·그룹 채팅·핸드오프로 처리하고 역할 간 전달 방식의 차이를 설명합니다.
+> **완성할 결과:** 같은 Contoso 구매 질문을 순차·동시 실행으로 처리하고, 앞사람의 답을 전달하는 방식과 독립 분담의 차이를 설명합니다.
 
 <div class="lab-brief" markdown="1">
 
@@ -17,20 +17,29 @@
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 순차, 병렬, 그룹 채팅, 핸드오프 네 가지 오케스트레이션을 실행합니다.
+**경험할 기능:** `SequentialBuilder`와 `ConcurrentBuilder`로 순차·동시 실행을 비교합니다.
 
 **무엇이며 왜 중요한가요?** 오케스트레이션은 누가 다음에 작업할지와 어떤 대화·결과를 전달할지 정합니다. 순차는 연결, 병렬은 분담, 그룹 채팅은 반복 검토, 핸드오프는 담당자 전환에 적합합니다.
 
-**어떻게 사용하나요?** 같은 정책·질문에서 `--mode`만 바꾸고 역할 순서와 실제 출력을 비교합니다. 승인된 요청 수와 종료 조건을 유지합니다.
+**어떻게 사용하나요?** 같은 정책·질문에서 `--mode`만 바꾸고 역할 순서와 실제 출력을 비교합니다. 검토 후 수정·담당자 전환은 [L14](#l15-collaboration)에서 별도로 진행합니다.
 
 **어디서 실행하나요?** [multi_agent.py](../samples/multi_agent.py)를 별도 Python 환경에서 실행합니다. 모델만 Azure에 있으며, 원격 A2A나 실제 업무 승인 실습은 아닙니다.
 
 ## 준비
 
 L01의 프로젝트·모델·`.env`와 관리자가 제공한 `results/azure-environment.json`이 필요합니다. 프로젝트·언어·배포 이름이 다르면 진행하지 않습니다.
-L15 자체는 **chat 배포만** 사용합니다. 한 명 기준 최소 권장값은 **100,000 TPM / 60 RPM**이며, 산정 가정과 설정 방법은 [L02](#l02-capacity)에 있습니다.
+L13·L14는 **chat 배포만** 사용합니다. 한 명 기준 최소 권장값은 **100,000 TPM / 60 RPM**이며, 산정 가정과 설정 방법은 [L02](#l02-capacity)에 있습니다.
 
 심화 SDK는 `requirements-advanced.txt`로 분리합니다. `agent-framework-foundry==1.13.1`은 `azure-ai-projects<2.7.0`을 요구하므로 기본 코스의 SDK 환경과 섞지 않습니다. `agent-framework-orchestrations==1.2.0`도 함께 설치합니다.
+
+### 먼저 경로 정하기
+
+| 지금 상태 | 진행할 단계 | 남길 결과 |
+| --- | --- | --- |
+| Azure 승인 없음 | 1단계 환경 준비 → 3단계 계획 읽기 | 역할·최대 호출 수 설명. 실제 응답은 미실행 |
+| 모델·소유 기록·비용 승인 있음 | 1 → 2 → 3 → 4 → 5 | 같은 질문의 순차·동시 응답과 비교표 |
+
+`.env`의 프로젝트·모델 배포 이름은 L01·L02에서, `results/azure-environment.json`은 그 환경을 만든 관리자에게 받습니다. Hosted나 Search를 새로 만들 필요는 없습니다. **L06과 달리 실제 재고 함수는 호출하지 않고, 동봉 정책과 질문을 역할들이 검토하는 실습**입니다.
 
 ## 실행
 
@@ -76,10 +85,10 @@ Windows에서는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 기존 
 
 미달이면 관리자가 L02의 `apply` 경로로 먼저 용량을 맞춥니다. 이미 충분한 배포는 줄이지 않습니다. 실제 실행 명령도 다시 확인하므로 오래된 확인 파일만 믿고 호출하지 않습니다.
 
-### 3. 네 가지 흐름의 계획 읽기
+### 3. 순차와 동시 실행의 계획 읽기
 
 ```bash
-python samples/multi_agent.py --mode concurrent
+.venv-advanced/bin/python samples/multi_agent.py --mode concurrent
 ```
 
 <div class="command-explanation" markdown="1">
@@ -96,15 +105,15 @@ python samples/multi_agent.py --mode concurrent
 | --- | --- | --- | ---: |
 | `sequential` | `SequentialBuilder` | 작성자 → 검토자 | 2 |
 | `concurrent` | `ConcurrentBuilder` | 정책·금액·위험 검토를 병렬 수행 → 결과 모음 | 3 |
-| `group-chat` | `GroupChatBuilder` | 작성자 → 검토자 → 작성자 수정 | 3 |
-| `handoff` | `HandoffBuilder` | 분류 담당자 → 정책 또는 금액 담당자로 제어 이전 | 4 |
+
+이 장은 위 두 패턴만 진행합니다. **GroupChatBuilder·HandoffBuilder는 L14**에서 같은 환경을 이어 사용하므로 지금 실행할 필요가 없습니다.
 
 모든 패턴은 **180초, 응답당 최대 2,048토큰, 재시도 0회**입니다. 같은 배포에 여러 터미널을 동시에 실행하지 않습니다.
 한 실행 안에서는 요청 시작을 최소 1초 간격·분당 최대 6회로 제한합니다. 다음 패턴은 **이전 실행을 시작한 뒤 1분 이상 지난 후** 진행하세요. 다른 학습자와 배포를 공유하면 L02에서 동시 학습자 수를 반영합니다.
 
 ### 4. 패턴을 하나씩 실행하고 결과 읽기
 
-각 명령은 새 모델 호출입니다. 하나를 실행하고 결과를 읽은 뒤 다음 패턴으로 넘어갑니다. 네 패턴을 모두 실행하면 합계 **최대 12회** 호출입니다.
+각 명령은 새 모델 호출입니다. 하나를 실행하고 결과를 읽은 뒤 다음 패턴으로 넘어갑니다. 이 장의 두 패턴은 합계 **최대 5회**, L14의 두 패턴까지 선택하면 합계 **최대 12회** 호출입니다.
 
 **순차:** 검토자의 입력에 작성자의 실제 초안이 전달되는지 확인합니다.
 
@@ -138,40 +147,7 @@ python samples/multi_agent.py --mode concurrent
 
 </div>
 
-**그룹 채팅:** 발언자를 정하는 코드는 round-robin입니다. 별도의 모델 기반 사회자 호출 없이 세 번의 발언 후 종료합니다.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode group-chat --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `--mode group-chat --live` | 검토 내용을 받은 작성자가 다시 답하는 세 차례 대화를 실행합니다. | 최대 3회 호출. 종료 조건·호출 상한을 늘리지 않습니다. |
-
-</div>
-
-**핸드오프:** 분류 담당자가 실제 `handoff_to_…` 도구로 담당자를 바꿉니다. 말로만 “위임했다”고 답한 것은 성공이 아닙니다. 전문가는 답한 뒤 종료하는 역할이며 다시 위임하지 않습니다.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode handoff --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `--mode handoff --live` | 허용된 정책·금액 담당자 중 하나로 대화 제어를 넘깁니다. | 최대 4회 호출. 실제 도구 호출과 전문가 응답이 없으면 실패합니다. 업무 승인·A2A 서버 호출은 없습니다. |
-
-</div>
-
-핸드오프 Agent에는 `require_per_service_call_history_persistence=True`가 필요합니다. 샘플이 이를 설정해 도구 호출로 제어가 바뀌어도 로컬 대화 기록을 유지합니다.
-전체 구현은 `samples/multi_agent.py`의 `build_workflow`에서 네 Builder를 비교해 읽습니다. [그룹 채팅](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python)과 [핸드오프](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python)의 공식 문서도 참고합니다.
+두 명령이 출력한 **`Evidence:` 파일을 편집기로 각각 엽니다.** 순차 결과에서는 `paths.sequential.stages`의 작성자 답과 검토자 입력을 연결합니다. 동시 결과에서는 `paths.concurrent.stages`의 세 역할이 서로의 답을 기다리지 않았는지 `input_authors`와 입력 원문으로 확인합니다. 구현은 `samples/multi_agent.py`의 `build_workflow`에 있습니다.
 
 ### 5. 전달·종료·비용을 비교하기
 
@@ -183,10 +159,9 @@ python samples/multi_agent.py --mode concurrent
 | --- | --- |
 | `paths.<mode>.stages` | 실제 호출별 역할·답·응답 ID·토큰 |
 | `input_authors`, `input_sha256` | 어떤 대화가 전달됐는지 확인할 단서 |
-| `model_call_completed` 이벤트의 `payload.input` | 실제 입력 메시지와 지침. 순차·그룹 채팅의 이전 답 전달 확인 |
-| `handoff_calls` | 실제로 요청한 핸드오프 도구 이름 |
+| `model_call_completed` 이벤트의 `payload.input` | 실제 입력 메시지와 지침. 순차에서는 작성자의 답이 검토자에게 전달됨 |
 | `elapsed_seconds`, `total_tokens` | 실행 시간·호출 합계. 사용량 `null`은 0이 아닙니다. |
-| `final_messages`, `workflow_state` | 병렬·그룹 채팅·핸드오프의 최종 메시지와 종료 상태 |
+| `final_messages`, `workflow_state` | 동시 실행의 최종 결과 모음과 종료 상태 |
 
 **한 가지 바꾸기:** 추가 호출을 승인받았다면 같은 mode에서 `--case boundary`만 추가합니다. 정확히 200만 원과 200만 1원의 승인 경계를 비교합니다. 모델·정책·역할 지침은 함께 바꾸지 않습니다.
 
@@ -217,8 +192,8 @@ python samples/multi_agent.py --mode concurrent
 
 ## 성공 기준
 
-네 패턴의 역할 전달과 종료 조건을 구분하고, 선택해 실행한 패턴의 실제 응답을 설명할 수 있습니다.
-핸드오프는 실제 제어 이전, 그룹 채팅은 세 발언, 병렬은 세 역할의 독립 결과를 확인합니다. 실제 업무 승인이나 원격 A2A를 완료한 것으로 기록하지 않습니다.
+순차의 실제 초안 전달과 동시 실행의 세 독립 결과를 구분하고, 선택해 실행한 패턴의 응답·시간·토큰을 설명할 수 있습니다.
+검토자가 동의한 것을 사람 승인이나 자동 품질 합격으로 기록하지 않습니다. 계획만 읽었다면 모델 실행은 미실행입니다.
 
 ## 막혔을 때
 
@@ -227,4 +202,4 @@ python samples/multi_agent.py --mode concurrent
 
 ## 정리
 
-이 모듈은 로컬 오케스트레이션과 모델 호출만 수행합니다. 다른 장에서 만든 Hosted 세션·예약은 별도이며 L12에서 정리합니다. 자신의 실행 결과는 `results/`에 보관하고 사용자·인증 정보를 공유하지 않습니다.
+이 모듈은 로컬 오케스트레이션과 모델 호출만 수행합니다. 다른 장에서 만든 Hosted 세션·예약은 별도이며 L19에서 정리합니다. 자신의 실행 결과는 `results/`에 보관하고 사용자·인증 정보를 공유하지 않습니다.

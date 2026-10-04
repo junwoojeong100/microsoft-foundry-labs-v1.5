@@ -37,31 +37,41 @@ async (page) => {
     return response.json();
   });
   const labIds = chapters.filter(chapter => chapter.track !== "reference").map(chapter => chapter.id);
-  const expectedLabIds = [...Array.from({length: 18}, (_, index) => `l${String(index).padStart(2, "0")}`), "l21", "l22"];
+  const expectedLabIds = [...Array.from({length: 11}, (_, index) => `l${String(index).padStart(2, "0")}`),
+    "l13", "l14", "l15", "l15-collaboration", "l16", "l17", "l21", "l22", "l12"];
+  const expectedNumbers = Array.from({length: 20}, (_, index) => String(index).padStart(2, "0"));
+  const corePathCount = chapters.filter(chapter => ["core", "wrapup"].includes(chapter.track)).length;
   const advancedCount = chapters.filter(chapter => chapter.track === "advanced").length;
-  const practiceIds = ["l15", "l21", "l22"];
-  check(JSON.stringify(labIds) === JSON.stringify(expectedLabIds), "the 20-lab curriculum retains L00-L17 and L21-L22 in order");
+  const advancedPathCount = chapters.filter(chapter => ["advanced", "wrapup"].includes(chapter.track)).length;
+  const practiceIds = ["l15", "l15-collaboration", "l21", "l22"];
+  check(JSON.stringify(labIds) === JSON.stringify(expectedLabIds), "the 20-lab curriculum consolidates capstone and ends with shared wrap-up");
+  check(JSON.stringify(chapters.filter(chapter => chapter.track !== "reference").map(chapter => chapter.number)) === JSON.stringify(expectedNumbers),
+    "learner-facing module numbers are continuous from 00 through 19");
   const originalState = await page.evaluate(() => localStorage.getItem("foundry-lab-guide-20260929"));
   try {
     await page.evaluate(() => localStorage.removeItem("foundry-lab-guide-20260929"));
     await page.reload();
-    check(await page.locator("#learning-path").inputValue() === "core", "new readers start in the 13-module core path");
-    check(await page.locator("#progress-label").innerText() === "0 / 13", "new readers are not asked to complete every elective and core lab");
-    check(await page.locator(".chapter-link:visible").count() === 13, "default contents contain the core sequence only");
+    check(corePathCount === 12 && advancedPathCount === 9, "path counts include one shared wrap-up without duplicate modules");
+    check(await page.locator("#learning-path").inputValue() === "core", "new readers start with 11 core modules plus wrap-up");
+    check(await page.locator("#progress-label").innerText() === `0 / ${corePathCount}`, "new readers are not asked to complete every elective and core lab");
+    check(await page.locator(".chapter-link:visible").count() === corePathCount, "default contents contain the core sequence and shared wrap-up");
     check(await page.locator(".reader-help a:visible").count() === 2, "glossary and troubleshooting remain available outside path filtering");
     await page.evaluate(() => localStorage.setItem(
       "foundry-lab-guide-20260929",
-      JSON.stringify({done: ["l18", "l19", "l20", "l21", "l23", "l24"], theme: "light", path: "all"})
+      JSON.stringify({done: ["l11", "l18", "l19", "l20", "l21", "l23", "l24"], theme: "light", path: "all"})
     ));
     await page.reload();
-    check(await page.locator("#progress-label").innerText() === `1 / ${labIds.length}`, "saved progress excludes removed labs and retains L21");
+    check(await page.locator("#progress-label").innerText() === `1 / ${labIds.length}`, "saved progress excludes merged/removed IDs and retains the governance lab");
     check(await page.locator('[data-complete="l21"]').getAttribute("aria-pressed") === "true", "retained elective progress survives curriculum pruning");
+    check(await page.locator('[data-complete="l15-collaboration"]').getAttribute("aria-pressed") === "false", "a merged capstone checkmark does not complete the new collaboration lab");
     await page.evaluate(() => localStorage.setItem(
       "foundry-lab-guide-20260929", JSON.stringify({done: [], theme: "light", path: "all"})
     ));
     await page.reload();
     await page.waitForLoadState("networkidle");
     check(JSON.stringify(await page.locator("article.chapter").evaluateAll(nodes => nodes.map(node => node.id))) === JSON.stringify(chapters.map(chapter => chapter.id)), "generated articles exactly match curriculum order");
+    check(JSON.stringify(await page.locator('.chapter-link:not([data-track="reference"]) .nav-number').allTextContents()) === JSON.stringify(expectedNumbers),
+      "full navigation displays the same continuous order as the reader and print contents");
     check(await page.locator('.chapter[data-track="advanced"] .learning-badge').count() === advancedCount, "all advanced modules show execution dependency labels");
     check(await page.locator('#l14 .learning-badge').innerText() === (english ? "Prerequisites required" : "선행 실습 필요"), "Hosted prerequisite is explicit");
     check(await page.locator('#l16 .learning-badge').innerText() === (english ? "Independent elective" : "독립 선택"), "Memory is marked independently selectable");
@@ -71,7 +81,7 @@ async (page) => {
     check(await page.locator(".lab-brief").count() === labIds.length, "all active modules have beginner start cards");
     check(await page.locator("pre code.language-prompt").count() === 12, "twelve portal question blocks identify their input destination");
     check(await page.locator("pre code.language-env").count() === 2, "settings blocks are distinguished from terminal commands");
-    check(await page.locator(".practice-block").count() === practiceIds.length, "three advanced modules expose a try-change-explain exercise");
+    check(await page.locator(".practice-block").count() === practiceIds.length, "four advanced modules expose a try-change-explain exercise");
     check(await page.locator('#l01 .operator-only').evaluateAll(nodes =>
       nodes.length === 2 && nodes.every(node => !node.open)
     ), "administrator provisioning and role tables are collapsed by default");
@@ -176,11 +186,16 @@ async (page) => {
     await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
     check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "printing restores the learner's collapsed sections");
 
-    for (const id of ["l02", "l04", "l05", "l11"]) {
+    for (const id of ["l02", "l04", "l05", "l22"]) {
       await page.goto(`${entry}#${id}`);
       check(await page.locator(`#${id} .optional-path pre:visible`).count() === 0, `${id} extra paid paths are collapsed, not presented as required work`);
     }
-    check(await page.locator("#l11 > .prose > pre code.language-bash").first().innerText().then(text => text.includes("read-result")), "capstone defaults to reading the saved result, not making another paid call");
+    await page.goto(`${entry}#l11`);
+    await page.locator("#l06.active").waitFor({state: "visible"});
+    check(await page.locator(".chapter.active").getAttribute("id") === "l06", "old capstone bookmarks open the integrated L06 review");
+    check(await page.locator("#l06 pre code.language-bash").allTextContents().then(blocks =>
+      blocks.some(text => text.includes("read-result")) && blocks.filter(text => text.includes("capstone --live")).length === 1
+    ), "integration review reuses one collection and the local saved-result reader");
 
     await page.goto(`${entry}#l07`);
     const hiddenHeading = await page.locator("#l07 .optional-path h3[id]").first().getAttribute("id");
@@ -216,13 +231,16 @@ async (page) => {
     }
     await page.locator("#learning-path").selectOption("core");
     check(await page.locator("#l12 .chapter-pagination .next").getAttribute("href") === "#l00", "core completion does not require advanced electives");
+    await page.goto(`${entry}#l10`);
+    check(await page.locator("#l10 .chapter-pagination .next").getAttribute("href") === "#l12", "core-only readers go directly from L10 to L19 wrap-up");
+    check(await page.locator('.chapter-link[data-chapter="l12"] .nav-number').innerText() === "19", "the old cleanup bookmark displays L19");
     await page.locator("#learning-path").selectOption("all");
     await page.locator('.chapter-link[data-chapter="l06"]').click();
     await page.locator('[data-complete="l06"]').click();
     check(await page.locator("#progress-label").innerText() === `1 / ${labIds.length}`, "progress increments");
     await page.locator("#learning-path").selectOption("core");
-    check(await page.locator("#progress-label").innerText() === "1 / 13", "core progress counts only core modules");
-    check(await page.locator("#progress").getAttribute("max") === "13", "progress meter matches its visible denominator");
+    check(await page.locator("#progress-label").innerText() === `1 / ${corePathCount}`, "core progress counts only core modules and wrap-up");
+    check(await page.locator("#progress").getAttribute("max") === String(corePathCount), "progress meter matches its visible denominator");
     await page.locator('.reader-help a[href="#glossary"]').click();
     await page.locator("#glossary.active").waitFor({state: "visible"});
     check(await page.locator("#learning-path").inputValue() === "core", "opening glossary does not reset the learning path");
@@ -240,12 +258,23 @@ async (page) => {
     check(await page.locator("#progress-label").innerText() === "0 / 6", "quick tour excludes completed labs outside its six modules");
     await page.locator("#learning-path").selectOption("advanced");
     await page.locator("#l13.active").waitFor({state: "visible"});
-    check(await page.locator("#progress-label").innerText() === `0 / ${advancedCount}`, "elective progress is separate from core progress");
+    check(await page.locator("#progress-label").innerText() === `0 / ${advancedPathCount}`, "elective progress includes shared wrap-up but not core labs");
+    check(JSON.stringify(await page.locator(".chapter-link:visible .nav-number").allTextContents()) === JSON.stringify(expectedNumbers.slice(11)),
+      "advanced navigation is continuous from L11 to L18 and then L19 wrap-up");
+    await page.goto(`${entry}#l22`);
+    check(await page.locator("#l22 .chapter-pagination .next").getAttribute("href") === "#l12", "the final elective leads to shared wrap-up");
+    await page.goto(`${entry}#l12`);
+    check(await page.locator("#l12 .chapter-pagination .next").getAttribute("href") === "#l00", "advanced completion ends after wrap-up");
+    await page.locator('[data-complete="l12"]').click();
+    await page.locator("#learning-path").selectOption("core");
+    check(await page.locator("#progress-label").innerText() === `2 / ${corePathCount}`, "wrap-up completion is shared with the core path");
+    await page.locator('[data-complete="l12"]').click();
+    await page.locator("#learning-path").selectOption("advanced");
     await page.goto(`${entry}#l17`);
-    check(await page.locator("#l17 .chapter-pagination .next").getAttribute("href") === "#l21", "elective pagination skips removed IDs");
+    check(await page.locator("#l17 .chapter-pagination .next").getAttribute("href") === "#l21", "elective pagination follows displayed L16 to L17 despite stable internal IDs");
     await page.locator("#l17 .chapter-pagination .next").click();
     await page.locator("#l21.active").waitFor({state: "visible"});
-    check(await page.locator("#l21 .chapter-pagination a").first().getAttribute("href") === "#l17", "reverse pagination retains the non-contiguous curriculum");
+    check(await page.locator("#l21 .chapter-pagination a").first().getAttribute("href") === "#l17", "reverse pagination follows continuous displayed numbers");
     await page.locator("#learning-path").selectOption("offline");
     await page.locator("#l21.active").waitFor({state: "visible"});
     check(await page.locator(".chapter.active").getAttribute("id") === "l21", "path switching retains a current lab that belongs to both paths");

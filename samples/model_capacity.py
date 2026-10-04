@@ -53,7 +53,7 @@ def requirements(learners: int = 1) -> dict:
         "schema": "contoso-model-capacity-plan-v1", "learners": learners,
         "roles": profiles,
         "assumptions": [
-            "Each learner runs one lab at a time; L15 permits up to three overlapping agents.",
+            "Each learner runs one lab at a time; L13 permits up to three overlapping agents.",
             "Chat/judge sizing assumes at most six request starts per minute and an 8192-token input estimate.",
             "TPM admission uses provider estimates plus the output reservation, not billed token counts.",
             "These are conservative starting minimums, not a universal no-429 guarantee.",

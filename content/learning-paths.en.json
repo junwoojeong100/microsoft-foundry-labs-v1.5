@@ -1,9 +1,10 @@
 {
-  "l13": {"label":"Independent elective","requires":"An L01 project and model. This module prepares Search, embeddings, and an index, which also provide the foundation for L14."},
-  "l14": {"label":"Prerequisites required","requires":"The Search service and index from L13, or equivalent administrator-provided resources. Required only for the optional live Hosted deployment in L22."},
-  "l15": {"label":"Independent elective","requires":"A basic project/model, ownership receipt, and separate .venv-advanced environment. Check the chosen pattern's TPM and request limit in L02 first. Neither L14 Hosted deployment nor an A2A connection is required."},
+  "l13": {"label":"Independent elective","requires":"An L01 project and model. This module prepares Search, embeddings, and an index, which also provide the foundation for L12."},
+  "l14": {"label":"Prerequisites required","requires":"The Search service and index from L11, or equivalent administrator-provided resources. Required only for the optional live Hosted deployment in L18."},
+  "l15": {"label":"Independent elective","requires":"A basic project/model, ownership receipt, and separate .venv-advanced environment. Check the chosen pattern's TPM and request limit in L02 first. Neither L12 Hosted deployment nor an A2A connection is required."},
+  "l15-collaboration": {"label":"Choose after environment setup","requires":"Reuse L13's .venv-advanced environment and model-capacity check. Paid sequential/concurrent runs are not prerequisites; approve group-chat and handoff call limits separately."},
   "l16": {"label":"Independent elective","requires":"A basic project, chat and embedding deployments, and access to supported Memory features. No other advanced module is required."},
-  "l17": {"label":"Separate feature paths","requires":"A routine can run independently with the server-side prompt agent from L05. The long-running Hosted path requires L14."},
+  "l17": {"label":"Separate feature paths","requires":"A routine can run independently with the server-side prompt agent from L05. The long-running Hosted path requires L12."},
   "l21": {"label":"Independent elective","requires":"Use Python for the local access/cache repair, then complete the synthetic design. Actual access/network inspection needs read permissions; changes require an administrator and separate approval."},
-  "l22": {"label":"Run after source setup","requires":"Use L01's local environment and sources for synthetic CI failure/repair and release/rollback design. L14 is needed only for optional live Hosted deployment; repeated evaluation and Optimizer are not required."}
+  "l22": {"label":"Elective for operations owners","requires":"Use L01's local environment and sources for CI failure/repair and release, publishing, and rollback design. L12 is needed only for optional live Hosted deployment. Publishing also requires a supported protocol, server-side tools, organizational access, and separate approval; it is not a core requirement."}
 }

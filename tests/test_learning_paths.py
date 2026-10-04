@@ -26,7 +26,7 @@ class LearningPathTests(unittest.TestCase):
 
     def test_all_advanced_modules_are_classified(self):
         paths = json.loads((ROOT / "content/learning-paths.json").read_text())
-        self.assertEqual(list(paths), [f"l{i:02}" for i in (*range(13, 18), 21, 22)])
+        self.assertEqual(list(paths), ["l13", "l14", "l15", "l15-collaboration", "l16", "l17", "l21", "l22"])
         english = json.loads((ROOT / "content/learning-paths.en.json").read_text())
         self.assertEqual(list(english), list(paths))
         self.assertEqual(paths["l14"]["mode"], "sequence")
@@ -35,14 +35,17 @@ class LearningPathTests(unittest.TestCase):
         self.assertTrue(all(value["requires"] for value in paths.values()))
         self.assertTrue(all(value["requires"] for value in english.values()))
 
-    def test_course_preserves_original_ids_numbers_and_reference_order(self):
+    def test_course_numbers_are_continuous_with_shared_wrapup_last(self):
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
-        numbers = [f"{i:02}" for i in (*range(18), 21, 22)]
+        numbers = [f"{i:02}" for i in range(20)]
         labs = [chapter for chapter in chapters if chapter["track"] != "reference"]
         self.assertEqual([chapter["number"] for chapter in labs], numbers)
-        self.assertEqual([chapter["id"] for chapter in labs], ["l" + number for number in numbers])
-        self.assertEqual([chapter["track"] for chapter in labs], ["core"] * 13 + ["advanced"] * 7)
-        expected_ids = [*("l" + number for number in numbers), "troubleshooting", "instructor", "glossary", "coverage", "sources"]
+        lab_ids = [*(f"l{i:02}" for i in range(11)), "l13", "l14", "l15", "l15-collaboration",
+                   "l16", "l17", "l21", "l22", "l12"]
+        self.assertEqual([chapter["id"] for chapter in labs], lab_ids)
+        self.assertEqual([chapter["track"] for chapter in labs], ["core"] * 11 + ["advanced"] * 8 + ["wrapup"])
+        self.assertEqual(labs[-1]["file"], "docs/12-cleanup.md")
+        expected_ids = [*lab_ids, "troubleshooting", "instructor", "glossary", "coverage", "sources"]
         self.assertEqual([chapter["id"] for chapter in chapters], expected_ids)
         translated = json.loads((ROOT / "content/chapters.en.json").read_text())
         self.assertEqual([chapter["id"] for chapter in translated], expected_ids)
@@ -50,7 +53,10 @@ class LearningPathTests(unittest.TestCase):
     def test_pruned_lessons_are_absent_from_active_sources_and_recommendations(self):
         removed = ("18-multimodal.md", "19-voice.md", "20-optimization.md", "23-extensions.md", "24-migration.md")
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
-        stale_reference = r"\b[lL](?:18|19|20|23|24)\b|" + "|".join(re.escape(name) for name in removed)
+        stale_reference = (
+            r"\bl(?:18|19|20|23|24)\b|\bL(?:20|21|22|23|24)(?!\d)|"
+            + "|".join(re.escape(name) for name in removed)
+        )
         for directory in (ROOT / "docs", ROOT / "docs/en"):
             for name in removed:
                 self.assertFalse((directory / name).exists(), directory / name)
@@ -69,8 +75,10 @@ class LearningPathTests(unittest.TestCase):
 
     def test_course_estimate_matches_module_durations(self):
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
-        self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "core"), 320)
-        self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "advanced"), 310)
+        self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "core"), 285)
+        self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "advanced"), 335)
+        self.assertEqual(sum(c["minutes"] for c in chapters if c["track"] == "wrapup"), 10)
+        self.assertEqual(sum(c["minutes"] for c in chapters), 630)
 
     def test_current_evaluation_path_is_consistent_in_both_guides(self):
         for directory, marker, stale in (
@@ -88,8 +96,8 @@ class LearningPathTests(unittest.TestCase):
     def test_delivery_default_is_local_with_explicit_optional_hosted_prerequisite(self):
         paths = json.loads((ROOT / "content/learning-paths.json").read_text())
         english = json.loads((ROOT / "content/learning-paths.en.json").read_text())
-        self.assertIn("L14는 선택형", paths["l22"]["requires"])
-        self.assertIn("L14 is needed only", english["l22"]["requires"])
+        self.assertIn("L12는 선택형", paths["l22"]["requires"])
+        self.assertIn("L12 is needed only", english["l22"]["requires"])
         for directory in ("docs", "docs/en"):
             text = (ROOT / directory / "22-delivery.md").read_text()
             with self.subTest(directory=directory):
@@ -99,6 +107,39 @@ class LearningPathTests(unittest.TestCase):
                 self.assertIn("RPO", text)
                 self.assertNotIn("--live", text)
                 self.assertNotIn("azd deploy", text)
+
+    def test_basic_titles_identify_the_feature_in_both_languages(self):
+        features = {
+            "l00": ("Azure", "Foundry"), "l01": ("Project", "RBAC"),
+            "l02": ("Model Deployment",), "l03": ("Responses API",),
+            "l04": ("Prompt Agent",), "l05": ("File search", "RAG"),
+            "l06": ("Function Calling", "Capstone"), "l07": ("MCP", "OpenAPI"),
+            "l08": ("Evaluation",), "l09": ("Safety", "Guardrails"), "l10": ("Tracing",),
+        }
+        for name in ("chapters.json", "chapters.en.json"):
+            titles = {row["id"]: row["title"] for row in json.loads((ROOT / "content" / name).read_text())}
+            for chapter_id, expected in features.items():
+                for feature in expected:
+                    with self.subTest(manifest=name, chapter=chapter_id, feature=feature):
+                        self.assertIn(feature, titles[chapter_id])
+
+    def test_capstone_is_consolidated_without_repeating_live_collection(self):
+        chapters = json.loads((ROOT / "content/chapters.json").read_text())
+        self.assertNotIn("l11", {chapter["id"] for chapter in chapters})
+        for directory in ("docs", "docs/en"):
+            actions = (ROOT / directory / "06-actions.md").read_text()
+            delivery = (ROOT / directory / "22-delivery.md").read_text()
+            with self.subTest(directory=directory):
+                self.assertIn('<a id="l11"></a>', actions)
+                for field in ("tool_calls", "citations", "response_id", "required_approvals", "order_submitted=false"):
+                    self.assertIn(field, actions)
+                self.assertEqual(actions.count("python samples/workshop.py capstone --live"), 1)
+                self.assertNotIn("workshop.py capstone --live", delivery)
+                self.assertIn("Active version", delivery)
+                self.assertIn("Publish version", delivery)
+                self.assertIn("botServices/write", delivery)
+                self.assertIn("channels/write", delivery)
+                self.assertIn("Just you", delivery)
 
 
 if __name__ == "__main__":

@@ -1,122 +1,142 @@
 [
   {
     "id": "l00",
+    "number": "00",
     "title": "Start with Azure and Foundry",
     "start": 0.0,
-    "end": 33.549
+    "end": 36.333
   },
   {
     "id": "l01",
-    "title": "Prepare your account, PC, and budget",
-    "start": 33.549,
-    "end": 72.061
+    "number": "01",
+    "title": "Prepare your account, PC, and budget (Project / RBAC)",
+    "start": 36.333,
+    "end": 74.845
   },
   {
     "id": "l02",
-    "title": "Check the model deployment you will use",
-    "start": 72.061,
-    "end": 110.265
+    "number": "02",
+    "title": "Check the model you will use (Model Deployment)",
+    "start": 74.845,
+    "end": 113.049
   },
   {
     "id": "l03",
-    "title": "Get your first answer from code",
-    "start": 110.265,
-    "end": 143.201
+    "number": "03",
+    "title": "Get your first answer from code (Responses API)",
+    "start": 113.049,
+    "end": 145.985
   },
   {
     "id": "l04",
-    "title": "Create an agent with a clear role",
-    "start": 143.201,
-    "end": 177.782
+    "number": "04",
+    "title": "Create an agent with a clear role (Prompt Agent)",
+    "start": 145.985,
+    "end": 180.566
   },
   {
     "id": "l05",
-    "title": "Answer from company documents",
-    "start": 177.782,
-    "end": 214.195
+    "number": "05",
+    "title": "Answer from company documents (File search / RAG)",
+    "start": 180.566,
+    "end": 216.979
   },
   {
     "id": "l06",
-    "title": "Check stock and prepare a purchase draft",
-    "start": 214.195,
-    "end": 251.532
+    "number": "06",
+    "title": "Check stock and prepare a draft (Function Calling / Capstone)",
+    "start": 216.979,
+    "end": 260.083
   },
   {
     "id": "l07",
+    "number": "07",
     "title": "Connect tools with MCP and OpenAPI",
-    "start": 251.532,
-    "end": 286.069
+    "start": 260.083,
+    "end": 294.62
   },
   {
     "id": "l08",
-    "title": "Compare answers and read evaluations",
-    "start": 286.069,
-    "end": 324.836
+    "number": "08",
+    "title": "Compare answers and read scores (Evaluation)",
+    "start": 294.62,
+    "end": 333.387
   },
   {
     "id": "l09",
-    "title": "Reject missing facts and false approval",
-    "start": 324.836,
-    "end": 358.702
+    "number": "09",
+    "title": "Reject missing facts and false approval (Safety / Guardrails)",
+    "start": 333.387,
+    "end": 367.254
   },
   {
     "id": "l10",
-    "title": "Follow an answer's execution path",
-    "start": 358.702,
-    "end": 392.008
-  },
-  {
-    "id": "l11",
-    "title": "Check the completed purchasing assistant",
-    "start": 392.008,
-    "end": 425.61
-  },
-  {
-    "id": "l12",
-    "title": "Finish the lab and check remaining costs",
-    "start": 425.61,
-    "end": 458.577
+    "number": "10",
+    "title": "Follow an answer's execution path (Tracing)",
+    "start": 367.254,
+    "end": 400.56
   },
   {
     "id": "l13",
+    "number": "11",
     "title": "AI Search, Foundry IQ, and permission-aware retrieval",
-    "start": 458.577,
-    "end": 496.293
+    "start": 400.56,
+    "end": 438.276
   },
   {
     "id": "l14",
+    "number": "12",
     "title": "Hosted agents and developer tools",
-    "start": 496.293,
-    "end": 532.405
+    "start": 438.276,
+    "end": 474.388
   },
   {
     "id": "l15",
-    "title": "Agent Framework orchestrations",
-    "start": 532.405,
-    "end": 570.521
+    "number": "13",
+    "title": "Agent Framework: sequential and concurrent execution",
+    "start": 474.388,
+    "end": 516.134
+  },
+  {
+    "id": "l15-collaboration",
+    "number": "14",
+    "title": "Agent Framework: group chat and handoff",
+    "start": 516.134,
+    "end": 556.25
   },
   {
     "id": "l16",
+    "number": "15",
     "title": "Memory: remembering and forgetting",
-    "start": 570.521,
-    "end": 605.291
+    "start": 556.25,
+    "end": 591.02
   },
   {
     "id": "l17",
+    "number": "16",
     "title": "Routines, long-running agents, and Autopilot",
-    "start": 605.291,
-    "end": 642.593
+    "start": 591.02,
+    "end": 628.322
   },
   {
     "id": "l21",
+    "number": "17",
     "title": "Enterprise security, Control Plane, and gateways",
-    "start": 642.593,
-    "end": 677.931
+    "start": 628.322,
+    "end": 663.66
   },
   {
     "id": "l22",
-    "title": "CI/CD, costs, and model lifecycle",
-    "start": 677.931,
-    "end": 717.364
+    "number": "18",
+    "title": "CI/CD: quality gates, publishing, and rollback",
+    "start": 663.66,
+    "end": 704.403
+  },
+  {
+    "id": "l12",
+    "number": "19",
+    "title": "Finish the lab and check costs (Cost Management)",
+    "start": 704.403,
+    "end": 740.98
   }
 ]

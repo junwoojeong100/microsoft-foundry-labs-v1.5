@@ -28,6 +28,16 @@
 
 기본 과제는 Python 로컬 수정과 설계입니다. L01의 Python을 준비한 뒤 아래 Contoso 예시를 자신의 **주체 → 작업 → 범위 → 거절 조건 → 담당자** 표로 바꿉니다. Azure 계정 없이 진행할 수 있으며 실제 권한 검증으로 기록하지 않습니다. role assignment·gateway·private endpoint·정책 변경은 관리자와 별도 승인 후 진행합니다.
 
+### 먼저 경로 정하기
+
+| 목표 | 따라갈 순서 | 남길 결과 |
+| --- | --- | --- |
+| 권한과 캐시의 관계 직접 확인 | 0단계 복사 → 실패 2건 → `exercise.py` 수정 → 같은 테스트 5개 통과 | 로컬 수정 전·후와 이유 |
+| 조직 적용 설계 | 위 실습 → 1단계 주체표 → 3·4단계 Gateway/네트워크 경계 | 직접 작성한 설계표. Azure 변경은 미실행 |
+| 포털 읽기 권한도 있음 | 추가로 2단계의 **자기 소유 자산 1개** 관찰 | 조회 시각·필터·읽기 범위를 기록 |
+
+편집기에서 `practice/governance/exercise.py`만 고칩니다. `test_exercise.py`·허용 사용자 목록·`data/exercises/` 원본은 그대로 둡니다. 폴더가 이미 있다면 다른 `--output` 경로를 정하고 검사 명령의 경로도 함께 바꿉니다.
+
 ## 실행
 
 ### 0. 직접 고치기: 캐시에 있어도 권한을 확인하는가?
@@ -53,6 +63,8 @@ python -m unittest discover -s practice/governance -p "test_exercise.py" -v
 </div>
 
 실패 이름은 `test_denied_user_after_cache`, `test_revocation_after_cache`입니다. `practice/governance/exercise.py`에서 **캐시 반환이 권한 확인보다 앞서는 순서**를 찾습니다. A가 읽은 뒤 B가 읽거나 A의 권한을 회수했을 때 어떤 줄이 검사를 건너뛰는지 설명하세요.
+
+**직관적으로 따라가기:** A가 제한 견적을 읽어 캐시가 생깁니다 → B가 같은 문서를 요청합니다 → 잘못된 코드는 권한을 보기 전에 캐시를 돌려줍니다. 수정 뒤에는 캐시가 있어도 B를 거절해야 합니다. A의 권한을 회수한 경우에도 같은 원칙입니다. 캐시를 비워 우연히 통과시키는 것이 아니라 **매 요청의 현재 권한 확인**이 핵심입니다.
 
 **한 가지 바꾸기:** 권한 검사를 캐시 조회보다 앞에 놓습니다. 테스트나 `grants`의 허용 사용자를 바꾸지 않습니다. 같은 검사 명령을 다시 실행해 다섯 사례 모두 통과하는지 확인합니다.
 
@@ -84,7 +96,7 @@ def read_document(user: str, document_id: str, grants: dict[str, set[str]], cach
 
 ### 1. identity 네 가지를 분리하기
 
-**작성 예 — L14의 공용 정책 Hosted 경로를 기준으로 한 설계이며 실제 역할 부여 기록은 아닙니다.**
+**작성 예 — L12의 공용 정책 Hosted 경로를 기준으로 한 설계이며 실제 역할 부여 기록은 아닙니다.**
 
 | Identity | 허용할 작업·범위 | 허용하지 않을 것 | 확인·회수 담당 |
 | --- | --- | --- | --- |
@@ -93,7 +105,7 @@ def read_document(user: str, document_id: str, grants: dict[str, set[str]], cach
 | agent runtime identity | 지정 모델 호출, 소유 Search의 정책 읽기 | 인덱스 수정, 임의 데이터 원본 접근, 주문·결제 | runtime/데이터 관리자 |
 | 최종 사용자 | 허용된 agent 호출과 본인에게 허용된 근거 | agent 편집, 다른 사용자 문서·대화 조회 | 앱/데이터 소유자 |
 
-L14의 직접 Search 호출과 L07 연결의 호출 주체는 같다고 가정하지 않습니다. **Manage의 연결 인증 방식 → 해당 identity의 role assignment와 scope → 대상 서비스** 순으로 읽습니다. 권한 목록은 허용 가능성을 보여 줄 뿐 호출 성공 증거가 아니며, 실제 검사는 별도 승인된 읽기 요청으로 확인합니다.
+L12의 직접 Search 호출과 L07 연결의 호출 주체는 같다고 가정하지 않습니다. **Manage의 연결 인증 방식 → 해당 identity의 role assignment와 scope → 대상 서비스** 순으로 읽습니다. 권한 목록은 허용 가능성을 보여 줄 뿐 호출 성공 증거가 아니며, 실제 검사는 별도 승인된 읽기 요청으로 확인합니다.
 
 ### 2. Control Plane에서 fleet 확인하기
 

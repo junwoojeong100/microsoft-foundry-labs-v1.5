@@ -34,7 +34,7 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | Agent | A program combining a model with instructions, knowledge, and tools |
 | Deployment | Making a model available to call in your environment; not training the model |
 
-**Start with the 13 core modules, L00–L12.** The seven advanced modules, L13–L17 and L21–L22, are electives—not extra checkboxes required to finish the core course.
+**Start with 11 core modules, L00–L10.** The eight advanced modules, L11–L18, are electives. **Finish every path with shared wrap-up L19.** Core-only learners jump directly from L10 to L19 without completing the electives.
 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ In `python samples/workshop.py model --live`, `python` is the interpreter, `samp
 
 **Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
 
-`--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Azure cost”: the local Hosted server in L14 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
+`--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Azure cost”: the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details markdown="1">
 <summary>For advanced commands: environment variables, continued lines, and azd</summary>
@@ -140,10 +140,10 @@ Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then u
 
 | Path | Suggested sequence | Assumptions |
 | --- | --- | --- |
-| 90-minute introduction | L00 → preconfigured L01 → L04 → L05 → shortened L08 → L12 | The instructor has prepared the project, models, and permissions |
-| Start to finish | L00–L12 | About 5 hours 20 minutes, plus resource waits and breaks |
-| Developer extensions | Core → L13 → L14 → L15 → L22 | Deeper SDK, deployment, and search work |
-| Enterprise adoption | Core → L16 → L17 → L21 → L22 | Collaboration with administrators and security teams |
+| 90-minute introduction | L00 → preconfigured L01 → L04 → L05 → shortened L08 → L19 | The instructor has prepared the project, models, and permissions |
+| Core course | L00–L10 → L19 | Core: 4 hours 45 minutes + 10-minute wrap-up; waits and breaks extra |
+| Developer extensions | Core → L11 → L12 → L13/L14 → optional L18 → L19 | Deeper SDK, deployment, and search work |
+| Enterprise adoption | Core → L15 → L16 → L17 → optional L18 → L19 | Collaboration with administrators and security teams |
 | Without an account | L01 local → L06 local → read existing L08 results → design exercises | Do not record these as successful live Azure runs |
 
 Times are **estimates of hands-on work**. They exclude waits for quota approval, resource preparation, indexing, and administrator approval.
@@ -171,7 +171,7 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 
 Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`, outside the guide. Do not record personal information or tokens or relabel one environment's evidence as another's.
 
-Web progress counts **only the selected path**: 13 core modules or six in the 90-minute tour. Switching paths does not erase checkmarks. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
+Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. A merged chapter's old checkmark is not transferred to a new feature. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
 
 ## Success criteria
 

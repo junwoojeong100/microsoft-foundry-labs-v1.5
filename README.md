@@ -12,15 +12,15 @@ Build a synthetic Contoso purchasing assistant through **20 labs and five refere
 
 1. Read [L00: the basics](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l00-first-steps) to see what you will build.
 2. Extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip), then follow [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01) for PC/project setup. Git commands are not required.
-3. Follow **Format → Start here → What to check** in each module. Take the 13 core modules in order; choose among seven advanced electives.
+3. Follow **Format → Start here → What to check** in each module. Take 11 core modules in order, choose among eight advanced electives, and finish with shared wrap-up L19.
 
-The web reader starts with the **13-module core path** and counts progress only within the selected path. Action-led titles and shorter concept introductions across all 20 modules keep the next task clear. **Explain a term / I'm stuck** opens help with a return link to the original lab.
+The web reader starts with **11 core modules plus one shared wrap-up** and counts progress only within the selected path. Action-led titles also identify features such as Responses API, File search, Function Calling, Evaluation, and Tracing. **Explain a term / I'm stuck** opens help with a return link to the original lab.
 
-Blocks distinguish **terminal commands / portal Chat / .env settings / expected output**. On narrow screens, command walkthroughs read vertically. L01 explains new-terminal and Windows Python selection. L06/L11's `read-result --input` displays saved answers, function results, and citations **without new Azure calls**, changing neither originals nor evaluation judgments.
+Blocks distinguish **terminal commands / portal Chat / .env settings / expected output**. On narrow screens, command walkthroughs read vertically. L01 explains new-terminal and Windows Python selection. L06's `read-result --input` displays saved answers, function results, and citations **without new Azure calls**, changing neither originals nor evaluation judgments.
 
-Without an account, you can still use local functions and **read instructions and evaluation questions** in L08. Collecting and grading your own answers is optional. Administrator creation is in expandable sections; L11 reuses L06's result. Teams publishing, Hosted, and Optimizer are not core-course prerequisites.
+Without an account, you can still use local functions and **read instructions and evaluation questions** in L08. Collecting and grading your own answers is optional. **The former L11 integration review is now part of L06**, while publishing/version management is consolidated into L18 CI/CD. No separate capstone, Teams publishing, Hosted, or Optimizer is required for core completion.
 
-L15, L21, and L22 include **change-and-compare exercises**. Use Agent Framework's sequential, concurrent, group-chat, and handoff patterns to compare execution flow and intermediate answers. Access and CI/CD use repairable local fixtures, clearly separate from Azure evidence.
+Every advanced lab identifies its **starting path, configuration sources, and result locations**. Agent Framework is split into L13 sequential/concurrent and L14 group-chat/handoff to make each flow easier to compare. L17 access and L18 CI/CD use repairable local fixtures, clearly separate from Azure evidence. L18 is an elective for deployment and operations owners.
 
 <details>
 <summary>Instruction learning path and model conditions</summary>
@@ -45,9 +45,9 @@ L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-so
 
 Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.html`; use an editor to inspect code.
 Open Markdown inside the kit's `downloads/` folder to resolve its images and source links. PDFs include the expandable reference and administrator sections.
-The core course is L00–L12, about 5 hours 20 minutes. Choose among L13–L17 and L21–L22 as needed; retained modules keep their original numbers. Reading requires no sign-in.
+The core course is **L00–L10, about 4 hours 45 minutes**. Advanced electives are **L11–L18**, followed by **L19 shared wrap-up (10 minutes)**; lab numbers are continuous from 00 through 19. Core-only learners go directly from L10 to L19; others finish their selected electives before L19. Reading requires no sign-in.
 
-Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Azure results; record design completion separately from actual execution. L22's default CI/release-design path does not require Hosted deployment.
+Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Azure results; record design completion separately from actual execution. L18's default CI/release-design path does not require Hosted deployment.
 
 ## Instructions and execution boundaries
 
@@ -85,6 +85,8 @@ python scripts/package_guide.py
 
 The same checked-in sources produce both HTML/Markdown/PDF editions and one ZIP. Keep local reports under private `results/documentation/`; do not package them.
 Local checks are not Azure execution or measured model improvement.
+
+Learner-facing numbers come from `number` in `content/chapters.json`. Existing IDs and source filenames remain stable identifiers for links, progress, and historical records, so they can differ from display numbers. The former `#l11` link opens L06's integration review; historical validation numbers and originals remain unchanged.
 
 ## GitHub Pages
 

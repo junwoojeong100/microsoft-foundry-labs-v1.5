@@ -38,6 +38,7 @@ def build(language, source, work, destination):
     if [chapter["id"] for chapter in source["chapters"]] != expected or len(expected) != 20:
         raise ValueError("The video must cover exactly the twenty current modules in reader order.")
     titles = {chapter["id"]: chapter["title"] for chapter in chapters}
+    numbers = {chapter["id"]: chapter["number"] for chapter in base}
     folder = work / language
     folder.mkdir(parents=True, exist_ok=True)
     run(["node", "scripts/render-replay.js", language, str(folder)])
@@ -67,7 +68,8 @@ def build(language, source, work, destination):
             "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "1", str(clip),
         ])
         actual = duration(clip)
-        timeline.append({"id": identifier, "title": titles[identifier], "start": round(position, 3), "end": round(position + actual, 3)})
+        timeline.append({"id": identifier, "number": numbers[identifier], "title": titles[identifier],
+                         "start": round(position, 3), "end": round(position + actual, 3)})
         sentences = chapter[language]["narration"].split(". ")
         weights = [max(1, len(sentence)) for sentence in sentences]
         cursor = position
@@ -86,7 +88,7 @@ def build(language, source, work, destination):
     metadata.write_text(
         ";FFMETADATA1\n" + "".join(
             f"[CHAPTER]\nTIMEBASE=1/1000\nSTART={round(item['start'] * 1000)}\n"
-            f"END={round(item['end'] * 1000)}\ntitle={item['id'].upper()} {item['title']}\n"
+            f"END={round(item['end'] * 1000)}\ntitle=L{item['number']} {item['title']}\n"
             for item in timeline
         ), encoding="utf-8",
     )
@@ -113,7 +115,7 @@ def player(source, destination):
         chapters = json.loads((destination / f"chapters.{language}.json").read_text())
         buttons = "".join(
             f'<button type="button" data-language="{language}" data-time="{chapter["start"]}">'
-            f'{chapter["id"].upper()} · {html.escape(chapter["title"])}</button>' for chapter in chapters
+            f'L{chapter["number"]} · {html.escape(chapter["title"])}</button>' for chapter in chapters
         )
         label = "한국어" if language == "ko" else "English"
         name = f"Contoso-Foundry-Replay.{language}"

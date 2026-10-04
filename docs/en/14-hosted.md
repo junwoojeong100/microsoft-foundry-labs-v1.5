@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Advanced elective · requires L13's retrieval resources and a prepared deployment environment.
+**Format:** Advanced elective · requires L11's retrieval resources and a prepared deployment environment.
 
 **Start here:** Build the package in its dedicated Python environment. Follow the default Invocations path; skip the Optimizer adapter initially.
 
@@ -28,10 +28,20 @@ Do not describe this as validation of the Responses, Voice, or Teams protocols.
 
 ## Prerequisites
 
-This lab is based on the Search service/index and model from L13, Python **3.13**, azd **1.34.0**,
+This lab is based on the Search service/index and model from L11, Python **3.13**, azd **1.34.0**,
 and `azure.ai.agents` **1.0.0-beta.10**.
 Check the official Hosted documentation for supported capabilities and regions. Do not require learners to be Owners of a particular subscription.
 Distinguish the deployment operator from learners using an already prepared project.
+
+### Choose your starting path
+
+| Current state | Steps to follow | What completion means |
+| --- | --- | --- |
+| No Azure execution approval | Prepare the dedicated environment → step 1 packaging | Packaging only; server business calls and deployment not performed |
+| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a PC server, not successful Azure Hosted deployment |
+| Deployment and role changes separately approved | Steps 1 → 2 → 3 → 4 → 5 | Inspect the exact remote version's answer and stopped session |
+
+First locate **L01's `.env` and `results/azure-environment.json`, plus L11's `results/search.json`**, in this same lab folder. Stop if project address, language, or Search target differs. Never copy another learner's receipt or a screenshot's version number.
 
 ```bash
 python3.13 -m venv .venv-live
@@ -88,7 +98,7 @@ There is no need to clone an external sample repository.
 ### 2. Run and invoke locally
 
 In the server terminal, run the following bundled helper. It passes only approved, non-secret values
-from the L01/L13 `.env` and `results/search.json` to the child process.
+from the L01/L11 `.env` and `results/search.json` to the child process.
 
 ```bash
 python scripts/run_hosted_local.py
@@ -130,6 +140,9 @@ Each request is split into **at most two tool rounds → a separate tool-free, e
 Each tool-round output and the answer remain limited to **2048 tokens**; the source check remains limited to 512 tokens.
 The limits remain **8 tool calls, 12 requests, and a 300-second server budget**, with SDK retries at 0. Local and remote Invocations HTTP clients both use a **310-second timeout**; the remote client's previous 60-second timeout was inconsistent with the local client and server budget. A longer client wait does not authorize extra requests or establish a successful answer.
 
+<details class="optional-path" markdown="1">
+<summary>Implementation reference: separating retrieval, tools, and grounded answers</summary>
+
 The current engine performs question-specific search and retrieves the 13 sections of the small synthetic policy corpus **before** running the model.
 It does not wait for the model to select a search function. Internally, the answer is `answer`/`citation_ids` JSON;
 only the sections the model selects from the actual returned results are rendered as citations. Missing search results or citations are errors, not successes.
@@ -149,6 +162,10 @@ If the same SKU/quantity draft has already succeeded in this turn, a repeated re
 The answer stage also receives the actual function definitions so that it does not confuse the tool's 1–10 input constraint with company policy.
 The final source-check stage selects evidence using only the actual retrieved material and the written answer,
 and the actual selections from both models are displayed together. Required draft/approval/authority evidence must be selected by the model; missing selections are not filled in automatically. The original answer and the response IDs for source selection are preserved separately.
+
+</details>
+
+**Three distinct checks:** `/readiness` verifies server connectivity; `invoke --local` prints a plan; `invoke --local --live` executes the business request. Inspect original `tool_calls`, citations, and `order_submitted=false` before proceeding to remote deployment. Keep the server terminal open; do not start a second server or recreate the environment in the client terminal.
 
 ### 3. Deploy only to a prepared project
 
@@ -243,7 +260,7 @@ For multiple JSON objects or `incomplete` output, inspect the tool/answer bounda
 
 Stop the local server with Ctrl+C in the terminal where you started it. For interrupted runs,
 use `python scripts/stop_sessions.py` to stop **only recorded sessions**.
-The agent/version/session files and Azure resources remain. Record the remaining storage, log, and Search costs in L12.
+The agent/version/session files and Azure resources remain. Record the remaining storage, log, and Search costs in L19.
 
 Hosted's `/app` is read-only. Write remote raw evidence only to the session's `$HOME/.contoso/evidence`,
 not to the code directory. Do not include it in the package.

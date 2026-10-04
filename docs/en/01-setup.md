@@ -96,7 +96,7 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 
 </div>
 
-**All later commands assume this per-terminal selection**, including commands in separate server/client terminals. Reselect the profile and the appropriate Python environment after opening a new terminal. The browser's language switch does not set it, and an absent flag keeps the original Korean default. The [English profile manifest](../../data/en/profile-manifest.json) describes the inputs and unchanged business rules. Explicit file options must also point to `data/en/`; the flag does not translate an explicitly supplied Korean file. L14's generated Hosted packages record the selected language in `lab-profile.json`.
+**All later commands assume this per-terminal selection**, including commands in separate server/client terminals. Reselect the profile and the appropriate Python environment after opening a new terminal. The browser's language switch does not set it, and an absent flag keeps the original Korean default. The [English profile manifest](../../data/en/profile-manifest.json) describes the inputs and unchanged business rules. Explicit file options must also point to `data/en/`; the flag does not translate an explicitly supplied Korean file. L12's generated Hosted packages record the selected language in `lab-profile.json`.
 
 **Without an Azure account, continue to [step 4's local checks](#l01-local) now.** Skip project selection, access checks, and CLI sign-in.
 
@@ -134,7 +134,7 @@ Replace the descriptive placeholders with actual approved values: the subscripti
 and obtain approval for the Global, Data Zone, or Standard processing scope. Capacity units vary by model and are not a spending cap.
 `foundation` supplies separate chat, judge, and embedding capacities. It selects the base-model SKU from the raw ARM catalog's `AIServices`/`S0` entry and applies explicit minimum, maximum, and increment constraints. When an online SKU omits minimum/increment restrictions, capacity remains a positive integer. Missing TPM/RPM unit rates, maximum capacity, or quota stops deployment rather than choosing an arbitrary small value. Roles sharing a quota are checked against their combined allocation.
 `infra/main.bicep` deploys only the Foundry account/project and the specified models.
-Add Search with `python scripts/azure_environment.py search --live` only when you need L13. `search` is an administrator operation that creates a search service in the owned resource group; it can incur fixed costs even without requests. It does not mean “try one search.”
+Add Search with `python scripts/azure_environment.py search --live` only when you need L11. `search` is an administrator operation that creates a search service in the owned resource group; it can incur fixed costs even without requests. It does not mean “try one search.”
 The ownership record is `results/azure-environment.json`. For partial failures such as RequestConflict,
 inspect the original deployment operation and use `foundation --resume` **only for those same owned resources**. `--resume` continues a recorded partial deployment; it does not select a new environment or erase the original error record.
 
@@ -180,9 +180,9 @@ L08's native automated evaluation also requires a separate judge deployment. Do 
 
 | Model role | Used for | Minimum recommended TPM | Minimum RPM |
 | --- | --- | ---: | ---: |
-| chat · `gpt-6-sol` | Models, agents, and L15 orchestration | 100,000 | 60 |
+| chat · `gpt-6-sol` | Models, agents, and L13–L14 orchestration | 100,000 | 60 |
 | judge · `gpt-4.1` | Optional L08 native evaluation | 100,000 | 60 |
-| embedding · `text-embedding-3-small` | L13 search and L16 Memory | 10,000 | 6 |
+| embedding · `text-embedding-3-small` | L11 search and L15 Memory | 10,000 | 6 |
 
 These are **planning values**, assuming about 8,192 input tokens, up to 2,048 output tokens, six chat/judge starts per minute, and headroom. They are not Azure's absolute minimum or a spending cap. Multiply the budget by the simultaneous learners sharing a deployment. Longer context, managed evaluation, and other traffic can require more headroom.
 For a new environment, `foundation` **sets each role's recommended capacity on the initial deployment**. Then [check actual limits and test connectivity in L02](#l02-capacity). Use `apply` only for insufficient existing/manual deployments or an increased learner count.
@@ -354,4 +354,4 @@ If SDK installation fails through your organization's mirror, request synchroniz
 
 ## Cleanup
 
-Record the resource group and its owner, and read L12's shutdown checklist in advance. Do not share or commit `.env`. The `.env` used in this lab should contain no secrets.
+Record the resource group and its owner, and read L19's shutdown checklist in advance. Do not share or commit `.env`. The `.env` used in this lab should contain no secrets.

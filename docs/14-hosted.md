@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 심화 · L13 검색 자원과 배포 담당자의 준비가 필요합니다.
+**진행 방식:** 선택 심화 · L11 검색 자원과 배포 담당자의 준비가 필요합니다.
 
 **먼저 할 일:** 전용 Python 환경에서 패키지를 만듭니다. 기본 Invocations 경로부터 진행하고 Optimizer용 adapter는 건너뜁니다.
 
@@ -28,10 +28,20 @@ Responses·Voice·Teams protocol을 검증한 것으로 표시하지 않습니�
 
 ## 준비
 
-L13의 Search/index와 모델, Python **3.13**, azd **1.34.0**,
+L11의 Search/index와 모델, Python **3.13**, azd **1.34.0**,
 `azure.ai.agents` **1.0.0-beta.10** 조합을 기준으로 합니다.
 지원 범위·지역은 공식 Hosted 문서를 확인하세요. 특정 구독 Owner를 학습자에게 요구하지 않습니다.
 배포 담당자와 이미 준비된 프로젝트를 사용하는 학습자를 구분합니다.
+
+### 먼저 경로 정하기
+
+| 지금 상태 | 진행할 단계 | 완료로 기록할 범위 |
+| --- | --- | --- |
+| Azure 실행 승인 없음 | 전용 환경 준비 → 1단계 패키지 생성 | 패키징만. 서버 업무 호출·원격 배포는 미실행 |
+| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | 내 PC 서버의 실제 모델·검색 호출. Azure Hosted 배포 성공은 아님 |
+| 배포·역할 변경까지 별도 승인 있음 | 1 → 2 → 3 → 4 → 5단계 | 정확한 원격 버전의 응답과 세션 중지까지 확인 |
+
+먼저 같은 실습 폴더에 **L01의 `.env`·`results/azure-environment.json`과 L11의 `results/search.json`**이 있는지 확인합니다. 프로젝트 주소·언어·Search 대상이 서로 다르면 중단합니다. 다른 사람의 기록이나 화면의 버전 숫자를 복사하지 않습니다.
 
 ```bash
 python3.13 -m venv .venv-live
@@ -87,7 +97,7 @@ Optimizer용 Responses 프로필은 `.build/contoso-responses/`에 별도로 생
 
 ### 2. 로컬 실행과 호출
 
-서버 터미널에서 다음 동봉 helper를 실행합니다. L01/L13의 `.env`와 `results/search.json`에서
+서버 터미널에서 다음 동봉 helper를 실행합니다. L01/L11의 `.env`와 `results/search.json`에서
 허용된 비밀 없는 값만 자식 프로세스로 전달합니다.
 
 ```bash
@@ -104,7 +114,7 @@ python scripts/run_hosted_local.py
 
 </div>
 
-다른 터미널에서:
+다른 터미널에서도 **같은 실습 폴더와 `.venv-live`를 선택**합니다. 서버 터미널은 켜 둔 채 아래 명령을 한 줄씩 실행합니다. 두 번째 터미널에서 새 가상환경을 만들거나 서버를 또 시작하지 않습니다.
 
 ```bash
 curl --fail http://127.0.0.1:8088/readiness
@@ -130,6 +140,9 @@ python samples/hosted_client.py invoke --local --live
 앞의 두 모델 출력은 각각 2048토큰, 출처 확인은 512토큰으로 제한합니다.
 도구 최대 8회, SDK 재시도 0을 유지합니다.
 
+<details class="optional-path" markdown="1">
+<summary>구현 참고: 서버가 검색·도구·근거 답변을 나누는 방식</summary>
+
 현재 엔진은 모델 실행 **전에** 서버가 질문별 검색과 작은 합성 정책 13절의 실제 조회를 수행합니다.
 모델의 검색 함수 선택을 기다리지 않습니다. 응답은 내부적으로 `answer`·`citation_ids` JSON이며,
 인용은 실제 반환된 절 중 모델이 선택한 것만 렌더링합니다. 검색/인용 누락은 성공이 아니라 오류입니다.
@@ -149,6 +162,11 @@ python samples/hosted_client.py invoke --local --live
 초안·승인·권한 판단의 필수 인용이 빠지면 오류로 처리하며 서버가 자동 보충하지 않습니다.
 
 현재 패키지는 `agent-v2.txt`를 사용합니다. 명시적인 요청·도구 권한·실제 결과·주장별 인용을 구분하며, 지침 준비를 실제 Azure 검증과 혼동하지 않습니다. 자신의 패키지 해시와 실행한 버전의 원문을 대조합니다.
+
+</details>
+
+**지금 확인할 세 가지:** `/readiness`의 성공은 서버 접속 확인, `invoke --local`은 계획 출력, `invoke --local --live`의 응답은 실제 업무 실행입니다. 출력의 원본 파일에서 `tool_calls`·인용·`order_submitted=false`를 확인한 뒤에만 원격 배포 단계로 넘어갑니다.
+
 ### 3. 준비된 프로젝트에만 배포하기
 
 ![실제 Build → Agents 목록. 같은 Contoso 프로젝트에서 Hosted와 Prompt 종류, 숫자 버전, Running 상태가 구분되어 보인다.](../assets/portal/03-agents.png)
@@ -223,6 +241,14 @@ Entra-authenticated HTTP JSON 요청**을 사용합니다. CI의 azd stdout에 �
 총액은 **2,900,000원**, 두 승인 역할, `order_submitted=false`여야 합니다.
 Toolbox를 별도 연결할 때는 L07의 인증 주체와 1회 승인 정책을 그대로 유지합니다.
 
+| 비교 항목 | 로컬 실행에서 적을 값 | 원격 실행에서 적을 값 |
+| --- | --- | --- |
+| 대상 | loopback 8088, 패키지 contract | 자신의 프로젝트·서비스 숫자 version·contract |
+| 구매 결과 | 실제 함수 금액·승인 역할·인용 | 같은 업무 조건의 실제 결과. 문장 일치가 아니라 근거 비교 |
+| 종료 | 서버 터미널 Ctrl+C | 응답과 함께 기록된 해당 세션의 중지 확인 |
+
+이 표는 작성 틀이며 실행 결과를 미리 채운 것이 아닙니다. 한쪽만 실행했으면 다른 쪽은 미실행으로 남깁니다.
+
 ## 성공 기준
 
 패키징·서버 시작·로컬 업무 결과·배포·같은 버전 원격 업무 결과를 각각 확인했습니다.
@@ -238,7 +264,7 @@ health 실패는 entry point/의존성, 502는 보존된 upstream 오류, 403은
 
 로컬 서버는 시작한 터미널의 Ctrl+C로 종료합니다. 중단된 실행은
 `python scripts/stop_sessions.py`로 **기록된 세션만** 정지합니다.
-agent/version/session 파일·Azure 자원은 남습니다. 남은 storage·로그·Search 비용을 L12에 기록합니다.
+agent/version/session 파일·Azure 자원은 남습니다. 남은 storage·로그·Search 비용을 L19에 기록합니다.
 
 Hosted의 `/app`은 읽기 전용입니다. 원격 원시 증거는 세션의 `$HOME/.contoso/evidence`에만
 기록하고 코드 폴더에 쓰지 않습니다. 이를 패키지에 포함하지 않습니다.

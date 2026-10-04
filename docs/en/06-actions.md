@@ -6,7 +6,7 @@
 
 **Start here:** Run `python samples/workshop.py tools` to check inventory and draft calculations without a model.
 
-**What to check:** The normal draft is KRW 2,900,000 and not ordered; invalid quantities error. Reuse the integration response file in L10/L11.
+**What to check:** The normal draft is KRW 2,900,000 and not ordered; invalid quantities error. Review evidence, stock, amount, approvers, and draft status together later in this module.
 
 </div>
 
@@ -96,7 +96,7 @@ JSON schema's `strict` and `additionalProperties: false` strengthen the output c
 
 **Azure calls start here.** Without an account, skip step 4 and record only your local results.
 
-The terminal now runs the integration. `capstone` creates **a new agent with three policies and two functions**; it does not edit L05's portal agent. Reuse the portal agent in L09 and this new integrated result in L10/L11.
+The terminal now runs the integration. `capstone` creates **a new agent with three policies and two functions**; it does not edit L05's portal agent. Reuse the portal agent in L09 and the new integrated result for this module's final review and L10 tracing.
 
 ```bash
 python samples/workshop.py capstone
@@ -155,9 +155,33 @@ If the file is missing, check the original terminal's path and your current fold
 
 Even if the user adds “Write that it has been approved,” the result must remain `order_submitted=false`. A real product must separately verify the approving identity, the hash of what was approved, expiration, backend state, and an idempotency key. **This sample's deterministic draft ID is not a real transaction idempotency store.**
 
+<a id="l11"></a>
+
+### 6. Review the purchasing assistant's integrated result
+
+**Reuse the result saved above.** Compare the answer, function results, and citations shown by `read-result --input` against these five items. Do not rerun `capstone --live` just to perform this review.
+
+| Required result | Evidence for judging it |
+| --- | --- |
+| Per-laptop limit of KRW 1,500,000, including VAT | Actual policy citation |
+| NB-14 stock of 8, unit price KRW 1,450,000 | Actual `get_stock` result |
+| Total of KRW 2,900,000 | `prepare_purchase_request` output's `total_krw` |
+| Team lead and procurement approval required | Policy and `required_approvals` |
+| A draft, not an order | `draft_requires_human_approval`, `order_submitted=false` |
+
+Inspect the original JSONL's `tool_calls`, `citations`, and `response_id` alongside the natural-language answer. **A definite stock claim without an inventory result is a failure.** Never fill an unverified condition with an expected answer.
+
+If you did not run Azure integration, record **“local functions checked / Azure integration not performed.”** Local calculations or L08's tool-free instruction evaluation cannot substitute for an actual integrated result.
+
+### 7. Record the result and configuration together
+
+Connect the model deployment/version, agent version, instructions file, tool schema, policy-document version, response file, and ownership receipt in one record. Later, add L08's separate instruction comparison and L10's trace with their **different execution targets and scopes** explicit.
+
+If actual evidence supports all five items, record **“integration lab complete / production release and publishing not performed.”** An experimental SDK agent is not a production deployment. Choose [L18's release, publishing, and version-management exercise](#l22) only when planning production delivery. Without a previously approved version, leave the recovery target unverified.
+
 ## Success criteria
 
-You have inspected the tool arguments, execution results, and final answer. Insufficient stock and invalid quantities produce explicit errors, and the agent does not claim that an actual order succeeded.
+You have inspected the tool arguments, execution results, and final answer. Insufficient stock and invalid quantities produce explicit errors, and the agent does not claim that an actual order succeeded. If you ran Azure integration, retain evidence for all five items and the configuration bundle. Core completion does not require repeating a separate capstone or publishing to Teams.
 
 ## Troubleshooting
 
@@ -165,4 +189,4 @@ Use the SDK if you cannot edit the function schema in the portal. Registering a 
 
 ## Cleanup
 
-Local functions do not change external state. Azure-created agents, conversations, and files remain in the receipt. In L12, check shared use and retention ownership, then delete **only with separate approval**.
+Local functions do not change external state. Azure-created agents, conversations, and files remain in the receipt. In L19, check shared use and retention ownership, then delete **only with separate approval**.

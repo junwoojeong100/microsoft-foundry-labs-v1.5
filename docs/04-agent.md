@@ -12,7 +12,7 @@
 
 ## 목표
 
-Prompt Agent는 **모델 + instructions + tools**로 선언하는 관리형 agent입니다. 별도의 서버나 컨테이너를 직접 운영하지 않습니다. Hosted Agent와의 차이는 L14에서 다룹니다.
+Prompt Agent는 **모델 + instructions + tools**로 선언하는 관리형 agent입니다. 별도의 서버나 컨테이너를 직접 운영하지 않습니다. Hosted Agent와의 차이는 L12에서 다룹니다.
 
 ## 개념과 실습 지도
 
@@ -101,7 +101,7 @@ python samples/workshop.py agent --live
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `agent` | 생성·호출할 Prompt Agent의 실행 계획을 출력합니다. 기본 지시 파일은 `data/prompts/agent-v2.txt`입니다. | Azure 요청 없음. 지시문이 설명한 기능과 실제 연결할 도구를 먼저 구분합니다. |
-| 2. `agent --live` | 고유 `contoso-lab-...` agent와 대화를 만들고 실제 모델 응답을 받습니다. 포털에서 만든 agent를 수정하지 않습니다. | 추론·서비스 비용과 새 실습 객체가 생깁니다. 출력된 receipt 경로는 L12 정리용으로 보관합니다. |
+| 2. `agent --live` | 고유 `contoso-lab-...` agent와 대화를 만들고 실제 모델 응답을 받습니다. 포털에서 만든 agent를 수정하지 않습니다. | 추론·서비스 비용과 새 실습 객체가 생깁니다. 출력된 receipt 경로는 L19 정리용으로 보관합니다. |
 
 </div>
 
@@ -119,4 +119,4 @@ SDK 샘플은 충돌을 피하기 위해 `contoso-lab-...`라는 **새로운 age
 
 ## 정리
 
-포털 agent는 다음 실습에서 재사용합니다. SDK로 만든 별도 agent의 receipt는 L12에서 정리합니다.
+포털 agent는 다음 실습에서 재사용합니다. SDK로 만든 별도 agent의 receipt는 L19에서 정리합니다.
