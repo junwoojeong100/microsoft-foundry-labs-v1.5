@@ -45,7 +45,7 @@ L01의 프로젝트와 제공된 모델을 확인·사용할 권한이 필요합
 
 ![Foundry의 실제 Discover → Models 화면. 검색창, Available in my project 필터, 지원 기능·배포 유형 필터와 모델 카드가 보인다.](../assets/portal/02-model-catalog.png)
 
-**화면 따라 읽기:** 상단 **Discover** → 왼쪽 **Models** → **Available in my project** 순서로 범위를 확인합니다. 검색창에서 후보를 찾고 **Supported features / Deployment options / Region**을 좁힙니다. 카드에 보인다는 것과 실제 quota·capacity가 확보됐다는 것은 다릅니다. 촬영 당시의 모델 목록/개수는 학습자의 필수 모델 목록이 아닙니다.
+**화면 따라 읽기:** 상단 **Discover** → 왼쪽 **Models** → **Available in my project** 순서로 범위를 확인합니다. 검색창에서 후보를 찾고 **Supported features / Deployment options / Region**을 좁힙니다. 카드에 보인다는 것과 실제 quota·capacity가 확보됐다는 것은 다릅니다. 화면의 모델을 모두 배포하지 말고 아래 실습에 필요한 모델을 확인합니다.
 
 | 모델 카드에서 볼 것 | 확인 이유 |
 | --- | --- |

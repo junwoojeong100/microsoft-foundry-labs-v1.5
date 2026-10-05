@@ -1,13 +1,13 @@
 {
   "title": {"ko": "Contoso 구매 도우미 · 전체 실습 요약", "en": "Contoso purchasing assistant · complete lab walkthrough"},
-  "notice": {"ko": "내레이션·명령·도식으로 재구성한 실습 요약 · 실시간 포털 녹화나 검증 보고서가 아닙니다.", "en": "Narrated reconstruction with commands and diagrams, not a live portal recording or validation report."},
+  "notice": {"ko": "내레이션·명령·도식으로 보는 실습 요약 · 실시간 포털 녹화가 아닌 설명용 영상입니다.", "en": "Narrated lab summary with commands and diagrams; not a live portal recording."},
   "chapters": [
     {
       "id": "l00",
       "surface": "review",
       "commands": ["Synthetic Contoso policies + inventory", "Question → evidence → tools → draft", "No real order · no payment · no approval"],
-      "ko": {"steps": ["합성 시나리오 이해", "기본·심화·마무리 구분", "실행과 품질 구분"], "narration": "이 영상은 스무 개 실습을 내레이션, 명령 화면, 도식으로 재구성한 요약입니다. 실시간 포털 녹화나 검증 보고서는 아닙니다. 만드는 것은 합성 콘토소 구매 도우미입니다. 회사 규정을 찾고 재고를 조회하며 구매 요청 초안을 만들지만, 실제 승인이나 주문, 결제는 하지 않습니다. 기본 과정은 영 번부터 십 번까지입니다. 심화는 십일 번부터 십팔 번까지 선택하고 마지막은 모두 십구 번 마무리로 끝냅니다. 명령의 정상 종료, 실제 클라우드 실행, 답변의 품질은 서로 다른 판단이라는 점을 기억하세요."},
-      "en": {"steps": ["Understand the synthetic scenario", "Choose core, electives, and wrap-up", "Separate execution from quality"], "narration": "This video reconstructs all twenty labs using narration, commands, and diagrams. It is not a live portal recording or a validation report. You will build a purchasing assistant using synthetic Contoso policies and inventory. The assistant retrieves evidence, checks stock, and prepares drafts, but never approves, orders, or pays. Core modules run from zero through ten. Choose advanced modules eleven through eighteen as needed, then finish either path with module nineteen. A successful command, a completed cloud execution, and a correct business answer are three different outcomes."}
+      "ko": {"steps": ["합성 시나리오 이해", "기본·심화·마무리 구분", "실행과 품질 구분"], "narration": "이 영상은 스무 개 실습을 내레이션, 명령 화면, 도식으로 재구성한 요약입니다. 실시간 포털 녹화가 아닌 설명용 영상입니다. 만드는 것은 합성 콘토소 구매 도우미입니다. 회사 규정을 찾고 재고를 조회하며 구매 요청 초안을 만들지만, 실제 승인이나 주문, 결제는 하지 않습니다. 기본 과정은 영 번부터 십 번까지입니다. 심화는 십일 번부터 십팔 번까지 선택하고 마지막은 모두 십구 번 마무리로 끝냅니다. 명령의 정상 종료, 실제 클라우드 실행, 답변의 품질은 서로 다른 판단이라는 점을 기억하세요."},
+      "en": {"steps": ["Understand the synthetic scenario", "Choose core, electives, and wrap-up", "Separate execution from quality"], "narration": "This video reconstructs all twenty labs using narration, commands, and diagrams. It is not a live portal recording. You will build a purchasing assistant using synthetic Contoso policies and inventory. The assistant retrieves evidence, checks stock, and prepares drafts, but never approves, orders, or pays. Core modules run from zero through ten. Choose advanced modules eleven through eighteen as needed, then finish either path with module nineteen. A successful command, a completed cloud execution, and a correct business answer are three different outcomes."}
     },
     {
       "id": "l01",

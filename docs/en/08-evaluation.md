@@ -6,7 +6,7 @@
 
 **Start here:** Read both instruction files and the fixed questions, then identify what an answer must address.
 
-**What to check:** Explain the comparison conditions and criteria. If you execute the optional path, connect your originals, scores, and reasons outside the guide.
+**What to check:** Explain the comparison conditions and criteria. If you execute the optional path, connect each question's original answers, scores, and judge reasons.
 
 </div>
 
@@ -26,7 +26,7 @@
 
 ## Prerequisites
 
-**Reading the instructions and questions needs no account or model calls.** This guide does not contain the author's execution results or prewritten scores. Comparing actual answers requires your own collected originals or approved lab results provided separately by your instructor.
+**Reading the instructions and questions needs no account or model calls.** To compare actual answers, use your collected originals or approved lab results provided by your instructor.
 
 | Term | Plain-language meaning |
 | --- | --- |
@@ -42,7 +42,7 @@ Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** model. Set the ac
 
 Native evaluation needs a separate **`gpt-4.1` / `2025-04-14`** judge and `FOUNDRY_JUDGE_DEPLOYMENT_NAME`. Verify both deployments' actual TPM/RPM in L02. Hosted redeployment, Search, Optimizer, and holdout are not prerequisites.
 
-New execution uses **your own `results/azure-environment.json` and `.env`**. Both languages read back current RG ownership tags, project, deployments, and throughput. An author's old RG or historical validation files are not runtime dependencies. Each comparison creates a collision-resistant Prompt Agent name and pins v1/v2 versions.
+New execution uses **your own `results/azure-environment.json` and `.env`**. The collection code reads back current RG ownership tags, project, deployments, and throughput, creates a collision-resistant Prompt Agent name, and pins v1/v2 versions.
 
 Keep `FOUNDRY_LAB_LANGUAGE=en` selected in the separate English folder. Both instructions receive the same synthetic policy context; this is not live Search retrieval. Expected behavior and grading criteria are excluded from target-model input and supplied only to the judge.
 
@@ -104,7 +104,7 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 
 Keep Korean and English input/output paths distinct. Across both languages, collection is bounded to 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count.
 
-When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request. Keep results under your own `results/`; do not insert them into HTML, Markdown, PDF, or the kit.
+When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request.
 
 </details>
 
@@ -150,4 +150,4 @@ For 401/403, check your project, caller identity, and roles. For 404, check the 
 
 ## Cleanup
 
-Keep originals and evaluations outside the guide. Manage created agents and evaluation resources using your own ownership records and retention policy; do not delete without separate approval. Do not turn validation results into lab instructions or guaranteed scores.
+Keep the response file `results/instruction-prompt-agent-en.json` and evaluation file `results/instruction-native-prompt-agent-en.json` together. Manage created agents and evaluation resources using your own ownership records and retention policy; do not delete without separate approval.

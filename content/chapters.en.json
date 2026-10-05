@@ -23,5 +23,5 @@
   {"id":"instructor","title":"Instructor plan and completion checklist","summary":"Plan a 90-minute, one-day, or two-day workshop and record costs and outcomes.","status":"Workshop delivery"},
   {"id":"glossary","title":"Glossary and decision guide","summary":"Clarify confusing names with short definitions and selection criteria.","status":"Quick reference"},
   {"id":"coverage","title":"Feature coverage","summary":"See how official capability groups map to the labs.","status":"Traceable coverage"},
-  {"id":"sources","title":"Sources, currency, and execution boundaries","summary":"Check official sources and distinguish execution from quality claims.","status":"Official documentation"}
+  {"id":"sources","title":"Official sources and feature availability","summary":"Check official documentation for feature-specific GA/Preview status, regions, and permissions.","status":"Official documentation"}
 ]

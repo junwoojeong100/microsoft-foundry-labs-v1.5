@@ -76,7 +76,7 @@ L05 agent에는 구매 함수가 없으므로 **도구 미실행만으로 승인
 
 ![실제 Build → Guardrails 목록. Microsoft.DefaultV2의 Type은 Model이며 Applied to 열에 Contoso의 모델 배포들이 표시된다.](../assets/portal/11-guardrails.png)
 
-**화면 따라 읽기:** **Build → Guardrails**에서 정책 이름뿐 아니라 **Type / Applied to**를 읽습니다. 사진은 기본 모델 정책이 연결된 모습을 보여 주며, 별도 agent 도구 단계 정책을 생성했다는 뜻은 아닙니다. **Create / Blocklists / Integrations**의 위치를 확인하되 기본 보호를 약하게 바꾸거나 새 스캔을 시작하지 않습니다. 촬영 중 정책은 변경하지 않았습니다.
+**화면 따라 읽기:** **Build → Guardrails**에서 정책 이름뿐 아니라 **Type / Applied to**를 읽습니다. 사진은 기본 모델 정책의 설정 예시입니다. 모델 정책과 agent 도구 단계 정책의 적용 대상을 구분하세요. **Create / Blocklists / Integrations**의 위치를 확인하되 기본 보호를 약하게 바꾸거나 새 스캔을 시작하지 않습니다.
 
 포털의 Guardrails에서 현재 연결을 확인합니다. custom agent guardrail이 있으면 모델 정책과 단순 합산되는 것으로 생각하지 마세요. 공식 문서에 따르면 **agent에 명시한 guardrail이 모델 정책을 override**합니다.
 

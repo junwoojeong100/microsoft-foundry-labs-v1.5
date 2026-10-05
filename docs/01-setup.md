@@ -245,9 +245,9 @@ python -c "import sys; print(sys.executable)"
 
 ### 5. 엔드포인트와 인증 설정하기
 
-![실제 Manage → Project details 화면. 프로젝트·상위 리소스·리전과 Connected resources가 보이고 구독·테넌트·엔드포인트·연결 키·계정 값은 가려져 있다.](../assets/portal/13-project-settings.png)
+![프로젝트 설정 예시. Manage → Project details에서 프로젝트·상위 리소스·리전과 Connected resources를 확인한다.](../assets/portal/13-project-settings.png)
 
-**화면 따라 읽기:** **Manage → Project details**에서 **Name / Parent resource / Location**을 먼저 대조합니다. **Project endpoint**의 자신의 값을 로컬 설정에 넣고, **Connected resources**에서는 연결 대상·Category·Auth method를 읽습니다. 회색 부분은 개인정보/연결 정보를 가린 것이며 복사할 예시 값이 아닙니다. 연결 키를 표시·복사할 필요는 없습니다. 이 화면 관찰에서는 **Add connection / Users의 권한 변경을 수행하지 않았습니다.**
+**화면 따라 읽기:** **Manage → Project details**에서 **Name / Parent resource / Location**을 먼저 대조합니다. **Project endpoint**의 자신의 값을 로컬 설정에 넣고, **Connected resources**에서는 연결 대상·Category·Auth method를 읽습니다. 이 실습은 키 없는 인증을 사용하므로 연결 키를 표시·복사하지 않습니다. 연결·권한 변경이 필요하면 관리자에게 요청합니다.
 
 포털의 **Manage → Project details** 또는 프로젝트 시작 화면에서 project endpoint를 복사합니다. VS Code 파일 목록의 **`.env`를 열어** 아래 두 줄의 `=` 오른쪽만 바꾸고 저장합니다. 파일 이름이 `.env.txt`가 되지 않게 합니다. 이 설정 블록은 터미널에 붙여넣지 않습니다.
 

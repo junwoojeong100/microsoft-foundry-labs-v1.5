@@ -48,9 +48,9 @@ Python 기본 SDK 환경과 `.env`의 `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME`을 준
 
 ### 1. 전용 store 만들기
 
-![실제 Memory store의 Details 화면. chat·embedding 모델, 기본 TTL 3600초, User profile 활성과 Chat summary·Procedural memory 비활성이 표시된다.](../assets/portal/10-memory.png)
+![Memory store 설정 예시. Details에 chat·embedding 모델, TTL 3600초, User profile 활성과 Chat summary·Procedural memory 비활성이 표시된다.](../assets/portal/10-memory.png)
 
-**화면 따라 읽기:** **Build → Memory → 자신의 store → Details**에서 모델·TTL·기억 종류를 확인합니다. **Memories**는 저장 항목을 확인하는 별도 탭입니다. 촬영한 store는 profile만 사용하며, **Save**가 비활성인 상태를 그대로 관찰했습니다. 새 item을 저장·검색·삭제하지 않았으므로 이 화면만으로 사용자 격리나 삭제 성공을 주장하지 않습니다.
+**화면 따라 읽기:** **Build → Memory → 자신의 store → Details**에서 모델·TTL·기억 종류를 확인합니다. 사진은 profile만 사용하는 설정 예시입니다. 저장 항목은 **Memories** 탭에서 확인하며, 아래 2–4단계에서 항목 저장·사용자별 검색·승인된 삭제를 각각 확인합니다.
 
 ```bash
 python samples/memory_lab.py create

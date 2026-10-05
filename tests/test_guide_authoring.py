@@ -135,6 +135,70 @@ class GuideAuthoringTests(unittest.TestCase):
                 for chapter in chapters:
                     build_guide.source_body(chapter, chapters, capabilities, sources, language)
 
+    def test_learner_text_keeps_capture_audits_in_maintenance_records(self):
+        internal_markers = (
+            "Playwright MCP", "Headless Chromium", 'class="provenance-note"',
+            "portal-screenshots", "가이드 밖", "outside the guide", "outside this guide",
+            "outside the reader", "제작자의", "author's execution",
+            "과거 검증", "공개 검증", "이번 지침 수정", "This instruction update",
+            "10/10 request trace IDs, only 7", "six bounded reconciliation sweeps",
+        )
+        labels = build_guide.read_json("reader-labels.json")
+        for language in ("ko", "en"):
+            chapters, sources, capabilities = build_guide.load_content(language)
+            texts = {
+                chapter["id"]: build_guide.source_body(chapter, chapters, capabilities, sources, language)
+                for chapter in chapters
+            }
+            texts["reader-labels"] = json.dumps(labels[language], ensure_ascii=False)
+            for name, text in texts.items():
+                with self.subTest(language=language, source=name):
+                    for marker in internal_markers:
+                        self.assertNotIn(marker, text)
+        replay = build_guide.read_json("replay.json")
+        for language in ("ko", "en"):
+            text = replay["notice"][language] + replay["chapters"][0][language]["narration"]
+            self.assertNotIn("검증 보고서", text)
+            self.assertNotIn("validation report", text)
+
+    def test_screen_examples_keep_learner_context_and_completion_criteria(self):
+        expected = {
+            "ko": {
+                "00-start.md": ("권한, 지역, 업데이트", "성공 기준", "자신의 프로젝트"),
+                "03-responses.md": ("모델 응답 예시", "출력 한도 설정 예시"),
+                "04-agent.md": ("구성 예시", "L04에서는 지시문만"),
+                "13-iq.md": ("Search 연결 설정 예시", "Entra"),
+                "16-memory.md": ("Memory store 설정 예시", "사용자별 검색", "승인된 삭제"),
+            },
+            "en": {
+                "00-start.md": ("permissions, region, and updates", "Success criteria", "your own project"),
+                "03-responses.md": ("Model response example", "Output-limit setting example"),
+                "04-agent.md": ("configuration example", "Save only the instructions in L04"),
+                "13-iq.md": ("Knowledge-list example", "Project Managed Identity"),
+                "16-memory.md": ("Stored-item example", "user-specific searches", "approved deletion"),
+            },
+        }
+        for language, files in expected.items():
+            directory = ROOT / "docs" / ("en" if language == "en" else "")
+            for filename, markers in files.items():
+                text = (directory / filename).read_text()
+                with self.subTest(language=language, source=filename):
+                    for marker in markers:
+                        self.assertIn(marker, text)
+
+    def test_official_links_render_without_internal_review_notes(self):
+        for language in ("ko", "en"):
+            _, sources, _ = build_guide.load_content(language)
+            for source in sources["sources"]:
+                source["basis"] = "INTERNAL_VERIFICATION_RECORD"
+                source["note"] = "INTERNAL_SOURCE_REVIEW_NOTE"
+            text = build_guide.sources_markdown(sources, language)
+            with self.subTest(language=language):
+                self.assertNotIn("INTERNAL_VERIFICATION_RECORD", text)
+                self.assertNotIn("INTERNAL_SOURCE_REVIEW_NOTE", text)
+                for source in sources["sources"]:
+                    self.assertIn(f"[{source['title']}]({source['url']})", text)
+
     def test_all_active_labs_have_concepts_and_per_command_explanations(self):
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
         labs = [chapter for chapter in chapters if chapter["track"] != "reference"]

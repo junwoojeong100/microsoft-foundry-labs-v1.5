@@ -120,12 +120,17 @@ async (page) => {
         ),
         hashesMatch: hashes.every(Boolean),
         loaded: images.every(image => image.complete && image.naturalWidth > 0),
-        captioned: images.every(image => image.closest(".portal-capture")?.textContent.includes(english ? "Not deployment or quality evidence" : "배포·품질 검증과 구분")),
+        captioned: images.every(image =>
+          image.closest(".portal-capture")?.querySelector(".capture-note")?.textContent ===
+          (english ? "Portal screen example" : "포털 화면 예시")
+        ),
       };
     }, {english, edition});
     check(captures.declared.length === edition.portal_screenshots && JSON.stringify(captures.declared) === JSON.stringify(captures.rendered), "language-specific portal capture manifest matches the rendered guide");
     check(captures.genuine && captures.scoped && captures.provenance && captures.hashesMatch, "active and archived portal captures retain genuine scoped provenance and original hashes");
-    check(captures.loaded && captures.captioned, "all offline portal images load with provenance and execution boundaries");
+    check(captures.loaded && captures.captioned, "all offline portal images load with concise screen-example captions");
+    check(await page.locator('.provenance-note, a[href^="content/portal-screenshots"]').count() === 0,
+      "capture audits stay in maintenance records rather than learner navigation");
     check(await page.locator('a[href^="validation/"], a[href^="results/"]').count() === 0, "execution records remain outside the guide");
     for (const path of [edition.receipt_html]) {
       check(await page.locator(`.site-footer a[href="${path}"]`).count() === 1, `footer uses localized link: ${path}`);
@@ -152,6 +157,8 @@ async (page) => {
     check((await rootResponse.text()).includes('<html lang="en">'), "site root defaults to English");
     const bodyText = await page.locator("body").textContent();
     check(bodyText.includes("Contoso") && !bodyText.includes("한빛") && !bodyText.includes("Hanbit"), "current scenario is consistently Contoso");
+    check(!/Playwright MCP|Headless Chromium|가이드 밖|outside (?:the|this) guide/.test(bodyText),
+      "learner text omits authoring tools and audit-storage instructions");
     const icon = await page.locator(".brand img").evaluate(image => ({
       source: image.getAttribute("src"), loaded: image.complete && image.naturalWidth > 0,
       fit: getComputedStyle(image).objectFit, width: image.width, height: image.height,
@@ -182,7 +189,7 @@ async (page) => {
     check(await page.locator("#l08").innerText().then(text => text.includes("compound-request-no-tools")),
       "the default reading path identifies the fixed question without inventing a score");
     await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
-    check(await page.locator("details").evaluateAll(nodes => nodes.every(node => node.open)), "printing includes every optional and provenance section");
+    check(await page.locator("details").evaluateAll(nodes => nodes.every(node => node.open)), "printing includes every optional and reference section");
     await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
     check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "printing restores the learner's collapsed sections");
 

@@ -48,9 +48,9 @@ L04의 agent와 `data/policies/`의 Markdown 파일 3개를 사용합니다. 저
 4. 파일 3개의 인덱싱이 **Completed**인지 확인합니다. 업로드 완료와 검색 준비 완료는 다릅니다. 연결을 **Save**하고 에이전트 버전과 store 이름을 기록합니다.
 5. **New chat**으로 새 대화를 열어 아래 세 질문을 각각 한 번씩 보냅니다. 지식 추가 전 L04 대화와 구분합니다.
 
-![실제 agent의 Instructions를 접어 Tools와 Knowledge를 펼쳐 볼 수 있게 한 화면. File search 카드와 별도의 get_stock·prepare_purchase_request 함수가 구분되어 있다.](../assets/portal/05-agent-tools.png)
+![도구 연결 설정 예시. File search 카드와 별도의 get_stock·prepare_purchase_request 함수가 구분되어 있다.](../assets/portal/05-agent-tools.png)
 
-**화면 따라 읽기:** **Tools**의 **File search** 카드에서 연결된 store와 검색 설정을 확인합니다. 식별자는 화면에서 가렸으므로 자신의 store 값을 사용하세요. 그 아래 `get_stock`·`prepare_purchase_request`는 L06에서 설명할 함수이며 파일 검색 자체의 기능이 아닙니다. 사진에 도구가 나열돼 있다는 것만으로 인덱싱 완료·citation 정확도를 판정하지 말고, 아래 질문의 실제 근거를 확인합니다.
+**화면 따라 읽기:** **Tools**의 **File search** 카드에서 자신의 store와 검색 설정을 확인합니다. 그 아래 `get_stock`·`prepare_purchase_request`는 L06에서 설명할 함수이며 파일 검색 자체의 기능이 아닙니다. 인덱싱이 완료되면 아래 질문을 보내고 실제 인용을 원문과 대조합니다.
 
 ### 3. 정답·교차 문서·모름을 차례로 실험하기
 

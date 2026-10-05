@@ -35,21 +35,21 @@ L01의 `.env`, 로그인, `requirements.txt` 설치와 L02의 준비된 배포�
 **기본 경로는 바로 아래 1–3단계의 터미널 실습입니다.** 포털과 SDK를 모두 호출할 필요는 없습니다. 화면을 참고할 때만 펼치세요.
 
 <details class="optional-path" markdown="1">
-<summary>포털 참고와 기존 1회 시연 기록 — 사진을 재현할 필요 없음</summary>
+<summary>선택: 모델 Playground의 입력·설정·응답 읽기</summary>
 
-**Build → Models → Deployments → 자신의 배포 → Playground**를 엽니다. 사진의 `contoso-chat`은 촬영 환경의 기존 `gpt-4.1-mini` 배포이며 자신의 승인된 배포 이름을 사용합니다. 이 단계는 **Save as agent**를 누르지 않는 모델 실습입니다.
+**Build → Models → Deployments → 자신의 배포 → Playground**를 엽니다. 사진의 `contoso-chat`은 `gpt-4.1-mini` 배포 예시이며, 실제 실행에는 L02에서 확인한 자신의 승인된 배포를 선택합니다. 이 단계는 **Save as agent**를 누르지 않는 모델 실습입니다.
 
-![실제 모델 Playground에 합성 Contoso 승인 경계 질문을 입력하고, 정확히 200만 원일 때 팀장 승인이 필요하다는 응답을 받은 화면. Tools에는 추가 도구가 없다.](../assets/portal/16-model-response.png)
+![모델 응답 예시. 질문에 포함된 합성 Contoso 규칙에 따라 정확히 200만 원일 때 팀장 승인이 필요하다고 답한다. Tools에는 추가 도구가 없다.](../assets/portal/16-model-response.png)
 
-**화면 따라 읽기:** 왼쪽 **Model / Instructions / Tools**가 요청의 조건이고, 오른쪽이 사용자 입력과 모델 응답입니다. 이 시연에서는 질문 안에 합성 규칙을 명시했으므로 RAG나 비공개 회사 지식을 검증한 것이 아닙니다. 재고 조회·구매 초안·실제 승인도 실행하지 않았습니다.
+**화면 따라 읽기:** 왼쪽 **Model / Instructions / Tools**가 요청의 조건이고, 오른쪽이 사용자 입력과 모델 응답입니다. 질문 안에 합성 규칙을 넣은 모델 응답 예시이며, 회사 문서를 검색하는 RAG와는 다릅니다.
 
-![모델 Playground의 실제 Parameters 대화상자. Max Completion Tokens를 256으로 제한하고 나머지 기본 매개변수를 확인한 모습.](../assets/portal/17-model-parameters.png)
+![출력 한도 설정 예시. 모델 Playground의 Parameters에서 Max Completion Tokens가 256으로 설정되어 있다.](../assets/portal/17-model-parameters.png)
 
-**실행 전 확인:** **Parameters → Max Completion Tokens**에서 출력 한도를 정합니다. 촬영은 256으로 설정하고, 추가 과금/외부 전송이 가능한 **Web search**를 이 모델 Playground에서 제거한 뒤 질문을 한 번만 전송했습니다. 기존 agent의 도구나 정책은 변경하지 않았습니다. Temperature/Top P는 생성의 변동성 관련 옵션이지 비용 금액 상한이 아니며, 지원 모델마다 허용 옵션이 다릅니다.
+**실행 전 확인:** **Parameters → Max Completion Tokens**에서 자신의 모델이 지원하는 승인된 출력 한도를 정합니다. 화면의 256은 예시 값입니다. 모델 호출만 연습하므로 추가 과금·외부 전송이 가능한 **Web search** 등 불필요한 도구는 끕니다. Temperature/Top P는 생성의 변동성 관련 옵션이지 비용 금액 상한이 아니며, 지원 모델마다 허용 옵션이 다릅니다.
 
 입력에 적힌 규칙에 따르면 **정확히 200만 원인 경우 팀장 승인**이 필요합니다. 자신의 응답과 response ID를 확인하며, 표시된 토큰 수는 해당 요청의 사용량이지 전체 실습 비용이 아닙니다.
 
-자동 대기가 시간 초과여도 바로 재전송하지 말고 기존 응답을 먼저 확인합니다. 원시 HTTP 상태나 포털 내부 재시도 횟수를 화면만으로 추정하지 않습니다. 아래 CLI 경로는 response 객체·ID를 코드로 읽는 별도 실행이며, 사진을 재현하려고 추가 호출할 필요는 없습니다.
+응답 대기가 길어져도 바로 재전송하지 말고 기존 응답을 먼저 확인합니다. 아래 CLI 경로는 response 객체·ID를 코드로 읽는 별도 실행입니다. 기본 터미널 실습을 진행한다면 포털에서 추가 호출할 필요는 없습니다.
 
 </details>
 

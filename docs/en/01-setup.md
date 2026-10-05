@@ -105,7 +105,7 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 3. Compare **Name / Parent resource / Location** in **Manage → Project details** with the instructor's information. Your approved project may have a different name from the example `contoso-workshop-en`.
 4. If no project appears or only **Create project** is available, ask for access rather than creating one. Account-free participants can continue with the local checks in step 4 below.
 
-**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in `results/`, outside the guide and kit.
+**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in this lab folder's `results/`.
 
 <details class="operator-only" markdown="1">
 <summary>Administrators only: create a new environment after scope, cost, and access approval</summary>
@@ -138,9 +138,9 @@ Add Search with `python scripts/azure_environment.py search --live` only when yo
 The ownership record is `results/azure-environment.json`. For partial failures such as RequestConflict,
 inspect the original deployment operation and use `foundation --resume` **only for those same owned resources**. `--resume` continues a recorded partial deployment; it does not select a new environment or erase the original error record.
 
-![Azure portal resource group overview for the isolated English Contoso run. Compare its ownership and scope with your English environment receipt.](../../assets/portal/en/18-resource-group.png)
+![Resource group overview example in the Azure portal. Compare the group and its resources with your English environment receipt.](../../assets/portal/en/18-resource-group.png)
 
-**Reading the screen:** Compare the resource group, location, and ownership tags with `results/azure-environment.json` from the English checkout. Visible resources depend on capture time and filters; the image does not prescribe a fixed resource list or count. Consult the [English capture log](../../content/portal-screenshots.en.json) for its exact scope. An overview is not proof of successful model calls or a passed quality gate.
+**Reading the screen:** Compare the resource group, location, and ownership tags with `results/azure-environment.json` from the English checkout. Check the resources required for your selected labs; you do not need to match the image's resource list or count.
 
 If an overview shows an **inherited organizational diagnostic-policy failure**, inspect its scope separately from the lab's deployments. Do not hide the warning or change an out-of-scope policy/workspace; refer it to the responsible governance owner.
 
@@ -291,9 +291,9 @@ python -c "import sys; print(sys.executable)"
 
 ### 5. Configure endpoints and authentication
 
-![Manage → Project details for contoso-workshop-en, with project, parent resource, region, and Connected resources. Identifying and connection values must remain masked.](../../assets/portal/en/13-project-settings.png)
+![Project settings example. Locate the project, parent resource, region, and Connected resources under Manage → Project details.](../../assets/portal/en/13-project-settings.png)
 
-**Reading the screen:** Under **Manage → Project details**, first compare **Name / Parent resource / Location** with your English environment's records. Put your own **Project endpoint** in the local configuration. In **Connected resources**, read the connection target, Category, and Auth method. Masked areas are not example values to copy; do not reveal connection keys. The [English capture log](../../content/portal-screenshots.en.json) defines the observation scope. Viewing settings does not establish that a connection or permission change succeeded.
+**Reading the screen:** Under **Manage → Project details**, first compare **Name / Parent resource / Location** with your English environment's records. Put your own **Project endpoint** in the local configuration. In **Connected resources**, read the connection target, Category, and Auth method. This lab uses keyless authentication, so do not reveal or copy connection keys. Ask the administrator for any required connection or permission changes.
 
 Copy the project endpoint from **Manage → Project details** or the project's landing page. **Open `.env` in VS Code**, replace only the right-hand sides of these two `=` signs, and save. Ensure the filename is `.env`, not `.env.txt`. Do not paste this settings block into the terminal.
 

@@ -39,11 +39,11 @@ You need project `Foundry User` access, a callable model, and `data/en/prompts/a
 
 Reuse this agent in L05. It **must not claim to have used unavailable tools**. The exercise sends five inputs: two boundary questions, two in the same conversation, and one in a new conversation. Send each only once within the approved scope.
 
-![The Prompt Agent Playground in contoso-workshop-en, with English instructions, model/tools settings, conversation input, and version controls.](../../assets/portal/en/04-prompt-playground.png)
+![Prompt Agent configuration example, with English instructions, model/tools settings, conversation input, and version controls.](../../assets/portal/en/04-prompt-playground.png)
 
 **Reading the screen:** Check the deployment name under **Model** and the prompt under **Instructions** on the left, then enter test questions in **Chat** on the right. **Version** at the top identifies the configuration version; **New chat** separates conversation contexts. **Save** changes configuration, while **Send** submits a billable request. Confirm your purpose before clicking either.
 
-The screenshot concerns the English lab project; its exact agent state and capture actions are recorded in the [English capture log](../../content/portal-screenshots.en.json). If it shows File search or functions already connected, those belong to later integration steps, not the L04 baseline. A visible configuration is not proof that the agent used its tools successfully.
+The image is a configuration example with later integrations. **Save only the instructions in L04.** File search belongs to L05 and function tools to L06, so you do not need to match those connections yet.
 
 ### 2. Check the limits with baseline questions
 

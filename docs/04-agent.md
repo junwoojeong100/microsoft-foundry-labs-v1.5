@@ -39,11 +39,11 @@ Prompt Agent는 **모델 + instructions + tools**로 선언하는 관리형 agen
 
 이 에이전트는 L05에서 그대로 사용합니다. 아직 File search와 함수 도구를 붙이지 않았으므로 **없는 도구를 사용했다고 주장하면 안 됩니다.** 아래 실험은 질문 5회(한계 2회·같은 대화 2회·새 대화 1회)이며 승인된 범위에서 각각 한 번씩만 전송합니다.
 
-![실제 Contoso Prompt Agent의 Playground. 왼쪽에 Model·Instructions·Tools, 오른쪽에 Chat/YAML과 메시지 입력, 위쪽에 버전·Save·Publish·Traces 탭이 있다.](../assets/portal/04-prompt-playground.png)
+![Prompt Agent 구성 예시. 왼쪽에 Model·Instructions·Tools, 오른쪽에 Chat/YAML과 메시지 입력, 위쪽에 버전·Save·Publish·Traces 탭이 있다.](../assets/portal/04-prompt-playground.png)
 
 **화면 따라 읽기:** 왼쪽 **Model**에서 배포 이름, **Instructions**에서 지시문을 확인하고 오른쪽 **Chat**에 테스트 질문을 넣습니다. 위쪽 **Version**은 설정 버전, **New chat**은 대화 맥락을 구분하는 기능입니다. **Save**와 **Send**는 각각 설정 변경과 유료 요청이므로 목적을 확인한 후 누르세요.
 
-촬영은 **이미 지식·함수가 연결된 기존 실습 agent를 읽기 전용으로 관찰**한 것입니다. L04에서 새로 만든 agent에 화면처럼 File search·함수가 아직 없어도 정상입니다. 촬영 과정에서 메시지를 전송하거나 지시문·버전을 저장하지 않았습니다.
+사진은 지식·함수까지 연결한 구성 예시입니다. **L04에서는 지시문만 저장합니다.** File search는 L05에서, 함수 도구는 L06에서 다루므로 지금 화면과 똑같이 연결할 필요는 없습니다.
 
 ### 2. 기준 질문으로 한계 확인하기
 

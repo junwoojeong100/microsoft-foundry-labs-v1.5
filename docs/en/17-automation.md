@@ -135,9 +135,9 @@ Open the `Evidence:` original beside its receipt and connect **same agent → af
 
 ### 3. Recheck the stopped state
 
-![Build → Agents → Routines in contoso-workshop-en. Inspect each English policy timer's target, trigger, last run, and actual enabled or paused state.](../../assets/portal/en/12-routines.png)
+![Paused-schedule list example. Inspect the target agent, trigger, last run, and Paused state under Build → Agents → Routines.](../../assets/portal/en/12-routines.png)
 
-**Read the screen:** Under **Agents → Routines**, first find your English schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. A **Last run** value does not prove that the business output was correct; connect it to your trace/response from the previous step. The [English capture log](../../content/portal-screenshots.en.json) records observation scope, not evidence that your own timer ran or stopped.
+**Read the screen:** Under **Agents → Routines**, first find your schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. Connect **Last run** to your trace/response from the previous step and inspect the business output.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live

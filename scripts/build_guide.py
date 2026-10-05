@@ -117,23 +117,23 @@ def coverage_markdown(capabilities, chapters, sources, language="ko"):
     counts = Counter(c["mode"] for c in capabilities)
     if language == "en":
         modes = {
-            "직접 실습": ("Direct lab", "An executable main path or local exercise is provided. This does not mean every subfeature in the row was run in the cloud."),
+            "직접 실습": ("Direct lab", "Run the main capability through code, the portal, or a local example and inspect the result."),
             "조건부 실습": ("Conditional lab", "Follow the steps only when the required resources, permissions, licenses, and Preview access are available."),
-            "설계": ("Design", "Design the decision criteria, configuration, and failure, permission, and operational checks. No real change is performed."),
-            "참고": ("Reference", "Understand product boundaries and the current official implementation path. Not counted as a full implementation lab."),
+            "설계": ("Design", "Plan configuration, permissions, and failure handling. Actual resource changes require separate approval."),
+            "참고": ("Reference", "Read about the capability and its official implementation path."),
         }
         lines = [
-            "> **Coverage is explicit.** The official capability map and reference connect each capability group to labs, design exercises, or reference material.",
+            "> **Find the learning path for a capability.** Use this map to choose a lab, design exercise, or reference section.",
             "",
-            f"There are **{len(capabilities)} coverage entries** across {lab_count} modules. This is not a count of individual product APIs or models.",
+            f"There are **{len(capabilities)} capability mappings** across {lab_count} modules.",
             "", "## How to read the coverage levels", "",
             "| Depth | Meaning | Entries |", "| --- | --- | ---: |",
         ]
         lines += [f"| {label} | {description} | {counts[mode]} |" for mode, (label, description) in modes.items()]
         lines += [
-            "", "**A status label is not an unconditional guarantee for an entire row.** Check the source for API, SDK, portal, model, and regional details. If permissions or quota prevent a run, record it as not executed.",
+            "", "**Check availability before running.** Use the linked sources for supported APIs, SDKs, portal features, models, and regions. If permissions or quota are missing, follow the chapter's reading or design path.",
             "", "## Capabilities mapped to labs", "",
-            "| Area | Capability group | Module | Depth | Availability / verification scope | Evidence |",
+            "| Area | Capability group | Module | Depth | Availability / requirements | Official source |",
             "| --- | --- | --- | --- | --- | --- |",
         ]
         for item in capabilities:
@@ -144,30 +144,30 @@ def coverage_markdown(capabilities, chapters, sources, language="ko"):
             )
         return "\n".join(lines)
     lines = [
-        "> **포함 범위를 공개합니다.** 공식 capability map/reference를 기준으로 기능군을 실습·설계·참고 항목에 연결했습니다.",
+        "> **필요한 기능의 학습 경로를 찾으세요.** 기능별로 실습·설계·참고 절을 선택할 수 있습니다.",
         "",
-        f"총 **{len(capabilities)}개 커버리지 항목**입니다. {lab_count}개 모듈에서 다룹니다. 항목 수는 제품의 개별 API나 모델 개수가 아닙니다.",
+        f"{lab_count}개 모듈에서 다루는 **{len(capabilities)}개 기능군의 학습 경로**입니다.",
         "",
         "## 범위 읽는 법",
         "",
         "| 깊이 | 의미 | 항목 수 |", "| --- | --- | ---: |",
     ]
     descriptions = {
-        "직접 실습": "실행 가능한 주요 경로 또는 로컬 실습 제공. 해당 행의 모든 세부 기능을 cloud 실행했다는 의미는 아님.",
+        "직접 실습": "주요 기능을 코드·포털 또는 로컬 예제로 실행하고 결과 확인.",
         "조건부 실습": "추가 자원·권한·라이선스·Preview가 준비된 경우 단계에 따라 수행.",
-        "설계": "판단 기준·구성·실패/권한/운영 검증을 설계. 실제 변경 미실행.",
-        "참고": "제품 경계와 현재 공식 구현 경로 안내. 전체 구현 실습으로 합산하지 않음.",
+        "설계": "구성·권한·실패 대응을 설계. 실제 자원 변경은 별도 승인 필요.",
+        "참고": "기능의 개념과 공식 구현 경로 읽기.",
     }
     for mode, description in descriptions.items():
         lines.append(f"| {mode} | {description} | {counts[mode]} |")
     lines += [
         "",
-        "**상태는 행 전체의 무조건적 보증이 아닙니다.** API·SDK·포털·모델·지역의 세부 상태는 원문을 확인하세요. "
-        "권한이나 quota가 없어서 실행하지 못한 항목은 미실행으로 남깁니다.",
+        "**실행 전 사용 조건을 확인하세요.** 지원 API·SDK·포털·모델·지역은 연결된 공식 문서에서 확인합니다. "
+        "권한이나 quota가 준비되지 않았으면 해당 장의 읽기·설계 경로를 선택합니다.",
         "",
         "## 기능과 실습 연결",
         "",
-        "| 영역 | 기능군 | 모듈 | 깊이 | 확인 상태 | 근거 |",
+        "| 영역 | 기능군 | 모듈 | 깊이 | 지원 상태·사용 조건 | 공식 출처 |",
         "| --- | --- | --- | --- | --- | --- |",
     ]
     for item in capabilities:
@@ -182,12 +182,11 @@ def coverage_markdown(capabilities, chapters, sources, language="ko"):
 
 def sources_markdown(source_data, language="ko"):
     table = [
-        "| ID | Document | Basis for verification | Used for |" if language == "en"
-        else "| ID | 문서 | 확인 근거 | 사용하는 내용 |",
-        "| --- | --- | --- | --- |",
+        "| ID | Official document |" if language == "en" else "| ID | 공식 문서 |",
+        "| --- | --- |",
     ]
     table += [
-        f"| `{source['id']}` | [{source['title']}]({source['url']}) | {source['basis']} | {source['note']} |"
+        f"| `{source['id']}` | [{source['title']}]({source['url']}) |"
         for source in source_data["sources"]
     ]
     path = ROOT / ("docs/en/sources.md" if language == "en" else "docs/sources.md")

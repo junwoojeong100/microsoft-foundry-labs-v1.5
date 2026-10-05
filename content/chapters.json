@@ -23,5 +23,5 @@
   {"id":"instructor","number":"B","title":"강사용 운영안·완료 체크리스트","summary":"90분·하루·이틀 코스와 비용·실습 결과 기록표.","track":"reference","minutes":0,"status":"교육 운영","file":"docs/instructor.md","sources":["ga","costs"]},
   {"id":"glossary","number":"C","title":"용어 사전·선택 가이드","summary":"헷갈리는 이름을 한 줄 정의와 선택 기준으로 정리합니다.","track":"reference","minutes":0,"status":"빠른 참고","file":"docs/glossary.md","sources":["capabilities","overview"]},
   {"id":"coverage","number":"D","title":"기능 커버리지","summary":"공식 기능군이 어느 실습에 연결되는지 확인합니다.","track":"reference","minutes":0,"status":"추적 가능","generated":"coverage","sources":["capabilities","capability-reference","ga"]},
-  {"id":"sources","number":"E","title":"출처·최신성·실행 경계","summary":"공식 출처와 실습의 실행·품질 판단 경계를 확인합니다.","track":"reference","minutes":0,"status":"공식 문서 참고","generated":"sources","sources":["ga","news","capability-reference"]}
+  {"id":"sources","number":"E","title":"공식 출처·기능 사용 조건","summary":"공식 문서에서 기능별 GA/Preview·지역·권한 조건을 확인합니다.","track":"reference","minutes":0,"status":"공식 문서 참고","generated":"sources","sources":["ga","news","capability-reference"]}
 ]

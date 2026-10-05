@@ -60,9 +60,9 @@ First reuse an L05/L06 run collected after tracing was connected. If none exists
 
 With portal-only results, completing the **portal path** using the response ID is sufficient. Do not fabricate a JSONL file or pass L08's comparison JSON to this JSONL input. The CLI reads only the last 24 hours; read older evidence within the portal's approved retention scope or leave correlation unverified.
 
-![Prompt Agent Traces for the English Contoso project. Locate ID search, version/status/date filters, durations, tokens, and estimated costs without exposing identifying values.](../../assets/portal/en/06-traces.png)
+![Execution-list example. Locate ID search, version/status/date filters, durations, tokens, and estimated costs in Prompt Agent Traces.](../../assets/portal/en/06-traces.png)
 
-**Reading the screen:** In **Build → Agents → your agent → Traces**, first set **Date range** and **Version**. Search using your own English run's trace/conversation/response ID, then open a row to inspect individual operations. **Completed** means execution finished, not that the answer was correct. Use the [English capture log](../../content/portal-screenshots.en.json) for the exact observation scope; do not treat historical Korean trace IDs as evidence for this run.
+**Reading the screen:** In **Build → Agents → your agent → Traces**, first set **Date range** and **Version**. Search using your own run's trace/conversation/response ID, then open a row to inspect individual operations. **Completed** means execution finished, not that the answer was correct.
 
 Find the following in the trace.
 

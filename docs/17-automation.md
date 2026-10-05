@@ -135,9 +135,9 @@ trace를 읽을 수 없다면 **실행 미확인**으로 종료하며 성공이�
 
 ### 3. 중지 상태 재확인
 
-![실제 Build → Agents → Routines 목록. 두 Contoso 정책 timer가 Paused로 표시되고 대상 agent·trigger 시각·마지막 실행 열이 보인다.](../assets/portal/12-routines.png)
+![중지된 예약 목록 예시. Build → Agents → Routines에 Paused 상태와 대상 agent·trigger 시각·마지막 실행 열이 보인다.](../assets/portal/12-routines.png)
 
-**화면 따라 읽기:** **Agents → Routines**에서 자기 예약 이름과 대상 agent를 먼저 찾습니다. 촬영 UI의 중지 표시는 **Paused**, CLI/API에서 확인할 값은 `enabled=false`입니다. **Last run**이 있다는 것만으로 업무 출력이 정상이라고 판단하지 말고 앞 단계의 trace/response와 연결합니다. 사진은 보존된 중지 예약을 관찰한 것이며 새 예약·dispatch·상태 변경은 하지 않았습니다.
+**화면 따라 읽기:** **Agents → Routines**에서 자기 예약 이름과 대상 agent를 먼저 찾습니다. UI의 중지 표시는 **Paused**, CLI/API에서 확인할 값은 `enabled=false`입니다. **Last run**을 앞 단계의 trace/response와 연결해 업무 출력도 확인합니다.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-v2-scheduled.json --live
