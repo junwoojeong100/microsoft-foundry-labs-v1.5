@@ -230,4 +230,4 @@ If `azure` is skipped, read its opt-in condition; skipping on an ordinary push i
 
 ## Cleanup
 
-Exclude private settings, raw responses, and receipts from the kit. Generate HTML/Markdown/PDF/ZIP from the same sources. Main merges, Pages publication, paid runs, access changes, and Azure deletion each require separate approval; this exercise performs none automatically.
+Exclude private settings, raw responses, and receipts from the kit. Keep your CI interpretation, release manifest, and recovery decision together. Actual paid runs, access changes, and Azure deletion each require separate approval. Check remaining resources and costs in L19.

@@ -3,7 +3,7 @@
   "artifact": "Contoso-Foundry-Hands-on-2026-09-30",
   "default_language": "en",
   "site_url": "https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/",
-  "pages_branch": "gh-pages",
+  "pages_branch": "main",
   "archive": "downloads/Contoso-Foundry-Hands-on-2026-09-30.zip",
   "languages": {
     "en": {
