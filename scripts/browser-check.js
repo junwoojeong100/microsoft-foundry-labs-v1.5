@@ -151,6 +151,9 @@ async (page) => {
     }
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "home route");
     check(await page.locator("html").getAttribute("lang") === edition.language, "correct language metadata");
+    check(await page.locator(".topbar .edition").innerText() ===
+      (english ? "Contoso Purchasing Agent" : "Contoso 구매 에이전트"),
+      "topbar shows the localized agent name without the edition date");
     check(await page.locator('script[src^="http"],link[rel="stylesheet"][href^="http"]').count() === 0, "no remote runtime dependencies");
     check(await page.locator('.language-switch a[aria-current="true"]').getAttribute("lang") === edition.language, "current language is accessible");
     const rootResponse = await page.request.get(`${origin}/`);
