@@ -43,7 +43,7 @@ L04의 agent와 `data/policies/`의 Markdown 파일 3개를 사용합니다. 저
 ### 2. File search 연결하기
 
 1. **Build → Agents**에서 L04에 기록한 **자기 에이전트 이름**을 엽니다. 새 에이전트를 만들지 않습니다.
-2. Agent builder의 **Tools/Knowledge → File search**로 이동합니다. UI가 Toolbox 연결을 요구하면 관리자가 제공한 file-search Toolbox를 선택합니다. 다른 팀의 도구를 임의로 연결하지 않습니다.
+2. Agent builder의 **Tools/Knowledge → File search**에서 기본 파일 검색 연결을 엽니다. 이 경로가 보이지 않으면 프로젝트의 지원 상태를 확인하고 아래 SDK 경로를 선택합니다. L07의 Cloud Toolbox 확장은 이 단계의 선행 조건이 아닙니다.
 3. 자기 실습용 vector store를 만들고 `data/policies/`의 위 **Markdown 파일 3개만** 업로드합니다. ZIP 전체나 `data/` 폴더 전체를 올리지 않습니다.
 4. 파일 3개의 인덱싱이 **Completed**인지 확인합니다. 업로드 완료와 검색 준비 완료는 다릅니다. 연결을 **Save**하고 에이전트 버전과 store 이름을 기록합니다.
 5. **New chat**으로 새 대화를 열어 아래 세 질문을 각각 한 번씩 보냅니다. 지식 추가 전 L04 대화와 구분합니다.
@@ -113,6 +113,58 @@ python samples/workshop.py rag --live
 | 답은 맞지만 출처가 없음 | citation 처리·화면 렌더링 |
 | 다른 사용자의 자료가 보임 | 데이터 권한·검색 필터·호출자 ID |
 
+### 포털 동작과 실제 File search 코드
+
+포털에서는 **store 생성·파일 업로드 → 인덱싱 완료 → File search 연결 → 질문** 순서입니다. 아래는 `create_lab_agent()`와 `run_turn()`의 호출을 연결한 학습용 발췌입니다. `project`·`client`는 L03의 연결 객체, `receipt`는 SDK 실행이 먼저 만드는 소유 기록입니다. 블록을 따로 실행해 자원을 중복 생성하지 않습니다.
+
+```python
+from pathlib import Path
+from azure.ai.projects.models import FileSearchTool, PromptAgentDefinition
+from lab_profile import DATA
+
+instructions = Path("data/prompts/agent-v2.txt").read_text(encoding="utf-8")
+store = client.vector_stores.create(
+    name=receipt.data["run_id"],
+    expires_after={"anchor": "last_active_at", "days": 1},
+)
+receipt.add("vector_store", store.id)
+for path in sorted((DATA / "policies").glob("*.md")):
+    with path.open("rb") as handle:
+        uploaded = client.files.create(file=handle, purpose="assistants")
+    receipt.add("file", uploaded.id)
+    index_file(client, uploaded.id, store.id)
+
+file_search = FileSearchTool(vector_store_ids=[store.id], max_num_results=4)
+agent = project.agents.create_version(
+    agent_name=receipt.data["run_id"],
+    definition=PromptAgentDefinition(
+        model=deployment_name,
+        instructions=instructions,
+        tools=[file_search],
+    ),
+    description="Synthetic workshop agent; never submit real orders.",
+)
+receipt.add("agent", agent.name, version=agent.version)
+conversation = client.conversations.create()
+receipt.add("conversation", conversation.id)
+response = client.responses.create(
+    conversation=conversation.id,
+    input=question,
+    extra_body={"agent_reference": {"name": agent.name, "type": "agent_reference", "version": agent.version}},
+    include=["file_search_call.results"],
+    max_output_tokens=2048,
+)
+```
+
+| 포털 조작 | 코드에서 실제로 일어나는 일 |
+| --- | --- |
+| 정책 파일 업로드·인덱싱 상태 확인 | `client.files.create(...)` 후 `index_file(...)` 완료 확인 |
+| File search와 store 연결 | `FileSearchTool(vector_store_ids=[store.id], ...)` |
+| agent 설정 저장 | `project.agents.create_version(...PromptAgentDefinition(...))` |
+| Chat에 질문 전송·citation 확인 | `responses.create(...)`와 `include=["file_search_call.results"]` |
+
+이 코드는 SDK 경로의 원본 흐름을 읽기 위한 것입니다. 실제 SDK 실행은 별도 store·agent·파일을 만들므로 receipt가 있는 `workshop.py rag --live` 경로를 선택하고 포털과 중복 실행하지 마세요.
+
 ## 성공 기준
 
 정답 질문 2개에 실제 근거가 있고, 문서에 없는 질문은 유보합니다. 응답의 사실을 원문과 대조했으며 인덱싱 완료 상태를 확인했습니다.
@@ -123,7 +175,7 @@ python samples/workshop.py rag --live
 
 ## 정리
 
-다음 실습을 위해 포털 지식 연결을 유지합니다. SDK 샘플의 vector store는 **마지막 활동 후 1일** 만료를 설정하지만 업로드 파일은 별도입니다. 만료에만 의존하지 말고 L19에서 삭제합니다.
+다음 실습을 위해 지식 연결을 유지합니다. SDK store의 **마지막 활동 후 1일** 만료는 업로드 파일까지 삭제하지 않습니다. L19에서 남은 자원을 확인하고 승인된 대상만 삭제하거나 보존 기한을 기록합니다.
 
 <details markdown="1">
 <summary>File search와 Foundry IQ는 언제 나누나요?</summary>

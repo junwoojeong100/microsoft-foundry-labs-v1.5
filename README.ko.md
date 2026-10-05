@@ -4,11 +4,11 @@
 
 **[한국어 온라인 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)** · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)
 
-합성 Contoso 구매 도우미를 만들며 배우는 **20개 실습 모듈과 5개 참고 절(총 25개 문서)**입니다. 두 언어가 같은 구현과 각각의 합성 데이터·지침을 사용합니다.
+합성 Contoso 구매 에이전트를 만들며 배우는 **20개 실습 모듈과 5개 참고 절(총 25개 문서)**입니다. 두 언어가 같은 구현과 각각의 합성 데이터·지침을 사용합니다.
 
 ## 처음 시작하는 분
 
-**Azure는 클라우드 서비스, Foundry는 그 안에서 AI를 만들고 관리하는 작업 공간입니다.** 사전 사용 경험 없이 개념부터 읽을 수 있습니다. 실제 호출에는 강사가 준비한 프로젝트·권한과 비용 승인이 필요합니다.
+**실습 참여자가 자신의 환경을 만들고 처음부터 끝까지 진행합니다.** L01에서 PC·구독·권한·예산을 확인하고 전용 Foundry 프로젝트·모델·로그를 만든 뒤 에이전트·검색·도구·평가·추적을 경험합니다. 실제 작업에는 해당 범위의 Azure 권한과 비용 승인이 필요합니다.
 
 1. [L00: 기초부터 읽기](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l00-first-steps)에서 무엇을 만들지 확인합니다.
 2. [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip)을 풀고 [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01)의 PC·프로젝트 준비를 진행합니다. Git 명령은 필수가 아닙니다.
@@ -18,9 +18,9 @@
 
 블록에는 **터미널 명령 / 포털 Chat / .env 설정 / 정상 출력 예**를 구분해 표시합니다. 좁은 화면에서는 명령 해설을 세로로 읽을 수 있습니다. L01에는 새 터미널·Windows Python 경로 확인이 있고, L06의 `read-result --input`은 저장된 답·함수 결과·인용을 **새 Azure 호출 없이** 보여 줍니다. 원본이나 평가 판정을 바꾸지 않습니다.
 
-계정이 없어도 로컬 함수와 L08의 **지침·평가 질문 읽기**를 할 수 있습니다. 자신의 응답 수집과 유료 평가는 선택입니다. **통합 점검은 L06 후반부에서**, 게시·버전 관리는 L18 CI/CD에서 진행합니다. 기본 코스에 별도 Capstone·Teams 게시·Hosted·Optimizer는 필요하지 않습니다.
+계정이 없어도 로컬 함수와 L08의 지침·질문을 읽을 수 있지만 Azure 실습 완료와는 구분합니다. 기본 경로는 자신의 응답을 수집·평가하고 로그를 읽는 흐름입니다. 통합 점검은 L06 후반부, 게시·버전 관리는 선택 L18에서 진행합니다. 별도 Capstone·Teams 게시·Hosted·Optimizer는 기본 완주 조건이 아닙니다.
 
-심화마다 **시작 경로·설정값 출처·결과 확인 위치**를 안내합니다. Agent Framework는 L13 순차·동시와 L14 그룹 채팅·핸드오프로 나눠 각 흐름을 충분히 비교합니다. L17 권한·L18 CI/CD는 로컬 결함 복사본을 고치는 과제이며 실제 Azure 검증과 구분합니다. L18은 배포·운영 담당자를 위한 선택 과정입니다.
+심화마다 시작 경로·설정값 출처·결과 확인 위치를 안내합니다. L11 Search와 L12 Hosted도 직접 자원을 준비·실행합니다. Agent Framework는 L13 순차·동시와 L14 그룹 채팅·핸드오프로 나눕니다. L17 권한·L18 CI/CD는 로컬 결함 수정과 설계이며 실제 Azure 검증·게시와 구분합니다.
 
 <details>
 <summary>학습 지침과 모델 조건</summary>
@@ -28,7 +28,7 @@
 **학습 흐름은 초기 v1 → 평가 → 이유 분석·개선 → v2 재평가입니다.** `agent-v1.txt`와 `agent-v2.txt`를 같은 조건에서 비교합니다.
 v2는 공용·비공개 질문 분리, 모든 하위 질문의 답변, 주장별 근거, 미확인 사실 보류, 실제 도구 권한·결과 확인을 구체화했습니다.
 
-L02에 **`gpt-6-sol` / `2026-09-22`**, 배포 이름 `contoso-gpt-6-sol`을 명시했습니다. L08에서는 같은 복합 질문 12개를 두 언어에서 지침별 한 번씩 호출한 뒤 그 원문을 Foundry로 평가합니다. Holdout·Hosted 재배포·Optimizer는 필수가 아니며 **실제 점수 상승을 미리 보장하거나 결과를 작성하지 않습니다.**
+키트는 **`gpt-6-sol` / `2026-09-22`**를 고정하고 L01이 만드는 호출 이름은 `contoso-chat`입니다. 실제 모델·지역 가용성은 자신의 구독에서 확인합니다. L08은 같은 질문 12개의 v1/v2 원문을 한 번 수집해 Foundry로 평가합니다. Holdout·Hosted 재배포·Optimizer는 필수가 아니며 점수 향상을 미리 보장하지 않습니다.
 
 </details>
 
@@ -43,8 +43,10 @@ L02에 **`gpt-6-sol` / `2026-09-22`**, 배포 이름 `contoso-gpt-6-sol`을 명�
 | 전체 실습 패키지 | [두 언어 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
 | 합성 영수증 | [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) |
 
+실습 코드 파일별 역할은 [한국어 안내](samples/README.ko.md) · [English](samples/README.md)에서 확인할 수 있습니다.
+
 ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `index.html`을 열고, 코드는 편집기에서 확인합니다.
-Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다. PDF에는 접힌 참고·관리자 절까지 포함됩니다.
+Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다. PDF에는 접힌 선택·참고 절까지 포함됩니다.
 기본 코스는 **L00–L10, 약 4시간 45분**입니다. 심화는 **L11–L18**, 공통 마무리는 **L19(10분)**이며 실습 번호는 00–19로 이어집니다. 기본만 진행하면 L10에서 L19로, 심화를 선택하면 선택한 장을 마친 뒤 L19로 이동합니다. 읽기에는 로그인이 필요하지 않습니다.
 
 각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·오케스트레이션·권한·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L18의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
@@ -53,7 +55,7 @@ Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드
 
 `agent-v1.txt`는 역할·목표 중심의 기준선이고 `agent-v2.txt`는 절차형 지침입니다. Prompt/Hosted 기본값은 v2입니다.
 
-L08의 선택 수집은 `samples/instruction_prompt_agent_lab.py`, 같은 원문의 평가는 `samples/instruction_evaluation.py`를 사용하며 둘 다 명시적 `--live`가 필요합니다. 응답·평가 파일은 자신의 `results/`에 함께 보관하고 L08의 문항별 원문·점수·이유를 대조합니다.
+L08의 수집은 `samples/instruction_prompt_agent_lab.py`, 원문 평가는 `samples/instruction_evaluation.py`를 사용하며 둘 다 명시적 `--live`가 필요합니다. 비용 범위를 확인해 실행하고 응답·평가 파일을 자신의 `results/`에 함께 보관합니다. 읽기만 했다면 평가 미실행으로 기록합니다.
 
 ## 내레이션 실습 요약영상
 

@@ -2,11 +2,11 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 지침·질문 읽기가 기본 · 자신의 응답 수집과 유료 평가는 선택입니다.
+**진행 방식:** 지침·질문 비교 → 내 응답 수집 → 같은 원문의 Foundry 평가 → 이유 분석.
 
 **먼저 할 일:** 동봉 지침 두 개와 고정 질문을 읽고, 답변에서 확인해야 할 항목을 적습니다.
 
-**확인할 결과:** 비교 조건과 판단 기준을 설명합니다. 실제 실행했다면 같은 문항의 원문·점수·채점 이유를 연결합니다.
+**확인할 결과:** 같은 문항의 내 v1/v2 원문·점수·채점 이유를 연결합니다. 실행 조건이 부족하면 읽기만 했다고 기록합니다.
 
 </div>
 
@@ -20,13 +20,13 @@
 
 **무엇이며 왜 중요한가요?** 평가는 기대한 행동과 실제 답을 비교하는 일입니다. 지침만 바꾸고 모델·정책·질문·채점 기준을 같게 해야 차이를 해석할 수 있습니다.
 
-**어떻게 사용하나요?** 지침과 질문을 먼저 읽습니다. 실행을 선택했다면 실제 원문을 수집하고 평가하며 동점·하락도 그대로 해석합니다.
+**어떻게 사용하나요?** 고정된 질문·지침을 읽고 요청 예산을 확인합니다. 내 원문을 한 번 수집해 평가하며 동점·하락도 그대로 해석합니다.
 
 **어디서 실행하나요?** [질문·체크리스트](../data/evaluation/instruction-comparison.json), [v1](../data/prompts/agent-v1.txt)·[v2](../data/prompts/agent-v2.txt)를 읽고, 승인된 경우 [응답 수집 코드](../samples/instruction_prompt_agent_lab.py)와 [평가 코드](../samples/instruction_evaluation.py)를 사용합니다.
 
 ## 준비
 
-**지침·질문을 읽는 경로에는 계정·모델 호출이 필요 없습니다.** 실제 답변 비교에는 자신이 수집한 원문 또는 강사가 제공한 승인된 실습 결과를 사용합니다.
+L01에서 만든 **자신의 프로젝트·chat/judge 배포·소유 기록**을 사용합니다. 타인의 결과를 받아 실습 성공으로 기록하지 않습니다. Azure 실행 조건이 없을 때는 지침·질문·채점 기준만 읽고 실제 평가 미실행으로 남깁니다.
 
 | 용어 | 쉬운 뜻 |
 | --- | --- |
@@ -35,18 +35,13 @@
 | 완결성 / 관련성 / 근거성 | 요청을 다 다뤘는가 / 질문에 맞는가 / 자료가 답을 뒷받침하는가 |
 | Dev / Holdout | 개선 과정에서 보는 연습 자료 / 개선에 노출하지 않는 별도 최종 시험지 |
 
-<details class="optional-path" markdown="1">
-<summary>선택 실행 준비: 자신의 프로젝트·배포·소유 기록 확인</summary>
+L01의 환경과 L02의 **`gpt-6-sol` / `2026-09-22`**, 호출 이름 `contoso-chat`을 사용합니다. `.env`와 소유 기록의 대상이 같아야 합니다.
 
-L01의 환경과 L02의 **`gpt-6-sol` / `2026-09-22`**를 사용합니다. `.env`에는 실제 배포 이름을 설정합니다. L01의 관리자 경로는 `contoso-chat`을 사용하며, 수동으로 `contoso-gpt-6-sol` 같은 다른 이름을 지정했다면 자신의 소유 기록과 일치해야 합니다.
-
-Native 평가에는 별도 **`gpt-4.1` / `2025-04-14`** judge와 `FOUNDRY_JUDGE_DEPLOYMENT_NAME`이 필요합니다. 두 배포의 실제 TPM/RPM을 L02에서 확인합니다. Hosted 재배포, Search, Optimizer, holdout은 필요하지 않습니다.
+Native 평가에는 L01이 만든 **`gpt-4.1` / `2025-04-14`** judge, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`가 필요합니다. L02에서 실제 chat/judge TPM/RPM을 확인합니다. Search·Hosted·Optimizer·holdout은 필요하지 않습니다.
 
 새 실행은 **자신의 `results/azure-environment.json`과 `.env`**를 사용합니다. 수집 코드는 현재 RG 소유 태그·프로젝트·배포·TPM/RPM을 조회하고, 충돌하지 않는 평가용 Prompt Agent 이름과 고정된 v1/v2 버전을 사용합니다.
 
 한국어는 기본값입니다. 영어는 별도 폴더에서 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다. 두 지침에는 같은 합성 정책 문맥을 제공하며 이를 실제 Search 조회라고 표시하지 않습니다. 질문의 기대 행동과 채점 기준은 대상 모델 입력에 넣지 않고 judge에게만 제공합니다.
-
-</details>
 
 ## 실행
 
@@ -63,12 +58,9 @@ Native 평가에는 별도 **`gpt-4.1` / `2025-04-14`** judge와 `FOUNDRY_JUDGE_
 
 지침에 질문별 정답이나 평가 사례 ID를 넣지 않습니다. 계정 없이 참여했다면 **동일하게 고정할 조건 / 답변에서 찾을 근거 / 실행하지 않은 범위**를 정리합니다. 아직 답을 수집하지 않았다면 우열이나 점수를 작성하지 않습니다.
 
-### 2. 선택: 자신의 환경에서 한 번 수집하고 평가하기
+### 2. 내 응답을 한 번 수집하고 평가하기
 
-프로젝트·언어·요청 수·시간·비용을 승인받은 경우에만 실행합니다.
-
-<details class="optional-path" markdown="1">
-<summary>새 유료 실행: 계획 확인 → 응답 수집 → 원문 평가</summary>
+내 프로젝트·언어·요청 수·시간·비용 범위를 확인합니다. 조건을 갖춘 기본 실습 경로는 **계획 → 수집 → 평가**입니다.
 
 ```bash
 python samples/instruction_prompt_agent_lab.py
@@ -106,7 +98,45 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 
 `agent_reference`로 호출할 때는 Agent 정의의 `reasoning`·`text` 설정을 요청에 중복 지정하지 않습니다.
 
-</details>
+#### 포털 평가와 실제 SDK 호출의 대응
+
+응답 수집과 평가는 서로 다른 API 호출입니다. 수집 스크립트는 대상 Prompt Agent를 v1/v2의 고정 버전으로 한 번씩 호출하고, 평가는 저장된 24개 원문을 Foundry evaluator에 제출합니다.
+아래는 실제 호출 부분 발췌입니다. `shared_input`은 한 문항의 질문과 동일 정책 문맥, `criteria`는 완결성·관련성·근거성의 고정 evaluator 설정, `rows`는 저장된 24개 원문입니다. `data_source_config`는 각 행의 필수 필드를 정의한 schema이며 코드 발췌를 단독 실행하지 않습니다.
+
+```python
+# instruction_prompt_agent_lab.py: one row in the fixed v1/v2 collection
+response = client.responses.create(
+    input=shared_input,
+    extra_body={"agent_reference": {
+        "type": "agent_reference",
+        "name": agent_name,
+        "version": versions[label],
+    }},
+    max_output_tokens=MAX_OUTPUT_TOKENS,
+    store=False,
+)
+
+# instruction_evaluation.py: evaluate those saved rows; do not call the target again
+group = client.evals.create(
+    name=f"Contoso {LANGUAGE} instruction comparison",
+    data_source_config=data_source_config,
+    testing_criteria=criteria,
+)
+native = client.evals.runs.create(
+    eval_id=group.id,
+    name=f"Contoso {LANGUAGE} v1-v2 one comparison",
+    data_source={"type": "jsonl", "source": {"type": "file_content", "content": [{"item": row} for row in rows]}},
+)
+```
+
+| Foundry portal | 원본 코드에서 확인할 값 |
+| --- | --- |
+| Agents → Versions | `agent_reference.name/version`이 각 응답에 사용한 지침 버전 |
+| Evaluations → Criteria | `testing_criteria=criteria`와 고정 judge deployment |
+| Evaluations → Run | `client.evals.runs.create(...)`의 입력은 저장된 JSONL rows |
+| Results | 같은 `case_id`의 실제 답변·점수·이유; `completed`만으로 품질 통과라고 하지 않음 |
+
+실제 실행은 앞의 `--live` 경로를 사용합니다. 코드 발췌를 읽거나 포털 결과를 확인하는 일은 추가 target 호출이 아닙니다. 기존 질문·rubric·threshold는 바꾸지 않습니다.
 
 ### 3. 같은 문항의 원문·점수·이유 연결하기
 

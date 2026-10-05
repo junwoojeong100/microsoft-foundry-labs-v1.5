@@ -26,7 +26,7 @@
 
 ## 준비
 
-생성한 자원 목록과 `results/contoso-lab-....json` receipt를 모읍니다. 강사/다른 학습자와 공유한 자원을 표시합니다.
+L01의 **내 환경 소유 기록** `results/azure-environment.json`, 포털에서 만든 이름, SDK의 `results/contoso-lab-....json`을 모읍니다. 기본값은 내 전용 환경이며 타인·공유 자원은 삭제 대상에서 제외합니다.
 
 ## 실행
 
@@ -35,7 +35,7 @@
 | 내가 한 실습 | 지금 할 일 |
 | --- | --- |
 | 읽기·로컬 데이터·함수만 | L07 서버를 켰다면 해당 터미널에서 Ctrl+C. Azure 자원을 만들지 않았다면 Azure 삭제 명령은 실행하지 않음 |
-| 포털에서 에이전트·파일 생성 | 만든 이름을 모아 아래 3단계의 목록과 대조. 공유 여부와 담당자·보존 기한 확인 |
+| L01에서 환경·포털 agent·파일 생성 | 내 소유 기록·이름으로 아래 목록 대조. 모델·로그·파일의 보존/삭제 범위 확인 |
 | SDK로 L04/L05/L06 실행 | 마지막 `Cleanup:` 명령의 `--receipt` 경로를 찾고 아래 2단계 확인 |
 | Hosted·Routine·Voice 등 심화 실행 | 아래 1단계에서 그 실습의 기록된 세션·예약만 중지하고 상태 재확인 |
 
@@ -45,41 +45,36 @@
 
 활성 routine, voice session, hosted agent의 실행/세션, 지속 평가, 학습 작업을 먼저 확인합니다. 삭제를 시작하기 전에 새로운 실행이 발생하지 않게 합니다.
 
-기본 코스에서 만들지 않은 작업은 해당 없음으로 기록합니다. 다음은 **심화/관리자 경로**이며, 다섯 명령을 모두 복사해 실행하는 공통 종료 절차가 아닙니다.
+기본 코스에서 만들지 않은 예약·Hosted 세션은 해당 없음으로 기록합니다. 선택 심화에서 만든 작업이 있을 때만 다음 중 **해당하는 명령**을 실행합니다.
 
-<details class="operator-only" markdown="1">
-<summary>심화·관리자만: 소유 receipt가 있는 작업의 중지·상태·비용 확인</summary>
+<details class="optional-path" markdown="1">
+<summary>Hosted·Routine을 실행했다면: 내 소유 기록의 작업만 중지</summary>
 
 ```bash
 python scripts/stop_sessions.py
-python samples/routine_lab.py stop --live
-python scripts/azure_environment.py status --live
+python samples/routine_lab.py stop --receipt results/routine-v2-scheduled.json --live
 python scripts/operations_status.py
-python scripts/cost_status.py
 ```
 
 <div class="command-explanation" markdown="1">
 
-**명령 해설 — 실행한 실습의 소유 receipt가 있는 관리자 경로입니다.**
+**명령 해설 — 내가 만든 해당 작업의 소유 기록이 있을 때만 선택합니다.**
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `stop_sessions.py` | 기록된 Hosted client 세션에 실제 stop을 보내고 같은 ID를 다시 조회합니다. 이 스크립트에는 `--live` 안전 스위치가 없습니다. | 세션 compute 상태를 변경합니다. agent/RG/receipt 삭제는 하지 않으며 미확인 중지는 오류입니다. |
-| 2. `routine_lab.py stop --live` | 기본 `results/routine.json`에 기록된 예약을 disable합니다. 다른 receipt를 썼다면 L16처럼 `--receipt`를 명시합니다. | 실제 예약 상태 변경. 다른 예약이나 RG를 삭제하지 않습니다. |
-| 3. `azure_environment.py status --live` | 소유 receipt의 Azure 환경 상태를 읽어 확인합니다. | Azure 읽기 요청 및 상태 기록. 모델 추론은 하지 않습니다. |
-| 4. `operations_status.py` | 소유 환경의 세션·optimizer·평가 schedule·routine을 읽습니다. `--live` 없이 실행되며 남은 작업은 실패 상태로 알립니다. | 승인된 읽기 범위에서 실행하고 비공개 `results/operations-status.json`에 저장합니다. |
-| 5. `cost_status.py` | 소유 RG의 생성 시각부터 현재까지 ActualCost를 서비스별로 조회합니다. `--live` 없이 실제 청구 API를 읽습니다. | 승인된 비용 조회 후 개인 `results/cost-status.json`에 저장합니다. 빈 청구 행은 비용 0의 증거가 아닙니다. |
+| 2. `routine_lab.py stop --receipt ... --live` | L16의 정확한 예약 파일을 지정해 disable합니다. 수동/예약용 경로를 구분합니다. | 실제 상태 변경. routine/RG 삭제 없음. 사용한 다른 파일이면 그 경로로 바꿉니다. |
+| 3. `operations_status.py` | 소유 환경의 세션·예약·평가 schedule 등 현재 작업을 조회합니다. | `--live` 없이 실제 Azure를 읽습니다. 남은 작업/조회 실패는 미확인·오류로 알립니다. |
 
 </div>
 
 각 명령은 해당 실습을 실행해 receipt가 있는 경우에 사용합니다.
-마지막 두 명령은 **소유 receipt로 범위를 제한한 읽기 전용 Azure 조회**입니다.
+`operations_status.py`는 **소유 기록으로 제한한 읽기 전용 조회**입니다.
 `operations_status.py`는 세션·optimizer job·활성 평가 schedule·routine을 확인하며,
 현재 프로젝트의 실제 agent 목록에서 배포하지 않은 선택형 adapter를 구분합니다. L16에서 `--receipt`로 지정한 이름이 달라도 `results/`의 소유 routine 기록을 찾아 현재 상태를 조회합니다.
-`cost_status.py`는 새 RG에 반영된 실제 비용만 조회합니다. 빈 비용 행을 0달러로 표시하지 않습니다.
 **삭제 금지 환경에서는 생성한 Azure 자원을 보존**합니다.
 routine은 disable, Hosted는 compute stop만 수행합니다. `cleanup --live`, `azd down`,
-resource group 삭제를 자동 실행하지 않습니다. 아래 삭제 경로는 별도 승인이 있는 학습자를 위한 설명입니다.
+resource group 삭제를 자동 실행하지 않습니다. 아래 삭제 경로는 정확한 대상의 별도 삭제 승인을 확인한 경우만 사용합니다.
 
 </details>
 
@@ -118,9 +113,63 @@ vector store의 만료만으로 원본 파일이 정리된다고 생각하지 �
 
 ### 4. 마지막 비용·데이터 확인하기
 
-Cost Management에서 비용 반영 지연을 고려하여 다음 날 다시 확인할 담당자를 정합니다. 예산 알림을 껐다고 과금이 중단되는 것은 아닙니다.
+L01에서 내 Azure 환경을 만들었다면 아래 두 명령으로 자원과 비용을 확인합니다. 비용 조회에는 해당 범위의 청구 읽기 권한이 필요하며, 없으면 포털의 조회 가능 범위에서 확인하고 미확인 항목을 남깁니다.
+
+```bash
+python scripts/azure_environment.py status --live
+python scripts/cost_status.py
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 하는 일 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `status --live` | 내 RG의 자원·모델 배포 상태를 읽고 소유 기록을 갱신합니다. | 실제 읽기 조회. 새 추론·자원 생성·삭제 없음. |
+| 2. `cost_status.py` | 내 RG의 생성 이후 ActualCost를 조회합니다. | `--live` 없이 실제 청구 API를 읽고 `results/cost-status.json`에 기록합니다. 빈 비용 행은 0원 증거가 아닙니다. |
+
+</div>
+
+Cost Management의 지연 반영을 고려해 **다음 날 다시 확인할 시각**을 정합니다. 본인 전용 환경은 자신이 확인하고, 보존을 넘긴 자원만 책임 주체를 따로 기록합니다. 예산 알림을 꺼도 과금은 멈추지 않습니다.
 
 결과 기록은 학습에 필요한 최소 범위만 남기고 실제 PII·토큰·연결 비밀을 제거합니다. 그룹 삭제는 **전용 실습 그룹임을 소유자가 확인한 경우에만** Azure 포털에서 범위를 검토한 뒤 수행합니다. 이 가이드는 광범위한 `az group delete` 명령을 제공하지 않습니다.
+
+#### 포털 자원 확인과 소유 기록 기반 cleanup 코드
+
+Azure 샘플의 cleanup은 포털에서 선택한 전체 리소스 그룹이 아니라, 소유 receipt에 기록된 자원만 대상으로 합니다. 핵심 검사는 다음과 같습니다.
+
+```python
+data = read_receipt(receipt_path, project_endpoint)
+if confirmation != data["run_id"]:
+    raise ValueError("Repeat the exact run_id using --confirm before deleting recorded resources.")
+
+ordered = sorted(
+    data["resources"],
+    key=lambda item: {"conversation": 0, "agent": 1, "vector_store": 2, "file": 3}[item["kind"]],
+)
+for resource in ordered:
+    if resource.get("cleanup_status") in {"deleted", "already_absent"}:
+        continue
+    resource_id = resource["id"]
+    if resource["kind"] == "agent":
+        project.agents.delete(agent_name=resource_id)
+    elif resource["kind"] == "conversation":
+        client.conversations.delete(conversation_id=resource_id)
+    elif resource["kind"] == "vector_store":
+        client.vector_stores.delete(vector_store_id=resource_id)
+    elif resource["kind"] == "file":
+        client.files.delete(file_id=resource_id)
+```
+
+| Azure Portal에서 확인 | receipt/code에서 확인 |
+| --- | --- |
+| 각 agent/conversation/vector store/file의 실제 ID와 상태 | `receipt["resources"]`의 `kind`, `id`, `cleanup_status` |
+| 모델 배포·Search·Storage처럼 보존될 항목 | workshop receipt 대상이 아니면 별도로 담당자·보존 기한 기록 |
+| Cost Management의 지연 반영 | 조회 시각과 다음 확인 담당자; 빈 행은 0원 증거가 아님 |
+| Delete 직전 선택 범위 | `--receipt`가 소유 폴더 안이고 `--confirm`이 정확한 `run_id`인지 |
+
+위는 `cleanup()`의 대상 확인·삭제 호출 발췌입니다. 실제 함수는 삭제 상태를 매 항목 저장하고, NotFound만 `already_absent`로 처리합니다. 그 외 오류를 성공으로 숨기지 않습니다. 실행은 `cleanup --live`와 exact `--confirm` 뒤에만 하며 포털 자원·모델은 별도로 대조합니다.
 
 ## 성공 기준
 

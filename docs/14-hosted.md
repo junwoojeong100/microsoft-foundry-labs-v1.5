@@ -1,8 +1,8 @@
-> **완성할 결과:** 이 저장소의 구매 도우미 코드를 패키징하고 로컬·Azure에서 호출합니다.
+> **완성할 결과:** 이 저장소의 구매 에이전트 코드를 패키징하고 로컬·Azure에서 호출합니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 심화 · L11 검색 자원과 배포 담당자의 준비가 필요합니다.
+**진행 방식:** 내가 만든 L11 검색 자원에 코드를 연결하고 로컬 호출 → 배포 → 원격 호출을 진행합니다.
 
 **먼저 할 일:** 전용 Python 환경에서 패키지를 만듭니다. 기본 Invocations 경로부터 진행하고 Optimizer용 adapter는 건너뜁니다.
 
@@ -30,8 +30,7 @@ Responses·Voice·Teams protocol을 검증한 것으로 표시하지 않습니�
 
 L11의 Search/index와 모델, Python **3.13**, azd **1.34.0**,
 `azure.ai.agents` **1.0.0-beta.10** 조합을 기준으로 합니다.
-지원 범위·지역은 공식 Hosted 문서를 확인하세요. 특정 구독 Owner를 학습자에게 요구하지 않습니다.
-배포 담당자와 이미 준비된 프로젝트를 사용하는 학습자를 구분합니다.
+지원 범위·지역은 공식 Hosted 문서에서 확인합니다. L01에서 확보한 자신의 자원 배포·role assignment 권한을 사용하며, 구독 전체 Owner를 새로 부여하는 것이 기본 조건은 아닙니다.
 
 ### 먼저 경로 정하기
 
@@ -68,6 +67,44 @@ python scripts/check_sdk.py
 MAF 실습용 `.venv-advanced`는 별도입니다. 서로 다른 `azure-ai-projects` 제약을 단순 병합하지 않습니다.
 
 Windows는 L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, 이후 `.venv-live\Scripts\python.exe`로 실행합니다. 아래 `curl`은 Windows에서 `curl.exe`로 실행합니다. macOS/Linux의 `source` 명령은 PowerShell에 붙여넣지 않습니다.
+
+azd는 Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다.
+
+```bash
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 하는 일 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `azd version` | 설치된 CLI 버전을 확인합니다. | 로컬 확인. 자동 업데이트하지 않습니다. |
+| 2. `azd extension list` | agent 확장과 실제 버전을 확인합니다. | 목록 조회. skill 설치는 필요 없습니다. |
+| 3. `auth login --check-status` | azd 사용자 인증 상태를 확인합니다. | 배포·모델 호출 없음. Azure CLI 로그인과 별도입니다. |
+
+</div>
+
+확장이나 인증이 없는 경우에만 필요한 줄을 실행합니다. 이미 호환되는 환경은 재설치하지 않습니다.
+
+```bash
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension install azure.ai.agents --version 1.0.0-beta.10
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — 필요한 준비만 선택합니다.**
+
+| 순서·명령 | 하는 일 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `extension install` | 키트가 사용하는 agent CLI 계약의 확장을 설치합니다. | 로컬 도구 다운로드·설치. 기존 확장에 강제 downgrade/update하지 않습니다. |
+| 2. `auth login` | 자신의 계정으로 azd에 인증합니다. | 인증 화면에서 직접 로그인하며 비밀을 파일이나 채팅에 저장하지 않습니다. |
+
+</div>
 
 ## 실행
 
@@ -136,9 +173,7 @@ python samples/hosted_client.py invoke --local --live
 
 **로컬 서버도 실제 Azure 모델·검색을 사용하므로 호출에는 비용이 발생합니다.**
 기본 bind는 loopback이며 인증 없는 개발 서버를 외부에 노출하지 않습니다.
-한 요청은 도구 계획 → 근거 답변 → 출처 대응 확인으로 나눕니다.
-앞의 두 모델 출력은 각각 2048토큰, 출처 확인은 512토큰으로 제한합니다.
-도구 최대 8회, SDK 재시도 0을 유지합니다.
+한 요청은 **도구 실행 최대 2라운드 → 답변 1회 → 출처 선택 1회**이며 최대 4회 모델 요청입니다. 도구/답변은 각각 최대 2,048토큰, 출처 선택은 512토큰입니다. 전체 서버 예산은 요청 최대 12회·300초·도구 기록 최대 8회이며 SDK 자동 재시도는 0회입니다.
 
 <details class="optional-path" markdown="1">
 <summary>구현 참고: 서버가 검색·도구·근거 답변을 나누는 방식</summary>
@@ -167,47 +202,35 @@ python samples/hosted_client.py invoke --local --live
 
 **지금 확인할 세 가지:** `/readiness`의 성공은 서버 접속 확인, `invoke --local`은 계획 출력, `invoke --local --live`의 응답은 실제 업무 실행입니다. 출력의 원본 파일에서 `tool_calls`·인용·`order_submitted=false`를 확인한 뒤에만 원격 배포 단계로 넘어갑니다.
 
-### 3. 준비된 프로젝트에만 배포하기
+### 3. 내가 만든 프로젝트에 배포하기
 
 ![에이전트 목록 예시. Build → Agents에서 Hosted와 Prompt 종류, 숫자 버전, Running 상태를 구분한다.](../assets/portal/03-agents.png)
 
 **화면 따라 읽기:** **Type**에서 Hosted/Prompt를, **Version**에서 코드·정의의 버전을 구분합니다. 이름을 열어 배포 설정과 protocol을 확인하고, 사진의 숫자 대신 CLI `show`로 확인한 자신의 버전을 사용하세요. 목록의 **Running** 상태와 별도로 개별 세션 compute·비용·업무 응답을 확인합니다.
 
-관리자가 L01의 동봉 IaC로 만든 환경이라면:
+L01의 자신의 소유 기록과 L11의 Search 설정을 azd에 연결합니다. 배포·runtime 역할 변경 범위를 먼저 확인합니다.
 
 ```bash
 python scripts/configure_hosted.py
-azd deploy contoso-purchasing --no-prompt
-azd ai agent show contoso-purchasing --output json
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing --no-prompt
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai agent show contoso-purchasing --output json
 python scripts/runtime_roles.py --agent contoso-purchasing --live
 ```
 
 <div class="command-explanation" markdown="1">
 
-**명령 해설 — 배포 담당자의 승인 범위에서만 수행합니다.**
+**명령 해설 — 내 소유 프로젝트·권한·비용 범위에서 수행합니다.**
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `configure_hosted.py` | 소유 환경 receipt의 프로젝트·리전·모델·Search 값을 azd 환경에 연결합니다. 다른 프로젝트를 자동 발견해 선택하지 않습니다. | 로컬 azd 환경 설정 변경. 이미 제공된 별도 프로젝트에는 아래 수동 환경 설정 경로를 사용합니다. |
+| 1. `configure_hosted.py` | 내 소유 기록의 프로젝트·지역·모델·Search 값을 azd에 연결합니다. | 로컬 환경 바인딩. `.env`와 소유 기록이 다르면 중단합니다. |
 | 2. `azd deploy contoso-purchasing --no-prompt` | `azure.yaml`의 해당 서비스만 실제 배포합니다. `--no-prompt`는 대화형 확인 생략이지 dry run이 아닙니다. | 원격 배포·새 immutable version과 비용 가능. 이 CLI에는 `--live`가 필요하지 않습니다. |
 | 3. `azd ai agent show ... --output json` | 배포된 agent metadata를 구조화된 JSON으로 읽습니다. | 숫자 버전·대상 프로젝트를 기록합니다. 아직 업무 요청을 보낸 것은 아닙니다. |
-| 4. `runtime_roles.py --agent ... --live` | 소유 agent의 runtime ID에 프로젝트·Search 읽기·모델 호출의 최소 범위 역할을 설정합니다. | 관리자 권한 변경입니다. 개발자의 로그인 역할과 다르며, 임의 agent나 구독 전체 역할을 허용하지 않습니다. |
+| 4. `runtime_roles.py --agent ... --live` | 내 agent의 runtime ID에 프로젝트·Search 읽기·모델 호출 역할을 최소 범위로 부여합니다. | 실제 권한 변경. 로그인 사용자와 runtime ID는 별개이며 구독 전체 권한을 주지 않습니다. |
 
 </div>
 
-학습자에게 별도로 provision된 프로젝트를 제공했다면 `azd env new`와 `azd env set`으로
-`AZURE_AI_PROJECT_ID`, `AZURE_AI_PROJECT_ENDPOINT`, `AZURE_SUBSCRIPTION_ID`,
-`AZURE_TENANT_ID`, `AZURE_RESOURCE_GROUP`, **`AZURE_LOCATION`** 및 모델/Search 값을 설정합니다.
-이는 자격 증명이 아니라 환경 바인딩입니다. `azd env get-values` 전체를 공개 로그에 출력하지 마세요.
-`azd env new`는 로컬 환경 이름을 만들고, `azd env set`은 그 환경의 한 구성값을 저장합니다. 자체적으로 모델을 배포하는 명령은 아니지만 이후 `deploy`의 대상을 바꾸므로 값을 넣기 전에 프로젝트·구독을 대조합니다. `get-values`는 설정 전체를 읽는 명령이지 학습 결과 검사가 아닙니다.
-
-`AZURE_LOCATION`은 프로젝트의 실제 리전 이름입니다. 코드 배포에서 이 값이 없으면 실패합니다.
-`scripts/configure_hosted.py` 경로는 동봉 관리 스크립트가 만든 소유 receipt를 사용하며,
-강사가 제공한 별도 프로젝트를 사용할 때는 그 프로젝트의 실제 값으로 azd 환경을 구성해야 합니다.
-
-동봉 `azure.yaml`은 **code deployment**이며 Docker/ACR가 필수는 아닙니다.
-이 파일로 무심코 `azd provision`을 실행하지 않습니다. 리소스 생성은 L01 관리 경로입니다.
-배포마다 새 immutable version이 생깁니다. agent runtime identity에는 해당 Search 읽기 역할만 부여합니다.
+`configure_hosted.py`가 `AZURE_LOCATION`을 포함한 프로젝트 바인딩을 준비합니다. `.azure/`와 `azd env get-values` 전체를 공개하지 않습니다. 동봉 `azure.yaml`은 **code deployment**이며 Docker/ACR가 필수는 아닙니다. 이미 L01에서 자원을 만들었으므로 여기서 `azd provision`을 추가 실행하지 않습니다. 배포마다 새 immutable version이 생깁니다.
 
 ### 4. 정확한 버전 원격 호출
 
@@ -247,6 +270,44 @@ Toolbox를 별도 연결할 때는 L07의 인증 주체와 1회 승인 정책을
 | 종료 | 서버 터미널 Ctrl+C | 응답과 함께 기록된 해당 세션의 중지 확인 |
 
 이 표는 작성 틀이며 실행 결과를 미리 채운 것이 아닙니다. 한쪽만 실행했으면 다른 쪽은 미실행으로 남깁니다.
+
+#### 포털의 Hosted version과 실제 HTTP handler
+
+포털은 배포된 Hosted 종류·version을 보여 주고, 컨테이너의 Python이 `/invocations` 요청을 처리합니다. `hosted/main.py`의 핵심 코드는 다음과 같습니다.
+
+```python
+@app.invoke_handler
+async def handle(request: Request):
+    raw = await request.body()
+    if len(raw) > 32_000:
+        return JSONResponse({"error": "request_too_large"}, status_code=413)
+    try:
+        payload = validate_request(json.loads(raw))
+    except (ValueError, UnicodeDecodeError) as exc:
+        return JSONResponse({"error": "invalid_request", "message": str(exc)}, status_code=400)
+    async with gate:
+        try:
+            result = await asyncio.to_thread(invoke, payload)
+            return JSONResponse(result)
+        except (AzureError, OpenAIError, ValueError, RuntimeError, OSError) as exc:
+            evidence = Evidence("hosted-failure")
+            evidence.failure(exc)
+            return JSONResponse(
+                {"error": type(exc).__name__, "run_id": evidence.run_id, "status": "failed"},
+                status_code=502,
+            )
+```
+
+| 포털·실행 단계 | 실제 코드 |
+| --- | --- |
+| Hosted service가 `POST /invocations` 수신 | `@app.invoke_handler` |
+| 요청 JSON 형식·크기 검사 | `validate_request(...)`와 32,000-byte 제한 |
+| 동시 실행 제한 | `async with gate` |
+| 모델·검색·함수 흐름 | `invoke(payload)` → `samples/hosted_runtime.py` |
+| 포털의 agent version과 연결 | 정확한 숫자 version을 호출 입력/receipt에서 대조 |
+| 오류 처리 | 증거 기록 후 400/413/502를 실제 실패로 반환 |
+
+포털에서 handler 코드를 편집하는 것이 아니라, 이 코드가 포함된 container의 배포 유형·version을 확인합니다. `hosted_runtime.py`는 업무 흐름이고 `hosted/main.py`는 HTTP entrypoint입니다. 로컬 실행도 실제 Azure 서비스를 부를 수 있습니다.
 
 ## 성공 기준
 

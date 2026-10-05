@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 기존 실행의 로그 읽기 · 로그 연결·권한은 관리자가 준비합니다.
+**진행 방식:** L01에서 연결한 로그로 내 agent 실행을 조회하고 해석합니다.
 
 **먼저 할 일:** L05/L06의 응답 ID·시간·에이전트 버전으로 Traces에서 같은 실행을 찾습니다.
 
@@ -26,17 +26,14 @@
 
 ## 준비
 
-L05 또는 L06 실행 결과, 프로젝트에 **이미 연결된 Application Insights**, 로그 읽기 권한이 필요합니다. Application Insights는 실행 로그를 수집·조회하는 Azure 서비스입니다. 로그 수집·보존에도 비용이 있습니다.
+L01에서 만든 Application Insights 연결·로그 읽기 권한과 자신의 L04–L06 결과를 사용합니다. Application Insights는 Azure의 로그 수집·조회 서비스이며 수집·보존에도 비용이 있습니다.
 
-<details class="operator-only" markdown="1">
-<summary>관리자만: 로그 수집 연결이 아직 없는 경우</summary>
+<details class="optional-path" markdown="1">
+<summary>연결이 아직 없다면: 내 프로젝트의 로그 설정 보완</summary>
 
-새 전용 환경의 관리자는 `python scripts/azure_environment.py monitoring --live`로
-Log Analytics/App Insights와 프로젝트 연결을 만듭니다. `monitoring`은 소유 receipt의 환경에 관측 자원을 추가하는 단계이며 `--live`가 실제 생성·연결을 허용합니다. 로그 보관 비용이 생길 수 있으므로 이미 연결된 프로젝트를 쓰는 학습자는 다시 실행하지 않습니다. 정의는 [observability.bicep](../infra/observability.bicep)에 있습니다.
-동봉 Bicep의 연결 비밀은 Azure 내부에서만 참조하고 출력·Git·패키지에 넣지 않습니다.
-30일 로그 보존과 일일 수집 제한은 총 과금의 강제 차단 장치가 아닙니다.
+소유 기록의 `monitoring`과 포털 연결을 먼저 확인합니다. 없다면 **L01 5단계**의 `monitoring` 계획·실행으로 자신의 RG에 Log Analytics·App Insights·프로젝트 연결을 만듭니다. 이미 있는 자원을 다시 생성하지 않습니다. 30일 보존·일일 수집 제한은 총 과금의 강제 차단이 아닙니다.
 
-**Agents → Traces → Connect** 또는 **Manage → Project details → Connected resources → Add connection → Application Insights**에서 승인된 대상에 연결합니다. 공유 프로젝트의 연결을 임의로 교체하지 않습니다.
+포털 **Agents → Traces → Connect** 또는 **Manage → Project details → Connected resources**에서 자신의 App Insights 연결을 확인합니다. 기존 연결이 있으면 교체하지 않습니다. 로그는 **연결 이후 실행**부터 수집되며 이전 호출을 소급해서 만든 것이 아닙니다.
 
 </details>
 
@@ -44,7 +41,7 @@ Log Analytics/App Insights와 프로젝트 연결을 만듭니다. `monitoring`�
 
 ### 1. 로그 수집 연결부터 확인하기
 
-자기 에이전트의 **Traces**를 엽니다. 로그 목록이 아니라 **Connect**가 보이면 직접 새 자원을 만들지 말고 담당자에게 수집 연결을 요청합니다. 로그를 볼 수 없다면 3단계의 합성 시간표를 읽고 실제 trace는 미확인으로 기록합니다.
+자기 에이전트의 **Traces**를 엽니다. **Connect**만 보이면 위 연결과 현재 프로젝트를 대조합니다. 403이면 자신의 App Insights/Log Analytics **IAM → View my access**에서 로그 읽기 권한을 확인하고 필요한 최소 범위의 역할을 설정합니다. 권한이 없으면 조회를 보류하고 실제 trace는 미확인으로 기록합니다.
 
 Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 시작하는 경로입니다. 자체 클라이언트 함수 내부 로직까지 모두 자동으로 추적되는 것은 아닙니다.
 
@@ -56,7 +53,7 @@ Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 �
 | --- | --- | --- |
 | 응답 JSONL | L05/L06 SDK 마지막 `Responses:`에 출력된 `results/contoso-lab-…-responses.jsonl` | L06의 `read-result`로 기록 ID·응답 ID·에이전트·버전을 읽기. 원본에서는 `id`, `response_id`, `agent_name`, `configuration.agent_version` |
 | agent 이름·버전 | 그 행의 값 또는 포털에서 직접 실행한 agent의 설정 | L08 평가 전용 agent나 L12 Hosted 이름으로 바꾸지 않음 |
-| Application Insights 앱 ID | 관리자 제공 값. 동봉 환경은 `results/azure-environment.json`의 `monitoring.appId.value` | `monitoring.appInsightsId.value`의 자원이 현재 프로젝트 연결과 같은지 대조. 키/connection string을 복사하지 않음 |
+| Application Insights 앱 ID | 내가 만든 환경의 `results/azure-environment.json` → `monitoring.appId.value` 또는 해당 자원의 Overview | `monitoring.appInsightsId.value`가 프로젝트 연결과 같은 자원인지 대조. 키/connection string을 복사하지 않음 |
 
 포털만 사용했다면 그 response ID로 **포털 경로만** 진행해도 됩니다. 존재하지 않는 JSONL을 만들거나 L08의 JSON 비교 파일을 아래 JSONL 입력으로 넘기지 않습니다. 동봉 CLI는 최근 24시간만 조회하므로 오래된 결과는 포털의 승인된 보존 범위에서 읽거나 미확인으로 남깁니다.
 
@@ -117,6 +114,32 @@ request ID를 trace ID로 바꾸어 채우지 않습니다. L12의 Hosted 결과
 
 출력의 `input_rows`와 `correlated_rows`가 같고 `missing_case_ids`가 비어 있으면 **입력과 로그의 연결**이 확인된 것입니다. `model_response_spans_observed`와 `request_trace_ids_observed`는 관찰 계층이 다릅니다. 이 CLI는 연결을 검사하지, 병목이나 답변 정답을 자동 판정하지 않습니다. 출력된 `Evidence:` 파일의 조회 행과 포털 상세를 읽어 위 표를 자신의 값으로 작성하세요.
 
+#### 포털 Traces와 실제 상관 조회 코드
+
+포털에서는 **Traces**에서 agent·version·기간과 자신의 response ID를 선택합니다. 동봉 Python은 같은 ID를 JSONL에서 읽고 KQL을 만든 뒤 Application Insights에 한 번 읽기 요청을 보냅니다.
+
+```python
+rows = load_jsonl(args.input)
+query = query_for(rows, args.agent)
+
+result = rest.request(
+    "POST",
+    f"/v1/apps/{args.app_id}/query",
+    {"query": query, "timespan": "P1D"},
+)
+report = correlation_report(rows, result)
+```
+
+| 포털에서 보는 값 | 코드가 사용하는 값 |
+| --- | --- |
+| Traces의 agent 필터 | `args.agent` |
+| 요청 상세의 response/trace ID | `rows`의 `response_id` / `trace_id`, KQL의 `responseIds` / `traceIds` |
+| Application Insights 앱 선택 | `args.app_id` (app ID이며 connection string이 아님) |
+| 시간 범위 | `timespan="P1D"` 및 최근 24시간 KQL |
+| 연결된 행 수 | `correlation_report()`의 `correlated_rows`와 `missing_case_ids` |
+
+코드 경로는 **로그 읽기만** 하고 모델을 호출하지 않습니다. 0행이나 빠진 ID는 미관찰/실패로 남기며 포털 화면에서 보인 값으로 채우지 않습니다.
+
 ### 4. 선택: 클라이언트 추적 추가하기
 
 자체 함수나 외부 애플리케이션 내부까지 보려면 OpenTelemetry와 사용하는 프레임워크의 instrumentation을 추가합니다. VS Code Toolkit의 로컬 OTLP tracing을 활용하면 클라우드 로그 없이 개발 중 실행을 볼 수 있습니다.
@@ -140,7 +163,7 @@ Monitoring dashboard와 continuous evaluation은 Preview 범위를 확인한 뒤
 | 증상 | 먼저 볼 것 | 다음 행동 |
 | --- | --- | --- |
 | JSONL을 열지 못함 / 실제 ID 없음 | `Responses:` 경로와 파일의 한 행 | L05/L06 출력 파일을 선택. 예시 ID나 L08 비교 JSON으로 대체하지 않음 |
-| 403 | 프로젝트 역할과 별개인 로그 읽기 권한 | 정확한 App Insights/Log Analytics 범위로 관리자에게 요청 |
+| 403 | 프로젝트 역할과 별개인 로그 읽기 권한 | 내 App Insights/Log Analytics IAM에서 최소 역할·scope 확인. 권한이 없으면 조회 보류 |
 | 0행 / 일부만 연결 | 프로젝트 연결, 실행 시각, 24시간 범위, 수집 지연 | 새 모델 요청 없이 범위와 ID를 먼저 대조. 여전히 없으면 상관관계 미확인 |
 | 부모만 있고 함수·내용 없음 | instrumentation과 민감 내용 읽기 권한 | 기본 JSONL과 관찰 범위를 함께 기록. 원문 수집을 무조건 켜지 않음 |
 

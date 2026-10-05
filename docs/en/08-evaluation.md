@@ -2,11 +2,11 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Read instructions and questions first; collecting your own answers and running paid evaluation are optional.
+**Format:** Compare inputs → collect your answers → evaluate the same originals in Foundry → analyze reasons.
 
 **Start here:** Read both instruction files and the fixed questions, then identify what an answer must address.
 
-**What to check:** Explain the comparison conditions and criteria. If you execute the optional path, connect each question's original answers, scores, and judge reasons.
+**What to check:** Connect your v1/v2 originals, scores, and reasons for the same question. With missing prerequisites, record reading only.
 
 </div>
 
@@ -20,13 +20,13 @@
 
 **What is it, and why does it matter?** Evaluation compares expected behavior with actual answers. Keep the model, policy, questions, and rubric unchanged so instruction differences can be interpreted.
 
-**How do you use it?** Read the instructions and questions first. If approved, collect and evaluate actual answers, preserving ties and regressions.
+**How do you use it?** Read fixed inputs and verify the request budget. Collect your originals once, evaluate them, and preserve ties/regressions.
 
-**Where do you run it?** Read the [questions and checklist](../../data/en/evaluation/instruction-comparison.json), [v1](../../data/en/prompts/agent-v1.txt), and [v2](../../data/en/prompts/agent-v2.txt). Optionally use the [collection](../../samples/instruction_prompt_agent_lab.py) and [evaluation](../../samples/instruction_evaluation.py) scripts.
+**Where do you run it?** Read the [questions](../../data/en/evaluation/instruction-comparison.json) and [v1](../../data/en/prompts/agent-v1.txt)/[v2](../../data/en/prompts/agent-v2.txt), then use the [collector](../../samples/instruction_prompt_agent_lab.py) and [evaluator](../../samples/instruction_evaluation.py). Inspect results in Foundry Evaluations.
 
 ## Prerequisites
 
-**Reading the instructions and questions needs no account or model calls.** To compare actual answers, use your collected originals or approved lab results provided by your instructor.
+Use **your L01 project, chat/judge deployments, and ownership receipt**. Do not count another person's results as your execution. Without live prerequisites, read inputs/rubric and record actual evaluation not performed.
 
 | Term | Plain-language meaning |
 | --- | --- |
@@ -35,18 +35,13 @@
 | Completeness / Relevance / Groundedness | Were all requests addressed / was the answer relevant / was it supported? |
 | Dev / Holdout | Practice data exposed during improvement / a separate final test excluded from improvement |
 
-<details class="optional-path" markdown="1">
-<summary>Optional execution prerequisites: your project, deployments, and ownership receipt</summary>
+Use L01's environment and L02's **`gpt-6-sol / 2026-09-22`**, deployment `contoso-chat`. `.env` and the ownership record must agree.
 
-Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** model. Set the actual deployment name in `.env`. The administrator path uses `contoso-chat`; a manually chosen name such as `contoso-gpt-6-sol` must match your ownership receipt.
-
-Native evaluation needs a separate **`gpt-4.1` / `2025-04-14`** judge and `FOUNDRY_JUDGE_DEPLOYMENT_NAME`. Verify both deployments' actual TPM/RPM in L02. Hosted redeployment, Search, Optimizer, and holdout are not prerequisites.
+Native evaluation uses L01's distinct **`gpt-4.1 / 2025-04-14`** judge, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`. Check chat/judge limits in L02. Search, Hosted, Optimizer, and holdout are unnecessary.
 
 New execution uses **your own `results/azure-environment.json` and `.env`**. The collection code reads back current RG ownership tags, project, deployments, and throughput, creates a collision-resistant Prompt Agent name, and pins v1/v2 versions.
 
 Keep `FOUNDRY_LAB_LANGUAGE=en` selected in the separate English folder. Both instructions receive the same synthetic policy context; this is not live Search retrieval. Expected behavior and grading criteria are excluded from target-model input and supplied only to the judge.
-
-</details>
 
 ## Steps
 
@@ -63,12 +58,9 @@ Find `compound-request-no-tools` in the question file and separate **cap / curre
 
 Do not put case IDs or question-specific answers into instructions. Without an account, record **conditions to hold fixed / evidence to inspect / unexecuted scope**. Do not assign scores or claim a winner before collecting answers.
 
-### 2. Optional: collect and evaluate once in your environment
+### 2. Collect and evaluate your own answers once
 
-Execute only after confirming the project, language, request count, time, and cost scope.
-
-<details class="optional-path" markdown="1">
-<summary>New paid execution: inspect the plan → collect answers → evaluate originals</summary>
+Verify your project, language, request count, time, and cost scope. With prerequisites met, the default is **plan → collect → evaluate**.
 
 ```bash
 python samples/instruction_prompt_agent_lab.py
@@ -106,7 +98,44 @@ Keep Korean and English input/output paths distinct. Across both languages, coll
 
 When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request.
 
-</details>
+#### Portal Evaluations and the actual SDK calls
+
+Collection and evaluation are separate. The collector invokes pinned v1/v2 versions; evaluation submits 24 saved originals. In this call excerpt, `shared_input` is a question plus matched policy context, `criteria` configures completeness/relevance/groundedness, and `rows` contains actual answers. `data_source_config` defines required row fields. Do not execute the excerpt alone.
+
+```python
+# instruction_prompt_agent_lab.py: one row in the fixed v1/v2 collection
+response = client.responses.create(
+    input=shared_input,
+    extra_body={"agent_reference": {
+        "type": "agent_reference",
+        "name": agent_name,
+        "version": versions[label],
+    }},
+    max_output_tokens=MAX_OUTPUT_TOKENS,
+    store=False,
+)
+
+# instruction_evaluation.py: evaluate saved rows; do not call the target again
+group = client.evals.create(
+    name=f"Contoso {LANGUAGE} instruction comparison",
+    data_source_config=data_source_config,
+    testing_criteria=criteria,
+)
+native = client.evals.runs.create(
+    eval_id=group.id,
+    name=f"Contoso {LANGUAGE} v1-v2 one comparison",
+    data_source={"type": "jsonl", "source": {"type": "file_content", "content": [{"item": row} for row in rows]}},
+)
+```
+
+| Foundry portal | Value to inspect in the source |
+| --- | --- |
+| Agents → Versions | `agent_reference.name/version` identifies the instruction version used for each answer |
+| Evaluations → Criteria | `testing_criteria=criteria` and the fixed judge deployment |
+| Evaluations → Run | `client.evals.runs.create(...)` consumes the saved JSONL rows |
+| Results | Actual answer/score/reason for the same `case_id`; `completed` alone is not a quality pass |
+
+Execute through the `--live` path above. Reading this excerpt or portal results makes no additional target call. Preserve the fixed questions, rubric, and threshold.
 
 ### 3. Connect each answer with its score and reason
 

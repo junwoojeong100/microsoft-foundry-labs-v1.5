@@ -38,10 +38,10 @@ Start with these five terms. Learn other acronyms when you need them and use the
 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
-| The instructor supplied a project and cost approval | [L01 setup](#l01) → L02 deployment check → L03 first call | You have an actual answer and response ID from your project |
-| No Azure account/access, or setup is still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L08 result reading | Data checks pass, you calculate the KRW 2,900,000 draft, and compare two answers |
+| Your Azure subscription, permissions, and budget scope are ready | [Create your environment in L01](#l01) → inspect your deployment in L02 → first call in L03 | An actual answer/response ID from the project you created |
+| Account, permissions, or cost conditions are still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L08 instructions/questions | Valid data and the KRW 2,900,000 draft; live Azure execution remains not performed |
 
-The second path covers **local execution, reading, and design steps only**. Start live calls once the project and cost approval are ready; do not create an account or add payment details on your own. Choose **Without Azure** in the web contents to find modules containing these steps.
+The default is **create your environment → run the labs → clean up your resources**. The second path is local preparation, not completion of the Foundry experience. **Without Azure** groups those local, reading, and design steps.
 
 ## Objectives
 
@@ -90,7 +90,9 @@ Download and extract the complete workshop ZIP, then use **File → Open Folder*
 
 | What to look for | Source file |
 | --- | --- |
-| Core labs and function implementations | [samples/workshop.py](../../samples/workshop.py) |
+| First code lab: send one model question | [samples/first_response.py](../../samples/first_response.py) |
+| Integrated lab runner and function implementations | [samples/workshop.py](../../samples/workshop.py) |
+| What each sample file does | [samples/README.md](../../samples/README.md) — entry points and shared helpers |
 | Hosted request handling | [hosted/main.py](../../hosted/main.py), [samples/hosted_runtime.py](../../samples/hosted_runtime.py) |
 | Environment variables and model names | [.env.example](../../.env.example) — the starting point for your personal `.env` |
 | Services and entry points to deploy | [azure.yaml](../../azure.yaml) |
@@ -100,7 +102,18 @@ Download and extract the complete workshop ZIP, then use **File → Open Folder*
 
 </details>
 
-In `python samples/workshop.py model --live`, `python` is the interpreter, `samples/workshop.py` is the file, `model` is the subcommand to run, and `--live` is this sample's opt-in flag for real Azure execution. The numbered rows in the **Command walkthrough** below each executable block follow the commands in that block. Unless stated otherwise, run commands from the root of your separate English checkout. Descriptive placeholders such as `ACTUAL_NUMERIC_VERSION`, `approved-subscription-id`, and `results/actual-dev-responses.jsonl` must be replaced with your own verified values, not entered literally.
+Read `python samples/first_response.py --query "..." --live` as four parts:
+
+| Part | Meaning |
+| --- | --- |
+| `python` | The Python interpreter |
+| `samples/first_response.py` | The focused, one-request lesson |
+| `--query "..."` | The model input. Without `--live`, it is only shown in the plan |
+| `--live` | Permits one actual Azure request in this example |
+
+Follow **L01 environment/telemetry → L02 deployments → L03 first request → L04 instructions → L05 retrieval → L06 functions → L08 evaluation → L10 traces → L19 cleanup**. Read each command as file, operation, and inputs. Compare the SDK blocks with the [sample guide](../../samples/README.md), then check request bounds and ownership before execution. Replace descriptive placeholders with your verified values.
+
+Code-backed labs pair **Foundry portal settings/actions ↔ the Python code that runs ↔ the result to inspect**. Local Agent Framework and design exercises explicitly state when there is no portal counterpart and when no Azure operation was performed.
 
 **Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
 
@@ -127,13 +140,13 @@ Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then u
 
 | Path | Suggested sequence | Assumptions |
 | --- | --- | --- |
-| 90-minute introduction | L00 → preconfigured L01 → L04 → L05 → shortened L08 → L19 | The instructor has prepared the project, models, and permissions |
+| 90-minute summary | L00 → L01 status review → L04 → L05 → shortened L08 → L19 | Complete your own L01/L02 provisioning first; creation time is additional |
 | Core course | L00–L10 → L19 | Core: 4 hours 45 minutes + 10-minute wrap-up; waits and breaks extra |
 | Developer extensions | Core → L11 → L12 → L13/L14 → optional L18 → L19 | Deeper SDK, deployment, and search work |
-| Enterprise adoption | Core → L15 → L16 → L17 → optional L18 → L19 | Collaboration with administrators and security teams |
-| Without an account | L01 local → L06 local → read existing L08 results → design exercises | Do not record these as successful live Azure runs |
+| Control and operations | Core → L15 → L16 → L17 → optional L18 → L19 | Create memory/schedules and design access/recovery boundaries in your environment |
+| Practice without Azure | L01 local → L06 local → L08 instructions/questions → design exercises | Neither live Azure execution nor full-course completion |
 
-Times are **estimates of hands-on work**. They exclude waits for quota approval, resource preparation, indexing, and administrator approval.
+The displayed core time is **4 hours 45 minutes**, plus ten minutes for wrap-up. It estimates direct work; allow extra time for first installation, access/cost approval, provisioning, indexing, and breaks.
 
 ### 2. Keep one scenario in mind
 
@@ -156,7 +169,7 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 
 ### 4. Check results and mark progress
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save actual results in your English lab folder's `results/` or the instructor's completion record. Do not record personal information or tokens.
+Check each module's **Success criteria** before marking progress. Browser progress is local to this device, not proof of service execution. Save actual results in your English folder's `results/` and [progress/completion checklist](#instructor), without personal information or tokens.
 
 Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
 
@@ -177,6 +190,6 @@ This module creates no resources. Continue to **L01: Prepare an environment you 
 <details markdown="1">
 <summary>Find the learning path for a capability</summary>
 
-Core capabilities are hands-on; those requiring administrators or additional licenses use conditional labs or design exercises. See [Feature coverage](#coverage) for each capability's prerequisites and learning path.
+Core capabilities are hands-on. Additional permissions, licenses, and Preview access are action prerequisites, not separate participant roles. Distinguish design-only work from actual execution; see [Feature coverage](#coverage).
 
 </details>

@@ -4,139 +4,139 @@
     "number": "00",
     "title": "Azure·Foundry 처음 시작하기",
     "start": 0.0,
-    "end": 38.067
+    "end": 38.267
   },
   {
     "id": "l01",
     "number": "01",
-    "title": "실습 준비: 계정·PC·비용 확인 (Project·RBAC)",
-    "start": 38.067,
-    "end": 75.548
+    "title": "내 실습 환경 만들기 (Project·RBAC)",
+    "start": 38.267,
+    "end": 80.0
   },
   {
     "id": "l02",
     "number": "02",
-    "title": "사용할 모델 배포 확인하기 (Model Deployment)",
-    "start": 75.548,
-    "end": 114.248
+    "title": "내 모델 배포 연결하기 (Model Deployment)",
+    "start": 80.0,
+    "end": 118.7
   },
   {
     "id": "l03",
     "number": "03",
     "title": "코드로 첫 답변 받기 (Responses API)",
-    "start": 114.248,
-    "end": 148.048
+    "start": 118.7,
+    "end": 152.5
   },
   {
     "id": "l04",
     "number": "04",
     "title": "역할을 정한 에이전트 만들기 (Prompt Agent)",
-    "start": 148.048,
-    "end": 182.887
+    "start": 152.5,
+    "end": 187.339
   },
   {
     "id": "l05",
     "number": "05",
     "title": "회사 문서로 답하기 (File search·RAG)",
-    "start": 182.887,
-    "end": 219.054
+    "start": 187.339,
+    "end": 223.506
   },
   {
     "id": "l06",
     "number": "06",
     "title": "재고 조회와 구매 초안 만들기 (Function Calling·Capstone)",
-    "start": 219.054,
-    "end": 261.398
+    "start": 223.506,
+    "end": 265.85
   },
   {
     "id": "l07",
     "number": "07",
     "title": "외부 기능 연결: MCP·OpenAPI",
-    "start": 261.398,
-    "end": 296.741
+    "start": 265.85,
+    "end": 301.193
   },
   {
     "id": "l08",
     "number": "08",
-    "title": "두 답변을 비교하고 평가 읽기 (Evaluation)",
-    "start": 296.741,
-    "end": 337.675
+    "title": "내 답변을 비교하고 평가하기 (Evaluation)",
+    "start": 301.193,
+    "end": 342.127
   },
   {
     "id": "l09",
     "number": "09",
     "title": "없는 정보·허위 승인 막기 (Safety·Guardrails)",
-    "start": 337.675,
-    "end": 375.183
+    "start": 342.127,
+    "end": 379.635
   },
   {
     "id": "l10",
     "number": "10",
     "title": "답변의 실행 과정 살펴보기 (Tracing)",
-    "start": 375.183,
-    "end": 410.53
+    "start": 379.635,
+    "end": 414.982
   },
   {
     "id": "l13",
     "number": "11",
     "title": "AI Search·Foundry IQ·권한 검색",
-    "start": 410.53,
-    "end": 450.071
+    "start": 414.982,
+    "end": 455.956
   },
   {
     "id": "l14",
     "number": "12",
     "title": "Hosted Agent와 개발 도구",
-    "start": 450.071,
-    "end": 490.771
+    "start": 455.956,
+    "end": 496.656
   },
   {
     "id": "l15",
     "number": "13",
     "title": "Agent Framework: 순차·동시 실행",
-    "start": 490.771,
-    "end": 533.32
+    "start": 496.656,
+    "end": 539.205
   },
   {
     "id": "l15-collaboration",
     "number": "14",
     "title": "Agent Framework: 그룹 채팅·핸드오프",
-    "start": 533.32,
-    "end": 575.986
+    "start": 539.205,
+    "end": 581.871
   },
   {
     "id": "l16",
     "number": "15",
     "title": "Memory: 기억과 삭제",
-    "start": 575.986,
-    "end": 611.393
+    "start": 581.871,
+    "end": 617.278
   },
   {
     "id": "l17",
     "number": "16",
     "title": "Routines·장기 실행·Autopilot",
-    "start": 611.393,
-    "end": 650.609
+    "start": 617.278,
+    "end": 656.494
   },
   {
     "id": "l21",
     "number": "17",
     "title": "기업 보안·Control Plane·Gateway",
-    "start": 650.609,
-    "end": 688.443
+    "start": 656.494,
+    "end": 694.328
   },
   {
     "id": "l22",
     "number": "18",
     "title": "CI/CD: 품질 게이트·게시·롤백",
-    "start": 688.443,
-    "end": 731.71
+    "start": 694.328,
+    "end": 737.595
   },
   {
     "id": "l12",
     "number": "19",
     "title": "실습 종료와 남은 비용 확인 (Cost Management)",
-    "start": 731.71,
-    "end": 771.443
+    "start": 737.595,
+    "end": 777.328
   }
 ]

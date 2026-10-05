@@ -26,7 +26,7 @@
 
 ## 준비
 
-[L13 환경 준비](#l15)의 `.venv-advanced`, `.env`, 관리자 소유 기록 `results/azure-environment.json`, chat 배포의 **100,000 TPM / 60 RPM** 확인을 재사용합니다. L13의 유료 패턴 실행 자체는 필수가 아닙니다. Windows는 `.venv-advanced\Scripts\python.exe`로 바꿉니다.
+[L13 환경 준비](#l15)의 `.venv-advanced`, `.env`, **내 소유 기록** `results/azure-environment.json`, chat 배포의 **100,000 TPM / 60 RPM** 확인을 재사용합니다. L13의 유료 패턴 실행은 선행 조건이 아닙니다. Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다.
 
 ### 먼저 경로 정하기
 
@@ -120,6 +120,50 @@
 로컬 역할 간 핸드오프는 **원격 Agent2Agent(A2A) 연결이 아닙니다.** 사람 승인(Human-in-the-loop), incoming A2A endpoint, 조직 권한 위임도 구현하지 않습니다. 외부 에이전트 연결이 필요하면 별도의 인증·protocol·사용자 권한 설계부터 진행합니다.
 
 공식 [그룹 채팅](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python)과 [핸드오프](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python) 문서로 Builder의 역할을 비교합니다.
+
+#### 포털 모델 배포와 Group chat/Handoff 코드
+
+L14에는 Foundry Portal에서 설정하는 Group chat/Handoff 편집기가 없습니다. 포털은 모델 배포를 제공하고, 실제 참여자 선택·메시지 전달·종료 조건은 아래 Agent Framework 코드가 정합니다.
+
+```python
+from agent_framework.orchestrations import GroupChatBuilder, HandoffBuilder
+
+def select_speaker(state):
+    names = list(state.participants)
+    return names[state.current_round % len(names)]
+
+group_workflow = GroupChatBuilder(
+    participants=[drafter, reviewer],
+    selection_func=select_speaker,
+    max_rounds=3,
+    termination_condition=lambda messages: sum(message.role == "assistant" for message in messages) >= 3,
+    intermediate_output_from=[drafter, reviewer],
+).build()
+
+handoff_workflow = (
+    HandoffBuilder(
+        participants=[coordinator, policy_agent, budget_agent],
+        termination_condition=lambda messages: any(
+            message.role == "assistant"
+            and message.author_name in {"policy", "budget"}
+            and message.text.strip()
+            for message in messages
+        ),
+    )
+    .with_start_agent(coordinator)
+    .add_handoff(coordinator, [policy_agent, budget_agent])
+    .build()
+)
+```
+
+| 코드 설정 | Evidence에서 확인할 실제 결과 |
+| --- | --- |
+| `participants` | 각 stage의 agent author |
+| `selection_func`, `max_rounds` | Group chat에서 누가 말했고 어디서 멈췄는지 |
+| `with_start_agent`, `add_handoff` | `handoff_calls`에 실제 제어 이전이 기록됐는지 |
+| Portal의 model deployment | 각 participant가 호출한 승인된 Foundry model |
+
+참여자 변수는 `build_role()`이 만든 SDK agent입니다. 그룹 채팅은 세 발언, 핸드오프는 전문가 답변을 종료 조건으로 사용합니다. `multi_agent.py`는 선택한 workflow만 실행하며 포털에 이 그래프를 저장하지 않습니다.
 
 ## 성공 기준
 

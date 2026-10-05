@@ -290,9 +290,11 @@ class FoundationCapacityTests(unittest.TestCase):
         for directory in ("docs", "docs/en"):
             setup = (ROOT / directory / "01-setup.md").read_text()
             model = (ROOT / directory / "02-models.md").read_text()
-            commands = [line for line in setup.splitlines() if "scripts/azure_environment.py foundation " in line]
+            examples = [line for line in setup.splitlines() if "scripts/azure_environment.py foundation " in line]
+            commands = [line for line in examples if "--live" in line]
             with self.subTest(directory=directory):
                 self.assertEqual(len(commands), 1)
+                self.assertEqual(len([line for line in examples if "--live" not in line]), 1)
                 self.assertNotIn("--capacity ", commands[0])
                 self.assertIn("--learners 1 --max-capacity 100", commands[0])
                 self.assertIn("100,000", model)

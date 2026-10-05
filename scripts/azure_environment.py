@@ -60,7 +60,7 @@ def owned(*, verify_location: bool = False) -> dict:
 def current_user_id(state: dict) -> str:
     account = az("account", "show", "--subscription", state["subscription"])
     if account["tenantId"] != state["tenant"] or account["user"]["type"] != "user":
-        raise ValueError("Administrator setup requires the signed-in user in the owned tenant.")
+        raise ValueError("Environment setup requires the signed-in user in the owned tenant.")
     token = az("account", "get-access-token", "--subscription", state["subscription"],
                "--resource", "https://management.azure.com", "--query", "accessToken")
     try:
@@ -70,7 +70,7 @@ def current_user_id(state: dict) -> str:
         if claims["tid"] != state["tenant"] or claims.get("idtyp") == "app":
             raise ValueError("Caller identity does not match the approved user and tenant.")
     except (KeyError, ValueError, IndexError, TypeError) as exc:
-        raise ValueError("Cannot verify the administrator's identity from the ARM credential.") from exc
+        raise ValueError("Cannot verify the signed-in user's identity from the ARM credential.") from exc
     return principal
 
 

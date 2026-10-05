@@ -27,7 +27,7 @@
 
 ## 준비
 
-L01의 프로젝트·모델·`.env`와 관리자가 제공한 `results/azure-environment.json`이 필요합니다. 프로젝트·언어·배포 이름이 다르면 진행하지 않습니다.
+L01에서 내가 만든 프로젝트·모델·`.env`·`results/azure-environment.json`을 사용합니다. 프로젝트·언어·배포 이름이 다르면 진행하지 않습니다.
 L13·L14는 **chat 배포만** 사용합니다. 한 명 기준 최소 권장값은 **100,000 TPM / 60 RPM**이며, 산정 가정과 설정 방법은 [L02](#l02-capacity)에 있습니다.
 
 심화 SDK는 `requirements-advanced.txt`로 분리합니다. `agent-framework-foundry==1.13.1`은 `azure-ai-projects<2.7.0`을 요구하므로 기본 코스의 SDK 환경과 섞지 않습니다. `agent-framework-orchestrations==1.2.0`도 함께 설치합니다.
@@ -39,7 +39,7 @@ L13·L14는 **chat 배포만** 사용합니다. 한 명 기준 최소 권장값�
 | Azure 승인 없음 | 1단계 환경 준비 → 3단계 계획 읽기 | 역할·최대 호출 수 설명. 실제 응답은 미실행 |
 | 모델·소유 기록·비용 승인 있음 | 1 → 2 → 3 → 4 → 5 | 같은 질문의 순차·동시 응답과 비교표 |
 
-`.env`의 프로젝트·모델 배포 이름은 L01·L02에서, `results/azure-environment.json`은 그 환경을 만든 관리자에게 받습니다. Hosted나 Search를 새로 만들 필요는 없습니다. **L06과 달리 실제 재고 함수는 호출하지 않고, 동봉 정책과 질문을 역할들이 검토하는 실습**입니다.
+L01·L02의 `.env`와 자신의 소유 기록을 재사용하며 Hosted·Search는 필요하지 않습니다. **L06과 달리 실제 재고 함수는 호출하지 않고, 정책과 질문을 SDK agent 역할별로 검토하는 실습**입니다.
 
 ## 실행
 
@@ -83,7 +83,7 @@ Windows에서는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 기존 
 
 </div>
 
-미달이면 관리자가 L02의 `apply` 경로로 먼저 용량을 맞춥니다. 이미 충분한 배포는 줄이지 않습니다. 실제 실행 명령도 다시 확인하므로 오래된 확인 파일만 믿고 호출하지 않습니다.
+미달이면 자신의 변경 권한·quota·비용 범위를 확인하고 L02의 `apply`로 보정합니다. 이미 충분한 배포는 줄이지 않습니다. live 명령도 실제 한도를 재확인하므로 오래된 결과만 믿고 호출하지 않습니다.
 
 ### 3. 순차와 동시 실행의 계획 읽기
 
@@ -189,6 +189,34 @@ Windows에서는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 기존 
 단일 경로가 먼저 실행되므로 인증·캐시·초기 지연이 다를 수 있습니다. 한 번의 차이를 일반적인 속도 우위로 해석하지 않습니다.
 
 </details>
+
+#### 포털 배포와 Python 오케스트레이션의 경계
+
+포털은 **모델 배포**를 제공하지만 L13의 순차·동시 workflow 그래프를 설정하지 않습니다. 그 순서는 Python Agent Framework 코드가 만듭니다.
+
+```python
+from agent_framework.orchestrations import SequentialBuilder, ConcurrentBuilder
+
+sequential = SequentialBuilder(
+    participants=[drafter, reviewer],
+    intermediate_output_from=[drafter],
+).build()
+
+concurrent = ConcurrentBuilder(
+    participants=[policy_agent, budget_agent, risk],
+    intermediate_output_from=[policy_agent, budget_agent, risk],
+).build()
+```
+
+| Foundry/코드 위치 | 무엇을 조작하나요? |
+| --- | --- |
+| Portal → Models → Deployments | Python client가 호출할 모델 배포를 선택 |
+| `build_role(...)` | 각 SDK agent의 instructions·모델 호출 역할을 정의 |
+| `SequentialBuilder` | 작성자 출력을 검토자 입력으로 전달 |
+| `ConcurrentBuilder` | 독립 역할을 동시에 실행하고 stage별 결과 수집 |
+| `.venv-advanced`의 `multi_agent.py` | orchestration을 로컬에서 만들고, 승인 시 모델 요청만 Foundry에 전송 |
+
+위 `drafter`·`reviewer`·`policy_agent`·`budget_agent`·`risk`는 `build_role()`로 instructions와 모델 client를 지정한 SDK agent입니다. `multi_agent.py`는 선택한 mode의 Builder 하나만 실행합니다. 이 설정은 포털에서 만든 workflow가 아니라 로컬 코드이며 `Evidence:`의 실제 입력·stage·출력으로 확인합니다.
 
 ## 성공 기준
 

@@ -49,7 +49,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 
 </div>
 
-SDK 기본 환경과 azd `azure.ai.routines` 확장을 준비합니다. 토큰을 파일에 저장하지 않습니다.
+SDK 기본 환경을 사용합니다. azd나 Routine 확장이 없다면 L12의 azd 설치·인증 확인 방식을 적용하고, 필요한 경우 `azd extension install azure.ai.routines`로 확장을 설치합니다. 설치된 확장의 `azd ai routine --help`를 기준으로 명령을 확인하며 강제 업데이트하지 않습니다. Hosted 배포 자체는 필요 없습니다.
 `results/azure-environment.json`의 프로젝트와 App Insights만 조회합니다.
 CLI 확장/전역 설정을 자동 업그레이드하거나 다른 환경의 리소스를 이용하지 않습니다.
 
@@ -58,7 +58,7 @@ CLI 확장/전역 설정을 자동 업그레이드하거나 다른 환경의 리
 | 필요한 값 | 어디서 가져오나요? | 확인할 관계 |
 | --- | --- | --- |
 | `실제-agent-name` | L05의 자기 프로젝트 → Build → Agents의 실제 이름, 또는 그 SDK 실행의 소유 receipt | File search가 서버에서 실행됨. L06의 로컬 함수 agent 이름을 넣지 않음 |
-| 프로젝트·App Insights | L01 관리자가 만든 `results/azure-environment.json`과 L10의 로그 연결 | `.env` 프로젝트와 일치하고 action trace를 읽을 수 있음 |
+| 프로젝트·App Insights | 내가 L01에서 만든 `results/azure-environment.json`과 로그 연결 | `.env` 프로젝트와 일치하고 action trace를 읽을 수 있음 |
 | 두 `--receipt` 경로 | 아래 수동용·예약용 **서로 다른 새 파일** | 기존 기록·다른 언어 기록을 덮어쓰지 않음 |
 
 **수동 1회 → 예약 1회 → 둘 다 중지 확인** 순서입니다. Azure 승인이 없으면 첫 `create` 계획까지만 읽습니다. 로그 권한·응답 수집 조건이 준비되지 않았다면 예약을 만들기 전에 멈춥니다. 실행 후 trace가 없다는 이유로 다시 예약하지 않습니다.
@@ -178,6 +178,39 @@ routine creator, agent runtime identity, 도구 connection identity를 구분합
 장기 실행의 checkpoint·재연결·승인 만료와 Autopilot의 manager·Entra agent user·
 메일/Teams 권한은 **설계 과제**입니다. timer 실습이 Autopilot 계정 생성을 뜻하지 않습니다.
 지속 평가를 선택했다면 해당 스케줄도 별도로 중지합니다.
+
+#### 포털 Routines와 실제 생성 manifest
+
+포털 **Agents → Routines**는 예약된 시각·agent·활성 상태를 보여 줍니다. 동봉 Python은 반복 일정을 추측해 만들지 않고, 고유한 receipt와 함께 timer trigger 한 건과 agent action 한 건을 manifest로 씁니다.
+
+```python
+manifest = {
+    "triggers": {
+        "default": {"type": "timer", "at": fire_at.strftime("%Y-%m-%dT%H:%M:%SZ")}
+    },
+    "action": {
+        "type": "invoke_agent_responses_api",
+        "agent_name": args.agent,
+        "input": state["input"],
+    },
+}
+write_new(manifest_path, manifest)
+created = azd(
+    endpoint, evidence, "create", name,
+    "--file", str(manifest_path),
+    "--enabled=false",
+)
+```
+
+| Portal Routines view | 코드/receipt에서 대조할 값 |
+| --- | --- |
+| Routine name | `name`과 receipt의 `state["name"]` |
+| Trigger time | `triggers.default.at`와 `state["trigger_at"]` |
+| Target agent / input | `action.agent_name` / `action.input` |
+| Enabled / Paused | `azd show`의 `enabled`; timer 생성 후 `stop_verified(...)` |
+| Last run | 별도 App Insights trace와 response ID; receipt만으로 실행을 주장하지 않음 |
+
+`fire_at`은 UTC 예약 시각, `manifest_path`는 `results/`의 새 JSON 파일입니다. 동봉 Python은 azd CLI를 호출하며 포털 UI를 자동 조작하지 않습니다. 포털의 대상·시각·Paused 상태를 코드 입력과 대조하고 live 작업은 해당 소유 기록·`--live`·승인 범위로 실행합니다.
 
 ## 성공 기준
 

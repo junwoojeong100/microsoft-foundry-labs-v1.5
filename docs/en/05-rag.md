@@ -43,7 +43,7 @@ You cannot evaluate RAG quality if you do not know where the correct answers are
 ### 2. Connect File search
 
 1. In **Build → Agents**, open **your agent name recorded in L04**. Do not create another agent.
-2. Open **Tools/Knowledge → File search** in the agent builder. If the UI requires a Toolbox connection, select the administrator-supplied file-search Toolbox, not another team's tools.
+2. Open the built-in file-search connection under **Tools/Knowledge → File search**. If unavailable, verify project support and choose the SDK path below. L07's Cloud Toolbox extension is not a prerequisite.
 3. Create your lab's vector store and upload **only the three Markdown files** from `data/en/policies/`. Do not upload the entire ZIP or `data/` folder.
 4. Confirm indexing is **Completed** for all three files. Upload completion is not search readiness. **Save** the connection and record the agent version and store name.
 5. Choose **New chat**, then submit each of the three questions below once. Keep this separate from L04's conversation without knowledge.
@@ -113,6 +113,58 @@ The executable sample uploads the files, attaches them to a vector store, waits 
 | The answer is right but has no source | Citation handling and UI rendering |
 | Another user's documents appear | Data permissions, retrieval filters, and caller identity |
 
+### Portal actions and the actual File search code
+
+The portal sequence is **create store/upload → wait for indexing → attach File search → ask**. This teaching excerpt connects `create_lab_agent()` and `run_turn()`. `project`/`client` are L03's clients; `receipt` is created first by the SDK runner. Do not execute the excerpt separately and create duplicates.
+
+```python
+from pathlib import Path
+from azure.ai.projects.models import FileSearchTool, PromptAgentDefinition
+from lab_profile import DATA
+
+instructions = Path("data/en/prompts/agent-v2.txt").read_text(encoding="utf-8")
+store = client.vector_stores.create(
+    name=receipt.data["run_id"],
+    expires_after={"anchor": "last_active_at", "days": 1},
+)
+receipt.add("vector_store", store.id)
+for path in sorted((DATA / "policies").glob("*.md")):
+    with path.open("rb") as handle:
+        uploaded = client.files.create(file=handle, purpose="assistants")
+    receipt.add("file", uploaded.id)
+    index_file(client, uploaded.id, store.id)
+
+file_search = FileSearchTool(vector_store_ids=[store.id], max_num_results=4)
+agent = project.agents.create_version(
+    agent_name=receipt.data["run_id"],
+    definition=PromptAgentDefinition(
+        model=deployment_name,
+        instructions=instructions,
+        tools=[file_search],
+    ),
+    description="Synthetic workshop agent; never submit real orders.",
+)
+receipt.add("agent", agent.name, version=agent.version)
+conversation = client.conversations.create()
+receipt.add("conversation", conversation.id)
+response = client.responses.create(
+    conversation=conversation.id,
+    input=question,
+    extra_body={"agent_reference": {"name": agent.name, "type": "agent_reference", "version": agent.version}},
+    include=["file_search_call.results"],
+    max_output_tokens=2048,
+)
+```
+
+| Portal action | What the code does |
+| --- | --- |
+| Upload policies and check indexing | `client.files.create(...)`, then wait for `index_file(...)` to complete |
+| Connect File search to a store | `FileSearchTool(vector_store_ids=[store.id], ...)` |
+| Save the agent configuration | `project.agents.create_version(...PromptAgentDefinition(...))` |
+| Send a Chat question and inspect citations | `responses.create(...)` with `include=["file_search_call.results"]` |
+
+This is the raw SDK flow for reading. Running it creates a separate store, agent, and files; use the receipt-tracked `workshop.py rag --live` path only after approval, and do not run both SDK and portal paths.
+
 ## Success criteria
 
 The 2 answerable questions have real supporting evidence, and the agent withholds an answer to the question not covered by the documents. You have compared the facts in the responses with the originals and confirmed that indexing completed.
@@ -123,7 +175,7 @@ Do not start by uploading the documents again. Check the connected vector store 
 
 ## Cleanup
 
-Keep the portal knowledge connection for the next lab. The SDK sample sets the vector store to expire **1 day after last activity**, but uploaded files are separate. Do not rely on expiration alone; delete them in L19.
+Retain the knowledge connection for later labs. SDK store expiration **one day after last activity** does not delete uploaded files. In L19, inspect remaining resources and delete only approved targets or record retention deadlines.
 
 <details markdown="1">
 <summary>When should you choose File search or Foundry IQ?</summary>

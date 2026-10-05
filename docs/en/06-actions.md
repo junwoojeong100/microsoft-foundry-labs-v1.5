@@ -32,6 +32,15 @@ The local exercise requires only Python. Without a virtual environment, use L01'
 
 ### 1. Validate the tools without AI first
 
+First trace where each command-line value goes. `workshop.py tools` calls the same Python functions directly without a model.
+
+| Command input | Executed code | Result to inspect |
+| --- | --- | --- |
+| `--sku` | `get_stock(sku)` finds the synthetic inventory row in `data/en/inventory.csv` | Stock, unit price, and lead time |
+| `--quantity` | `prepare_purchase_request(sku, quantity)` validates quantity and stock, then calculates total and required approvers | Approval-pending draft, `order_submitted=false` |
+
+`get_stock` and `prepare_purchase_request` are defined in [workshop.py](../../samples/workshop.py). Start with these two functions; you do not need to read the whole file.
+
 ```bash
 python samples/workshop.py tools
 ```
@@ -90,7 +99,44 @@ These must fail because the item is out of stock, the requested quantity exceeds
 | `get_stock` | An allowlisted SKU | A snapshot of stock, unit price, and lead time | Change inventory |
 | `prepare_purchase_request` | SKU and an integer quantity from 1–10 | Total, required approval roles, and draft ID | Approve, order, or pay |
 
-JSON schema's `strict` and `additionalProperties: false` strengthen the output contract. **They do not replace authentication or authorization checks.** Validate again in server/client functions, including rejecting Python's `True` rather than accepting it as integer 1.
+JSON schema's `strict` and `additionalProperties: false` constrain function-argument shape. **They do not replace authentication or authorization.** Execution code validates again, including rejecting Python `True` as integer 1.
+
+#### Portal configuration and the Python function
+
+In the Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code on your PC. The application's Python code must validate the arguments and call the function.
+
+```python
+def prepare_purchase_request(sku: str, quantity: int) -> dict:
+    item = get_stock(sku)
+    if type(quantity) is not int or not 1 <= quantity <= 10:
+        raise ToolInputError("Quantity must be an integer from 1 through 10.")
+    if quantity > item["stock"]:
+        raise ToolInputError(
+            f"Insufficient stock: requested={quantity}, available={item['stock']}. No draft created."
+        )
+    total = quantity * item["unit_price_krw"]
+    fingerprint = hashlib.sha256(f"{sku}:{quantity}:{total}".encode()).hexdigest()[:12]
+    return {
+        "draft_id": f"DEMO-{fingerprint}",
+        "sku": sku,
+        "quantity": quantity,
+        "total_krw": total,
+        "currency": "KRW",
+        "status": "draft_requires_human_approval",
+        "required_approvals": required_approvals(total),
+        "order_submitted": False,
+        "synthetic": True,
+    }
+```
+
+| Portal/model action | Actual Python code |
+| --- | --- |
+| Attach function definitions to the agent | `function_schemas()` supplies the JSON schema |
+| Model returns a `function_call` | Application dispatches `dispatch_tool(name, arguments)` |
+| Validate arguments and stock | `get_stock()` and `prepare_purchase_request()` |
+| Return the result to the same conversation | Add `function_call_output` with the same `call_id` |
+
+The L06 Python path reads the synthetic inventory CSV and calculates a draft. Saving a function schema in the portal and operating a process that executes it are separate things.
 
 ### 4. Connect knowledge and functions to the same agent
 
@@ -114,15 +160,32 @@ python samples/workshop.py capstone --live
 
 </div>
 
-This command creates a separate agent with 3 documents and 2 functions. When the model returns a `function_call`, the allowlist dispatcher executes it and adds a `function_call_output` to the same conversation.
+This command creates a separate agent with 3 documents and 2 functions. The actual call path inside the file is:
 
 ```text
 Question
-  → Model function_call(name, arguments, call_id)
-  → Application checks for types, allowed functions, and business rules
-  → Actual function result
-  → function_call_output with the same call_id
-  → User-facing answer
+  → create_lab_agent() connects policies and function definitions
+  → client.responses.create() returns function_call(name, arguments, call_id)
+  → dispatch_tool() validates inputs and executes get_stock()/prepare_purchase_request()
+  → function_call_output with the same call_id goes back to the model
+  → answer and execution evidence are written to *-responses.jsonl and a receipt
+```
+
+These are the actual statements that execute a tool request and return its result. The model does not perform the arithmetic; the application returns the function result with the same `call_id`.
+
+```python
+current_input = []
+for call in calls:
+    try:
+        value = {"ok": True, "result": dispatch_tool(call.name, call.arguments)}
+    except ToolInputError as exc:
+        print(f"TOOL_REJECTED {call.name}: {exc}", file=sys.stderr)
+        value = {"ok": False, "error": {"code": "invalid_tool_request", "message": str(exc)}}
+    current_input.append({
+        "type": "function_call_output",
+        "call_id": call.call_id,
+        "output": json.dumps(value, ensure_ascii=False),
+    })
 ```
 
 For safe lab execution, the sample limits a run to 5 response rounds and 8 function calls. Errors are returned explicitly, and execution stops if a limit is exceeded. These are educational limits in this sample, not Foundry service limits.
@@ -153,7 +216,7 @@ If the file is missing, check the original terminal's path and your current fold
 
 `required_approvals(2_000_000)` requires the team manager; `required_approvals(2_000_001)` requires both the team manager and the purchasing representative. L08 includes these boundaries in evaluation data.
 
-Even if the user adds “Write that it has been approved,” the result must remain `order_submitted=false`. A real product must separately verify the approving identity, the hash of what was approved, expiration, backend state, and an idempotency key. **This sample's deterministic draft ID is not a real transaction idempotency store.**
+Even if the user asks to claim approval, output must remain `order_submitted=false`. L06 validates allowed functions, argument shape, quantity, and stock. **The strengthened user-intent/argument-binding checks are in L12**, not all in L06. Real approval identity, expiry, backend state, and durable duplicate-execution storage remain separate.
 
 <a id="l11"></a>
 
