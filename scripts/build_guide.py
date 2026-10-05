@@ -387,7 +387,7 @@ def build_language(language):
     <span><strong>Foundry <span class="brand-light">Lab Guide</span></strong><small>{ui['tagline']}</small></span>
   </a>
   <div class="top-actions">
-    <span class="edition"><span aria-hidden="true"></span>Contoso · {RELEASE['edition']}</span>
+    <span class="edition"><span aria-hidden="true"></span>{escape(ui['scenario_name'])}</span>
     <nav class="language-switch" aria-label="{ui['language']}">{''.join(language_links)}</nav>
     <button id="theme-toggle" class="icon-button" type="button" aria-label="{ui['js']['dark_aria']}">{ui['theme']}</button>
     <button id="print-one" class="quiet-button" type="button">{ui['print_one']}</button>

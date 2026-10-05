@@ -159,6 +159,26 @@ class BilingualGuideTests(unittest.TestCase):
                 self.assertEqual(rows["hitl"]["mode"], "참고")
                 self.assertNotIn("Magentic", json.dumps(rows))
 
+    def test_topbar_names_the_localized_agent_without_the_edition_date(self):
+        names = {"ko": "Contoso 구매 에이전트", "en": "Contoso Purchasing Agent"}
+        for language, name in names.items():
+            edition = build_guide.RELEASE["languages"][language]
+            artifacts = render_without_writing(language)
+            html = artifacts[edition["html"]]
+            with self.subTest(language=language):
+                topbar = re.search(r'<header class="topbar">(.*?)</header>', html, re.S)[1]
+                label = re.search(
+                    r'<span class="edition"><span aria-hidden="true"></span>(.*?)</span>', topbar, re.S,
+                )[1]
+                self.assertEqual(label, name)
+                self.assertNotIn(build_guide.RELEASE["edition"], topbar)
+                cover = re.search(r'<section class="print-cover"[^>]*>(.*?)</section>', html, re.S)[1]
+                self.assertIn(build_guide.RELEASE["edition"], cover)
+                self.assertIn(
+                    build_guide.RELEASE["edition"],
+                    artifacts[Path(edition["markdown"]).name].split("## ", 1)[0],
+                )
+
     def test_rendered_curriculum_counts_and_order_follow_the_manifest(self):
         for language, edition in build_guide.RELEASE["languages"].items():
             chapters, _, _ = build_guide.load_content(language)
