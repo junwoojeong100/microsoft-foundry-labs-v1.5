@@ -94,10 +94,10 @@ Learner-facing numbers come from `number` in `content/chapters.json`. Existing I
 
 ## GitHub Pages
 
-Pages serves the **root of the `main` branch** (`/`). A push to `main` automatically publishes the checked-in HTML and download files; no `gh-pages` synchronization is needed.
+Pages serves the **root of the `main` branch** (`/`). A push to `main` automatically publishes the checked-in HTML and download files; no separate publishing branch is needed.
 Merging into `main` still requires approval and now also publishes the site. Regenerate and review HTML/Markdown/PDF/ZIP before merging; Pages does not run the guide generators.
 The existing validation workflow and Pages deployment run independently: **Pages does not wait for validation to finish**.
-Keep `.nojekyll` and preserve the existing `gh-pages` branch as history; do not force-push or delete it. Repository visibility changes and Azure operations still require separate approval.
+Keep `.nojekyll` and do not force-push. Branch deletion, repository visibility changes, and Azure operations require explicit approval.
 Use `python scripts/check_pages.py` after deployment to compare the public HTML/assets with the merged sources.
 
 This is not an official Microsoft curriculum. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
