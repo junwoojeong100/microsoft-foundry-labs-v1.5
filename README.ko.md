@@ -91,8 +91,10 @@ python scripts/package_guide.py
 
 ## GitHub Pages
 
-Pages는 `gh-pages` branch의 루트를 게시합니다. `.nojekyll`을 유지하고 승인된 생성물만 게시하며 강제 push나 branch 삭제를 하지 않습니다.
-main 병합·Pages 게시·공개 범위 변경은 지침 수정과 별도로 승인받습니다.
-승인된 게시 후 `python scripts/check_pages.py`로 공개 HTML·자산과 원본을 대조합니다.
+Pages는 **`main` 브랜치의 루트(`/`)**를 게시합니다. `main`에 push하면 체크인된 HTML과 다운로드 파일이 자동 게시되며 별도의 `gh-pages` 갱신은 필요하지 않습니다.
+main 병합은 여전히 승인이 필요하며 이제 사이트 게시도 함께 발생합니다. 병합 전에 HTML/Markdown/PDF/ZIP을 다시 생성하고 확인합니다. Pages가 가이드 생성 스크립트를 대신 실행하지는 않습니다.
+기존 자동 검사와 Pages 배포는 독립적으로 실행됩니다. **Pages는 자동 검사가 끝나기를 기다리지 않습니다.**
+`.nojekyll`을 유지하고 기존 `gh-pages` 브랜치는 이력으로 보존합니다. 강제 push나 브랜치 삭제는 하지 않으며, 공개 범위 변경과 Azure 작업은 별도 승인이 필요합니다.
+배포 후 `python scripts/check_pages.py`로 공개 HTML·자산과 병합된 원본을 대조합니다.
 
 Microsoft 공식 교육과정이 아닙니다. 출처와 사용 조건은 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES)를 확인합니다.

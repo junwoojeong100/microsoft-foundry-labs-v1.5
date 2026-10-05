@@ -40,12 +40,18 @@ class RepositoryLayoutTests(unittest.TestCase):
         self.assertEqual(links, ["https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/"])
         self.assertNotRegex(readme, r"\]\((?:\./)?index\.html(?:[)#])")
 
-    def test_pages_branch_is_explicit_and_runtime_workflows_still_use_main(self):
+    def test_pages_publishes_main_and_preserves_runtime_workflow_links(self):
         release = json.loads((ROOT / "content/release.json").read_text())
         readme = (ROOT / "README.md").read_text()
+        korean = (ROOT / "README.ko.md").read_text()
         delivery = (ROOT / "docs/22-delivery.md").read_text()
+        self.assertEqual(release["pages_branch"], "main")
         self.assertIn(f"**root of the `{release['pages_branch']}` branch**", readme)
+        self.assertIn("**`main` 브랜치의 루트(`/`)**", korean)
         self.assertIn("Merging into `main`", readme)
+        self.assertIn("automatically publishes", readme)
+        self.assertIn("Pages does not wait for validation to finish", readme)
+        self.assertIn("Pages는 자동 검사가 끝나기를 기다리지 않습니다", korean)
         self.assertNotIn("docs/portal-walkthrough-20260930", readme + delivery)
         links = re.findall(r"\]\((https://github\.com/[^)]+/\.github/workflows/[^)]+)\)", delivery)
         self.assertEqual(len(links), 2)
