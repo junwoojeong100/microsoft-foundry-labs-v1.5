@@ -48,9 +48,9 @@ Follow **create store → store one item → compare A/B searches → delete onl
 
 ### 1. Create a dedicated store
 
-![The Memories tab in contoso-workshop-en shows the stored English preference for synthetic user A. The scope selector and scope identifier are masked; the preference text remains visible.](../../assets/portal/en/10-memory.png)
+![Stored-item example. The Memories tab shows synthetic user A's English preference for table-formatted answers.](../../assets/portal/en/10-memory.png)
 
-**Read the screen:** The screenshot shows **Build → Memory → your store → Memories** after the remember step below. Enter the exact synthetic scope from your own receipt; the default `{{$userId}}` filter is not this lab's user-A scope. The English preference is visible, while generated scope identifiers are masked. Use **Details** to check the chat/embedding models, 3600-second TTL, and profile-only configuration. The [English capture log](../../content/portal-screenshots.en.json) records the observation scope. The separate API checks—not this screenshot—verify user isolation and later deletion of the synthetic item.
+**Read the screen:** The image shows **Build → Memory → your store → Memories** after the remember step below. Enter the exact synthetic scope from your own receipt; the default `{{$userId}}` filter is not this lab's user-A scope. Use **Details** to check chat/embedding models, TTL, and memory types. Follow steps 2–4 below to check storage, user-specific searches, and separately approved deletion.
 
 ```bash
 python samples/memory_lab.py create

@@ -4,139 +4,139 @@
     "number": "00",
     "title": "Start with Azure and Foundry",
     "start": 0.0,
-    "end": 36.333
+    "end": 35.048
   },
   {
     "id": "l01",
     "number": "01",
     "title": "Prepare your account, PC, and budget (Project / RBAC)",
-    "start": 36.333,
-    "end": 74.845
+    "start": 35.048,
+    "end": 73.56
   },
   {
     "id": "l02",
     "number": "02",
     "title": "Check the model you will use (Model Deployment)",
-    "start": 74.845,
-    "end": 113.049
+    "start": 73.56,
+    "end": 111.764
   },
   {
     "id": "l03",
     "number": "03",
     "title": "Get your first answer from code (Responses API)",
-    "start": 113.049,
-    "end": 145.985
+    "start": 111.764,
+    "end": 144.7
   },
   {
     "id": "l04",
     "number": "04",
     "title": "Create an agent with a clear role (Prompt Agent)",
-    "start": 145.985,
-    "end": 180.566
+    "start": 144.7,
+    "end": 179.281
   },
   {
     "id": "l05",
     "number": "05",
     "title": "Answer from company documents (File search / RAG)",
-    "start": 180.566,
-    "end": 216.979
+    "start": 179.281,
+    "end": 215.694
   },
   {
     "id": "l06",
     "number": "06",
     "title": "Check stock and prepare a draft (Function Calling / Capstone)",
-    "start": 216.979,
-    "end": 260.083
+    "start": 215.694,
+    "end": 258.798
   },
   {
     "id": "l07",
     "number": "07",
     "title": "Connect tools with MCP and OpenAPI",
-    "start": 260.083,
-    "end": 294.62
+    "start": 258.798,
+    "end": 293.335
   },
   {
     "id": "l08",
     "number": "08",
     "title": "Compare answers and read scores (Evaluation)",
-    "start": 294.62,
-    "end": 333.387
+    "start": 293.335,
+    "end": 332.102
   },
   {
     "id": "l09",
     "number": "09",
     "title": "Reject missing facts and false approval (Safety / Guardrails)",
-    "start": 333.387,
-    "end": 367.254
+    "start": 332.102,
+    "end": 365.968
   },
   {
     "id": "l10",
     "number": "10",
     "title": "Follow an answer's execution path (Tracing)",
-    "start": 367.254,
-    "end": 400.56
+    "start": 365.968,
+    "end": 399.274
   },
   {
     "id": "l13",
     "number": "11",
     "title": "AI Search, Foundry IQ, and permission-aware retrieval",
-    "start": 400.56,
-    "end": 438.276
+    "start": 399.274,
+    "end": 436.99
   },
   {
     "id": "l14",
     "number": "12",
     "title": "Hosted agents and developer tools",
-    "start": 438.276,
-    "end": 474.388
+    "start": 436.99,
+    "end": 473.102
   },
   {
     "id": "l15",
     "number": "13",
     "title": "Agent Framework: sequential and concurrent execution",
-    "start": 474.388,
-    "end": 516.134
+    "start": 473.102,
+    "end": 514.848
   },
   {
     "id": "l15-collaboration",
     "number": "14",
     "title": "Agent Framework: group chat and handoff",
-    "start": 516.134,
-    "end": 556.25
+    "start": 514.848,
+    "end": 554.964
   },
   {
     "id": "l16",
     "number": "15",
     "title": "Memory: remembering and forgetting",
-    "start": 556.25,
-    "end": 591.02
+    "start": 554.964,
+    "end": 589.734
   },
   {
     "id": "l17",
     "number": "16",
     "title": "Routines, long-running agents, and Autopilot",
-    "start": 591.02,
-    "end": 628.322
+    "start": 589.734,
+    "end": 627.036
   },
   {
     "id": "l21",
     "number": "17",
     "title": "Enterprise security, Control Plane, and gateways",
-    "start": 628.322,
-    "end": 663.66
+    "start": 627.036,
+    "end": 662.374
   },
   {
     "id": "l22",
     "number": "18",
     "title": "CI/CD: quality gates, publishing, and rollback",
-    "start": 663.66,
-    "end": 704.403
+    "start": 662.374,
+    "end": 703.117
   },
   {
     "id": "l12",
     "number": "19",
     "title": "Finish the lab and check costs (Cost Management)",
-    "start": 704.403,
-    "end": 740.98
+    "start": 703.117,
+    "end": 739.694
   }
 ]

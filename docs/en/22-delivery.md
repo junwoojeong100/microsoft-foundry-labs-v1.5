@@ -28,7 +28,7 @@
 
 ## Prerequisites
 
-Use L01's environment and repository sources. **Search, Hosted, and Optimizer are not prerequisites for the default exercise.** Use L06/L12 results for a real manifest; without them, complete it as a design. Do not change the educational v1/v2 or historical evidence.
+Use L01's environment and repository sources. **Search, Hosted, and Optimizer are not prerequisites for the default exercise.** Use L06/L12 results for a real manifest; without them, complete it as a design.
 
 ### Choose your starting path
 
@@ -78,7 +78,7 @@ python scripts/check_guide.py
 | 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Azure calls. |
 | 2. `build_guide.py` | Generate both HTML/Markdown editions from sources and metadata. | Local file changes; do not edit generated output manually. |
 | 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Azure or model quality. |
-| 4. `check_guide.py` | Check 20 modules and five reference sections, command explanations, links, and capture provenance. | Write documentation checks only to private `results/documentation/`. |
+| 4. `check_guide.py` | Check 20 modules and five reference sections, command explanations, links, and image files. | Save documentation checks to `results/documentation/`. |
 
 </div>
 
@@ -151,7 +151,7 @@ This is a **Contoso worksheet example**. Where actual identifiers/results are ab
 | Evidence | Same-target response/trace, actual tool results, applied evaluation and failures/missing rows | L08's 12 tool-free questions do not approve an integrated business release |
 | Recovery | Previous approved version/configuration bundle, owner, data compatibility | Hold deployment without a viable target and compatible state |
 
-For L06's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. L12 Hosted also requires package/runtime contract comparison. Using instruction v2 does not validate Hosted code; inspect your actual target and evidence scope.
+For L06's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. For L12 Hosted, also compare the package/runtime contract, response, tools, and citations for the same version.
 
 **Why publishing/version management belongs in CI/CD:** Deployment creates a runnable version; promotion selects a validated version for users; publishing exposes it through a channel such as Teams. Rollback restores the previously approved selection.
 

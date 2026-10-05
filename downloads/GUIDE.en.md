@@ -4,7 +4,7 @@
 
 [English](GUIDE.en.md) | [한국어](GUIDE.ko.md)
 
-**Execution boundary:** Keep your responses, evaluations, and local checks outside this guide. Prepared instructions and completed execution do not establish improved quality.
+**Execution boundary:** Use synthetic Contoso data and an approved project. Confirm costs before live calls; never place real orders, take payments, or grant business approvals.
 
 [Synthetic English receipt](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html)
 
@@ -34,7 +34,7 @@
 - [B. Instructor plan and completion checklist](#instructor)
 - [C. Glossary and decision guide](#glossary)
 - [D. Feature coverage](#coverage)
-- [E. Sources, currency, and execution boundaries](#sources)
+- [E. Official sources and feature availability](#sources)
 
 ---
 
@@ -87,7 +87,7 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | The instructor supplied a project and cost approval | [L01 setup](#l01) → L02 deployment check → L03 first call | You have an actual answer and response ID from your project |
 | No Azure account/access, or setup is still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L08 result reading | Data checks pass, you calculate the KRW 2,900,000 draft, and compare two answers |
 
-The second path **does not count as passing Azure execution exercises**. Do not create an account or add payment details on your own; mark live calls not executed. Choose **Without Azure** in the web contents to find modules containing these steps.
+The second path covers **local execution, reading, and design steps only**. Start live calls once the project and cost approval are ready; do not create an account or add payment details on your own. Choose **Without Azure** in the web contents to find modules containing these steps.
 
 ## Objectives
 
@@ -125,20 +125,7 @@ The second path **does not count as passing Azure execution exercises**. Do not 
 
 **Reading the screen:** First confirm your own lab project in the project selector at the top. **Discover** is for exploring candidates, **Build** for configuring models, agents, and tools, **Operate** for operational status, and **Manage** for project and resource management. The **Project endpoint** and **Azure OpenAI endpoint** on Home are different addresses.
 
-Masked areas contain identifying information, not values to copy. Use your own project's values. If menus differ, first check new/Classic portal mode, the current project, and your access.
-
-<details class="provenance-note" markdown="1">
-<summary>Reference: screenshot scope and validation records</summary>
-
-The English edition uses a separate **`contoso-workshop-en` project and English synthetic data**. All **16 English portal screenshots used in this guide** were captured from the signed-in English environment and are under `assets/portal/en/`, with identifying information masked or cropped—not translated overlays on the earlier Korean-data screenshots. The models, features, and versions you see depend on your permissions, region, and the date.
-
-**Backend execution and portal observation are separate activities.** Keep your agent, retrieval, and evaluation results outside the guide. Consult the [English screenshot provenance](../content/portal-screenshots.en.json) for capture scope, times, masking, and hashes. A screenshot is an observation, not deployment or release-quality certification.
-
-**Current learning path: educational initial v1 → evaluate → analyze and improve → reevaluate v2.** L08 uses the same 12 composite development questions and fixed criteria in both languages. V1 is a simple role-and-goal starting point; v2 adds request decomposition, verified-versus-unknown separation, claim-specific evidence, and omission checks. It does not memorize evaluation answers, and ties or regressions are reported as observed.
-
-Keep your own comparison results outside the guide. A small dev observation does not establish general improvement or release approval.
-
-</details>
+**About the screens:** Screens are examples to help you follow the labs. Menus and available models/features can differ with permissions, region, and updates. Use your own project's values rather than copying names or identifiers from an image. Check completion against each module's **Success criteria**.
 
 ### How to read the source code and commands
 
@@ -213,11 +200,11 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 | Knowledge vs. tools vs. memory | Knowledge supplies company evidence. Tools provide capabilities. Memory retains authorized context across sessions, within the user's scope |
 | GA vs. Preview | A GA portal does not mean that Memory, Voice, and every operational feature are also GA |
 
-### 4. Keep evidence of your results
+### 4. Check results and mark progress
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`, outside the guide. Do not record personal information or tokens or relabel one environment's evidence as another's.
+Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save actual results in your English lab folder's `results/` or the instructor's completion record. Do not record personal information or tokens.
 
-Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. A merged chapter's old checkmark is not transferred to a new feature. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
+Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
 
 ## Success criteria
 
@@ -234,9 +221,9 @@ Web progress counts **only the selected path**: 11 core modules plus wrap-up, ei
 This module creates no resources. Continue to **L01: Prepare an environment you can run**.
 
 <details markdown="1">
-<summary>What this guide means by “all core capabilities”</summary>
+<summary>Find the learning path for a capability</summary>
 
-The learning paths cover the capability families in Microsoft's capability map and reference. This does not mean that every model, region, and API combination has been executed. Core capabilities are hands-on; those requiring administrators or additional licenses are clearly marked as conditional labs or design exercises. See **Feature coverage** for the detailed mapping.
+Core capabilities are hands-on; those requiring administrators or additional licenses use conditional labs or design exercises. See [Feature coverage](#coverage) for each capability's prerequisites and learning path.
 
 </details>
 
@@ -362,7 +349,7 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 3. Compare **Name / Parent resource / Location** in **Manage → Project details** with the instructor's information. Your approved project may have a different name from the example `contoso-workshop-en`.
 4. If no project appears or only **Create project** is available, ask for access rather than creating one. Account-free participants can continue with the local checks in step 4 below.
 
-**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in `results/`, outside the guide and kit.
+**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in this lab folder's `results/`.
 
 <details class="operator-only" markdown="1">
 <summary>Administrators only: create a new environment after scope, cost, and access approval</summary>
@@ -395,9 +382,9 @@ Add Search with `python scripts/azure_environment.py search --live` only when yo
 The ownership record is `results/azure-environment.json`. For partial failures such as RequestConflict,
 inspect the original deployment operation and use `foundation --resume` **only for those same owned resources**. `--resume` continues a recorded partial deployment; it does not select a new environment or erase the original error record.
 
-![Azure portal resource group overview for the isolated English Contoso run. Compare its ownership and scope with your English environment receipt.](../assets/portal/en/18-resource-group.png)
+![Resource group overview example in the Azure portal. Compare the group and its resources with your English environment receipt.](../assets/portal/en/18-resource-group.png)
 
-**Reading the screen:** Compare the resource group, location, and ownership tags with `results/azure-environment.json` from the English checkout. Visible resources depend on capture time and filters; the image does not prescribe a fixed resource list or count. Consult the [English capture log](../content/portal-screenshots.en.json) for its exact scope. An overview is not proof of successful model calls or a passed quality gate.
+**Reading the screen:** Compare the resource group, location, and ownership tags with `results/azure-environment.json` from the English checkout. Check the resources required for your selected labs; you do not need to match the image's resource list or count.
 
 If an overview shows an **inherited organizational diagnostic-policy failure**, inspect its scope separately from the lab's deployments. Do not hide the warning or change an out-of-scope policy/workspace; refer it to the responsible governance owner.
 
@@ -548,9 +535,9 @@ python -c "import sys; print(sys.executable)"
 
 ### 5. Configure endpoints and authentication
 
-![Manage → Project details for contoso-workshop-en, with project, parent resource, region, and Connected resources. Identifying and connection values must remain masked.](../assets/portal/en/13-project-settings.png)
+![Project settings example. Locate the project, parent resource, region, and Connected resources under Manage → Project details.](../assets/portal/en/13-project-settings.png)
 
-**Reading the screen:** Under **Manage → Project details**, first compare **Name / Parent resource / Location** with your English environment's records. Put your own **Project endpoint** in the local configuration. In **Connected resources**, read the connection target, Category, and Auth method. Masked areas are not example values to copy; do not reveal connection keys. The [English capture log](../content/portal-screenshots.en.json) defines the observation scope. Viewing settings does not establish that a connection or permission change succeeded.
+**Reading the screen:** Under **Manage → Project details**, first compare **Name / Parent resource / Location** with your English environment's records. Put your own **Project endpoint** in the local configuration. In **Connected resources**, read the connection target, Category, and Auth method. This lab uses keyless authentication, so do not reveal or copy connection keys. Ask the administrator for any required connection or permission changes.
 
 Copy the project endpoint from **Manage → Project details** or the project's landing page. **Open `.env` in VS Code**, replace only the right-hand sides of these two `=` signs, and save. Ensure the filename is `.env`, not `.env.txt`. Do not paste this settings block into the terminal.
 
@@ -676,7 +663,7 @@ In **Discover → Models**, search for **`gpt-6-sol`** and open the OpenAI model
 
 ![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](../assets/portal/en/02-model-catalog.png)
 
-**Reading the screen:** Check the scope in this order: **Discover** at the top → **Models** on the left → **Available in my project**. Search for candidates and narrow **Supported features / Deployment options / Region**. A visible card does not mean that quota or capacity is available. The models and model count shown when the image was captured are not a required model list for learners.
+**Reading the screen:** Check the scope in this order: **Discover** at the top → **Models** on the left → **Available in my project**. Search for candidates and narrow **Supported features / Deployment options / Region**. A visible card does not mean that quota or capacity is available. Check the models required below rather than deploying every model shown in the image.
 
 | What to check on the model card | Why it matters |
 | --- | --- |
@@ -928,17 +915,17 @@ You need L01's `.env`, CLI sign-in, and `requirements.txt` installation, plus th
 **The default path is terminal steps 1–3 below.** You do not need to call both the portal and the SDK. Expand this only for the screen reference.
 
 <details class="optional-path" markdown="1">
-<summary>Portal reference and the preserved one-call demonstration — no need to reproduce the image</summary>
+<summary>Optional: read the model Playground's input, settings, and response</summary>
 
-Open **Build → Models → Deployments → your deployment → Playground** in `contoso-workshop-en`. `contoso-chat` is an example deployment name; use your own approved deployment and verify its model/version. This is a model exercise: **do not click Save as agent**.
+Open **Build → Models → Deployments → your deployment → Playground** in your project. The image uses an example `gpt-4.1-mini` deployment named `contoso-chat`; select your own approved deployment from L02 for an actual call. This is a model exercise: **do not click Save as agent**.
 
-![The English model Playground for a synthetic Contoso approval-boundary question in contoso-workshop-en. Inspect the actual input, response, and response ID.](../assets/portal/en/16-model-response.png)
+![Model response example. The answer applies the synthetic Contoso rule supplied in the question to the KRW 2,000,000 approval boundary.](../assets/portal/en/16-model-response.png)
 
-**Reading the screen:** **Model / Instructions / Tools** on the left define the request's conditions; the right side shows user input and the model response. A question that states the synthetic rule itself tests model behavior, not RAG or private company knowledge. It does not execute an inventory lookup, purchase draft, or actual approval.
+**Reading the screen:** **Model / Instructions / Tools** on the left define the request's conditions; the right side shows user input and the model response. This example supplies the synthetic rule in the question, unlike RAG, which retrieves company documents.
 
-![The Parameters dialog for the English model Playground. Check Max Completion Tokens before any approved request.](../assets/portal/en/17-model-parameters.png)
+![Output-limit setting example. Max Completion Tokens is set to 256 in the model Playground's Parameters dialog.](../assets/portal/en/17-model-parameters.png)
 
-**Before running:** Inspect **Parameters → Max Completion Tokens**. The captured demonstration used 256; choose an approved, supported limit for your actual model rather than treating that screenshot value as universal. Keep **Web search** and other unnecessary tools off in this model-only experiment; they can add charges or external data transfer. Do not modify existing agents or policies to match a screenshot. Temperature/Top P control generation variability, not monetary spending caps. Supported options vary by model.
+**Before running:** Set **Parameters → Max Completion Tokens** to an approved limit supported by your model; 256 in the image is an example. Keep **Web search** and other unnecessary tools off in this model-only experiment; they can add charges or external data transfer. Temperature/Top P control generation variability, not monetary spending caps. Supported options vary by model.
 
 For one separately approved, bounded portal request, use this English synthetic input:
 
@@ -948,9 +935,9 @@ A higher total requires approval from both the team manager and the purchasing r
 What approval is required for a total of exactly KRW 2,000,000?
 ```
 
-The **expected** answer is team manager approval. Inspect your actual response and its identifier. Displayed tokens describe that request, not an evaluation score, proof of RAG, or the total lab cost.
+The **expected** answer is team manager approval. Inspect your actual response and its identifier. Displayed tokens describe that request's usage, not the total lab cost.
 
-If a capture or wait times out, inspect the existing response before considering another request. Do not infer raw HTTP status or internal retries from the screen. The CLI path below is a separate execution for learning to read the response object and ID in code; there is no need to make extra calls merely to reproduce an image.
+If the response is delayed, inspect the existing response before considering another request. The CLI path below is a separate execution for reading the response object and ID in code. If following the default terminal exercise, you do not need an additional portal call.
 
 </details>
 
@@ -1121,11 +1108,11 @@ You need project `Foundry User` access, a callable model, and `data/en/prompts/a
 
 Reuse this agent in L05. It **must not claim to have used unavailable tools**. The exercise sends five inputs: two boundary questions, two in the same conversation, and one in a new conversation. Send each only once within the approved scope.
 
-![The Prompt Agent Playground in contoso-workshop-en, with English instructions, model/tools settings, conversation input, and version controls.](../assets/portal/en/04-prompt-playground.png)
+![Prompt Agent configuration example, with English instructions, model/tools settings, conversation input, and version controls.](../assets/portal/en/04-prompt-playground.png)
 
 **Reading the screen:** Check the deployment name under **Model** and the prompt under **Instructions** on the left, then enter test questions in **Chat** on the right. **Version** at the top identifies the configuration version; **New chat** separates conversation contexts. **Save** changes configuration, while **Send** submits a billable request. Confirm your purpose before clicking either.
 
-The screenshot concerns the English lab project; its exact agent state and capture actions are recorded in the [English capture log](../content/portal-screenshots.en.json). If it shows File search or functions already connected, those belong to later integration steps, not the L04 baseline. A visible configuration is not proof that the agent used its tools successfully.
+The image is a configuration example with later integrations. **Save only the instructions in L04.** File search belongs to L05 and function tools to L06, so you do not need to match those connections yet.
 
 ### 2. Check the limits with baseline questions
 
@@ -1269,7 +1256,7 @@ You cannot evaluate RAG quality if you do not know where the correct answers are
 
 ![Tools and Knowledge in the English Contoso agent. Distinguish File search over English policies from the get_stock and prepare_purchase_request functions.](../assets/portal/en/05-agent-tools.png)
 
-**Reading the screen:** On the **File search** card under **Tools**, check the connected store and retrieval settings. Identifiers are masked in the image; use your own store's values. The `get_stock` and `prepare_purchase_request` entries below it are functions covered in L06, not features of file search itself. A tool list in a screenshot does not establish indexing completion or citation accuracy. Check the actual evidence returned for the questions below.
+**Reading the screen:** On the **File search** card under **Tools**, check your own store and retrieval settings. The `get_stock` and `prepare_purchase_request` entries below it are functions covered in L06, not features of file search itself. After indexing completes, ask the questions below and compare the actual citations with the original documents.
 
 ### 3. Test known answers, cross-document reasoning, and unknowns
 
@@ -1803,7 +1790,7 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 **Start here:** Read both instruction files and the fixed questions, then identify what an answer must address.
 
-**What to check:** Explain the comparison conditions and criteria. If you execute the optional path, connect your originals, scores, and reasons outside the guide.
+**What to check:** Explain the comparison conditions and criteria. If you execute the optional path, connect each question's original answers, scores, and judge reasons.
 
 </div>
 
@@ -1823,7 +1810,7 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 ## Prerequisites
 
-**Reading the instructions and questions needs no account or model calls.** This guide does not contain the author's execution results or prewritten scores. Comparing actual answers requires your own collected originals or approved lab results provided separately by your instructor.
+**Reading the instructions and questions needs no account or model calls.** To compare actual answers, use your collected originals or approved lab results provided by your instructor.
 
 | Term | Plain-language meaning |
 | --- | --- |
@@ -1839,7 +1826,7 @@ Use L01's environment and L02's **`gpt-6-sol` / `2026-09-22`** model. Set the ac
 
 Native evaluation needs a separate **`gpt-4.1` / `2025-04-14`** judge and `FOUNDRY_JUDGE_DEPLOYMENT_NAME`. Verify both deployments' actual TPM/RPM in L02. Hosted redeployment, Search, Optimizer, and holdout are not prerequisites.
 
-New execution uses **your own `results/azure-environment.json` and `.env`**. Both languages read back current RG ownership tags, project, deployments, and throughput. An author's old RG or historical validation files are not runtime dependencies. Each comparison creates a collision-resistant Prompt Agent name and pins v1/v2 versions.
+New execution uses **your own `results/azure-environment.json` and `.env`**. The collection code reads back current RG ownership tags, project, deployments, and throughput, creates a collision-resistant Prompt Agent name, and pins v1/v2 versions.
 
 Keep `FOUNDRY_LAB_LANGUAGE=en` selected in the separate English folder. Both instructions receive the same synthetic policy context; this is not live Search retrieval. Expected behavior and grading criteria are excluded from target-model input and supplied only to the judge.
 
@@ -1901,7 +1888,7 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 
 Keep Korean and English input/output paths distinct. Across both languages, collection is bounded to 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count.
 
-When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request. Keep results under your own `results/`; do not insert them into HTML, Markdown, PDF, or the kit.
+When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request.
 
 </details>
 
@@ -1947,7 +1934,7 @@ For 401/403, check your project, caller identity, and roles. For 404, check the 
 
 ## Cleanup
 
-Keep originals and evaluations outside the guide. Manage created agents and evaluation resources using your own ownership records and retention policy; do not delete without separate approval. Do not turn validation results into lab instructions or guaranteed scores.
+Keep the response file `results/instruction-prompt-agent-en.json` and evaluation file `results/instruction-native-prompt-agent-en.json` together. Manage created agents and evaluation resources using your own ownership records and retention policy; do not delete without separate approval.
 
 
 ### Official sources
@@ -2043,7 +2030,7 @@ The L05 agent has no purchasing functions, so **nonexecution alone does not veri
 
 ![Build → Guardrails in contoso-workshop-en. Compare policy Type and Applied to with the English project's model deployments.](../assets/portal/en/11-guardrails.png)
 
-**Reading the screen:** In **Build → Guardrails**, read **Type / Applied to**, not just the policy name. A connected default model policy does not mean that a separate agent tool-stage policy was created or tested. Locate **Create / Blocklists / Integrations**, but do not weaken protections or start a scan during observation. The [English capture log](../content/portal-screenshots.en.json) defines what was observed; it is not a safety certification.
+**Reading the screen:** In **Build → Guardrails**, read **Type / Applied to**, not just the policy name. The image is a default model-policy settings example. Distinguish its target from that of an agent tool-stage policy. Locate **Create / Blocklists / Integrations**, but do not weaken protections or start a scan during observation.
 
 Review current connections in the portal's Guardrails area. If a custom agent guardrail exists, do not assume it simply combines with the model policy. According to the official documentation, **a guardrail explicitly configured on an agent overrides the model policy**.
 
@@ -2157,9 +2144,9 @@ First reuse an L05/L06 run collected after tracing was connected. If none exists
 
 With portal-only results, completing the **portal path** using the response ID is sufficient. Do not fabricate a JSONL file or pass L08's comparison JSON to this JSONL input. The CLI reads only the last 24 hours; read older evidence within the portal's approved retention scope or leave correlation unverified.
 
-![Prompt Agent Traces for the English Contoso project. Locate ID search, version/status/date filters, durations, tokens, and estimated costs without exposing identifying values.](../assets/portal/en/06-traces.png)
+![Execution-list example. Locate ID search, version/status/date filters, durations, tokens, and estimated costs in Prompt Agent Traces.](../assets/portal/en/06-traces.png)
 
-**Reading the screen:** In **Build → Agents → your agent → Traces**, first set **Date range** and **Version**. Search using your own English run's trace/conversation/response ID, then open a row to inspect individual operations. **Completed** means execution finished, not that the answer was correct. Use the [English capture log](../content/portal-screenshots.en.json) for the exact observation scope; do not treat historical Korean trace IDs as evidence for this run.
+**Reading the screen:** In **Build → Agents → your agent → Traces**, first set **Date range** and **Version**. Search using your own run's trace/conversation/response ID, then open a row to inspect individual operations. **Completed** means execution finished, not that the answer was correct.
 
 Find the following in the trace.
 
@@ -2345,13 +2332,13 @@ FOUNDRY_EMBEDDING_ENDPOINT=https://your-foundry-resource.openai.azure.com
 
 ### 1. Create a new index and knowledge base
 
-![Build → Knowledge for contoso-workshop-en, with the English Search connection using Project Managed Identity. Inspect knowledge bases, indexes, and the selected Search resource.](../assets/portal/en/09-knowledge.png)
+![Knowledge-list example with a Search connection using Project Managed Identity. Inspect knowledge bases, indexes, and the selected Search resource.](../assets/portal/en/09-knowledge.png)
 
-**Read the screen:** Under **Build → Knowledge**, distinguish **Knowledge bases / Indexes**. Creating an index/KB through the SDK does not automatically complete the portal binding. In the English run, the owned Search resource was connected through the portal using **Project Managed Identity**, without keys; the **free IQ plan remained unchanged**.
+**Read the screen:** Under **Build → Knowledge**, distinguish **Knowledge bases / Indexes**. Creating an index/KB through the SDK does not automatically complete the portal binding. Check the selected Search resource and **Project Managed Identity** connection.
 
 For your own approved connection, select the Search resource matching the English environment receipt, choose **Project Managed Identity** as the authentication type, and connect only after the administrator verifies its required scoped Search permissions. If the connection already exists, inspect it rather than recreating it. Do not select **API Key**, expose keys, or upgrade the IQ plan merely to match the screenshot. The IQ plan is separate from the Search service tier; retaining a free IQ plan does not make the Search service, embeddings, or other model calls free.
 
-The [English capture log](../content/portal-screenshots.en.json) records the exact observed scope, not a retrieval-quality certificate. If the list is not yet visible, compare the target in the English checkout's `results/search.json` with the portal binding instead of recreating a preserved service or index.
+If the list is not yet visible, compare the target in the English checkout's `results/search.json` with the portal binding instead of recreating an existing service or index.
 
 ```bash
 python samples/search_lab.py initialize
@@ -2643,9 +2630,9 @@ and the actual selections from both models are displayed together. Required draf
 
 ### 3. Deploy only to a prepared project
 
-![Build → Agents in contoso-workshop-en. Compare Prompt/Hosted types and actual numeric versions for the separate English deployments.](../assets/portal/en/03-agents.png)
+![Agent-list example. Locate Type, Version, and status under Build → Agents.](../assets/portal/en/03-agents.png)
 
-**Read the screen:** Use **Type** to distinguish Hosted/Prompt and **Version** to identify the code/definition version. Open the name to inspect the deployment settings and protocol, and compare the version with CLI `show`. The version numbers in the image are examples from the captured environment, not values to copy. **Running does not by itself establish whether individual session compute is active, what the total cost is, or whether business quality checks passed.**
+**Read the screen:** Use **Type** to distinguish Hosted/Prompt and **Version** to identify the code/definition version. Open the name to inspect deployment settings and protocol, and use your own version from CLI `show` rather than copying the image's numbers. Check individual session compute, costs, and business responses separately from the list's **Running** status.
 
 If the administrator created the environment using the bundled IaC from L01:
 
@@ -2704,9 +2691,9 @@ Use the actual version from `show`. Invoke it in a new version-bound session and
 A mismatch between the local package contract and remote contract causes failure.
 If there is no trace ID, leave it recorded as not collected rather than guessing.
 
-Deployment and session management use azd. To collect the response body, the bundled Invocations client sends
-**an Entra-authenticated HTTP JSON request to the endpoint returned by the service**. This addresses an observed case in which
-extra output appeared in azd stdout in CI; do not assume CLI display output is a stable API JSON contract.
+Deployment and session management use azd. The bundled Invocations client sends
+**an Entra-authenticated HTTP JSON request to the endpoint returned by the service** and reads its response body.
+Inspect those response fields rather than parsing CLI display output.
 
 ### 5. Verify the basic tools in action
 
@@ -2719,8 +2706,6 @@ When connecting a separate Toolbox, retain L07's authentication principal and on
 
 You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
 Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
-
-A working package or a historical native score does not validate a new instruction edit. Keep the invoked version and its actual results together outside the guide.
 
 ## Troubleshooting
 
@@ -3188,9 +3173,9 @@ Follow **create store → store one item → compare A/B searches → delete onl
 
 ### 1. Create a dedicated store
 
-![The Memories tab in contoso-workshop-en shows the stored English preference for synthetic user A. The scope selector and scope identifier are masked; the preference text remains visible.](../assets/portal/en/10-memory.png)
+![Stored-item example. The Memories tab shows synthetic user A's English preference for table-formatted answers.](../assets/portal/en/10-memory.png)
 
-**Read the screen:** The screenshot shows **Build → Memory → your store → Memories** after the remember step below. Enter the exact synthetic scope from your own receipt; the default `{{$userId}}` filter is not this lab's user-A scope. The English preference is visible, while generated scope identifiers are masked. Use **Details** to check the chat/embedding models, 3600-second TTL, and profile-only configuration. The [English capture log](../content/portal-screenshots.en.json) records the observation scope. The separate API checks—not this screenshot—verify user isolation and later deletion of the synthetic item.
+**Read the screen:** The image shows **Build → Memory → your store → Memories** after the remember step below. Enter the exact synthetic scope from your own receipt; the default `{{$userId}}` filter is not this lab's user-A scope. Use **Details** to check chat/embedding models, TTL, and memory types. Follow steps 2–4 below to check storage, user-specific searches, and separately approved deletion.
 
 ```bash
 python samples/memory_lab.py create
@@ -3447,9 +3432,9 @@ Open the `Evidence:` original beside its receipt and connect **same agent → af
 
 ### 3. Recheck the stopped state
 
-![Build → Agents → Routines in contoso-workshop-en. Inspect each English policy timer's target, trigger, last run, and actual enabled or paused state.](../assets/portal/en/12-routines.png)
+![Paused-schedule list example. Inspect the target agent, trigger, last run, and Paused state under Build → Agents → Routines.](../assets/portal/en/12-routines.png)
 
-**Read the screen:** Under **Agents → Routines**, first find your English schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. A **Last run** value does not prove that the business output was correct; connect it to your trace/response from the previous step. The [English capture log](../content/portal-screenshots.en.json) records observation scope, not evidence that your own timer ran or stopped.
+**Read the screen:** Under **Agents → Routines**, first find your schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. Connect **Last run** to your trace/response from the previous step and inspect the business output.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live
@@ -3766,7 +3751,7 @@ Record temporary roles, policies, gateways, and connections, and revoke/remove t
 
 ## Prerequisites
 
-Use L01's environment and repository sources. **Search, Hosted, and Optimizer are not prerequisites for the default exercise.** Use L06/L12 results for a real manifest; without them, complete it as a design. Do not change the educational v1/v2 or historical evidence.
+Use L01's environment and repository sources. **Search, Hosted, and Optimizer are not prerequisites for the default exercise.** Use L06/L12 results for a real manifest; without them, complete it as a design.
 
 ### Choose your starting path
 
@@ -3816,7 +3801,7 @@ python scripts/check_guide.py
 | 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Azure calls. |
 | 2. `build_guide.py` | Generate both HTML/Markdown editions from sources and metadata. | Local file changes; do not edit generated output manually. |
 | 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Azure or model quality. |
-| 4. `check_guide.py` | Check 20 modules and five reference sections, command explanations, links, and capture provenance. | Write documentation checks only to private `results/documentation/`. |
+| 4. `check_guide.py` | Check 20 modules and five reference sections, command explanations, links, and image files. | Save documentation checks to `results/documentation/`. |
 
 </div>
 
@@ -3889,7 +3874,7 @@ This is a **Contoso worksheet example**. Where actual identifiers/results are ab
 | Evidence | Same-target response/trace, actual tool results, applied evaluation and failures/missing rows | L08's 12 tool-free questions do not approve an integrated business release |
 | Recovery | Previous approved version/configuration bundle, owner, data compatibility | Hold deployment without a viable target and compatible state |
 
-For L06's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. L12 Hosted also requires package/runtime contract comparison. Using instruction v2 does not validate Hosted code; inspect your actual target and evidence scope.
+For L06's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. For L12 Hosted, also compare the package/runtime contract, response, tools, and citations for the same version.
 
 **Why publishing/version management belongs in CI/CD:** Deployment creates a runnable version; promotion selects a validated version for users; publishing exposes it through a channel such as Teams. Rollback restores the previously approved selection.
 
@@ -4059,7 +4044,7 @@ python scripts/cost_status.py
 | 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
 | 2. `routine_lab.py stop --live` | Disables the schedule recorded in the default `results/routine.json`. If you used another receipt, specify `--receipt` as in L16. | Changes actual schedule state. Does not delete other schedules or resource groups. |
 | 3. `azure_environment.py status --live` | Reads and checks the Azure environment recorded in the ownership receipt. | Sends Azure read requests and records status. No model inference. |
-| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure; writes private `results/operations-status.json`, not the preserved public validation original. Run only when that inspection is approved. |
+| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure; writes private `results/operations-status.json`. Run only when that inspection is approved. |
 | 5. `cost_status.py` | Queries ActualCost by service from the owned English resource group's creation time to the present. Reads the real billing API without `--live`. | Requires approval for cost inspection and writes private `results/cost-status.json`. Empty billing rows do not prove zero cost. |
 
 </div>
@@ -4067,7 +4052,7 @@ python scripts/cost_status.py
 Use each command only if you ran the corresponding lab and have its receipt.
 The final two commands are **read-only Azure queries scoped by ownership receipts**.
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
-it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also discovers owned routine receipts under `results/` when L16 used a custom `--receipt` filename, rather than substituting a historical validation record for current state.
+it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also finds owned routine receipts under `results/` to query current state when L16 used a custom `--receipt` filename.
 `cost_status.py` queries only actual costs posted to the new resource group. It does not report empty cost rows as USD 0.
 **In a no-deletion environment, retain owned Azure resources until explicit deletion approval.**
 Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
@@ -4183,9 +4168,9 @@ Inspect your own bilingual comparison files, keeping each language's results sep
 | 404 | Project endpoint, model deployment name, and agent version | Copy the values again from the portal | Assume the model ID and deployment name are the same |
 | 429 | RPM/TPM, judge quota, and concurrency | Reduce input/concurrency, honor Retry-After, and use bounded retries | Invoke repeatedly in an infinite loop |
 | Deployment fails despite available quota | Capacity, deployment type, region, and access restrictions | Consider another approved deployment combination | Ignore country/region policies |
-| Resource group shows an inherited diagnostic-policy failure | Whether the failing target is the external governance workspace rather than owned lab infrastructure | Preserve the warning and refer it to the governance owner; this English run's own foundation/observability deployments succeeded | Hide the failure or repair out-of-scope policy/workspace resources |
+| Resource group shows an inherited diagnostic-policy failure | Whether the failing target is an external governance workspace or owned lab infrastructure | Preserve the warning and refer an external dependency to the governance owner | Hide the failure or repair out-of-scope policy/workspace resources |
 | Connection timeout | DNS, proxy, private endpoint, and firewall | Check from an environment inside the approved VNet | Enable public access just to pass |
-| Remote Hosted request times out before the server budget | Invocations client version and recorded session state | Use the corrected 310-second local/remote client timeout with the unchanged 300-second server budget; inspect existing evidence before a bounded retry | Assume the old 60-second timeout proves nonexecution or extend requests indefinitely |
+| Remote Hosted request times out | Client/server timeouts, logs, and recorded session state | Inspect the existing request and session before a separately approved, bounded retry | Assume a client timeout means the server did nothing or extend requests indefinitely |
 | `PublicNetworkAccessDisabled` | Whether execution is taking place on an approved path | Use a supported path such as a VPN or development VM | Disable resource security |
 | `ImportError` / missing module | Python path, venv, and requirements | Install/run using that venv's Python | Indiscriminately reinstall with global pip |
 | Dependency conflict | Mixed core/advanced environments | Separate the two requirements sets and venvs | Force an upgrade of just one package to the latest version |
@@ -4193,26 +4178,19 @@ Inspect your own bilingual comparison files, keeping each language's results sep
 | English guide produces Korean inputs | `FOUNDRY_LAB_LANGUAGE`, explicit file paths, and packaged `lab-profile.json` | Reselect `en` in this terminal as in L01, use `data/en/` files, and rebuild an English package if necessary | Assume the browser language changes runtime data or overwrite a Korean package/receipt |
 | Agent claims tool success without a call | Actual tool calls and traces | Inspect the prompt and tool registration | Trust the natural-language answer alone |
 | Function tool stalls | Whether the client execution loop exists | Use the SDK runner or move to Hosted | Expect the portal to execute a local function |
-| Hosted output has multiple JSON objects or is `incomplete` | Pending function-call context and completed tool results | Use the bounded two-round tool phase followed by the separate tool-free answer; preserve the original failure | Raise the 2048-token limit, drop strict JSON/citations, or call one corrected case a full dev pass |
+| Hosted output has multiple JSON objects or is `incomplete` | Pending function-call context and completed tool results | Inspect the tool outputs and final answer separately; retain the original error | Raise the output limit or disable JSON/citation checks just to pass |
 | `duplicate_tool_request` for a draft | The rejection's `duplicate_of` and original successful call | Verify exactly one executed draft and preserve both records | Count the rejected repeat as another draft or hide its error |
 | No file search results | Ingest status, store ID, and file contents | Check the file → store → agent connection order | Treat upload completion as indexing completion |
 | Correct answer without citations | Actual annotations and original text | Preserve/display citations in the UI | Treat a filename string as evidence |
-| Read-only `get_stock` ran in a no-tool case | The frozen case's forbidden-tool contract and actual call log | Retain the failed result even when no draft or external business action occurred | Redefine read-only calls as non-tools or relax the case after the holdout |
 | Native judge accepts a refusal but the gate fails | Required policy evidence and code-based checks | Preserve missing-evidence failures, including critical safety failures, and keep release blocked | Assume refusal wording alone satisfies the contract |
-| `Model-selected citations omitted required policy evidence` on an FX/branch question | The frozen case oracle versus keyword-derived runtime obligations | Diagnose “approved exchange rate” and negated draft wording as potential over-broad intent matching; correct a new candidate and repeat complete dev validation | Auto-fill references, weaken the oracle, rewrite the failed response, or open holdout after an incomplete dev run |
-| Optimizer list API returns HTTP 500 | Exact project, retained service error and known job receipts | Use bounded GET for recorded job IDs and scoped SDK session readbacks; explicitly leave the global inventory unverified | Claim all project jobs are idle from a failed list response |
-| Optimizer reports “perfect scores” but has errored rows | Full native `result_counts` and all downloaded output items | Preserve errored or missing rows as operational failure; distinguish task-adherence scoring from the business release gate | Average only successful rows or use service success text to override errors |
-| Recorded candidate differs from its development freeze | Runtime, active prompt, judge, policy, and dev hashes | Preserve the seal and start a new experiment if code must change; the new exam is still not release evidence | Reseal the same exam around changed code or resample consumed exam cases |
-| Optimizer hits its job deadline | Preserved `optimizer_progress`, `optimizer_timeout`, terminal/outcome and cleanup receipts | Distinguish deadline expiry from an established service-side cause; retain the original limit and inspect bounded cleanup | Automatically extend the job, lower gates, or call baseline-only scoring an improvement |
-| More sessions appear after Optimizer cancellation | SDK session inventory, exact baseline/draft version, candidate ID and resolver ownership | Use six bounded reconciliation sweeps and same-ID stopped readbacks; retain unknown/unsettled sessions as unverified | Rely only on CLI listing, a `cand_` prefix, or the terminal timestamp cutoff |
 | IQ permission leak | ACL metadata, user token, and server validation | Trace permissions from the source through query time | Control access only through prompts |
 | MCP does not continue after approval | Approval request ID and the same conversation | Return the correct approval response | Automatically approve every request |
 | Toolbox 403 | Developer identity, agent identity, and user delegation | Give the actual calling principal minimum permissions | Assume creator permissions are inherited automatically |
 | OpenAPI MCP argument validation fails | The inspected tool's `inputSchema` | Keep `api-version` at the top level and put `search`, `top`, and `select` inside `body`, as in L07 | Flatten the body fields or substitute the Microsoft Learn `query` schema |
 | Evaluation is `Partial` | Required evaluator fields, judge quota, and tool runtime | Identify and rerun the failed evaluator | Average only the completed subset |
-| Missing/`null` result at the automated gate | Incomplete code/native evidence or evaluator errors | Inspect the preserved originals and rerun only the failed evaluator under unchanged criteria when justified; human review remains optional | Fill values with `true`, lower gates, or recollect the sealed holdout until it passes |
+| Missing/`null` result at the automated gate | Missing required results or evaluator errors | Inspect original results and required fields; keep unknown values unresolved | Fill values with `true` or lower the criteria |
 | No trace | App Insights connection, permissions, time range, and ingestion delay | Compare the existing response ID and query scope first | Repeated model calls or treating an empty screen as proof of no errors |
-| Request correlation is complete but model spans are partial | Span type, bounded query scope, and the request/model distinction | Report the observed English scope: 10/10 request trace IDs, only 7 model-response spans in the mixed query | Claim all 10 model spans were observed or invent missing spans |
+| Request correlation is complete but model spans are partial | Span types, instrumentation, and query filters | Record request-correlation and model-span counts separately, then inspect missing spans | Treat the two counts as equivalent or invent missing spans |
 | Memory is not visible | Scope, new conversation, and update delay | Inspect the item/retrieval directly | Judge memory solely from output formatting |
 | No response after publishing to Teams | Active version, Bot route, and tool execution location | Test publishing and actual invocation separately | Treat an app listing as final success |
 | Costs keep increasing | Routines, voice, continuous evaluation, Search/PTU/runtime | Separate active, idle, and fixed costs | Only close the browser |
@@ -4220,7 +4198,7 @@ Inspect your own bilingual comparison files, keeping each language's results sep
 
 ## Administrator handoff
 
-The inherited external diagnostics dependency remains for its governance owner to confirm. This instruction update does not query the external workspace, change policy/access, or perform remediation. Keep exact resource/correlation IDs in approved private channels and never hide a prior failure or add broad roles just to pass a lab.
+Refer errors involving external diagnostics workspaces or organizational policy to the governance owner. Share exact resource/correlation IDs through approved private channels. Do not query external resources or change policy/access without the owner's approval, hide an error, or add broad roles to bypass it.
 
 ## Safe information to include in a support request
 
@@ -4244,7 +4222,7 @@ Redact internal endpoints and tenant/subscription IDs as appropriate for the aud
 
 ## When the screen differs from the documentation
 
-First check the new/Classic portal, Preview access, tenant rollout, region, and RBAC. If button names differ, consult official sources based on **the resource and action you intend to create or perform**. Compare the English screenshots with their [capture log](../content/portal-screenshots.en.json); do not treat the earlier Korean images as current English evidence. Tasks, fields, and completion criteria take precedence over matching a screenshot.
+First check the new/Classic portal, Preview access, tenant rollout, region, and RBAC. If button names differ, consult official sources based on **the resource and action you intend to create or perform**. Follow the step's tasks, fields, and success criteria rather than matching a screenshot.
 
 
 ### Official sources
@@ -4279,11 +4257,11 @@ Default web progress is **11 core modules plus wrap-up**, advanced progress is *
 
 Start with **block destination → one command → expected-result comparison**, rather than more background reading. In a new terminal, recheck L01's Python path and English profile. Use L06's `Read again` to inspect originals, functions, and citations; do not rerun `capstone --live` just to see a saved result.
 
-Recheck GA/Preview status, regions, and model support against official sources. The initial source check was on 2026-09-29. Consult [content/portal-screenshots.en.json](../content/portal-screenshots.en.json) for the English project's actual capture times and scope; do not reuse the old Korean capture date as proof of a new observation. Neither a source date nor a screenshot means the material remains current forever.
+Before the workshop, recheck GA/Preview status, regions, and model support against official sources. For unavailable features, guide learners to the chapter's reading, local, or design path.
 
 Have learners first explain each chapter's **Concepts and lab map** in their own words. After they locate the relevant portal screen, connect it to why the CLI is needed. Allow execution only after they read the **Result / cost or changes** column in the command walkthrough. Encourage pauses between plan → execute → verify instead of copying an entire group of commands at once.
 
-Account and identifying information in the images has been deliberately redacted. Tell learners not to copy example agent names, versions, or trace IDs as their own execution values. **Portal observation / local execution / paid model calls / deployment / permission changes / deletion** involve different approvals and outcomes. If a screen differs, check region, permissions, project, and UI timing; do not create resources just to force a match with the image.
+Have learners use their own agent names, versions, and trace IDs rather than the examples. Check the approval scope for **portal observation / local execution / paid model calls / deployment / permission changes / deletion** separately. If a screen differs, first check region, permissions, and project; do not create resources just to match an image.
 
 Prepare the English class in a **separate clean checkout/worktree**, with its own `.env`, `.azure/`, and `results/`, and an approved English project such as `contoso-workshop-en`. Have every learner select `FOUNDRY_LAB_LANGUAGE=en` using L01's shell-specific command, and reselect it in every new terminal. The HTML language switch does not choose the runtime corpus. Use only `data/en/` inputs and English-bound Hosted packages; never copy Korean private settings, receipts, or completed results.
 
@@ -4332,7 +4310,7 @@ L08 is a **12-question fixed dev comparison using a tool-free Prompt Agent**.
 It does not reuse L05/L06 retrieval/function results; Search, Hosted, Optimizer, and holdout are not prerequisites.
 L09 separately inspects harmless boundary questions and L06 function evidence; L10 correlates actual L05/L06 responses with traces.
 L07's local steps 1–2 are required in the core course; cloud Toolbox/Skills are optional extensions.
-Integration review is consolidated into L06; publishing and active-version management are in L18 CI/CD. L18 is optional for deployment/operations owners, and organizational publishing access is not a core completion requirement.
+Review integration in L06 and publishing/active-version management in L18 CI/CD. L18 is optional for deployment/operations owners, and organizational publishing access is not a core completion requirement.
 
 | Path type | Modules | How to proceed |
 | --- | --- | --- |
@@ -4356,7 +4334,7 @@ Choose second-day work by team goals.
 
 ## Completion record
 
-The table below is an **educational completion record**, not service certification or a score.
+Use this table to record the learner's **executed, design, or not-executed status and checked results**.
 
 | Module/target | Executed / design / not executed | Evidence ID or file | Pass/fail | Unresolved items |
 | --- | --- | --- | --- | --- |
@@ -4372,9 +4350,6 @@ This record is separate from the web guide's progress checkboxes. Browser progre
 
 Use L08's same 12 composite development questions once with the educational v1 baseline and improved v2. Keep model, context, output format, and evaluation criteria identical. Have learners explain the actual per-row answers and native reasons; ties and regressions are valid observations, not reasons to resample.
 
-No Optimizer, new holdout, or repeated release run is required for the lesson. The separate full business gates remain strict and are not replaced by the small learning checklist.
-Keep execution records outside the reader and kit. Portal images retain their original capture provenance and do not validate a new instruction edit.
-
 ## Coaching the later modules
 
 ### Require an explanation of the before/after change
@@ -4389,8 +4364,6 @@ The reinforced L13, L14, L17, and L18 exercises follow **Try it → Change one t
 
 Flawed code and tests under `data/exercises/` are teaching originals. Learners repair **only exercise.py** in their `practice/` copy. Never weaken global tests/evaluation criteria or overwrite originals. Preparation rejects an existing destination; choose another folder for a fresh attempt.
 
-Local code/SDK contract checks do not establish real Azure calls, permission changes, or deployment. Optional service waits and approvals are outside the hands-on time estimates.
-
 Ask each learner **“Which value is evidence → what decision follows → what do you inspect first on failure?”** If that explanation is missing, revisit evidence for the same case rather than adding another feature.
 
 | Module | Minimum learning artifact | Judgment to check |
@@ -4400,7 +4373,7 @@ Ask each learner **“Which value is evidence → what decision follows → what
 | L17 | Identity/access table and cache boundary | Adapt worked examples to the learner's input/owners and mark unknowns |
 | L18 | CI interpretation and agent release/rollback manifest | Separate documentation generation, Azure deployment, and business release approval |
 
-Synthetic trace timings, Red teaming counts, and design tables are **teaching examples**. Do not copy them into actual Azure evidence fields. Without service access, record design/interpretation complete and execution incomplete separately. This does not replace or weaken existing evaluation gates.
+Synthetic trace timings, Red teaming counts, and design tables are **teaching examples**. Do not copy them into actual Azure evidence fields. Without service access, record design/interpretation complete and execution incomplete separately.
 
 ## Failure signals instructors should watch for
 
@@ -4548,24 +4521,24 @@ Policy answers have real evidence, and answers are withheld when information is 
 
 **Reference · Traceable coverage**
 
-> **Coverage is explicit.** The official capability map and reference connect each capability group to labs, design exercises, or reference material.
+> **Find the learning path for a capability.** Use this map to choose a lab, design exercise, or reference section.
 
-There are **68 coverage entries** across 20 modules. This is not a count of individual product APIs or models.
+There are **68 capability mappings** across 20 modules.
 
 ## How to read the coverage levels
 
 | Depth | Meaning | Entries |
 | --- | --- | ---: |
-| Direct lab | An executable main path or local exercise is provided. This does not mean every subfeature in the row was run in the cloud. | 21 |
+| Direct lab | Run the main capability through code, the portal, or a local example and inspect the result. | 21 |
 | Conditional lab | Follow the steps only when the required resources, permissions, licenses, and Preview access are available. | 18 |
-| Design | Design the decision criteria, configuration, and failure, permission, and operational checks. No real change is performed. | 21 |
-| Reference | Understand product boundaries and the current official implementation path. Not counted as a full implementation lab. | 8 |
+| Design | Plan configuration, permissions, and failure handling. Actual resource changes require separate approval. | 21 |
+| Reference | Read about the capability and its official implementation path. | 8 |
 
-**A status label is not an unconditional guarantee for an entire row.** Check the source for API, SDK, portal, model, and regional details. If permissions or quota prevent a run, record it as not executed.
+**Check availability before running.** Use the linked sources for supported APIs, SDKs, portal features, models, and regions. If permissions or quota are missing, follow the chapter's reading or design path.
 
 ## Capabilities mapped to labs
 
-| Area | Capability group | Module | Depth | Availability / verification scope | Evidence |
+| Area | Capability group | Module | Depth | Availability / requirements | Official source |
 | --- | --- | --- | --- | --- | --- |
 | Developer surfaces | New Foundry portal / Discover, Build, Operate, Manage | [L00](#l00) | Direct lab | GA / some Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Developer surfaces | Model, Agent, and Image playgrounds / Video playground | [L02](#l02) | Conditional lab | GA / Video Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
@@ -4646,19 +4619,18 @@ There are **68 coverage entries** across 20 modules. This is not a count of indi
 
 <a id="sources"></a>
 
-# E. Sources, currency, and execution boundaries
+# E. Official sources and feature availability
 
 **Reference · Official documentation**
 
-> **Foundational sources reviewed: 2026-09-29 / Execution APIs rechecked: 2026-09-30, Asia/Seoul.** A review date does not make a source permanently current.
+> **Before using a feature:** Check official documentation for supported APIs/SDKs, regions/models, permissions, and licenses.
 
-## How we assessed currency
+## Use the official documentation
 
-We compared Microsoft Learn overviews, the capability reference, GA tables, feature documentation, and official SDK examples.
-Portal GA is distinct from individual feature GA. Where API, region, or access scopes differ, the guide uses the narrower claim.
-The monthly What's new roundup then covered August 2026; it was not relabeled as all September changes.
+Use Microsoft Learn overviews and the capability reference for concepts, and feature documentation and GA tables for availability.
+Compare code with official examples for your installed SDK version. A GA portal does not mean every individual feature is GA.
 
-## Boundaries to remember
+## Feature-specific conditions
 
 | Topic | Treatment |
 | --- | --- |
@@ -4670,107 +4642,95 @@ The monthly What's new roundup then covered August 2026; it was not relabeled as
 | Content Understanding | Distinguish 2025-11-01 GA and 2026-06-01-preview |
 | SDKs | Separate installable core and advanced combinations |
 
-## Instructions and execution boundaries
+## Official document list
 
-The learning instructions use only **baseline v1 and improved v2**. L08 compares the same questions, context, model, and checks once.
-The label v2 does not establish a score increase.
-
-Keep actual responses, evaluations, traces, and cost records in your own `results/`, outside the guide and kit.
-Structure, browser, and PDF checks validate local documentation, not Azure execution or model quality.
-The fixed 12-question dev comparison is distinct from an independent holdout, generalization test, or release approval. Do not write scores or completion claims without actual execution.
-
-Screenshots are actual portal observations from their recorded capture times, not new v2 execution or quality evidence.
-Optional features, policy/access changes, cost queries, deletion, merges, and publication each require the applicable separate approval.
-
-## Public official sources
-
-| ID | Document | Basis for verification | Used for |
-| --- | --- | --- | --- |
-| `native-eval` | [Evaluate your AI agents](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluate-agent) | 2026-09-30: documentation, official SDK examples, and calls in the new environment checked | Native evaluators, mapping actual responses and tools, and retaining scoring errors and omissions |
-| `iq-retrieve` | [Query a knowledge base using retrieve or MCP](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-retrieve) | 2026-09-30: documentation and GA retrieve calls in the new environment checked | 2026-04-01 intents/extractive, references/sourceData |
-| `incoming-a2a` | [Enable incoming A2A on a Foundry agent](https://learn.microsoft.com/azure/foundry/agents/how-to/enable-agent-to-agent-endpoint) | 2026-09-30: documentation, agent card, and delegation in the new environment checked | Distinguish the v1 agentCard route from default resolution of tools targeting Foundry |
-| `optimizer-targets` | [Optimize agent instructions, skills, tools, and models](https://learn.microsoft.com/azure/foundry/agents/how-to/optimize-agent-targets) | 2026-09-30: documentation and a bounded job execution checked | Responses only, reflection-capable models, explicit instruction targets; a baseline-only result is not an improvement |
-| `overview` | [What is Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/what-is-foundry) | Documentation reviewed directly | The new portal, Prompt/Hosted agents, Responses, SDK 2.x, and comparison with Classic |
-| `ga` | [Microsoft Foundry portal general availability overview](https://learn.microsoft.com/azure/foundry/concepts/general-availability) | Documentation reviewed directly | Portal GA versus individual feature status; Workflows scheduled to retire on 2026-12-01 |
-| `capabilities` | [Microsoft Foundry product and capability map](https://learn.microsoft.com/azure/foundry/concepts/capabilities) | Documentation reviewed directly | Product boundaries and selection criteria |
-| `capability-reference` | [Microsoft Foundry capability reference](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) | Documentation reviewed directly | The basis for this guide's capability-group coverage |
-| `news` | [What's new in Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/whats-new-foundry) | Documentation reviewed directly | The monthly roundup showed August 2026 when reviewed; it is not presented as a September release list |
-| `setup` | [Set up Microsoft Foundry resources](https://learn.microsoft.com/azure/foundry/tutorials/quickstart-create-foundry-resources) | Official reference | Create a project and copy its endpoint |
-| `rbac` | [Role-based access control for Microsoft Foundry](https://learn.microsoft.com/azure/foundry/concepts/rbac-foundry) | Documentation reviewed directly | Foundry role renaming, Agent Consumer, quota permissions, and management versus data plane |
-| `models` | [Foundry Models sold by Azure](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure) | Documentation reviewed directly | Recheck models, versions, features, deployment types, and regions at execution time |
-| `deployment-types` | [Deployment types for Microsoft Foundry Models](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) | Documentation reviewed directly | Global / Data Zone / geography, PTU, Batch, Developer, Flex, Priority |
-| `router` | [Model router for Microsoft Foundry](https://learn.microsoft.com/azure/foundry/openai/concepts/model-router) | Documentation reviewed directly | Balanced/Cost/Quality, subsets, fallback, and a routing pool that changes over time |
-| `sdk` | [Get started with Microsoft Foundry SDK](https://learn.microsoft.com/azure/foundry/quickstarts/get-started-code) | Documentation reviewed directly | AIProjectClient.get_openai_client, Responses, and Conversations |
-| `responses` | [Responses API quickstart](https://learn.microsoft.com/azure/foundry/agents/quickstarts/responses-api) | Official reference | The new agent/model API; check support in each SDK |
-| `prompt` | [Create a prompt agent](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-agent) | Documentation reviewed directly | PromptAgentDefinition, create_version, and Entra authentication |
-| `files` | [File search tool for agents](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/file-search) | Documentation reviewed directly | Uploads, waiting for indexing, vector stores, additional costs, and cleanup |
-| `functions` | [Use function calling with Microsoft Foundry agents](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/function-calling) | Documentation reviewed directly | The client executes the function, not the model |
-| `toolbox` | [What is Toolbox in Foundry?](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) | Documentation reviewed directly | Managed MCP endpoints, versions, Tool search/Skills Preview, and direct-only tools |
-| `toolbox-how` | [Create and manage a toolbox in Foundry](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/toolbox) | Documentation reviewed directly | SDK, CLI, and Toolkit support varies by tool type |
-| `mcp` | [Connect agents to Model Context Protocol servers](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/model-context-protocol) | Documentation reviewed directly | Connections, authentication, allowed tools, and approval |
-| `openapi` | [Connect agents to OpenAPI tools](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/openapi) | Documentation reviewed directly | OpenAPI 3.0/3.1, authentication, and operationId |
-| `evaluation` | [Run evaluations from the Microsoft Foundry portal](https://learn.microsoft.com/azure/foundry/how-to/evaluate-generative-ai-app) | Documentation reviewed directly | Agent/Model/Dataset evaluation, single-turn versus Preview conversations, and field mapping |
-| `eval-schema` | [Evaluation dataset schema in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluation-dataset-schema) | Official reference | Check the input contract of the actual evaluator |
-| `guardrails` | [Guardrails and controls overview](https://learn.microsoft.com/azure/foundry/guardrails/guardrails-overview) | Documentation reviewed directly | Models GA / Agents Preview, four intervention points, and custom agent policy overrides |
-| `redteam` | [AI red teaming agent](https://learn.microsoft.com/azure/foundry/concepts/ai-red-teaming-agent) | Official reference | Test only authorized non-production targets; check the GA table and feature-specific status |
-| `observability` | [Observability in generative AI](https://learn.microsoft.com/azure/foundry/concepts/observability) | Documentation reviewed directly | Playground evaluation may be enabled by default and incur charges |
-| `trace` | [Set up tracing in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/observability/how-to/trace-agent-setup) | Documentation reviewed directly | App Insights connections, server/client tracing, and separate log permissions |
-| `monitor` | [Monitor agents with the Agent Monitoring Dashboard](https://learn.microsoft.com/azure/foundry/observability/how-to/how-to-monitor-agents-dashboard) | Official reference | Check the specific availability of monitoring and continuous evaluation |
-| `publish` | [Publish agents to Microsoft Copilot and Teams](https://learn.microsoft.com/azure/foundry/agents/how-to/publish-copilot) | Documentation reviewed directly | Stable endpoints, active versions, Just you/organization, Bot Service permissions, and private-network limitations |
-| `agent-settings` | [Configure your agent endpoint and settings](https://learn.microsoft.com/azure/foundry/agents/how-to/configure-agent) | Official reference | Pinned versions versus Always use latest |
-| `costs` | [Plan and manage costs for Microsoft Foundry](https://learn.microsoft.com/azure/foundry/concepts/planning) | Official reference | Costs span multiple services; no fixed workshop cost is guaranteed |
-| `iq` | [What is Foundry IQ?](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) | Documentation reviewed directly | A Search-based knowledge layer; partially GA, portal Preview |
-| `iq-connect` | [Connect Foundry IQ to Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/foundry-iq-connect) | Documentation reviewed directly | MCP, Search permissions, and propagation of the user's query-time permissions |
-| `search-migration` | [Migrate agentic retrieval code to the latest version](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-migrate) | Documentation reviewed directly | The scope of 2026-04-01 stable versus 2026-08-01-preview; non-minimal reasoning and other Preview features |
-| `search-rag` | [Retrieval-augmented generation in Foundry](https://learn.microsoft.com/azure/foundry/concepts/retrieval-augmented-generation) | Official reference | RAG and the roles of hybrid, vector, and semantic retrieval |
-| `hosted` | [Deploy your first hosted agent](https://learn.microsoft.com/azure/foundry/agents/quickstarts/quickstart-hosted-agent) | Documentation reviewed directly | azd code deployment: scaffold, provision, run, deploy, and invoke |
-| `hosted-concepts` | [What are hosted agents?](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) | Official reference | Responses/Invocations/WebSocket protocols and runtime selection |
-| `cli` | [Develop agents with the Azure Developer CLI](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) | Official reference | azd and the microsoft.foundry extension |
-| `canvas` | [Foundry Agent Canvas](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) | Official reference | A visual development surface, distinct from portal Workflows |
-| `vscode` | [Microsoft Foundry Toolkit for Visual Studio Code](https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code) | Official reference | Toolkit, local tracing, and the inspector |
-| `maf` | [Agents in Workflows — Microsoft Agent Framework](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) | Search results and code examples checked | FoundryChatClient and WorkflowBuilder; SDK contracts checked in a separate environment |
-| `a2a` | [Connect agents to other agents with A2A](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/agent-to-agent) | Official code examples checked | Agent-to-agent calls; user delegation and data permissions are separate concerns |
-| `workflow-retire` | [Build a workflow in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/agents/concepts/workflow) | GA table and official reference | Portal Workflows scheduled to retire on 2026-12-01; use MAF for new implementations |
-| `hitl` | [Add a human-in-the-loop approval step](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) | Official reference | Long-running HITL Preview; agreeing in a prompt is not execution authorization |
-| `memory` | [Memory in Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory) | Documentation reviewed directly | Preview, scope/TTL/CRUD, and no VNet support |
-| `memory-how` | [Create and use memory in Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/memory-usage) | Documentation reviewed directly | Manage stores, scopes, and remember/forget operations |
-| `routines` | [Routines in Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/concepts/routines) | Documentation reviewed directly | One trigger/one action, a five-minute minimum, agent identity by default, and no CMK support |
-| `routines-how` | [Automate agents with routines](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines) | Documentation reviewed directly | Timer/schedule/event triggers, disable, run history, and reminders |
-| `autopilot` | [What is an autopilot in Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/agents/concepts/autopilot-overview) | Documentation reviewed directly | Agent identity plus an agent user account and a Hosted blueprint; not a synonym for autonomy |
-| `long-running` | [Resilience for long-running hosted agents](https://learn.microsoft.com/azure/foundry/agents/concepts/long-running-agent-resilience) | Official reference | Preview; checkpoints, recovery, and preventing duplicate actions |
-| `agent365` | [Build your first autopilot](https://learn.microsoft.com/azure/foundry/agents/how-to/agent-365) | Official reference | Check Entra/M365 administrator settings, licensing, and permitted scope |
-| `cu` | [Azure Content Understanding overview](https://learn.microsoft.com/azure/ai-services/content-understanding/overview) | Documentation reviewed directly | Analyzers for documents, images, audio, and video |
-| `cu-news` | [What's new in Content Understanding?](https://learn.microsoft.com/azure/ai-services/content-understanding/whats-new) | Documentation reviewed directly | 2025-11-01 GA, 2026-06-01-preview, and the September 2026 CU CLI Preview |
-| `code-interpreter` | [Use Code Interpreter with Foundry agents](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/code-interpreter) | Official reference | Sandboxed code execution, file generation, and additional usage charges |
-| `tools-reference` | [Foundry capability reference — tools](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) | Documentation reviewed directly | Web/Bing/browser/computer/image/Functions/Skills and their individual availability |
-| `voice` | [Create a voice-based prompt agent](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-voice-agent) | Documentation reviewed directly | Preview, Voice interaction mode, Start/End session, and interruptions |
-| `speech` | [What is Azure Speech in Foundry Tools?](https://learn.microsoft.com/azure/ai-services/speech-service/overview) | Official reference | Distinguish STT/TTS from Voice Live |
-| `language` | [What is Azure Language in Foundry Tools?](https://learn.microsoft.com/azure/ai-services/language-service/overview) | Official reference | PII detection, classification, summarization, and related features |
-| `translator` | [Text translation overview](https://learn.microsoft.com/azure/ai-services/translator/text-translation/overview) | Search results and official reference | The 2026-06-06 GA request/response contract changed; do not mix it with v3.0 |
-| `finetune` | [Customize a model with fine-tuning](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning) | Documentation reviewed directly | SFT/DPO/RFT, data BOM handling, a minimum of 10 examples, and separate quality evaluation |
-| `optimizer` | [What is the agent optimizer?](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-optimizer-overview) | Documentation reviewed directly | Limited preview in the GA table; optimization surfaces and costs for Prompt/Hosted agents |
-| `prompt-optimizer` | [Prompt optimizer](https://learn.microsoft.com/azure/foundry/observability/how-to/prompt-optimizer) | Official reference | Prompt optimization is not model-weight training |
-| `dpo` | [Direct preference optimization](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning-direct-preference-optimization) | Official reference | Preferred/non-preferred response pairs; check supported models |
-| `rft` | [Reinforcement fine-tuning](https://learn.microsoft.com/azure/foundry/openai/how-to/reinforcement-fine-tuning) | Official reference | Grader calibration and supported models/access requirements |
-| `control-plane` | [What is Microsoft Foundry Control Plane?](https://learn.microsoft.com/azure/foundry/control-plane/overview) | Documentation reviewed directly | Operate covers the fleet; Manage covers the current project; key panes are Preview |
-| `network` | [Configure network isolation for Foundry](https://learn.microsoft.com/azure/foundry/how-to/configure-private-link) | Documentation reviewed directly | Inbound/outbound/DNS/tool-specific restrictions and the project-creation-date condition for private ACR |
-| `gateway` | [AI gateway in Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/ai-gateway) | Official reference | Distinguish the Preview Foundry connection experience from APIM's own product status |
-| `identity` | [Agent identity in Foundry](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-identity) | Official reference | Distinguish developers, project managed identities, agents, and end users |
-| `cmk` | [Customer-managed key encryption in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/concepts/customer-managed-keys) | Official reference | Check CMK support and unsupported features individually |
-| `cicd` | [Hosted agent CI/CD templates](https://learn.microsoft.com/azure/foundry/agents/quickstarts/set-up-cicd-hosted-agent) | Documentation reviewed directly | GitHub OIDC and an existing deployment; a smoke test alone does not establish quality |
-| `model-lifecycle` | [Model versions and lifecycle](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/model-versions) | Official reference | Track model, agent, toolbox, and dataset versions separately |
-| `resilience` | [High availability and resiliency](https://learn.microsoft.com/azure/foundry/how-to/high-availability-resiliency) | Official reference | Multi-region availability, permitted data residency, and recovery drills |
-| `local` | [What is Foundry Local?](https://learn.microsoft.com/azure/foundry-local/what-is-foundry-local) | Documentation reviewed directly | On-device SDK/runtime, local inference, initial downloads, and Windows/macOS/Linux |
-| `local-start` | [Get started with Foundry Local](https://learn.microsoft.com/azure/foundry-local/get-started) | Search results and code examples checked | Current install, download, and unload steps for each language |
-| `local-azure` | [Foundry Local on Azure Local](https://learn.microsoft.com/azure/azure-sovereign-clouds/private/foundry-local/what-is-foundry-local-on-azure-local) | Search results and official reference | A separate Preview product using Kubernetes/Arc, distinct from the PC SDK |
-| `fabric` | [Connect agents to Microsoft Fabric with Fabric IQ](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq) | Official reference | Preview; model, ontology, and data-agent permissions and network requirements |
-| `workiq` | [Connect agents to Work IQ](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq) | Official reference | Preview; Microsoft 365 user permissions, administrator consent, and licensing |
-| `migration` | [Migrate to the new Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/migrate) | Official code examples checked | Conversations/Responses replace Threads/Runs; migrating resources and state is a separate task |
+| ID | Official document |
+| --- | --- |
+| `native-eval` | [Evaluate your AI agents](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluate-agent) |
+| `iq-retrieve` | [Query a knowledge base using retrieve or MCP](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-retrieve) |
+| `incoming-a2a` | [Enable incoming A2A on a Foundry agent](https://learn.microsoft.com/azure/foundry/agents/how-to/enable-agent-to-agent-endpoint) |
+| `optimizer-targets` | [Optimize agent instructions, skills, tools, and models](https://learn.microsoft.com/azure/foundry/agents/how-to/optimize-agent-targets) |
+| `overview` | [What is Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/what-is-foundry) |
+| `ga` | [Microsoft Foundry portal general availability overview](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
+| `capabilities` | [Microsoft Foundry product and capability map](https://learn.microsoft.com/azure/foundry/concepts/capabilities) |
+| `capability-reference` | [Microsoft Foundry capability reference](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
+| `news` | [What's new in Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/whats-new-foundry) |
+| `setup` | [Set up Microsoft Foundry resources](https://learn.microsoft.com/azure/foundry/tutorials/quickstart-create-foundry-resources) |
+| `rbac` | [Role-based access control for Microsoft Foundry](https://learn.microsoft.com/azure/foundry/concepts/rbac-foundry) |
+| `models` | [Foundry Models sold by Azure](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure) |
+| `deployment-types` | [Deployment types for Microsoft Foundry Models](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) |
+| `router` | [Model router for Microsoft Foundry](https://learn.microsoft.com/azure/foundry/openai/concepts/model-router) |
+| `sdk` | [Get started with Microsoft Foundry SDK](https://learn.microsoft.com/azure/foundry/quickstarts/get-started-code) |
+| `responses` | [Responses API quickstart](https://learn.microsoft.com/azure/foundry/agents/quickstarts/responses-api) |
+| `prompt` | [Create a prompt agent](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-agent) |
+| `files` | [File search tool for agents](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/file-search) |
+| `functions` | [Use function calling with Microsoft Foundry agents](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/function-calling) |
+| `toolbox` | [What is Toolbox in Foundry?](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
+| `toolbox-how` | [Create and manage a toolbox in Foundry](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/toolbox) |
+| `mcp` | [Connect agents to Model Context Protocol servers](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/model-context-protocol) |
+| `openapi` | [Connect agents to OpenAPI tools](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/openapi) |
+| `evaluation` | [Run evaluations from the Microsoft Foundry portal](https://learn.microsoft.com/azure/foundry/how-to/evaluate-generative-ai-app) |
+| `eval-schema` | [Evaluation dataset schema in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluation-dataset-schema) |
+| `guardrails` | [Guardrails and controls overview](https://learn.microsoft.com/azure/foundry/guardrails/guardrails-overview) |
+| `redteam` | [AI red teaming agent](https://learn.microsoft.com/azure/foundry/concepts/ai-red-teaming-agent) |
+| `observability` | [Observability in generative AI](https://learn.microsoft.com/azure/foundry/concepts/observability) |
+| `trace` | [Set up tracing in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/observability/how-to/trace-agent-setup) |
+| `monitor` | [Monitor agents with the Agent Monitoring Dashboard](https://learn.microsoft.com/azure/foundry/observability/how-to/how-to-monitor-agents-dashboard) |
+| `publish` | [Publish agents to Microsoft Copilot and Teams](https://learn.microsoft.com/azure/foundry/agents/how-to/publish-copilot) |
+| `agent-settings` | [Configure your agent endpoint and settings](https://learn.microsoft.com/azure/foundry/agents/how-to/configure-agent) |
+| `costs` | [Plan and manage costs for Microsoft Foundry](https://learn.microsoft.com/azure/foundry/concepts/planning) |
+| `iq` | [What is Foundry IQ?](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
+| `iq-connect` | [Connect Foundry IQ to Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/foundry-iq-connect) |
+| `search-migration` | [Migrate agentic retrieval code to the latest version](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-migrate) |
+| `search-rag` | [Retrieval-augmented generation in Foundry](https://learn.microsoft.com/azure/foundry/concepts/retrieval-augmented-generation) |
+| `hosted` | [Deploy your first hosted agent](https://learn.microsoft.com/azure/foundry/agents/quickstarts/quickstart-hosted-agent) |
+| `hosted-concepts` | [What are hosted agents?](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) |
+| `cli` | [Develop agents with the Azure Developer CLI](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
+| `canvas` | [Foundry Agent Canvas](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) |
+| `vscode` | [Microsoft Foundry Toolkit for Visual Studio Code](https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code) |
+| `maf` | [Agents in Workflows — Microsoft Agent Framework](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) |
+| `a2a` | [Connect agents to other agents with A2A](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/agent-to-agent) |
+| `workflow-retire` | [Build a workflow in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/agents/concepts/workflow) |
+| `hitl` | [Add a human-in-the-loop approval step](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) |
+| `memory` | [Memory in Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory) |
+| `memory-how` | [Create and use memory in Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/memory-usage) |
+| `routines` | [Routines in Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/concepts/routines) |
+| `routines-how` | [Automate agents with routines](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines) |
+| `autopilot` | [What is an autopilot in Microsoft Foundry?](https://learn.microsoft.com/azure/foundry/agents/concepts/autopilot-overview) |
+| `long-running` | [Resilience for long-running hosted agents](https://learn.microsoft.com/azure/foundry/agents/concepts/long-running-agent-resilience) |
+| `agent365` | [Build your first autopilot](https://learn.microsoft.com/azure/foundry/agents/how-to/agent-365) |
+| `cu` | [Azure Content Understanding overview](https://learn.microsoft.com/azure/ai-services/content-understanding/overview) |
+| `cu-news` | [What's new in Content Understanding?](https://learn.microsoft.com/azure/ai-services/content-understanding/whats-new) |
+| `code-interpreter` | [Use Code Interpreter with Foundry agents](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/code-interpreter) |
+| `tools-reference` | [Foundry capability reference — tools](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
+| `voice` | [Create a voice-based prompt agent](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-voice-agent) |
+| `speech` | [What is Azure Speech in Foundry Tools?](https://learn.microsoft.com/azure/ai-services/speech-service/overview) |
+| `language` | [What is Azure Language in Foundry Tools?](https://learn.microsoft.com/azure/ai-services/language-service/overview) |
+| `translator` | [Text translation overview](https://learn.microsoft.com/azure/ai-services/translator/text-translation/overview) |
+| `finetune` | [Customize a model with fine-tuning](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning) |
+| `optimizer` | [What is the agent optimizer?](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-optimizer-overview) |
+| `prompt-optimizer` | [Prompt optimizer](https://learn.microsoft.com/azure/foundry/observability/how-to/prompt-optimizer) |
+| `dpo` | [Direct preference optimization](https://learn.microsoft.com/azure/foundry/openai/how-to/fine-tuning-direct-preference-optimization) |
+| `rft` | [Reinforcement fine-tuning](https://learn.microsoft.com/azure/foundry/openai/how-to/reinforcement-fine-tuning) |
+| `control-plane` | [What is Microsoft Foundry Control Plane?](https://learn.microsoft.com/azure/foundry/control-plane/overview) |
+| `network` | [Configure network isolation for Foundry](https://learn.microsoft.com/azure/foundry/how-to/configure-private-link) |
+| `gateway` | [AI gateway in Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/ai-gateway) |
+| `identity` | [Agent identity in Foundry](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-identity) |
+| `cmk` | [Customer-managed key encryption in Microsoft Foundry](https://learn.microsoft.com/azure/foundry/concepts/customer-managed-keys) |
+| `cicd` | [Hosted agent CI/CD templates](https://learn.microsoft.com/azure/foundry/agents/quickstarts/set-up-cicd-hosted-agent) |
+| `model-lifecycle` | [Model versions and lifecycle](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/model-versions) |
+| `resilience` | [High availability and resiliency](https://learn.microsoft.com/azure/foundry/how-to/high-availability-resiliency) |
+| `local` | [What is Foundry Local?](https://learn.microsoft.com/azure/foundry-local/what-is-foundry-local) |
+| `local-start` | [Get started with Foundry Local](https://learn.microsoft.com/azure/foundry-local/get-started) |
+| `local-azure` | [Foundry Local on Azure Local](https://learn.microsoft.com/azure/azure-sovereign-clouds/private/foundry-local/what-is-foundry-local-on-azure-local) |
+| `fabric` | [Connect agents to Microsoft Fabric with Fabric IQ](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq) |
+| `workiq` | [Connect agents to Work IQ](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq) |
+| `migration` | [Migrate to the new Foundry Agent Service](https://learn.microsoft.com/azure/foundry/agents/how-to/migrate) |
 
 ## Refresh before the next workshop
 
 Check GA tables, the capability reference, required feature docs, regional/model support, and SDK combinations.
-Update the relevant sources and exercises when something actually changes. A learning guide does not need a growing sequence of validation numbers or histories.
+If a feature is unavailable, consult the owner and choose the chapter's reading, local, or design path. Do not change security settings or spending scope on your own.
 
 
 ### Official sources

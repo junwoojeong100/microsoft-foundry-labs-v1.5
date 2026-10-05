@@ -41,7 +41,7 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | The instructor supplied a project and cost approval | [L01 setup](#l01) → L02 deployment check → L03 first call | You have an actual answer and response ID from your project |
 | No Azure account/access, or setup is still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L08 result reading | Data checks pass, you calculate the KRW 2,900,000 draft, and compare two answers |
 
-The second path **does not count as passing Azure execution exercises**. Do not create an account or add payment details on your own; mark live calls not executed. Choose **Without Azure** in the web contents to find modules containing these steps.
+The second path covers **local execution, reading, and design steps only**. Start live calls once the project and cost approval are ready; do not create an account or add payment details on your own. Choose **Without Azure** in the web contents to find modules containing these steps.
 
 ## Objectives
 
@@ -79,20 +79,7 @@ The second path **does not count as passing Azure execution exercises**. Do not 
 
 **Reading the screen:** First confirm your own lab project in the project selector at the top. **Discover** is for exploring candidates, **Build** for configuring models, agents, and tools, **Operate** for operational status, and **Manage** for project and resource management. The **Project endpoint** and **Azure OpenAI endpoint** on Home are different addresses.
 
-Masked areas contain identifying information, not values to copy. Use your own project's values. If menus differ, first check new/Classic portal mode, the current project, and your access.
-
-<details class="provenance-note" markdown="1">
-<summary>Reference: screenshot scope and validation records</summary>
-
-The English edition uses a separate **`contoso-workshop-en` project and English synthetic data**. All **16 English portal screenshots used in this guide** were captured from the signed-in English environment and are under `assets/portal/en/`, with identifying information masked or cropped—not translated overlays on the earlier Korean-data screenshots. The models, features, and versions you see depend on your permissions, region, and the date.
-
-**Backend execution and portal observation are separate activities.** Keep your agent, retrieval, and evaluation results outside the guide. Consult the [English screenshot provenance](../../content/portal-screenshots.en.json) for capture scope, times, masking, and hashes. A screenshot is an observation, not deployment or release-quality certification.
-
-**Current learning path: educational initial v1 → evaluate → analyze and improve → reevaluate v2.** L08 uses the same 12 composite development questions and fixed criteria in both languages. V1 is a simple role-and-goal starting point; v2 adds request decomposition, verified-versus-unknown separation, claim-specific evidence, and omission checks. It does not memorize evaluation answers, and ties or regressions are reported as observed.
-
-Keep your own comparison results outside the guide. A small dev observation does not establish general improvement or release approval.
-
-</details>
+**About the screens:** Screens are examples to help you follow the labs. Menus and available models/features can differ with permissions, region, and updates. Use your own project's values rather than copying names or identifiers from an image. Check completion against each module's **Success criteria**.
 
 ### How to read the source code and commands
 
@@ -167,11 +154,11 @@ The completed system searches the policy, retrieves an inventory count of 8 and 
 | Knowledge vs. tools vs. memory | Knowledge supplies company evidence. Tools provide capabilities. Memory retains authorized context across sessions, within the user's scope |
 | GA vs. Preview | A GA portal does not mean that Memory, Voice, and every operational feature are also GA |
 
-### 4. Keep evidence of your results
+### 4. Check results and mark progress
 
-Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save your own originals in your English lab folder's `results/`, outside the guide. Do not record personal information or tokens or relabel one environment's evidence as another's.
+Mark progress only after meeting the **Success criteria** at the end of each module. Browser progress is stored only in this device's local storage; it does not establish service execution. Save actual results in your English lab folder's `results/` or the instructor's completion record. Do not record personal information or tokens.
 
-Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. A merged chapter's old checkmark is not transferred to a new feature. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
+Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
 
 ## Success criteria
 
@@ -188,8 +175,8 @@ Web progress counts **only the selected path**: 11 core modules plus wrap-up, ei
 This module creates no resources. Continue to **L01: Prepare an environment you can run**.
 
 <details markdown="1">
-<summary>What this guide means by “all core capabilities”</summary>
+<summary>Find the learning path for a capability</summary>
 
-The learning paths cover the capability families in Microsoft's capability map and reference. This does not mean that every model, region, and API combination has been executed. Core capabilities are hands-on; those requiring administrators or additional licenses are clearly marked as conditional labs or design exercises. See **Feature coverage** for the detailed mapping.
+Core capabilities are hands-on; those requiring administrators or additional licenses use conditional labs or design exercises. See [Feature coverage](#coverage) for each capability's prerequisites and learning path.
 
 </details>

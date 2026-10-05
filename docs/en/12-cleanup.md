@@ -67,7 +67,7 @@ python scripts/cost_status.py
 | 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
 | 2. `routine_lab.py stop --live` | Disables the schedule recorded in the default `results/routine.json`. If you used another receipt, specify `--receipt` as in L16. | Changes actual schedule state. Does not delete other schedules or resource groups. |
 | 3. `azure_environment.py status --live` | Reads and checks the Azure environment recorded in the ownership receipt. | Sends Azure read requests and records status. No model inference. |
-| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure; writes private `results/operations-status.json`, not the preserved public validation original. Run only when that inspection is approved. |
+| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure; writes private `results/operations-status.json`. Run only when that inspection is approved. |
 | 5. `cost_status.py` | Queries ActualCost by service from the owned English resource group's creation time to the present. Reads the real billing API without `--live`. | Requires approval for cost inspection and writes private `results/cost-status.json`. Empty billing rows do not prove zero cost. |
 
 </div>
@@ -75,7 +75,7 @@ python scripts/cost_status.py
 Use each command only if you ran the corresponding lab and have its receipt.
 The final two commands are **read-only Azure queries scoped by ownership receipts**.
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
-it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also discovers owned routine receipts under `results/` when L16 used a custom `--receipt` filename, rather than substituting a historical validation record for current state.
+it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also finds owned routine receipts under `results/` to query current state when L16 used a custom `--receipt` filename.
 `cost_status.py` queries only actual costs posted to the new resource group. It does not report empty cost rows as USD 0.
 **In a no-deletion environment, retain owned Azure resources until explicit deletion approval.**
 Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,

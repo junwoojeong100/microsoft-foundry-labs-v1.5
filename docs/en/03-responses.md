@@ -35,17 +35,17 @@ You need L01's `.env`, CLI sign-in, and `requirements.txt` installation, plus th
 **The default path is terminal steps 1–3 below.** You do not need to call both the portal and the SDK. Expand this only for the screen reference.
 
 <details class="optional-path" markdown="1">
-<summary>Portal reference and the preserved one-call demonstration — no need to reproduce the image</summary>
+<summary>Optional: read the model Playground's input, settings, and response</summary>
 
-Open **Build → Models → Deployments → your deployment → Playground** in `contoso-workshop-en`. `contoso-chat` is an example deployment name; use your own approved deployment and verify its model/version. This is a model exercise: **do not click Save as agent**.
+Open **Build → Models → Deployments → your deployment → Playground** in your project. The image uses an example `gpt-4.1-mini` deployment named `contoso-chat`; select your own approved deployment from L02 for an actual call. This is a model exercise: **do not click Save as agent**.
 
-![The English model Playground for a synthetic Contoso approval-boundary question in contoso-workshop-en. Inspect the actual input, response, and response ID.](../../assets/portal/en/16-model-response.png)
+![Model response example. The answer applies the synthetic Contoso rule supplied in the question to the KRW 2,000,000 approval boundary.](../../assets/portal/en/16-model-response.png)
 
-**Reading the screen:** **Model / Instructions / Tools** on the left define the request's conditions; the right side shows user input and the model response. A question that states the synthetic rule itself tests model behavior, not RAG or private company knowledge. It does not execute an inventory lookup, purchase draft, or actual approval.
+**Reading the screen:** **Model / Instructions / Tools** on the left define the request's conditions; the right side shows user input and the model response. This example supplies the synthetic rule in the question, unlike RAG, which retrieves company documents.
 
-![The Parameters dialog for the English model Playground. Check Max Completion Tokens before any approved request.](../../assets/portal/en/17-model-parameters.png)
+![Output-limit setting example. Max Completion Tokens is set to 256 in the model Playground's Parameters dialog.](../../assets/portal/en/17-model-parameters.png)
 
-**Before running:** Inspect **Parameters → Max Completion Tokens**. The captured demonstration used 256; choose an approved, supported limit for your actual model rather than treating that screenshot value as universal. Keep **Web search** and other unnecessary tools off in this model-only experiment; they can add charges or external data transfer. Do not modify existing agents or policies to match a screenshot. Temperature/Top P control generation variability, not monetary spending caps. Supported options vary by model.
+**Before running:** Set **Parameters → Max Completion Tokens** to an approved limit supported by your model; 256 in the image is an example. Keep **Web search** and other unnecessary tools off in this model-only experiment; they can add charges or external data transfer. Temperature/Top P control generation variability, not monetary spending caps. Supported options vary by model.
 
 For one separately approved, bounded portal request, use this English synthetic input:
 
@@ -55,9 +55,9 @@ A higher total requires approval from both the team manager and the purchasing r
 What approval is required for a total of exactly KRW 2,000,000?
 ```
 
-The **expected** answer is team manager approval. Inspect your actual response and its identifier. Displayed tokens describe that request, not an evaluation score, proof of RAG, or the total lab cost.
+The **expected** answer is team manager approval. Inspect your actual response and its identifier. Displayed tokens describe that request's usage, not the total lab cost.
 
-If a capture or wait times out, inspect the existing response before considering another request. Do not infer raw HTTP status or internal retries from the screen. The CLI path below is a separate execution for learning to read the response object and ID in code; there is no need to make extra calls merely to reproduce an image.
+If the response is delayed, inspect the existing response before considering another request. The CLI path below is a separate execution for reading the response object and ID in code. If following the default terminal exercise, you do not need an additional portal call.
 
 </details>
 

@@ -45,7 +45,7 @@ In **Discover → Models**, search for **`gpt-6-sol`** and open the OpenAI model
 
 ![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](../../assets/portal/en/02-model-catalog.png)
 
-**Reading the screen:** Check the scope in this order: **Discover** at the top → **Models** on the left → **Available in my project**. Search for candidates and narrow **Supported features / Deployment options / Region**. A visible card does not mean that quota or capacity is available. The models and model count shown when the image was captured are not a required model list for learners.
+**Reading the screen:** Check the scope in this order: **Discover** at the top → **Models** on the left → **Available in my project**. Search for candidates and narrow **Supported features / Deployment options / Region**. A visible card does not mean that quota or capacity is available. Check the models required below rather than deploying every model shown in the image.
 
 | What to check on the model card | Why it matters |
 | --- | --- |

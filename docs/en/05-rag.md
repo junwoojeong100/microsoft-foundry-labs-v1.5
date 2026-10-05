@@ -50,7 +50,7 @@ You cannot evaluate RAG quality if you do not know where the correct answers are
 
 ![Tools and Knowledge in the English Contoso agent. Distinguish File search over English policies from the get_stock and prepare_purchase_request functions.](../../assets/portal/en/05-agent-tools.png)
 
-**Reading the screen:** On the **File search** card under **Tools**, check the connected store and retrieval settings. Identifiers are masked in the image; use your own store's values. The `get_stock` and `prepare_purchase_request` entries below it are functions covered in L06, not features of file search itself. A tool list in a screenshot does not establish indexing completion or citation accuracy. Check the actual evidence returned for the questions below.
+**Reading the screen:** On the **File search** card under **Tools**, check your own store and retrieval settings. The `get_stock` and `prepare_purchase_request` entries below it are functions covered in L06, not features of file search itself. After indexing completes, ask the questions below and compare the actual citations with the original documents.
 
 ### 3. Test known answers, cross-document reasoning, and unknowns
 

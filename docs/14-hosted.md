@@ -169,9 +169,9 @@ python samples/hosted_client.py invoke --local --live
 
 ### 3. 준비된 프로젝트에만 배포하기
 
-![실제 Build → Agents 목록. 같은 Contoso 프로젝트에서 Hosted와 Prompt 종류, 숫자 버전, Running 상태가 구분되어 보인다.](../assets/portal/03-agents.png)
+![에이전트 목록 예시. Build → Agents에서 Hosted와 Prompt 종류, 숫자 버전, Running 상태를 구분한다.](../assets/portal/03-agents.png)
 
-**화면 따라 읽기:** **Type**에서 Hosted/Prompt를, **Version**에서 코드·정의의 버전을 구분합니다. 이름을 열어 배포 설정과 protocol을 확인하고, CLI `show`의 버전과 대조하세요. 사진의 버전 숫자는 촬영 환경의 예이며 그대로 복사할 값이 아닙니다. **Running 표시는 개별 세션 compute의 활성 여부·전체 비용·업무 품질 통과를 대신 증명하지 않습니다.**
+**화면 따라 읽기:** **Type**에서 Hosted/Prompt를, **Version**에서 코드·정의의 버전을 구분합니다. 이름을 열어 배포 설정과 protocol을 확인하고, 사진의 숫자 대신 CLI `show`로 확인한 자신의 버전을 사용하세요. 목록의 **Running** 상태와 별도로 개별 세션 compute·비용·업무 응답을 확인합니다.
 
 관리자가 L01의 동봉 IaC로 만든 환경이라면:
 
@@ -230,9 +230,8 @@ python samples/hosted_client.py invoke --version 실제숫자 --live
 로컬 package contract와 원격 contract가 다르면 실패합니다.
 trace ID가 없으면 추측하지 않고 미수집으로 남깁니다.
 
-배포·session 관리는 azd, 동봉 Invocations client의 본문 수집은 **서비스가 반환한 endpoint에
-Entra-authenticated HTTP JSON 요청**을 사용합니다. CI의 azd stdout에 추가 출력이 섞인 실제 사례를
-수정한 것으로, CLI 화면 출력을 안정적인 API JSON 계약으로 가정하지 않습니다.
+배포·session 관리는 azd를 사용합니다. 동봉 Invocations client는 **서비스가 반환한 endpoint에
+Entra-authenticated HTTP JSON 요청**을 보내 응답 본문을 읽습니다. CLI 화면 출력 대신 이 응답의 필드를 확인합니다.
 
 ### 5. 기본 도구를 실제로 확인하기
 

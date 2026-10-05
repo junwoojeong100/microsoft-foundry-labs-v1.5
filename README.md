@@ -18,14 +18,14 @@ The web reader starts with **11 core modules plus one shared wrap-up** and count
 
 Blocks distinguish **terminal commands / portal Chat / .env settings / expected output**. On narrow screens, command walkthroughs read vertically. L01 explains new-terminal and Windows Python selection. L06's `read-result --input` displays saved answers, function results, and citations **without new Azure calls**, changing neither originals nor evaluation judgments.
 
-Without an account, you can still use local functions and **read instructions and evaluation questions** in L08. Collecting and grading your own answers is optional. **The former L11 integration review is now part of L06**, while publishing/version management is consolidated into L18 CI/CD. No separate capstone, Teams publishing, Hosted, or Optimizer is required for core completion.
+Without an account, you can still use local functions and **read instructions and evaluation questions** in L08. Collecting and grading your own answers is optional. **Review integration in the second half of L06** and publishing/version management in L18 CI/CD. No separate capstone, Teams publishing, Hosted, or Optimizer is required for core completion.
 
 Every advanced lab identifies its **starting path, configuration sources, and result locations**. Agent Framework is split into L13 sequential/concurrent and L14 group-chat/handoff to make each flow easier to compare. L17 access and L18 CI/CD use repairable local fixtures, clearly separate from Azure evidence. L18 is an elective for deployment and operations owners.
 
 <details>
 <summary>Instruction learning path and model conditions</summary>
 
-**The learning path is educational initial v1 → evaluate → analyze and improve → reevaluate v2.** Keep current improvements in `agent-v2.txt`; do not create more instruction versions or accumulate release-experiment narratives.
+**The learning path is initial v1 → evaluate → analyze and improve → reevaluate v2.** Compare `agent-v1.txt` and `agent-v2.txt` under the same conditions.
 V2 explicitly separates public and restricted questions, covers every requested part, matches evidence to individual claims, preserves unknown facts, and respects actual tool permissions/results.
 
 L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-sol`. L08 compares 12 fixed composite questions once for each instruction in both languages, then evaluates those preserved answers in Foundry. No holdout, Hosted redeployment, or Optimizer is required. **Actual score increases are not guaranteed or prewritten.**
@@ -49,15 +49,15 @@ The core course is **L00–L10, about 4 hours 45 minutes**. Advanced electives a
 
 Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Azure results; record design completion separately from actual execution. L18's default CI/release-design path does not require Hosted deployment.
 
-## Instructions and execution boundaries
+## Compare instruction versions
 
-`agent-v1.txt` is the role-and-goal baseline; `agent-v2.txt` is the current procedural instruction used by Prompt and Hosted defaults. Never weaken the baseline or lower evaluation gates to manufacture improvement.
+`agent-v1.txt` is the role-and-goal baseline; `agent-v2.txt` is the procedural instruction used by Prompt and Hosted defaults.
 
-L08's optional collection uses `samples/instruction_prompt_agent_lab.py`, followed by `samples/instruction_evaluation.py` on the same originals. Both require explicit `--live`. Keep responses, scores, failures, ownership receipts, and cost records in private `results/`, outside the reader and kit. The guide describes procedures and criteria, not an author's completed run or guaranteed scores.
+L08's optional collection uses `samples/instruction_prompt_agent_lab.py`, followed by `samples/instruction_evaluation.py` on the same originals. Both require explicit `--live`. Keep response and evaluation files together in your `results/`, then compare each question's answers, scores, and reasons as described in L08.
 
 ## Narrated lab walkthroughs
 
-[Chapter player](downloads/replay/index.html) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4). Both include narration, subtitles, and all 20 module chapters. These are instructional reconstructions using commands and diagrams, not live portal recordings or validation reports.
+[Chapter player](downloads/replay/index.html) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4). Both include narration, subtitles, and all 20 module chapters. These are instructional reconstructions using commands and diagrams, not live portal recordings.
 
 Rebuild locally on macOS with installed FFmpeg, system voices, and the declared Playwright dependency: `python scripts/build_replay.py`. Narration and scenes come from `content/replay.json`.
 
@@ -66,11 +66,13 @@ Rebuild locally on macOS with installed FFmpeg, system voices, and the declared 
 Use only synthetic Contoso data. These tools never place real orders, take payments, or grant business approval.
 Keep private `.env`, `.azure/`, credentials, and raw personal execution files out of Git and the kit.
 Select `FOUNDRY_LAB_LANGUAGE=en` in the separate English environment; Korean remains the default. Do not mix environments or ownership receipts.
-The `microsoft-foundry` skill is authoring guidance, not a learner/runtime dependency. New Azure calls, access changes, and resource deletion require explicit scope and approval.
+New Azure calls, access changes, and resource deletion require explicit scope and approval.
 
 ## Edit and regenerate
 
 Edit `docs/`, `docs/en/`, `content/`, and the shared sources; never hand-edit generated readers.
+Keep learner-facing text and captions focused on actions, results to check, and prerequisites. Preserve capture records in `content/portal-screenshots*.json` and source-review dates/notes in `content/sources*.json` rather than repeating them in the reader. Do not change original screenshots, hashes, or historical validation records.
+The `microsoft-foundry` skill is development guidance, not a learner, runtime, or documentation-build dependency.
 With the declared Python/Node dependencies installed:
 
 ```bash

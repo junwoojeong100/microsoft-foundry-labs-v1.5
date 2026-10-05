@@ -169,9 +169,9 @@ and the actual selections from both models are displayed together. Required draf
 
 ### 3. Deploy only to a prepared project
 
-![Build → Agents in contoso-workshop-en. Compare Prompt/Hosted types and actual numeric versions for the separate English deployments.](../../assets/portal/en/03-agents.png)
+![Agent-list example. Locate Type, Version, and status under Build → Agents.](../../assets/portal/en/03-agents.png)
 
-**Read the screen:** Use **Type** to distinguish Hosted/Prompt and **Version** to identify the code/definition version. Open the name to inspect the deployment settings and protocol, and compare the version with CLI `show`. The version numbers in the image are examples from the captured environment, not values to copy. **Running does not by itself establish whether individual session compute is active, what the total cost is, or whether business quality checks passed.**
+**Read the screen:** Use **Type** to distinguish Hosted/Prompt and **Version** to identify the code/definition version. Open the name to inspect deployment settings and protocol, and use your own version from CLI `show` rather than copying the image's numbers. Check individual session compute, costs, and business responses separately from the list's **Running** status.
 
 If the administrator created the environment using the bundled IaC from L01:
 
@@ -230,9 +230,9 @@ Use the actual version from `show`. Invoke it in a new version-bound session and
 A mismatch between the local package contract and remote contract causes failure.
 If there is no trace ID, leave it recorded as not collected rather than guessing.
 
-Deployment and session management use azd. To collect the response body, the bundled Invocations client sends
-**an Entra-authenticated HTTP JSON request to the endpoint returned by the service**. This addresses an observed case in which
-extra output appeared in azd stdout in CI; do not assume CLI display output is a stable API JSON contract.
+Deployment and session management use azd. The bundled Invocations client sends
+**an Entra-authenticated HTTP JSON request to the endpoint returned by the service** and reads its response body.
+Inspect those response fields rather than parsing CLI display output.
 
 ### 5. Verify the basic tools in action
 
@@ -245,8 +245,6 @@ When connecting a separate Toolbox, retain L07's authentication principal and on
 
 You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
 Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
-
-A working package or a historical native score does not validate a new instruction edit. Keep the invoked version and its actual results together outside the guide.
 
 ## Troubleshooting
 

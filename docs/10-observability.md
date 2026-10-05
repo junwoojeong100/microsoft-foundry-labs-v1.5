@@ -60,9 +60,9 @@ Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 �
 
 포털만 사용했다면 그 response ID로 **포털 경로만** 진행해도 됩니다. 존재하지 않는 JSONL을 만들거나 L08의 JSON 비교 파일을 아래 JSONL 입력으로 넘기지 않습니다. 동봉 CLI는 최근 24시간만 조회하므로 오래된 결과는 포털의 승인된 보존 범위에서 읽거나 미확인으로 남깁니다.
 
-![실제 Prompt Agent의 Traces 화면. Trace/Conversation/Response 보기, ID 검색, 버전·상태·기간 필터와 실행 시간·토큰·예상 비용 열이 보인다. trace ID는 가렸다.](../assets/portal/06-traces.png)
+![실행 기록 목록 예시. Prompt Agent의 Traces에서 ID 검색, 버전·상태·기간 필터와 실행 시간·토큰·예상 비용 열을 확인한다.](../assets/portal/06-traces.png)
 
-**화면 따라 읽기:** **Build → Agents → 자신의 agent → Traces**에서 **Date range**와 **Version**을 먼저 맞춥니다. 검색창에는 자신의 trace/conversation/response ID를 넣고, 행을 열어 개별 작업을 확인합니다. **Completed**는 실행 완료 상태이지 답변 정답 여부가 아닙니다. 이 사진은 보존된 과거 실습 trace의 목록이며 촬영을 위해 새 요청을 실행하지 않았습니다.
+**화면 따라 읽기:** **Build → Agents → 자신의 agent → Traces**에서 **Date range**와 **Version**을 먼저 맞춥니다. 검색창에는 자신의 trace/conversation/response ID를 넣고, 행을 열어 개별 작업을 확인합니다. **Completed**는 실행 완료 상태이지 답변 정답 여부가 아닙니다.
 
 trace에서 다음을 찾습니다.
 

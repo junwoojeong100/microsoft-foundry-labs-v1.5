@@ -76,7 +76,7 @@ The L05 agent has no purchasing functions, so **nonexecution alone does not veri
 
 ![Build → Guardrails in contoso-workshop-en. Compare policy Type and Applied to with the English project's model deployments.](../../assets/portal/en/11-guardrails.png)
 
-**Reading the screen:** In **Build → Guardrails**, read **Type / Applied to**, not just the policy name. A connected default model policy does not mean that a separate agent tool-stage policy was created or tested. Locate **Create / Blocklists / Integrations**, but do not weaken protections or start a scan during observation. The [English capture log](../../content/portal-screenshots.en.json) defines what was observed; it is not a safety certification.
+**Reading the screen:** In **Build → Guardrails**, read **Type / Applied to**, not just the policy name. The image is a default model-policy settings example. Distinguish its target from that of an agent tool-stage policy. Locate **Create / Blocklists / Integrations**, but do not weaken protections or start a scan during observation.
 
 Review current connections in the portal's Guardrails area. If a custom agent guardrail exists, do not assume it simply combines with the model policy. According to the official documentation, **a guardrail explicitly configured on an agent overrides the model policy**.
 

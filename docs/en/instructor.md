@@ -14,11 +14,11 @@ Default web progress is **11 core modules plus wrap-up**, advanced progress is *
 
 Start with **block destination → one command → expected-result comparison**, rather than more background reading. In a new terminal, recheck L01's Python path and English profile. Use L06's `Read again` to inspect originals, functions, and citations; do not rerun `capstone --live` just to see a saved result.
 
-Recheck GA/Preview status, regions, and model support against official sources. The initial source check was on 2026-09-29. Consult [content/portal-screenshots.en.json](../../content/portal-screenshots.en.json) for the English project's actual capture times and scope; do not reuse the old Korean capture date as proof of a new observation. Neither a source date nor a screenshot means the material remains current forever.
+Before the workshop, recheck GA/Preview status, regions, and model support against official sources. For unavailable features, guide learners to the chapter's reading, local, or design path.
 
 Have learners first explain each chapter's **Concepts and lab map** in their own words. After they locate the relevant portal screen, connect it to why the CLI is needed. Allow execution only after they read the **Result / cost or changes** column in the command walkthrough. Encourage pauses between plan → execute → verify instead of copying an entire group of commands at once.
 
-Account and identifying information in the images has been deliberately redacted. Tell learners not to copy example agent names, versions, or trace IDs as their own execution values. **Portal observation / local execution / paid model calls / deployment / permission changes / deletion** involve different approvals and outcomes. If a screen differs, check region, permissions, project, and UI timing; do not create resources just to force a match with the image.
+Have learners use their own agent names, versions, and trace IDs rather than the examples. Check the approval scope for **portal observation / local execution / paid model calls / deployment / permission changes / deletion** separately. If a screen differs, first check region, permissions, and project; do not create resources just to match an image.
 
 Prepare the English class in a **separate clean checkout/worktree**, with its own `.env`, `.azure/`, and `results/`, and an approved English project such as `contoso-workshop-en`. Have every learner select `FOUNDRY_LAB_LANGUAGE=en` using L01's shell-specific command, and reselect it in every new terminal. The HTML language switch does not choose the runtime corpus. Use only `data/en/` inputs and English-bound Hosted packages; never copy Korean private settings, receipts, or completed results.
 
@@ -67,7 +67,7 @@ L08 is a **12-question fixed dev comparison using a tool-free Prompt Agent**.
 It does not reuse L05/L06 retrieval/function results; Search, Hosted, Optimizer, and holdout are not prerequisites.
 L09 separately inspects harmless boundary questions and L06 function evidence; L10 correlates actual L05/L06 responses with traces.
 L07's local steps 1–2 are required in the core course; cloud Toolbox/Skills are optional extensions.
-Integration review is consolidated into L06; publishing and active-version management are in L18 CI/CD. L18 is optional for deployment/operations owners, and organizational publishing access is not a core completion requirement.
+Review integration in L06 and publishing/active-version management in L18 CI/CD. L18 is optional for deployment/operations owners, and organizational publishing access is not a core completion requirement.
 
 | Path type | Modules | How to proceed |
 | --- | --- | --- |
@@ -91,7 +91,7 @@ Choose second-day work by team goals.
 
 ## Completion record
 
-The table below is an **educational completion record**, not service certification or a score.
+Use this table to record the learner's **executed, design, or not-executed status and checked results**.
 
 | Module/target | Executed / design / not executed | Evidence ID or file | Pass/fail | Unresolved items |
 | --- | --- | --- | --- | --- |
@@ -107,9 +107,6 @@ This record is separate from the web guide's progress checkboxes. Browser progre
 
 Use L08's same 12 composite development questions once with the educational v1 baseline and improved v2. Keep model, context, output format, and evaluation criteria identical. Have learners explain the actual per-row answers and native reasons; ties and regressions are valid observations, not reasons to resample.
 
-No Optimizer, new holdout, or repeated release run is required for the lesson. The separate full business gates remain strict and are not replaced by the small learning checklist.
-Keep execution records outside the reader and kit. Portal images retain their original capture provenance and do not validate a new instruction edit.
-
 ## Coaching the later modules
 
 ### Require an explanation of the before/after change
@@ -124,8 +121,6 @@ The reinforced L13, L14, L17, and L18 exercises follow **Try it → Change one t
 
 Flawed code and tests under `data/exercises/` are teaching originals. Learners repair **only exercise.py** in their `practice/` copy. Never weaken global tests/evaluation criteria or overwrite originals. Preparation rejects an existing destination; choose another folder for a fresh attempt.
 
-Local code/SDK contract checks do not establish real Azure calls, permission changes, or deployment. Optional service waits and approvals are outside the hands-on time estimates.
-
 Ask each learner **“Which value is evidence → what decision follows → what do you inspect first on failure?”** If that explanation is missing, revisit evidence for the same case rather than adding another feature.
 
 | Module | Minimum learning artifact | Judgment to check |
@@ -135,7 +130,7 @@ Ask each learner **“Which value is evidence → what decision follows → what
 | L17 | Identity/access table and cache boundary | Adapt worked examples to the learner's input/owners and mark unknowns |
 | L18 | CI interpretation and agent release/rollback manifest | Separate documentation generation, Azure deployment, and business release approval |
 
-Synthetic trace timings, Red teaming counts, and design tables are **teaching examples**. Do not copy them into actual Azure evidence fields. Without service access, record design/interpretation complete and execution incomplete separately. This does not replace or weaken existing evaluation gates.
+Synthetic trace timings, Red teaming counts, and design tables are **teaching examples**. Do not copy them into actual Azure evidence fields. Without service access, record design/interpretation complete and execution incomplete separately.
 
 ## Failure signals instructors should watch for
 
