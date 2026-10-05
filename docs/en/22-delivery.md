@@ -14,7 +14,7 @@
 
 **Passing source checks, deploying to Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.
 
-**Who needs this module?** You may skip it if your goal is learning models, agents, retrieval, and evaluation. Developers/platform owners responsible for delivery and operations can choose it to practice blocking bad releases and identifying a recovery target. Neither building documentation nor publishing to Teams is a core completion requirement.
+**What does this add?** Practice blocking a bad promotion and choosing a recovery target when you want delivery/operations automation. This is a capability choice, not a participant-persona split. Neither documentation builds nor Teams publishing is a core completion requirement.
 
 ## Concepts and lab map
 
@@ -195,13 +195,13 @@ The default exercise stops at identifying what to restore. Actual switching and 
 
 1. Open the owned agent's **Details → Agent configuration → Active version → Edit** and select the validated **specific version**. Do not default to `Always use latest`, which can expose newly created versions automatically. Record the prior version/endpoint and the new selection.
 2. Open **Publish → Teams and Microsoft Copilot**. Confirm the scope of the Bot Service being created or reused, then enter Name, Publish version, descriptions, and Developer. Keep secrets out of display metadata.
-3. Select **Next: Publish options → Direct publish → Just you**. Final **Publish** performs the separately approved change. **People in your organization** is an organization-wide/admin-approval path, not a scope to expand just for this lab.
-4. After publishing, make **one policy request with an approved test user** and **one access check with an unauthorized test user**, with zero retries. Use administrator-provided test identities; do not create new accounts. Record visibility, invocation authorization, and tool execution separately.
+3. Select **Next: Publish options → Direct publish → Just you**. Final **Publish** is the separately permitted change. **People in your organization** requires additional organizational permissions/deployment approval; do not expand scope for the lab.
+4. Send **one policy request from your account**, with zero retries. Run a separate negative-access test only if a permitted existing test identity is available. Do not create accounts or arbitrarily change credentials/access. If that test is not run, record it not performed.
 5. Inspect policy citations and the actual invoked version. If the candidate is wrong, stop promotion and restore the previously approved version **only after separate recovery approval**. An unchanged endpoint name does not establish successful recovery.
 
 Publishing L05's policy agent does not make it an inventory or purchase-draft assistant. Publishing the full purchasing assistant requires separately prepared server-side business tools and a supported protocol.
 
-Projects with public network access disabled may not support portal publishing. Do not enable public access to bypass that limitation; review the official private-network publishing path separately with an administrator. For an invisible app, check audience/admin approval; for a visible but unresponsive app, check channel, authentication, active version, and server tools in that order.
+Private projects may not support the standard portal publishing path. Check official private-network conditions instead of enabling public access. For an invisible app, inspect your audience/organizational policy; for no response, inspect channel, authentication, active version, and server tools.
 
 </details>
 
@@ -217,6 +217,19 @@ Projects with public network access disabled may not support portal publishing. 
 | Costs rise without requests | Inspect Search/storage/logs/Hosted sessions separately | Use L19's per-resource stop/retention owners and next-check time; empty billing rows are not zero cost |
 
 Record **RTO (target service recovery time)** and **RPO (acceptable data-loss interval)** in the recovery design. For example, “restore read-only policy guidance within 30 minutes; allow no loss of approval records” is an **example requirement**, not a measured guarantee or a capability of this kit. Without an owner, recovery path, and rehearsal results, do not claim it was achieved.
+
+#### Local promotion code versus portal Publish
+
+`practice/delivery/exercise.py`'s `choose_version()` is a **local candidate-selection function**. As in the repair example above, it returns the candidate only when all four checks pass. It does not change a Foundry agent version or publish anything.
+
+| What the exercise inspects | What actually happens |
+| --- | --- |
+| `choose_version(previous, candidate, checks)` | Returns either the prior version or candidate in a local fixture |
+| `test_exercise.py` | Checks local combinations of completion, quality, critical failures, and missing rows |
+| Agent version/Publish in the Foundry portal | Separate approved operations to select and publish an exact numeric agent version |
+| `azure-validation.yml` | A separate manual approval path; local fixture tests do not run the Azure workflow |
+
+A passing local test and an actual portal Publish are different records. The core exercise runs only the first two rows and does not claim that a real version change or Publish was completed.
 
 ## Success criteria
 

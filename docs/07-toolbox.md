@@ -186,6 +186,36 @@ Skill은 resources/list에 있어야 하며 resources/read의 본문까지 확�
 
 </details>
 
+### 로컬 코드와 Foundry 포털의 경계
+
+동봉 MCP 서버의 원본 코드는 합성 Python 함수를 MCP 도구로 노출합니다.
+
+```python
+from mcp.server.fastmcp import FastMCP
+from workshop import get_stock as stock, prepare_purchase_request as draft
+
+server = FastMCP("contoso-purchasing-v1")
+
+@server.tool()
+def get_stock(sku: str) -> dict:
+    return stock(sku)
+
+@server.tool()
+def prepare_purchase_request(sku: str, quantity: int) -> dict:
+    return draft(sku, quantity)
+
+server.run(transport="stdio")
+```
+
+| 실습 표면 | 실제 코드·동작 |
+| --- | --- |
+| 첫 터미널의 HTTP 서버 | `inventory_api.py`의 `Handler.do_GET()`가 `/inventory/<sku>`를 처리합니다. `127.0.0.1` 전용이라 Foundry 포털에서 직접 호출할 수 없습니다. |
+| 두 번째 터미널의 MCP 호출 | `mcp_server.py`가 stdio tool을 제공하고 `toolbox_lab.py --local`이 자식 프로세스로 시작해 `tools/list`·`tools/call`을 보냅니다. |
+| Foundry의 Cloud Toolbox 선택 확장 | `toolbox_lab.py create`가 `MCPToolboxTool`/`OpenApiToolboxTool` 설정과 managed identity를 등록합니다. 포털에서는 같은 Toolbox/version을 확인합니다. |
+| 한 번의 도구 승인 | `--approve-tool`은 동봉 client가 정확한 도구 이름·인수에만 적용합니다. 로컬 Python 함수의 실제 실행 승인은 별도 업무 승인이나 주문 권한이 아닙니다. |
+
+즉, 로컬 HTTP/MCP 코드는 포털의 버튼이 아니라 내 컴퓨터에서 실행됩니다. 포털 연동은 동봉 서버를 터널링하는 방식이 아니라 승인된 클라우드 Toolbox/OpenAPI 연결을 사용합니다.
+
 ## 성공 기준
 
 기본 코스는 로컬 HTTP 응답과 MCP 2종의 실제 결과, 도구별 승인 차단을 확인하면 이 장을 완료합니다.

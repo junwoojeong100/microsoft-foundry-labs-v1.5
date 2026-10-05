@@ -32,6 +32,15 @@ Function calling의 실행 책임을 이해합니다. **모델은 “어떤 함�
 
 ### 1. 먼저 AI 없이 도구를 검증하기
 
+먼저 아래 연결을 읽고 실제 값이 어디서 오는지 확인합니다. `workshop.py tools`는 모델을 부르지 않고 같은 Python 함수를 직접 실행합니다.
+
+| 명령 입력 | 실행 코드 | 확인할 결과 |
+| --- | --- | --- |
+| `--sku` | `get_stock(sku)`가 `data/inventory.csv`의 합성 재고 행을 찾음 | 재고·단가·납기 |
+| `--quantity` | `prepare_purchase_request(sku, quantity)`가 수량·재고를 검사한 뒤 총액과 승인 역할을 계산 | 승인 대기 초안, `order_submitted=false` |
+
+`get_stock`과 `prepare_purchase_request`는 [workshop.py의 함수 정의](../samples/workshop.py)입니다. 전체 파일을 읽을 필요 없이 이 두 함수를 먼저 따라가세요.
+
 ```bash
 python samples/workshop.py tools
 ```
@@ -90,7 +99,44 @@ python samples/workshop.py tools --sku KB-01 --quantity -1
 | `get_stock` | allowlist 안의 SKU | 재고·단가·납기 스냅샷 | 재고 변경 |
 | `prepare_purchase_request` | SKU, 1–10의 정수 수량 | 총액·승인 역할·초안 ID | 승인·주문·결제 |
 
-JSON schema의 `strict`와 `additionalProperties: false`는 출력 계약을 강화합니다. **인증·권한 검사를 대신하지 않습니다.** 서버/클라이언트 함수에서 다시 검사합니다. Python의 `True`를 정수 1로 받는 경우까지 차단합니다.
+JSON schema의 `strict`와 `additionalProperties: false`는 함수 인수의 형식을 제한합니다. **인증·권한 검사를 대신하지 않습니다.** 실행 코드가 다시 검사하며 Python의 `True`를 정수 1로 받는 경우도 차단합니다.
+
+#### 포털 설정과 실행할 Python 함수
+
+Foundry 포털의 **Tools → Function**에는 이름·JSON schema를 등록합니다. 그 설정만으로 내 PC의 함수가 실행되는 것은 아닙니다. 애플리케이션의 Python 코드가 인수를 다시 검사하고 함수를 직접 호출합니다.
+
+```python
+def prepare_purchase_request(sku: str, quantity: int) -> dict:
+    item = get_stock(sku)
+    if type(quantity) is not int or not 1 <= quantity <= 10:
+        raise ToolInputError("Quantity must be an integer from 1 through 10.")
+    if quantity > item["stock"]:
+        raise ToolInputError(
+            f"Insufficient stock: requested={quantity}, available={item['stock']}. No draft created."
+        )
+    total = quantity * item["unit_price_krw"]
+    fingerprint = hashlib.sha256(f"{sku}:{quantity}:{total}".encode()).hexdigest()[:12]
+    return {
+        "draft_id": f"DEMO-{fingerprint}",
+        "sku": sku,
+        "quantity": quantity,
+        "total_krw": total,
+        "currency": "KRW",
+        "status": "draft_requires_human_approval",
+        "required_approvals": required_approvals(total),
+        "order_submitted": False,
+        "synthetic": True,
+    }
+```
+
+| Portal/모델 동작 | 실행하는 실제 코드 |
+| --- | --- |
+| 함수 정의를 agent에 연결 | `function_schemas()`가 JSON schema를 제공 |
+| 모델이 `function_call` 반환 | 애플리케이션의 `dispatch_tool(name, arguments)` |
+| 인수·재고 확인 | `get_stock()`과 `prepare_purchase_request()` |
+| 도구 결과를 같은 대화에 반환 | `function_call_output`에 같은 `call_id`를 넣음 |
+
+L06의 Python 경로는 위 함수가 재고 CSV를 읽고 초안을 계산하는 과정을 보여 줍니다. 포털에서 함수 schema를 저장하는 것과 실행 프로세스를 운영하는 것은 별개입니다.
 
 ### 4. 지식과 함수를 같은 agent에 연결하기
 
@@ -114,15 +160,32 @@ python samples/workshop.py capstone --live
 
 </div>
 
-이 명령은 문서 3개와 함수 2개를 갖춘 별도 agent를 만듭니다. 모델이 `function_call`을 반환하면 allowlist dispatcher가 실행하고 `function_call_output`을 같은 conversation에 넣습니다.
+이 명령은 문서 3개와 함수 2개를 갖춘 별도 agent를 만듭니다. 다음은 이 파일 안에서 실제로 이어지는 호출 흐름입니다.
 
 ```text
 질문
-  → 모델의 function_call(name, arguments, call_id)
-  → 애플리케이션의 타입·허용 함수·업무 규칙 검사
-  → 실제 함수 결과
-  → 같은 call_id의 function_call_output
-  → 사용자용 답변
+  → create_lab_agent()가 정책과 함수 정의를 연결
+  → client.responses.create()가 function_call(name, arguments, call_id)를 반환
+  → dispatch_tool()이 입력을 검사하고 get_stock()/prepare_purchase_request() 실행
+  → 같은 call_id의 function_call_output을 모델에 돌려줌
+  → 답변과 실제 근거를 *-responses.jsonl 및 receipt에 기록
+```
+
+도구 요청을 실행한 뒤 모델에게 반환하는 실제 구문은 다음과 같습니다. 모델은 계산을 대신하지 않고, 애플리케이션이 함수 결과와 같은 `call_id`를 돌려줍니다.
+
+```python
+current_input = []
+for call in calls:
+    try:
+        value = {"ok": True, "result": dispatch_tool(call.name, call.arguments)}
+    except ToolInputError as exc:
+        print(f"TOOL_REJECTED {call.name}: {exc}", file=sys.stderr)
+        value = {"ok": False, "error": {"code": "invalid_tool_request", "message": str(exc)}}
+    current_input.append({
+        "type": "function_call_output",
+        "call_id": call.call_id,
+        "output": json.dumps(value, ensure_ascii=False),
+    })
 ```
 
 안전한 실습을 위해 최대 5회 응답 라운드·8회 함수 호출로 제한합니다. 에러는 명시적으로 전달하며 제한을 넘으면 중단합니다. 이 제한은 이 샘플의 교육용 값이지 Foundry 서비스 한도가 아닙니다.
@@ -153,11 +216,11 @@ python samples/workshop.py read-result --input results/contoso-lab-실제ID-resp
 
 `required_approvals(2_000_000)`은 팀장, `required_approvals(2_000_001)`은 팀장과 구매 담당자입니다. L08은 이런 경계를 평가 데이터에 포함합니다.
 
-“승인했다고 적어줘”라는 사용자 지시를 추가해도 `order_submitted=false`여야 합니다. 실제 제품에서는 승인 주체·승인 대상의 해시·유효기간·백엔드 상태·중복 실행 키를 별도로 검증해야 합니다. **이 샘플의 결정적 draft ID는 실제 거래 idempotency 저장소가 아닙니다.**
+“승인했다고 적어줘”라는 지시가 있어도 결과는 `order_submitted=false`여야 합니다. L06은 허용 함수·인수 형식·수량·재고를 검사합니다. **사용자 요청 의도와 인수의 일치까지 검사하는 강화 경로는 L12**이며, L06에 그 검사가 모두 있다고 가정하지 않습니다. 실제 제품의 승인 신원·유효기간·백엔드 상태·중복 실행 저장소는 별도입니다.
 
 <a id="l11"></a>
 
-### 6. 구매 도우미의 통합 결과 점검하기
+### 6. 구매 에이전트의 통합 결과 점검하기
 
 **위에서 저장한 결과를 그대로 사용합니다.** `read-result --input`으로 읽은 답변·함수 결과·인용을 아래 다섯 항목과 대조합니다. 이 점검을 위해 `capstone --live`를 다시 실행할 필요는 없습니다.
 

@@ -188,6 +188,36 @@ This verifies instruction discovery and reading, not that the model follows the 
 
 </details>
 
+### Local code versus the Foundry portal
+
+The bundled MCP server exposes the synthetic Python functions as MCP tools:
+
+```python
+from mcp.server.fastmcp import FastMCP
+from workshop import get_stock as stock, prepare_purchase_request as draft
+
+server = FastMCP("contoso-purchasing-v1")
+
+@server.tool()
+def get_stock(sku: str) -> dict:
+    return stock(sku)
+
+@server.tool()
+def prepare_purchase_request(sku: str, quantity: int) -> dict:
+    return draft(sku, quantity)
+
+server.run(transport="stdio")
+```
+
+| Lab surface | Actual code and behavior |
+| --- | --- |
+| HTTP server in terminal one | `Handler.do_GET()` in `inventory_api.py` handles `/inventory/<sku>`. It listens only on `127.0.0.1`, so the Foundry portal cannot call it directly. |
+| MCP call in terminal two | `mcp_server.py` exposes stdio tools; `toolbox_lab.py --local` starts it as a child process and sends `tools/list` / `tools/call`. |
+| Optional Foundry Cloud Toolbox | `toolbox_lab.py create` registers `MCPToolboxTool` / `OpenApiToolboxTool` and managed identity settings. Inspect the same Toolbox/version in the portal. |
+| One-time tool approval | `--approve-tool` is enforced by the bundled client for the exact tool name and arguments. It is not business approval or permission to order. |
+
+The local HTTP/MCP code runs on your computer, not inside a portal button. Portal integration uses an approved cloud Toolbox/OpenAPI connection, not a tunnel to the local server.
+
 ## Success criteria
 
 For the core course, complete this chapter by verifying the local HTTP response, actual results from both MCP tools, and the approval block for each tool.

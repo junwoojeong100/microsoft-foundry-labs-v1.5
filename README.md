@@ -8,7 +8,7 @@ Build a synthetic Contoso purchasing assistant through **20 labs and five refere
 
 ## First time here?
 
-**Azure is the cloud platform; Foundry is a workspace on it for building and managing AI.** Start with the concepts without prior product experience. Actual calls require an instructor-prepared project, permissions, and cost approval.
+**You create your own environment and follow the guide end to end.** In L01, prepare your PC/subscription, verify permissions/budget, and create a dedicated Foundry project, models, and telemetry. Then build agents, retrieval, tools, evaluations, and traces. Actual operations require the relevant scoped Azure permissions and cost approval.
 
 1. Read [L00: the basics](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l00-first-steps) to see what you will build.
 2. Extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip), then follow [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01) for PC/project setup. Git commands are not required.
@@ -18,9 +18,9 @@ The web reader starts with **11 core modules plus one shared wrap-up** and count
 
 Blocks distinguish **terminal commands / portal Chat / .env settings / expected output**. On narrow screens, command walkthroughs read vertically. L01 explains new-terminal and Windows Python selection. L06's `read-result --input` displays saved answers, function results, and citations **without new Azure calls**, changing neither originals nor evaluation judgments.
 
-Without an account, you can still use local functions and **read instructions and evaluation questions** in L08. Collecting and grading your own answers is optional. **Review integration in the second half of L06** and publishing/version management in L18 CI/CD. No separate capstone, Teams publishing, Hosted, or Optimizer is required for core completion.
+Without Azure access, practice local functions and read L08's inputs, separately from live completion. The default path collects/evaluates your own answers and reads your logs. Review integration in L06 and optional publishing/version management in L18. No separate capstone, Teams publishing, Hosted, or Optimizer is required for core completion.
 
-Every advanced lab identifies its **starting path, configuration sources, and result locations**. Agent Framework is split into L13 sequential/concurrent and L14 group-chat/handoff to make each flow easier to compare. L17 access and L18 CI/CD use repairable local fixtures, clearly separate from Azure evidence. L18 is an elective for deployment and operations owners.
+Every advanced lab identifies its starting path, configuration sources, and result locations. Create the L11 Search/L12 Hosted resources yourself. Agent Framework is split into L13 sequential/concurrent and L14 group-chat/handoff. L17 access and L18 CI/CD use local repairs/design, separately from actual Azure validation or publishing.
 
 <details>
 <summary>Instruction learning path and model conditions</summary>
@@ -28,7 +28,7 @@ Every advanced lab identifies its **starting path, configuration sources, and re
 **The learning path is initial v1 → evaluate → analyze and improve → reevaluate v2.** Compare `agent-v1.txt` and `agent-v2.txt` under the same conditions.
 V2 explicitly separates public and restricted questions, covers every requested part, matches evidence to individual claims, preserves unknown facts, and respects actual tool permissions/results.
 
-L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-sol`. L08 compares 12 fixed composite questions once for each instruction in both languages, then evaluates those preserved answers in Foundry. No holdout, Hosted redeployment, or Optimizer is required. **Actual score increases are not guaranteed or prewritten.**
+The kit pins **`gpt-6-sol / 2026-09-22`**; L01 creates deployment `contoso-chat`. Verify model/region availability in your own subscription. L08 collects twelve matched v1/v2 question pairs once and evaluates those originals. No holdout, Hosted redeployment, or Optimizer is required, and actual score improvement is not guaranteed.
 
 </details>
 
@@ -43,8 +43,10 @@ L02 explicitly deploys **`gpt-6-sol` version `2026-09-22`** as `contoso-gpt-6-so
 | Complete kit | [Bilingual ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
 | Synthetic receipt | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
 
+For a file-by-file code reference, see [English](samples/README.md) or [한국어](samples/README.ko.md).
+
 Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.html`; use an editor to inspect code.
-Open Markdown inside the kit's `downloads/` folder to resolve its images and source links. PDFs include the expandable reference and administrator sections.
+Open Markdown inside the kit's `downloads/` folder to resolve its images and source links. PDFs include expandable optional/reference sections.
 The core course is **L00–L10, about 4 hours 45 minutes**. Advanced electives are **L11–L18**, followed by **L19 shared wrap-up (10 minutes)**; lab numbers are continuous from 00 through 19. Core-only learners go directly from L10 to L19; others finish their selected electives before L19. Reading requires no sign-in.
 
 Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Azure results; record design completion separately from actual execution. L18's default CI/release-design path does not require Hosted deployment.
@@ -53,7 +55,7 @@ Work through **what to inspect → a decision grounded in values → the next ac
 
 `agent-v1.txt` is the role-and-goal baseline; `agent-v2.txt` is the procedural instruction used by Prompt and Hosted defaults.
 
-L08's optional collection uses `samples/instruction_prompt_agent_lab.py`, followed by `samples/instruction_evaluation.py` on the same originals. Both require explicit `--live`. Keep response and evaluation files together in your `results/`, then compare each question's answers, scores, and reasons as described in L08.
+L08 uses `samples/instruction_prompt_agent_lab.py` for collection, followed by `samples/instruction_evaluation.py` on the same originals. Both require explicit `--live` and verified cost scope. Keep both files in your `results/`; reading only is recorded as evaluation not performed.
 
 ## Narrated lab walkthroughs
 

@@ -1,70 +1,218 @@
-> **What you will build:** Your lab project/model settings, a ready PC, and a plan for stopping costs. Check the deployment in L02 and the first call in L03.
+> **What you will build:** Your own lab resource group, Foundry project, model deployments, telemetry connection, and Python environment.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Prepare your PC and inspect a supplied project · only an administrator creates a new Azure environment.
+**Format:** Prepare the PC → verify sign-in and permissions → create a dedicated environment → configure endpoints and telemetry.
 
-**Start here:** Check whether the instructor supplied project details. Without them, stop after the local exercises.
+**Start here:** Extract the kit, open it in VS Code, and identify your Azure subscription, region, and budget.
 
-**What to check:** Keep the data-check result and your project endpoint/model deployment name. L03 verifies the actual connection.
+**What to check:** Your portal resources match `results/azure-environment.json`. The first model request is in L03.
 
 </div>
 
 ## Objectives
 
-Separate the **permissions, incorrect endpoints, supported regions, and quota** issues that cause most lab failures before you begin.
+**You create the environment used throughout the labs.** Creation, inspection, and role-assignment permissions are prerequisites for actions, not separate participant personas.
 
 ## Concepts and lab map
 
-**What you will try:** Find the supplied project and prepare your PC to run the lab files.
+**What you will try:** Prepare a Foundry project, models, access, telemetry, and local Python.
 
-**What is it, and why does it matter?** A subscription is a billing scope; a project is a workspace for agents. Sign-in answers “Who are you?”, roles answer “What can you do?”, and quota answers “How much can you use?” Knowing an address does not grant access.
+**What is it, and why does it matter?** A subscription is a billing scope, a resource group groups resources, and a project is the agent workspace. Sign-in identifies the caller; RBAC permits actions; quota provides capacity.
 
-**How do you use it?** Match the portal to your instructor's information, prepare Python, and save the endpoint and deployment name in `.env`. L03 checks the actual connection.
+**How do you use it?** Create a dedicated environment and compare actual portal names and endpoints with `.env` and the ownership record. An endpoint alone does not grant access.
 
-**Where do you run it?** Use the browser for the project and VS Code for the terminal and [.env.example](../../.env.example). The [management script](../../scripts/azure_environment.py) and [infrastructure](../../infra/main.bicep) are administrator references, not required first reading.
+**Where do you run it?** Use your PC's VS Code terminal, then inspect the results in Azure and Foundry portals. The [setup script](../../scripts/azure_environment.py) and [Bicep](../../infra/main.bicep) define the resources created.
 
 ## Prerequisites
 
-### Details to obtain from your instructor
-
-| Ask for | Why you need it |
+| Item | What to verify |
 | --- | --- |
-| Sign-in account and organization (tenant) | Avoid creating resources because another organization's project list is empty |
-| Approved subscription, resource group, and project name | Identify the billing scope and work target |
-| Project endpoint and model deployment name | Configure the address and target used by the L03 code |
-| Budget, stop owner, and cleanup owner | Know when to stop and what to retain |
+| Azure account and active subscription | You can sign in and the subscription is Enabled |
+| Creation permission | Permission to create a resource group and deploy Foundry/telemetry resources inside it |
+| Role-assignment permission | `Microsoft.Authorization/roleAssignments/write` at the target scope; `Contributor` alone cannot grant roles |
+| Quota-read permission | `Cognitive Services Usages Reader` or equivalent subscription permission |
+| Region and budget | Supported models, permitted processing scope, spend limit, stop criteria, and retention deadline |
+| PC | Python 3.13, Azure CLI 2.86.0 baseline, VS Code, internet, and an approved package source |
 
-If these are missing, **continue local exercises but stop before Azure creation or calls**. If the subscription is absent or access is denied, ask the instructor for these details. Registering a card or obtaining subscription Owner is not a learner setup step.
-
-| Item | Core course | Additional conditions |
-| --- | --- | --- |
-| Azure | An approved subscription and nonproduction resource group | Do not bypass organizational policies |
-| Foundry | A **Foundry project in the new portal** | Different from a hub-based Classic project |
-| Model | A chat model supporting Responses and tool use | Check support in L02 |
-| Development environment | Python 3.13, Azure CLI 2.86.0 | Local standard-library exercises also work with 3.11+ |
-| Data | This guide's English synthetic data in `data/en/` | Do not upload real customer or employee information |
-| Budget | A per-person or team limit and someone responsible for stopping usage | Budget alerts do not enforce a hard billing cutoff |
+Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Azure access but **do not complete the live Foundry path**.
 
 <a id="l01-pc"></a>
 
-### Start on a new PC
-
-Use your organization's approved installation route for [Python 3.13](https://www.python.org/downloads/), [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli), and [VS Code](https://code.visualstudio.com/download). Do not reinstall existing tools. Local-only exercises need neither Azure CLI nor Azure sign-in.
-
-Extract the ZIP and choose **VS Code → File → Open Folder**, selecting the folder containing `samples`, `data`, and `requirements.txt` together. Use **Terminal → New Terminal** for the commands below. This is your PC's terminal, not Azure Cloud Shell or Python's `>>>` prompt. If you see `>>>`, enter `exit()` to leave Python.
-
-In Windows PowerShell, use **`py -3.13`** instead of the following `python3` commands before creating a virtual environment. Afterward use `.venv\Scripts\python.exe`. Execute **only your operating system's block**, not both the macOS/Linux and Windows alternatives.
-
 ## Steps
+
+### 1. Prepare the PC and lab files
+
+Prepare Python, Azure CLI, and VS Code through organization-approved paths. **Check existing tools first and install only what is missing.** Prefer your organization's software portal, approved installers, and package sources. Follow the official download steps below only when permitted. If installation or downloads are blocked, obtain an approved distribution path; do not bypass security warnings, certificate validation, or execution policies.
+
+| Tool | Its role in this lab | Ready when |
+| --- | --- | --- |
+| Python 3.13 | Runs actual Python code and the Foundry SDK on your PC. | The version check prints `Python 3.13.x`. |
+| Azure CLI | Signs into Azure and creates or inspects lab resources. | `az version` prints an `azure-cli` version. This kit's baseline is 2.86.0. |
+| VS Code | Displays and edits code and opens a PC terminal. | You can open the lab folder and a Python file. Prepare the Python extension below. |
+
+<a id="l01-python"></a>
+
+#### Install and check Python 3.13
+
+**Windows**
+
+1. On [Python Downloads](https://www.python.org/downloads/windows/), choose a **3.13.x release** and download the installer for your PC. The latest version shown on the landing page is not necessarily 3.13. Use the regular installer, not the `embeddable package`.
+2. Run the approved installer. In the regular installer, select **Add python.exe to PATH** and include `pip` and the Python launcher (`py`). Use **Install Now** or the installation options required by your organization.
+3. Close existing terminals and open a new **PowerShell** window. Explicitly select 3.13 with:
+
+```powershell
+py -3.13 --version
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — Windows**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `py -3.13 --version` | Prints the installed Python 3.13 version. | Local check; no installation, sign-in, or Azure request. |
+
+</div>
+
+**macOS**
+
+1. On [Python Downloads](https://www.python.org/downloads/macos/), choose a **3.13.x release with an installer**. The **macOS 64-bit universal2 installer** (`.pkg`) supports Apple Silicon and Intel Macs.
+2. Open the approved `.pkg`, verify the version and destination, and follow the installer. Do not remove or replace Apple's system Python.
+3. For the python.org distribution, complete its default certificate setup with **Applications → Python 3.13 → Install Certificates.command**. Use approved certificate and proxy settings if your organization requires them; do not disable certificate validation.
+
+**Linux — Ubuntu/Debian example**
+
+Run the following only if an organization-approved package source provides `python3.13` and `python3.13-venv`. Availability depends on the distribution. If those packages are unavailable, obtain an approved Python 3.13 distribution instead of adding an arbitrary external repository.
+
+```bash
+sudo apt install python3.13 python3.13-venv
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — Ubuntu/Debian**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `apt install ...` | Installs Python 3.13 and virtual-environment support. | Approved package download and PC changes; no Azure request. |
+
+</div>
+
+On macOS/Linux, open a new terminal and check:
+
+```bash
+python3.13 --version
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — macOS/Linux**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `python3.13 --version` | Prints the Python 3.13 version you will run. | The `x` in `Python 3.13.x` is the actual patch number; no Azure request. |
+
+</div>
+
+Having only 3.12, 3.14, or another version does not complete this step. Keep other applications' Python installations and prepare 3.13 separately for this lab.
+
+<a id="l01-azure-cli"></a>
+
+#### Install and check Azure CLI
+
+**Windows**
+
+1. Open **Microsoft Installer (MSI)** in the [official Windows installation instructions](https://learn.microsoft.com/cli/azure/install-azure-cli-windows). Use the 64-bit MSI on a typical x64 PC; for another architecture, check official support and your organization's distribution.
+2. If you need the kit baseline of 2.86.0, use **Specific version** on that page or the [official 2.86.0 x64 MSI](https://azcliprod.blob.core.windows.net/msi/azure-cli-2.86.0-x64.msi). Run the approved MSI and complete setup. Follow your organization's approval process for PC changes.
+3. Fully close and reopen PowerShell and VS Code after installation.
+
+**macOS**
+
+If organization-approved [Homebrew](https://docs.brew.sh/Installation) is **already available**, follow the [official macOS installation instructions](https://learn.microsoft.com/cli/azure/install-azure-cli-macos) and run the following. If Homebrew is unavailable or not permitted, obtain an approved installation path first.
+
+If you need Homebrew itself, use an approved distribution from your organization's software portal. When official downloads are permitted on an Apple Silicon Mac, you can also install the `.pkg` from the official release linked in the Homebrew instructions above. Check OS/CPU requirements and post-installation PATH setup, then verify `brew --version` in a new terminal before continuing below.
+
+```bash
+brew install azure-cli
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — macOS**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `brew install azure-cli` | Installs Homebrew's Azure CLI package and required dependencies. | Download and PC changes; separate from preparing the lab's Python 3.13; no Azure request. |
+
+</div>
+
+**Linux — Ubuntu/Debian example**
+
+Check supported distributions in the [official Linux installation instructions](https://learn.microsoft.com/cli/azure/install-azure-cli-linux?pivots=apt). Run the following only when a Microsoft package source or organizational mirror is **already approved and configured** and provides `azure-cli`. Otherwise, complete the approved repository setup first; do not blindly execute downloaded scripts.
+
+```bash
+sudo apt install azure-cli
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — Ubuntu/Debian**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `apt install azure-cli` | Installs Azure CLI from the configured, approved source. | Download and PC changes; no Azure sign-in or resource creation. |
+
+</div>
+
+**Check on every OS:** Run this in a new PC terminal. The same command works in PowerShell.
+
+```bash
+az version
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `az version` | Prints local Azure CLI and installed extension versions. | Not a sign-in, permission, or Azure connectivity check; no model call or resource creation. |
+
+</div>
+
+Record the `azure-cli` value. Current MSI, Homebrew, and apt packages may differ from the kit baseline of 2.86.0. With another approved version, check subsequent commands' behavior; do not arbitrarily upgrade or downgrade. **Azure sign-in is in step 2 below.**
+
+<a id="l01-vscode"></a>
+
+#### Install VS Code and open the lab folder
+
+**Windows:** On [VS Code Downloads](https://code.visualstudio.com/download), choose the **User Installer** for your PC and follow approved installation options. Use your organization's distribution when available. Open **Visual Studio Code** from the Start menu.
+
+**macOS:** On the same page, choose Apple Silicon, Intel, or Universal for your Mac. Open the distribution's `.dmg` or `.zip`, move **Visual Studio Code.app → Applications**, and launch it.
+
+**Linux:** Choose the `.deb` or `.rpm` for your distribution and install it through an approved software installer. Apply only approved settings if it asks to add a package source.
+
+In VS Code, check the installed version under **Help → About** (macOS: **Code → About Visual Studio Code**). You can use the folder-opening steps below without a `code` terminal command.
+
+Extract the ZIP and use **VS Code → File → Open Folder** to open the folder containing `samples`, `data`, and `requirements.txt`. Choose **Terminal → New Terminal**. This is your PC shell, not the browser address bar, Cloud Shell, or Python's `>>>` prompt. Exit that prompt with `exit()` if necessary.
+
+In **Extensions** on the left, search for `Python` and check the publisher **Microsoft** and extension ID **`ms-python.python`**. Do not reinstall it if present; otherwise, install it through your organization's permitted extension distribution path. The extension does not install the Python interpreter itself. If extensions are not permitted, the PC terminal commands below still provide the lab execution path.
+
+**If preparation is blocked**
+
+| Symptom | Check or action |
+| --- | --- |
+| `py` or `python3.13` is not found | Retry in a new terminal, then check the approved installation path, launcher, and PATH. If Windows `python` opens the Store, use the explicit `py -3.13` check above. |
+| `az` is not found | Reopen VS Code after installation and check that the approved CLI installation path is in PATH. |
+| Download, certificate, or proxy errors | Check approved sources, proxies, and certificates. Do not bypass errors by disabling SSL validation or changing security policy. |
+| Extension installation is blocked | Use an approved extension distribution or continue through the terminal path. |
 
 <a id="l01-language"></a>
 
-### 1. Select the English profile and prepare the project
+#### Select the English data profile
 
-Use a **separate extracted lab folder or clean checkout** for English execution if you also run the Korean labs. Keep its `.env`, `.azure/`, `results/`, virtual environments, and generated Hosted packages separate. Never copy a Korean run's private settings, ownership receipts, or response files into it. You do not need an authoring branch or a repository merge to start the lesson.
-
-Before running any sample, management, or packaging command, select the English data profile in the current terminal.
+Use a separate lab folder with its own `.env`, `.azure/`, and `results/`. Set the profile in every terminal **before** running a sample:
 
 ```bash
 export FOUNDRY_LAB_LANGUAGE=en
@@ -72,15 +220,15 @@ export FOUNDRY_LAB_LANGUAGE=en
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough** — macOS/Linux
+**Command walkthrough — macOS/Linux**
 
-| Order and command | Details and options | Result, cost, or change |
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `export FOUNDRY_LAB_LANGUAGE=en` | Selects English synthetic inputs for this terminal and its child processes. Run it again when opening a new terminal. | Changes local process configuration only. No Azure calls, resource changes, or data translation. |
+| 1. `export FOUNDRY_LAB_LANGUAGE=en` | Selects English synthetic inputs for this terminal. | Local environment only; the browser language switch does not select runtime data. |
 
 </div>
 
-Windows PowerShell alternative:
+On Windows, use this **instead**:
 
 ```powershell
 $env:FOUNDRY_LAB_LANGUAGE = "en"
@@ -88,142 +236,43 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough** — Use this instead of the macOS/Linux profile command.
+**Command walkthrough — Windows**
 
-| Order and command | Details and options | Result, cost, or change |
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `$env:FOUNDRY_LAB_LANGUAGE = "en"` | Selects English synthetic inputs for the current PowerShell session and its child processes. Select it again in every new terminal. | Changes local process configuration only. No Azure calls or resource changes. |
+| 1. `$env:FOUNDRY_LAB_LANGUAGE = "en"` | Selects English synthetic inputs in this PowerShell session. | Repeat in a new terminal; do not reuse Korean ownership records. |
 
 </div>
-
-**All later commands assume this per-terminal selection**, including commands in separate server/client terminals. Reselect the profile and the appropriate Python environment after opening a new terminal. The browser's language switch does not set it, and an absent flag keeps the original Korean default. The [English profile manifest](../../data/en/profile-manifest.json) describes the inputs and unchanged business rules. Explicit file options must also point to `data/en/`; the flag does not translate an explicitly supplied Korean file. L12's generated Hosted packages record the selected language in `lab-profile.json`.
-
-**Without an Azure account, continue to [step 4's local checks](#l01-local) now.** Skip project selection, access checks, and CLI sign-in.
-
-1. Open the [Foundry portal](https://ai.azure.com) and sign in with the account specified by your instructor.
-2. Check that **New Foundry** is on. Select the supplied project using the selector at the upper left.
-3. Compare **Name / Parent resource / Location** in **Manage → Project details** with the instructor's information. Your approved project may have a different name from the example `contoso-workshop-en`.
-4. If no project appears or only **Create project** is available, ask for access rather than creating one. Account-free participants can continue with the local checks in step 4 below.
-
-**Selecting a project is not creating one.** Learners using a prepared project skip the administrator path below. The model name in `.env` may remain a placeholder until L02 confirms the deployment. Keep your results in this lab folder's `results/`.
-
-<details class="operator-only" markdown="1">
-<summary>Administrators only: create a new environment after scope, cost, and access approval</summary>
-
-The following script creates only a uniquely named new resource group (RG); it does not reuse or delete existing resources. First prepare Python in step 4 and CLI sign-in in step 5 below. Do not execute placeholder commands before confirming models, region, quota, and the approved scope.
-
-```bash
-python3.13 scripts/azure_environment.py create --subscription approved-subscription-id --location approved-region --cost-authorization "Approved amount and retention policy" --live
-python3.13 scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
-python3.13 scripts/azure_environment.py roles --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough** — Administrators only. Learners using a provided environment must not run these commands.
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `create` | `--subscription` identifies the approved subscription, and `--location` specifies the actual region. Inside the quotes after `--cost-authorization`, record the approved amount and retention terms. `--live` permits creation of a new dedicated resource group. | Writes an ownership receipt to `results/azure-environment.json`. This is not a command for reusing an existing resource group. The new group defines the scope of subsequent resource costs. |
-| 2. `foundation` | Specify models, versions, and SKU. Calculate each initial capacity from the recommended TPM/RPM for `--learners 1`. `--max-capacity 100` is the ceiling for newly allocated units per deployment, not TPM or money. | Precheck regional SKU support, unit rates, and available quota, then create models at the recommended capacity. Missing prerequisites stop model creation; actual TPM/RPM is checked after deployment. |
-| 3. `roles` | Assigns lab roles in the new environment recorded in the ownership receipt. `--live` permits a real run, including permission changes. | Requires administrator privileges. Verify data access after role propagation; do not use this to expand access to other environments. |
-
-</div>
-
-Replace the descriptive placeholders with actual approved values: the subscription ID, permitted region, approved amount and retention policy, supported chat/judge/embedding model IDs, and their actual versions. Check the model catalog, SKU, and quota first,
-and obtain approval for the Global, Data Zone, or Standard processing scope. Capacity units vary by model and are not a spending cap.
-`foundation` supplies separate chat, judge, and embedding capacities. It selects the base-model SKU from the raw ARM catalog's `AIServices`/`S0` entry and applies explicit minimum, maximum, and increment constraints. When an online SKU omits minimum/increment restrictions, capacity remains a positive integer. Missing TPM/RPM unit rates, maximum capacity, or quota stops deployment rather than choosing an arbitrary small value. Roles sharing a quota are checked against their combined allocation.
-`infra/main.bicep` deploys only the Foundry account/project and the specified models.
-Add Search with `python scripts/azure_environment.py search --live` only when you need L11. `search` is an administrator operation that creates a search service in the owned resource group; it can incur fixed costs even without requests. It does not mean “try one search.”
-The ownership record is `results/azure-environment.json`. For partial failures such as RequestConflict,
-inspect the original deployment operation and use `foundation --resume` **only for those same owned resources**. `--resume` continues a recorded partial deployment; it does not select a new environment or erase the original error record.
-
-![Resource group overview example in the Azure portal. Compare the group and its resources with your English environment receipt.](../../assets/portal/en/18-resource-group.png)
-
-**Reading the screen:** Compare the resource group, location, and ownership tags with `results/azure-environment.json` from the English checkout. Check the resources required for your selected labs; you do not need to match the image's resource list or count.
-
-If an overview shows an **inherited organizational diagnostic-policy failure**, inspect its scope separately from the lab's deployments. Do not hide the warning or change an out-of-scope policy/workspace; refer it to the responsible governance owner.
-
-</details>
-
-### 2. Check roles by who needs to do what
-
-Confirm with the owner that you can **open the project, create an agent, and call the model**. Learners do not need to memorize the complete role table or assign roles themselves.
-
-<details class="operator-only" markdown="1">
-<summary>Administrator reference: minimum roles by identity</summary>
-
-| Identity | Starting point for the required scope | Action to verify |
-| --- | --- | --- |
-| Lab developer | Project `Foundry User`, read access to the parent resource | Create and invoke agents |
-| Resource/model administrator | Applicable management permissions, such as resource `Foundry Account Owner` | Deploy projects and models |
-| End user | `Foundry Agent Consumer` | Invoke permitted agent endpoints only |
-| Project managed identity | Minimum roles required by the connection target | Access Search, Storage, or models |
-| Agent identity | Actual runtime tool permissions | Use Toolbox and business APIs |
-| Evaluation/tracing user | Project role plus a read role on the log resource | View evaluations and App Insights |
-| Quota reader | Subscription `Cognitive Services Usages Reader` | Check usage and deployment eligibility |
-
-Role names have recently changed—for example, **Azure AI User → Foundry User**. The portal may still show an older name. Renaming alone has not changed the role IDs or core permissions. Azure `Owner` or `Contributor` also does not automatically grant Foundry data-plane access.
-
-**Ask the responsible administrator to assign roles.** Do not give every learner subscription Owner access. Check each module for additional tool-specific permissions.
-
-The administrator script resolves the administrator's object ID from the **authenticated Azure Resource Manager (ARM) credential** for scoped role assignments, rather than requiring a separate Microsoft Graph signed-in-user lookup. Diagnose each service's actual authentication response separately and follow organizational access policies.
-
-</details>
-
-### 3. Check region, deployment, and cost
-
-Prepare just one model for L02. Start with a usage-based deployment if your data is synthetic and organizational policy allows it. **PTU, paid Search tiers, GPU managed compute, large Batch jobs, and fine-tuning are not needed for the core course.**
-L08's native automated evaluation also requires a separate judge deployment. Do not recreate one the administrator has already provided.
-
-**Prepare model throughput before the lab.** These are the minimum recommended starting allocations for one learner running one lab at a time. Check RPM as well as TPM.
-
-| Model role | Used for | Minimum recommended TPM | Minimum RPM |
-| --- | --- | ---: | ---: |
-| chat · `gpt-6-sol` | Models, agents, and L13–L14 orchestration | 100,000 | 60 |
-| judge · `gpt-4.1` | Optional L08 native evaluation | 100,000 | 60 |
-| embedding · `text-embedding-3-small` | L11 search and L15 Memory | 10,000 | 6 |
-
-These are **planning values**, assuming about 8,192 input tokens, up to 2,048 output tokens, six chat/judge starts per minute, and headroom. They are not Azure's absolute minimum or a spending cap. Multiply the budget by the simultaneous learners sharing a deployment. Longer context, managed evaluation, and other traffic can require more headroom.
-For a new environment, `foundation` **sets each role's recommended capacity on the initial deployment**. Then [check actual limits and test connectivity in L02](#l02-capacity). Use `apply` only for insufficient existing/manual deployments or an increased learner count.
-
-The project region, supported model regions, deployment type, and quota are separate conditions. A project in Korea Central does not, by itself, mean that all inference is processed in Korea. L02 covers Global, Data Zone, and geography-based processing scopes.
-
-Review automated evaluation options under **Metrics** in the agent playground. Deselect evaluations you do not need. Playground evaluations can also incur charges. Costs may include File search, Search, Code Interpreter, logs, and the hosted runtime—not just inference.
 
 <a id="l01-local"></a>
 
-### 4. Prepare the local exercise environment
+#### Check the lab files and create a virtual environment
 
-Run one line at a time from your English lab folder, with `FOUNDRY_LAB_LANGUAGE=en` still selected. On Windows use `py -3.13` as explained above.
+Run the two standard-library checks first. On Windows, use `py -3.13` instead of `python3.13`.
 
 ```bash
-python3 samples/workshop.py doctor
-python3 samples/workshop.py validate-data
+python3.13 samples/workshop.py doctor
+python3.13 samples/workshop.py validate-data
 ```
 
 <div class="command-explanation" markdown="1">
 
 **Command walkthrough**
 
-| Order and command | Details and options | Result, cost, or change |
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `doctor` | Shows the Python version, whether `.env` exists, and Azure SDK package installation. It does not check Azure CLI installation, sign-in, connectivity, or repair anything. | Read the diagnostic items in the terminal. No Azure sign-in or model calls. |
-| 2. `validate-data` | Locally checks the English learning data's format, scenario IDs, and original split under `data/en/`. | Checks data structure only, not model quality or an independent release exam. |
+| 1. `doctor` | Prints Python/SDK availability and whether `.env` exists. | Local inspection; not CLI sign-in or Azure connection validation. |
+| 2. `validate-data` | Checks synthetic data shape, scenario separation, and inventory. | Data validation, not model-quality evaluation. |
 
 </div>
-
-The second command prints the following. `dev` and `holdout` name two groups in the bundled, already exposed learning data. For now, check the counts and lack of overlap; this is neither L08's 12-question comparison nor a fresh sealed release test.
 
 ```output
 Validated 20 cases: dev=10, holdout=10; scenario overlap=0; inventory=3.
 ```
 
-This check **requires no Azure account, network connection, or external packages**. A `doctor` entry saying `not installed (needed only for --live)` identifies a package needed before Azure calls, not a failure of this local data check.
+`not installed (needed only for --live)` means the SDK installation below is still needed. These twenty cases are the existing dev/holdout data, not L08's fixed twelve-question comparison.
 
-**For local-only work, stop installation and sign-in here.** Use the same `python3` (Windows: `py -3.13`) for L06's local functions. The virtual environment below and step 5 prepare you for Azure code exercises.
-
-Install packages only when you are ready to call Azure from code.
+macOS/Linux:
 
 ```bash
 python3.13 -m venv .venv
@@ -234,18 +283,18 @@ cp -n .env.example .env
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough** — macOS/Linux
+**Command walkthrough — macOS/Linux**
 
-| Order and command | Details and options | Result, cost, or change |
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `python3.13 -m venv .venv` | Uses Python 3.13's `venv` module to create an environment for this folder, separate from global Python packages. | Creates a local `.venv/`. No Azure calls. |
-| 2. `source .venv/bin/activate` | Points this terminal's `python` and `pip` at the virtual environment. Select it again in each new terminal. | Changes only the current shell. It does not activate a project or resource. |
-| 3. `python -m pip install -r requirements.txt` | Uses the selected Python's pip to install the listed dependencies. `-r` reads a requirements file. | Connects to an approved package repository and changes the local environment. No Azure inference. |
-| 4. `cp -n .env.example .env` | Copies the configuration template. `-n` prevents overwriting an existing `.env`. | Creates a local `.env` if none exists. Enter your actual endpoint and deployment name in the next step. |
+| 1. `venv .venv` | Creates this folder's Python environment. | Local folder creation. |
+| 2. `source .../activate` | Selects it in the current terminal. | Reselect it in each new terminal. |
+| 3. `pip install -r ...` | Installs the declared SDK dependencies. | Package download/local installation; no Azure request. |
+| 4. `cp -n ...` | Copies the settings template only if absent. | Preserves existing `.env`. |
 
 </div>
 
-Windows PowerShell alternative:
+Use this block **instead** in Windows PowerShell:
 
 ```powershell
 py -3.13 -m venv .venv
@@ -255,23 +304,34 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough** — On Windows, use this instead of the macOS/Linux block above.
+**Command walkthrough — Windows**
 
-| Order and command | Details and options | Result, cost, or change |
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `py -3.13 -m venv .venv` | Selects Python 3.13 through the Windows Python Launcher to create a virtual environment. | Creates only a local `.venv`. |
-| 2. `.venv\Scripts\python.exe -m pip install` | Calls the virtual environment's Python directly without activation. Installs packages from `-r requirements.txt`. | Downloads and installs packages. You do not need to weaken the PowerShell execution policy. |
-| 3. `if ... Copy-Item` | Uses `Test-Path` to check whether `.env` exists, and copies the template only if it does not. | Preserves existing personal settings. No Azure calls. |
+| 1. `py -3.13 -m venv` | Creates a Python 3.13 environment. | Local folder creation. |
+| 2. `.venv\Scripts\python.exe -m pip ...` | Installs into that environment directly. | No activation or execution-policy change is needed. |
+| 3. `if ... Copy-Item` | Copies `.env` only when absent. | Does not overwrite existing settings. |
 
 </div>
 
-**One rule for later commands:** `python` means **the Python in this virtual environment**. On Windows, replace every `python ...` with `.\.venv\Scripts\python.exe ...`. Do not change execution policy or reinstall into global Python.
+Later `python` means this environment's Python. On Windows, replace it with `.\.venv\Scripts\python.exe`.
+
+<a id="l01-interpreter"></a>
+
+#### Select the lab Python in VS Code
+
+If you prepared the Python extension, also use the `.venv` created above for the editor's run and debug actions.
+
+1. Open `samples/first_response.py` to display a Python file.
+2. Open the Command Palette with **Ctrl+Shift+P** (macOS: **Cmd+Shift+P**) and choose **Python: Select Interpreter**.
+3. Select this lab folder's **Python 3.13 (`.venv`)**. If it is missing, use **Enter interpreter path** to select `.venv/bin/python` on macOS/Linux or `.venv\Scripts\python.exe` on Windows.
+4. Check the environment in the window's bottom Status Bar. Do not assume that editor selection changes an existing terminal's interpreter; also run the path check below. Continue using `.\.venv\Scripts\python.exe` for Windows terminal commands.
 
 <a id="l01-new-terminal"></a>
 
-#### When you open a new terminal or return another day
+#### Return in a new terminal or another day
 
-Open the same lab folder and run **this one check**. The printed path must contain this folder's `.venv`. Also reselect the [English profile](#l01-language) in the new terminal.
+Select the same folder/environment and reselect the English profile. Check the path in each terminal, including both L07 terminals:
 
 ```bash
 python -c "import sys; print(sys.executable)"
@@ -281,77 +341,154 @@ python -c "import sys; print(sys.executable)"
 
 **Command walkthrough**
 
-| Order and command | Details and options | Result, cost, or change |
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `python -c` | The short Python code after `-c` prints the current interpreter path. On Windows replace `python` with `.\.venv\Scripts\python.exe`. | Local inspection only. If the path is wrong, macOS/Linux users rerun `source .venv/bin/activate` from above. Do not reinstall packages. |
+| 1. `python -c` | Prints the current interpreter path. | If it is not this folder's `.venv`, reselect the environment instead of reinstalling packages. |
 
 </div>
 
-**A successful command using a different Python is not a ready environment.** Check both terminals when opening two in L07.
-
-### 5. Configure endpoints and authentication
-
-![Project settings example. Locate the project, parent resource, region, and Connected resources under Manage → Project details.](../../assets/portal/en/13-project-settings.png)
-
-**Reading the screen:** Under **Manage → Project details**, first compare **Name / Parent resource / Location** with your English environment's records. Put your own **Project endpoint** in the local configuration. In **Connected resources**, read the connection target, Category, and Auth method. This lab uses keyless authentication, so do not reveal or copy connection keys. Ask the administrator for any required connection or permission changes.
-
-Copy the project endpoint from **Manage → Project details** or the project's landing page. **Open `.env` in VS Code**, replace only the right-hand sides of these two `=` signs, and save. Ensure the filename is `.env`, not `.env.txt`. Do not paste this settings block into the terminal.
-
-```env
-FOUNDRY_PROJECT_ENDPOINT=https://your-foundry-resource.services.ai.azure.com/api/projects/contoso-workshop-en
-FOUNDRY_MODEL_DEPLOYMENT_NAME=your-model-deployment-name
-```
-
-Replace `your-foundry-resource` and `your-model-deployment-name` with your actual resource and model deployment names; verify the entire endpoint against your approved English project. **Do not append `/openai/v1` to the project endpoint.** The SDK constructs the correct path. Do not add an API key or copy another run's `.env`.
-
-Set `.env`'s `FOUNDRY_JUDGE_DEPLOYMENT_NAME` to the supplied grading-model deployment **only if running a new evaluation in L08**. Reading the existing results does not require it. Leave unused optional settings empty.
-
-The **`.env`** settings file and **`.venv`** Python folder are different. Saving `.env` does not select Python or sign in to Azure.
+### 2. Check sign-in, subscription, permissions, and costs
 
 ```bash
 az login
-az account show --query "{subscription:name,tenant:tenantId}" -o table
+az account show --query "{subscription:name,id:id,tenant:tenantId,state:state}" -o table
+az account set --subscription "actual-subscription-id"
 ```
 
 <div class="command-explanation" markdown="1">
 
 **Command walkthrough**
 
-| Order and command | Details and options | Result, cost, or change |
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `az login` | Starts Azure CLI user sign-in. CLI authentication is required separately even if you are signed in to the portal in a browser. | Creates local CLI authentication state. Enter passwords and MFA directly in the authentication screen, never in chat or documentation. |
-| 2. `az account show` | `--query` selects only the current subscription name and tenant ID; `-o table` displays them in a readable table. | Checks the target without model requests or resource creation. Compare it with your approved scope. |
+| 1. `az login` | Starts CLI user authentication. | Enter passwords/MFA directly in the authentication screen; portal sign-in is separate. |
+| 2. `az account show` | Shows the subscription, tenant, and state. | Inspection only; no model call or resource creation. |
+| 3. `az account set` | Replaces the placeholder with your subscription ID and selects it. | Changes the local CLI target, not permissions. |
 
 </div>
 
-If the selected subscription is wrong, choose it explicitly.
+In Azure portal **Subscriptions → Access control (IAM) → View my access**, verify the prerequisite permissions. Creation and role assignment are different capabilities. Grant subsequent roles only at your lab project/resource scopes.
+
+Record **the amount, services, stop time, and retention deadline**. Budget alerts, TPM/RPM, and log-ingestion limits are not hard spending caps. At the limit, stop new requests/schedules and use [L19](#l12) to inspect remaining resources.
+
+### 3. Create your dedicated resource group
+
+The default path creates a **new dedicated environment** using the bundled code, then inspects it in the portal. It does not alter a shared environment. Generated names and ownership tags are recorded in `results/azure-environment.json`, which later evaluation, retrieval, and deployment use to verify scope.
 
 ```bash
-az account set --subscription "approved-lab-subscription-id"
+python scripts/azure_environment.py create
+python scripts/azure_environment.py create --subscription actual-subscription-id --location permitted-region --cost-authorization "Approved amount, service scope, and retention deadline" --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — read the plan, then supply your actual values.**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `create` | Prints the dedicated-environment plan. | `PLAN ONLY`; no Azure request or sign-in/permission validation. |
+| 2. `create ... --live` | Records scope and cost authorization and creates a unique resource group. | Actual Azure creation; no reuse or overwrite of an existing group/receipt. |
+
+</div>
+
+In Azure portal **Resource groups**, verify the returned name, region, and tags. Do not share or commit `.env` or the receipt. If a receipt already exists, inspect its resources instead of deleting it and restarting.
+
+![Resource-group example. Compare your own generated group, region, and ownership tags in Azure portal before proceeding.](../../assets/portal/en/18-resource-group.png)
+
+### 4. Create the Foundry project, models, and required roles
+
+`foundation` uses [main.bicep](../../infra/main.bicep) to create **a Foundry resource/project and three chat/judge/embedding deployments**. Chat supports the core labs, judge supports L08, and embedding supports optional L11/L15. It sends no inference request.
+
+This kit pins `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, and `text-embedding-3-small / 1`. Verify availability in your subscription/region. If unavailable, record the limitation and stop; do not silently substitute a model and claim equivalent validation.
+
+```bash
+python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
+python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
+python scripts/azure_environment.py roles --live
 ```
 
 <div class="command-explanation" markdown="1">
 
 **Command walkthrough**
 
-| Order and command | Details and options | Result, cost, or change |
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `az account set` | Replace the placeholder after `--subscription` with the approved lab subscription ID to select the CLI's default target. | Changes the local CLI's default subscription. It does not grant new permissions or move existing Azure resources. |
+| 1. `foundation` | Shows the per-learner TPM/RPM and capacity-sizing plan. | Local calculation; not live catalog/quota verification. |
+| 2. `foundation ... --live` | Checks the actual catalog/quota and deploys the project and models in the owned group. | Real creation; capacity ceiling 100 per deployment is not money. Converts model-specific units and verifies actual limits afterward. |
+| 3. `roles --live` | Assigns the current user/project identity scoped data roles on the project and parent resource. | Access change requiring `roleAssignments/write`; no subscription-wide role is created. |
 
 </div>
 
-The sample uses **AzureCliCredential** locally. In production, choose credentials suited to the deployment environment, such as an appropriate managed identity.
+**Portal check:** In [Foundry](https://ai.azure.com), enable **New Foundry**, open your project, and compare **Manage → Project details** Name/Parent resource/Location with the receipt. Under **Build → Models → Deployments**, verify `contoso-chat`, `contoso-judge`, and `contoso-embedding` are ready. Do not create them again in the portal.
+
+| Creation code | What to inspect in the portal |
+| --- | --- |
+| RG creation in `create` | Unique Azure Resource groups name and ownership tags |
+| Foundry account/project in `foundation` | Project name, parent resource, and region |
+| Bicep model deployments | Model ID/version and deployment names such as `contoso-chat` |
+| Scoped assignments in `roles` | Caller/managed identity and scope in the resource's IAM |
+
+Preserve the original error and deployment operations after partial failure. Use `foundation --resume --live` only for the same owned partial deployment, with **the same model/SKU arguments**. It does not select a new environment or erase previous failure records.
+
+### 5. Connect telemetry and complete local settings
+
+Connect telemetry **before the first agent request**, so L10 can inspect L04 and later runs:
+
+```bash
+python scripts/azure_environment.py monitoring
+python scripts/azure_environment.py monitoring --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `monitoring` | Prints the telemetry-resource/connection plan. | No Azure request. |
+| 2. `monitoring --live` | Creates Log Analytics, Application Insights, and the project connection in the owned group. | Collection/retention charges may apply; a recorded existing connection is not overwritten. |
+
+</div>
+
+Inspect the connection under **Agents → Traces** or **Manage → Project details → Connected resources**. Querying logs requires read access to the target Application Insights/Log Analytics resources. If necessary, assign scoped `Log Analytics Reader` or the required minimum equivalent in your resource IAM. Protected tables may require additional access.
+
+Model/agent SDK requests use Entra authentication. The bundled [observability.bicep](../../infra/observability.bicep) references the telemetry connection string inside Azure without printing it. This is not a claim of Entra-authenticated trace ingestion.
+
+![Project settings example. Locate the project, parent resource, region, and Connected resources under Manage → Project details.](../../assets/portal/en/13-project-settings.png)
+
+Open `.env` in VS Code and save your actual values. This is **file configuration**, not a terminal command:
+
+```env
+FOUNDRY_PROJECT_ENDPOINT=https://actual-resource.services.ai.azure.com/api/projects/contoso-workshop-en
+FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat
+FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge
+FOUNDRY_EMBEDDING_DEPLOYMENT_NAME=contoso-embedding
+```
+
+Copy `FOUNDRY_PROJECT_ENDPOINT` from receipt `project_endpoint` or Home's **Project endpoint**; do not append `/openai/v1`. Compare deployment names with receipt `model_deployments`. `.env` and `.venv` are different; do not add API keys.
+
+The following client setup **uses** the existing project; it does not create resources or grant roles:
+
+```python
+from azure.ai.projects import AIProjectClient
+from azure.identity import AzureCliCredential
+
+with (
+    AzureCliCredential(process_timeout=30) as credential,
+    AIProjectClient(endpoint=project_endpoint, credential=credential, retry_total=0) as project,
+    project.get_openai_client(max_retries=0, timeout=60.0) as client,
+):
+    print("Client configured; no model request sent.")
+```
 
 ## Success criteria
 
-You have selected the English profile, recorded the separate project, model, roles, region, and person responsible for costs, and the local data checks pass. Verify a successful Azure connection separately with **the live response in L03**.
+You created your dedicated resource group, project, three models, and telemetry connection and checked permissions, region, and budget. Local data checks pass; the portal, `.env`, and `results/azure-environment.json` identify the same English environment. A plan/client configuration is not a successful model request. Continue to [L02](#l02) to inspect your deployments.
 
 ## Troubleshooting
 
-**For 403, check roles first; for 404, check the endpoint and deployment name; for 429, check quota.** A private-endpoint environment requires an approved VPN or development environment inside the VNet. Do not enable public access on your own to resolve a problem.
-
-If SDK installation fails through your organization's mirror, request synchronization of the approved mirror. A package being available on public PyPI does not authorize bypassing organizational policy to install it.
+For 401, check CLI authentication; for 403, check action-specific permissions and networking; for deployment failure, check model, region, quota, and capacity. Private endpoints require an approved VPN/VNet path, not a public-access bypass. For installation failures, check the interpreter and permitted package source.
 
 ## Cleanup
 
-Record the resource group and its owner, and read L19's shutdown checklist in advance. Do not share or commit `.env`. The `.env` used in this lab should contain no secrets.
+Do not delete resources yet. Retain your ownership record and deadline, then review schedules and costs in L19. This module creates an environment; it does not validate answer quality.

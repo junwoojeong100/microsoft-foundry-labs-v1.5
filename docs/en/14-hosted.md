@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Advanced elective · requires L11's retrieval resources and a prepared deployment environment.
+**Format:** Connect your L11 retrieval resources, invoke locally, deploy, then invoke the exact remote version.
 
 **Start here:** Build the package in its dedicated Python environment. Follow the default Invocations path; skip the Optimizer adapter initially.
 
@@ -30,8 +30,7 @@ Do not describe this as validation of the Responses, Voice, or Teams protocols.
 
 This lab is based on the Search service/index and model from L11, Python **3.13**, azd **1.34.0**,
 and `azure.ai.agents` **1.0.0-beta.10**.
-Check the official Hosted documentation for supported capabilities and regions. Do not require learners to be Owners of a particular subscription.
-Distinguish the deployment operator from learners using an already prepared project.
+Verify Hosted capabilities/regions. Use L01's scoped creation/role-assignment permissions; newly granting subscription-wide Owner is not the default prerequisite.
 
 ### Choose your starting path
 
@@ -68,6 +67,44 @@ python scripts/check_sdk.py
 The `.venv-advanced` environment for the MAF lab is separate. Do not simply merge incompatible `azure-ai-projects` constraints. Keep `FOUNDRY_LAB_LANGUAGE=en` selected in every terminal and use only this English checkout's configuration and receipts.
 
 On Windows, use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-live\Scripts\python.exe`. Use `curl.exe` for the `curl` commands below. Do not paste the macOS/Linux `source` command into PowerShell.
+
+azd and Azure CLI have separate authentication. Check versions/extensions and sign-in first:
+
+```bash
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `azd version` | Checks the installed CLI version. | Local inspection, no automatic upgrade. |
+| 2. `azd extension list` | Checks the agent extension/version. | Listing only; no Copilot skill is required. |
+| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Azure CLI sign-in. |
+
+</div>
+
+Run only the missing prerequisite below. Do not reinstall a compatible existing environment.
+
+```bash
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension install azure.ai.agents --version 1.0.0-beta.10
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — choose only needed setup.**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `extension install` | Installs the kit's agent CLI contract. | Local download/install; do not force-downgrade/update existing extensions. |
+| 2. `auth login` | Authenticates your own account with azd. | Complete authentication directly; do not store secrets in files/chat. |
+
+</div>
 
 ## Steps
 
@@ -138,7 +175,7 @@ python samples/hosted_client.py invoke --local --live
 The default binding is loopback; do not expose this unauthenticated development server externally.
 Each request is split into **at most two tool rounds → a separate tool-free, evidence-based answer → source correspondence check**.
 Each tool-round output and the answer remain limited to **2048 tokens**; the source check remains limited to 512 tokens.
-The limits remain **8 tool calls, 12 requests, and a 300-second server budget**, with SDK retries at 0. Local and remote Invocations HTTP clients both use a **310-second timeout**; the remote client's previous 60-second timeout was inconsistent with the local client and server budget. A longer client wait does not authorize extra requests or establish a successful answer.
+The model executes at most **two tool rounds, one answer, and one attribution request**. The full server budget is **8 tool records, 12 requests, and 300 seconds**, with zero automatic SDK retries. Local/remote HTTP client timeout is **310 seconds**; a longer wait does not authorize more requests or prove success.
 
 <details class="optional-path" markdown="1">
 <summary>Implementation reference: separating retrieval, tools, and grounded answers</summary>
@@ -167,47 +204,35 @@ and the actual selections from both models are displayed together. Required draf
 
 **Three distinct checks:** `/readiness` verifies server connectivity; `invoke --local` prints a plan; `invoke --local --live` executes the business request. Inspect original `tool_calls`, citations, and `order_submitted=false` before proceeding to remote deployment. Keep the server terminal open; do not start a second server or recreate the environment in the client terminal.
 
-### 3. Deploy only to a prepared project
+### 3. Deploy to the project you created
 
 ![Agent-list example. Locate Type, Version, and status under Build → Agents.](../../assets/portal/en/03-agents.png)
 
 **Read the screen:** Use **Type** to distinguish Hosted/Prompt and **Version** to identify the code/definition version. Open the name to inspect deployment settings and protocol, and use your own version from CLI `show` rather than copying the image's numbers. Check individual session compute, costs, and business responses separately from the list's **Running** status.
 
-If the administrator created the environment using the bundled IaC from L01:
+Bind your L01 receipt and L11 Search settings to azd. Verify deployment/runtime-role scope before execution.
 
 ```bash
 python scripts/configure_hosted.py
-azd deploy contoso-purchasing --no-prompt
-azd ai agent show contoso-purchasing --output json
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing --no-prompt
+AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai agent show contoso-purchasing --output json
 python scripts/runtime_roles.py --agent contoso-purchasing --live
 ```
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough** — Perform these only within the deployment operator's approved scope.
+**Command walkthrough** — Use your owned project and permitted access/cost scope.
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `configure_hosted.py` | Binds the project, region, model, and Search values from the owned environment's receipt to the azd environment. It does not automatically discover and select another project. | Changes local azd environment settings. For a separately provided project, use the manual environment configuration path below. |
+| 1. `configure_hosted.py` | Binds your receipt's project/region/model/Search settings to azd. | Local binding; stops if `.env` and receipt differ. |
 | 2. `azd deploy contoso-purchasing --no-prompt` | Performs a real deployment of only the specified service in `azure.yaml`. `--no-prompt` skips interactive confirmation; it is not a dry run. | Remote deployment, a new immutable version, and possible charges. This CLI does not require `--live`. |
 | 3. `azd ai agent show ... --output json` | Reads deployed agent metadata as structured JSON. | Record the numeric version and target project. No business request has been sent yet. |
-| 4. `runtime_roles.py --agent ... --live` | Configures the minimum scoped roles for project access, Search reads, and model calls on the owned agent's runtime identity. | An administrator permission change. This is separate from the developer's signed-in roles; it does not authorize arbitrary agents or subscription-wide roles. |
+| 4. `runtime_roles.py --agent ... --live` | Grants your runtime identity scoped project, Search-read, and model-invocation access. | Actual role changes; runtime identity differs from your user and receives no subscription-wide roles. |
 
 </div>
 
-If learners receive a separately provisioned project, use `azd env new` and `azd env set` to configure
-`AZURE_AI_PROJECT_ID`, `AZURE_AI_PROJECT_ENDPOINT`, `AZURE_SUBSCRIPTION_ID`,
-`AZURE_TENANT_ID`, `AZURE_RESOURCE_GROUP`, **`AZURE_LOCATION`**, and the model/Search values.
-These are environment bindings, not credentials. Keep the English `.azure/` environment separate from all Korean-run settings and keep `FOUNDRY_LAB_LANGUAGE=en` selected while building/configuring. Do not print the full output of `azd env get-values` to public logs.
-`azd env new` creates a local environment name, and `azd env set` stores one configuration value in that environment. Neither command deploys a model by itself, but they change the target of a later `deploy`, so compare the project and subscription before setting values. `get-values` reads the entire configuration; it is not a check of lab results.
-
-`AZURE_LOCATION` is the project's actual region name. Code deployment fails if this value is missing.
-The `scripts/configure_hosted.py` path uses an ownership receipt created by the bundled administration script.
-When using a separate project supplied by an instructor, configure the azd environment with that project's actual values.
-
-The bundled `azure.yaml` uses **code deployment**; Docker/ACR is not required.
-Do not casually run `azd provision` with this file. Resource creation belongs to the L01 administration path.
-Each deployment creates a new immutable version. Grant the agent runtime identity only the relevant Search read role.
+`configure_hosted.py` prepares the binding including **`AZURE_LOCATION`**. Keep English profile/`.azure/` isolated; do not publish full `azd env get-values` output. `azure.yaml` uses **code deployment** without requiring Docker/ACR. L01 already created resources, so do not additionally run `azd provision` here. Each deployment creates an immutable version.
 
 ### 4. Invoke the exact remote version
 
@@ -240,6 +265,44 @@ The question is “Check the policies and stock for 2 NB-14 laptops and create o
 Inspect the arguments and results for `search_policies`, `get_stock`, and `prepare_purchase_request`.
 The total must be **KRW 2,900,000**, with both approval roles and `order_submitted=false`.
 When connecting a separate Toolbox, retain L07's authentication principal and one-time approval policy.
+
+#### Hosted version in the portal and the actual HTTP handler
+
+The portal shows the deployed Hosted type/version; Python in the container handles `/invocations`. The core handler in `hosted/main.py` is:
+
+```python
+@app.invoke_handler
+async def handle(request: Request):
+    raw = await request.body()
+    if len(raw) > 32_000:
+        return JSONResponse({"error": "request_too_large"}, status_code=413)
+    try:
+        payload = validate_request(json.loads(raw))
+    except (ValueError, UnicodeDecodeError) as exc:
+        return JSONResponse({"error": "invalid_request", "message": str(exc)}, status_code=400)
+    async with gate:
+        try:
+            result = await asyncio.to_thread(invoke, payload)
+            return JSONResponse(result)
+        except (AzureError, OpenAIError, ValueError, RuntimeError, OSError) as exc:
+            evidence = Evidence("hosted-failure")
+            evidence.failure(exc)
+            return JSONResponse(
+                {"error": type(exc).__name__, "run_id": evidence.run_id, "status": "failed"},
+                status_code=502,
+            )
+```
+
+| Portal/execution step | Actual code |
+| --- | --- |
+| Hosted service receives `POST /invocations` | `@app.invoke_handler` |
+| Validate request JSON and size | `validate_request(...)` and the 32,000-byte limit |
+| Limit concurrent invocations | `async with gate` |
+| Model, retrieval, and function flow | `invoke(payload)` → `samples/hosted_runtime.py` |
+| Connect to the portal agent version | Compare the exact numeric version in the invocation/receipt |
+| Handle failure | Record evidence and return an actual 400/413/502 failure |
+
+The portal does not edit the handler; it shows the deployed type/version of the container that includes it. `hosted_runtime.py` is the business flow, while `hosted/main.py` is the HTTP entry point. Local execution may still call real Azure services.
 
 ## Success criteria
 

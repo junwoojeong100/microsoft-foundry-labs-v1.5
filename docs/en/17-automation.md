@@ -49,7 +49,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 
 </div>
 
-Prepare the core SDK environment and the azd `azure.ai.routines` extension. Keep L01's English profile selected and do not save tokens to files.
+Use the core SDK environment. If azd or Routine support is missing, follow L12's azd installation/authentication checks and install `azure.ai.routines` using `azd extension install azure.ai.routines` when needed. Inspect the installed `azd ai routine --help`; do not force-update it. Hosted deployment itself is unnecessary.
 Query only the English project and App Insights in this checkout's `results/azure-environment.json`.
 Do not automatically upgrade CLI extensions/global settings or use resources from another environment.
 
@@ -58,7 +58,7 @@ Do not automatically upgrade CLI extensions/global settings or use resources fro
 | Required value | Where to get it | Relationship to verify |
 | --- | --- | --- |
 | `ACTUAL_AGENT_NAME` | Your L05 project → Build → Agents name, or that SDK run's owned receipt | File search runs server-side; do not substitute L06's local-function agent |
-| Project/App Insights | Administrator-created `results/azure-environment.json` from L01 and L10's log connection | Matches `.env` and allows reading action traces |
+| Project/App Insights | Your own L01 `results/azure-environment.json` and telemetry connection | Matches `.env` and allows reading action traces |
 | Two `--receipt` paths | The **distinct new manual/scheduled files** below | Never overwrite previous or other-language records |
 
 Follow **one manual execution → one timer execution → verify both disabled**. Without Azure approval, read only the first `create` plan. Resolve log access and response-collection prerequisites before scheduling. Do not reschedule merely because an execution's trace is absent.
@@ -178,6 +178,39 @@ Real orders require separate approval and durable idempotency, so do not connect
 Long-running checkpoints, reconnection, and approval expiry, as well as Autopilot managers, Entra agent users,
 and mail/Teams permissions, are **design exercises**. The timer lab does not create an Autopilot account.
 If you selected continuous evaluation, stop its schedule separately as well.
+
+#### Portal Routines and the actual creation manifest
+
+Portal **Agents → Routines** shows the schedule time, target agent, and enabled state. The bundled Python does not guess a recurring schedule: it writes one timer trigger and one agent action to a manifest with a unique receipt.
+
+```python
+manifest = {
+    "triggers": {
+        "default": {"type": "timer", "at": fire_at.strftime("%Y-%m-%dT%H:%M:%SZ")}
+    },
+    "action": {
+        "type": "invoke_agent_responses_api",
+        "agent_name": args.agent,
+        "input": state["input"],
+    },
+}
+write_new(manifest_path, manifest)
+created = azd(
+    endpoint, evidence, "create", name,
+    "--file", str(manifest_path),
+    "--enabled=false",
+)
+```
+
+| Portal Routines view | Value to compare in code/receipt |
+| --- | --- |
+| Routine name | `name` and `state["name"]` in the receipt |
+| Trigger time | `triggers.default.at` and `state["trigger_at"]` |
+| Target agent/input | `action.agent_name` / `action.input` |
+| Enabled / Paused | `enabled` from `azd show`; `stop_verified(...)` disables it |
+| Last run | Separate App Insights trace and response ID; a receipt alone does not prove execution |
+
+`fire_at` is the UTC trigger time; `manifest_path` is a new JSON file in `results/`. Python invokes azd, not portal UI automation. Compare the portal target/time/Paused state with code inputs; live actions require matching receipt, `--live`, and approval.
 
 ## Success criteria
 

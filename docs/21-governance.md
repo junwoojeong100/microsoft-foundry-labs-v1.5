@@ -26,7 +26,7 @@
 
 ## 준비
 
-기본 과제는 Python 로컬 수정과 설계입니다. L01의 Python을 준비한 뒤 아래 Contoso 예시를 자신의 **주체 → 작업 → 범위 → 거절 조건 → 담당자** 표로 바꿉니다. Azure 계정 없이 진행할 수 있으며 실제 권한 검증으로 기록하지 않습니다. role assignment·gateway·private endpoint·정책 변경은 관리자와 별도 승인 후 진행합니다.
+기본 과제는 Python 로컬 수정과 설계입니다. 자신의 **주체 → 작업 → scope → 거절 조건 → 확인·회수 방법**을 작성합니다. Azure 계정 없이도 가능하지만 실제 권한 검증은 아닙니다. 실제 role assignment·gateway·private endpoint·정책 변경은 해당 권한과 변경 범위를 갖춘 뒤 별도 실행합니다.
 
 ### 먼저 경로 정하기
 
@@ -94,22 +94,45 @@ def read_document(user: str, document_id: str, grants: dict[str, set[str]], cach
 
 </div>
 
+#### 로컬 코드와 Azure 포털 경계
+
+이 연습의 `exercise.py`는 가짜 문서와 가짜 권한표만 사용합니다. 결함은 캐시 반환이 권한 검사보다 앞에 있는 순서입니다.
+
+```python
+def read_document(user, document_id, grants, cache):
+    if document_id in cache:
+        return cache[document_id]
+    if user not in grants[document_id]:
+        raise PermissionError("Access denied")
+    cache[document_id] = DOCUMENTS[document_id]
+    return cache[document_id]
+```
+
+| 이번 연습 | 무엇을 조작하는지 |
+| --- | --- |
+| `prepare_practice.py governance` | 결함 예제를 새 `practice/governance` 폴더로 복사 |
+| `exercise.py` 수정 + `test_exercise.py` | 로컬 캐시/가짜 grant에서 B와 회수 후 A가 거절되는지 확인 |
+| Azure Portal / RBAC | 이 테스트에서는 변경하거나 검증하지 않음 |
+| `infra/main.bicep`, `runtime_roles.py` | 설계 참고 자료. Azure에 적용하지 않음 |
+
+L01에서는 자신의 실제 역할을 준비했고 여기서는 **애플리케이션의 캐시/문서 권한 검사**를 학습합니다. 둘은 다른 검사입니다. 실제 ACL 시험에는 허용된 테스트 identity·별도 합성 제한 문서·접근 로그가 필요하며 로컬 통과로 대신하지 않습니다.
+
 ### 1. identity 네 가지를 분리하기
 
 **작성 예 — L12의 공용 정책 Hosted 경로를 기준으로 한 설계이며 실제 역할 부여 기록은 아닙니다.**
 
-| Identity | 허용할 작업·범위 | 허용하지 않을 것 | 확인·회수 담당 |
+| Identity | 허용할 작업·범위 | 허용하지 않을 것 | 내가 확인할 근거 |
 | --- | --- | --- | --- |
-| 개발자 | 승인된 실습 프로젝트의 agent 변경·조회 | 구독 전체 관리, 다른 팀 agent 수정 | 프로젝트 관리자 |
-| 프로젝트 managed identity | L07 OpenAPI 등 그 ID를 실제로 쓰는 연결의 지정 Search 읽기 | agent runtime 역할을 자동 상속한다고 가정 | 연결 관리자 |
-| agent runtime identity | 지정 모델 호출, 소유 Search의 정책 읽기 | 인덱스 수정, 임의 데이터 원본 접근, 주문·결제 | runtime/데이터 관리자 |
-| 최종 사용자 | 허용된 agent 호출과 본인에게 허용된 근거 | agent 편집, 다른 사용자 문서·대화 조회 | 앱/데이터 소유자 |
+| 내 로그인 identity | 소유 프로젝트의 agent 변경·조회 | 다른 팀 agent 수정, 무관한 범위 권한 확대 | 자원 IAM과 내 요청 결과 |
+| 프로젝트 managed identity | L07 OpenAPI처럼 이 ID를 쓰는 연결의 Search 읽기 | runtime 역할의 자동 상속 | 연결 인증 방식과 Search IAM |
+| agent runtime identity | 지정 모델·소유 Search 읽기 | index 변경, 임의 데이터 접근, 주문·결제 | L12 runtime ID·scoped 역할·실제 호출 |
+| 앱 사용자 identity | 허용된 agent·본인에게 허용된 근거 | agent 편집, 타인 문서·대화 조회 | 앱 인증·ACL·허용/거절 로그 |
 
 L12의 직접 Search 호출과 L07 연결의 호출 주체는 같다고 가정하지 않습니다. **Manage의 연결 인증 방식 → 해당 identity의 role assignment와 scope → 대상 서비스** 순으로 읽습니다. 권한 목록은 허용 가능성을 보여 줄 뿐 호출 성공 증거가 아니며, 실제 검사는 별도 승인된 읽기 요청으로 확인합니다.
 
 ### 2. Control Plane에서 fleet 확인하기
 
-**Operate → Assets**에서 권한이 허용하는 agent/model/tool을 찾습니다. 다른 프로젝트의 자원이 어떻게 보이는지 확인합니다. **Manage**는 현재 선택한 프로젝트/리소스의 quota·details·gateway 등이고, **Operate**는 fleet 관점입니다.
+**Operate → Assets**에서 자신이 만든 agent/model/tool을 찾습니다. **Manage**는 현재 프로젝트/리소스 설정, **Operate**는 자산·운영 상태 관점입니다. 여러 프로젝트의 자산이 보이더라도 권한 범위 밖의 데이터를 실습 자료로 쓰지 않습니다.
 
 실행 상태·비용·경보·평가·정책 정보를 비교합니다. 외부 agent 등록은 관찰 범위를 늘리는 기능이며, 등록했다고 그 agent에 Foundry runtime guardrail이 자동 적용되지 않습니다.
 
@@ -162,7 +185,7 @@ private Search/Storage 등에는 각각 필요한 private endpoint를 준비합�
 | runtime의 정책 읽기 | 지정 Search만 읽고 변경은 허용하지 않도록 설계 | 개발자 로그인 권한과 runtime 역할을 분리해 대조 |
 | 사용자 B의 제한 자료 요청 | 본문뿐 아니라 제목·URL·cache도 반환하지 않아야 함 | 원본 ACL → 검색 필터/사용자 token → cache 분리 확인 |
 
-마지막 행은 **ACL 설계 과제**입니다. 현재 공용 Contoso index만으로 제한 문서 격리를 실증할 수 없습니다. 실제 검사에는 관리자 승인 테스트 계정·별도 합성 제한 문서·접근 로그가 필요합니다.
+마지막 행은 **ACL 설계 과제**입니다. 현재 공용 Contoso index로 제한 문서 격리를 실증할 수 없습니다. 실제 시험은 허용된 기존 테스트 계정·별도 합성 제한 문서·접근 로그를 갖춘 경우에만 별도 수행합니다.
 
 **대표적인 제약:** Memory store의 VNet 미지원, Routines의 CMK 미지원, 일부 browser/computer/image 도구의 network isolation 미지원, public web/Bing/SharePoint 도구의 public 통신. Hosted Agent private ACR은 **2026-06-25 이후 생성된 프로젝트** 등 문서의 조건을 재확인합니다.
 
@@ -183,4 +206,4 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 ## 정리
 
-임시 역할·정책·gateway·연결을 기록하고 관리자 절차로 회수합니다. 공유 네트워크와 운영 정책을 임의 삭제하지 않습니다.
+내가 실제 변경한 역할·정책·gateway·연결이 있다면 소유 기록에 남기고 허용된 범위에서 회수합니다. 설계만 했다면 Azure 변경 없음으로 기록합니다. 공유 네트워크·운영 정책은 삭제하지 않습니다.

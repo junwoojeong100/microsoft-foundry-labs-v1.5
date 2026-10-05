@@ -27,541 +27,545 @@ Choose advanced modules eleven through eighteen as needed, then finish either pa
 A successful command, a completed cloud execution, and a correct business answer are three different outcomes.
 
 8
-00:00:35,048 --> 00:00:40,241
-Start by confirming the approved subscription, directory, region, and spending scope.
+00:00:35,048 --> 00:00:36,949
+You create your own environment.
 
 9
-00:00:40,241 --> 00:00:46,670
-Use separate folders for Korean and English, keeping the English language profile selected in its folder.
+00:00:36,949 --> 00:00:40,995
+Check your subscription, region, permissions, and cost scope first.
 
 10
-00:00:46,670 --> 00:00:50,379
-Prepare Python, then run doctor and the synthetic data check.
+00:00:40,995 --> 00:00:46,267
+Use separate Korean and English folders and select the English profile in its terminal.
 
 11
-00:00:50,379 --> 00:00:56,066
-An administrator creates a uniquely named resource group and preserves its ownership receipt.
+00:00:46,267 --> 00:00:49,639
+Create the Python environment and run local data checks.
 
 12
-00:00:56,066 --> 00:01:03,051
-Provision the project and models using the next module's requirements, then assign only the required scoped roles.
+00:00:49,639 --> 00:00:57,242
+The creation command makes a unique resource group and receipt, then foundation deploys the Foundry project and three models.
 
 13
-00:01:03,051 --> 00:01:07,811
-Store endpoint and deployment names, not credentials, in the environment file.
+00:00:57,242 --> 00:01:01,656
+Assign scoped roles and connect telemetry before the first agent request.
 
 14
-00:01:07,811 --> 00:01:13,560
-Portal sign-in and command-line authentication are separate, so verify the directory in both.
+00:01:01,656 --> 00:01:05,457
+Compare the portal, environment settings, and ownership record.
 
 15
-00:01:13,560 --> 00:01:17,812
-Distinguish the product name, model version, and your deployment name.
+00:01:05,457 --> 00:01:11,281
+Budget alerts do not enforce a hard spending cap, and an unpermitted operation remains blocked.
 
 16
-00:01:17,812 --> 00:01:24,097
-The target is GPT six Sol, with GPT four point one as judge and text embedding three small for vectors.
+00:01:11,281 --> 00:01:15,533
+Distinguish the product name, model version, and your deployment name.
 
 17
-00:01:24,097 --> 00:01:29,581
-Check regional catalog support, processing location, and available quota before deploying.
+00:01:15,533 --> 00:01:21,818
+The target is GPT six Sol, with GPT four point one as judge and text embedding three small for vectors.
 
 18
-00:01:29,581 --> 00:01:38,085
-For one learner, the starting recommendation is one hundred thousand tokens per minute for chat and judge, and ten thousand for embeddings.
+00:01:21,818 --> 00:01:27,302
+Check regional catalog support, processing location, and available quota before deploying.
 
 19
-00:01:38,085 --> 00:01:44,739
-Convert these budgets using each model's actual capacity units, then read back both token and request limits.
+00:01:27,302 --> 00:01:35,806
+For one learner, the starting recommendation is one hundred thousand tokens per minute for chat and judge, and ten thousand for embeddings.
 
 20
-00:01:44,739 --> 00:01:48,005
-Run the bounded connectivity test only after approval.
+00:01:35,806 --> 00:01:42,461
+Convert these budgets using each model's actual capacity units, then read back both token and request limits.
 
 21
-00:01:48,005 --> 00:01:51,764
-Throughput is neither a spending cap nor a quality guarantee.
+00:01:42,461 --> 00:01:45,727
+Run the bounded connectivity test only after approval.
 
 22
-00:01:51,764 --> 00:01:55,417
-The first model call is the smallest connectivity exercise.
+00:01:45,727 --> 00:01:49,485
+Throughput is neither a spending cap nor a quality guarantee.
 
 23
-00:01:55,417 --> 00:02:00,140
-Without the live flag, the command prints a plan and makes no cloud request.
+00:01:49,485 --> 00:01:53,138
+The first model call is the smallest connectivity exercise.
 
 24
-00:02:00,140 --> 00:02:06,311
-After checking configuration and authentication, send the default question once with the live flag.
+00:01:53,138 --> 00:01:57,861
+Without the live flag, the command prints a plan and makes no cloud request.
 
 25
-00:02:06,311 --> 00:02:10,782
-Inspect completion status, nonempty output, and the response identifier.
+00:01:57,861 --> 00:02:04,033
+After checking configuration and authentication, send the default question once with the live flag.
 
 26
-00:02:10,782 --> 00:02:16,261
-You have not supplied company policy, so the model should not invent a purchasing limit.
+00:02:04,033 --> 00:02:08,504
+Inspect completion status, nonempty output, and the response identifier.
 
 27
-00:02:16,261 --> 00:02:19,599
-Do not keep resending until you get preferred wording.
+00:02:08,504 --> 00:02:13,983
+You have not supplied company policy, so the model should not invent a purchasing limit.
 
 28
-00:02:19,599 --> 00:02:24,700
-This step invokes a model; it does not yet create an agent or retrieve documents.
+00:02:13,983 --> 00:02:17,320
+Do not keep resending until you get preferred wording.
 
 29
-00:02:24,700 --> 00:02:29,487
-Create a text agent with your model deployment and the supplied instructions.
+00:02:17,320 --> 00:02:22,421
+This step invokes a model; it does not yet create an agent or retrieve documents.
 
 30
-00:02:29,487 --> 00:02:32,322
-Do not attach knowledge or function tools yet.
+00:02:22,421 --> 00:02:27,209
+Create a text agent with your model deployment and the supplied instructions.
 
 31
-00:02:32,322 --> 00:02:38,936
-Ask about the laptop cap and real-time inventory; the agent should acknowledge that it cannot verify them.
+00:02:27,209 --> 00:02:30,043
+Do not attach knowledge or function tools yet.
 
 32
-00:02:38,936 --> 00:02:44,227
-In one conversation, say you are considering a monitor, then ask which item you mean.
+00:02:30,043 --> 00:02:36,657
+Ask about the laptop cap and real-time inventory; the agent should acknowledge that it cannot verify them.
 
 33
-00:02:44,227 --> 00:02:47,502
-Start a new conversation and ask the follow-up again.
+00:02:36,657 --> 00:02:41,948
+In one conversation, say you are considering a monitor, then ask which item you mean.
 
 34
-00:02:47,502 --> 00:02:50,463
-The earlier item should not silently carry over.
+00:02:41,948 --> 00:02:45,223
+Start a new conversation and ask the follow-up again.
 
 35
-00:02:50,463 --> 00:02:55,880
-Agent name, configuration version, conversation, and response identifiers are distinct.
+00:02:45,223 --> 00:02:48,184
+The earlier item should not silently carry over.
 
 36
-00:02:55,880 --> 00:02:59,281
-Reuse this agent in the next document-search exercise.
+00:02:48,184 --> 00:02:53,601
+Agent name, configuration version, conversation, and response identifiers are distinct.
 
 37
-00:02:59,281 --> 00:03:02,835
-Read the purchasing, expense, and security policies first.
+00:02:53,601 --> 00:02:57,002
+Reuse this agent in the next document-search exercise.
 
 38
-00:03:02,835 --> 00:03:07,511
-Attach file search to your existing agent and upload only those three files.
+00:02:57,002 --> 00:03:00,556
+Read the purchasing, expense, and security policies first.
 
 39
-00:03:07,511 --> 00:03:12,998
-Upload completion is not indexing completion, so wait until the documents are searchable.
+00:03:00,556 --> 00:03:05,233
+Attach file search to your existing agent and upload only those three files.
 
 40
-00:03:12,998 --> 00:03:22,974
-Ask about the laptop cap and replacement period, approvals and reimbursement for a two-point-nine-million-won purchase, and an undocumented German-branch policy.
+00:03:05,233 --> 00:03:10,720
+Upload completion is not indexing completion, so wait until the documents are searchable.
 
 41
-00:03:22,974 --> 00:03:29,209
-A filename in the answer is not enough: open the actual citation and compare its numbers and clauses.
+00:03:10,720 --> 00:03:20,696
+Ask about the laptop cap and replacement period, approvals and reimbursement for a two-point-nine-million-won purchase, and an undocumented German-branch policy.
 
 42
-00:03:29,209 --> 00:03:31,891
-Undocumented rules should remain unverified.
+00:03:20,696 --> 00:03:26,931
+A filename in the answer is not enough: open the actual citation and compare its numbers and clauses.
 
 43
-00:03:31,891 --> 00:03:35,694
-Retrieval augments the answer; it does not retrain the model.
+00:03:26,931 --> 00:03:29,612
+Undocumented rules should remain unverified.
 
 44
-00:03:35,694 --> 00:03:38,777
-First run the stock and draft functions without AI.
+00:03:29,612 --> 00:03:33,415
+Retrieval augments the answer; it does not retrain the model.
 
 45
-00:03:38,777 --> 00:03:45,684
-Two laptops total two million nine hundred thousand won, and the result remains a draft requiring human approval.
+00:03:33,415 --> 00:03:36,499
+First run the stock and draft functions without AI.
 
 46
-00:03:45,684 --> 00:03:50,925
-Out-of-stock items, excessive quantities, and negative quantities must produce errors.
+00:03:36,499 --> 00:03:43,405
+Two laptops total two million nine hundred thousand won, and the result remains a draft requiring human approval.
 
 47
-00:03:50,925 --> 00:03:57,154
-The integrated command lets the model request functions while the program validates and executes them.
+00:03:43,405 --> 00:03:48,647
+Out-of-stock items, excessive quantities, and negative quantities must produce errors.
 
 48
-00:03:57,154 --> 00:04:06,157
-Finish this same module by rereading the saved response and checking five items: policy evidence, stock, amount, approvers, and not-ordered status.
+00:03:48,647 --> 00:03:54,875
+The integrated command lets the model request functions while the program validates and executes them.
 
 49
-00:04:06,157 --> 00:04:11,583
-Do not make another cloud call or repeat a separate capstone merely to review the result.
+00:03:54,875 --> 00:04:03,878
+Finish this same module by rereading the saved response and checking five items: policy evidence, stock, amount, approvers, and not-ordered status.
 
 50
-00:04:11,583 --> 00:04:18,798
-Record configuration and response files together; publishing and version management belong to the optional CI/CD lab.
+00:04:03,878 --> 00:04:09,305
+Do not make another cloud call or repeat a separate capstone merely to review the result.
 
 51
-00:04:18,798 --> 00:04:21,256
-Use separate server and client terminals.
+00:04:09,305 --> 00:04:16,519
+Record configuration and response files together; publishing and version management belong to the optional CI/CD lab.
 
 52
-00:04:21,256 --> 00:04:25,865
-Start the local inventory server and inspect its health and stock endpoints.
+00:04:16,519 --> 00:04:18,977
+Use separate server and client terminals.
 
 53
-00:04:25,865 --> 00:04:29,429
-Keep this unauthenticated practice server on loopback only.
+00:04:18,977 --> 00:04:23,587
+Start the local inventory server and inspect its health and stock endpoints.
 
 54
-00:04:29,429 --> 00:04:34,837
-Next, discover the MCP tools and approve one call with the exact tool name and arguments.
+00:04:23,587 --> 00:04:27,151
+Keep this unauthenticated practice server on loopback only.
 
 55
-00:04:34,837 --> 00:04:38,709
-Omitting approval must block execution before the function runs.
+00:04:27,151 --> 00:04:32,559
+Next, discover the MCP tools and approve one call with the exact tool name and arguments.
 
 56
-00:04:38,709 --> 00:04:43,748
-Cloud Toolbox and Skill registration are optional extensions after Search is ready.
+00:04:32,559 --> 00:04:36,430
+Omitting approval must block execution before the function runs.
 
 57
-00:04:43,748 --> 00:04:48,542
-Distinguish discovering a tool, reading instructions, and actually invoking it.
+00:04:36,430 --> 00:04:41,470
+Cloud Toolbox and Skill registration are optional extensions after Search is ready.
 
 58
-00:04:48,542 --> 00:04:53,335
-When finished, stop the local server rather than exposing it through a tunnel.
+00:04:41,470 --> 00:04:46,263
+Distinguish discovering a tool, reading instructions, and actually invoking it.
 
 59
-00:04:53,335 --> 00:04:57,322
-Evaluation connects actual answers with criteria fixed beforehand.
+00:04:46,263 --> 00:04:51,056
+When finished, stop the local server rather than exposing it through a tunnel.
 
 60
-00:04:57,322 --> 00:05:03,456
-Compare instructions version one and version two using the same model, context, and twelve questions.
+00:04:51,056 --> 00:04:55,043
+Evaluation connects actual answers with criteria fixed beforehand.
 
 61
-00:05:03,456 --> 00:05:08,057
-Verify your ownership receipt and deployment, then collect each answer once.
+00:04:55,043 --> 00:05:01,177
+Compare instructions version one and version two using the same model, context, and twelve questions.
 
 62
-00:05:08,057 --> 00:05:15,479
-Only after collection completes should you submit the originals to native evaluation, without reinvoking the target model.
+00:05:01,177 --> 00:05:05,778
+Verify your ownership receipt and deployment, then collect each answer once.
 
 63
-00:05:15,479 --> 00:05:20,263
-Read completeness, relevance, groundedness, and the judge's reasons row by row.
+00:05:05,778 --> 00:05:13,200
+Only after collection completes should you submit the originals to native evaluation, without reinvoking the target model.
 
 64
-00:05:20,263 --> 00:05:22,042
-Preserve ties and regressions.
+00:05:13,200 --> 00:05:17,984
+Read completeness, relevance, groundedness, and the judge's reasons row by row.
 
 65
-00:05:22,042 --> 00:05:32,102
-Do not alter checklists or criteria after seeing the results to manufacture improvement, and do not treat this small exposed development sample as release approval.
+00:05:17,984 --> 00:05:19,763
+Preserve ties and regressions.
 
 66
-00:05:32,102 --> 00:05:44,698
-Keep the existing protection policy and test three harmless boundaries: inventing an undocumented branch limit, falsely claiming approval and ordering, and treating a document note as authority to bypass approval.
+00:05:19,763 --> 00:05:29,823
+Do not alter checklists or criteria after seeing the results to manufacture improvement, and do not treat this small exposed development sample as release approval.
 
 67
-00:05:44,698 --> 00:05:47,906
-Compare each response with the policy and tool records.
+00:05:29,823 --> 00:05:42,419
+Keep the existing protection policy and test three harmless boundaries: inventing an undocumented branch limit, falsely claiming approval and ordering, and treating a document note as authority to bypass approval.
 
 68
-00:05:47,906 --> 00:05:53,135
-A natural-language refusal and a function rejecting invalid input are different evidence.
+00:05:42,419 --> 00:05:45,627
+Compare each response with the policy and tool records.
 
 69
-00:05:53,135 --> 00:05:58,007
-Model filtering does not replace business authorization or document access control.
+00:05:45,627 --> 00:05:50,856
+A natural-language refusal and a function rejecting invalid input are different evidence.
 
 70
-00:05:58,007 --> 00:06:05,968
-If you did not run a separate red-team assessment or document-level access test, do not claim those broader protections were verified.
+00:05:50,856 --> 00:05:55,728
+Model filtering does not replace business authorization or document access control.
 
 71
-00:06:05,968 --> 00:06:11,680
-Evaluation asks whether the answer was good; tracing shows what happened during execution.
+00:05:55,728 --> 00:06:03,690
+If you did not run a separate red-team assessment or document-level access test, do not claim those broader protections were verified.
 
 72
-00:06:11,680 --> 00:06:18,675
-Use the Application Insights connection established before the request to locate the same response identifier.
+00:06:03,690 --> 00:06:09,401
+Evaluation asks whether the answer was good; tracing shows what happened during execution.
 
 73
-00:06:18,675 --> 00:06:23,424
-Compare agent version and time, then inspect search, model, and tool spans.
+00:06:09,401 --> 00:06:16,396
+Use the Application Insights connection established before the request to locate the same response identifier.
 
 74
-00:06:23,424 --> 00:06:29,841
-Do not add child durations on top of their parent, or sum overlapping parallel spans as elapsed time.
+00:06:16,396 --> 00:06:21,145
+Compare agent version and time, then inspect search, model, and tool spans.
 
 75
-00:06:29,841 --> 00:06:32,664
-Missing logs mean unverified, not error-free.
+00:06:21,145 --> 00:06:27,562
+Do not add child durations on top of their parent, or sum overlapping parallel spans as elapsed time.
 
 76
-00:06:32,664 --> 00:06:39,274
-Instead of repeatedly invoking the model, first check the connection, query scope, and ingestion delay.
+00:06:27,562 --> 00:06:30,386
+Missing logs mean unverified, not error-free.
 
 77
-00:06:39,274 --> 00:06:45,020
-Begin advanced retrieval by confirming that the three policies produce thirteen local sections.
+00:06:30,386 --> 00:06:36,996
+Instead of repeatedly invoking the model, first check the connection, query scope, and ingestion delay.
 
 78
-00:06:45,020 --> 00:06:53,701
-After an administrator prepares the approved Search service, generate embeddings, upload the sections, and create the index and knowledge base.
+00:06:36,996 --> 00:06:42,684
+Reuse your L01 project and embedding model and create a Search service in your owned group.
 
 79
-00:06:53,701 --> 00:06:58,102
-Send the same question through keyword, hybrid, and Foundry IQ retrieval.
+00:06:42,684 --> 00:06:46,350
+Verify creation, role-assignment access, and ongoing costs.
 
 80
-00:06:58,102 --> 00:07:03,909
-Compare actual returned sections with their originals rather than ranking unlike numeric scores.
+00:06:46,350 --> 00:06:53,429
+Confirm the three policies yield thirteen sections, then embed and upload them to a new index and knowledge base.
 
 81
-00:07:03,909 --> 00:07:08,188
-This lab uses public synthetic policy and minimal extractive retrieval.
+00:06:53,429 --> 00:06:57,980
+Send the same question through keyword, hybrid, and Foundry IQ retrieval.
 
 82
-00:07:08,188 --> 00:07:13,262
-It does not establish document-level user permissions or automatic answer synthesis.
+00:06:57,980 --> 00:07:02,531
+Compare actual sections with originals rather than unlike numeric scores.
 
 83
-00:07:13,262 --> 00:07:16,990
-Search allocation can continue billing even without requests.
+00:07:02,531 --> 00:07:10,179
+This is public synthetic policy and minimal extractive retrieval, not per-user document authorization or answer synthesis.
 
 84
-00:07:16,990 --> 00:07:20,448
-A Hosted agent runs your own code in a managed runtime.
+00:07:10,179 --> 00:07:12,834
+Continue reviewing costs during retention.
 
 85
-00:07:20,448 --> 00:07:29,476
-Use the dedicated Python environment to package source, synthetic policies, and pinned dependencies, excluding secrets and evaluation answers.
+00:07:12,834 --> 00:07:16,291
+A Hosted agent runs your own code in a managed runtime.
 
 86
-00:07:29,476 --> 00:07:33,318
-Even a local server can make billable model and Search calls.
+00:07:16,291 --> 00:07:25,319
+Use the dedicated Python environment to package source, synthetic policies, and pinned dependencies, excluding secrets and evaluation answers.
 
 87
-00:07:33,318 --> 00:07:39,336
-Deploy the code into the prepared project and grant only the runtime identity's required roles.
+00:07:25,319 --> 00:07:29,161
+Even a local server can make billable model and Search calls.
 
 88
-00:07:39,336 --> 00:07:45,739
-Invoke the exact numeric remote version, then compare package contracts, tool outputs, and citations.
+00:07:29,161 --> 00:07:35,180
+Deploy the code into the prepared project and grant only the runtime identity's required roles.
 
 89
-00:07:45,739 --> 00:07:53,102
-Finally, stop the session compute while keeping the agent and resources according to the approved retention policy.
+00:07:35,180 --> 00:07:41,582
+Invoke the exact numeric remote version, then compare package contracts, tool outputs, and citations.
 
 90
-00:07:53,102 --> 00:07:56,245
-Agent Framework is now taught in two focused labs.
+00:07:41,582 --> 00:07:48,946
+Finally, stop the session compute while keeping the agent and resources according to the approved retention policy.
 
 91
-00:07:56,245 --> 00:08:01,503
-First verify the dedicated Python environment, owned project, and model throughput.
+00:07:48,946 --> 00:07:52,088
+Agent Framework is now taught in two focused labs.
 
 92
-00:08:01,503 --> 00:08:07,210
-In sequential execution, inspect whether the drafter's actual answer reaches the reviewer.
+00:07:52,088 --> 00:07:57,346
+First verify the dedicated Python environment, owned project, and model throughput.
 
 93
-00:08:07,210 --> 00:08:14,969
-In concurrent execution, policy, budget, and risk roles handle the same question without waiting for one another's output.
+00:07:57,346 --> 00:08:03,053
+In sequential execution, inspect whether the drafter's actual answer reaches the reviewer.
 
 94
-00:08:14,969 --> 00:08:20,933
-Both patterns together make at most five model calls, with at least one minute between starts.
+00:08:03,053 --> 00:08:10,813
+In concurrent execution, policy, budget, and risk roles handle the same question without waiting for one another's output.
 
 95
-00:08:20,933 --> 00:08:26,384
-Compare roles, actual inputs, answers, tokens, and elapsed time in the evidence files.
+00:08:10,813 --> 00:08:16,776
+Both patterns together make at most five model calls, with at least one minute between starts.
 
 96
-00:08:26,384 --> 00:08:34,848
-Collecting responses is not automatic consensus; this exercise calls neither a real stock function nor a purchasing approval system.
+00:08:16,776 --> 00:08:22,227
+Compare roles, actual inputs, answers, tokens, and elapsed time in the evidence files.
 
 97
-00:08:34,848 --> 00:08:39,637
-This module compares revision after review with a change of responsible agent.
+00:08:22,227 --> 00:08:30,692
+Collecting responses is not automatic consensus; this exercise calls neither a real stock function nor a purchasing approval system.
 
 98
-00:08:39,637 --> 00:08:44,551
-Reuse the preceding environment setup; completing its paid runs is not required.
+00:08:30,692 --> 00:08:35,481
+This module compares revision after review with a change of responsible agent.
 
 99
-00:08:44,551 --> 00:08:48,780
-Group chat speaks three times: drafter, reviewer, then drafter again.
+00:08:35,481 --> 00:08:40,394
+Reuse the preceding environment setup; completing its paid runs is not required.
 
 100
-00:08:48,780 --> 00:08:53,880
-Read the final drafter's answer, not the system notice that the conversation ended.
+00:08:40,394 --> 00:08:44,623
+Group chat speaks three times: drafter, reviewer, then drafter again.
 
 101
-00:08:53,880 --> 00:08:58,918
-Handoff requires an actual delegation tool call followed by a specialist response.
+00:08:44,623 --> 00:08:49,723
+Read the final drafter's answer, not the system notice that the conversation ended.
 
 102
-00:08:58,918 --> 00:09:05,262
-Together these patterns allow at most seven model calls without increasing termination or token limits.
+00:08:49,723 --> 00:08:54,761
+Handoff requires an actual delegation tool call followed by a specialist response.
 
 103
-00:09:05,262 --> 00:09:09,864
-Choose a pattern using the actual revised sentences and transferred inputs.
+00:08:54,761 --> 00:09:01,105
+Together these patterns allow at most seven model calls without increasing termination or token limits.
 
 104
-00:09:09,864 --> 00:09:14,964
-Neither local orchestration implements human approval or remote A2A communication.
+00:09:01,105 --> 00:09:05,708
+Choose a pattern using the actual revised sentences and transferred inputs.
 
 105
-00:09:14,964 --> 00:09:20,318
-Store only one fictional preference: synthetic user A prefers table-formatted answers.
+00:09:05,708 --> 00:09:10,808
+Neither local orchestration implements human approval or remote A2A communication.
 
 106
-00:09:20,318 --> 00:09:23,027
-Do not use personal or employee information.
+00:09:10,808 --> 00:09:16,162
+Store only one fictional preference: synthetic user A prefers table-formatted answers.
 
 107
-00:09:23,027 --> 00:09:29,452
-Create the memory store, record the item identifier, and search separately in user A and user B scopes.
+00:09:16,162 --> 00:09:18,870
+Do not use personal or employee information.
 
 108
-00:09:29,452 --> 00:09:32,034
-A should retrieve that item; B should not.
+00:09:18,870 --> 00:09:25,295
+Create the memory store, record the item identifier, and search separately in user A and user B scopes.
 
 109
-00:09:32,034 --> 00:09:37,137
-A table-formatted natural-language answer alone does not prove memory persistence.
+00:09:25,295 --> 00:09:27,878
+A should retrieve that item; B should not.
 
 110
-00:09:37,137 --> 00:09:40,349
-Item time-to-live differs from the store's lifetime.
+00:09:27,878 --> 00:09:32,980
+A table-formatted natural-language answer alone does not prove memory persistence.
 
 111
-00:09:40,349 --> 00:09:42,994
-Delete an item only with separate approval.
+00:09:32,980 --> 00:09:36,192
+Item time-to-live differs from the store's lifetime.
 
 112
-00:09:42,994 --> 00:09:49,734
-Under a no-deletion policy, report storage and isolation separately from the unperformed deletion exercise.
+00:09:36,192 --> 00:09:38,838
+Delete an item only with separate approval.
 
 113
-00:09:49,734 --> 00:09:52,234
-A routine determines when an agent runs.
+00:09:38,838 --> 00:09:45,578
+Under a no-deletion policy, report storage and isolation separately from the unperformed deletion exercise.
 
 114
-00:09:52,234 --> 00:09:59,925
-Use the server-side file-search agent, distinguishing a disabled routine's manual dispatch from a genuine one-shot timer.
+00:09:45,578 --> 00:09:48,077
+A routine determines when an agent runs.
 
 115
-00:09:59,925 --> 00:10:08,385
-Schedule one execution two minutes ahead, then verify the unique input marker, completed response, and trace within the bounded wait.
+00:09:48,077 --> 00:09:55,768
+Use the server-side file-search agent, distinguishing a disabled routine's manual dispatch from a genuine one-shot timer.
 
 116
-00:10:08,385 --> 00:10:13,320
-Creation success or manual dispatch cannot substitute for scheduled execution.
+00:09:55,768 --> 00:10:04,229
+Schedule one execution two minutes ahead, then verify the unique input marker, completed response, and trace within the bounded wait.
 
 117
-00:10:13,320 --> 00:10:18,768
-An empty CLI history page does not prove nothing ran; inspect the actual action trace.
+00:10:04,229 --> 00:10:09,164
+Creation success or manual dispatch cannot substitute for scheduled execution.
 
 118
-00:10:18,768 --> 00:10:21,268
-Finally, read back enabled equals false.
+00:10:09,164 --> 00:10:14,612
+An empty CLI history page does not prove nothing ran; inspect the actual action trace.
 
 119
-00:10:21,268 --> 00:10:27,036
-Creating an Autopilot account or sending external messages is outside this timer exercise.
+00:10:14,612 --> 00:10:17,111
+Finally, read back enabled equals false.
 
 120
-00:10:27,036 --> 00:10:31,295
-Start enterprise governance with the synthetic local cache exercise.
+00:10:17,111 --> 00:10:22,880
+Creating an Autopilot account or sending external messages is outside this timer exercise.
 
 121
-00:10:31,295 --> 00:10:37,269
-Observe the two expected failures: a denied user and a revoked user can still read cached data.
+00:10:22,880 --> 00:10:27,138
+Start enterprise governance with the synthetic local cache exercise.
 
 122
-00:10:37,269 --> 00:10:42,099
-Move authorization ahead of the cache return, then rerun the unchanged tests.
+00:10:27,138 --> 00:10:33,112
+Observe the two expected failures: a denied user and a revoked user can still read cached data.
 
 123
-00:10:42,099 --> 00:10:45,595
-Do not change the permitted-user list to make them pass.
+00:10:33,112 --> 00:10:37,943
+Move authorization ahead of the cache return, then rerun the unchanged tests.
 
 124
-00:10:45,595 --> 00:10:51,061
-Next, distinguish developer, project identity, agent runtime, and end-user permissions.
+00:10:37,943 --> 00:10:41,438
+Do not change the permitted-user list to make them pass.
 
 125
-00:10:51,061 --> 00:10:55,764
-Document network, gateway, and document-access responsibilities separately.
+00:10:41,438 --> 00:10:46,904
+Next, distinguish developer, project identity, agent runtime, and end-user permissions.
 
 126
-00:10:55,764 --> 00:11:02,374
-Passing the local exercise does not establish that real Azure roles or document permissions were tested.
+00:10:46,904 --> 00:10:51,608
+Document network, gateway, and document-access responsibilities separately.
 
 127
-00:11:02,374 --> 00:11:08,834
-CI/CD is an elective for deployment and operations owners, not a prerequisite for learning core features.
+00:10:51,608 --> 00:10:58,218
+Passing the local exercise does not establish that real Azure roles or document permissions were tested.
 
 128
-00:11:08,834 --> 00:11:14,175
-Reproduce the local error that promotes a candidate merely because execution completed.
+00:10:58,218 --> 00:11:04,677
+CI/CD is an elective for deployment and operations owners, not a prerequisite for learning core features.
 
 129
-00:11:14,175 --> 00:11:20,510
-Repair only the function to also require a quality pass, zero critical failures, and zero missing rows.
+00:11:04,677 --> 00:11:10,018
+Reproduce the local error that promotes a candidate merely because execution completed.
 
 130
-00:11:20,510 --> 00:11:23,553
-Publishing and version management belong here too.
+00:11:10,018 --> 00:11:16,353
+Repair only the function to also require a quality pass, zero critical failures, and zero missing rows.
 
 131
-00:11:23,553 --> 00:11:30,012
-Runnable agent version, active version serving users, and Teams app Publish version are different values.
+00:11:16,353 --> 00:11:19,397
+Publishing and version management belong here too.
 
 132
-00:11:30,012 --> 00:11:36,534
-Actual publishing and recovery require supported tools, organizational permissions, and separate approval.
+00:11:19,397 --> 00:11:25,856
+Runnable agent version, active version serving users, and Teams app Publish version are different values.
 
 133
-00:11:36,534 --> 00:11:39,639
-Never invent a previously approved recovery target.
+00:11:25,856 --> 00:11:32,377
+Actual publishing and recovery require supported tools, organizational permissions, and separate approval.
 
 134
-00:11:39,639 --> 00:11:43,117
-Finish with resource and cost review in module nineteen.
+00:11:32,377 --> 00:11:35,483
+Never invent a previously approved recovery target.
 
 135
-00:11:43,117 --> 00:11:48,902
-Whether you finish only the core course or choose advanced labs, end with this shared wrap-up.
+00:11:35,483 --> 00:11:38,961
+Finish with resource and cost review in module nineteen.
 
 136
-00:11:48,902 --> 00:11:51,453
-Closing the browser does not stop billing.
+00:11:38,961 --> 00:11:44,746
+Whether you finish only the core course or choose advanced labs, end with this shared wrap-up.
 
 137
-00:11:51,453 --> 00:11:58,296
-Within the approved scope, stop only sessions and routines you created, then read back those exact identifiers.
+00:11:44,746 --> 00:11:47,296
+Closing the browser does not stop billing.
 
 138
-00:11:58,296 --> 00:12:02,588
-Learners who ran only local functions do not need Azure stop commands.
+00:11:47,296 --> 00:11:54,139
+Within the approved scope, stop only sessions and routines you created, then read back those exact identifiers.
 
 139
-00:12:02,588 --> 00:12:10,115
-Retained resources may continue incurring Search, logging, and storage charges; empty billing rows do not prove zero cost.
+00:11:54,139 --> 00:11:58,431
+Learners who ran only local functions do not need Azure stop commands.
 
 140
-00:12:10,115 --> 00:12:13,225
-Record a retention owner and next cost-review time.
+00:11:58,431 --> 00:12:05,958
+Retained resources may continue incurring Search, logging, and storage charges; empty billing rows do not prove zero cost.
 
 141
-00:12:13,225 --> 00:12:16,024
-Delete only separately approved exact targets.
+00:12:05,958 --> 00:12:09,068
+Record a retention owner and next cost-review time.
 
 142
-00:12:16,024 --> 00:12:19,694
+00:12:09,068 --> 00:12:11,868
+Delete only separately approved exact targets.
+
+143
+00:12:11,868 --> 00:12:15,538
 Resetting browser progress does not remove Azure resources.

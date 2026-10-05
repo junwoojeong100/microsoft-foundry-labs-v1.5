@@ -26,7 +26,7 @@
 
 ## Prerequisites
 
-The default exercise is a local Python repair plus design. Prepare L01's Python, then turn the Contoso example into your **principal → operation → scope → deny condition → owner** table. No Azure account is needed; do not record it as verified Azure permissions. Real roles, gateways, private endpoints, and policy changes require administrator involvement and separate approval.
+The default is local Python repair and your **principal → action → scope → deny condition → inspection/revocation method** table. No Azure account is needed, but this is not live access validation. Real role, gateway, private-endpoint, or policy changes require relevant permissions and separate change scope.
 
 ### Choose your starting path
 
@@ -94,16 +94,39 @@ A cache does not replace authentication or authorization. This example rechecks 
 
 </div>
 
+#### Local code and the Azure portal boundary
+
+This `exercise.py` uses only fake documents and a fake grants table. The defect is that a cached document is returned before checking the current permission.
+
+```python
+def read_document(user, document_id, grants, cache):
+    if document_id in cache:
+        return cache[document_id]
+    if user not in grants[document_id]:
+        raise PermissionError("Access denied")
+    cache[document_id] = DOCUMENTS[document_id]
+    return cache[document_id]
+```
+
+| Exercise operation | What it changes or verifies |
+| --- | --- |
+| `prepare_practice.py governance` | Copies the flawed example to a new `practice/governance` folder |
+| Edit `exercise.py` + run `test_exercise.py` | Checks B and revoked A against local cache/fake grants |
+| Azure portal/RBAC | Not changed or validated in this exercise |
+| `infra/main.bicep`, `runtime_roles.py` | Design references only; not applied to Azure |
+
+L01 prepared your actual Azure roles; this module studies **application cache/document authorization**. These are different checks. Actual ACL tests require permitted identities, separate synthetic restricted documents, and access logs; local passes do not substitute.
+
 ### 1. Separate four identities
 
 **Worked design — L12's public-policy Hosted path, not a record of actual role assignments.**
 
-| Identity | Allowed operation/scope | Not allowed | Inspection/revocation owner |
+| Identity | Allowed operation/scope | Not allowed | Evidence you inspect |
 | --- | --- | --- | --- |
-| Developer | Change/read agents in the approved lab project | Subscription-wide administration or other teams' agents | Project administrator |
-| Project managed identity | Read designated Search through connections that actually use this ID, such as L07 OpenAPI | Assuming automatic inheritance of agent runtime roles | Connection administrator |
-| Agent runtime identity | Invoke the designated model and read policies in owned Search | Index updates, arbitrary data sources, orders/payments | Runtime/data administrator |
-| End user | Invoke an allowed agent and receive authorized evidence | Edit agents or read another user's documents/conversations | Application/data owner |
+| Your signed-in identity | Change/read agents in your owned project | Other teams' agents or unrelated scope expansion | Resource IAM and your request results |
+| Project managed identity | Search reads through connections using this ID, such as L07 OpenAPI | Automatic inheritance of runtime roles | Connection authentication and Search IAM |
+| Agent runtime identity | Designated model and owned Search reads | Index changes, arbitrary data, orders/payments | L12 runtime ID, scoped roles, actual invocation |
+| App user identity | Allowed agent and authorized evidence | Agent editing or another user's documents/conversations | App authentication/ACL and allow/deny logs |
 
 Do not assume L12's direct Search caller and L07's connection caller are identical. Read **connection authentication in Manage → that identity's role assignment/scope → target service**. A role listing shows potential permission, not a successful call. Actual testing requires a separately approved read request.
 
@@ -183,4 +206,4 @@ Do not assume every 403 is an RBAC problem. Separate endpoint DNS, public networ
 
 ## Cleanup
 
-Record temporary roles, policies, gateways, and connections, and revoke/remove them through administrator procedures. Do not arbitrarily delete shared networks or production policies.
+Record any actual temporary roles, policies, gateways, or connections you changed and revoke them only within permitted scope. Design-only means no Azure change. Do not delete shared networks or production policies.

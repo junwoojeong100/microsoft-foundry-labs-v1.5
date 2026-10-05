@@ -26,7 +26,7 @@
 
 ## 준비
 
-L05에서 정책을 연결한 비운영 agent의 이름·버전을 기록하고 새 대화를 엽니다. 이미 같은 조건의 응답이 있으면 재사용하고, 새로 실행할 때는 승인된 범위에서 아래 질문을 각각 한 번만 보냅니다. guardrail 생성/수정은 관리자 작업이며 기존 운영 필터를 낮추거나 끄지 않습니다.
+L05에서 자신이 정책을 연결한 agent의 이름·버전과 기본 보호 정책을 확인하고 새 대화를 엽니다. 아래 질문은 자신의 비운영 환경에서 각각 한 번만 보냅니다. 정책을 수정한다면 별도 권한·변경 범위를 확인하며 기본 보호나 운영 필터를 낮추지 않습니다.
 
 ## 실행
 
@@ -100,6 +100,29 @@ L05 agent에는 구매 함수가 없으므로 **도구 미실행만으로 승인
 지시를 더 강하게 쓰는 것만으로 끝내지 않습니다. 위 표에서 원인을 지침·검색·함수·권한 중 하나로 좁히고, 수정 후에는 별도 승인 범위에서 **실패했던 동일 입력과 정상 정책 질문**을 확인합니다. 기존 결과를 덮어쓰거나 기준을 완화하지 않습니다.
 
 현재 L08은 **도구 없는 Prompt Agent의 12문항 지침 비교**입니다. 그 점수나 critical checklist가 실제 함수 차단·문서 ACL·관리형 Red teaming을 대신하지 않습니다. 이번 장의 응답과 L06의 함수 결과를 구분해 기록하며, 기존 업무 safety/access 게이트는 별도로 유지합니다.
+
+### 포털 정책과 Python 실행 검사를 구분하기
+
+포털 **Build → Guardrails**는 콘텐츠 정책입니다. L06의 함수는 허용 이름·인수·수량·재고를 검사합니다. 아래의 **사용자 요청과 SKU·수량 일치 검사는 L12 Hosted runtime**의 `request_contract.py`에 있는 강화 경로입니다. L06이 이 검사까지 실행했다고 기록하지 않습니다.
+
+```python
+sku, quantity = arguments.get("sku"), arguments.get("quantity")
+if not isinstance(sku, str) or type(quantity) is not int or not 1 <= quantity <= 10:
+    raise ToolInputError("Draft quantity must be an integer from 1 through 10; no draft was created.")
+
+matches = list(re.finditer(SKU_PATTERN, query))
+if not any(match[0].upper() == sku for match in matches):
+    raise ToolInputError("The user must explicitly supply the SKU before a draft is created.")
+```
+
+| 포털에서 확인 | 실제 코드에서 확인 |
+| --- | --- |
+| Model/Agent guardrail이 적용되는 대상 | 콘텐츠 검사 정책의 scope; business authorization은 아님 |
+| L06 함수 목록·결과 | `dispatch_tool()`의 allowlist와 실제 수량·재고 검사 |
+| L12 Hosted의 사용자 요청 | `tool_permissions(query)`와 `validate_draft_request(query, arguments)`의 명시 요청·인수 검사 |
+| 최종 초안 상태 | `dispatch_tool()`과 실제 함수 결과; 자연어 거절만으로 차단을 주장하지 않음 |
+
+이 함수는 허위 승인이나 정책 내용을 대신 판정하지 않습니다. 포털 정책은 콘텐츠 경계, Python 코드는 업무 인수·실행 경계이며 둘을 함께 확인합니다.
 
 ## 성공 기준
 

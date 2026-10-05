@@ -79,12 +79,26 @@ async (page) => {
     check(await page.locator(".nav-learning").count() === advancedCount, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === labIds.length, "all active labs are trackable");
     check(await page.locator(".lab-brief").count() === labIds.length, "all active modules have beginner start cards");
-    check(await page.locator("pre code.language-prompt").count() === 12, "twelve portal question blocks identify their input destination");
-    check(await page.locator("pre code.language-env").count() === 2, "settings blocks are distinguished from terminal commands");
+    check(await page.locator("pre code.language-prompt").count() === edition.prompt_blocks,
+      `all ${edition.prompt_blocks} portal question blocks identify their input destination`);
+    check(await page.locator("pre code.language-env").count() === edition.settings_blocks, "settings blocks are distinguished from terminal commands");
     check(await page.locator(".practice-block").count() === practiceIds.length, "four advanced modules expose a try-change-explain exercise");
-    check(await page.locator('#l01 .operator-only').evaluateAll(nodes =>
-      nodes.length === 2 && nodes.every(node => !node.open)
-    ), "administrator provisioning and role tables are collapsed by default");
+    check(await page.locator('#l01 .operator-only').count() === 0,
+      "participant provisioning is not hidden behind a separate persona");
+    check(await page.locator('#l01 pre code').evaluateAll(nodes =>
+      ["create", "foundation", "roles", "monitoring"].every(step =>
+        nodes.some(node => !node.closest("details") && node.textContent.split("\n").some(line =>
+          line.includes(`scripts/azure_environment.py ${step}`) && line.includes("--live")
+        ))
+      )
+    ), "participant setup visibly covers owned resource creation, models, scoped roles, and telemetry");
+    check(await page.locator('#l01 #l01-python, #l01 #l01-azure-cli, #l01 #l01-vscode, #l01 #l01-interpreter').count() === 4,
+      "participant setup exposes separate Python, Azure CLI, VS Code, and interpreter-selection instructions");
+    check(await page.locator('#l01 pre code').evaluateAll(nodes =>
+      ["py -3.13 --version", "python3.13 --version", "az version"].every(command =>
+        nodes.some(node => !node.closest("details") && node.textContent.split("\n").some(line => line.trim() === command))
+      )
+    ), "local tool version checks are visible without a hidden setup section");
     check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: english ? "Concepts and lab map" : "개념과 실습 지도"}).count() === labIds.length, "all active labs explain feature, purpose, method and execution surface");
     check(await page.locator(".command-explanation").count() === edition.shell_blocks, `all ${edition.shell_blocks} shell blocks have visible command explanations`);
     check(await page.locator(".command-explanation tbody tr").count() === edition.commands, `all ${edition.commands} logical CLI commands have individual explanation rows`);

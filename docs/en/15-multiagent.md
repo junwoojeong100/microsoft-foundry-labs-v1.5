@@ -27,7 +27,7 @@ This module uses the official Builders in `agent_framework.orchestrations`. It i
 
 ## Prerequisites
 
-Use L01's project, deployment, `.env`, and administrator-provided `results/azure-environment.json`. Stop if the project, language, or deployment name differs.
+Use the project/model, `.env`, and `results/azure-environment.json` you created in L01. Stop if the project, language, or deployment differs.
 L13/L14 use **only the chat deployment**. The per-learner starting minimum is **100,000 TPM / 60 RPM**; see [L02](#l02-capacity) for sizing assumptions and configuration.
 
 Keep the advanced SDK in `requirements-advanced.txt` separate. `agent-framework-foundry==1.13.1` requires `azure-ai-projects<2.7.0`, unlike the core environment. Install `agent-framework-orchestrations==1.2.0` with it.
@@ -39,7 +39,7 @@ Keep the advanced SDK in `requirements-advanced.txt` separate. `agent-framework-
 | No Azure approval | Step 1 environment → step 3 plan | Explain roles and call limits; model execution remains not performed |
 | Model, ownership receipt, and cost approval ready | 1 → 2 → 3 → 4 → 5 | Sequential/concurrent answers to one question and a comparison |
 
-Get the project/model deployment names in `.env` from L01/L02 and `results/azure-environment.json` from that environment's administrator. No new Hosted or Search resources are needed. **Unlike L06, these roles review supplied policy and a question without calling a stock function.** Keep the English profile selected in this terminal.
+Reuse L01/L02's `.env` and your receipt; Hosted/Search are unnecessary. **Unlike L06, these SDK roles review policy/questions without a stock function.** Keep the English profile selected.
 
 ## Steps
 
@@ -83,7 +83,7 @@ On Windows use `.venv-advanced\Scripts\python.exe`. If an existing advanced envi
 
 </div>
 
-If insufficient, the administrator uses L02's `apply` path first. Sufficient capacity is not reduced. Each live orchestration also rechecks readiness instead of trusting an old confirmation file.
+If insufficient, verify your update permissions/quota/cost scope, then use L02's `apply`. Sufficient capacity is not reduced. Live execution rechecks actual limits rather than trusting an old file.
 
 ### 3. Read the sequential and concurrent plans
 
@@ -189,6 +189,34 @@ Open each command's **`Evidence:` file in an editor**. Under `paths.sequential.s
 The single path runs first, so authentication, caching, and startup latency can differ. One timing difference does not establish general performance superiority.
 
 </details>
+
+#### Portal deployment versus Python orchestration
+
+The portal supplies the **model deployment**, but it does not configure L13's sequential/concurrent workflow graph. Python Agent Framework code constructs that order:
+
+```python
+from agent_framework.orchestrations import SequentialBuilder, ConcurrentBuilder
+
+sequential = SequentialBuilder(
+    participants=[drafter, reviewer],
+    intermediate_output_from=[drafter],
+).build()
+
+concurrent = ConcurrentBuilder(
+    participants=[policy_agent, budget_agent, risk],
+    intermediate_output_from=[policy_agent, budget_agent, risk],
+).build()
+```
+
+| Foundry/code location | What it controls |
+| --- | --- |
+| Portal → Models → Deployments | Model deployment called by the Python client |
+| `build_role(...)` | Each SDK agent's instructions and role |
+| `SequentialBuilder` | Sends the drafter's output to the reviewer |
+| `ConcurrentBuilder` | Runs independent roles together and collects per-stage output |
+| `multi_agent.py` in `.venv-advanced` | Builds orchestration locally; only approved model requests go to Foundry |
+
+`drafter`, `reviewer`, `policy_agent`, `budget_agent`, and `risk` are SDK agents configured by `build_role()` with instructions/model client. `multi_agent.py` executes only the selected Builder. This is local code, not a portal workflow; verify actual inputs/stages/output in `Evidence:`.
 
 ## Success criteria
 

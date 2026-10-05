@@ -1,173 +1,162 @@
-> **What you will build:** A call to a Foundry model without an API key, with its response and response ID verified.
+> **What you will build:** One request to your model, with its actual answer, status, and response ID.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Terminal · the default is a plan check followed by one approved model call.
+**Format:** Compare portal settings with direct Python SDK code, then send the request through one path.
 
-**Start here:** Select L01's environment and run `python samples/workshop.py model` to inspect the plan.
+**Start here:** Find L02's `contoso-chat` in the Playground Model selector and Python `model` argument.
 
-**What to check:** Record the actual answer and `response_id`. Do not resend questions merely to reproduce a screenshot.
+**What to check:** A completed answer/ID and no fabricated company policy.
 
 </div>
 
 ## Objectives
 
-Understand the smallest unit of a model call. **This is not yet an agent or RAG.**
+**Understand the smallest model call.** There is no agent, document retrieval, or function tool yet. Read how the code and screen settings relate before executing.
 
 ## Concepts and lab map
 
-**What you will try:** Send one question from code through the Responses API.
+**What you will try:** Send one question through the Responses API and read the answer.
 
-**What is it, and why does it matter?** An API is how a program requests a service. The result includes an answer and a `response_id`, which helps you find the same execution later.
+**What is it, and why does it matter?** An API lets code request a service. `response_id` identifies one generation, not a conversation.
 
-**How do you use it?** Read the plan, then make one approved call. Check the answer, completion state, and ID. Without company documents, acknowledging that the policy is unknown is correct.
+**How do you use it?** Verify model/input/output limit, then choose portal or Python. Without company policies, acknowledging missing information is correct.
 
-**Where do you run it?** Run [samples/workshop.py](../../samples/workshop.py) in the terminal. The Python excerpt below is **code to read**, not an additional terminal command.
+**Where do you run it?** Use the model Playground and [first_response.py](../../samples/first_response.py). The portal does not execute your Python file; both paths call the model service.
 
 ## Prerequisites
 
-You need L01's `.env`, CLI sign-in, and `requirements.txt` installation, plus the ready deployment from L02. This path targets projects in the Azure public cloud. Sovereign-cloud endpoints, such as Government endpoints, require their own officially documented authentication and domain settings.
+Use L01's sign-in, virtual environment, `.env`, and L02's ready deployment. Verify model-invocation access and cost scope for one request. This example targets Azure public cloud; sovereign clouds need their own authentication/domain settings.
 
 ## Steps
 
-### Optional: understand input and output in the portal
+### 1. Match portal settings with Python arguments
 
-**The default path is terminal steps 1–3 below.** You do not need to call both the portal and the SDK. Expand this only for the screen reference.
-
-<details class="optional-path" markdown="1">
-<summary>Optional: read the model Playground's input, settings, and response</summary>
-
-Open **Build → Models → Deployments → your deployment → Playground** in your project. The image uses an example `gpt-4.1-mini` deployment named `contoso-chat`; select your own approved deployment from L02 for an actual call. This is a model exercise: **do not click Save as agent**.
+Open **Build → Models → Deployments → contoso-chat → Playground**. Do not select **Save as agent**. Verify a model-only request without extra instructions or retrieval tools.
 
 ![Model response example. The answer applies the synthetic Contoso rule supplied in the question to the KRW 2,000,000 approval boundary.](../../assets/portal/en/16-model-response.png)
 
-**Reading the screen:** **Model / Instructions / Tools** on the left define the request's conditions; the right side shows user input and the model response. This example supplies the synthetic rule in the question, unlike RAG, which retrieves company documents.
+The screenshot's model/question illustrate the UI. Select your own project/deployment and use this question:
+
+```prompt
+How should you respond when no company policy has been provided?
+```
 
 ![Output-limit setting example. Max Completion Tokens is set to 256 in the model Playground's Parameters dialog.](../../assets/portal/en/17-model-parameters.png)
 
-**Before running:** Set **Parameters → Max Completion Tokens** to an approved limit supported by your model; 256 in the image is an example. Keep **Web search** and other unnecessary tools off in this model-only experiment; they can add charges or external data transfer. Temperature/Top P control generation variability, not monetary spending caps. Supported options vary by model.
+| Portal control | Python argument/result |
+| --- | --- |
+| Select your deployment in Model | `model=deployment_name` |
+| Enter the question in Chat | `input=question` |
+| Parameters → Max Completion Tokens | `max_output_tokens=512` |
+| Send a service request | `client.responses.create(...)` |
+| Inspect response text/ID | `response.output_text`, `response.id` |
 
-For one separately approved, bounded portal request, use this English synthetic input:
+The screenshot's 256 is an example. Set 512 to match this code's budget and keep unnecessary **Web search** tools off. Do not add unsupported Temperature/Top P settings.
 
-```text
-Contoso's synthetic rule: a total of KRW 2,000,000 or less requires team manager approval.
-A higher total requires approval from both the team manager and the purchasing representative.
-What approval is required for a total of exactly KRW 2,000,000?
-```
+### 2. Read the direct SDK request
 
-The **expected** answer is team manager approval. Inspect your actual response and its identifier. Displayed tokens describe that request's usage, not the total lab cost.
-
-If the response is delayed, inspect the existing response before considering another request. The CLI path below is a separate execution for reading the response object and ID in code. If following the default terminal exercise, you do not need an additional portal call.
-
-</details>
-
-### 1. Review the plan at no cost
-
-```bash
-python samples/workshop.py model
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `model` | Selects the model-call path in `workshop.py`, but displays only the execution plan because `--live` is absent. | Read `PLAN ONLY`. No Azure calls or model costs. |
-
-</div>
-
-The output should say `PLAN ONLY`, and no Azure request is made. A success message without `--live` is not evidence of a successful model call.
-
-This plan **describes the intended operation**; it does not validate `.env`, sign-in, or permissions. Compare L01's settings with L02's actual deployment name before execution.
-
-### 2. Call the live model
-
-```bash
-python samples/workshop.py model --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `model --live` | Sends the default synthetic question using the configured project/deployment and CLI credentials. The output limit is 2048 tokens, and automatic SDK retries are disabled. | Incurs inference cost. Check the response text and `response_id`; no agent or vector store is created. |
-
-</div>
-
-You should see response text and `response_id=...`. The question asks how to respond when company policy has not been provided. Check that the model **does not fabricate company policy**.
-
-**Optional additional request:** Run this only if you want to send your own question. It is not required after the default response succeeds.
-
-```bash
-python samples/workshop.py model --live --query "Without company policy, can you state a laptop purchase limit with certainty?"
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `model --query` | The entire quoted string after `--query` is one input to the model. It replaces the default question, and `--live` permits actual transmission. | This is an additional inference request, not a replay of the previous result. It incurs additional cost and produces a new response ID. |
-
-</div>
-
-The English content of `--query` is sent to Azure. Use only synthetic lab inputs; the English profile also supplies an English default question when the option is omitted.
-
-### 3. Read the core code
-
-This is the core API flow. The complete executable sample, including environment checks and error handling, is `samples/workshop.py`.
+Trace connection → request → response validation below. The endpoint is a placeholder; find where `client` and `response` are created. **This is a reading block**. Use the next step's `--live` command to execute the request once.
 
 ```python
+from azure.ai.projects import AIProjectClient
+from azure.identity import AzureCliCredential
+
+project_endpoint = "https://<resource>.services.ai.azure.com/api/projects/<project>"
+deployment_name = "contoso-chat"
+question = "How should you respond when no company policy has been provided?"
+
 with (
-    AzureCliCredential() as credential,
-    AIProjectClient(endpoint=project_endpoint, credential=credential) as project,
-    project.get_openai_client() as client,
+    AzureCliCredential(process_timeout=30) as credential,
+    AIProjectClient(
+        endpoint=project_endpoint,
+        credential=credential,
+        retry_total=0,
+    ) as project,
+    project.get_openai_client(max_retries=0, timeout=60.0) as client,
 ):
     response = client.responses.create(
         model=deployment_name,
-        input="How should you respond if no company policy is available?",
-        max_output_tokens=2048,
+        input=question,
+        max_output_tokens=512,
         store=False,
     )
+
+if response.status != "completed" or not response.output_text or not response.output_text.strip():
+    raise RuntimeError(f"Response not complete: {response.status}")
+
+print(response.output_text)
+print(f"response_id={response.id}")
 ```
 
-The English `input` tests handling of missing policy information. `store=False` controls response storage for this model call. It does not mean that all service logs, abuse monitoring, or data retention disappear.
+`AzureCliCredential` uses L01's CLI sign-in; `AIProjectClient` connects to the Project endpoint. `get_openai_client()` supplies the request client; `responses.create()` sends the question. `store=False` controls response storage, not all service logs, abuse monitoring, or retention.
 
-| Value | Meaning | Common mistake |
+The executable adds `.env` loading, input-size checks, and `--live` opt-in. `read_config()` and `ensure_response()` are shared settings/status checks; they do not issue hidden additional model calls.
+
+### 3. Inspect the plan, then execute once
+
+```bash
+python samples/first_response.py
+python samples/first_response.py --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — execute the second line only when the inspected scope is correct.**
+
+| Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| project endpoint | The project API's address | Substituting the model's `/openai/v1/` address |
-| deployment name | The name of the model deployment you created | Assuming it always matches the model ID |
-| response ID | The identifier for one generation operation | Confusing it with a conversation ID |
-| output text | The model's user-facing response | Treating a response containing only tool calls as a completed answer |
+| 1. `first_response.py` | Prints the default question and `PLAN ONLY`. | No Azure request, configuration validation, or sign-in. |
+| 2. `first_response.py --live` | Sends one question to the project/deployment in `.env`. | At most 512 output tokens, zero automatic SDK retries, 60-second request timeout. Billable inference; no agent/store creation. |
 
-### 4. Locate the extension capabilities
+</div>
+
+If you already selected portal Send, skip the second line and inspect that answer. Portal and Python are separate requests, and even identical questions can produce different IDs/wording.
+
+Record the answer, status, and `response_id`. No company policy was supplied, so definite price limits or stock claims are unsupported. If the portal does not expose an ID, record it unverified rather than inventing one.
+
+### 4. Change one input
+
+Change the question without transmitting it first:
+
+```bash
+python samples/first_response.py --query "Without company policy, can you state a laptop purchase limit with certainty?"
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--query` | Selects the quoted question as this execution's input. | Printed locally without `--live`; no extra inference. |
+
+</div>
+
+If a real comparison is necessary, verify cost scope and send **one additional request** through the selected path. Compare treatment of unknown policy, not wording. Do not repeatedly call to match the screenshot.
 
 <details class="optional-path" markdown="1">
-<summary>Optional reference: streaming, structured output, and image input</summary>
+<summary>Optional reference: streaming, structured output, and images</summary>
 
-| Feature | How to try it | How to judge success |
-| --- | --- | --- |
-| Streaming | Receive stream events using the portal's View code or an official SDK example | Record time to first output separately from final completion |
-| Structured outputs | Define `sku` and `quantity` fields using a supported model's JSON schema output example | Both JSON parsing and field/type checks pass |
-| Embeddings | Vectorize documents with a supported embedding deployment | Recognize this as a search representation, not a human-readable answer |
-| Vision | Send a synthetic receipt image to a supported model | Compare price, quantity, and total with the original |
+| Feature | What to inspect |
+| --- | --- |
+| Streaming | First-output time versus final completion |
+| Structured outputs | JSON parsing, schema, and type checks |
+| Embeddings | Retrieval vectors, not generated answers |
+| Vision | Supported synthetic receipt input versus actual price/quantity |
 
-These extensions do not imply that every model supports the same API in the same way. Check the model card before adding a parameter. In particular, do not blindly copy an existing `temperature` setting to a reasoning model.
+APIs/tool support vary by model. Check the model card and official SDK examples before adding options.
 
 </details>
 
 ## Success criteria
 
-The live `--live` response has completed and contains nonempty text. You have recorded the response ID and can explain the difference between a model call without internal company information and a document-grounded answer.
+Your selected portal or Python request returned an actual answer; record the available status/ID, question, and deployment name. SDK execution must pass completed/nonempty-text checks. Plan-only means model execution not performed.
 
 ## Troubleshooting
 
-Do not count `incomplete` or empty output as a success. Check the output token limit, refusals, tool requests, quota, and traces. The sample disables automatic SDK retries to reduce costs and duplicate requests. Do not retry 429 errors indefinitely.
+Incomplete/empty responses do not pass. Check output limits, refusals, quota, authentication, and deployment names instead of automatically retrying 429. Portal Send and Python commands do not replay each other's results.
 
 ## Cleanup
 
-The sample's `model` command creates no agents or vector stores. The model deployment continues to exist.
+Retain the model deployment. This lab creates no separate agent/vector store. Create the instructed agent in L04.

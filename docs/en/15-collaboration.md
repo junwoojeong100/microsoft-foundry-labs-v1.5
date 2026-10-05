@@ -26,7 +26,7 @@
 
 ## Prerequisites
 
-Reuse [L13's environment setup](#l15): `.venv-advanced`, `.env`, administrator-provided `results/azure-environment.json`, and the chat deployment's **100,000 TPM / 60 RPM** check. L13's paid pattern runs are not prerequisites. On Windows use `.venv-advanced\Scripts\python.exe`. Keep `FOUNDRY_LAB_LANGUAGE=en` selected.
+Reuse [L13's setup](#l15): `.venv-advanced`, `.env`, **your own** `results/azure-environment.json`, and the chat **100,000 TPM / 60 RPM** check. L13's paid patterns are not prerequisites. Use `.venv-advanced\Scripts\python.exe` on Windows and keep the English profile selected.
 
 ### Choose your starting path
 
@@ -120,6 +120,50 @@ The sample sets `require_per_service_call_history_persistence=True` to retain co
 Handoff between local roles is **not a remote Agent2Agent (A2A) connection**. Human-in-the-loop approval, incoming A2A endpoints, and organizational delegation are also outside this implementation. Start with separate authentication, protocol, and user-permission design before connecting external agents.
 
 Compare the Builder responsibilities using the official [group-chat](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python) and [handoff](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python) documentation.
+
+#### Portal model deployment and Group chat/Handoff code
+
+L14 has no Group chat/Handoff editor in the Foundry portal. The portal supplies the model deployment; Python Agent Framework code selects participants, routes messages, and defines termination.
+
+```python
+from agent_framework.orchestrations import GroupChatBuilder, HandoffBuilder
+
+def select_speaker(state):
+    names = list(state.participants)
+    return names[state.current_round % len(names)]
+
+group_workflow = GroupChatBuilder(
+    participants=[drafter, reviewer],
+    selection_func=select_speaker,
+    max_rounds=3,
+    termination_condition=lambda messages: sum(message.role == "assistant" for message in messages) >= 3,
+    intermediate_output_from=[drafter, reviewer],
+).build()
+
+handoff_workflow = (
+    HandoffBuilder(
+        participants=[coordinator, policy_agent, budget_agent],
+        termination_condition=lambda messages: any(
+            message.role == "assistant"
+            and message.author_name in {"policy", "budget"}
+            and message.text.strip()
+            for message in messages
+        ),
+    )
+    .with_start_agent(coordinator)
+    .add_handoff(coordinator, [policy_agent, budget_agent])
+    .build()
+)
+```
+
+| Code setting | Actual result to inspect in Evidence |
+| --- | --- |
+| `participants` | Agent author for each stage |
+| `selection_func`, `max_rounds` | Who spoke in group chat and where it stopped |
+| `with_start_agent`, `add_handoff` | Whether a real control transfer appears in `handoff_calls` |
+| Portal model deployment | Approved Foundry model called by each participant |
+
+Participants are SDK agents from `build_role()`. Group chat stops after three assistant turns; handoff stops after a specialist answer. `multi_agent.py` executes only the chosen workflow, without storing this graph in the portal.
 
 ## Success criteria
 

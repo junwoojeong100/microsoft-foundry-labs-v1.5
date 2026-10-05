@@ -26,7 +26,7 @@
 
 ## Prerequisites
 
-Record the name/version of the nonproduction agent with L05's English policies and open a new conversation. Reuse responses if the same conditions were already tested; otherwise, send each question below once within the approved scope. Creating or changing guardrails is an administrator task. Do not weaken or disable production filters.
+Verify the name/version and default protection of your own L05 agent, then open a new conversation. Send each question once within your nonproduction scope. Policy changes require their own permissions/scope; do not weaken default protection or production filters.
 
 ## Steps
 
@@ -100,6 +100,29 @@ Read failed rows before aggregate scores. If filtering also blocks a legitimate 
 Do not stop at stronger wording. Use the table to narrow the cause to instructions, retrieval, functions, or authorization. After a fix, separately approve a check of **the same failed input and a legitimate policy question**. Do not overwrite earlier results or relax the criteria.
 
 Current L08 is a **12-question instruction comparison using a tool-free Prompt Agent**. Its scores and critical checklist do not replace function rejection, document ACL checks, or managed Red teaming. Keep this chapter's responses separate from L06 function results; preserve the existing business safety/access gates.
+
+### Distinguish portal policy from Python execution checks
+
+Portal **Build → Guardrails** applies content policy. L06 validates names, argument shape, quantity, and stock. The **user-request/SKU/quantity binding below belongs to L12 Hosted runtime** in `request_contract.py`; it is not executed by L06.
+
+```python
+sku, quantity = arguments.get("sku"), arguments.get("quantity")
+if not isinstance(sku, str) or type(quantity) is not int or not 1 <= quantity <= 10:
+    raise ToolInputError("Draft quantity must be an integer from 1 through 10; no draft was created.")
+
+matches = list(re.finditer(SKU_PATTERN, query))
+if not any(match[0].upper() == sku for match in matches):
+    raise ToolInputError("The user must explicitly supply the SKU before a draft is created.")
+```
+
+| Portal item | What to inspect in code |
+| --- | --- |
+| Scope of the Model/Agent guardrail | Content-policy target; it is not business authorization |
+| L06 function list/results | Allowlist in `dispatch_tool()` and actual quantity/stock checks |
+| L12 Hosted user request | `tool_permissions(query)` and `validate_draft_request(query, arguments)` validate explicit intent/arguments |
+| Final draft state | `dispatch_tool()` and the actual function result; a natural-language refusal alone is not proof of a block |
+
+This function does not decide whether an approval is genuine or interpret all policy content. Portal policy controls the content boundary; Python validates business inputs and execution. Check both.
 
 ## Success criteria
 

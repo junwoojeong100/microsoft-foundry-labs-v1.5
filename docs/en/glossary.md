@@ -84,4 +84,4 @@
 
 ## Status labels in this guide
 
-**GA** refers to the verified scope of that capability. **Partial GA / mixed** means that API, portal, and individual feature statuses differ. **Preview** is treated as an optional nonproduction lab. **Conditional lab** means execution is allowed only when the additional resources, administrators, and licenses are ready. **Design/reference** does not count toward actual cloud success.
+**GA** refers to the verified capability scope. **Partial GA / mixed** means API, portal, and feature statuses differ. Check support before using **Preview** in nonproduction. **Conditional lab** means additional resources, permissions, and licensing are required. **Design/reference** is not actual cloud success.

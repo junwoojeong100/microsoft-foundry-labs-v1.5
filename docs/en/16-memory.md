@@ -40,7 +40,7 @@ Do not store real personal data, salaries, passwords, or employee information.
 | --- | --- | --- |
 | Project, chat, and embedding deployment names | Your L01/L02 `.env` and deployment list | Read only the `create` plan until names, region, and access are checked |
 | Whether this is a new exercise | Presence of this folder's `results/memory.json` | Do not repeat `create` over an existing record |
-| Approval to delete the exact item | Confirm the actual `memory_id` and deletion scope with the administrator | Complete storage/isolation in steps 1–3; leave step 4 not performed |
+| Approval to delete the exact item | Verify your receipt's actual `memory_id` and allowed deletion scope | Complete steps 1–3 only before approval; step 4 remains not performed |
 
 Follow **create store → store one item → compare A/B searches → delete only if approved**. Search and Hosted are not prerequisites. Open `results/memory.json` in an editor to read values without modifying the original.
 
@@ -113,7 +113,7 @@ In a real service, the server must derive the scope from the authenticated princ
 
 ### 4. Delete only the one item, then search again
 
-Run this step **only if the administrator has approved deletion of the lab item**.
+Run this step **only after explicit approval to delete your exact lab item**.
 Deleting an item is separate from deleting an Azure store/RG. If the environment has a no-deletion policy,
 record this step as not executed and report only the storage and isolation results.
 
@@ -137,6 +137,38 @@ After checking the endpoint, store ownership metadata, and item scope, delete on
 Success requires a new API search after deletion that does not return the ID.
 Do not claim deletion succeeded based only on an “I forgot” answer, an existing conversation, or the TTL setting.
 
+#### Portal Memory and the actual item API
+
+The portal **Memory** view shows stores and items, but the API operation is scoped by `name`, `scope`, and `memory_id`:
+
+```python
+store = project.beta.memory_stores
+item = store.create_memory(
+    name=state["name"],
+    scope=state["scope_a"],
+    content=PREFERENCE,
+    kind="user_profile",
+)
+state["memory_id"] = item.memory_id
+
+result = store.search_memories(
+    name=state["name"],
+    scope=state["scope_a"],
+    items=[{"role": "user", "type": "message", "content": "What answer format does this workshop user prefer?"}],
+    options=MemorySearchOptions(max_memories=5),
+)
+```
+
+| Portal Memory view | Python code |
+| --- | --- |
+| Selected Memory store | `state["name"]` |
+| User A/B scope | `state["scope_a"]` / `state["scope_b"]` |
+| Memories item ID | `item.memory_id` and the ownership receipt |
+| Search item | IDs returned by `store.search_memories(...)` |
+| Delete an item | Verify exact ID/scope, then `store.delete_memory(...)`; retain the store |
+
+This compares **scope-specific retrieval**. The same API caller selects both scopes, so it does not test whether authenticated A can request B's scope. A real application must derive scope server-side from the authenticated identity. Delete/`forget --confirm` removes one item; store/RG deletion is separate.
+
 ## Success criteria
 
 You have the store/item IDs, A's search results, and B's isolation results; if deletion was performed, you also verified the post-deletion search.
@@ -147,7 +179,7 @@ Separately identify features not executed, such as automatic remember/forget pro
 
 Check model/embedding support, store settings, user scopes, and Preview API access.
 If the API fails, preserve the original error. Do not substitute a local dictionary and label it Azure Memory success.
-If creation failed but `memory.json` exists, first reconcile actual store creation with the administrator. Do not delete the record to repeat `create` or edit unverified ownership fields. An item expiring after its one-hour TTL does not prove an approved deletion ran; a new exercise needs separately approved ownership records.
+If creation failed but `memory.json` exists, reconcile your portal and original error first. Do not erase the receipt or edit unverified ownership. TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record.
 
 ## Cleanup
 

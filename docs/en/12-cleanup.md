@@ -26,7 +26,7 @@
 
 ## Prerequisites
 
-Collect the list of created English resources and `results/contoso-lab-....json` receipts from the separate English checkout. Keep `FOUNDRY_LAB_LANGUAGE=en` selected. Do not import Korean-run receipts or use them to stop or delete resources. Mark resources shared with an instructor or other learners.
+Collect **your L01 environment receipt** `results/azure-environment.json`, portal-created names, and SDK `results/contoso-lab-....json` records. Keep the English profile isolated. Your dedicated environment is the default; exclude others' or shared resources from deletion.
 
 ## Steps
 
@@ -35,7 +35,7 @@ Collect the list of created English resources and `results/contoso-lab-....json`
 | What you did | What to do now |
 | --- | --- |
 | Reading, local data, or local functions only | If you started L07's server, press Ctrl+C in its terminal. Do not run Azure deletion commands when you created no Azure resources |
-| Created portal agents/files | Collect their names and compare with step 3; confirm sharing, owner, and retention deadline |
+| Created the L01 environment/portal agents/files | Compare your receipt/names with step 3; verify model/log/file retention or deletion scope |
 | Ran L04/L05/L06 through the SDK | Find the `--receipt` path in the final `Cleanup:` command; review step 2 |
 | Ran Hosted, Routine, Voice, or other electives | In step 1, stop only that lab's recorded sessions/schedules and verify state |
 
@@ -45,41 +45,36 @@ Collect the list of created English resources and `results/contoso-lab-....json`
 
 First check active routines, voice sessions, Hosted agent executions/sessions, continuous evaluations, and training jobs. Prevent new runs before beginning deletion.
 
-Mark work you did not create as not applicable. The following is an **advanced/administrator path**, not a shared shutdown script where everyone runs all five commands.
+Mark schedules/Hosted sessions you did not create as not applicable. If an elective created them, execute **only the relevant command** below.
 
-<details class="operator-only" markdown="1">
-<summary>Advanced/administrators only: stop and inspect work with owned receipts</summary>
+<details class="optional-path" markdown="1">
+<summary>If you ran Hosted/Routines: stop only work in your receipts</summary>
 
 ```bash
 python scripts/stop_sessions.py
-python samples/routine_lab.py stop --live
-python scripts/azure_environment.py status --live
+python samples/routine_lab.py stop --receipt results/routine-v2-scheduled.json --live
 python scripts/operations_status.py
-python scripts/cost_status.py
 ```
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough** — Administrator path for labs that were run and have ownership receipts.
+**Command walkthrough** — Select only work you created with matching ownership records.
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
-| 2. `routine_lab.py stop --live` | Disables the schedule recorded in the default `results/routine.json`. If you used another receipt, specify `--receipt` as in L16. | Changes actual schedule state. Does not delete other schedules or resource groups. |
-| 3. `azure_environment.py status --live` | Reads and checks the Azure environment recorded in the ownership receipt. | Sends Azure read requests and records status. No model inference. |
-| 4. `operations_status.py` | Reads sessions, optimizer jobs, evaluation schedules, and routines in the owned English environment. Runs without `--live` and reports remaining work as failure. | Read-only in Azure; writes private `results/operations-status.json`. Run only when that inspection is approved. |
-| 5. `cost_status.py` | Queries ActualCost by service from the owned English resource group's creation time to the present. Reads the real billing API without `--live`. | Requires approval for cost inspection and writes private `results/cost-status.json`. Empty billing rows do not prove zero cost. |
+| 2. `routine_lab.py stop --receipt ... --live` | Disables the exact L16 schedule; distinguish manual/timer receipt paths. | Actual state change, no routine/RG deletion. Replace the path if you used a different file. |
+| 3. `operations_status.py` | Reads current sessions/schedules/evaluation work in your environment. | Actual Azure read without `--live`; active work/query failures remain errors or unverified. |
 
 </div>
 
 Use each command only if you ran the corresponding lab and have its receipt.
-The final two commands are **read-only Azure queries scoped by ownership receipts**.
+`operations_status.py` is a **read-only query scoped by ownership records**.
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
 it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also finds owned routine receipts under `results/` to query current state when L16 used a custom `--receipt` filename.
-`cost_status.py` queries only actual costs posted to the new resource group. It does not report empty cost rows as USD 0.
 **In a no-deletion environment, retain owned Azure resources until explicit deletion approval.**
 Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
-and resource-group deletion are not run automatically. The deletion path below is for learners with separate approval. Inspect your own environment rather than reusing another run's status.
+and resource-group deletion are not run automatically. The deletion path requires approval of the exact targets. Inspect your environment rather than another run's status.
 
 </details>
 
@@ -118,9 +113,63 @@ Do not assume vector store expiration removes the original files. Agents, projec
 
 ### 4. Make a final cost and data check
 
-Because Cost Management updates can be delayed, assign someone to recheck the next day. Turning off budget alerts does not stop billing.
+If you created the L01 environment, inspect resources and cost using these commands. Billing reads require access at that scope; otherwise use accessible portal views and leave unavailable items unverified.
+
+```bash
+python scripts/azure_environment.py status --live
+python scripts/cost_status.py
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `status --live` | Reads your RG/model state and updates the receipt. | Actual read; no inference, creation, or deletion. |
+| 2. `cost_status.py` | Queries ActualCost since your RG was created. | Actual billing read without `--live`, saved to `results/cost-status.json`. Empty rows are not zero-cost evidence. |
+
+</div>
+
+Allow for Cost Management delay and set a **next-day recheck time**. Review your own dedicated environment; separately record responsibility if handing over retained resources. Turning off alerts does not stop billing.
 
 Retain only the minimum results needed for learning, and remove real PII, tokens, and connection secrets. Delete a resource group **only after its owner confirms it is a dedicated lab group**, and after reviewing the scope in the Azure portal. This guide does not provide a broad `az group delete` command.
+
+#### Portal resource review and receipt-scoped cleanup code
+
+SDK cleanup targets the resources recorded in an ownership receipt, not an entire resource group selected in the portal. The core check is:
+
+```python
+data = read_receipt(receipt_path, project_endpoint)
+if confirmation != data["run_id"]:
+    raise ValueError("Repeat the exact run_id using --confirm before deleting recorded resources.")
+
+ordered = sorted(
+    data["resources"],
+    key=lambda item: {"conversation": 0, "agent": 1, "vector_store": 2, "file": 3}[item["kind"]],
+)
+for resource in ordered:
+    if resource.get("cleanup_status") in {"deleted", "already_absent"}:
+        continue
+    resource_id = resource["id"]
+    if resource["kind"] == "agent":
+        project.agents.delete(agent_name=resource_id)
+    elif resource["kind"] == "conversation":
+        client.conversations.delete(conversation_id=resource_id)
+    elif resource["kind"] == "vector_store":
+        client.vector_stores.delete(vector_store_id=resource_id)
+    elif resource["kind"] == "file":
+        client.files.delete(file_id=resource_id)
+```
+
+| What to inspect in the Azure portal | What to inspect in the receipt/code |
+| --- | --- |
+| Actual ID/state for each agent/conversation/vector store/file | `kind`, `id`, and `cleanup_status` in `receipt["resources"]` |
+| Retained model deployments, Search, or Storage | If outside the workshop receipt, record a separate owner and retention date |
+| Delayed Cost Management updates | Record the query time and next reviewer; an empty row is not proof of zero cost |
+| Scope immediately before Delete | Confirm `--receipt` is in the owned folder and `--confirm` exactly matches `run_id` |
+
+This excerpt shows target verification/deletion calls in `cleanup()`. The function also persists per-item status and treats only NotFound as `already_absent`; other errors remain failures. Execution requires `cleanup --live` and exact `--confirm`. Inspect portal-created resources/models separately.
 
 ## Success criteria
 

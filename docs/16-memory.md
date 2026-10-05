@@ -40,7 +40,7 @@ Python 기본 SDK 환경과 `.env`의 `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME`을 준
 | --- | --- | --- |
 | 프로젝트·chat·embedding 배포 이름 | L01·L02에서 준비한 자기 `.env`와 모델 배포 목록 | 이름·지역·권한 확인 전 `create` 계획만 읽기 |
 | 새 실습인지 여부 | 자기 폴더의 `results/memory.json` 존재 여부 | 기존 기록이 있으면 새 `create`를 반복하지 않기 |
-| 실제 항목 삭제 승인 | 관리자에게 정확한 `memory_id`의 삭제 범위 확인 | 1–3단계 저장·격리까지만, 4단계는 미실행 |
+| 실제 항목 삭제 승인 | 내 소유 기록의 정확한 `memory_id`와 그 항목의 삭제 허용 범위 확인 | 승인 전에는 1–3단계까지만. 4단계는 미실행 |
 
 흐름은 **store 생성 → item 1개 저장 → A/B 검색 비교 → 승인된 경우만 item 삭제**입니다. Search나 Hosted는 필요하지 않습니다. 편집기로 `results/memory.json`을 열어 값을 읽으며 원본을 수정하지 않습니다.
 
@@ -113,7 +113,7 @@ scope는 receipt에서만 가져오며 임의 사용자 입력으로 바꾸지 �
 
 ### 4. item 하나만 삭제하고 다시 검색하기
 
-관리자가 **실습 item 삭제를 승인한 경우에만** 실행합니다.
+**내 실습 item 하나의 삭제를 명시적으로 허용한 경우에만** 실행합니다.
 Azure store/RG 삭제와 item 삭제는 별개입니다. 이번 환경에 삭제 금지 정책이 있으면
 이 단계는 미실행으로 기록하고 저장·격리 결과만 보고합니다.
 
@@ -137,6 +137,38 @@ endpoint·store 소유 metadata·item scope를 확인한 후 해당 item만 삭�
 삭제 후 새로운 API 검색에서 ID가 반환되지 않아야 성공입니다.
 “잊었습니다”라는 답변, 기존 conversation, TTL 설정만으로 삭제 성공을 주장하지 않습니다.
 
+#### 포털 Memory와 실제 item API
+
+포털 **Memory**는 store와 item을 보여 주지만, 저장·검색·삭제의 실제 대상은 API 인수의 `name`·`scope`·`memory_id`입니다.
+
+```python
+store = project.beta.memory_stores
+item = store.create_memory(
+    name=state["name"],
+    scope=state["scope_a"],
+    content=PREFERENCE,
+    kind="user_profile",
+)
+state["memory_id"] = item.memory_id
+
+result = store.search_memories(
+    name=state["name"],
+    scope=state["scope_a"],
+    items=[{"role": "user", "type": "message", "content": "이 실습의 답변 형식 선호는?"}],
+    options=MemorySearchOptions(max_memories=5),
+)
+```
+
+| 포털 Memory 화면 | Python 코드 |
+| --- | --- |
+| 선택한 Memory store | `state["name"]` |
+| 사용자 A/B 범위 | `state["scope_a"]` / `state["scope_b"]` |
+| Memories item ID | `item.memory_id`와 소유 receipt |
+| Search item | `store.search_memories(...)` 결과 ID |
+| 항목 삭제 | exact ID·scope를 확인한 뒤 `store.delete_memory(...)`; store는 유지 |
+
+코드는 A/B의 **scope별 검색 결과**를 비교합니다. 같은 API caller가 두 scope를 지정하므로, 인증된 A가 B의 scope를 요청할 수 없는지까지 시험한 것은 아닙니다. 실제 앱은 서버가 인증 identity에서 scope를 결정해야 합니다. Delete/`forget --confirm`은 item 하나만 지우며 store/RG 삭제는 별도입니다.
+
 ## 성공 기준
 
 store/item ID, A 검색 결과, B 격리 결과가 있고, 삭제를 수행했다면 삭제 후 검색까지 확인했습니다.
@@ -147,7 +179,7 @@ store/item ID, A 검색 결과, B 격리 결과가 있고, 삭제를 수행했�
 
 모델/embedding 지원, store 설정, 사용자 scope, API Preview 접근을 확인합니다.
 API가 실패하면 원본 오류를 보존하고 로컬 dict로 대체한 것을 Azure Memory 성공으로 표시하지 않습니다.
-`memory.json`이 있는데 생성이 실패했다면 원격 store의 생성 여부를 담당자와 먼저 대조합니다. 기록을 지워 `create`를 다시 실행하거나 확인하지 않은 소유 정보를 수정하지 않습니다. 1시간 TTL 이후 항목이 사라진 것은 승인된 삭제 실행의 증거가 아니며, 새 실습은 별도의 승인·소유 기록으로 준비합니다.
+`memory.json`이 있는데 생성이 실패했다면 자신의 포털과 원본 오류로 원격 생성 여부를 대조합니다. 기록을 지워 반복하거나 미확인 소유 정보를 수정하지 않습니다. 1시간 TTL로 사라진 것은 승인된 삭제 실행 증거가 아니며 새 실습은 별도 소유 기록으로 준비합니다.
 
 ## 정리
 

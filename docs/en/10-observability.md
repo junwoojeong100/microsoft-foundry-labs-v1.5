@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Read logs from an existing run · an administrator prepares the connection and access.
+**Format:** Query and interpret your own agent execution using L01's telemetry connection.
 
 **Start here:** Find the same L05/L06 execution in Traces using its response ID, time, and agent version.
 
@@ -26,17 +26,14 @@
 
 ## Prerequisites
 
-You need L05 or L06 results, Application Insights **already connected to the project**, and log-read permissions. Application Insights is the Azure service that collects and queries execution logs. Collection and retention incur costs.
+Use the Application Insights connection/read access you prepared in L01 and your L04–L06 results. Application Insights collects/queries Azure execution logs; ingestion and retention have costs.
 
-<details class="operator-only" markdown="1">
-<summary>Administrators only: log collection is not connected yet</summary>
+<details class="optional-path" markdown="1">
+<summary>If not connected yet: finish your project's telemetry setup</summary>
 
-The administrator of a new dedicated environment uses `python scripts/azure_environment.py monitoring --live`
-to create Log Analytics/App Insights and the project connection. `monitoring` adds observability resources to the environment in the ownership receipt; `--live` permits actual creation and connection. Log-retention costs may apply, so learners using an already-connected project must not run it again. The definition is in [observability.bicep](../../infra/observability.bicep).
-Connection secrets in the bundled Bicep are referenced only within Azure and must not appear in output, Git, or packages.
-The 30-day log retention and daily ingestion limit do not enforce a hard cap on total charges.
+Inspect receipt `monitoring` and the portal connection first. If absent, follow **L01 step 5** to plan/create Log Analytics, App Insights, and the connection in your owned group. Do not recreate existing resources. Thirty-day retention and daily ingestion limits are not hard total-spend caps.
 
-Connect the approved target through **Agents → Traces → Connect**, or **Manage → Project details → Connected resources → Add connection → Application Insights**. Do not replace a shared project's connection without approval.
+Inspect your own connection under **Agents → Traces → Connect** or **Manage → Project details → Connected resources**, without replacing an existing binding. Telemetry is collected **after connection**, not retroactively for earlier requests.
 
 </details>
 
@@ -44,7 +41,7 @@ Connect the approved target through **Agents → Traces → Connect**, or **Mana
 
 ### 1. Check the log-collection connection
 
-Open your agent's **Traces**. If you see **Connect** instead of logs, request the connection from the owner rather than creating a resource yourself. Without log access, use step 3's synthetic timing table and record actual tracing as unverified.
+Open your agent's **Traces**. If only **Connect** appears, compare the connection and current project. For 403, inspect **IAM → View my access** on your App Insights/Log Analytics resources and assign the required minimum scoped roles if permitted. Otherwise block the query and record actual tracing unverified.
 
 Server-side tracing for Prompt/Hosted agents can begin after connection without code changes. It does not automatically trace every detail inside your client-side functions.
 
@@ -56,7 +53,7 @@ First reuse an L05/L06 run collected after tracing was connected. If none exists
 | --- | --- | --- |
 | Response JSONL | The `results/contoso-lab-…-responses.jsonl` path printed after `Responses:` by the L05/L06 SDK | Use L06's `read-result` for record/response IDs and agent/version. The source fields are `id`, `response_id`, `agent_name`, and `configuration.agent_version` |
 | Agent name/version | That row, or the configuration of the agent you invoked in the portal | Do not substitute the L08 evaluation agent or L12 Hosted name |
-| Application Insights app ID | Supplied by the administrator. Bundled environments store it at `monitoring.appId.value` in `results/azure-environment.json` | Compare `monitoring.appInsightsId.value` with the project's actual connection. Do not copy a key/connection string |
+| Application Insights app ID | Your `results/azure-environment.json` → `monitoring.appId.value`, or that resource's Overview | Match `monitoring.appInsightsId.value` with the actual project connection. Do not copy keys/connection strings. |
 
 With portal-only results, completing the **portal path** using the response ID is sufficient. Do not fabricate a JSONL file or pass L08's comparison JSON to this JSONL input. The CLI reads only the last 24 hours; read older evidence within the portal's approved retention scope or leave correlation unverified.
 
@@ -117,6 +114,32 @@ do not relabel a request ID as a trace ID. Compare `contract.sha256` and version
 
 Equal `input_rows` and `correlated_rows`, with empty `missing_case_ids`, establish **input-to-log correlation**. `model_response_spans_observed` and `request_trace_ids_observed` measure different observation layers. This CLI checks correlation, not bottlenecks or answer correctness. Read the query rows in the printed `Evidence:` file and the portal details, then fill the table with your own values.
 
+#### Portal Traces and the actual correlation query
+
+In the portal, use **Traces** to select your agent/version, time range, and response ID. The Python path reads the same IDs from JSONL, builds KQL, then sends one read query to Application Insights.
+
+```python
+rows = load_jsonl(args.input)
+query = query_for(rows, args.agent)
+
+result = rest.request(
+    "POST",
+    f"/v1/apps/{args.app_id}/query",
+    {"query": query, "timespan": "P1D"},
+)
+report = correlation_report(rows, result)
+```
+
+| Portal value | Code input/use |
+| --- | --- |
+| Agent filter in Traces | `args.agent` |
+| Response/trace IDs in request details | `response_id` / `trace_id` in `rows`, used as `responseIds` / `traceIds` in KQL |
+| Selected Application Insights app | `args.app_id` (app ID, not a connection string) |
+| Time range | `timespan="P1D"` and KQL restricted to the last 24 hours |
+| Correlated rows | `correlation_report()` fields `correlated_rows` and `missing_case_ids` |
+
+The code path **only reads telemetry** and does not call a model. Zero rows or missing IDs remain unobserved/failures; do not fill them from what appears on a portal screen.
+
 ### 4. Optional: Add client-side tracing
 
 To see inside your own functions or external applications, add OpenTelemetry and your framework's instrumentation. VS Code Toolkit's local OTLP tracing can show development executions without cloud logs.
@@ -140,7 +163,7 @@ Link one of your runs' **response/trace IDs, version, observed operations/durati
 | Symptom | Inspect first | Next action |
 | --- | --- | --- |
 | Cannot open JSONL / no actual IDs | The `Responses:` path and one file row | Select the L05/L06 output, not example IDs or L08 comparison JSON |
-| 403 | Log-read permissions, separate from project roles | Request access to the exact App Insights/Log Analytics scope from the administrator |
+| 403 | Log-read access is separate from project roles | Check minimum roles/scope in your App Insights/Log Analytics IAM; block the query without permission |
 | Zero rows / partial correlation | Project connection, run time, 24-hour window, collection delay | Compare scope/IDs before any new model request. If still absent, leave correlation unverified |
 | Parent exists but function/content is absent | Instrumentation and sensitive-content read permissions | Record JSONL evidence and observation limits; do not indiscriminately enable content recording |
 

@@ -11,7 +11,7 @@
 | Windows error for `source` / `curl --fail` | Use L01's `.venv\Scripts\python.exe` and use `curl.exe` for HTTP checks |
 | Packages disappear in a new terminal | Use [L01's new-terminal check](#l01-new-terminal), including the English profile. Do not reinstall packages into a different Python |
 | `read-result` reports a file, format, or language error | Check L06's `Responses:` path, the `-responses.jsonl` ending, and English profile. Ownership receipts and L08 JSON use different formats; do not fix this with another paid call |
-| No project in the portal | Confirm the supplied account, organization, and project with the instructor; do not create a new project or subscription |
+| No project in the portal | Compare your L01 account, tenant, receipt, and creation state; do not duplicate the environment or erase records |
 
 ## A 60-second diagnostic sequence
 
@@ -58,9 +58,9 @@ Inspect your own bilingual comparison files, keeping each language's results sep
 | Costs keep increasing | Routines, voice, continuous evaluation, Search/PTU/runtime | Separate active, idle, and fixed costs | Only close the browser |
 | Cleanup fails | Receipt endpoint, permissions, and ownership | Record the remaining IDs and retry | Delete the entire resource group |
 
-## Administrator handoff
+## Problems outside your permissions or scope
 
-Refer errors involving external diagnostics workspaces or organizational policy to the governance owner. Share exact resource/correlation IDs through approved private channels. Do not query external resources or change policy/access without the owner's approval, hide an error, or add broad roles to bypass it.
+Inspect your resource state, effective roles, scope, and original error first. For organizational policy or resources outside your scope, use the permitted support channel. Share IDs only privately; do not bypass a failure with broader roles or unauthorized resource access.
 
 ## Safe information to include in a support request
 
