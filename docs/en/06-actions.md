@@ -26,7 +26,7 @@ Understand who is responsible for executing function calls. **The model proposes
 
 ## Prerequisites
 
-The local exercise requires only Python. Without a virtual environment, use L01's `python3` (Windows: `py -3.13`) instead of `python` below. Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
+The local exercise requires only Python. Without a virtual environment, use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
 
 ## Steps
 
@@ -70,6 +70,8 @@ Expected values:
 
 The actual output also includes the inventory lookup result, a draft ID, and a synthetic-data marker.
 
+<a id="l06-failures"></a>
+
 ### 2. Deliberately trigger failures
 
 ```bash
@@ -100,6 +102,9 @@ These must fail because the item is out of stock, the requested quantity exceeds
 | `prepare_purchase_request` | SKU and an integer quantity from 1–10 | Total, required approval roles, and draft ID | Approve, order, or pay |
 
 JSON schema's `strict` and `additionalProperties: false` constrain function-argument shape. **They do not replace authentication or authorization.** Execution code validates again, including rejecting Python `True` as integer 1.
+
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: draft quantity, stock, and total validation — read only</summary>
 
 #### Portal configuration and the Python function
 
@@ -138,6 +143,8 @@ def prepare_purchase_request(sku: str, quantity: int) -> dict:
 
 The L06 Python path reads the synthetic inventory CSV and calculates a draft. Saving a function schema in the portal and operating a process that executes it are separate things.
 
+</details>
+
 ### 4. Connect knowledge and functions to the same agent
 
 **Azure calls start here.** Without an account, skip step 4 and record only your local results.
@@ -173,6 +180,9 @@ Question
 
 These are the actual statements that execute a tool request and return its result. The model does not perform the arithmetic; the application returns the function result with the same `call_id`.
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: returning function results to the model — read only</summary>
+
 ```python
 current_input = []
 for call in calls:
@@ -189,6 +199,8 @@ for call in calls:
 ```
 
 For safe lab execution, the sample limits a run to 5 response rounds and 8 function calls. Errors are returned explicitly, and execution stops if a limit is exceeded. These are educational limits in this sample, not Foundry service limits.
+
+</details>
 
 #### Reread the saved answer in a readable format
 
@@ -253,3 +265,11 @@ Use the SDK if you cannot edit the function schema in the portal. Registering a 
 ## Cleanup
 
 Local functions do not change external state. Azure-created agents, conversations, and files remain in the receipt. In L19, check shared use and retention ownership, then delete **only with separate approval**.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Local normal/error results. If you ran integration, keep the **exact `Responses:` JSONL and `Resource receipt:` JSON paths** plus the five-part judgment. Use this JSONL in L10.
+
+**Continue:** [L07 local HTTP/MCP](#l07). Reread with `read-result`; do not repeat `capstone --live`.
+
+</div>

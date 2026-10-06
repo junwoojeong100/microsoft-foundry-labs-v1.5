@@ -49,7 +49,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 
 </div>
 
-Use the core SDK environment. If azd or Routine support is missing, follow L12's azd installation/authentication checks and install `azure.ai.routines` using `azd extension install azure.ai.routines` when needed. Inspect the installed `azd ai routine --help`; do not force-update it. Hosted deployment itself is unnecessary.
+Use the core SDK environment. If azd or Routine support is missing, follow only [L12's azd setup section](#l12-azd) for installation/authentication, then install `azure.ai.routines` using `azd extension install azure.ai.routines` when needed. Inspect the installed `azd ai routine --help`; do not force-update it. Hosted deployment itself is unnecessary.
 Query only the English project and App Insights in this checkout's `results/azure-environment.json`.
 Do not automatically upgrade CLI extensions/global settings or use resources from another environment.
 
@@ -179,6 +179,9 @@ Long-running checkpoints, reconnection, and approval expiry, as well as Autopilo
 and mail/Teams permissions, are **design exercises**. The timer lab does not create an Autopilot account.
 If you selected continuous evaluation, stop its schedule separately as well.
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: the one-time trigger and agent-input manifest — read only</summary>
+
 #### Portal Routines and the actual creation manifest
 
 Portal **Agents → Routines** shows the schedule time, target agent, and enabled state. The bundled Python does not guess a recurring schedule: it writes one timer trigger and one agent action to a manifest with a unique receipt.
@@ -212,6 +215,8 @@ created = azd(
 
 `fire_at` is the UTC trigger time; `manifest_path` is a new JSON file in `results/`. Python invokes azd, not portal UI automation. Compare the portal target/time/Paused state with code inputs; live actions require matching receipt, `--live`, and approval.
 
+</details>
+
 ## Success criteria
 
 You have verified the action execution after the actual scheduled time, the completed business response, and the disabled state.
@@ -230,3 +235,11 @@ Distinguish permission, protocol, model quota, and tool authentication errors us
 
 Retain the routine in the disabled state. Check its state even for a one-time timer that is not scheduled to run.
 If it targets Hosted, stop the agent session compute separately as well.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Each manual/scheduled receipt's name, actual response/trace, and `enabled=false` readback. If status is unverified, stop and query that receipt's routine before leaving.
+
+**Continue:** [L17](#l21) for control design, otherwise [L19](#l12). Do not leave a routine active when finishing.
+
+</div>

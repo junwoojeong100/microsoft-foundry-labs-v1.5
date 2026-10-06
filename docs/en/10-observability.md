@@ -114,6 +114,9 @@ do not relabel a request ID as a trace ID. Compare `contract.sha256` and version
 
 Equal `input_rows` and `correlated_rows`, with empty `missing_case_ids`, establish **input-to-log correlation**. `model_response_spans_observed` and `request_trace_ids_observed` measure different observation layers. This CLI checks correlation, not bottlenecks or answer correctness. Read the query rows in the printed `Evidence:` file and the portal details, then fill the table with your own values.
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: finding logs through response IDs and KQL — read only</summary>
+
 #### Portal Traces and the actual correlation query
 
 In the portal, use **Traces** to select your agent/version, time range, and response ID. The Python path reads the same IDs from JSONL, builds KQL, then sends one read query to Application Insights.
@@ -139,6 +142,8 @@ report = correlation_report(rows, result)
 | Correlated rows | `correlation_report()` fields `correlated_rows` and `missing_case_ids` |
 
 The code path **only reads telemetry** and does not call a model. Zero rows or missing IDs remain unobserved/failures; do not fill them from what appears on a portal screen.
+
+</details>
 
 ### 4. Optional: Add client-side tracing
 
@@ -170,3 +175,11 @@ Link one of your runs' **response/trace IDs, version, observed operations/durati
 ## Cleanup
 
 Record only the trace IDs needed for diagnosis and minimal evidence. Set log retention, decide whether raw content is included and who can access it, and stop unnecessary continuous evaluation.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** One run's response/trace IDs, version, task durations, interpretation, and next action. Logs you could not query remain unverified.
+
+**Continue:** Core-only learners go directly to **[L19 shared wrap-up](#l12)**. For further features, check prerequisites in the [elective selection table](#instructor).
+
+</div>

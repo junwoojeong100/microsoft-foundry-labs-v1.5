@@ -79,6 +79,21 @@ Keep this table privately, separate from browser progress. Unknown values remain
 | Traces | Record | Response/trace ID | Operations/durations/unobserved layers | Check query scope/collection |
 | Cleanup | Record | Actual resource state | Stopped/retained/approved deletion | Recheck costs within 24 hours |
 
+### Distinguish result files by name and purpose
+
+Open the **exact printed path** in VS Code's file explorer. Use **Ctrl+F** (macOS **Cmd+F**) to find the named field; expand JSON's `{}`/`[]` without editing originals.
+
+| Record | Purpose | Reused in |
+| --- | --- | --- |
+| `results/azure-environment.json` | L01 resource/deployment ownership | L02, L08, electives, and L19 |
+| `Resource receipt:` file `contoso-lab-….json` | Resource IDs created by the L04/L05/L06 SDK | Exact cleanup scope in L19 |
+| `Responses:` file `contoso-lab-…-responses.jsonl` | Questions, answers, actual functions/citations | L06 `read-result`, L10 tracing |
+| `instruction-prompt-agent-en.json` | L08's 24 collected originals | Native evaluation `--input` |
+| `instruction-native-prompt-agent-en.json` | L08 scores, reasons, and errors | Comparison with the same question's originals |
+| Printed `Evidence:` file | Events/errors for that execution | That module's evidence; not a substitute input of another format |
+
+Portal-only execution does not automatically create these SDK files. Record agent names/versions, questions, IDs, and citations privately. Do not type the example filename's `…` literally.
+
 ## Read code, portal controls, and results in order
 
 1. **Locate the input destination.** Terminal, portal Chat, `.env`, Python excerpts, and sample outputs differ.

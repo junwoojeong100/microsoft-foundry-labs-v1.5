@@ -32,15 +32,15 @@
 
 | 목표 | 따라갈 순서 | 남길 결과 |
 | --- | --- | --- |
-| 권한과 캐시의 관계 직접 확인 | 0단계 복사 → 실패 2건 → `exercise.py` 수정 → 같은 테스트 5개 통과 | 로컬 수정 전·후와 이유 |
-| 조직 적용 설계 | 위 실습 → 1단계 주체표 → 3·4단계 Gateway/네트워크 경계 | 직접 작성한 설계표. Azure 변경은 미실행 |
-| 포털 읽기 권한도 있음 | 추가로 2단계의 **자기 소유 자산 1개** 관찰 | 조회 시각·필터·읽기 범위를 기록 |
+| 권한과 캐시의 관계 직접 확인 | 1단계 복사 → 실패 2건 → `exercise.py` 수정 → 같은 테스트 5개 통과 | 로컬 수정 전·후와 이유 |
+| 조직 적용 설계 | 위 실습 → 2단계 주체표 → 4·5단계 Gateway/네트워크 경계 | 직접 작성한 설계표. Azure 변경은 미실행 |
+| 포털 읽기 권한도 있음 | 추가로 3단계의 **자기 소유 자산 1개** 관찰 | 조회 시각·필터·읽기 범위를 기록 |
 
 편집기에서 `practice/governance/exercise.py`만 고칩니다. `test_exercise.py`·허용 사용자 목록·`data/exercises/` 원본은 그대로 둡니다. 폴더가 이미 있다면 다른 `--output` 경로를 정하고 검사 명령의 경로도 함께 바꿉니다.
 
 ## 실행
 
-### 0. 직접 고치기: 캐시에 있어도 권한을 확인하는가?
+### 1. 직접 고치기: 캐시에 있어도 권한을 확인하는가?
 
 <div class="practice-block" markdown="1">
 
@@ -94,6 +94,9 @@ def read_document(user: str, document_id: str, grants: dict[str, set[str]], cach
 
 </div>
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 고칠 캐시 코드와 Azure RBAC의 차이 — 읽기용</summary>
+
 #### 로컬 코드와 Azure 포털 경계
 
 이 연습의 `exercise.py`는 가짜 문서와 가짜 권한표만 사용합니다. 결함은 캐시 반환이 권한 검사보다 앞에 있는 순서입니다.
@@ -117,7 +120,9 @@ def read_document(user, document_id, grants, cache):
 
 L01에서는 자신의 실제 역할을 준비했고 여기서는 **애플리케이션의 캐시/문서 권한 검사**를 학습합니다. 둘은 다른 검사입니다. 실제 ACL 시험에는 허용된 테스트 identity·별도 합성 제한 문서·접근 로그가 필요하며 로컬 통과로 대신하지 않습니다.
 
-### 1. identity 네 가지를 분리하기
+</details>
+
+### 2. identity 네 가지를 분리하기
 
 **작성 예 — L12의 공용 정책 Hosted 경로를 기준으로 한 설계이며 실제 역할 부여 기록은 아닙니다.**
 
@@ -130,7 +135,7 @@ L01에서는 자신의 실제 역할을 준비했고 여기서는 **애플리케
 
 L12의 직접 Search 호출과 L07 연결의 호출 주체는 같다고 가정하지 않습니다. **Manage의 연결 인증 방식 → 해당 identity의 role assignment와 scope → 대상 서비스** 순으로 읽습니다. 권한 목록은 허용 가능성을 보여 줄 뿐 호출 성공 증거가 아니며, 실제 검사는 별도 승인된 읽기 요청으로 확인합니다.
 
-### 2. Control Plane에서 fleet 확인하기
+### 3. Control Plane에서 fleet 확인하기
 
 **Operate → Assets**에서 자신이 만든 agent/model/tool을 찾습니다. **Manage**는 현재 프로젝트/리소스 설정, **Operate**는 자산·운영 상태 관점입니다. 여러 프로젝트의 자산이 보이더라도 권한 범위 밖의 데이터를 실습 자료로 쓰지 않습니다.
 
@@ -138,7 +143,7 @@ L12의 직접 Search 호출과 L07 연결의 호출 주체는 같다고 가정�
 
 자기 소유 자산 한 개에 대해 **자산 이름·프로젝트·소유자·마지막 관찰 시각·정책 적용 대상**을 적습니다. 목록이 비면 “자산 없음”으로 확정하지 말고 필터·현재 테넌트·읽기 범위를 먼저 확인합니다. 알 수 없는 다른 팀 자산을 열어 실습 자료로 쓰지 않습니다.
 
-### 3. AI Gateway 선택 과제
+### 4. AI Gateway 선택 과제
 
 APIM 기반 gateway가 필요한 이유를 하나 정합니다: 토큰 한도, rate limit, 허용 backend, 관측, 라우팅 등.
 
@@ -154,7 +159,7 @@ APIM 기반 gateway가 필요한 이유를 하나 정합니다: 토큰 한도, r
 
 **quota는 청구 한도가 아니고, 예산 알림도 hard stop이 아닙니다.** Foundry gateway UI와 APIM 자체의 상태도 구분합니다. 도구·문서 권한을 gateway에만 맡기지 않습니다.
 
-### 4. 네트워크 설계 과제
+### 5. 네트워크 설계 과제
 
 세 경로를 그립니다: **사용자 → Foundry**, **Foundry → 도구/데이터**, **도구/데이터 → 외부**.
 
@@ -189,7 +194,7 @@ private Search/Storage 등에는 각각 필요한 private endpoint를 준비합�
 
 **대표적인 제약:** Memory store의 VNet 미지원, Routines의 CMK 미지원, 일부 browser/computer/image 도구의 network isolation 미지원, public web/Bing/SharePoint 도구의 public 통신. Hosted Agent private ACR은 **2026-06-25 이후 생성된 프로젝트** 등 문서의 조건을 재확인합니다.
 
-### 5. 정책·암호화·정보 보호 확인하기
+### 6. 정책·암호화·정보 보호 확인하기
 
 Azure Policy로 허용 모델·배포 유형·네트워크 조건을 검토합니다. CMK는 지원 자원의 저장 데이터 보호이고 runtime의 유출 방지나 모든 기능 지원을 의미하지 않습니다.
 
@@ -207,3 +212,11 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 ## 정리
 
 내가 실제 변경한 역할·정책·gateway·연결이 있다면 소유 기록에 남기고 허용된 범위에서 회수합니다. 설계만 했다면 Azure 변경 없음으로 기록합니다. 공유 네트워크·운영 정책은 삭제하지 않습니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 수정한 `practice/governance/exercise.py`, 같은 5개 테스트의 결과·수정 이유, 주체/작업/범위/거절·네트워크 설계표. 실제 Azure 검증과 구분합니다.
+
+**다음:** 릴리스·복구를 선택하면 [L18](#l22), 선택 실습을 마쳤다면 [L19](#l12).
+
+</div>

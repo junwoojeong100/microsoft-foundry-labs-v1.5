@@ -71,6 +71,9 @@ L01 sets `.env` to `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat`. Pass the **actu
 
 This is the **request excerpt** expanded in L03. `client` is the project client from L01/L03; `question` is a synthetic input. This makes a billable inference request, not a deployment:
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: the deployment name in a Python request — read only</summary>
+
 ```python
 response = client.responses.create(
     model=deployment_name,
@@ -79,6 +82,8 @@ response = client.responses.create(
     store=False,
 )
 ```
+
+</details>
 
 Do not execute the excerpt in this settings step. Verify portal Name, receipt `model_deployments.chat`, and `.env` all identify `contoso-chat`.
 
@@ -96,6 +101,9 @@ Do not execute the excerpt in this settings step. Verify portal Name, receipt `m
 
 The calculation is explicit below. **It is not a service minimum or a no-429 guarantee.**
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: the recommended TPM calculation — use the plan command below</summary>
+
 ```python
 from math import ceil
 
@@ -104,6 +112,8 @@ chat_tpm = ceil((8192 + 2048) * 6 * 1.5 * learners / 10000) * 10000
 embedding_tpm = ceil(8192 * 1 * 1.2 * learners / 1000) * 1000
 print(chat_tpm, embedding_tpm)
 ```
+
+</details>
 
 L01's foundation converts the plan using the catalog's model-specific capacity units, increments, and quota. It does not apply `capacity=100` uniformly.
 
@@ -188,3 +198,11 @@ For missing models or failed limit queries, inspect region, type, quota, and acc
 ## Cleanup
 
 Reuse L01's three deployments in subsequent modules. Record names, costs, and retention deadlines for additional comparison deployments and inspect them in L19.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Actual chat/judge/embedding deployment names, model versions, TPM/RPM, and ready states. The portal, `.env`, and receipt must match.
+
+**Continue:** [L03 first answer](#l03), using the ready deployment without redeploying it.
+
+</div>

@@ -79,6 +79,12 @@ async (page) => {
     check(await page.locator(".nav-learning").count() === advancedCount, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === labIds.length, "all active labs are trackable");
     check(await page.locator(".lab-brief").count() === labIds.length, "all active modules have beginner start cards");
+    check(await page.locator(".lab-handoff").count() === labIds.length, "all active modules identify saved results and the next step");
+    check(await page.locator('.chapter:not([data-track="reference"]) code.language-python').evaluateAll(nodes =>
+      nodes.every(node => node.closest("details"))
+    ), "Python excerpts are expandable reading references, not visible execution commands");
+    check(await page.locator(".implementation-detail code.language-bash, .implementation-detail code.language-powershell").count() === 0,
+      "implementation references never hide the required shell commands");
     check(await page.locator("pre code.language-prompt").count() === edition.prompt_blocks,
       `all ${edition.prompt_blocks} portal question blocks identify their input destination`);
     check(await page.locator("pre code.language-env").count() === edition.settings_blocks, "settings blocks are distinguished from terminal commands");
@@ -214,6 +220,21 @@ async (page) => {
       await page.goto(`${entry}#${id}`);
       check(await page.locator(`#${id} .optional-path pre:visible`).count() === 0, `${id} extra paid paths are collapsed, not presented as required work`);
     }
+    await page.goto(`${entry}#l03`);
+    const implementation = page.locator("#l03 .implementation-detail");
+    check(await implementation.locator("code.language-python").isHidden(), "first-response Python internals are collapsed on the main path");
+    check(await page.locator("#l03 code.language-bash").first().isVisible(), "first-response execution commands remain visible");
+    await implementation.locator("summary").click();
+    check(await implementation.locator("code.language-python").isVisible(), "learners can expand the real SDK implementation");
+    await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+    await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+    check(await implementation.evaluate(node => node.open), "printing restores an implementation reference that was already open");
+    await implementation.locator("summary").click();
+    await page.goto(`${entry}#l08`);
+    check(await page.locator("#l08 code.language-bash").evaluateAll(nodes =>
+      nodes.every(node => !(node.textContent.includes("instruction_prompt_agent_lab.py --live")
+        && node.textContent.includes("instruction_evaluation.py --input")))
+    ), "collection and native evaluation cannot be copied together as one command block");
     await page.goto(`${entry}#l11`);
     await page.locator("#l06.active").waitFor({state: "visible"});
     check(await page.locator(".chapter.active").getAttribute("id") === "l06", "old capstone bookmarks open the integrated L06 review");
@@ -330,7 +351,9 @@ async (page) => {
       });
     });
     const expectedCode = await page.locator("#l06 pre code").first().textContent();
-    check(await page.locator("#l06 .code-label").first().innerText() === (english ? "Terminal" : "터미널 명령"), "code labels identify where to use a block");
+    check(await page.locator("#l06 .code-label").first().innerText() ===
+      (english ? "Terminal · macOS/Linux syntax" : "터미널 명령 · macOS/Linux 문법"),
+      "code labels identify the destination and shell syntax");
     await page.locator("#l06 .copy-button").first().click();
     check(await page.evaluate(() => window.__workshopCopiedText) === expectedCode, "copy includes code only, not labels");
     await page.goto(`${entry}#l01`);
@@ -402,30 +425,41 @@ async (page) => {
       if ([1440, 390, 320].includes(width)) {
         for (const id of labIds) {
           await page.goto(`${entry}#${id}`);
+          const implementationStates = await page.locator(`#${id} .implementation-detail`).evaluateAll(nodes => {
+            const states = nodes.map(node => node.open);
+            nodes.forEach(node => { node.open = true; });
+            return states;
+          });
           const layout = await page.locator(`#${id}.active`).evaluate(chapter => ({
             viewport: innerWidth,
             document: document.documentElement.scrollWidth,
             tables: chapter.querySelectorAll(".table-wrap table").length,
             briefWidth: chapter.querySelector(".lab-brief").getBoundingClientRect().width,
+            handoffWidth: chapter.querySelector(".lab-handoff").getBoundingClientRect().width,
             proseWidth: chapter.querySelector(".prose").getBoundingClientRect().width,
             walkthroughsFit: [...chapter.querySelectorAll(".command-explanation .table-wrap")].every(node =>
               !node.getClientRects().length || node.scrollWidth <= node.clientWidth + 1
             ),
             labelsFit: [...chapter.querySelectorAll(".code-label")].every(label => {
               if (!label.getClientRects().length) return true;
-              const button = label.parentElement.querySelector(".copy-button");
-              const code = label.parentElement.querySelector("code");
+              const pre = label.closest("pre");
+              const button = pre.querySelector(".copy-button");
+              const code = pre.querySelector("code");
               return label.getBoundingClientRect().right <= button.getBoundingClientRect().left &&
                 label.getBoundingClientRect().bottom <= code.getBoundingClientRect().top;
             }),
           }));
           check(layout.document <= layout.viewport + 1 && layout.tables > 0, `${id} decision tables fit the reader at ${width}px`);
           check(layout.briefWidth > 0 && layout.briefWidth <= layout.proseWidth + 1, `${id} beginner card fits at ${width}px`);
+          check(layout.handoffWidth > 0 && layout.handoffWidth <= layout.proseWidth + 1, `${id} result handoff fits at ${width}px`);
           check(layout.walkthroughsFit, `${id} command explanations need no horizontal scrolling at ${width}px`);
           check(layout.labelsFit, `${id} input labels do not overlap copy controls or code at ${width}px`);
           if (practiceIds.includes(id)) {
             check(await page.locator(`#${id} .practice-block`).isVisible(), `${id} concrete practice remains readable at ${width}px`);
           }
+          await page.locator(`#${id} .implementation-detail`).evaluateAll((nodes, states) => {
+            nodes.forEach((node, index) => { node.open = states[index]; });
+          }, implementationStates);
         }
       }
     }
@@ -460,6 +494,7 @@ async (page) => {
     }));
     check(printFonts.prose >= 14.66, "PDF body text >= 11pt");
     check(printFonts.code >= 12, "PDF code text >= 9pt");
+    check(await page.locator(".code-label:visible").count() > 0, "printed code blocks retain their input-destination labels");
     await page.emulateMedia({media: null});
     await page.evaluate(() => { delete document.body.dataset.print; });
     await page.goto(`${entry}#%E0%A4%A`);

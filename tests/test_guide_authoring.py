@@ -1,5 +1,6 @@
 from copy import deepcopy
 from html import escape, unescape
+from html.parser import HTMLParser
 import json
 from pathlib import Path
 import re
@@ -12,7 +13,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_guide
-from check_guide import BRIEF_LABELS, LAB_HEADINGS, command_coverage
+from check_guide import BRIEF_LABELS, HANDOFF_LABELS, LAB_HEADINGS, command_coverage
 
 
 def explanation(rows):
@@ -25,7 +26,104 @@ def explanation(rows):
     )
 
 
+class ReadingSurfaceParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.details = []
+        self.exposed_python = []
+        self.hidden_commands = []
+
+    def handle_starttag(self, tag, attrs):
+        classes = dict(attrs).get("class", "").split()
+        if tag == "details":
+            self.details.append("implementation-detail" in classes)
+        elif tag == "code":
+            if "language-python" in classes and not self.details:
+                self.exposed_python.append(classes)
+            if {"language-bash", "language-powershell"} & set(classes) and any(self.details):
+                self.hidden_commands.append(classes)
+
+    def handle_endtag(self, tag):
+        if tag == "details":
+            self.details.pop()
+
+
 class GuideAuthoringTests(unittest.TestCase):
+    def test_all_modules_end_with_saved_results_and_resolvable_next_steps(self):
+        for language in ("ko", "en"):
+            chapters, _, _ = build_guide.load_content(language)
+            for chapter in chapters:
+                if chapter["track"] == "reference":
+                    continue
+                text = (ROOT / chapter["file"]).read_text()
+                handoff = re.search(r'<div class="lab-handoff" markdown="1">(.*?)</div>', text, re.S)
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    self.assertEqual(text.count('class="lab-handoff"'), 1)
+                    self.assertIsNotNone(handoff)
+                    self.assertGreater(handoff.start(), text.index("## " + LAB_HEADINGS[language][-1]))
+                    for label in HANDOFF_LABELS[language]:
+                        self.assertIn("**" + label, handoff[1])
+                    self.assertRegex(handoff[1], r"\]\(#[\w-]+\)")
+
+    def test_python_references_are_expandable_without_hiding_execution_commands(self):
+        for language in ("ko", "en"):
+            chapters, sources, capabilities = build_guide.load_content(language)
+            captures = {item["path"]: item for item in build_guide.load_portal_captures(language)}
+            ui = build_guide.read_json("reader-labels.json")[language]
+            for chapter in chapters:
+                if chapter["track"] == "reference":
+                    continue
+                body = build_guide.source_body(chapter, chapters, capabilities, sources, language)
+                html = build_guide.render_chapter(
+                    chapter, body, {item["id"]: item for item in sources["sources"]},
+                    None, None, captures, ui,
+                )
+                parser = ReadingSurfaceParser()
+                parser.feed(html)
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    self.assertFalse(parser.exposed_python)
+                    self.assertFalse(parser.hidden_commands)
+                    self.assertFalse(parser.details)
+
+    def test_reentry_selects_python_without_recreating_or_reinstalling_it(self):
+        for directory in ("docs", "docs/en"):
+            text = (ROOT / directory / "01-setup.md").read_text()
+            reentry = text.split('<a id="l01-new-terminal"></a>', 1)[1].split("\n### 2.", 1)[0]
+            with self.subTest(directory=directory):
+                self.assertIn("source .venv/bin/activate", reentry)
+                self.assertIn(r'.\.venv\Scripts\python.exe -c', reentry)
+                self.assertIn("sys.version.split()[0]", reentry)
+                self.assertIn("Python 3.13.x", reentry)
+                self.assertIn(".venv-core313", reentry)
+                self.assertNotIn("-m venv", reentry)
+                self.assertNotIn("pip install", reentry)
+                if directory == "docs/en":
+                    self.assertIn("export FOUNDRY_LAB_LANGUAGE=en", reentry)
+                    self.assertIn('$env:FOUNDRY_LAB_LANGUAGE = "en"', reentry)
+
+    def test_collection_checkpoint_precedes_a_separate_native_evaluation_block(self):
+        for directory in ("docs", "docs/en"):
+            text = (ROOT / directory / "08-evaluation.md").read_text()
+            blocks = re.findall(r"^```bash\n(.*?)^```[^\S\n]*$", text, re.M | re.S)
+            collection = next(block for block in blocks if "instruction_prompt_agent_lab.py --live" in block)
+            evaluation = next(block for block in blocks if "instruction_evaluation.py --input" in block)
+            with self.subTest(directory=directory):
+                self.assertNotEqual(collection, evaluation)
+                between = text[text.index(collection) + len(collection):text.index(evaluation)]
+                for field in ("status", "completed", "target_calls", "24", "rows", "response_id", "raw_answer"):
+                    self.assertIn(field, between)
+
+    def test_local_corpus_precedes_billable_search_and_cli_setup_has_its_own_link(self):
+        for directory in ("docs", "docs/en"):
+            search = (ROOT / directory / "13-iq.md").read_text()
+            hosted = (ROOT / directory / "14-hosted.md").read_text()
+            routine = (ROOT / directory / "17-automation.md").read_text()
+            with self.subTest(directory=directory):
+                self.assertLess(search.index("python samples/search_lab.py corpus"), search.index("python scripts/azure_environment.py search --live"))
+                self.assertIn('<a id="l12-azd"></a>', hosted)
+                self.assertIn("https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd", hosted)
+                self.assertIn("#l12-azd", routine)
+
     def test_concept_introductions_remain_compact_in_both_languages(self):
         for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)

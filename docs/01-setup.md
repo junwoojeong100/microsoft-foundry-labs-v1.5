@@ -12,7 +12,7 @@
 
 ## 목표
 
-**실습 참여자가 필요한 환경을 직접 만듭니다.** 이후 장은 이 프로젝트와 소유 기록을 이어 사용합니다. 생성·조회·역할 부여에 필요한 Azure 권한은 작업 조건이며, 가이드의 참여자를 별도 역할로 나누는 기준이 아닙니다.
+**실습 참여자가 필요한 환경을 직접 만듭니다.** 이후 장은 이 프로젝트와 소유 기록을 이어 사용합니다. 생성·조회·역할 부여 각각에 필요한 권한을 확인하고, 없는 권한은 확보하기 전까지 해당 작업을 보류합니다.
 
 ## 개념과 실습 지도
 
@@ -42,6 +42,8 @@
 ## 실행
 
 ### 1. PC와 실습 파일 준비하기
+
+**이미 설치했다면 설치 설명을 다시 따라 하지 않습니다.** 자기 OS의 버전 확인 → [실습 파일·가상환경](#l01-local) → [Python 선택](#l01-interpreter) 순으로 갑니다. 처음이라면 아래에서 **자기 OS의 절만** 따라 설치합니다. Azure 계정이 없다면 PC·로컬 검사까지 진행하고 2단계 이후는 보류합니다.
 
 조직이 허용한 경로로 Python, Azure CLI, VS Code를 준비합니다. **설치되어 있으면 아래 확인부터 하고, 필요한 도구만 설치합니다.** 조직의 소프트웨어 배포 포털·승인된 설치 파일·패키지 저장소를 우선 사용합니다. 아래 공식 다운로드 절차도 조직이 허용한 경우에만 따릅니다. 설치나 다운로드가 차단되면 승인된 배포 경로를 확보하고 진행하며, 보안 경고·인증서 검증·실행 정책을 우회하지 않습니다.
 
@@ -236,6 +238,8 @@ Validated 20 cases: dev=10, holdout=10; scenario overlap=0; inventory=3.
 
 `doctor`의 `not installed (needed only for --live)`는 아래 설치 단계가 남았다는 뜻입니다. 여기의 20건은 기존 dev/holdout 자료이고, L08의 고정 12문항 비교와는 다릅니다.
 
+아래 가상환경 생성·설치는 처음 한 번만 합니다. 이 폴더에 준비된 `.venv`가 이미 있으면 [새 터미널에서 재개](#l01-new-terminal)로 이동합니다.
+
 macOS/Linux:
 
 ```bash
@@ -295,10 +299,13 @@ Python 확장을 준비한 경우, 위에서 만든 `.venv`를 편집기의 실�
 
 #### 새 터미널이나 다음 날 다시 시작하기
 
-같은 폴더에서 가상환경을 선택하고 경로를 확인합니다. L07의 두 터미널에서도 각각 확인하세요.
+VS Code에서 **같은 실습 폴더 → 터미널 → 새 터미널**을 엽니다. 가상환경을 다시 만들거나 패키지를 재설치하지 않습니다. L07의 두 터미널에서도 각각 아래의 **자기 OS 블록 하나만** 실행하세요.
+
+**macOS/Linux**
 
 ```bash
-python -c "import sys; print(sys.executable)"
+source .venv/bin/activate
+python -c "import sys; print('Python', sys.version.split()[0]); print(sys.executable)"
 ```
 
 <div class="command-explanation" markdown="1">
@@ -307,16 +314,38 @@ python -c "import sys; print(sys.executable)"
 
 | 순서·명령 | 하는 일 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `python -c` | 현재 실행기의 경로를 출력합니다. | 이 폴더의 `.venv`가 아니면 환경을 다시 선택합니다. 패키지를 재설치하지 않습니다. |
+| 1. `source .venv/bin/activate` | 이 터미널에서 기본 실습의 Python을 선택합니다. | 로컬 셸만 변경합니다. |
+| 2. `python -c` | 현재 실행기의 **버전과 경로**를 출력합니다. | `Python 3.13.x`와 이 폴더의 `.venv/bin/python`이 함께 맞아야 합니다. Azure 요청 없음. |
 
 </div>
+
+**Windows PowerShell**
+
+```powershell
+.\.venv\Scripts\python.exe -c "import sys; print('Python', sys.version.split()[0]); print(sys.executable)"
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — Windows**
+
+| 순서·명령 | 하는 일 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `.venv\Scripts\python.exe -c` | 가상환경의 실행기를 직접 선택하고 **버전과 경로**를 출력합니다. | `Python 3.13.x`와 이 폴더의 `.venv\Scripts\python.exe`가 함께 맞아야 합니다. 활성화·실행 정책 변경·Azure 요청 없음. |
+
+</div>
+
+이후 기본 명령의 `python`도 Windows에서는 `.\.venv\Scripts\python.exe`로 바꿉니다. 경로가 없으면 현재 폴더를 확인하고, 실제로 가상환경을 만들지 않은 경우에만 위 생성 단계로 돌아갑니다.
+
+**기존 `.venv`가 3.12·3.14 등이라면 재사용하지 않습니다.** 기존 환경을 삭제하거나 덮어쓰지 말고, Python 3.13으로 `.venv-core313` 같은 새 이름의 환경을 준비합니다. 선택한 경우 이 가이드의 `.venv` 경로를 그 이름으로 일관되게 바꾸고 VS Code에서도 같은 실행기를 선택합니다. 가상환경 변경 때문에 기존 Azure 환경이나 소유 기록을 다시 만들지는 않습니다.
 
 ### 2. 로그인·구독·권한·비용 확인하기
 
 ```bash
 az login
-az account show --query "{subscription:name,id:id,tenant:tenantId,state:state}" -o table
+az account list --query "[].{subscription:name,id:id,tenant:tenantId,state:state}" -o table
 az account set --subscription "실제-구독-ID"
+az account show --query "{subscription:name,id:id,tenant:tenantId,state:state}" -o table
 ```
 
 <div class="command-explanation" markdown="1">
@@ -326,18 +355,29 @@ az account set --subscription "실제-구독-ID"
 | 순서·명령 | 하는 일 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `az login` | CLI 사용자 인증을 시작합니다. | 비밀번호·MFA는 인증 화면에 직접 입력합니다. 포털 로그인과 별개입니다. |
-| 2. `az account show` | 현재 계정의 구독·테넌트·활성 상태를 표시합니다. | 읽기 확인. 모델 호출·자원 생성 없음. |
+| 2. `az account list` | 내 계정으로 접근 가능한 구독·테넌트·상태를 나열합니다. | 사용할 Enabled 구독의 ID를 찾습니다. 모델 호출·자원 생성 없음. |
 | 3. `az account set` | `실제-구독-ID`를 자신의 값으로 바꿔 기본 대상을 선택합니다. | 로컬 CLI 대상 변경. 권한을 부여하지 않습니다. |
+| 4. `az account show` | **선택 후** 현재 대상의 구독·테넌트·상태를 다시 읽습니다. | 선택한 ID와 Enabled 상태가 맞아야 생성 단계로 갑니다. |
 
 </div>
 
 Azure 포털의 **구독 → Access control (IAM) → View my access**에서 위 준비표의 권한을 확인합니다. 생성 권한과 역할 부여 권한을 구분하세요. 이후 역할은 자신의 실습 프로젝트·리소스에만 부여합니다.
+
+화면에 예전 이름 **Azure AI User**가 보일 수 있습니다. 현재 **Foundry User**와 역할 ID·핵심 권한이 같은 이름 변경이며, 새 역할을 중복 부여할 이유는 아닙니다.
 
 예산에는 **금액·사용할 서비스·중단 시점·보존 기한**을 적습니다. 예산 알림, TPM/RPM, 로그 수집 제한은 총 과금을 강제로 차단하는 장치가 아닙니다. 한도를 넘으면 새 요청·예약을 중지하고 [L19](#l12)에서 남은 자원을 확인합니다.
 
 ### 3. 내 실습 전용 리소스 그룹 만들기
 
 기본 경로는 동봉 코드로 **새 전용 환경**을 만들고 포털에서 확인하는 방식입니다. 기존 공용 환경에 손대지 않으며, 자동 생성한 이름과 소유 태그를 `results/azure-environment.json`에 기록합니다. 이 기록은 이후 평가·검색·배포의 대상 확인에 필요합니다.
+
+아래 명령의 세 자리표시자를 먼저 바꿉니다.
+
+| 자리표시자 | 넣을 값 | 확인할 곳 |
+| --- | --- | --- |
+| `실제-구독-ID` | 사용할 구독의 ID | 위 `az account show`의 `id`. 표시 이름이나 tenant ID가 아님 |
+| `허용-리전` | 승인받은 Azure 지역 **코드** | 예: `eastus`. 포털의 번역된 표시 이름을 넣지 않으며, 예시 지역의 모델 가용성을 보장하지 않음 |
+| `"승인된 금액·사용 범위·보존 기한"` | 자신이 승인받은 금액·서비스 범위·종료/보존 기한 | 2단계의 실제 비용 승인 기록. 이 문자열을 입력한다고 승인이나 권한이 생기지 않음 |
 
 ```bash
 python scripts/azure_environment.py create
@@ -429,6 +469,11 @@ FOUNDRY_EMBEDDING_DEPLOYMENT_NAME=contoso-embedding
 
 `FOUNDRY_PROJECT_ENDPOINT`는 소유 기록의 `project_endpoint` 또는 포털 Home의 **Project endpoint**에서 가져옵니다. `/openai/v1`을 덧붙이지 않습니다. 실제 배포 이름은 소유 기록의 `model_deployments`와 대조합니다. `.env`와 가상환경 `.venv`는 다른 파일/폴더이며, API key를 넣지 않습니다.
 
+**저장 전 확인:** 기존 `.env`의 같은 이름 항목을 **수정**합니다. 예시 블록을 끝에 중복 추가하지 않습니다. `실제-리소스`·`실제-프로젝트`를 자신의 값으로 바꾸고 파일 이름이 `.env.txt`가 아닌 **`.env`**인지 확인합니다. L11을 선택하기 전까지 Search 설정은 비워 둡니다. 셸에 같은 이름의 환경 변수가 있으면 `.env`보다 우선하므로 이전 실습 값이 남아 있지 않은지도 확인합니다.
+
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 프로젝트에 연결하는 Python — 실행하지 않아도 다음 장으로 진행할 수 있습니다</summary>
+
 다음 연결 코드는 이미 만든 프로젝트를 **사용**합니다. 자원 생성이나 역할 부여 코드는 아닙니다.
 
 ```python
@@ -443,6 +488,8 @@ with (
     print("Client configured; no model request sent.")
 ```
 
+</details>
+
 ## 성공 기준
 
 내 전용 RG·프로젝트·세 모델·로그 연결을 만들고, 역할·지역·예산을 확인했습니다. 로컬 데이터 검사가 통과하며 포털·`.env`·`results/azure-environment.json`이 같은 환경을 가리킵니다. 계획 출력이나 client 생성만으로 모델 호출 성공이라고 기록하지 않습니다. [L02](#l02)에서 내가 만든 배포를 확인합니다.
@@ -454,3 +501,11 @@ with (
 ## 정리
 
 아직 자원을 삭제하지 않습니다. 소유 기록과 보존 기한을 유지하고 L19에서 반복 실행·남은 비용을 확인합니다. 이 장은 환경 생성이며 답변 품질 검증이 아닙니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** `results/azure-environment.json`, 내 `.env`, `.venv` 경로와 권한·예산·보존 기한. 이후 장에서 같은 환경을 사용합니다.
+
+**다음:** 환경을 만들었다면 [L02 배포 확인](#l02). Azure 조건이 아직 없다면 [L06 로컬 함수](#l06)까지만 연습하고 실제 환경 생성은 미실행으로 기록합니다.
+
+</div>

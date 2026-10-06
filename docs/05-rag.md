@@ -26,7 +26,7 @@
 
 ## 준비
 
-L04의 agent와 `data/policies/`의 Markdown 파일 3개를 사용합니다. 저장소 업로드 권한과 File search 추가 비용을 확인하세요. 회사 문서를 가져오지 않아도 실습할 수 있습니다.
+기본 경로는 L04의 **포털 agent**와 `data/policies/`의 Markdown 파일 3개를 사용합니다. 저장소 업로드 권한과 File search 추가 비용을 확인하세요. 회사 문서를 가져오지 않아도 실습할 수 있습니다. L04를 SDK로만 진행했거나 File search 편집이 지원되지 않으면 아래 선택 SDK 경로를 읽고, 새로 생성한 대상과 완료한 질문 범위를 따로 기록합니다.
 
 ## 실행
 
@@ -98,7 +98,9 @@ python samples/workshop.py rag --live
 
 </div>
 
-실행 파일은 업로드 → vector store 파일 연결 → 최대 180초 인덱싱 대기 → agent 생성 → 질문을 진행합니다. 180초 안에 끝나지 않으면 완료로 가장하지 않고 중단합니다. receipt로 남은 파일과 상태를 확인하세요.
+실행 파일은 업로드 → vector store 파일 연결 → 최대 180초 인덱싱 대기 → agent 생성 → **기본 상한 질문 1건**을 진행합니다. 위 세 질문을 자동 수행하지 않습니다. 180초 안에 끝나지 않으면 완료로 가장하지 않고 중단합니다. receipt로 남은 파일과 상태를 확인하세요.
+
+세 질문을 마저 확인하려면 새 agent 이름·버전을 receipt에서 찾고 포털 **Build → Agents**에서 그 대상을 엽니다. 질문별 추가 비용 범위를 확인해 3단계 질문을 수행합니다. Chat을 사용할 수 없다면 **기본 질문의 검색·인용 확인 / 세 질문 비교 미실행**으로 기록하고, `rag --live`를 질문마다 반복해 자원을 재생성하지 않습니다.
 
 </details>
 
@@ -112,6 +114,9 @@ python samples/workshop.py rag --live
 | 문서는 맞는데 답이 틀림 | instructions·질문·모델 |
 | 답은 맞지만 출처가 없음 | citation 처리·화면 렌더링 |
 | 다른 사용자의 자료가 보임 | 데이터 권한·검색 필터·호출자 ID |
+
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 업로드·인덱싱·검색이 SDK에서 이어지는 방식 — 읽기용</summary>
 
 ### 포털 동작과 실제 File search 코드
 
@@ -165,6 +170,8 @@ response = client.responses.create(
 
 이 코드는 SDK 경로의 원본 흐름을 읽기 위한 것입니다. 실제 SDK 실행은 별도 store·agent·파일을 만들므로 receipt가 있는 `workshop.py rag --live` 경로를 선택하고 포털과 중복 실행하지 마세요.
 
+</details>
+
 ## 성공 기준
 
 정답 질문 2개에 실제 근거가 있고, 문서에 없는 질문은 유보합니다. 응답의 사실을 원문과 대조했으며 인덱싱 완료 상태를 확인했습니다.
@@ -183,3 +190,11 @@ response = client.responses.create(
 파일 몇 개로 빠르게 검증하려면 File search. 직접 인덱스·hybrid 검색·필터를 제어하려면 Azure AI Search. 여러 지식 소스와 agentic retrieval을 공유하려면 Foundry IQ를 검토합니다. 어느 경로도 연결만으로 사용자별 문서 권한이 자동 완성되지는 않습니다.
 
 </details>
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 정책 agent 이름·저장한 버전·store와 세 질문의 답/실제 인용. 이 **정책 agent는 L09에서 다시** 사용합니다.
+
+**다음:** [L06 재고와 초안](#l06). L06 통합 명령은 별도 agent를 만들므로 지금 agent에 함수를 추가하거나 SDK 업로드를 반복하지 않습니다.
+
+</div>

@@ -95,6 +95,9 @@ NB-14의 실시간 재고를 확인해줘.
 
 지금 저장된 이름·버전과 각 질문의 응답 ID를 구분해 기록합니다. 버전을 늘리기 위해 지시문을 임의로 바꿀 필요는 없습니다. 나중에 설정을 바꿨다면 새 버전을 확인하되, “최신 버전”이 곧 “운영에 승인된 버전”은 아닙니다.
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 포털의 Model·Instructions·Save를 SDK와 대조하기 — 읽기용</summary>
+
 ### 5. 같은 구성을 원본 Python SDK 코드로 읽기
 
 아래는 `workshop.py`의 `create_lab_agent()`와 `run_turn()`에서 사용하는 SDK 호출을 학습용으로 연결한 발췌입니다. `project_endpoint`는 자신의 주소, `deployment_name`은 `contoso-chat`입니다. **읽기용 코드**이며 실제 생성은 포털 또는 아래 소유 기록을 남기는 실행 경로 중 하나로 합니다.
@@ -151,6 +154,8 @@ with (
 
 실제로 실행하면 별도 agent·conversation을 만들고 모델 비용이 발생합니다. SDK 호출이 필요하면 소유 범위 receipt·호출 제한·`--live` opt-in을 추가한 아래 실행기를 사용하며, 포털 실습과 둘 다 실행하지 마세요.
 
+</details>
+
 <details class="optional-path" markdown="1">
 <summary>선택: receipt·호출 제한이 포함된 완성형 SDK 실행기</summary>
 
@@ -172,6 +177,8 @@ python samples/workshop.py agent --live
 
 `workshop.py`는 위 원본 API 호출에 plan-only 기본값, 고유 receipt, 오류·호출 제한을 더한 실행기입니다. 충돌을 피하려고 `contoso-lab-...`라는 **새 agent**를 만들며 앞서 포털에서 만든 agent는 수정하지 않습니다. 생성 ID는 `results/contoso-lab-....json`에 저장됩니다.
 
+이 명령의 기본 입력은 **상한 질문 1건**입니다. 위의 다섯 질문이나 같은 대화/새 대화 비교를 자동 수행하지 않습니다. 그 비교를 이어 하려면 receipt의 agent 이름을 포털에서 열어 해당 질문을 수행하고, 하지 않았다면 **대화 비교 미실행**으로 남깁니다. L05 SDK 경로는 이 agent에 파일을 추가하는 명령이 아니라 또 다른 agent를 만듭니다.
+
 </details>
 
 ## 성공 기준
@@ -185,3 +192,11 @@ python samples/workshop.py agent --live
 ## 정리
 
 포털 agent는 L05에서 이어 사용합니다. SDK 경로를 선택했다면 L05의 SDK File search 경로가 새 agent를 만든다는 점과 각각의 소유 기록을 구분합니다. 자원 삭제는 L19에서 정확한 대상을 별도로 승인한 뒤 수행합니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 내 agent 이름·버전과 다섯 질문의 답·대화 구분. 포털에서 만든 대상에는 SDK receipt가 자동 생성되지 않으므로 이름을 직접 기록합니다.
+
+**다음:** [L05 회사 문서 연결](#l05). 기본 경로는 **지금 만든 포털 agent 그대로** 사용합니다.
+
+</div>

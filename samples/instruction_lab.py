@@ -16,7 +16,7 @@ from model_capacity import Management, inspect_deployments, load_scope, require_
 from search_lab import policy_chunks
 from workshop import DATA, LANGUAGE, RESULTS, ROOT, config_values, ensure_response
 
-TARGET_DEPLOYMENT = "contoso-gpt-6-sol"
+TARGET_DEPLOYMENT = "contoso-chat"
 TARGET_MODEL = "gpt-6-sol"
 TARGET_MODEL_VERSION = "2026-09-22"
 MAX_CALLS_PER_LANGUAGE = 24

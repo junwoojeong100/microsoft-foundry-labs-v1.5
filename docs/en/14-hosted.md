@@ -68,7 +68,11 @@ The `.venv-advanced` environment for the MAF lab is separate. Do not simply merg
 
 On Windows, use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-live\Scripts\python.exe`. Use `curl.exe` for the `curl` commands below. Do not paste the macOS/Linux `source` command into PowerShell.
 
-azd and Azure CLI have separate authentication. Check versions/extensions and sign-in first:
+<a id="l12-azd"></a>
+
+**If azd is missing,** follow the [official Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) for your OS through an approved distribution path, then open a new terminal. Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment.
+
+azd and Azure CLI have separate authentication. Check versions/extensions and sign-in first. See [L00 command reading](#l00) for translating macOS/Linux's `KEY=value` syntax to Windows.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
@@ -266,6 +270,9 @@ Inspect the arguments and results for `search_policies`, `get_stock`, and `prepa
 The total must be **KRW 2,900,000**, with both approval roles and `order_submitted=false`.
 When connecting a separate Toolbox, retain L07's authentication principal and one-time approval policy.
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: the Hosted request and error handler — read only</summary>
+
 #### Hosted version in the portal and the actual HTTP handler
 
 The portal shows the deployed Hosted type/version; Python in the container handles `/invocations`. The core handler in `hosted/main.py` is:
@@ -304,6 +311,8 @@ async def handle(request: Request):
 
 The portal does not edit the handler; it shows the deployed type/version of the container that includes it. `hosted_runtime.py` is the business flow, while `hosted/main.py` is the HTTP entry point. Local execution may still call real Azure services.
 
+</details>
+
 ## Success criteria
 
 You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
@@ -325,3 +334,11 @@ The agent/version/session files and Azure resources remain. Record the remaining
 
 Hosted's `/app` is read-only. Write remote raw evidence only to the session's `$HOME/.contoso/evidence`,
 not to the code directory. Do not include it in the package.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Package contract/hash, local/remote results or not-run labels, remote numeric version, and session-stop evidence. Stop the local server with Ctrl+C too.
+
+**Continue:** [L13](#l15) if you select collaboration patterns; otherwise [L19](#l12). Subsequent commands use the Python environment named by each module.
+
+</div>

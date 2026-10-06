@@ -36,6 +36,8 @@ Start with these five terms. Learn other acronyms when you need them and use the
 
 **Start with 11 core modules, L00–L10.** The eight advanced modules, L11–L18, are electives. **Finish every path with shared wrap-up L19.** Core-only learners jump directly from L10 to L19 without completing the electives.
 
+**For your first complete run:** Follow **Prerequisites → Steps → Success criteria → Cleanup** in each module. Collapsed **optional and implementation-reference** sections are not required for the main path. Record a successful result before continuing; on failure, use that module's **Troubleshooting** section.
+
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
 | Your Azure subscription, permissions, and budget scope are ready | [Create your environment in L01](#l01) → inspect your deployment in L02 → first call in L03 | An actual answer/response ID from the project you created |
@@ -117,6 +119,8 @@ Code-backed labs pair **Foundry portal settings/actions ↔ the Python code that
 
 **Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
 
+**Rules for subsequent commands:** Always run from the **lab folder** containing `samples`, `data`, and `requirements.txt`. In Windows PowerShell, replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for example, `.\.venv\Scripts\python.exe samples/first_response.py`. Advanced modules identify their separate Python environment.
+
 `--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Azure cost”: the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details markdown="1">
@@ -159,6 +163,16 @@ Check company policy and NB-14 inventory, then prepare a purchase request draft.
 
 The completed system searches the policy, retrieves an inventory count of 8 and a unit price of KRW 1,450,000, and returns a **draft awaiting approval** for a total of KRW 2,900,000. Approval is required from both the team manager and the purchasing representative. **An answer claiming “Order completed” is a failure.**
 
+**The core course uses three separate agents.** Not every module modifies the same agent.
+
+| Target | Created in → reused in | Record to keep |
+| --- | --- | --- |
+| Portal policy agent | L04 creation → L05 documents → L09 boundary questions | Your name/version/store, answers, and citations. No inventory functions |
+| Integrated SDK agent | Created separately in L06 → the same result traced in L10 | Printed `Responses:` JSONL and `Resource receipt:` JSON paths |
+| Instruction-evaluation agent | Created separately in L08 → only the saved originals evaluated | Collection JSON and Native evaluation JSON; not an evaluation of L06 function execution |
+
+Keep your names and paths in the [progress record](#instructor). Do not reuse screenshot names or another participant's files.
+
 ### 3. Learn three important distinctions
 
 | Common source of confusion | The distinction |
@@ -193,3 +207,11 @@ This module creates no resources. Continue to **L01: Prepare an environment you 
 Core capabilities are hands-on. Additional permissions, licenses, and Preview access are action prerequisites, not separate participant roles. Distinguish design-only work from actual execution; see [Feature coverage](#coverage).
 
 </details>
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Your selected path, what the purchasing assistant will do, and its prohibited actions. No Azure call has been made.
+
+**Continue:** [L01 setup](#l01). If you select the tour or local path on the web, **Next at the page footer** follows that selection; body links describe the core/elective sequence.
+
+</div>

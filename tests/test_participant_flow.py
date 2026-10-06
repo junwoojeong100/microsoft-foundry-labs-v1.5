@@ -65,7 +65,9 @@ class ParticipantFlowTests(unittest.TestCase):
             replay = build_guide.read_json("replay.json")
             texts.update({f"replay:{chapter['id']}": chapter[language]["narration"] for chapter in replay["chapters"]})
             for name, text in texts.items():
-                plain = unescape(re.sub(r"<[^>]+>", "", build_guide.markdown.markdown(text)))
+                plain = unescape(re.sub(r"<[^>]+>", "", build_guide.markdown.markdown(
+                    text, extensions=["tables", "fenced_code", "md_in_html"],
+                )))
                 for role in ("User Access Administrator", "Role Based Access Control Administrator"):
                     plain = plain.replace(role, "")
                 with self.subTest(language=language, source=name):

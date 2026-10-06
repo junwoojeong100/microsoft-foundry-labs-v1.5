@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Compare portal settings with direct Python SDK code, then send the request through one path.
+**Format:** Default: one Python SDK request. Use the portal to inspect settings or as an alternative execution path.
 
 **Start here:** Find L02's `contoso-chat` in the Playground Model selector and Python `model` argument.
 
@@ -20,7 +20,7 @@
 
 **What is it, and why does it matter?** An API lets code request a service. `response_id` identifies one generation, not a conversation.
 
-**How do you use it?** Verify model/input/output limit, then choose portal or Python. Without company policies, acknowledging missing information is correct.
+**How do you use it?** Verify model/input/output limit, then run the default Python command. If you choose the portal alternative, avoid a duplicate call. Without company policies, acknowledging missing information is correct.
 
 **Where do you run it?** Use the model Playground and [first_response.py](../../samples/first_response.py). The portal does not execute your Python file; both paths call the model service.
 
@@ -31,6 +31,8 @@ Use L01's sign-in, virtual environment, `.env`, and L02's ready deployment. Veri
 ## Steps
 
 ### 1. Match portal settings with Python arguments
+
+**On the default path, do not select Send here; use step 3's Python command.** Send the question in Chat only for the portal alternative, then omit Python's `--live` call. Step 2's excerpt is an expandable reading reference.
 
 Open **Build → Models → Deployments → contoso-chat → Playground**. Do not select **Save as agent**. Verify a model-only request without extra instructions or retrieval tools.
 
@@ -53,6 +55,9 @@ How should you respond when no company policy has been provided?
 | Inspect response text/ID | `response.output_text`, `response.id` |
 
 The screenshot's 256 is an example. Set 512 to match this code's budget and keep unnecessary **Web search** tools off. Do not add unsupported Temperature/Top P settings.
+
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: read the SDK request — execute through step 3 below</summary>
 
 ### 2. Read the direct SDK request
 
@@ -93,6 +98,8 @@ print(f"response_id={response.id}")
 
 The executable adds `.env` loading, input-size checks, and `--live` opt-in. `read_config()` and `ensure_response()` are shared settings/status checks; they do not issue hidden additional model calls.
 
+</details>
+
 ### 3. Inspect the plan, then execute once
 
 ```bash
@@ -114,6 +121,8 @@ python samples/first_response.py --live
 If you already selected portal Send, skip the second line and inspect that answer. Portal and Python are separate requests, and even identical questions can produce different IDs/wording.
 
 Record the answer, status, and `response_id`. No company policy was supplied, so definite price limits or stock claims are unsupported. If the portal does not expose an ID, record it unverified rather than inventing one.
+
+`first_response.py` **prints to the terminal; it does not save a result file automatically.** Keep the question, deployment, answer, and ID in your private progress record. L06's integrated run creates the separate response JSONL used in L10.
 
 ### 4. Change one input
 
@@ -160,3 +169,11 @@ Incomplete/empty responses do not pass. Check output limits, refusals, quota, au
 ## Cleanup
 
 Retain the model deployment. This lab creates no separate agent/vector store. Create the instructed agent in L04.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Your question, deployment name, actual answer, completion state, and available `response_id`. Save terminal output in your private progress record.
+
+**Continue:** [L04 an agent with instructions](#l04). Reuse the model, but create a new Prompt Agent.
+
+</div>

@@ -49,7 +49,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 
 </div>
 
-SDK 기본 환경을 사용합니다. azd나 Routine 확장이 없다면 L12의 azd 설치·인증 확인 방식을 적용하고, 필요한 경우 `azd extension install azure.ai.routines`로 확장을 설치합니다. 설치된 확장의 `azd ai routine --help`를 기준으로 명령을 확인하며 강제 업데이트하지 않습니다. Hosted 배포 자체는 필요 없습니다.
+SDK 기본 환경을 사용합니다. azd나 Routine 확장이 없다면 [L12의 azd 준비 절](#l12-azd)만 따라 설치·인증을 확인하고, 필요한 경우 `azd extension install azure.ai.routines`로 확장을 설치합니다. 설치된 확장의 `azd ai routine --help`를 기준으로 명령을 확인하며 강제 업데이트하지 않습니다. Hosted 배포 자체는 필요 없습니다.
 `results/azure-environment.json`의 프로젝트와 App Insights만 조회합니다.
 CLI 확장/전역 설정을 자동 업그레이드하거나 다른 환경의 리소스를 이용하지 않습니다.
 
@@ -179,6 +179,9 @@ routine creator, agent runtime identity, 도구 connection identity를 구분합
 메일/Teams 권한은 **설계 과제**입니다. timer 실습이 Autopilot 계정 생성을 뜻하지 않습니다.
 지속 평가를 선택했다면 해당 스케줄도 별도로 중지합니다.
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 1회 예약과 에이전트 입력을 정의하는 manifest — 읽기용</summary>
+
 #### 포털 Routines와 실제 생성 manifest
 
 포털 **Agents → Routines**는 예약된 시각·agent·활성 상태를 보여 줍니다. 동봉 Python은 반복 일정을 추측해 만들지 않고, 고유한 receipt와 함께 timer trigger 한 건과 agent action 한 건을 manifest로 씁니다.
@@ -212,6 +215,8 @@ created = azd(
 
 `fire_at`은 UTC 예약 시각, `manifest_path`는 `results/`의 새 JSON 파일입니다. 동봉 Python은 azd CLI를 호출하며 포털 UI를 자동 조작하지 않습니다. 포털의 대상·시각·Paused 상태를 코드 입력과 대조하고 live 작업은 해당 소유 기록·`--live`·승인 범위로 실행합니다.
 
+</details>
+
 ## 성공 기준
 
 실제 예약 시점 이후의 action 실행, 완료된 업무 응답, disabled 상태를 확인했습니다.
@@ -230,3 +235,11 @@ CLI JSON decode 오류는 서비스 작업이 이미 성공한 뒤 발생할 수
 
 routine은 disabled로 보존합니다. 예약되지 않은 1회 timer라도 상태를 확인합니다.
 Hosted를 대상으로 사용했다면 agent session compute도 별도로 stop해야 합니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 수동용·예약용 receipt 각각의 이름·실제 응답/trace·`enabled=false` 확인. 상태가 미확인이면 해당 receipt로 중지·조회를 확인하고 떠납니다.
+
+**다음:** 통제 설계를 선택하면 [L17](#l21), 선택 실습을 마쳤다면 [L19](#l12). 활성 예약을 남긴 채 종료하지 않습니다.
+
+</div>

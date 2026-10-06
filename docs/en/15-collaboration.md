@@ -121,6 +121,9 @@ Handoff between local roles is **not a remote Agent2Agent (A2A) connection**. Hu
 
 Compare the Builder responsibilities using the official [group-chat](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python) and [handoff](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python) documentation.
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: group-chat termination and handoff configuration — read only</summary>
+
 #### Portal model deployment and Group chat/Handoff code
 
 L14 has no Group chat/Handoff editor in the Foundry portal. The portal supplies the model deployment; Python Agent Framework code selects participants, routes messages, and defines termination.
@@ -165,6 +168,8 @@ handoff_workflow = (
 
 Participants are SDK agents from `build_role()`. Group chat stops after three assistant turns; handoff stops after a specialist answer. `multi_agent.py` executes only the chosen workflow, without storing this graph in the portal.
 
+</details>
+
 ## Success criteria
 
 Within the patterns you ran, identify group chat's three contributions and final revision, and handoff's actual delegation call, specialist answer, and terminal state. Do not report review/delegation as human approval or remote A2A success.
@@ -181,3 +186,11 @@ Within the patterns you ran, identify group chat's three contributions and final
 ## Cleanup
 
 These executions call the owned model without creating Hosted deployments or recurring schedules. Keep originals under `results/`; after all selected labs, go to [L19 shared wrap-up](#l12).
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** First draft/review/revision and actual handoff tool/specialist response/termination. Keep the two patterns' `Evidence:` files separate.
+
+**Continue:** If you select [L15 Memory](#l16), return to **the core SDK environment**. Otherwise, go to [L19](#l12).
+
+</div>

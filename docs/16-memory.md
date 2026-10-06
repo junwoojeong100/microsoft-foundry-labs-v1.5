@@ -31,6 +31,8 @@ Memory는 **Preview**이며 지원 지역, chat·embedding 배포, 프로젝트 
 현재 VNet 통합 제한이 있으므로 private 환경의 보안 설정을 바꾸어 실습하지 않습니다.
 Python 기본 SDK 환경과 `.env`의 `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME`을 준비합니다.
 
+Hosted·Agent Framework를 앞서 진행했다면 [L01 새 터미널](#l01-new-terminal)에서 **기본 `.venv`**를 다시 선택합니다. 심화용 Python에 패키지를 섞어 설치하지 않습니다.
+
 허용 내용은 가상 사용자 A의 “표 형식 답변 선호”뿐입니다.
 실제 개인정보·급여·비밀번호·직원 정보는 저장하지 않습니다.
 
@@ -137,6 +139,9 @@ endpoint·store 소유 metadata·item scope를 확인한 후 해당 item만 삭�
 삭제 후 새로운 API 검색에서 ID가 반환되지 않아야 성공입니다.
 “잊었습니다”라는 답변, 기존 conversation, TTL 설정만으로 삭제 성공을 주장하지 않습니다.
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: Memory의 store·scope·항목 ID를 API에 전달하기 — 읽기용</summary>
+
 #### 포털 Memory와 실제 item API
 
 포털 **Memory**는 store와 item을 보여 주지만, 저장·검색·삭제의 실제 대상은 API 인수의 `name`·`scope`·`memory_id`입니다.
@@ -169,6 +174,8 @@ result = store.search_memories(
 
 코드는 A/B의 **scope별 검색 결과**를 비교합니다. 같은 API caller가 두 scope를 지정하므로, 인증된 A가 B의 scope를 요청할 수 없는지까지 시험한 것은 아닙니다. 실제 앱은 서버가 인증 identity에서 scope를 결정해야 합니다. Delete/`forget --confirm`은 item 하나만 지우며 store/RG 삭제는 별도입니다.
 
+</details>
+
 ## 성공 기준
 
 store/item ID, A 검색 결과, B 격리 결과가 있고, 삭제를 수행했다면 삭제 후 검색까지 확인했습니다.
@@ -185,3 +192,11 @@ API가 실패하면 원본 오류를 보존하고 로컬 dict로 대체한 것�
 
 기본값은 store 보존입니다. TTL은 item 수명이며 store·trace·conversation 전체 삭제를 뜻하지 않습니다.
 보존 정책과 확인 시점을 기록하고, 자원 삭제는 별도 승인을 받습니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** `results/memory.json`, store/item ID·A/B 검색 결과·삭제 수행 여부·TTL/보존 기한. 항목이 만료된 것과 삭제를 실행한 것은 다릅니다.
+
+**다음:** 예약을 선택하면 [L16](#l17), 선택 실습을 마쳤다면 [L19](#l12). Memory 실습은 예약의 선행 조건이 아닙니다.
+
+</div>

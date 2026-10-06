@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 포털 설정과 직접 Python SDK 코드를 대조한 뒤 한 경로로 요청합니다.
+**진행 방식:** 기본은 Python SDK로 1회 실행 · 포털은 설정 확인용이며 대체 실행도 가능합니다.
 
 **먼저 할 일:** L02에서 확인한 `contoso-chat`을 Playground의 Model과 Python의 `model` 인수에서 찾습니다.
 
@@ -20,7 +20,7 @@
 
 **무엇이며 왜 중요한가요?** API는 프로그램이 서비스에 요청하는 방법입니다. `response_id`는 한 생성 작업을 찾는 식별자이며 conversation ID와 다릅니다.
 
-**어떻게 사용하나요?** 모델·질문·출력 한도를 확인하고 포털 또는 Python 중 하나로 실행합니다. 회사 정책을 주지 않았다면 모른다고 답하는 것이 정상입니다.
+**어떻게 사용하나요?** 모델·질문·출력 한도를 확인하고 기본 Python 명령으로 실행합니다. 포털을 대체 경로로 선택했다면 중복 호출하지 않습니다. 회사 정책을 주지 않았다면 모른다고 답하는 것이 정상입니다.
 
 **어디서 실행하나요?** 포털의 모델 Playground와 [first_response.py](../samples/first_response.py)를 사용합니다. 포털이 내 Python 파일을 실행하는 것은 아니며 두 경로가 같은 모델 서비스를 호출합니다.
 
@@ -31,6 +31,8 @@ L01의 로그인·가상환경·`.env`, L02의 준비된 배포를 사용합니�
 ## 실행
 
 ### 1. 포털의 설정과 Python 인수 대조하기
+
+**기본 경로는 여기서 Send를 누르지 않고 3단계의 Python 명령으로 실행합니다.** 포털로 대신 호출할 경우에만 아래 질문을 Chat에 보내며 Python의 `--live`는 생략합니다. 2단계의 코드 발췌는 펼쳐 읽을 참고입니다.
 
 **Build → Models → Deployments → contoso-chat → Playground**를 엽니다. **Save as agent**는 누르지 않습니다. 추가 instructions·검색 도구가 없는 모델 호출 상태를 확인합니다.
 
@@ -53,6 +55,9 @@ L01의 로그인·가상환경·`.env`, L02의 준비된 배포를 사용합니�
 | 응답 본문·ID 확인 | `response.output_text`, `response.id` |
 
 사진의 256은 예시입니다. 이 실습의 코드와 같은 예산으로 비교하려면 512로 설정하고 불필요한 **Web search** 등 도구를 끕니다. 모델이 지원하지 않는 Temperature/Top P를 임의로 추가하지 않습니다.
+
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 실제 SDK 호출 코드 읽기 — 실행은 아래 3단계 명령으로 합니다</summary>
 
 ### 2. 실제 SDK 호출 코드 읽기
 
@@ -93,6 +98,8 @@ print(f"response_id={response.id}")
 
 실행 파일은 같은 요청에 `.env` 읽기, 입력 길이 검사, `--live` 확인을 추가합니다. `read_config()`와 `ensure_response()`는 공통 설정·상태 검사이며 모델 요청을 숨겨서 추가 실행하지 않습니다.
 
+</details>
+
 ### 3. 계획 확인 후 한 번 실행하기
 
 ```bash
@@ -114,6 +121,8 @@ python samples/first_response.py --live
 포털에서 이미 Send를 눌렀다면 두 번째 줄은 생략하고 그 응답을 확인합니다. 포털 실행과 Python 실행은 각각 별도 요청이며, 같은 질문도 ID와 답이 달라질 수 있습니다.
 
 답변·완료 상태·`response_id`를 기록합니다. 회사 내부 정책을 제공하지 않았으므로 특정 상한이나 재고를 단정하지 않아야 합니다. 포털에서 ID를 표시하지 않는다면 미확인으로 남기며 임의 ID를 만들지 않습니다.
+
+`first_response.py`는 **터미널에 출력만 하며 결과 파일을 자동 저장하지 않습니다.** 자신의 비공개 진행 기록에 질문·배포·답변·ID를 남기세요. L10에서 쓸 응답 JSONL은 L06의 통합 실행이 따로 만듭니다.
 
 ### 4. 입력 하나 바꿔 보기
 
@@ -160,3 +169,11 @@ python samples/first_response.py --query "회사 규정이 없는데 노트북 �
 ## 정리
 
 모델 배포는 유지합니다. 이 실습은 별도 agent·vector store를 만들지 않습니다. 다음 L04에서 역할·지시문을 가진 agent를 만듭니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 질문·배포 이름·실제 답변·완료 상태·확인 가능한 `response_id`. 터미널 출력은 비공개 진행 기록에 저장합니다.
+
+**다음:** [L04 역할을 정한 에이전트](#l04). 같은 모델을 사용하되 새 Prompt Agent를 만듭니다.
+
+</div>

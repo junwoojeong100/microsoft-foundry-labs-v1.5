@@ -121,6 +121,9 @@
 
 공식 [그룹 채팅](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python)과 [핸드오프](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python) 문서로 Builder의 역할을 비교합니다.
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 그룹 채팅의 종료 조건과 핸드오프 설정 — 읽기용</summary>
+
 #### 포털 모델 배포와 Group chat/Handoff 코드
 
 L14에는 Foundry Portal에서 설정하는 Group chat/Handoff 편집기가 없습니다. 포털은 모델 배포를 제공하고, 실제 참여자 선택·메시지 전달·종료 조건은 아래 Agent Framework 코드가 정합니다.
@@ -165,6 +168,8 @@ handoff_workflow = (
 
 참여자 변수는 `build_role()`이 만든 SDK agent입니다. 그룹 채팅은 세 발언, 핸드오프는 전문가 답변을 종료 조건으로 사용합니다. `multi_agent.py`는 선택한 workflow만 실행하며 포털에 이 그래프를 저장하지 않습니다.
 
+</details>
+
 ## 성공 기준
 
 그룹 채팅의 세 발언과 최종 수정 답, 핸드오프의 실제 도구 호출·전문가 응답·종료 상태를 선택한 실행 범위에서 확인했습니다. 역할의 검토·위임을 사람의 승인이나 원격 A2A 성공으로 표시하지 않습니다.
@@ -181,3 +186,11 @@ handoff_workflow = (
 ## 정리
 
 두 실행은 소유 모델을 호출할 뿐 Hosted 배포나 반복 예약을 만들지 않습니다. 원본은 `results/`에 보존하고, 전체 학습이 끝나면 [L19 공통 마무리](#l12)로 이동합니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 그룹 채팅의 첫 답·검토·수정 답과 핸드오프 도구/전문가 응답·종료 상태. 두 패턴의 `Evidence:` 파일을 구분합니다.
+
+**다음:** Memory를 선택하면 [L15](#l16)에서 **기본 SDK 환경**으로 돌아갑니다. 선택 실습을 마쳤다면 [L19](#l12).
+
+</div>

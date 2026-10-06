@@ -37,6 +37,7 @@ Collect **your L01 environment receipt** `results/azure-environment.json`, porta
 | Reading, local data, or local functions only | If you started L07's server, press Ctrl+C in its terminal. Do not run Azure deletion commands when you created no Azure resources |
 | Created the L01 environment/portal agents/files | Compare your receipt/names with step 3; verify model/log/file retention or deletion scope |
 | Ran L04/L05/L06 through the SDK | Find the `--receipt` path in the final `Cleanup:` command; review step 2 |
+| Collected/evaluated in L08 | Inspect the collection/evaluation JSON's agent names and eval/run IDs separately; these are not `workshop.py cleanup` receipts |
 | Ran Hosted, Routine, Voice, or other electives | In step 1, stop only that lab's recorded sessions/schedules and verify state |
 
 **Do not delete before confirming the retention/deletion decision.** Because costs may continue, record an owner and next review time, not just “retain.”
@@ -135,6 +136,9 @@ Allow for Cost Management delay and set a **next-day recheck time**. Review your
 
 Retain only the minimum results needed for learning, and remove real PII, tokens, and connection secrets. Delete a resource group **only after its owner confirms it is a dedicated lab group**, and after reviewing the scope in the Azure portal. This guide does not provide a broad `az group delete` command.
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: cleanup deletes only receipt-scoped targets — read only, do not execute</summary>
+
 #### Portal resource review and receipt-scoped cleanup code
 
 SDK cleanup targets the resources recorded in an ownership receipt, not an entire resource group selected in the portal. The core check is:
@@ -171,6 +175,8 @@ for resource in ordered:
 
 This excerpt shows target verification/deletion calls in `cleanup()`. The function also persists per-item status and treats only NotFound as `already_absent`; other errors remain failures. Execution requires `cleanup --live` and exact `--confirm`. Inspect portal-created resources/models separately.
 
+</details>
+
 ## Success criteria
 
 For each created resource, record **state (deleted / shared / retained)** together with **an owner and next check time**. Retained resources also need a deadline. Check that no unintended routines, continuous evaluations, or voice sessions remain active.
@@ -192,3 +198,11 @@ Do not hide deletion errors. Record the resource ID, error code, and responsible
 ## Cleanup
 
 Your selected labs and shared wrap-up are complete. If you add electives later, return here for the resources created then. Resetting the progress display does not delete Azure resources.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Actual state, owner, retention deadline, and next cost-check time for each resource. Local-only learners record no Azure creation and confirm server shutdown.
+
+**Continue:** Complete the [progress checklist](#instructor) with actual execution/local/design/not-run labels for your chosen scope. Unqueried resources or costs remain unverified.
+
+</div>

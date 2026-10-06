@@ -12,7 +12,7 @@
 
 ## Objectives
 
-**You create the environment used throughout the labs.** Creation, inspection, and role-assignment permissions are prerequisites for actions, not separate participant personas.
+**You create the environment used throughout the labs.** Check permissions for creation, inspection, and role assignment separately. Leave an action blocked until its required permission is available.
 
 ## Concepts and lab map
 
@@ -42,6 +42,8 @@ Verify permissions even in your own subscription. In an organizational subscript
 ## Steps
 
 ### 1. Prepare the PC and lab files
+
+**Already installed? Do not repeat installation.** Check versions for your OS, then select the [English profile](#l01-language), [prepare files and the virtual environment](#l01-local), and [select Python](#l01-interpreter). For a first installation, follow **only your OS's sections** below. Without Azure access, complete PC/local preparation and leave step 2 onward pending.
 
 Prepare Python, Azure CLI, and VS Code through organization-approved paths. **Check existing tools first and install only what is missing.** Prefer your organization's software portal, approved installers, and package sources. Follow the official download steps below only when permitted. If installation or downloads are blocked, obtain an approved distribution path; do not bypass security warnings, certificate validation, or execution policies.
 
@@ -272,6 +274,8 @@ Validated 20 cases: dev=10, holdout=10; scenario overlap=0; inventory=3.
 
 `not installed (needed only for --live)` means the SDK installation below is still needed. These twenty cases are the existing dev/holdout data, not L08's fixed twelve-question comparison.
 
+Create and install into the virtual environment once. If this folder already has a prepared `.venv`, use [Return in a new terminal](#l01-new-terminal) instead.
+
 macOS/Linux:
 
 ```bash
@@ -331,10 +335,14 @@ If you prepared the Python extension, also use the `.venv` created above for the
 
 #### Return in a new terminal or another day
 
-Select the same folder/environment and reselect the English profile. Check the path in each terminal, including both L07 terminals:
+Open **the same lab folder → Terminal → New Terminal** in VS Code. Do not recreate the environment or reinstall packages. In each terminal, including both L07 terminals, execute **only your OS's block** below.
+
+**macOS/Linux**
 
 ```bash
-python -c "import sys; print(sys.executable)"
+source .venv/bin/activate
+export FOUNDRY_LAB_LANGUAGE=en
+python -c "import sys; print('Python', sys.version.split()[0]); print(sys.executable)"
 ```
 
 <div class="command-explanation" markdown="1">
@@ -343,16 +351,41 @@ python -c "import sys; print(sys.executable)"
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `python -c` | Prints the current interpreter path. | If it is not this folder's `.venv`, reselect the environment instead of reinstalling packages. |
+| 1. `source .venv/bin/activate` | Selects the core lab's Python in this terminal. | Local shell change only. |
+| 2. `export FOUNDRY_LAB_LANGUAGE=en` | Reselects English synthetic inputs in this terminal. | Does not change the web reader language or any Azure resource. |
+| 3. `python -c` | Prints the current interpreter **version and path**. | Both `Python 3.13.x` and this folder's `.venv/bin/python` must match; no Azure request. |
 
 </div>
+
+**Windows PowerShell**
+
+```powershell
+$env:FOUNDRY_LAB_LANGUAGE = "en"
+.\.venv\Scripts\python.exe -c "import sys; print('Python', sys.version.split()[0]); print(sys.executable)"
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — Windows**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `$env:FOUNDRY_LAB_LANGUAGE = "en"` | Reselects English synthetic inputs in this session. | No Azure change; do not reuse Korean records. |
+| 2. `.venv\Scripts\python.exe -c` | Directly selects the environment's executable and prints its **version and path**. | Both `Python 3.13.x` and this folder's `.venv\Scripts\python.exe` must match. No activation, policy change, or Azure request. |
+
+</div>
+
+Continue replacing `python` with `.\.venv\Scripts\python.exe` in Windows core commands. If the path is missing, check the current folder and return to environment creation only if it was never prepared.
+
+**Do not reuse a `.venv` based on 3.12, 3.14, or another version.** Preserve it and create a Python 3.13 environment under a new name such as `.venv-core313`. Consistently replace the guide's `.venv` paths with that name and select the same interpreter in VS Code. Changing Python environments does not require recreating Azure resources or ownership records.
 
 ### 2. Check sign-in, subscription, permissions, and costs
 
 ```bash
 az login
-az account show --query "{subscription:name,id:id,tenant:tenantId,state:state}" -o table
+az account list --query "[].{subscription:name,id:id,tenant:tenantId,state:state}" -o table
 az account set --subscription "actual-subscription-id"
+az account show --query "{subscription:name,id:id,tenant:tenantId,state:state}" -o table
 ```
 
 <div class="command-explanation" markdown="1">
@@ -362,18 +395,29 @@ az account set --subscription "actual-subscription-id"
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
 | 1. `az login` | Starts CLI user authentication. | Enter passwords/MFA directly in the authentication screen; portal sign-in is separate. |
-| 2. `az account show` | Shows the subscription, tenant, and state. | Inspection only; no model call or resource creation. |
+| 2. `az account list` | Lists subscriptions, tenants, and states accessible to your account. | Find the ID of the permitted Enabled subscription; no model call or resource creation. |
 | 3. `az account set` | Replaces the placeholder with your subscription ID and selects it. | Changes the local CLI target, not permissions. |
+| 4. `az account show` | Rechecks the current subscription, tenant, and state **after selection**. | Confirm the selected ID and Enabled state before creation. |
 
 </div>
 
 In Azure portal **Subscriptions → Access control (IAM) → View my access**, verify the prerequisite permissions. Creation and role assignment are different capabilities. Grant subsequent roles only at your lab project/resource scopes.
+
+Some screens still show **Azure AI User**, the previous name of **Foundry User**. The role ID and core permissions are unchanged; the rename does not require a duplicate assignment.
 
 Record **the amount, services, stop time, and retention deadline**. Budget alerts, TPM/RPM, and log-ingestion limits are not hard spending caps. At the limit, stop new requests/schedules and use [L19](#l12) to inspect remaining resources.
 
 ### 3. Create your dedicated resource group
 
 The default path creates a **new dedicated environment** using the bundled code, then inspects it in the portal. It does not alter a shared environment. Generated names and ownership tags are recorded in `results/azure-environment.json`, which later evaluation, retrieval, and deployment use to verify scope.
+
+Replace the three placeholders before executing:
+
+| Placeholder | Value to supply | Where to verify |
+| --- | --- | --- |
+| `actual-subscription-id` | The selected subscription ID | `id` in the preceding `az account show`, not the display name or tenant ID |
+| `permitted-region` | An approved Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
+| `"Approved amount, service scope, and retention deadline"` | Your approved amount, services, and stop/retention deadline | Step 2's actual cost approval. Supplying this text does not grant approval or access |
 
 ```bash
 python scripts/azure_environment.py create
@@ -467,6 +511,11 @@ FOUNDRY_EMBEDDING_DEPLOYMENT_NAME=contoso-embedding
 
 Copy `FOUNDRY_PROJECT_ENDPOINT` from receipt `project_endpoint` or Home's **Project endpoint**; do not append `/openai/v1`. Compare deployment names with receipt `model_deployments`. `.env` and `.venv` are different; do not add API keys.
 
+**Before saving:** **Edit** existing entries instead of appending duplicate keys. Replace every example resource/project value with your own, and save as **`.env`**, not `.env.txt`. Leave Search settings empty until you select L11. Shell environment variables override `.env`; check for values left over from another lab.
+
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: Python project connection — not required to continue</summary>
+
 The following client setup **uses** the existing project; it does not create resources or grant roles:
 
 ```python
@@ -481,6 +530,8 @@ with (
     print("Client configured; no model request sent.")
 ```
 
+</details>
+
 ## Success criteria
 
 You created your dedicated resource group, project, three models, and telemetry connection and checked permissions, region, and budget. Local data checks pass; the portal, `.env`, and `results/azure-environment.json` identify the same English environment. A plan/client configuration is not a successful model request. Continue to [L02](#l02) to inspect your deployments.
@@ -492,3 +543,11 @@ For 401, check CLI authentication; for 403, check action-specific permissions an
 ## Cleanup
 
 Do not delete resources yet. Retain your ownership record and deadline, then review schedules and costs in L19. This module creates an environment; it does not validate answer quality.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** `results/azure-environment.json`, your `.env`, the `.venv` path, permissions, budget, and retention deadline. Reuse this environment in later modules.
+
+**Continue:** With a created environment, [L02 deployment checks](#l02). Without live prerequisites, practice [L06 local functions](#l06) and record environment creation not performed.
+
+</div>
