@@ -271,7 +271,10 @@
         notify(ui.copy_fallback);
       }
     });
-    pre.append(label, button);
+    const toolbar = document.createElement("span");
+    toolbar.className = "code-toolbar";
+    toolbar.append(label, button);
+    pre.prepend(toolbar);
   });
 
   document.querySelectorAll(".command-explanation table").forEach(table => {

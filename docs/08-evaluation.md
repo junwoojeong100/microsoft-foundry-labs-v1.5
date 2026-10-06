@@ -76,11 +76,10 @@ python samples/instruction_prompt_agent_lab.py
 
 </div>
 
-계획이 자신의 범위와 일치하면 첫 줄을 실행합니다. **수집 파일의 정상 완료를 확인한 뒤** 두 번째 줄로 진행합니다. 두 줄을 한꺼번에 실행하지 않습니다.
+계획이 자신의 범위와 일치하면 **수집만** 실행합니다.
 
 ```bash
 python samples/instruction_prompt_agent_lab.py --live --output results/instruction-prompt-agent-ko.json
-python samples/instruction_evaluation.py --input results/instruction-prompt-agent-ko.json --output results/instruction-native-prompt-agent-ko.json --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -90,13 +89,33 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. 응답 수집 `--live` | 자신의 소유 프로젝트에 도구 없는 Prompt Agent와 지침별 버전을 만들고 같은 문맥·질문으로 답을 수집합니다. | 언어별 최대 24건·600초·재시도 0회·응답당 최대 2,048 출력 토큰. 원문과 실패를 별도 파일에 보존합니다. |
-| 2. Native 평가 `--live` | `--input`에 지정한 실제 원문 24개를 Foundry 평가에 제출합니다. | 대상 모델 재호출 0건. 언어별 Native 1회·600초·취소 확인 90초 이내. 점수와 이유는 `--output` 파일에 기록합니다. |
+
+</div>
+
+**여기서 멈춰 확인:** VS Code로 `results/instruction-prompt-agent-ko.json`을 엽니다. 최상위 `status`가 `completed`, `target_calls`가 24이며 `rows`에 12개 문항의 v1/v2가 모두 있어야 합니다. 각 행의 `status`·`response_id`·`raw_answer`도 확인합니다. 오류·누락이 있으면 평가 명령을 실행하지 말고 **막혔을 때**로 갑니다. 원문을 편집해 완료로 바꾸지 않습니다.
+
+수집이 완료됐고 judge·비용 범위가 준비됐으면 **그 파일 그대로** 평가합니다.
+
+```bash
+python samples/instruction_evaluation.py --input results/instruction-prompt-agent-ko.json --output results/instruction-native-prompt-agent-ko.json --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. Native 평가 `--live` | `--input`의 실제 원문 24개를 Foundry 평가에 제출합니다. L06 응답 JSONL이나 소유 receipt를 넣지 않습니다. | 대상 모델 재호출 0건. 언어별 Native 1회·600초·취소 확인 90초 이내. 점수·이유는 `--output`에 기록합니다. |
 
 </div>
 
 영어는 영어 환경에서 입력·출력 파일 이름도 `en`으로 구분합니다. 두 언어 합계는 대상 응답 최대 48건·수집 최대 1,200초입니다. 기존 파일을 덮어쓰거나 점수가 오를 때까지 반복 수집하지 않습니다. 실패 시 원본 오류와 이미 완료된 요청 수를 확인합니다.
 
 `agent_reference`로 호출할 때는 Agent 정의의 `reasoning`·`text` 설정을 요청에 중복 지정하지 않습니다.
+
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 응답 수집 API와 평가 API의 차이 — 읽기용</summary>
 
 #### 포털 평가와 실제 SDK 호출의 대응
 
@@ -138,6 +157,8 @@ native = client.evals.runs.create(
 
 실제 실행은 앞의 `--live` 경로를 사용합니다. 코드 발췌를 읽거나 포털 결과를 확인하는 일은 추가 target 호출이 아닙니다. 기존 질문·rubric·threshold는 바꾸지 않습니다.
 
+</details>
+
 ### 3. 같은 문항의 원문·점수·이유 연결하기
 
 수집 파일의 `rows`에서 같은 `id`의 v1/v2를 찾습니다. 평가 파일은 `comparison.rows`의 `case_id`와 `instructions`로 연결합니다.
@@ -152,6 +173,8 @@ native = client.evals.runs.create(
 | `instructions_sha256`, `cases_sha256`, `context_sha256` | 비교 조건이 같았는지 대조할 입력 해시 |
 
 질문별로 **요청한 내용 / 두 실제 답 / 관련 정책 절 / 평가자의 이유 / 동의 여부**를 기록합니다. `raw_answer`는 JSON 문자열이므로 `answer`와 `citation_ids`를 나누어 읽습니다.
+
+**처음에는 한 문항만 따라갑니다.** 두 파일에서 `compound-request-no-tools`를 검색합니다. 수집 파일의 `instructions=v1`·`v2` 두 행을 읽고, 평가 파일의 같은 `case_id`·`instructions` 행에서 `metrics`의 **score → passed → reason**을 읽습니다. 상한·재고·승인자·초안 중 실제로 답한 부분과 “도구가 없어 실행하지 못한 부분”을 나눠 적은 뒤 다른 11문항에도 같은 방법을 적용합니다. SDK 코드나 해시를 모두 이해해야 시작할 수 있는 것은 아닙니다.
 
 ### 4. 점수와 실행 완료를 구분하기
 
@@ -181,3 +204,11 @@ v1이 이미 충분한 답을 냈으면 동점일 수 있고, 생성 변동으�
 ## 정리
 
 응답 파일 `results/instruction-prompt-agent-ko.json`과 평가 파일 `results/instruction-native-prompt-agent-ko.json`을 함께 보관합니다. 비교를 위해 만든 agent·평가 자원은 자신의 소유 기록과 보존 정책에 따라 관리하며 별도 삭제 승인 전에는 지우지 않습니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 수집·평가 JSON 두 개, 평가 전용 agent 이름·버전, 같은 문항의 원문/점수/이유와 오류·누락. 읽기만 했다면 실제 평가 미실행으로 기록합니다.
+
+**다음:** [L09 경계 질문](#l09). 평가 전용 agent가 아니라 **L05의 정책 agent**로 돌아갑니다.
+
+</div>

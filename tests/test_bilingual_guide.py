@@ -250,8 +250,14 @@ class BilingualGuideTests(unittest.TestCase):
                 self.assertEqual(command_boundaries(korean_commands), command_boundaries(english_commands))
                 for command in english_commands:
                     if "samples/toolbox_lab.py" in command and "call" in command:
-                        self.assertIn("--approve-tool", command)
-                        self.assertEqual(command[command.index("--approve-tool") + 1], command[command.index("--tool") + 1])
+                        if "--approve-tool" in command:
+                            self.assertEqual(command[command.index("--approve-tool") + 1], command[command.index("--tool") + 1])
+                        else:
+                            self.assertEqual(chapter["id"], "l07")
+                            self.assertIn("--local", command)
+                            self.assertNotIn("--live", command)
+                            self.assertEqual(command[command.index("--tool") + 1], "get_stock")
+                            self.assertEqual(json.loads(command[command.index("--arguments") + 1]), {"sku": "NB-14"})
                     if "samples/memory_lab.py" in command and "forget" in command:
                         self.assertIn("--live", command)
                         self.assertEqual(command[command.index("--confirm") + 1], "ACTUAL_MEMORY_ID")
@@ -263,6 +269,11 @@ class BilingualGuideTests(unittest.TestCase):
                                 command[command.index("--suite") + 1],
                                 "automated-v3" if "--resume" in command else "automated-v5",
                             )
+                unapproved = [
+                    command for command in english_commands
+                    if "samples/toolbox_lab.py" in command and "call" in command and "--approve-tool" not in command
+                ]
+                self.assertEqual(len(unapproved), 1 if chapter["id"] == "l07" else 0)
 
 
     def test_business_and_quality_gates_are_unchanged_without_opening_the_holdout(self):

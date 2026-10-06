@@ -26,7 +26,7 @@ Function calling의 실행 책임을 이해합니다. **모델은 “어떤 함�
 
 ## 준비
 
-로컬 실습은 Python만 필요합니다. 가상환경을 만들지 않았다면 아래 `python` 대신 L01의 `python3`(Windows는 `py -3.13`)을 사용합니다. Azure 통합은 L01–L05의 환경·문서 이해가 필요하지만 **L04·L05의 선택 SDK 명령을 먼저 실행할 필요는 없습니다.** `samples/workshop.py`에는 주문·결제·메일 발송 함수가 없습니다.
+로컬 실습은 Python만 필요합니다. 가상환경을 만들지 않았다면 아래 `python` 대신 L01의 `python3.13`(Windows는 `py -3.13`)을 사용합니다. Azure 통합은 L01–L05의 환경·문서 이해가 필요하지만 **L04·L05의 선택 SDK 명령을 먼저 실행할 필요는 없습니다.** `samples/workshop.py`에는 주문·결제·메일 발송 함수가 없습니다.
 
 ## 실행
 
@@ -70,6 +70,8 @@ python samples/workshop.py tools
 
 실제 출력에는 재고 조회 결과·draft ID·합성 데이터 표지도 함께 포함됩니다.
 
+<a id="l06-failures"></a>
+
 ### 2. 실패를 일부러 만들어보기
 
 ```bash
@@ -100,6 +102,9 @@ python samples/workshop.py tools --sku KB-01 --quantity -1
 | `prepare_purchase_request` | SKU, 1–10의 정수 수량 | 총액·승인 역할·초안 ID | 승인·주문·결제 |
 
 JSON schema의 `strict`와 `additionalProperties: false`는 함수 인수의 형식을 제한합니다. **인증·권한 검사를 대신하지 않습니다.** 실행 코드가 다시 검사하며 Python의 `True`를 정수 1로 받는 경우도 차단합니다.
+
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 초안 함수가 수량·재고·금액을 검사하는 코드 — 읽기용</summary>
 
 #### 포털 설정과 실행할 Python 함수
 
@@ -138,6 +143,8 @@ def prepare_purchase_request(sku: str, quantity: int) -> dict:
 
 L06의 Python 경로는 위 함수가 재고 CSV를 읽고 초안을 계산하는 과정을 보여 줍니다. 포털에서 함수 schema를 저장하는 것과 실행 프로세스를 운영하는 것은 별개입니다.
 
+</details>
+
 ### 4. 지식과 함수를 같은 agent에 연결하기
 
 **여기서부터 Azure 호출입니다.** 계정 없이 진행했다면 4단계는 건너뛰고 로컬 결과만 기록합니다.
@@ -171,6 +178,9 @@ python samples/workshop.py capstone --live
   → 답변과 실제 근거를 *-responses.jsonl 및 receipt에 기록
 ```
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 함수 결과를 모델에 돌려주는 루프 — 읽기용</summary>
+
 도구 요청을 실행한 뒤 모델에게 반환하는 실제 구문은 다음과 같습니다. 모델은 계산을 대신하지 않고, 애플리케이션이 함수 결과와 같은 `call_id`를 돌려줍니다.
 
 ```python
@@ -189,6 +199,8 @@ for call in calls:
 ```
 
 안전한 실습을 위해 최대 5회 응답 라운드·8회 함수 호출로 제한합니다. 에러는 명시적으로 전달하며 제한을 넘으면 중단합니다. 이 제한은 이 샘플의 교육용 값이지 Foundry 서비스 한도가 아닙니다.
+
+</details>
 
 #### 저장된 답변을 읽기 쉽게 다시 보기
 
@@ -253,3 +265,11 @@ Azure 통합을 실행하지 않았다면 **“로컬 함수 확인 / Azure 통�
 ## 정리
 
 로컬 함수는 외부 상태를 바꾸지 않습니다. Azure 통합으로 생성된 agent·conversation·파일은 receipt에 남습니다. L19에서 공유 여부·보존 담당자를 확인하고 **별도 삭제 승인 후에만** 정리합니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 로컬 정상·실패 결과. 통합을 실행했다면 **`Responses:` JSONL과 `Resource receipt:` JSON의 정확한 경로**, 다섯 항목의 판정을 함께 남깁니다. 이 JSONL을 L10에서 사용합니다.
+
+**다음:** [L07 로컬 HTTP·MCP](#l07). 결과를 다시 읽는 일은 `read-result`로 하며 `capstone --live`를 반복하지 않습니다.
+
+</div>

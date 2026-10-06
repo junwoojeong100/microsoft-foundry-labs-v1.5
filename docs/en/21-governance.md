@@ -32,15 +32,15 @@ The default is local Python repair and your **principal → action → scope →
 
 | Goal | Sequence | What to retain |
 | --- | --- | --- |
-| Experience the permission/cache boundary | Step 0 copy → two failures → edit `exercise.py` → five passes with unchanged tests | Local before/after behavior and explanation |
-| Design an organizational implementation | Above → step 1 identity table → steps 3–4 gateway/network boundaries | Your own design; Azure changes not performed |
-| Portal read access also available | Additionally observe **one owned asset** in step 2 | Observation time, filters, and read scope |
+| Experience the permission/cache boundary | Step 1 copy → two failures → edit `exercise.py` → five passes with unchanged tests | Local before/after behavior and explanation |
+| Design an organizational implementation | Above → step 2 identity table → steps 4–5 gateway/network boundaries | Your own design; Azure changes not performed |
+| Portal read access also available | Additionally observe **one owned asset** in step 3 | Observation time, filters, and read scope |
 
 Edit only `practice/governance/exercise.py`. Keep `test_exercise.py`, allowed users, and the `data/exercises/` originals unchanged. If the folder exists, choose another `--output` path and update the test command's path too.
 
 ## Steps
 
-### 0. Fix it: does a cache hit still check access?
+### 1. Fix it: does a cache hit still check access?
 
 <div class="practice-block" markdown="1">
 
@@ -94,6 +94,9 @@ A cache does not replace authentication or authorization. This example rechecks 
 
 </div>
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: the cache repair versus Azure RBAC — read only</summary>
+
 #### Local code and the Azure portal boundary
 
 This `exercise.py` uses only fake documents and a fake grants table. The defect is that a cached document is returned before checking the current permission.
@@ -117,7 +120,9 @@ def read_document(user, document_id, grants, cache):
 
 L01 prepared your actual Azure roles; this module studies **application cache/document authorization**. These are different checks. Actual ACL tests require permitted identities, separate synthetic restricted documents, and access logs; local passes do not substitute.
 
-### 1. Separate four identities
+</details>
+
+### 2. Separate four identities
 
 **Worked design — L12's public-policy Hosted path, not a record of actual role assignments.**
 
@@ -130,7 +135,7 @@ L01 prepared your actual Azure roles; this module studies **application cache/do
 
 Do not assume L12's direct Search caller and L07's connection caller are identical. Read **connection authentication in Manage → that identity's role assignment/scope → target service**. A role listing shows potential permission, not a successful call. Actual testing requires a separately approved read request.
 
-### 2. Inspect the fleet in Control Plane
+### 3. Inspect the fleet in Control Plane
 
 Under **Operate → Assets**, find the agents/models/tools your permissions allow you to see. Check how resources from other projects appear. **Manage** covers quota, details, gateways, and similar settings for the currently selected project/resource; **Operate** takes a fleet-wide view.
 
@@ -138,7 +143,7 @@ Compare execution status, costs, alerts, evaluations, and policy information. Re
 
 For one owned asset, record **name, project, owner, last observation time, and policy target**. An empty list is not proof of no assets; check filters, tenant, and read scope first. Do not inspect an unfamiliar team's assets for workshop material.
 
-### 3. Optional AI Gateway exercise
+### 4. Optional AI Gateway exercise
 
 Choose one reason you need an APIM-based gateway: token limits, rate limits, allowed backends, observability, routing, or another specific need.
 
@@ -154,7 +159,7 @@ Choose one reason you need an APIM-based gateway: token limits, rate limits, all
 
 **Quota is not a billing cap, and a budget alert is not a hard stop.** Distinguish Foundry's gateway UI from APIM service state. Do not leave tool/document authorization solely to the gateway.
 
-### 4. Network design exercise
+### 5. Network design exercise
 
 Draw three paths: **user → Foundry**, **Foundry → tools/data**, and **tools/data → external destinations**.
 
@@ -189,7 +194,7 @@ The last row is an **ACL design exercise**. The current shared Contoso index can
 
 **Representative limitations:** Memory stores do not support VNet integration; Routines do not support CMK; some browser/computer/image tools do not support network isolation; and public web/Bing/SharePoint tools use public communication. For Hosted Agent private ACR, recheck documented conditions such as **projects created after 2026-06-25**.
 
-### 5. Check policies, encryption, and information protection
+### 6. Check policies, encryption, and information protection
 
 Use Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
 
@@ -207,3 +212,11 @@ Do not assume every 403 is an RBAC problem. Separate endpoint DNS, public networ
 ## Cleanup
 
 Record any actual temporary roles, policies, gateways, or connections you changed and revoke them only within permitted scope. Design-only means no Azure change. Do not delete shared networks or production policies.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Repaired `practice/governance/exercise.py`, the same five tests and repair explanation, identity/action/scope/rejection table, and network design. Distinguish actual Azure checks.
+
+**Continue:** [L18](#l22) if you select release/recovery, otherwise [L19](#l12).
+
+</div>

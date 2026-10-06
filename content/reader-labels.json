@@ -109,10 +109,10 @@
       "reference": "Reference",
       "copy": "Copy",
       "code_labels": {
-        "bash": "Terminal",
-        "powershell": "Terminal",
-        "python": "Code to read",
-        "json": "JSON data",
+        "bash": "Terminal · macOS/Linux syntax",
+        "powershell": "Terminal · Windows PowerShell",
+        "python": "Python to read · not a terminal command",
+        "json": "JSON data · do not run",
         "yaml": "YAML settings",
         "prompt": "Enter in portal Chat",
         "instructions": "Paste into agent Instructions",
@@ -121,6 +121,8 @@
         "text": "Diagram or example · do not run"
       },
       "copy_messages": {
+        "python": "Python excerpt copied. Read it in your editor; use the stated bounded command for execution.",
+        "json": "JSON data copied for inspection. It is not a terminal command.",
         "prompt": "Question copied. Paste into the stated portal Chat; sending it may incur charges.",
         "instructions": "Instructions copied. Paste into the agent's Instructions field, not the terminal.",
         "env": "Settings copied. Edit your .env file and replace placeholders; do not run this in the terminal.",
@@ -247,10 +249,10 @@
       "reference": "참고",
       "copy": "복사",
       "code_labels": {
-        "bash": "터미널 명령",
-        "powershell": "터미널 명령",
-        "python": "코드 읽기",
-        "json": "JSON 자료",
+        "bash": "터미널 명령 · macOS/Linux 문법",
+        "powershell": "터미널 명령 · Windows PowerShell",
+        "python": "읽기용 Python · 터미널 명령 아님",
+        "json": "JSON 자료 · 실행하지 않음",
         "yaml": "YAML 설정",
         "prompt": "포털 Chat에 입력",
         "instructions": "에이전트 Instructions에 입력",
@@ -259,6 +261,8 @@
         "text": "흐름·예시 · 실행하지 않음"
       },
       "copy_messages": {
+        "python": "Python 발췌를 복사했습니다. 편집기에서 읽고, 실행은 본문이 지정한 제한된 명령을 사용하세요.",
+        "json": "확인할 JSON 자료를 복사했습니다. 터미널 명령이 아니므로 실행하지 마세요.",
         "prompt": "질문을 복사했습니다. 지정된 포털 Chat에 붙여넣으세요. 전송 시 비용이 발생할 수 있습니다.",
         "instructions": "지시문을 복사했습니다. 터미널이 아닌 에이전트 Instructions 칸에 붙여넣으세요.",
         "env": "설정을 복사했습니다. 편집기의 .env에서 자신의 값으로 바꾸세요. 터미널 명령이 아닙니다.",

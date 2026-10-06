@@ -190,6 +190,9 @@ The single path runs first, so authentication, caching, and startup latency can 
 
 </details>
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: sequential and concurrent Builder settings — read only</summary>
+
 #### Portal deployment versus Python orchestration
 
 The portal supplies the **model deployment**, but it does not configure L13's sequential/concurrent workflow graph. Python Agent Framework code constructs that order:
@@ -218,6 +221,8 @@ concurrent = ConcurrentBuilder(
 
 `drafter`, `reviewer`, `policy_agent`, `budget_agent`, and `risk` are SDK agents configured by `build_role()` with instructions/model client. `multi_agent.py` executes only the selected Builder. This is local code, not a portal workflow; verify actual inputs/stages/output in `Evidence:`.
 
+</details>
+
 ## Success criteria
 
 Distinguish actual draft propagation in sequential execution from the three independent concurrent results. Explain the responses, elapsed time, and tokens for the patterns you ran.
@@ -231,3 +236,11 @@ An oversized input or truncated response is a failure. Inspect context length an
 ## Cleanup
 
 This module performs local orchestration and model calls only. Hosted sessions and schedules created in other labs are separate; handle those in L19. Keep your own results under `results/` and do not share user or authentication information.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Sequential/concurrent `Evidence:` files and role inputs/answers, call counts, token totals, and timing comparisons. Plan-only means model execution not run.
+
+**Continue:** [L14 group chat/handoff](#l15-collaboration) reuses **the same `.venv-advanced`**. If this was your only elective, go to [L19](#l12).
+
+</div>

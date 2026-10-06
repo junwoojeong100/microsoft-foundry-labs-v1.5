@@ -76,11 +76,10 @@ python samples/instruction_prompt_agent_lab.py
 
 </div>
 
-Run the first command only when the plan matches your scope. **Confirm collection completed successfully** before the second command. Do not execute both lines together.
+When the plan matches your scope, run **collection only**.
 
 ```bash
 python samples/instruction_prompt_agent_lab.py --live --output results/instruction-prompt-agent-en.json
-python samples/instruction_evaluation.py --input results/instruction-prompt-agent-en.json --output results/instruction-native-prompt-agent-en.json --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -90,13 +89,33 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. Collection with `--live` | Create a tool-free Prompt Agent and pinned instruction versions in your owned project, then collect matched answers. | At most 24 responses, 600 seconds, zero retries, and 2,048 output tokens per response for this language. Preserve originals and failures separately. |
-| 2. Native evaluation with `--live` | Submit the 24 actual answers from `--input` to Foundry evaluation. | Zero target reinvocations. One native run per language, at most 600 seconds plus 90 seconds for cancellation confirmation. Write scores and reasons to `--output`. |
+
+</div>
+
+**Stop and check:** Open `results/instruction-prompt-agent-en.json` in VS Code. Top-level `status` must be `completed`, `target_calls` must be 24, and `rows` must contain both instruction versions for all twelve questions. Inspect each row's `status`, `response_id`, and `raw_answer`. On errors or omissions, use **Troubleshooting** instead of submitting evaluation. Do not edit originals to mark them complete.
+
+Only after collection completes and judge/cost conditions are ready, evaluate **that same file**:
+
+```bash
+python samples/instruction_evaluation.py --input results/instruction-prompt-agent-en.json --output results/instruction-native-prompt-agent-en.json --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. Native evaluation with `--live` | Submits the 24 actual originals in `--input`, not an L06 response JSONL or ownership receipt. | Zero target reinvocations. One native run per language, at most 600 seconds plus 90 seconds for cancellation confirmation. Write scores/reasons to `--output`. |
 
 </div>
 
 Keep Korean and English input/output paths distinct. Across both languages, collection is bounded to 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count.
 
 When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request.
+
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: collection and evaluation use different APIs — read only</summary>
 
 #### Portal Evaluations and the actual SDK calls
 
@@ -137,6 +156,8 @@ native = client.evals.runs.create(
 
 Execute through the `--live` path above. Reading this excerpt or portal results makes no additional target call. Preserve the fixed questions, rubric, and threshold.
 
+</details>
+
 ### 3. Connect each answer with its score and reason
 
 In the collection file, find the v1/v2 rows sharing an `id`. In the evaluation file, join `comparison.rows` by `case_id` and `instructions`.
@@ -151,6 +172,8 @@ In the collection file, find the v1/v2 rows sharing an `id`. In the evaluation f
 | `instructions_sha256`, `cases_sha256`, `context_sha256` | Input hashes for checking matched conditions |
 
 Record **the request / both actual answers / relevant policy sections / the judge's reason / whether you agree**. `raw_answer` contains a JSON string; inspect its `answer` and `citation_ids` separately.
+
+**Start with one question.** Search both files for `compound-request-no-tools`. Read its collection rows for `instructions=v1` and `v2`, then the evaluation rows with matching `case_id`/`instructions`. Within `metrics`, read **score → passed → reason**. Separate the price limit, stock, approvers, and draft parts actually answered from those not executable without tools. Apply the same method to the other eleven questions. You need not understand every SDK line or hash first.
 
 ### 4. Distinguish scores from completed execution
 
@@ -180,3 +203,11 @@ For 401/403, check your project, caller identity, and roles. For 404, check the 
 ## Cleanup
 
 Keep the response file `results/instruction-prompt-agent-en.json` and evaluation file `results/instruction-native-prompt-agent-en.json` together. Manage created agents and evaluation resources using your own ownership records and retention policy; do not delete without separate approval.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Collection/evaluation JSON files, evaluation-agent name/versions, matched originals/scores/reasons, errors, and omissions. Reading only means actual evaluation not run.
+
+**Continue:** [L09 boundary questions](#l09), returning to **L05's policy agent**, not the evaluation agent.
+
+</div>

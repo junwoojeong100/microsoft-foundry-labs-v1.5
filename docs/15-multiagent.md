@@ -190,6 +190,9 @@ Windows에서는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 기존 
 
 </details>
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 순차·동시 실행의 Builder 설정 — 읽기용</summary>
+
 #### 포털 배포와 Python 오케스트레이션의 경계
 
 포털은 **모델 배포**를 제공하지만 L13의 순차·동시 workflow 그래프를 설정하지 않습니다. 그 순서는 Python Agent Framework 코드가 만듭니다.
@@ -218,6 +221,8 @@ concurrent = ConcurrentBuilder(
 
 위 `drafter`·`reviewer`·`policy_agent`·`budget_agent`·`risk`는 `build_role()`로 instructions와 모델 client를 지정한 SDK agent입니다. `multi_agent.py`는 선택한 mode의 Builder 하나만 실행합니다. 이 설정은 포털에서 만든 workflow가 아니라 로컬 코드이며 `Evidence:`의 실제 입력·stage·출력으로 확인합니다.
 
+</details>
+
 ## 성공 기준
 
 순차의 실제 초안 전달과 동시 실행의 세 독립 결과를 구분하고, 선택해 실행한 패턴의 응답·시간·토큰을 설명할 수 있습니다.
@@ -231,3 +236,11 @@ concurrent = ConcurrentBuilder(
 ## 정리
 
 이 모듈은 로컬 오케스트레이션과 모델 호출만 수행합니다. 다른 장에서 만든 Hosted 세션·예약은 별도이며 L19에서 정리합니다. 자신의 실행 결과는 `results/`에 보관하고 사용자·인증 정보를 공유하지 않습니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 순차·동시의 `Evidence:` 파일과 역할별 입력/답·호출 수·토큰·시간 비교. 계획만 읽었다면 실제 모델 실행은 미실행입니다.
+
+**다음:** [L14 그룹 채팅·핸드오프](#l15-collaboration)는 **같은 `.venv-advanced`**를 사용합니다. 이 심화만 선택했다면 [L19](#l12)로 갑니다.
+
+</div>

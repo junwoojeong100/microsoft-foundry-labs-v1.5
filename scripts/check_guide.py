@@ -26,6 +26,10 @@ BRIEF_LABELS = {
     "ko": ("진행 방식:", "먼저 할 일:", "확인할 결과:"),
     "en": ("Format:", "Start here:", "What to check:"),
 }
+HANDOFF_LABELS = {
+    "ko": ("이 장에서 남길 것:", "다음:"),
+    "en": ("Keep:", "Continue:"),
+}
 PRACTICE_LABS = {"l15", "l15-collaboration", "l21", "l22"}
 PRACTICE_LABELS = {
     "ko": ("직접 해보기", "한 가지 바꾸기", "결과 설명하기"),
@@ -151,6 +155,13 @@ def check_language(language) -> dict:
                 or any("**" + label not in text for label in PRACTICE_LABELS[language])
             ):
                 raise ValueError(f"{chapter['id']}: needs a try/change/explain exercise")
+            handoff = re.search(r'<div class="lab-handoff" markdown="1">(.*?)</div>', text, re.S)
+            if (
+                text.count('class="lab-handoff"') != 1 or not handoff
+                or any(f"**{label}" not in handoff[1] for label in HANDOFF_LABELS[language])
+                or handoff.start() < text.index("## " + LAB_HEADINGS[language][-1])
+            ):
+                raise ValueError(f"{chapter['id']}: needs a result/next-step handoff after cleanup")
             coverage = command_coverage(text, chapter["file"], language)
             shell_blocks += coverage["blocks"]
             shell_commands += coverage["commands"]

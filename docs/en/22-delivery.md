@@ -244,3 +244,11 @@ If `azure` is skipped, read its opt-in condition; skipping on an ordinary push i
 ## Cleanup
 
 Exclude private settings, raw responses, and receipts from the kit. Keep your CI interpretation, release manifest, and recovery decision together. Actual paid runs, access changes, and Azure deletion each require separate approval. Check remaining resources and costs in L19.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Repaired `practice/delivery/exercise.py`, five test results, CI interpretation, release manifest, recovery target, and cost owner. Record actual publishing separately.
+
+**Continue:** **[L19 shared wrap-up](#l12)**. A local exercise pass does not stop resources or settle costs.
+
+</div>

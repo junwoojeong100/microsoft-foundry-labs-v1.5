@@ -36,6 +36,8 @@ Do not store real personal data, salaries, passwords, or employee information.
 
 ### Choose your starting path
 
+If you previously ran Hosted or Agent Framework, use [L01's new-terminal steps](#l01-new-terminal) to return to the **core `.venv`**. Do not mix its packages into an advanced environment.
+
 | Requirement | Where to inspect | If missing |
 | --- | --- | --- |
 | Project, chat, and embedding deployment names | Your L01/L02 `.env` and deployment list | Read only the `create` plan until names, region, and access are checked |
@@ -137,6 +139,9 @@ After checking the endpoint, store ownership metadata, and item scope, delete on
 Success requires a new API search after deletion that does not return the ID.
 Do not claim deletion succeeded based only on an “I forgot” answer, an existing conversation, or the TTL setting.
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: Memory store, scope, and item IDs in API calls — read only</summary>
+
 #### Portal Memory and the actual item API
 
 The portal **Memory** view shows stores and items, but the API operation is scoped by `name`, `scope`, and `memory_id`:
@@ -169,6 +174,8 @@ result = store.search_memories(
 
 This compares **scope-specific retrieval**. The same API caller selects both scopes, so it does not test whether authenticated A can request B's scope. A real application must derive scope server-side from the authenticated identity. Delete/`forget --confirm` removes one item; store/RG deletion is separate.
 
+</details>
+
 ## Success criteria
 
 You have the store/item IDs, A's search results, and B's isolation results; if deletion was performed, you also verified the post-deletion search.
@@ -185,3 +192,11 @@ If creation failed but `memory.json` exists, reconcile your portal and original 
 
 The default is to retain the store. TTL controls item lifetime; it does not delete the entire store, traces, or conversations.
 Record the retention policy and review date, and obtain separate approval for resource deletion.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** `results/memory.json`, store/item IDs, A/B searches, whether deletion was performed, and TTL/retention deadline. Expiration is not a deletion execution.
+
+**Continue:** [L16](#l17) if you select scheduling, otherwise [L19](#l12). Memory is not a prerequisite for scheduling.
+
+</div>

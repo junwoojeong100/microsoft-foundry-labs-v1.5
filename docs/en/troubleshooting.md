@@ -15,6 +15,19 @@
 
 ## A 60-second diagnostic sequence
 
+**First check whether failure is intentional.**
+
+| Output or symptom | Interpretation and next action |
+| --- | --- |
+| `PLAN ONLY` / `plan_only=true` | Normal plan output, not live Azure execution. Continue with the stated live command only after approval conditions are ready |
+| L06 stock/quantity errors | Expected rejection for the specified failure inputs; record the error kind and continue |
+| L07 `Approval required` | Expected unapproved-local-call rejection; compare it with the exact one-call approval command |
+| Two initial L17 / three initial L18 test failures | Deliberate exercise defects; repair only `exercise.py` and rerun the same tests |
+| Server does not return to an input prompt | Normal while waiting; check health/readiness in the second terminal, not the server window |
+| Windows MCP JSON parsing error | Use L07's **Windows PowerShell block**; a JSON format error is not an approval rejection |
+
+For other symptoms or an unexpected error kind, follow the diagnostic sequence below. Do not relabel a failure or repeatedly issue billable calls.
+
 1. Classify where the error occurred: **local installation / management plane / model call / agent / tool / evaluation / logs**.
 2. Record the time, status/error code, and request/response ID. Do not record tokens or API keys.
 3. Read existing output, files, and settings first. Reproduce a new paid request only after confirming its need and scope. Do not recreate every feature at once.

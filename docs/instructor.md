@@ -79,6 +79,21 @@
 | 추적 | 직접 기록 | response/trace ID | 실제 작업·시간·미관찰 계층 | 조회 범위/수집 확인 |
 | 정리 | 직접 기록 | 자원별 실제 상태 | 중지·보존·승인된 삭제 | 24시간 이내 비용 재확인 |
 
+### 결과 파일은 이름과 용도로 구분하기
+
+VS Code의 파일 탐색기에서 출력된 **정확한 경로**를 열고, **Ctrl+F**(macOS **Cmd+F**)로 본문이 지정한 필드를 찾습니다. JSON의 `{}`·`[]`는 펼쳐 읽고 원본은 수정하지 않습니다.
+
+| 기록 | 용도 | 다음에 쓰는 곳 |
+| --- | --- | --- |
+| `results/azure-environment.json` | L01 환경의 자원·배포·소유 범위 | L02·L08·심화·L19 |
+| `Resource receipt:`의 `contoso-lab-….json` | L04/L05/L06 SDK가 만든 자원 ID | L19의 정확한 정리 대상 확인 |
+| `Responses:`의 `contoso-lab-…-responses.jsonl` | 질문·답변·함수 결과·실제 인용 | L06 `read-result`, L10 추적 |
+| `instruction-prompt-agent-ko.json` | L08에서 수집한 24개 원문 | Native 평가의 `--input` |
+| `instruction-native-prompt-agent-ko.json` | L08의 점수·채점 이유·오류 | 같은 문항의 원문과 비교 |
+| `Evidence:`에 출력된 파일 | 그 실행의 이벤트·오류 기록 | 해당 장의 관찰 근거. 다른 형식의 입력으로 대신 넣지 않음 |
+
+포털만 사용한 결과에는 이 SDK 파일들이 자동 생기지 않습니다. 에이전트 이름·버전·질문·ID·인용을 비공개 진행 기록에 직접 남깁니다. 예시 파일 이름의 `…`를 그대로 쓰지 않습니다.
+
 ## 코드·포털·결과를 읽는 순서
 
 1. **입력 위치를 찾습니다.** 터미널·포털 Chat·`.env`·Python 발췌·결과 예시는 서로 다릅니다.

@@ -69,6 +69,9 @@ L01 경로의 `.env` 값은 `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat`입니�
 | Deployments → Name | `responses.create(model=deployment_name, ...)` |
 | Model ID / Version | 배포 설정과 소유 기록에서 비교. 추론 요청마다 별도 지정하지 않음 |
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 배포 이름이 Python 요청에 들어가는 위치 — 읽기용</summary>
+
 다음은 L03에서 볼 **요청 부분 발췌**입니다. `client`는 L01/L03의 프로젝트 client, `question`은 보낼 합성 질문입니다. 이 구문은 모델 배포가 아니라 유료 추론 요청입니다.
 
 ```python
@@ -79,6 +82,8 @@ response = client.responses.create(
     store=False,
 )
 ```
+
+</details>
 
 지금은 값을 대조하는 단계이므로 이 구문을 실행하지 않습니다. 포털 Name·소유 기록의 `model_deployments.chat`·`.env`가 모두 `contoso-chat`인지 확인합니다.
 
@@ -94,6 +99,9 @@ response = client.responses.create(
 | judge | 100,000 / 60 | 같은 시작 예산. 평가의 병렬 처리·문맥에 따라 추가 여유 필요 |
 | embedding | 10,000 / 6 | `8,192 × 분당 1회 × 여유 1.2`를 1,000 단위로 올림 |
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 권장 TPM의 계산식 — 실행할 계획 명령은 아래에 있습니다</summary>
+
 계획 계산은 다음과 같습니다. **서비스 최소치나 429가 없다는 보장은 아닙니다.**
 
 ```python
@@ -104,6 +112,8 @@ chat_tpm = ceil((8192 + 2048) * 6 * 1.5 * learners / 10000) * 10000
 embedding_tpm = ceil(8192 * 1 * 1.2 * learners / 1000) * 1000
 print(chat_tpm, embedding_tpm)
 ```
+
+</details>
 
 L01의 foundation은 카탈로그의 모델별 capacity 단위·증분·quota로 위 계획을 환산합니다. 모든 모델에 `capacity=100`을 그대로 적용하지 않습니다.
 
@@ -188,3 +198,11 @@ Model router는 요청에 따라 모델을 선택하는 별도 배포입니다. 
 ## 정리
 
 L01에서 만든 세 배포를 다음 장에서 이어 사용합니다. 선택 실험으로 추가한 배포가 있다면 이름·비용·보존 기한을 별도 기록하고 L19에서 확인합니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** chat/judge/embedding의 실제 배포 이름·모델 버전·TPM/RPM과 준비 상태. 포털·`.env`·소유 기록이 일치해야 합니다.
+
+**다음:** [L03 첫 답변](#l03). 이미 준비된 배포를 사용하며 모델을 다시 배포하지 않습니다.
+
+</div>

@@ -26,7 +26,7 @@ Make the agent answer from **retrieved documents** rather than the model's pretr
 
 ## Prerequisites
 
-Use the L04 English agent and the 3 Markdown files in `data/en/policies/`. Check upload permissions and additional File search costs. Do not attach a store populated by the Korean run or bring real company documents to the lab.
+The default path uses L04's English **portal agent** and the three Markdown files in `data/en/policies/`. Check upload permissions and additional File search costs. Do not attach a Korean store or real company documents. If you used only the L04 SDK or File search editing is unavailable, inspect the optional SDK path below and record its new target and completed question scope separately.
 
 ## Steps
 
@@ -98,7 +98,9 @@ python samples/workshop.py rag --live
 
 </div>
 
-The executable sample uploads the files, attaches them to a vector store, waits up to 180 seconds for indexing, creates an agent, and asks a question. If indexing does not finish within 180 seconds, it stops rather than pretending to have completed. Use the receipt to check remaining files and their status.
+The executable uploads files, attaches the store, waits up to 180 seconds for indexing, creates an agent, and asks **one default price-limit question**, not all three questions above. If indexing does not finish, it stops rather than claiming completion. Use the receipt to inspect remaining files and their status.
+
+To finish the three-question check, find the new agent name/version in the receipt and open it under **Build → Agents**. Verify the additional request budget before sending step 3's questions. If Chat is unavailable, record **default-question retrieval/citations checked / three-question comparison not run**. Do not repeatedly run `rag --live` for each question and recreate resources.
 
 </details>
 
@@ -112,6 +114,9 @@ The executable sample uploads the files, attaches them to a vector store, waits 
 | The document is right but the answer is wrong | Instructions, question, and model |
 | The answer is right but has no source | Citation handling and UI rendering |
 | Another user's documents appear | Data permissions, retrieval filters, and caller identity |
+
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: SDK upload, indexing, and retrieval — read only</summary>
 
 ### Portal actions and the actual File search code
 
@@ -165,6 +170,8 @@ response = client.responses.create(
 
 This is the raw SDK flow for reading. Running it creates a separate store, agent, and files; use the receipt-tracked `workshop.py rag --live` path only after approval, and do not run both SDK and portal paths.
 
+</details>
+
 ## Success criteria
 
 The 2 answerable questions have real supporting evidence, and the agent withholds an answer to the question not covered by the documents. You have compared the facts in the responses with the originals and confirmed that indexing completed.
@@ -183,3 +190,11 @@ Retain the knowledge connection for later labs. SDK store expiration **one day a
 Use File search for quick validation with a few files. Use Azure AI Search when you need direct control over indexes, hybrid retrieval, and filters. Consider Foundry IQ for sharing multiple knowledge sources and agentic retrieval. None of these paths automatically implements per-user document permissions just by connecting a source.
 
 </details>
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** The policy agent name, saved version, store, and three answers/actual citations. Reuse **this policy agent in L09**.
+
+**Continue:** [L06 stock and drafts](#l06). Its integrated command creates another agent; do not add functions here or repeat SDK uploads.
+
+</div>

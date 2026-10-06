@@ -95,8 +95,11 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 
 서버가 대기 중인 첫 터미널이 아니라 **두 번째 터미널**에서 이어 실행합니다. 이 단계의 MCP 서버는 명령이 따로 시작하므로 서버 창을 하나 더 열 필요가 없습니다.
 
+**macOS/Linux:** 아래를 한 줄씩 실행합니다. 두 번째 줄의 승인 오류는 의도한 결과이며, 그 뒤 승인된 호출로 비교합니다.
+
 ```bash
 python samples/toolbox_lab.py inspect --local
+python samples/toolbox_lab.py call --local --tool get_stock --arguments '{"sku":"NB-14"}'
 python samples/toolbox_lab.py call --local --tool get_stock --arguments '{"sku":"NB-14"}' --approve-tool get_stock
 python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arguments '{"sku":"NB-14","quantity":2}' --approve-tool prepare_purchase_request
 ```
@@ -108,8 +111,31 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `inspect --local` | 별도 stdio MCP 서버를 자식 프로세스로 실행하고 초기화·도구 목록/계약을 조회합니다. 앞의 HTTP 서버를 재사용하는 경로는 아닙니다. | 실제 로컬 MCP 교환과 도구 이름을 확인합니다. Azure 호출 없음. |
-| 2. `call ... get_stock` | `--tool`은 정확한 도구 이름, `--arguments`는 JSON 객체, `--approve-tool`은 그 이름·인수의 이번 호출을 허용합니다. | 재고 조회 결과와 로컬 evidence를 확인합니다. 승인 옵션을 빼면 호출 전에 차단됩니다. |
-| 3. `call ... prepare_purchase_request` | JSON의 수량 2로 초안 도구를 호출합니다. 외부 작은따옴표는 셸에서 JSON의 큰따옴표를 보존하기 위한 것입니다. | 290만 원·승인 대기·미주문 상태를 확인합니다. 이 도구 호출 승인은 실제 구매 승인이 아닙니다. |
+| 2. 승인 없는 `call` | 정확한 도구·인수를 주되 `--approve-tool`은 주지 않습니다. | `Approval required` 오류와 실패 종료가 정상입니다. 실제 `tools/call` 전에 차단됩니다. |
+| 3. 승인한 `call ... get_stock` | `--tool`은 도구 이름, `--arguments`는 JSON, `--approve-tool`은 이 이름·인수의 1회 호출 허용입니다. | 재고 조회 결과와 로컬 evidence를 확인합니다. |
+| 4. `call ... prepare_purchase_request` | JSON의 수량 2로 초안 도구를 호출합니다. 외부 작은따옴표는 셸에서 JSON의 큰따옴표를 보존합니다. | 290만 원·승인 대기·미주문 상태. 도구 호출 승인은 구매 승인이 아닙니다. |
+
+</div>
+
+**Windows PowerShell:** 위 블록 **대신** 다음을 한 줄씩 실행합니다. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token)는 Windows 실행기에 JSON의 따옴표를 그대로 전달하기 위한 PowerShell 문법입니다. Python 옵션이나 승인 생략 기능이 아닙니다.
+
+```powershell
+.\.venv\Scripts\python.exe samples/toolbox_lab.py inspect --local
+.\.venv\Scripts\python.exe --% samples/toolbox_lab.py call --local --tool get_stock --arguments "{\"sku\":\"NB-14\"}"
+.\.venv\Scripts\python.exe --% samples/toolbox_lab.py call --local --tool get_stock --arguments "{\"sku\":\"NB-14\"}" --approve-tool get_stock
+.\.venv\Scripts\python.exe --% samples/toolbox_lab.py call --local --tool prepare_purchase_request --arguments "{\"sku\":\"NB-14\",\"quantity\":2}" --approve-tool prepare_purchase_request
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설 — Windows**
+
+| 순서·명령 | 하는 일 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `inspect --local` | 가상환경의 Python으로 로컬 MCP 목록을 읽습니다. | Azure 호출 없음. |
+| 2. 승인 없는 `call` | JSON을 보존해 전달하되 도구 승인은 하지 않습니다. | `Approval required` 오류가 정상. 도구 실행 없음. |
+| 3. 승인한 `get_stock` | 같은 JSON과 정확한 이름으로 이번 호출만 허용합니다. | 로컬 재고 8개·단가 145만 원. |
+| 4. 승인한 초안 함수 | 수량 2의 입력과 도구 이름을 함께 확인합니다. | 290만 원·미주문. 실제 구매 승인 없음. |
 
 </div>
 
@@ -180,11 +206,16 @@ OpenAPI 도구의 인수는 `tools/list`의 `inputSchema`를 따릅니다.
 `python samples/toolbox_lab.py openapi`로 **이 저장소가 생성하는 전체 계약**을 확인할 수 있습니다. `openapi`는 Search 설정/receipt로 계약 JSON을 구성해 출력하는 로컬 명령입니다. Azure 요청이나 도구 실행은 없지만 L11의 설정이 있어야 올바른 endpoint가 들어갑니다.
 API version의 schema default만 적는 것은 실제 query parameter 전송이 아닙니다.
 
+Windows PowerShell에서 위 클라우드 호출을 선택했다면 `python`을 `.\.venv\Scripts\python.exe`로 바꾸고 실행기 뒤에 `--%`를 둡니다. `--arguments`는 바깥 **큰따옴표**로 감싸고 JSON 내부의 큰따옴표를 `\"`로 바꾸는 위 로컬 예제와 같은 문법을 사용합니다. 두 곳의 도구 이름은 직접 실제 값으로 바꿉니다. 승인 옵션이나 `--live`를 빼서 오류를 피하지 않습니다.
+
 실제 output과 tool error를 `results/contoso-toolbox-*.jsonl`에 보존합니다.
 Skill은 resources/list에 있어야 하며 resources/read의 본문까지 확인합니다.
 이것은 지침 발견/읽기 검증이고, 모델이 매번 지침을 따랐다는 품질 보증은 아닙니다.
 
 </details>
+
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 로컬 MCP 서버와 Foundry 연결의 차이 — 읽기용</summary>
 
 ### 로컬 코드와 Foundry 포털의 경계
 
@@ -216,6 +247,8 @@ server.run(transport="stdio")
 
 즉, 로컬 HTTP/MCP 코드는 포털의 버튼이 아니라 내 컴퓨터에서 실행됩니다. 포털 연동은 동봉 서버를 터널링하는 방식이 아니라 승인된 클라우드 Toolbox/OpenAPI 연결을 사용합니다.
 
+</details>
+
 ## 성공 기준
 
 기본 코스는 로컬 HTTP 응답과 MCP 2종의 실제 결과, 도구별 승인 차단을 확인하면 이 장을 완료합니다.
@@ -224,6 +257,14 @@ Tool search Preview나 외부 업무 시스템 연결을 실행한 것으로 합
 
 ## 막혔을 때
 
+| 로컬 증상 | 다음 행동 |
+| --- | --- |
+| `Connection refused` | 첫 터미널의 서버가 켜져 있는지와 현재 포트를 확인. 서버 창에서는 대기하고 두 번째 창에서 호출 |
+| `Address already in use` | 먼저 자신이 켠 서버 창 확인. 다른 프로세스를 강제 종료하지 말고 사용 가능한 포트로 `inventory_api.py --port 18766`을 실행했다면 두 `curl` URL도 같은 포트로 변경 |
+| `No module named mcp` | L01에서 Python 경로를 확인하고 그 가상환경에 `requirements-tools.txt`가 설치됐는지 확인 |
+| JSON 해석 오류 | 자기 OS의 명령 블록 사용. 특히 Windows는 위 `--%`·따옴표 문법을 그대로 사용 |
+| `Approval required` | 승인 없는 호출 과제에서는 정상. 승인한 호출을 하려면 확인한 이름·인수의 `--approve-tool` 값 대조 |
+
 403은 호출자와 프로젝트 MI를 구분해 봅니다. 빈 목록은 connection/schema/도구 지원 상태를
 확인합니다. 인증을 `anonymous`나 승인을 `never`로 바꾸어 오류를 숨기지 않습니다.
 
@@ -231,3 +272,11 @@ Tool search Preview나 외부 업무 시스템 연결을 실행한 것으로 합
 
 로컬 stdio child는 client 종료 시 함께 종료됩니다. HTTP 서버는 Ctrl+C로 정지합니다.
 Toolbox/Skill version은 소유 receipt와 함께 보존하며, 삭제는 별도 승인 후 진행합니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** HTTP 재고, MCP 목록·두 도구의 결과·승인 없는 호출의 거절 근거. 서버 터미널의 **Ctrl+C 종료**까지 확인합니다.
+
+**다음:** [L08 지침 비교·평가](#l08). 클라우드 Toolbox는 건너뛰어도 기본 코스를 이어갈 수 있습니다.
+
+</div>

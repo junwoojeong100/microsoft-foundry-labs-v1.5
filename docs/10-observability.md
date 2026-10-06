@@ -114,6 +114,9 @@ request ID를 trace ID로 바꾸어 채우지 않습니다. L12의 Hosted 결과
 
 출력의 `input_rows`와 `correlated_rows`가 같고 `missing_case_ids`가 비어 있으면 **입력과 로그의 연결**이 확인된 것입니다. `model_response_spans_observed`와 `request_trace_ids_observed`는 관찰 계층이 다릅니다. 이 CLI는 연결을 검사하지, 병목이나 답변 정답을 자동 판정하지 않습니다. 출력된 `Evidence:` 파일의 조회 행과 포털 상세를 읽어 위 표를 자신의 값으로 작성하세요.
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: 응답 ID로 로그를 찾는 Python·KQL 흐름 — 읽기용</summary>
+
 #### 포털 Traces와 실제 상관 조회 코드
 
 포털에서는 **Traces**에서 agent·version·기간과 자신의 response ID를 선택합니다. 동봉 Python은 같은 ID를 JSONL에서 읽고 KQL을 만든 뒤 Application Insights에 한 번 읽기 요청을 보냅니다.
@@ -139,6 +142,8 @@ report = correlation_report(rows, result)
 | 연결된 행 수 | `correlation_report()`의 `correlated_rows`와 `missing_case_ids` |
 
 코드 경로는 **로그 읽기만** 하고 모델을 호출하지 않습니다. 0행이나 빠진 ID는 미관찰/실패로 남기며 포털 화면에서 보인 값으로 채우지 않습니다.
+
+</details>
 
 ### 4. 선택: 클라이언트 추적 추가하기
 
@@ -170,3 +175,11 @@ Monitoring dashboard와 continuous evaluation은 Preview 범위를 확인한 뒤
 ## 정리
 
 진단할 trace ID와 최소 증거만 기록합니다. 로그의 보존 기간·원문 포함 여부·접근자를 정하고 불필요한 지속 평가를 중지합니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 한 실행의 응답/trace ID·버전·작업별 시간·판단·다음 조치. 조회하지 못한 로그는 미확인으로 남깁니다.
+
+**다음:** 기본만 진행했다면 **[L19 공통 마무리](#l12)**로 갑니다. 추가 기능을 배우려면 [심화 선택표](#instructor)에서 선행 조건을 확인합니다.
+
+</div>

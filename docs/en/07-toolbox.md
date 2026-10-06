@@ -97,8 +97,11 @@ Do not expose it publicly through a tunnel.
 
 Continue in the **second terminal**, not the one waiting for server requests. These commands start the MCP server separately; no third terminal is needed.
 
+**macOS/Linux:** Run one line at a time. The second line's approval error is intentional; compare it with the approved calls afterward.
+
 ```bash
 python samples/toolbox_lab.py inspect --local
+python samples/toolbox_lab.py call --local --tool get_stock --arguments '{"sku":"NB-14"}'
 python samples/toolbox_lab.py call --local --tool get_stock --arguments '{"sku":"NB-14"}' --approve-tool get_stock
 python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arguments '{"sku":"NB-14","quantity":2}' --approve-tool prepare_purchase_request
 ```
@@ -110,8 +113,31 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `inspect --local` | Starts a separate stdio MCP server as a child process, initializes it, and retrieves tool names and contracts. This does not reuse the HTTP server from the previous step. | Check the actual local MCP exchange and tool names. No Azure calls. |
-| 2. `call ... get_stock` | `--tool` is the exact tool name, `--arguments` is a JSON object, and `--approve-tool` permits this call with that name and those arguments. | Check the inventory result and local evidence. Omitting the approval option blocks the call before execution. |
-| 3. `call ... prepare_purchase_request` | Calls the drafting tool with quantity 2 in the JSON. The outer single quotes preserve the JSON's double quotes in the shell. | Check the KRW 2,900,000 total, pending-approval status, and not-ordered state. Approval to call this tool is not approval to make a purchase. |
+| 2. Unapproved `call` | Supplies the exact tool/arguments but omits `--approve-tool`. | `Approval required` and a failing exit are expected; rejection occurs before `tools/call`. |
+| 3. Approved `call ... get_stock` | `--tool` names the tool; `--arguments` supplies JSON; `--approve-tool` permits this name/arguments once. | Check actual inventory and local evidence. |
+| 4. `call ... prepare_purchase_request` | Calls the draft function with quantity 2. Outer single quotes preserve the JSON's double quotes. | KRW 2,900,000, pending approval, and not ordered. Tool approval is not purchase approval. |
+
+</div>
+
+**Windows PowerShell:** Use this block **instead**. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token) preserves JSON quotes when passing arguments to a Windows executable. It is PowerShell syntax, not a Python option or an approval bypass. Keep each command on one line.
+
+```powershell
+.\.venv\Scripts\python.exe samples/toolbox_lab.py inspect --local
+.\.venv\Scripts\python.exe --% samples/toolbox_lab.py call --local --tool get_stock --arguments "{\"sku\":\"NB-14\"}"
+.\.venv\Scripts\python.exe --% samples/toolbox_lab.py call --local --tool get_stock --arguments "{\"sku\":\"NB-14\"}" --approve-tool get_stock
+.\.venv\Scripts\python.exe --% samples/toolbox_lab.py call --local --tool prepare_purchase_request --arguments "{\"sku\":\"NB-14\",\"quantity\":2}" --approve-tool prepare_purchase_request
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — Windows**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `inspect --local` | Lists local MCP tools using the environment's Python. | No Azure call. |
+| 2. Unapproved `call` | Preserves the JSON but does not approve the tool. | Expected `Approval required` error; no tool execution. |
+| 3. Approved `get_stock` | Permits this exact name and JSON once. | Local stock 8 and unit price KRW 1,450,000. |
+| 4. Approved draft function | Checks quantity 2 and the tool name together. | KRW 2,900,000, not ordered; no purchase approval. |
 
 </div>
 
@@ -186,7 +212,12 @@ Preserve actual output and tool errors in `results/contoso-toolbox-*.jsonl`.
 The Skill must appear in resources/list; also inspect its body through resources/read.
 This verifies instruction discovery and reading, not that the model follows the instructions every time.
 
+For the optional cloud call in Windows PowerShell, replace `python` with `.\.venv\Scripts\python.exe` and place `--%` after the executable. Wrap `--arguments` in outer **double quotes** and change JSON's inner double quotes to `\"`, as in the local examples. Manually replace both tool-name placeholders. Do not omit approval or `--live` to work around an error.
+
 </details>
+
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: local MCP servers versus Foundry connections — read only</summary>
 
 ### Local code versus the Foundry portal
 
@@ -218,6 +249,8 @@ server.run(transport="stdio")
 
 The local HTTP/MCP code runs on your computer, not inside a portal button. Portal integration uses an approved cloud Toolbox/OpenAPI connection, not a tunnel to the local server.
 
+</details>
+
 ## Success criteria
 
 For the core course, complete this chapter by verifying the local HTTP response, actual results from both MCP tools, and the approval block for each tool.
@@ -226,6 +259,14 @@ Do not count these as execution of Tool search Preview or an external business-s
 
 ## Troubleshooting
 
+| Local symptom | Next action |
+| --- | --- |
+| `Connection refused` | Check the server and its port in the first terminal; call from the second terminal |
+| `Address already in use` | Check your own server window first. Do not forcibly stop another process. If you use an available port with `inventory_api.py --port 18766`, change both `curl` URLs to that same port |
+| `No module named mcp` | Check the L01 Python path and whether that environment has `requirements-tools.txt` installed |
+| JSON parsing error | Use your OS's block, particularly Windows's `--%` and quoting syntax |
+| `Approval required` | Expected for the unapproved-call exercise; for an approved call, compare the exact reviewed name/arguments with `--approve-tool` |
+
 For 403 errors, distinguish the caller from the project managed identity. For an empty list, check
 the connection, schema, and tool-support status. Do not hide errors by switching authentication to `anonymous` or approval to `never`.
 
@@ -233,3 +274,11 @@ the connection, schema, and tool-support status. Do not hide errors by switching
 
 The local stdio child process exits with the client. Stop the HTTP server with Ctrl+C.
 Retain Toolbox/Skill versions with their ownership receipt, and delete them only after separate approval.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** HTTP inventory, MCP tool names/results, and the unapproved-call rejection. Confirm **Ctrl+C stopped the HTTP server**.
+
+**Continue:** [L08 instruction comparison/evaluation](#l08). Cloud Toolbox is not required to continue the core course.
+
+</div>

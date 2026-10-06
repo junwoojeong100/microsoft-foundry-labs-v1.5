@@ -18,6 +18,8 @@ The web reader starts with **11 core modules plus one shared wrap-up** and count
 
 Blocks distinguish **terminal commands / portal Chat / .env settings / expected output**. On narrow screens, command walkthroughs read vertically. L01 explains new-terminal and Windows Python selection. L06's `read-result --input` displays saved answers, function results, and citations **without new Azure calls**, changing neither originals nor evaluation judgments.
 
+For a first run, follow **Prerequisites → Steps → Success criteria → Cleanup**, opening collapsed **implementation references** only when needed. Every module ends with **Keep / Continue** to identify saved results and reused targets. L03 defaults to one Python request; L04/L05/L09 reuse one portal policy agent; L06 and L08 create separate SDK agents. L08 collection and evaluation use separate command blocks with an original-completion check between them.
+
 Without Azure access, practice local functions and read L08's inputs, separately from live completion. The default path collects/evaluates your own answers and reads your logs. Review integration in L06 and optional publishing/version management in L18. No separate capstone, Teams publishing, Hosted, or Optimizer is required for core completion.
 
 Every advanced lab identifies its starting path, configuration sources, and result locations. Create the L11 Search/L12 Hosted resources yourself. Agent Framework is split into L13 sequential/concurrent and L14 group-chat/handoff. L17 access and L18 CI/CD use local repairs/design, separately from actual Azure validation or publishing.

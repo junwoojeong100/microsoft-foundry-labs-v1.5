@@ -68,7 +68,11 @@ MAF 실습용 `.venv-advanced`는 별도입니다. 서로 다른 `azure-ai-proje
 
 Windows는 L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, 이후 `.venv-live\Scripts\python.exe`로 실행합니다. 아래 `curl`은 Windows에서 `curl.exe`로 실행합니다. macOS/Linux의 `source` 명령은 PowerShell에 붙여넣지 않습니다.
 
-azd는 Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다.
+<a id="l12-azd"></a>
+
+**azd가 없다면** [공식 Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)에서 자기 OS의 승인된 설치 경로를 따르고 새 터미널을 엽니다. Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다.
+
+azd는 Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. 아래 macOS/Linux의 `KEY=value` 문법을 Windows에서 바꾸는 방법은 [L00 명령 읽기](#l00)에 있습니다.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
@@ -271,6 +275,9 @@ Toolbox를 별도 연결할 때는 L07의 인증 주체와 1회 승인 정책을
 
 이 표는 작성 틀이며 실행 결과를 미리 채운 것이 아닙니다. 한쪽만 실행했으면 다른 쪽은 미실행으로 남깁니다.
 
+<details class="implementation-detail" markdown="1">
+<summary>구현 참고: Hosted 서버가 요청·오류를 처리하는 코드 — 읽기용</summary>
+
 #### 포털의 Hosted version과 실제 HTTP handler
 
 포털은 배포된 Hosted 종류·version을 보여 주고, 컨테이너의 Python이 `/invocations` 요청을 처리합니다. `hosted/main.py`의 핵심 코드는 다음과 같습니다.
@@ -309,6 +316,8 @@ async def handle(request: Request):
 
 포털에서 handler 코드를 편집하는 것이 아니라, 이 코드가 포함된 container의 배포 유형·version을 확인합니다. `hosted_runtime.py`는 업무 흐름이고 `hosted/main.py`는 HTTP entrypoint입니다. 로컬 실행도 실제 Azure 서비스를 부를 수 있습니다.
 
+</details>
+
 ## 성공 기준
 
 패키징·서버 시작·로컬 업무 결과·배포·같은 버전 원격 업무 결과를 각각 확인했습니다.
@@ -328,3 +337,11 @@ agent/version/session 파일·Azure 자원은 남습니다. 남은 storage·로�
 
 Hosted의 `/app`은 읽기 전용입니다. 원격 원시 증거는 세션의 `$HOME/.contoso/evidence`에만
 기록하고 코드 폴더에 쓰지 않습니다. 이를 패키지에 포함하지 않습니다.
+
+<div class="lab-handoff" markdown="1">
+
+**이 장에서 남길 것:** 패키지 contract/hash, 로컬·원격 각각의 실제 결과 또는 미실행 표시, 원격 숫자 version·세션 중지 근거. 로컬 서버도 Ctrl+C로 종료합니다.
+
+**다음:** 협업 패턴을 선택하면 [L13](#l15), 선택 실습을 마쳤다면 [L19](#l12). 이후 명령은 각 장이 지정한 Python 환경을 사용합니다.
+
+</div>

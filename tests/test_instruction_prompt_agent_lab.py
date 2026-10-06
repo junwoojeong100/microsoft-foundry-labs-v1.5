@@ -32,13 +32,21 @@ class InstructionPromptAgentTests(unittest.TestCase):
                              "schema": {"type": "object"}}}
         value = instruction_prompt_agent_lab._definition("v1 only", schema).as_dict()
         self.assertEqual(value["kind"], "prompt")
-        self.assertEqual(value["model"], "contoso-gpt-6-sol")
+        self.assertEqual(value["model"], "contoso-chat")
         self.assertEqual(value["instructions"], "v1 only")
         self.assertEqual(value["tools"], [])
         self.assertEqual(value["tool_choice"], "none")
         self.assertEqual(value["text"], schema)
         self.assertEqual(value["reasoning"], {"effort": "low"})
-        self.assertEqual(instruction_prompt_agent_lab._definition("v1 only", schema, "contoso-chat").model, "contoso-chat")
+        self.assertEqual(instruction_prompt_agent_lab._definition("v1 only", schema, "explicit-chat").model, "explicit-chat")
+
+    def test_default_deployment_matches_the_setup_template_and_infrastructure(self):
+        template = dict(
+            line.split("=", 1) for line in (ROOT / ".env.example").read_text().splitlines()
+            if line and not line.startswith("#")
+        )
+        self.assertEqual(template["FOUNDRY_MODEL_DEPLOYMENT_NAME"], instruction_prompt_agent_lab.TARGET_DEPLOYMENT)
+        self.assertIn("name: 'contoso-chat'", (ROOT / "infra/main.bicep").read_text())
 
     def test_creates_exactly_two_versioned_prompts_on_one_new_agent(self):
         project = MagicMock()

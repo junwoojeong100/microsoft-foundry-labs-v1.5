@@ -95,6 +95,9 @@ Check that the answer is “monitor.” Start a new conversation and send only t
 
 Record the saved name/version separately from each response ID. Do not change instructions merely to increment a version. When you later change configuration, check the new version; “latest” does not mean “approved for production.”
 
+<details class="implementation-detail" markdown="1">
+<summary>Implementation reference: portal Model, Instructions, and Save in SDK code — read only</summary>
+
 ### 5. Read the same configuration in raw Python SDK code
 
 This teaching excerpt connects the SDK calls used by `create_lab_agent()` and `run_turn()` in `workshop.py`. The endpoint is your own; the deployment is `contoso-chat`. **Read the block**, then choose either portal creation or the receipt-tracked SDK path below for execution.
@@ -151,6 +154,8 @@ with (
 
 Executing this raw code creates a separate agent and conversation and incurs model costs. For live SDK work, use the runner below, which adds an owned-scope receipt, bounded calls, and a `--live` opt-in. Do not run both portal and SDK paths.
 
+</details>
+
 <details class="optional-path" markdown="1">
 <summary>Optional: run the complete receipt- and call-bounded SDK runner</summary>
 
@@ -172,6 +177,8 @@ python samples/workshop.py agent --live
 
 `workshop.py` adds plan-only behavior, a unique receipt, error handling, and call limits around the raw operations above. It creates a **new agent** named `contoso-lab-...` to avoid collisions; it does not modify your portal agent. Created IDs are saved in `results/contoso-lab-....json`.
 
+The default input is **one price-limit question**, not the five portal questions or the same/new-conversation comparison. To continue that comparison, open the receipt's agent name in the portal and perform the relevant questions; otherwise record **conversation comparison not run**. The L05 SDK path creates another agent rather than attaching files to this one.
+
 </details>
 
 ## Success criteria
@@ -185,3 +192,11 @@ Earlier conversation context can mask an instruction change. After selecting the
 ## Cleanup
 
 Reuse the portal agent in L05. If you chose SDK, distinguish the new agent created by L05's SDK File search path and keep each receipt. Delete only the exact approved resources in L19.
+
+<div class="lab-handoff" markdown="1">
+
+**Keep:** Your agent name/version, the five answers, and conversation distinctions. A portal-created agent has no automatic SDK receipt, so record its name yourself.
+
+**Continue:** [L05 company documents](#l05). The default path reuses **this same portal agent**.
+
+</div>
