@@ -3,8 +3,7 @@
   "private": true,
   "version": "1.5.0",
   "scripts": {
-    "guide:browser": "node scripts/run-browser.js check",
-    "guide:pdf": "node scripts/run-browser.js pdf"
+    "guide:browser": "node scripts/run-browser.js check"
   },
   "devDependencies": {
     "playwright": "1.63.0"

@@ -41,14 +41,13 @@ The kit pins **`gpt-6-sol / 2026-09-22`**; L01 creates deployment `contoso-chat`
 | English web guide | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
 | Korean web guide | [GitHub Pages · 한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
 | Markdown | [English](downloads/GUIDE.en.md) · [한국어](downloads/GUIDE.ko.md) |
-| PDF | [English](downloads/Contoso-Foundry-Hands-on-2026-09-30.en.pdf) · [한국어](downloads/Contoso-Foundry-Hands-on-2026-09-30.pdf) |
 | Complete kit | [Bilingual ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
 | Synthetic receipt | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
 
 For a file-by-file code reference, see [English](samples/README.md) or [한국어](samples/README.ko.md).
 
 Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.html`; use an editor to inspect code.
-Open Markdown inside the kit's `downloads/` folder to resolve its images and source links. PDFs include expandable optional/reference sections.
+Open Markdown inside the kit's `downloads/` folder to resolve its images and source links.
 The core course is **L00–L10, about 4 hours 45 minutes**. Advanced electives are **L11–L18**, followed by **L19 shared wrap-up (10 minutes)**; lab numbers are continuous from 00 through 19. Core-only learners go directly from L10 to L19; others finish their selected electives before L19. Reading requires no sign-in.
 
 Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Azure results; record design completion separately from actual execution. L18's default CI/release-design path does not require Hosted deployment.
@@ -82,14 +81,12 @@ With the declared Python/Node dependencies installed:
 ```bash
 python scripts/build_guide.py
 FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -q
-npm run guide:pdf
 python scripts/check_guide.py
 npm run guide:browser
-python scripts/check_pdf.py
 python scripts/package_guide.py
 ```
 
-The same checked-in sources produce both HTML/Markdown/PDF editions and one ZIP. Keep local reports under private `results/documentation/`; do not package them.
+The same checked-in sources produce both HTML/Markdown editions and one ZIP. Keep local reports under private `results/documentation/`; do not package them.
 Local checks are not Azure execution or measured model improvement.
 
 Learner-facing numbers come from `number` in `content/chapters.json`. Existing IDs and source filenames remain stable identifiers for links, progress, and historical records, so they can differ from display numbers. The former `#l11` link opens L06's integration review; historical validation numbers and originals remain unchanged.
@@ -97,7 +94,7 @@ Learner-facing numbers come from `number` in `content/chapters.json`. Existing I
 ## GitHub Pages
 
 Pages serves the **root of the `main` branch** (`/`). A push to `main` automatically publishes the checked-in HTML and download files; no separate publishing branch is needed.
-Merging into `main` still requires approval and now also publishes the site. Regenerate and review HTML/Markdown/PDF/ZIP before merging; Pages does not run the guide generators.
+Merging into `main` still requires approval and now also publishes the site. Regenerate and review HTML/Markdown/ZIP before merging; Pages does not run the guide generators.
 The existing validation workflow and Pages deployment run independently: **Pages does not wait for validation to finish**.
 Keep `.nojekyll` and do not force-push. Branch deletion, repository visibility changes, and Azure operations require explicit approval.
 Use `python scripts/check_pages.py` after deployment to compare the public HTML/assets with the merged sources.

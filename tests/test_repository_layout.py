@@ -3,17 +3,21 @@ from pathlib import Path
 import re
 import unittest
 from urllib.parse import urlparse
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class RepositoryLayoutTests(unittest.TestCase):
+    def test_distributions_exclude_pdf_documents(self):
+        with self.subTest(distribution="downloads"):
+            self.assertEqual(list((ROOT / "downloads").rglob("*.pdf")), [])
+        for path in (ROOT / "downloads").glob("*.zip"):
+            with self.subTest(distribution=path.name), zipfile.ZipFile(path) as archive:
+                self.assertFalse(any(name.lower().endswith(".pdf") for name in archive.namelist()))
+
     def test_only_current_distributions_are_present(self):
         release = json.loads((ROOT / "content/release.json").read_text())
-        self.assertEqual(
-            {path.name for path in (ROOT / "downloads").glob("*Foundry*Hands-on*.pdf")},
-            {Path(edition["pdf"]).name for edition in release["languages"].values()},
-        )
         self.assertLessEqual(
             {path.name for path in (ROOT / "downloads").glob("*Foundry*Hands-on*.zip")},
             {Path(release["archive"]).name},
@@ -22,8 +26,9 @@ class RepositoryLayoutTests(unittest.TestCase):
             {path.name for path in (ROOT / "downloads").glob("GUIDE*.md")},
             {Path(edition["markdown"]).name for edition in release["languages"].values()},
         )
-        for key in ("markdown", "pdf"):
-            self.assertTrue(all(Path(edition[key]).parent == Path("downloads") for edition in release["languages"].values()))
+        self.assertTrue(all(
+            Path(edition["markdown"]).parent == Path("downloads") for edition in release["languages"].values()
+        ))
         self.assertEqual(Path(release["archive"]).parent, Path("downloads"))
         self.assertFalse((ROOT / "assets/favicon.svg").exists())
 

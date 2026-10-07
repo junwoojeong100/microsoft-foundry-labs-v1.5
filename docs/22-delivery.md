@@ -84,7 +84,7 @@ python scripts/check_guide.py
 
 통과하면 **코드/문서 검사 통과**로만 기록합니다. import 오류는 가상환경과 requirements, 생성물 차이는 `docs/`·`content/` 원본, 업무 assertion 실패는 관련 함수·정책 계약부터 확인합니다. assertion이나 평가 기준을 낮춰 통과시키지 않습니다.
 
-PDF·ZIP이 필요하면 README의 생성 경로를 이어 사용합니다. `downloads/`의 전달물과 루트 웹 진입점은 **에이전트 배포물과 별개**입니다. 문서 빌드는 이 장의 보조 과제이지 CD 성공 증거가 아닙니다.
+ZIP이 필요하면 README의 생성 경로를 이어 사용합니다. `downloads/`의 전달물과 루트 웹 진입점은 **에이전트 배포물과 별개**입니다. 문서 빌드는 이 장의 보조 과제이지 CD 성공 증거가 아닙니다.
 
 </details>
 

@@ -41,14 +41,13 @@ v2는 공용·비공개 질문 분리, 모든 하위 질문의 답변, 주장별
 | 한국어 웹 | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
 | 영어 웹 | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
 | Markdown | [한국어](downloads/GUIDE.ko.md) · [English](downloads/GUIDE.en.md) |
-| PDF | [한국어](downloads/Contoso-Foundry-Hands-on-2026-09-30.pdf) · [English](downloads/Contoso-Foundry-Hands-on-2026-09-30.en.pdf) |
 | 전체 실습 패키지 | [두 언어 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
 | 합성 영수증 | [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) |
 
 실습 코드 파일별 역할은 [한국어 안내](samples/README.ko.md) · [English](samples/README.md)에서 확인할 수 있습니다.
 
 ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `index.html`을 열고, 코드는 편집기에서 확인합니다.
-Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다. PDF에는 접힌 선택·참고 절까지 포함됩니다.
+Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다.
 기본 코스는 **L00–L10, 약 4시간 45분**입니다. 심화는 **L11–L18**, 공통 마무리는 **L19(10분)**이며 실습 번호는 00–19로 이어집니다. 기본만 진행하면 L10에서 L19로, 심화를 선택하면 선택한 장을 마친 뒤 L19로 이동합니다. 읽기에는 로그인이 필요하지 않습니다.
 
 각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·오케스트레이션·권한·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L18의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
@@ -83,20 +82,18 @@ FFmpeg·시스템 음성과 선언된 Playwright가 설치된 macOS에서 `pytho
 ```bash
 python scripts/build_guide.py
 FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -q
-npm run guide:pdf
 python scripts/check_guide.py
 npm run guide:browser
-python scripts/check_pdf.py
 python scripts/package_guide.py
 ```
 
-같은 체크인 소스로 두 언어의 HTML/Markdown/PDF와 ZIP을 만듭니다. 로컬 검사 기록은 비공개 `results/documentation/`에 두고 패키지에 넣지 않습니다.
+같은 체크인 소스로 두 언어의 HTML/Markdown과 ZIP을 만듭니다. 로컬 검사 기록은 비공개 `results/documentation/`에 두고 패키지에 넣지 않습니다.
 이를 Azure 실행이나 모델 점수 향상 증거로 기록하지 않습니다.
 
 ## GitHub Pages
 
 Pages는 **`main` 브랜치의 루트(`/`)**를 게시합니다. `main`에 push하면 체크인된 HTML과 다운로드 파일이 자동 게시되며 별도의 게시 브랜치는 필요하지 않습니다.
-main 병합은 여전히 승인이 필요하며 이제 사이트 게시도 함께 발생합니다. 병합 전에 HTML/Markdown/PDF/ZIP을 다시 생성하고 확인합니다. Pages가 가이드 생성 스크립트를 대신 실행하지는 않습니다.
+main 병합은 여전히 승인이 필요하며 이제 사이트 게시도 함께 발생합니다. 병합 전에 HTML/Markdown/ZIP을 다시 생성하고 확인합니다. Pages가 가이드 생성 스크립트를 대신 실행하지는 않습니다.
 기존 자동 검사와 Pages 배포는 독립적으로 실행됩니다. **Pages는 자동 검사가 끝나기를 기다리지 않습니다.**
 `.nojekyll`을 유지하고 강제 push는 하지 않습니다. 브랜치 삭제·공개 범위 변경·Azure 작업은 명시적 승인이 필요합니다.
 배포 후 `python scripts/check_pages.py`로 공개 HTML·자산과 병합된 원본을 대조합니다.

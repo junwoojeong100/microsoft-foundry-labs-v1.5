@@ -100,6 +100,15 @@ def render_without_writing(language):
 
 
 class BilingualGuideTests(unittest.TestCase):
+    def test_reader_excludes_print_controls_and_pdf_links(self):
+        for language, edition in build_guide.RELEASE["languages"].items():
+            with self.subTest(language=language):
+                artifacts = render_without_writing(language)
+                parser = GuideParser()
+                parser.feed(artifacts[edition["html"]])
+                self.assertFalse({"print-one", "print-all"} & set(parser.ids))
+                self.assertFalse(any(urlparse(link).path.lower().endswith(".pdf") for link in parser.links))
+
     def test_release_metadata_pins_each_language_without_changing_artifact_identity(self):
         release = build_guide.RELEASE
         self.assertEqual(release["edition"], "2026-09-30")
@@ -107,15 +116,15 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["default_language"], "en")
         self.assertEqual(release["pages_branch"], "main")
         expected = {
-            "en": ("index.html", "downloads/GUIDE.en.md", "downloads/" + release["artifact"] + ".en.pdf",
+            "en": ("index.html", "downloads/GUIDE.en.md",
                    "portal-screenshots.en.json", 16, "data/en/receipt.html"),
-            "ko": ("index.ko.html", "downloads/GUIDE.ko.md", "downloads/" + release["artifact"] + ".pdf",
+            "ko": ("index.ko.html", "downloads/GUIDE.ko.md",
                    "portal-screenshots.json", 15, "data/receipt.html"),
         }
         for language, values in expected.items():
             edition = release["languages"][language]
             self.assertEqual(tuple(edition[key] for key in (
-                "html", "markdown", "pdf", "portal_manifest", "portal_screenshots",
+                "html", "markdown", "portal_manifest", "portal_screenshots",
                 "receipt_html",
             )), values)
         self.assertEqual(release["archive"], "downloads/" + release["artifact"] + ".zip")
@@ -172,8 +181,6 @@ class BilingualGuideTests(unittest.TestCase):
                 )[1]
                 self.assertEqual(label, name)
                 self.assertNotIn(build_guide.RELEASE["edition"], topbar)
-                cover = re.search(r'<section class="print-cover"[^>]*>(.*?)</section>', html, re.S)[1]
-                self.assertIn(build_guide.RELEASE["edition"], cover)
                 self.assertIn(
                     build_guide.RELEASE["edition"],
                     artifacts[Path(edition["markdown"]).name].split("## ", 1)[0],
@@ -193,8 +200,6 @@ class BilingualGuideTests(unittest.TestCase):
                 self.assertEqual(re.findall(r'data-complete="([^"]+)"', html), lab_ids)
                 hero = re.search(r'<div class="hero-stats">(.*?)\n', html)[1]
                 self.assertEqual(re.findall(r"<strong>(\d+)</strong>", hero), ["11", "8", "1"])
-                cover = re.search(r'<section class="print-cover"[^>]*>(.*?)</section>', html, re.S)[1]
-                self.assertIn(labels["cover_edition"].format(count=len(lab_ids)), cover)
                 self.assertIn(
                     labels["book_intro"].format(count=len(lab_ids)),
                     artifacts[Path(edition["markdown"]).name],
@@ -390,10 +395,9 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(set(labels["en"]["js"]), set(labels["ko"]["js"]))
         self.assertFalse(re.search(r"[가-힣]", json.dumps(labels["en"], ensure_ascii=False)))
         self.assertNotIn("Korean fixture", json.dumps(labels["en"]))
-        for language, edition in build_guide.RELEASE["languages"].items():
-            for key in ("cover_boundary", "book_boundary"):
-                self.assertNotIn("{validation}", labels[language][key])
-                self.assertNotIn("validation/current", labels[language][key])
+        for language in build_guide.RELEASE["languages"]:
+            self.assertNotIn("{validation}", labels[language]["book_boundary"])
+            self.assertNotIn("validation/current", labels[language]["book_boundary"])
         for original, translated in zip(*[
             build_guide.load_content(language)[0] for language in ("ko", "en")
         ], strict=True):
@@ -510,15 +514,12 @@ class BilingualGuideArtifactTests(unittest.TestCase):
             self.assertEqual(parser.language, language)
             self.assertFalse(parser.remote_assets)
             self.assertIn(edition["markdown"], parser.links)
-            self.assertIn(edition["pdf"], parser.links)
-            for section in (
-                re.search(r'<footer class="site-footer">(.*?)</footer>', html, re.S)[1],
-                re.search(r'<section class="print-cover"[^>]*>(.*?)</section>', html, re.S)[1],
-            ):
-                links = GuideParser()
-                links.feed(section)
-                self.assertFalse(any(link.startswith(("validation/", "results/")) for link in links.links))
-                self.assertIn(edition["receipt_html"], links.links)
+            self.assertFalse(any(urlparse(link).path.lower().endswith(".pdf") for link in parser.links))
+            footer = re.search(r'<footer class="site-footer">(.*?)</footer>', html, re.S)[1]
+            links = GuideParser()
+            links.feed(footer)
+            self.assertFalse(any(link.startswith(("validation/", "results/")) for link in links.links))
+            self.assertIn(edition["receipt_html"], links.links)
         for relative in ("index.ko.html", "data/receipt.html", "data/en/receipt.html"):
             self.assertIn(release["site_url"] + relative, readme)
         self.assertIn(release["site_url"], readme)
