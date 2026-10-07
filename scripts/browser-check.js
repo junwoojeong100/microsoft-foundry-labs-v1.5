@@ -71,7 +71,7 @@ async (page) => {
     await page.waitForLoadState("networkidle");
     check(JSON.stringify(await page.locator("article.chapter").evaluateAll(nodes => nodes.map(node => node.id))) === JSON.stringify(chapters.map(chapter => chapter.id)), "generated articles exactly match curriculum order");
     check(JSON.stringify(await page.locator('.chapter-link:not([data-track="reference"]) .nav-number').allTextContents()) === JSON.stringify(expectedNumbers),
-      "full navigation displays the same continuous order as the reader and print contents");
+      "full navigation displays the same continuous order as the reader");
     check(await page.locator('.chapter[data-track="advanced"] .learning-badge').count() === advancedCount, "all advanced modules show execution dependency labels");
     check(await page.locator('#l14 .learning-badge').innerText() === (english ? "Prerequisites required" : "선행 실습 필요"), "Hosted prerequisite is explicit");
     check(await page.locator('#l16 .learning-badge').innerText() === (english ? "Independent elective" : "독립 선택"), "Memory is marked independently selectable");
@@ -154,14 +154,13 @@ async (page) => {
     check(await page.locator('a[href^="validation/"], a[href^="results/"]').count() === 0, "execution records remain outside the guide");
     for (const path of [edition.receipt_html]) {
       check(await page.locator(`.site-footer a[href="${path}"]`).count() === 1, `footer uses localized link: ${path}`);
-      check(await page.locator(`.print-cover a[href="${path}"]`).count() === 1, `print cover uses localized link: ${path}`);
       const response = await page.request.get(`${origin}/${path}`);
       check(response.ok(), `localized receipt/evidence file is available: ${path}`);
       if (path === edition.receipt_html) {
         check((await response.text()).includes(`<html lang="${edition.language}">`), "synthetic receipt matches the reader language");
       }
     }
-    for (const path of [edition.readme, edition.markdown, edition.pdf, page.contosoGuideRelease.archive]) {
+    for (const path of [edition.readme, edition.markdown, page.contosoGuideRelease.archive]) {
       const response = await page.request.get(`${origin}/${path}`);
       check(response.ok(), `download is available: ${path}`);
     }
@@ -174,6 +173,10 @@ async (page) => {
     check(await page.locator(".topbar .edition").innerText() ===
       (english ? "Contoso Purchasing Agent" : "Contoso 구매 에이전트"),
       "topbar shows the localized agent name without the edition date");
+    check(await page.locator("#print-one, #print-all").count() === 0, "reader omits print controls");
+    check(await page.locator("a[href]").evaluateAll(nodes =>
+      nodes.every(node => !new URL(node.href).pathname.toLowerCase().endsWith(".pdf"))
+    ), "reader omits PDF downloads");
     check(await page.locator('script[src^="http"],link[rel="stylesheet"][href^="http"]').count() === 0, "no remote runtime dependencies");
     check(await page.locator('.language-switch a[aria-current="true"]').getAttribute("lang") === edition.language, "current language is accessible");
     const rootResponse = await page.request.get(`${origin}/`);
@@ -211,10 +214,6 @@ async (page) => {
     }
     check(await page.locator("#l08").innerText().then(text => text.includes("compound-request-no-tools")),
       "the default reading path identifies the fixed question without inventing a score");
-    await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
-    check(await page.locator("details").evaluateAll(nodes => nodes.every(node => node.open)), "printing includes every optional and reference section");
-    await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
-    check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "printing restores the learner's collapsed sections");
 
     for (const id of ["l02", "l04", "l05", "l22"]) {
       await page.goto(`${entry}#${id}`);
@@ -226,9 +225,6 @@ async (page) => {
     check(await page.locator("#l03 code.language-bash").first().isVisible(), "first-response execution commands remain visible");
     await implementation.locator("summary").click();
     check(await implementation.locator("code.language-python").isVisible(), "learners can expand the real SDK implementation");
-    await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
-    await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
-    check(await implementation.evaluate(node => node.open), "printing restores an implementation reference that was already open");
     await implementation.locator("summary").click();
     await page.goto(`${entry}#l08`);
     check(await page.locator("#l08 code.language-bash").evaluateAll(nodes =>
@@ -482,21 +478,6 @@ async (page) => {
     }
     await page.goto(`${entry}#coverage`);
     check(await page.locator("#coverage tbody tr").count() === 72, "68 coverage rows plus 4 depth definitions");
-    await page.goto(`${entry}#l05`);
-    await page.emulateMedia({media: "print"});
-    await page.evaluate(() => { document.body.dataset.print = "one"; });
-    check(await page.locator(".chapter:visible").count() === 1, "single-module print");
-    await page.evaluate(() => { document.body.dataset.print = "all"; });
-    check(await page.locator(".chapter:visible").count() === chapters.length, "complete-book print");
-    const printFonts = await page.evaluate(() => ({
-      prose: parseFloat(getComputedStyle(document.querySelector("#l05 .prose")).fontSize),
-      code: parseFloat(getComputedStyle(document.querySelector("#l05 pre code")).fontSize),
-    }));
-    check(printFonts.prose >= 14.66, "PDF body text >= 11pt");
-    check(printFonts.code >= 12, "PDF code text >= 9pt");
-    check(await page.locator(".code-label:visible").count() > 0, "printed code blocks retain their input-destination labels");
-    await page.emulateMedia({media: null});
-    await page.evaluate(() => { delete document.body.dataset.print; });
     await page.goto(`${entry}#%E0%A4%A`);
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "malformed hash has a safe fallback");
 
@@ -516,7 +497,6 @@ async (page) => {
     check(remoteRequests.length === 0, "no remote browser network requests");
     return {status: "passed", language: edition.language, checks: checks.length, widths, assertions: checks, errors, failedRequests, remoteRequests, azure_calls: 0};
   } finally {
-    await page.emulateMedia({media: null});
     await page.goto(`${entry}#l00`);
     await page.evaluate(saved => {
       if (saved === null) localStorage.removeItem("foundry-lab-guide-20260929");

@@ -361,10 +361,6 @@ def build_language(language):
         f'<link rel="alternate" hreflang="{code}" href="{RELEASE["site_url"]}{other["html"]}">'
         for code, other in RELEASE["languages"].items()
     )
-    print_toc = "".join(
-        f'<li><a href="#{c["id"]}"><span>{c["number"]}</span> {escape(c["title"])}</a></li>' for c in chapters
-    )
-    cover_boundary = ui["cover_boundary"]
     html = f"""<!doctype html>
 <html lang="{language}">
 <head>
@@ -390,8 +386,6 @@ def build_language(language):
     <span class="edition"><span aria-hidden="true"></span>{escape(ui['scenario_name'])}</span>
     <nav class="language-switch" aria-label="{ui['language']}">{''.join(language_links)}</nav>
     <button id="theme-toggle" class="icon-button" type="button" aria-label="{ui['js']['dark_aria']}">{ui['theme']}</button>
-    <button id="print-one" class="quiet-button" type="button">{ui['print_one']}</button>
-    <button id="print-all" class="quiet-button" type="button">{ui['print_all']}</button>
     <button id="menu-toggle" class="quiet-button mobile-only" type="button" aria-expanded="false" aria-controls="sidebar">{ui['menu']}</button>
   </div>
 </header>
@@ -421,19 +415,10 @@ def build_language(language):
     <div class="hero-orbit" aria-hidden="true"><span></span><i></i><b>f</b></div>
   </section>
   <div class="reader-note" id="reader-note"><span class="note-mark" aria-hidden="true">i</span><p>{ui['reader_note']}</p><a href="#sources">{ui['view_basis']}</a></div>
-  <section class="print-cover" aria-label="{ui['cover_aria']}">
-    <p class="eyebrow">MICROSOFT FOUNDRY / HANDS-ON GUIDE</p>
-    <h1>{ui['cover_title']}</h1>
-    <p>{ui['cover_description']}</p>
-    <p><strong>{RELEASE['edition']} {ui['cover_edition'].format(count=lab_count)}</strong><br>{ui['duration']}</p>
-    <p class="print-boundary">{cover_boundary}</p>
-    <h2>{ui['reading_order']}</h2><ol class="print-toc">{print_toc}</ol>
-    <p>{ui['kit_note']} {ui['web_guide']}: {edition['html']} / {ui['text_edition']}: {edition['markdown']} / <a href="{edition['receipt_html']}">{ui['receipt']}</a></p>
-  </section>
   <section id="search-results" class="search-results" aria-labelledby="search-title" hidden><h1 id="search-title">{ui['search_results']}</h1><p id="search-count" role="status" aria-live="polite"></p><div id="search-list"></div></section>
   <p id="storage-warning" class="storage-warning" role="status" hidden>{ui['storage_warning']}</p>
 {''.join(pages)}
-  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{edition['pdf']}">{ui['pdf']}</a><a href="{RELEASE['archive']}">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="#sources">{ui['sources']}</a></footer>
+  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{RELEASE['archive']}">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="#sources">{ui['sources']}</a></footer>
 </main>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>

@@ -73,7 +73,7 @@
 | `scripts/azure_environment.py` | L01에서 참여자가 직접 전용 환경·모델·역할·로그를 만들고 L11에서 Search를 추가합니다. 생성·변경에는 `--live`와 해당 권한·비용 범위가 필요합니다. |
 | `scripts/build_hosted.py`, `run_hosted_local.py`, `configure_hosted.py`, `runtime_roles.py` | Hosted Agent의 빌드·로컬 실행·구성·권한 설정입니다. 단순 Python 문법 실습이 아닙니다. |
 | `scripts/stop_sessions.py`, `operations_status.py`, `cost_status.py` | 기록된 세션 중지 또는 소유 환경의 상태·비용을 확인합니다. L19 안내를 따릅니다. |
-| `scripts/build_guide.py`, `check_guide.py`, `check_pdf.py`, `package_guide.py` | 가이드 원본의 생성·검사·패키징입니다. L18의 문서 자동화 참고이며 AI agent 배포나 Foundry 실행을 대신하지 않습니다. |
+| `scripts/build_guide.py`, `check_guide.py`, `package_guide.py` | 가이드 원본의 생성·검사·패키징입니다. L18의 문서 자동화 참고이며 AI agent 배포나 Foundry 실행을 대신하지 않습니다. |
 
 ## 공통 지원 코드와 계약
 

@@ -18,9 +18,6 @@
   let lastLabId = "l00";
   let state = {done: [], theme: "light", path: "core"};
   let toastTimer;
-  let printDetails = [];
-  let printLinks = [];
-  let printPrepared = false;
 
   function notify(message) {
     const toast = document.getElementById("toast");
@@ -218,32 +215,6 @@
     });
   }
 
-  function preparePrint(mode) {
-    if (printPrepared) return;
-    printPrepared = true;
-    document.body.dataset.print = mode;
-    printDetails = [...document.querySelectorAll("details")].map(node => [node, node.open]);
-    printDetails.forEach(([node]) => { node.open = true; });
-    printLinks = [...document.querySelectorAll('a[href]')]
-      .map(node => [node, node.getAttribute("href")])
-      .filter(([, href]) => !/^(https?:|#)/.test(href) || pageMap.has(href.slice(1)));
-    printLinks.forEach(([node, href]) => {
-      if (href.startsWith("#") && pageMap.has(href.slice(1))) node.setAttribute("href", `${href}-title`);
-      else node.removeAttribute("href");
-    });
-    document.getElementById(activeId).classList.add("active");
-  }
-
-  function restorePrint() {
-    printDetails.forEach(([node, open]) => { node.open = open; });
-    printDetails = [];
-    printLinks.forEach(([node, href]) => node.setAttribute("href", href));
-    printLinks = [];
-    printPrepared = false;
-    delete document.body.dataset.print;
-    if (search.value.trim()) runSearch();
-  }
-
   document.querySelectorAll("pre > code").forEach(code => {
     const pre = code.parentElement;
     const label = document.createElement("span");
@@ -358,10 +329,6 @@
   }));
   window.matchMedia("(max-width: 850px)").addEventListener("change", event => { if (!event.matches) closeMenu(); });
   window.addEventListener("hashchange", () => showPage(true));
-  document.getElementById("print-one").addEventListener("click", () => { preparePrint("one"); window.print(); });
-  document.getElementById("print-all").addEventListener("click", () => { preparePrint("all"); window.print(); });
-  window.addEventListener("beforeprint", () => preparePrint(document.body.dataset.print || "one"));
-  window.addEventListener("afterprint", restorePrint);
   document.documentElement.classList.add("js");
   setTheme();
   progress();

@@ -73,7 +73,7 @@
 | `scripts/azure_environment.py` | You create your dedicated environment/models/roles/telemetry in L01 and Search in L11. Creation/changes require `--live`, scoped permissions, and cost approval. |
 | `scripts/build_hosted.py`, `run_hosted_local.py`, `configure_hosted.py`, `runtime_roles.py` | Build, run, configure, and set permissions for a Hosted Agent. These are not Python syntax exercises. |
 | `scripts/stop_sessions.py`, `operations_status.py`, `cost_status.py` | Stop recorded sessions or inspect the owned environment and its costs. Follow L19. |
-| `scripts/build_guide.py`, `check_guide.py`, `check_pdf.py`, `package_guide.py` | Guide source generation/validation/packaging, referenced in L18; not AI agent deployment or live Foundry execution. |
+| `scripts/build_guide.py`, `check_guide.py`, `package_guide.py` | Guide source generation/validation/packaging, referenced in L18; not AI agent deployment or live Foundry execution. |
 
 ## Shared support code and contracts
 

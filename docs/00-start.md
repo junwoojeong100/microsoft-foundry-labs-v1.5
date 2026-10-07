@@ -99,7 +99,7 @@
 | 환경 변수와 모델 이름 | [.env.example](../.env.example) — 개인 `.env`의 출발점 |
 | 배포할 서비스·진입점 | [azure.yaml](../azure.yaml) |
 | 인프라 정의 | [infra/main.bicep](../infra/main.bicep) |
-| 학습 문서의 원문 | [docs/00-start.md](../docs/00-start.md) — 수정 후 HTML/Markdown/PDF/ZIP 재생성 |
+| 학습 문서의 원문 | [docs/00-start.md](../docs/00-start.md) — 수정 후 HTML/Markdown/ZIP 재생성 |
 
 </details>
 

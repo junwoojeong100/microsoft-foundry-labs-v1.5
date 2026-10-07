@@ -54,7 +54,7 @@ def check():
     default = fetch(base)
     if default != (ROOT / RELEASE["languages"][RELEASE["default_language"]]["html"]).read_bytes():
         raise ValueError("The public site root does not serve the default English reader.")
-    assets = sorted(path for path in local_files if path not in html_files and not path.endswith((".pdf", ".zip")))
+    assets = sorted(path for path in local_files if path not in html_files and not path.endswith(".zip"))
     for relative in assets:
         path = (ROOT / relative).resolve()
         if not path.is_relative_to(ROOT) or not path.is_file():

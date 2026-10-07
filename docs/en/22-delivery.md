@@ -84,7 +84,7 @@ python scripts/check_guide.py
 
 Record success as **code/document checks passed** only. For import errors, inspect the virtual environment/requirements; for generated drift, inspect `docs/` and `content/`; for business assertions, inspect the relevant function/policy contract. Do not weaken assertions or evaluation criteria.
 
-For PDF/ZIP delivery, continue with the README build path. Artifacts under `downloads/` and the root web entry points are **separate from agent deployment artifacts**. Documentation generation supports this chapter; it is not CD evidence.
+For ZIP delivery, continue with the README build path. Artifacts under `downloads/` and the root web entry points are **separate from agent deployment artifacts**. Documentation generation supports this chapter; it is not CD evidence.
 
 </details>
 

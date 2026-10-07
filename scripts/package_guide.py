@@ -37,13 +37,13 @@ def main():
         ROOT / name for name in (
             ".nojekyll",
             ".env.example", ".gitignore", "requirements.txt",
-            "requirements-docs.txt", "requirements-advanced.txt", "requirements-local.txt", "requirements-qa.txt",
+            "requirements-docs.txt", "requirements-advanced.txt", "requirements-local.txt",
             "requirements-hosted.txt", "requirements-tools.txt", "requirements-live.lock.txt",
             "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
         )
     ]
     for edition in RELEASE["languages"].values():
-        files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "pdf", "receipt_html"))
+        files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "receipt_html"))
         files.append(ROOT / "content" / edition["portal_manifest"])
     directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "downloads/replay", ".github/workflows")
     for directory in {ROOT / name for name in directories}:
@@ -76,7 +76,7 @@ def main():
             check_package_path(name)
         essentials = [
             edition[key] for edition in RELEASE["languages"].values()
-            for key in ("readme", "html", "markdown", "pdf", "receipt_html")
+            for key in ("readme", "html", "markdown", "receipt_html")
         ]
         essentials += ["content/" + edition["portal_manifest"] for edition in RELEASE["languages"].values()]
         for essential in (*essentials, "samples/workshop.py", "data/evaluation/cases.jsonl"):

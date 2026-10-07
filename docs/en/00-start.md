@@ -100,7 +100,7 @@ Download and extract the complete workshop ZIP, then use **File → Open Folder*
 | Services and entry points to deploy | [azure.yaml](../../azure.yaml) |
 | Infrastructure definitions | [infra/main.bicep](../../infra/main.bicep) |
 | English synthetic inputs and unchanged business contracts | [data/en/profile-manifest.json](../../data/en/profile-manifest.json) |
-| Learner module sources | [docs/en/00-start.md](../../docs/en/00-start.md) in English and [docs/00-start.md](../../docs/00-start.md) in Korean — regenerate HTML/Markdown/PDF/ZIP after editing |
+| Learner module sources | [docs/en/00-start.md](../../docs/en/00-start.md) in English and [docs/00-start.md](../../docs/00-start.md) in Korean — regenerate HTML/Markdown/ZIP after editing |
 
 </details>
 
@@ -134,7 +134,7 @@ A `KEY=value` prefix passes an environment variable to **that command only** in 
 
 This guide is for **developers, architects, and technical professionals applying generative AI to business workflows**. You do not need coding experience for the portal observation steps, but you will use Python and a terminal to complete the full core course. Before copying an unfamiliar command, read its explanation and execution scope immediately below it.
 
-Keep all files in their original folder structure. Open `index.html` directly to use the web guide. This guide is bilingual: English is the default at `index.html`, Korean is available at `index.ko.html`, and the generated Markdown/PDF/ZIP downloads are grouped under `downloads/`. The language switch preserves your current module and progress, but **does not select the runtime's data language**.
+Keep all files in their original folder structure. Open `index.html` directly to use the web guide. This guide is bilingual: English is the default at `index.html`, Korean is available at `index.ko.html`, and the generated Markdown/ZIP downloads are grouped under `downloads/`. The language switch preserves your current module and progress, but **does not select the runtime's data language**.
 
 Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then use `data/en/` for English policies, prompts, inventory, evaluation, and tuning inputs; without the flag, the original Korean profile remains the default. SKU IDs, wire-contract names/statuses, KRW amounts, quantities, and quality gates remain unchanged. Hosted packages bind their selected language in `lab-profile.json`. Use a clean, separate checkout/worktree with its own `.env`, `.azure/`, and `results/`; never reuse or overwrite a Korean run's private configuration or receipts. You can read the guide and use local exercises offline. Azure labs and official-source links require internet access.
 
