@@ -18,7 +18,7 @@ Understand who is responsible for executing function calls. **The model proposes
 
 **What you will try:** Let the model request Python functions that read stock and calculate a draft.
 
-**What is it, and why does it matter?** Function calling lets the model request a function and its inputs. **The program validates and executes it.** Registering a function name in the portal does not run code on your PC.
+**What is it, and why does it matter?** Function calling lets the model request a function and its inputs. **The program validates and executes it.** Registering a function name in the portal does not run code in your lab environment.
 
 **How do you use it?** Check valid and invalid inputs locally first. If you run the Microsoft Azure integration, compare the answer's amounts with the actual function results.
 
@@ -26,7 +26,14 @@ Understand who is responsible for executing function calls. **The model proposes
 
 ## Prerequisites
 
-The local exercise requires only Python. Without a virtual environment, use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. Microsoft Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
+Use the Python environment prepared in L01's Codespace. Local functions need no Microsoft Azure account. Microsoft Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
+
+<details class="environment-option" markdown="1">
+<summary>Only for local functions on your PC without a virtual environment</summary>
+
+Use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. This alternative does not include Microsoft Azure integration.
+
+</details>
 
 ## Steps
 
@@ -108,7 +115,7 @@ JSON schema's `strict` and `additionalProperties: false` constrain function-argu
 
 #### Portal configuration and the Python function
 
-In the Microsoft Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code on your PC. The application's Python code must validate the arguments and call the function.
+In the Microsoft Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code in your lab environment. The application's Python code must validate the arguments and call the function.
 
 ```python
 def prepare_purchase_request(sku: str, quantity: int) -> dict:

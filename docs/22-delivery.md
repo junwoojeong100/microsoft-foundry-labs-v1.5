@@ -24,7 +24,7 @@
 
 **어떻게 사용하나요?** 세 실패를 재현하고 후보 선택 조건을 고칩니다. 기존 결과로 릴리스 명세·롤백 판단표를 작성합니다. 새 Hosted 배포는 필요 없습니다.
 
-**어디서 실행하나요?** 내 PC에서 진행합니다. **받은 소스의 `.github/workflows/`**에서 [로컬 검사](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/validate.yml)와 [별도 승인 실행](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/azure-validation.yml)의 조건을 읽습니다.
+**어디서 실행하나요?** Codespaces에서 진행합니다. **받은 소스의 `.github/workflows/`**에서 [로컬 검사](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/validate.yml)와 [별도 승인 실행](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/azure-validation.yml)의 조건을 읽습니다.
 
 ## 준비
 

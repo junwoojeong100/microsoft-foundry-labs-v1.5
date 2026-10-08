@@ -18,7 +18,7 @@ Function calling의 실행 책임을 이해합니다. **모델은 “어떤 함�
 
 **경험할 기능:** 모델의 요청에 따라 Python 함수로 재고를 읽고 초안을 계산합니다.
 
-**무엇이며 왜 중요한가요?** Function calling은 모델이 함수 이름과 입력값을 요청하는 방식입니다. **검사와 실행은 프로그램의 책임**입니다. 포털에 함수 이름을 등록하는 것만으로 내 PC의 코드가 실행되지는 않습니다.
+**무엇이며 왜 중요한가요?** Function calling은 모델이 함수 이름과 입력값을 요청하는 방식입니다. **검사와 실행은 프로그램의 책임**입니다. 포털에 함수 이름을 등록하는 것만으로 실습 환경의 코드가 실행되지는 않습니다.
 
 **어떻게 사용하나요?** 로컬 함수의 정상·실패 입력부터 확인합니다. 이후 Microsoft Azure 통합을 실행했다면 답변의 금액과 실제 함수 결과를 비교합니다.
 
@@ -26,7 +26,14 @@ Function calling의 실행 책임을 이해합니다. **모델은 “어떤 함�
 
 ## 준비
 
-로컬 실습은 Python만 필요합니다. 가상환경을 만들지 않았다면 아래 `python` 대신 L01의 `python3.13`(Windows는 `py -3.13`)을 사용합니다. Microsoft Azure 통합은 L01–L05의 환경·문서 이해가 필요하지만 **L04·L05의 선택 SDK 명령을 먼저 실행할 필요는 없습니다.** `samples/workshop.py`에는 주문·결제·메일 발송 함수가 없습니다.
+L01의 Codespaces에서 준비된 Python을 사용합니다. 로컬 함수 연습에는 Microsoft Azure 계정이 필요 없습니다. Microsoft Azure 통합은 L01–L05의 환경·문서 이해가 필요하지만 **L04·L05의 선택 SDK 명령을 먼저 실행할 필요는 없습니다.** `samples/workshop.py`에는 주문·결제·메일 발송 함수가 없습니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC에서 가상환경 없이 로컬 함수만 연습할 때</summary>
+
+아래 `python` 대신 L01에서 준비한 `python3.13`(Windows는 `py -3.13`)을 사용합니다. Microsoft Azure 통합은 이 대안에 포함되지 않습니다.
+
+</details>
 
 ## 실행
 
@@ -108,7 +115,7 @@ JSON schema의 `strict`와 `additionalProperties: false`는 함수 인수의 형
 
 #### 포털 설정과 실행할 Python 함수
 
-Microsoft Foundry 포털의 **Tools → Function**에는 이름·JSON schema를 등록합니다. 그 설정만으로 내 PC의 함수가 실행되는 것은 아닙니다. 애플리케이션의 Python 코드가 인수를 다시 검사하고 함수를 직접 호출합니다.
+Microsoft Foundry 포털의 **Tools → Function**에는 이름·JSON schema를 등록합니다. 그 설정만으로 실습 환경의 함수가 실행되는 것은 아닙니다. 애플리케이션의 Python 코드가 인수를 다시 검사하고 함수를 직접 호출합니다.
 
 ```python
 def prepare_purchase_request(sku: str, quantity: int) -> dict:

@@ -1,6 +1,6 @@
 [
   {"id":"l00","number":"00","title":"Microsoft Azure·Microsoft Foundry 처음 시작하기","summary":"구매 에이전트가 할 일을 이해하고 준비 상태에 맞는 경로를 고릅니다.","track":"core","minutes":10,"status":"플랫폼 개요","file":"docs/00-start.md","sources":["overview","capabilities","ga"]},
-  {"id":"l01","number":"01","title":"내 실습 환경 만들기 (Project·RBAC)","summary":"PC·구독·예산을 확인하고 전용 프로젝트·모델·로그와 필요한 scoped 역할을 직접 만듭니다.","track":"core","minutes":30,"status":"GA 중심","file":"docs/01-setup.md","sources":["setup","rbac","deployment-types","observability"]},
+  {"id":"l01","number":"01","title":"내 실습 환경 만들기 (Project·RBAC)","summary":"Codespaces의 준비된 터미널에서 구독·예산을 확인하고 전용 프로젝트·모델·로그와 필요한 scoped 역할을 직접 만듭니다.","track":"core","minutes":30,"status":"GA 중심","file":"docs/01-setup.md","sources":["setup","rbac","deployment-types","observability"]},
   {"id":"l02","number":"02","title":"내 모델 배포 연결하기 (Model Deployment)","summary":"직접 배포한 모델의 이름·버전·처리 범위·한도를 확인하고 코드 설정에 연결합니다.","track":"core","minutes":25,"status":"GA / 일부 Preview","file":"docs/02-models.md","sources":["models","deployment-types","router","ga"]},
   {"id":"l03","number":"03","title":"코드로 첫 답변 받기 (Responses API)","summary":"Responses API로 질문 한 번을 보내고 답변과 응답 ID를 확인합니다.","track":"core","minutes":20,"status":"GA","file":"docs/03-responses.md","sources":["sdk","responses","overview"]},
   {"id":"l04","number":"04","title":"역할을 정한 에이전트 만들기 (Prompt Agent)","summary":"Prompt Agent에 역할과 규칙을 정하고 같은 대화와 새 대화를 비교합니다.","track":"core","minutes":20,"status":"GA","file":"docs/04-agent.md","sources":["prompt","sdk"]},

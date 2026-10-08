@@ -79,8 +79,10 @@ class GuideAuthoringTests(unittest.TestCase):
         for directory in ("docs", "docs/en"):
             setup = (ROOT / directory / "01-setup.md").read_text()
             cleanup = (ROOT / directory / "12-cleanup.md").read_text()
-            route = re.search(r'<details class="optional-path codespaces-path" markdown="1">(.*?)</details>', setup, re.S)[1]
+            route_match = re.search(r'<section class="codespaces-path" markdown="1">(.*?)</section>', setup, re.S)
             with self.subTest(directory=directory):
+                self.assertIsNotNone(route_match, "Codespaces must be the primary, uncollapsed setup path.")
+                route = route_match[1]
                 self.assertIn('id="l01-codespaces"', route)
                 self.assertIn("#l01-sign-in", route)
                 self.assertIn('id="l01-sign-in"', setup)
@@ -90,6 +92,8 @@ class GuideAuthoringTests(unittest.TestCase):
                 for command in re.findall(r"^```bash\n(.*?)^```[^\S\n]*$", route, re.M | re.S):
                     self.assertNotIn("--live", command)
                     self.assertNotIn("az login", command)
+                self.assertIn('<details class="environment-option pc-setup" markdown="1">', setup)
+                self.assertIn('<details class="resume-setup" markdown="1">', setup)
 
     def test_primary_commands_separate_plans_from_live_execution(self):
         for directory in ("docs", "docs/en"):

@@ -18,9 +18,9 @@ Responses·Voice·Teams protocol을 검증한 것으로 표시하지 않습니�
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 내 PC에서 실행하던 에이전트 코드를 Microsoft Foundry 서버로 옮깁니다.
+**경험할 기능:** Codespaces에서 실행하던 에이전트 코드를 Microsoft Foundry 서버로 옮깁니다.
 
-**무엇이며 왜 중요한가요?** Hosted Agent는 직접 작성한 코드를 Microsoft Foundry에서 실행합니다. 내 PC의 터미널이 없어도 함수를 실행할 서버가 필요할 때 선택합니다. 코드·데이터·설정·통신 규약(protocol)을 함께 맞춰야 합니다.
+**무엇이며 왜 중요한가요?** Hosted Agent는 직접 작성한 코드를 Microsoft Foundry에서 실행합니다. 실습 터미널이 없어도 함수를 실행할 서버가 필요할 때 선택합니다. 코드·데이터·설정·통신 규약(protocol)을 함께 맞춰야 합니다.
 
 **어떻게 사용하나요?** 패키지 만들기 → 로컬 호출 → 승인된 배포 → 같은 버전 원격 호출 순서입니다. 기본 Invocations부터 진행하며 Optimizer용 Responses adapter는 선택입니다.
 
@@ -37,7 +37,7 @@ L11의 Search/index와 모델, Python **3.13**, azd **1.34.0**,
 | 지금 상태 | 진행할 단계 | 완료로 기록할 범위 |
 | --- | --- | --- |
 | Microsoft Azure 실행 승인 없음 | 전용 환경 준비 → 1단계 패키지 생성 | 패키징만. 서버 업무 호출·원격 배포는 미실행 |
-| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | 내 PC 서버의 실제 모델·검색 호출. Microsoft Azure Hosted 배포 성공은 아님 |
+| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | Codespaces 안의 서버가 실제 모델·검색을 호출. Microsoft Azure Hosted 배포 성공은 아님 |
 | 배포·역할 변경까지 별도 승인 있음 | 1 → 2 → 3 → 4 → 5단계 | 정확한 원격 버전의 응답과 세션 중지까지 확인 |
 
 먼저 같은 실습 폴더에 **L01의 `.env`·`results/azure-environment.json`과 L11의 `results/search.json`**이 있는지 확인합니다. 프로젝트 주소·언어·Search 대상이 서로 다르면 중단합니다. 다른 사람의 기록이나 화면의 버전 숫자를 복사하지 않습니다.
@@ -66,13 +66,18 @@ python scripts/check_sdk.py
 
 MAF 실습용 `.venv-advanced`는 별도입니다. 서로 다른 `azure-ai-projects` 제약을 단순 병합하지 않습니다.
 
-Windows는 L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, 이후 `.venv-live\Scripts\python.exe`로 실행합니다. 아래 `curl`은 Windows에서 `curl.exe`로 실행합니다. macOS/Linux의 `source` 명령은 PowerShell에 붙여넣지 않습니다.
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell에서 진행할 때만</summary>
+
+L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, 이후 `.venv-live\Scripts\python.exe`로 실행합니다. 아래 `curl`은 `curl.exe`로 바꿉니다. Bash의 `source` 명령은 PowerShell에 붙여넣지 않습니다. 환경 변수 문법은 [L00 명령 읽기](#l00)에서 확인합니다. Codespaces에서는 이 변경을 하지 않습니다.
+
+</details>
 
 <a id="l12-azd"></a>
 
-**azd가 없다면** [공식 Microsoft Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)에서 자기 OS의 승인된 설치 경로를 따르고 새 터미널을 엽니다. Microsoft Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다.
+**Codespaces에 azd가 없다면** [공식 Microsoft Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)의 승인된 **Linux 설치 경로**를 따르고 새 터미널을 엽니다. Microsoft Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다. PC 대안을 선택한 경우에만 해당 OS 안내를 따릅니다.
 
-azd는 Microsoft Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. 아래 macOS/Linux의 `KEY=value` 문법을 Windows에서 바꾸는 방법은 [L00 명령 읽기](#l00)에 있습니다.
+azd는 Microsoft Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. Codespaces에서는 아래 Bash 명령을 그대로 사용합니다.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version

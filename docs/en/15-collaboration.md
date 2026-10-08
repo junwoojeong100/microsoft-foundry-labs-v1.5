@@ -26,7 +26,14 @@
 
 ## Prerequisites
 
-Reuse [L13's setup](#l15): `.venv-advanced`, `.env`, **your own** `results/azure-environment.json`, and the chat **100,000 TPM / 60 RPM** check. L13's paid patterns are not prerequisites. Use `.venv-advanced\Scripts\python.exe` on Windows and keep the English profile selected.
+Reuse [L13's setup](#l15): `.venv-advanced`, `.env`, **your own** `results/azure-environment.json`, and the chat **100,000 TPM / 60 RPM** check. L13's paid patterns are not prerequisites. Keep the English profile selected.
+
+<details class="environment-option" markdown="1">
+<summary>Only when using Windows PowerShell on your PC</summary>
+
+Use `.venv-advanced\Scripts\python.exe`. In Codespaces, use the Bash commands below unchanged.
+
+</details>
 
 ### Choose your starting path
 

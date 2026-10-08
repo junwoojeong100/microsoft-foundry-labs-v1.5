@@ -23,16 +23,21 @@ and a Skill provides instructions for repeatable work.** A Skill is neither appr
 
 **How do you use it?** Read the local server's inventory response, then retrieve the same values through MCP. Distinguish a listed tool from an executed tool.
 
-**Where do you run it?** Use two terminals on your PC. The [HTTP server](../../samples/inventory_api.py), [OpenAPI](../../samples/inventory.openapi.json), [MCP server](../../samples/mcp_server.py), and [client](../../samples/toolbox_lab.py) are included. The [English Skill](../../data/en/skills/purchase-review/SKILL.md) belongs to the optional extension.
+**Where do you run it?** Use two terminals in the same Codespace. The [HTTP server](../../samples/inventory_api.py), [OpenAPI](../../samples/inventory.openapi.json), [MCP server](../../samples/mcp_server.py), and [client](../../samples/toolbox_lab.py) are included. The [English Skill](../../data/en/skills/purchase-review/SKILL.md) belongs to the optional extension.
 
 ## Prerequisites
 
-Install `requirements-tools.txt` in L01's Python virtual environment. If it does not exist, first follow L01's **virtual-environment creation steps**, without Microsoft Azure sign-in. Installation needs internet and an approved package repository, but **core steps 1–2 need no Microsoft Azure account**.
-**If you completed L01's Codespaces setup, these dependencies are already installed; skip the installation command below.** Open both terminals in that same Codespace. Here `127.0.0.1` means the Codespace, not your PC, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
+**Reuse L01's Codespace.** Core/MCP dependencies are already prepared; do not reinstall them. Core steps 1–2 need no Microsoft Azure account.
+Open both terminals in that same Codespace. Here `127.0.0.1` means the Codespace, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
 The cloud steps require Search from L11 and the Search Index Data Reader role for the project managed identity.
 **Only steps 1–2 below—local HTTP/OpenAPI and MCP—are required for the core course.**
 Cloud Toolbox/Skills in steps 3–4 are optional extensions after preparing the L11 resources.
 Core-course learners do not need to complete L11 first.
+
+<details class="environment-option" markdown="1">
+<summary>Only on your PC or when MCP packages are missing: manual installation</summary>
+
+First select L01's Python environment. If absent, follow [PC setup](#l01-pc). Installation needs internet and an approved package source, but no Microsoft Azure sign-in. Skip this in a successfully prepared Codespace.
 
 ```bash
 python -m pip install -r requirements-tools.txt
@@ -47,6 +52,8 @@ python -m pip install -r requirements-tools.txt
 | 1. `pip install -r requirements-tools.txt` | Adds MCP lab dependencies to the activated base virtual environment. `python -m pip` keeps the installer aligned with the current Python. | Downloads packages and changes the local environment only; no Microsoft Azure tools are invoked. |
 
 </div>
+
+</details>
 
 ## Steps
 
@@ -64,13 +71,18 @@ python samples/inventory_api.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `inventory_api.py` | Starts an HTTP server that reads synthetic inventory at `127.0.0.1:8766`. It is normal for the shell prompt not to return immediately. | Listens only on your computer. No Microsoft Azure cost. Stop it with Ctrl+C in this terminal when finished. |
+| 1. `inventory_api.py` | Starts an HTTP server that reads synthetic inventory at `127.0.0.1:8766`. It is normal for the shell prompt not to return immediately. | Listens only inside the same Codespace. No Microsoft Azure cost. Stop it with Ctrl+C in this terminal when finished. |
 
 </div>
 
 In a second terminal, change to the same English checkout, reselect `FOUNDRY_LAB_LANGUAGE=en` as in L01 and the appropriate Python environment, then run:
 
-**In Windows PowerShell, use `curl.exe` instead of `curl` below** to avoid the alias for a different PowerShell command.
+<details class="environment-option" markdown="1">
+<summary>Only for Windows PowerShell on your PC: avoid the curl alias</summary>
+
+Use `curl.exe` instead of `curl` below. Do not make this substitution in Codespaces.
+
+</details>
 
 Leave the first terminal's server running. If you are unsure about the second terminal, revisit [L01's new-terminal check](#l01-new-terminal).
 
@@ -98,7 +110,7 @@ Do not expose it publicly through a tunnel.
 
 Continue in the **second terminal**, not the one waiting for server requests. These commands start the MCP server separately; no third terminal is needed.
 
-**macOS/Linux:** Run one line at a time. The second line's approval error is intentional; compare it with the approved calls afterward.
+**Codespaces Bash terminal:** Run one line at a time. The second line's approval error is intentional; compare it with the approved calls afterward.
 
 ```bash
 python samples/toolbox_lab.py inspect --local
@@ -120,7 +132,10 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 </div>
 
-**Windows PowerShell:** Use this block **instead**. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token) preserves JSON quotes when passing arguments to a Windows executable. It is PowerShell syntax, not a Python option or an approval bypass. Keep each command on one line.
+<details class="environment-option" markdown="1">
+<summary>Only when running on your PC: macOS/Linux and Windows PowerShell commands</summary>
+
+Use the Bash block above on macOS/Linux. In **Windows PowerShell**, use this block **instead**. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token) preserves JSON quotes when passing arguments to a Windows executable. It is PowerShell syntax, not a Python option or an approval bypass. Keep each command on one line.
 
 ```powershell
 .\.venv\Scripts\python.exe samples/toolbox_lab.py inspect --local
@@ -141,6 +156,8 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 | 4. Approved draft function | Checks quantity 2 and the tool name together. | KRW 2,900,000, not ordered; no purchase approval. |
 
 </div>
+
+</details>
 
 A stdio child process runs the server and performs the actual initialize → tools/list → tools/call exchange.
 Check inventory 8, unit price KRW 1,450,000, draft total KRW 2,900,000, and `order_submitted=false`.
