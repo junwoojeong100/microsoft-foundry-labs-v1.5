@@ -82,6 +82,8 @@
 
 **처음에는 기본 11개(L00–L10)를 따라갑니다.** 심화 8개(L11–L18)는 선택이고, **마지막에는 공통 마무리 L19**를 진행합니다. 기본만 듣는다면 L10 다음에 L19로 바로 이동하며 심화를 모두 체크할 필요는 없습니다.
 
+**기본 실행 환경은 GitHub Codespaces입니다.** 브라우저의 준비된 터미널에서 시작합니다. 내 PC 설치와 OS별 명령은 필요할 때만 접힌 대안을 펼쳐 봅니다.
+
 ```text
 준비       L00 개요 → L01 내 환경 → L02 모델 확인
 만들기     L03 첫 답변 → L04 지시문 → L05 문서 → L06 함수 → L07 MCP
@@ -93,7 +95,7 @@
 | 지금 내 상황 | 바로 할 일 | 여기까지 되면 다음으로 |
 | --- | --- | --- |
 | Microsoft Azure 구독·필요 권한·비용 범위가 준비됨 | [L01에서 내 환경 생성](#l01) → L02 내 배포 확인 → L03 첫 호출 | 내가 만든 프로젝트에서 실제 답변과 응답 ID 확인 |
-| 계정·권한·비용 조건을 아직 갖추지 못함 | [L01 PC 준비](#l01-pc) → [로컬 검사](#l01-local) → L06 로컬 함수 → L07 로컬 MCP → L08 지침·질문 읽기 | 데이터 검사·290만 원 초안 계산·MCP 호출 확인. 실제 Microsoft Azure 실행은 미실행 |
+| Microsoft Azure 계정·권한·비용 조건을 아직 갖추지 못함 | [L01 Codespaces 준비·로컬 검사](#l01-codespaces) → L06 로컬 함수 → L07 로컬 MCP → L08 지침·질문 읽기 | 데이터 검사·290만 원 초안 계산·MCP 호출 확인. 실제 Microsoft Azure 실행은 미실행 |
 
 기본 경로는 **각자가 환경을 만들고 실습한 뒤 정리**하는 방식입니다. 두 번째 경로는 준비가 끝나기 전의 로컬 연습이며 Microsoft Foundry 실습 완주와는 구분합니다. 웹 목차의 **Microsoft Azure 없이**는 이런 로컬·읽기·설계 단계를 모아 줍니다.
 
@@ -125,7 +127,7 @@
 
 **어떻게 사용하나요?** 각 장에서 한 가지를 추가하고 결과를 확인합니다. 규정은 원문과, 재고·금액은 함수 결과와 대조합니다. 메뉴 이름을 모두 외울 필요는 없습니다.
 
-**어디서 실행하나요?** 이 웹페이지는 설명서입니다. 포털은 브라우저의 AI 작업 화면, 터미널은 선택한 실습 환경(내 PC 또는 Codespaces)의 명령 입력창입니다. **복사 버튼은 실행 버튼이 아닙니다.**
+**어디서 실행하나요?** 이 웹페이지는 설명서입니다. 포털은 브라우저의 AI 작업 화면, 기본 터미널은 **Codespaces 안의 명령 입력창**입니다. **복사 버튼은 실행 버튼이 아닙니다.**
 
 ### 실제 포털의 다섯 입구
 
@@ -137,7 +139,14 @@
 
 ### 소스코드와 명령을 읽는 방법
 
-PC 경로는 전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**에서 엽니다. [Codespaces 경로](#l01-codespaces)는 브라우저 VS Code에 저장소가 이미 열리므로 ZIP을 다시 받지 않습니다. `samples`, `data`, `requirements.txt`가 함께 보이는 폴더가 **실습 폴더(리포 루트)**입니다. 브라우저의 “페이지 소스 보기”는 실행 코드가 아니라 가이드 HTML만 보여 줍니다. Git 명령을 알아야 시작할 수 있는 것은 아닙니다.
+[L01의 Codespaces](#l01-codespaces)를 열면 브라우저 VS Code에 저장소가 준비됩니다. ZIP을 받거나 Git 명령을 실행할 필요는 없습니다. `samples`, `data`, `requirements.txt`가 함께 보이는 폴더가 **실습 폴더(리포 루트)**입니다. 브라우저의 “페이지 소스 보기”는 실행 코드가 아니라 가이드 HTML만 보여 줍니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC를 사용할 때만: ZIP과 VS Code로 실습 폴더 열기</summary>
+
+전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**에서 엽니다. 파일 구조를 유지하고 [L01의 내 PC 준비](#l01-pc)를 따릅니다. 이 대안을 선택한 경우에만 이후 로컬 실행을 자기 PC에서 수행합니다.
+
+</details>
 
 <details markdown="1">
 <summary>참고: 원본 파일의 역할</summary>
@@ -170,16 +179,23 @@ PC 경로는 전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**
 
 **붙여넣을 곳을 먼저 확인하세요.** Bash/PowerShell 명령은 터미널, 질문은 본문이 지정한 포털 입력창, `.env` 값은 편집기의 `.env` 파일에 넣습니다. Python 코드 발췌와 JSON 결과 예시는 터미널에 붙여넣는 명령이 아닙니다. 여러 명령이 있는 블록은 한 줄씩 실행하고 결과를 읽은 뒤 다음 줄로 넘어갑니다.
 
-**이후 명령의 공통 규칙:** 항상 `samples`·`data`·`requirements.txt`가 함께 있는 **실습 폴더**에서 실행합니다. 기본 환경의 `python`은 Windows PowerShell에서 `.\.venv\Scripts\python.exe`로 바꿉니다. 예를 들어 `python samples/first_response.py`는 `.\.venv\Scripts\python.exe samples/first_response.py`입니다. 심화는 해당 장이 지정한 별도 Python을 사용합니다.
+**이후 명령의 공통 규칙:** Codespaces 터미널에서 `samples`·`data`·`requirements.txt`가 함께 있는 **실습 폴더**를 사용합니다. PC의 OS와 관계없이 Bash 명령을 그대로 실행합니다. 기본 `python`은 준비된 `.venv`, 심화는 해당 장이 지정한 별도 Python입니다.
 
-**Codespaces라면 PC의 OS와 관계없이 Linux/Bash 명령을 사용합니다.** 이후의 “로컬 실행”은 선택한 실습 환경 안에서 코드를 실행한다는 뜻입니다. 터미널 두 개·`127.0.0.1`도 같은 Codespace 안을 가리킵니다. “Microsoft Azure 호출 없음”은 GitHub Codespaces의 컴퓨트·저장 비용까지 없다는 뜻이 아닙니다.
+**“로컬 실행”은 기본적으로 Codespaces 안에서 코드를 실행한다는 뜻입니다.** 터미널 두 개·`127.0.0.1`도 같은 Codespace 안을 가리킵니다. “Microsoft Azure 호출 없음”은 GitHub Codespaces의 컴퓨트·저장 비용까지 없다는 뜻이 아닙니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell을 사용할 때만: 실행기 바꾸기</summary>
+
+기본 환경의 `python`을 `.\.venv\Scripts\python.exe`로 바꿉니다. 예를 들어 `python samples/first_response.py`는 `.\.venv\Scripts\python.exe samples/first_response.py`입니다. Codespaces에서는 PC가 Windows여도 이 변경을 하지 않습니다.
+
+</details>
 
 `--live`는 모든 CLI의 공통 안전장치가 아닙니다. `azd deploy`, `az login`, 일부 관리 스크립트는 이 옵션 없이도 동작하므로 반드시 해당 해설을 읽으세요. `--local`도 항상 “Microsoft Azure 비용 없음”을 뜻하지 않습니다. L12의 로컬 Hosted 서버는 실제 모델·검색을 호출할 수 있습니다. 브라우저 로그인과 터미널의 `az login`도 별도 세션입니다.
 
 <details markdown="1">
 <summary>심화 명령을 읽을 때: 환경 변수·여러 줄·azd</summary>
 
-명령 앞의 `KEY=value`는 macOS/Linux 셸에서 **그 명령에만** 환경 변수를 전달하는 문법입니다. PowerShell에서는 같은 의미의 `$env:KEY = "value"`로 현재 세션에 값을 설정한 뒤 명령 부분을 실행하며, 끝나면 이전 값으로 복원합니다. 줄 끝 `\`는 bash의 줄 이어쓰기이므로 PowerShell에 그대로 붙이지 말고 한 줄 명령으로 합칩니다. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill`은 제작 도구를 식별하는 값일 뿐, 학습자에게 Copilot skill 설치를 요구하지 않습니다.
+명령 앞의 `KEY=value`는 Codespaces의 Bash에서 **그 명령에만** 환경 변수를 전달하는 문법입니다. 내 PC의 PowerShell을 선택했다면 같은 의미의 `$env:KEY = "value"`로 현재 세션에 값을 설정한 뒤 명령 부분을 실행하며, 끝나면 이전 값으로 복원합니다. 줄 끝 `\`는 Bash의 줄 이어쓰기이므로 PowerShell에 그대로 붙이지 말고 한 줄 명령으로 합칩니다. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill`은 제작 도구를 식별하는 값일 뿐, 학습자에게 Copilot skill 설치를 요구하지 않습니다.
 
 </details>
 
@@ -288,7 +304,7 @@ PC 경로는 전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**
 
 **진행 방식:** 실행 환경 준비 → 로그인·권한 확인 → 전용 환경 생성 → 설정·로그 연결.
 
-**먼저 할 일:** 내 PC 또는 [GitHub Codespaces](#l01-codespaces) 중 실행할 환경 하나를 고르고, 사용할 Microsoft Azure 구독·지역·예산을 확인합니다.
+**먼저 할 일:** Microsoft Azure 구독·권한·예산을 확인한 뒤 [GitHub Codespaces](#l01-codespaces)를 열고 준비된 터미널에서 시작합니다.
 
 **확인할 결과:** `results/azure-environment.json`의 내 프로젝트와 포털의 자원이 일치합니다. 첫 모델 요청은 L03에서 보냅니다.
 
@@ -300,13 +316,13 @@ PC 경로는 전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**
 
 ## 개념과 실습 지도
 
-**경험할 기능:** Microsoft Foundry 프로젝트·모델·권한·로그와 로컬 Python 환경을 준비합니다.
+**경험할 기능:** Codespaces의 Python 환경을 확인하고 Microsoft Foundry 프로젝트·모델·권한·로그를 준비합니다.
 
 **무엇이며 왜 중요한가요?** 구독은 비용 범위, 리소스 그룹은 자원 묶음, 프로젝트는 에이전트 작업 공간입니다. 로그인은 신원, RBAC는 허용 작업, quota는 사용 가능한 용량입니다.
 
 **어떻게 사용하나요?** 전용 환경을 만들고 포털의 실제 이름·주소를 `.env`와 소유 기록에 대조합니다. 주소를 안다고 권한이 생기지는 않습니다.
 
-**어디서 실행하나요?** 선택한 환경(PC 또는 Codespaces)의 VS Code 터미널에서 명령을 실행하고 Microsoft Azure·Microsoft Foundry 포털에서 결과를 확인합니다. [환경 생성 코드](../scripts/azure_environment.py)와 [Bicep](../infra/main.bicep)이 실제 생성 범위를 정의합니다.
+**어디서 실행하나요?** 기본은 브라우저 VS Code의 **Codespaces 터미널**입니다. Microsoft Azure·Microsoft Foundry 포털에서 결과를 확인합니다. [환경 생성 코드](../scripts/azure_environment.py)와 [Bicep](../infra/main.bicep)이 실제 생성 범위를 정의합니다.
 
 ## 준비
 
@@ -317,20 +333,19 @@ PC 경로는 전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**
 | 역할 부여 권한 | 대상 범위의 `Microsoft.Authorization/roleAssignments/write`. `Contributor`만으로는 역할을 부여할 수 없음 |
 | quota 조회 권한 | 구독의 `Cognitive Services Usages Reader` 등 모델 사용량 조회 권한 |
 | 지역·예산 | 모델 지원 지역, 허용된 처리 범위, 지출 한도·중단 기준·보존 기한 |
-| 실행 환경 | 내 PC의 Python 3.13·Microsoft Azure CLI 2.86.0 기준·VS Code, 또는 아래 GitHub Codespaces 구성. 인터넷·허용된 패키지 저장소 필요 |
+| 기본 실행 환경 | 브라우저·GitHub 계정·저장소 접근·Codespaces 사용 허용과 비용 범위. Python 3.13·Microsoft Azure CLI·기본/MCP 패키지는 저장소 설정으로 준비 |
 
 자신의 구독이라도 실제 권한을 먼저 확인합니다. 조직 구독에서는 필요한 범위의 권한·비용 승인을 확보한 뒤 진행합니다. 권한이 없으면 해당 작업을 보류하며, 오류를 우회하려고 보안을 끄거나 구독 전체 권한을 확대하지 않습니다. 계정·권한 없이도 로컬 연습은 가능하지만 **Microsoft Foundry 실행 완료와는 별도**입니다.
 
-<a id="l01-pc"></a>
-
 ## 실행
 
-### 1. PC와 실습 파일 준비하기
+<a id="l01-1-pc와-실습-파일-준비하기"></a>
 
-**두 경로 중 하나만 선택합니다.** 이미 PC 도구가 있다면 아래 버전 확인을, 설치를 줄이고 싶다면 **GitHub Codespaces**를 사용합니다. Codespaces는 GitHub가 제공하는 원격 Linux 개발 환경이며 Microsoft Foundry 프로젝트 자체는 아닙니다.
+### 1. GitHub Codespaces에서 시작하기
 
-<details class="optional-path codespaces-path" markdown="1">
-<summary>설치 최소화: 브라우저에서 GitHub Codespaces로 시작하기</summary>
+**이 가이드의 기본 환경은 GitHub Codespaces입니다.** 내 PC에 Python·CLI·VS Code·Docker를 설치하지 않고 브라우저에서 실습합니다. Codespaces는 원격 Linux 개발 환경이며 Microsoft Foundry 프로젝트 자체는 아닙니다. 사용할 수 없는 경우에만 아래 **내 PC 대안**을 펼칩니다.
+
+<section class="codespaces-path" markdown="1">
 
 <a id="l01-codespaces"></a>
 
@@ -365,11 +380,11 @@ python samples/workshop.py validate-data
 
 </div>
 
-**다음:** 위 결과가 맞으면 PC 설치·가상환경 생성은 건너뛰고 **[2. 로그인·구독·권한·비용 확인](#l01-sign-in)**으로 갑니다. Microsoft Azure 준비가 없다면 [L06 로컬 함수](#l06)로 이동합니다. `.env`의 프로젝트 값은 자원을 만든 뒤 이 장의 5단계에서 채웁니다.
+**다음:** 위 결과가 맞으면 **[2. 로그인·구독·권한·비용 확인](#l01-sign-in)**으로 갑니다. 아래 접힌 대안·재개 안내는 지금 수행할 단계가 아닙니다. Microsoft Azure 준비가 없다면 [L06 로컬 함수](#l06)로 이동합니다. `.env`의 프로젝트 값은 자원을 만든 뒤 이 장의 5단계에서 채웁니다.
 
 | 막힌 곳 | 다음 행동 |
 | --- | --- |
-| Codespaces 메뉴 없음·생성 거절 | 저장소 접근·조직 허용·GitHub 사용량을 확인합니다. 허용되지 않으면 PC 경로를 사용합니다. |
+| Codespaces 메뉴 없음·생성 거절 | 저장소 접근·조직 허용·GitHub 사용량을 확인합니다. 허용되지 않으면 [내 PC 대안](#l01-pc)을 펼칩니다. |
 | `Lab tools ready.`가 안 나옴·패키지 설치 실패 | 생성 로그의 첫 오류와 승인된 패키지 접근을 확인합니다. 해결한 뒤 같은 터미널에서 `bash .devcontainer/post-create.sh`를 재실행할 수 있습니다. 기존 `.env`·소유 기록은 보존합니다. |
 | 실행기 경로가 다름 | 새 터미널을 열거나 `source .venv/bin/activate` 후 재확인합니다. Microsoft Azure 환경을 다시 만들지 않습니다. |
 
@@ -377,7 +392,14 @@ python samples/workshop.py validate-data
 
 [공식 생성 안내](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository) · [개발 컨테이너 구성](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
 
-</details>
+</section>
+
+<details class="environment-option pc-setup" markdown="1">
+<summary>다른 환경이 필요할 때만: 내 PC에서 준비하기 (Windows/macOS/Linux)</summary>
+
+<a id="l01-pc"></a>
+
+**Codespaces에서는 이 절을 실행하지 않습니다.** PC에서 진행하는 경우에만 실습 ZIP을 풀고 아래 도구·가상환경을 준비합니다. 준비가 끝나면 같은 2단계로 합류하며, 두 환경의 `.env`·소유 기록을 섞지 않습니다.
 
 **이미 설치했다면 설치 설명을 다시 따라 하지 않습니다.** 자기 OS의 버전 확인 → [실습 파일·가상환경](#l01-local) → [Python 선택](#l01-interpreter) 순으로 갑니다. 처음이라면 아래에서 **자기 OS의 절만** 따라 설치합니다. Microsoft Azure 계정이 없다면 PC·로컬 검사까지 진행하고 2단계 이후는 보류합니다.
 
@@ -653,13 +675,18 @@ Python 확장을 준비한 경우, 위에서 만든 `.venv`를 편집기의 실�
 3. 이 실습 폴더의 **Python 3.13 (`.venv`)**를 선택합니다. 목록에 없으면 **Enter interpreter path**로 macOS/Linux는 `.venv/bin/python`, Windows는 `.venv\Scripts\python.exe`를 직접 선택합니다.
 4. 창 아래 상태 표시줄에서 선택한 환경을 확인합니다. 편집기의 선택이 기존 터미널의 실행기를 바꿨다고 가정하지 말고, 아래 경로 검사도 수행합니다. Windows 터미널 명령은 계속 `.\.venv\Scripts\python.exe`를 사용합니다.
 
+</details>
+
+<details class="resume-setup" markdown="1">
+<summary>중단 후 재개하거나 새 터미널을 열었을 때만: Python 환경 다시 확인</summary>
+
 <a id="l01-new-terminal"></a>
 
 #### 새 터미널이나 다음 날 다시 시작하기
 
-VS Code에서 **같은 실습 폴더 → 터미널 → 새 터미널**을 엽니다. 가상환경을 다시 만들거나 패키지를 재설치하지 않습니다. L07의 두 터미널에서도 각각 아래의 **자기 OS 블록 하나만** 실행하세요.
+같은 Codespace의 VS Code에서 **같은 실습 폴더 → 터미널 → 새 터미널**을 엽니다. 가상환경을 다시 만들거나 패키지를 재설치하지 않습니다. L07의 두 터미널에서도 아래 Bash 명령으로 준비 상태를 확인할 수 있습니다.
 
-**macOS/Linux**
+**Codespaces 터미널**
 
 ```bash
 source .venv/bin/activate
@@ -677,7 +704,10 @@ python -c "import sys; print('Python', sys.version.split()[0]); print(sys.execut
 
 </div>
 
-**Windows PowerShell**
+<details class="environment-option" markdown="1">
+<summary>내 PC에서 재개할 때만: macOS/Linux 또는 Windows PowerShell</summary>
+
+macOS/Linux는 위 Bash 블록을 사용합니다. Windows PowerShell은 **대신** 다음을 실행합니다.
 
 ```powershell
 .\.venv\Scripts\python.exe -c "import sys; print('Python', sys.version.split()[0]); print(sys.executable)"
@@ -695,31 +725,17 @@ python -c "import sys; print('Python', sys.version.split()[0]); print(sys.execut
 
 이후 기본 명령의 `python`도 Windows에서는 `.\.venv\Scripts\python.exe`로 바꿉니다. 경로가 없으면 현재 폴더를 확인하고, 실제로 가상환경을 만들지 않은 경우에만 위 생성 단계로 돌아갑니다.
 
+</details>
+
 **기존 `.venv`가 3.12·3.14 등이라면 재사용하지 않습니다.** 기존 환경을 삭제하거나 덮어쓰지 말고, Python 3.13으로 `.venv-core313` 같은 새 이름의 환경을 준비합니다. 선택한 경우 이 가이드의 `.venv` 경로를 그 이름으로 일관되게 바꾸고 VS Code에서도 같은 실행기를 선택합니다. 가상환경 변경 때문에 기존 Microsoft Azure 환경이나 소유 기록을 다시 만들지는 않습니다.
+
+</details>
 
 <a id="l01-sign-in"></a>
 
 ### 2. 로그인·구독·권한·비용 확인하기
 
-**로그인 명령은 실행 환경에 맞는 하나만 선택합니다.** 포털 로그인이나 GitHub 로그인만으로 CLI에 로그인된 것은 아닙니다.
-
-**내 PC 터미널:**
-
-```bash
-az login
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `az login` | 내 PC의 CLI 인증을 시작합니다. | 비밀번호·MFA는 인증 화면에 직접 입력합니다. 자원 생성 없음. |
-
-</div>
-
-**GitHub Codespaces 터미널:** [device-code 로그인](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser)을 사용합니다.
+**Codespaces 터미널에서 로그인합니다.** 포털 로그인이나 GitHub 로그인만으로 CLI에 로그인된 것은 아닙니다. 아래 [device-code 로그인](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser)을 사용합니다.
 
 ```bash
 az login --use-device-code
@@ -737,7 +753,28 @@ az login --use-device-code
 
 조직 정책이 device-code 로그인을 막으면 허용된 실행·인증 경로를 확인합니다. MFA·Conditional Access를 끄거나 장기 secret으로 우회하지 않습니다.
 
-**두 경로 공통:** 로그인 후 아래를 한 줄씩 실행합니다. 목록에서 사용할 구독 ID를 찾은 뒤 자리표시자를 바꿉니다.
+<details class="environment-option" markdown="1">
+<summary>내 PC를 선택했을 때만: 로컬 브라우저로 로그인</summary>
+
+PC 터미널에서는 다음 명령을 대신 사용할 수 있습니다. 로그인 경로를 둘 다 실행할 필요는 없습니다.
+
+```bash
+az login
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 하는 일 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `az login` | 내 PC의 CLI 인증을 시작합니다. | 비밀번호·MFA는 인증 화면에 직접 입력합니다. 자원 생성 없음. |
+
+</div>
+
+</details>
+
+**로그인 후 구독 확인:** 아래를 한 줄씩 실행합니다. 목록에서 사용할 구독 ID를 찾은 뒤 자리표시자를 바꿉니다.
 
 ```bash
 az account list --query "[].{subscription:name,id:id,tenant:tenantId,state:state}" -o table
@@ -1889,7 +1926,7 @@ Function calling의 실행 책임을 이해합니다. **모델은 “어떤 함�
 
 **경험할 기능:** 모델의 요청에 따라 Python 함수로 재고를 읽고 초안을 계산합니다.
 
-**무엇이며 왜 중요한가요?** Function calling은 모델이 함수 이름과 입력값을 요청하는 방식입니다. **검사와 실행은 프로그램의 책임**입니다. 포털에 함수 이름을 등록하는 것만으로 내 PC의 코드가 실행되지는 않습니다.
+**무엇이며 왜 중요한가요?** Function calling은 모델이 함수 이름과 입력값을 요청하는 방식입니다. **검사와 실행은 프로그램의 책임**입니다. 포털에 함수 이름을 등록하는 것만으로 실습 환경의 코드가 실행되지는 않습니다.
 
 **어떻게 사용하나요?** 로컬 함수의 정상·실패 입력부터 확인합니다. 이후 Microsoft Azure 통합을 실행했다면 답변의 금액과 실제 함수 결과를 비교합니다.
 
@@ -1897,7 +1934,14 @@ Function calling의 실행 책임을 이해합니다. **모델은 “어떤 함�
 
 ## 준비
 
-로컬 실습은 Python만 필요합니다. 가상환경을 만들지 않았다면 아래 `python` 대신 L01의 `python3.13`(Windows는 `py -3.13`)을 사용합니다. Microsoft Azure 통합은 L01–L05의 환경·문서 이해가 필요하지만 **L04·L05의 선택 SDK 명령을 먼저 실행할 필요는 없습니다.** `samples/workshop.py`에는 주문·결제·메일 발송 함수가 없습니다.
+L01의 Codespaces에서 준비된 Python을 사용합니다. 로컬 함수 연습에는 Microsoft Azure 계정이 필요 없습니다. Microsoft Azure 통합은 L01–L05의 환경·문서 이해가 필요하지만 **L04·L05의 선택 SDK 명령을 먼저 실행할 필요는 없습니다.** `samples/workshop.py`에는 주문·결제·메일 발송 함수가 없습니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC에서 가상환경 없이 로컬 함수만 연습할 때</summary>
+
+아래 `python` 대신 L01에서 준비한 `python3.13`(Windows는 `py -3.13`)을 사용합니다. Microsoft Azure 통합은 이 대안에 포함되지 않습니다.
+
+</details>
 
 ## 실행
 
@@ -1979,7 +2023,7 @@ JSON schema의 `strict`와 `additionalProperties: false`는 함수 인수의 형
 
 #### 포털 설정과 실행할 Python 함수
 
-Microsoft Foundry 포털의 **Tools → Function**에는 이름·JSON schema를 등록합니다. 그 설정만으로 내 PC의 함수가 실행되는 것은 아닙니다. 애플리케이션의 Python 코드가 인수를 다시 검사하고 함수를 직접 호출합니다.
+Microsoft Foundry 포털의 **Tools → Function**에는 이름·JSON schema를 등록합니다. 그 설정만으로 실습 환경의 함수가 실행되는 것은 아닙니다. 애플리케이션의 Python 코드가 인수를 다시 검사하고 함수를 직접 호출합니다.
 
 ```python
 def prepare_purchase_request(sku: str, quantity: int) -> dict:
@@ -2198,16 +2242,21 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 
 **어떻게 사용하나요?** 로컬 서버의 재고 응답을 읽은 뒤 MCP로 같은 값을 조회합니다. 도구 목록에 있다는 것과 실제 호출됐다는 것을 구분합니다.
 
-**어디서 실행하나요?** 내 PC의 터미널 두 개를 사용합니다. [HTTP 서버](../samples/inventory_api.py)·[OpenAPI](../samples/inventory.openapi.json)·[MCP 서버](../samples/mcp_server.py)·[클라이언트](../samples/toolbox_lab.py)가 동봉되어 있습니다. [Skill](../data/skills/purchase-review/SKILL.md)은 선택 확장입니다.
+**어디서 실행하나요?** 같은 Codespace의 터미널 두 개를 사용합니다. [HTTP 서버](../samples/inventory_api.py)·[OpenAPI](../samples/inventory.openapi.json)·[MCP 서버](../samples/mcp_server.py)·[클라이언트](../samples/toolbox_lab.py)가 동봉되어 있습니다. [Skill](../data/skills/purchase-review/SKILL.md)은 선택 확장입니다.
 
 ## 준비
 
-L01의 Python 가상환경에 `requirements-tools.txt`를 설치합니다. 가상환경이 없다면 L01의 **가상환경 생성 단계**를 먼저 진행하되 Microsoft Azure 로그인은 하지 않아도 됩니다. 설치에는 인터넷과 승인된 패키지 저장소 접근이 필요하지만 **기본 1–2단계에는 Microsoft Azure 계정이 필요 없습니다.**
-**L01의 Codespaces 준비를 마쳤다면 이 의존성은 이미 설치되어 있으므로 아래 설치 명령을 생략합니다.** 두 터미널 모두 같은 Codespace 안에서 엽니다. 이때 `127.0.0.1`은 내 PC가 아니라 그 Codespace이므로 아래 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
+**L01의 Codespaces를 그대로 사용합니다.** 기본/MCP 의존성은 이미 준비되어 있으므로 다시 설치하지 않습니다. 기본 1–2단계에는 Microsoft Azure 계정이 필요 없습니다.
+두 터미널 모두 같은 Codespace 안에서 엽니다. `127.0.0.1`은 그 Codespace를 가리키므로 아래 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
 클라우드 단계는 L11의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
 **기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
 3–4단계의 클라우드 Toolbox/Skills는 L11 자원 준비 후 선택하는 확장입니다.
 기본 코스 학습자가 L11을 먼저 진행할 필요는 없습니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC를 쓰거나 MCP 패키지가 없을 때만: 수동 설치</summary>
+
+먼저 L01의 Python 가상환경을 선택합니다. 준비하지 않았다면 [내 PC 준비](#l01-pc)를 따릅니다. 다음 설치에는 인터넷과 승인된 패키지 저장소 접근이 필요하며 Microsoft Azure 로그인은 필요 없습니다. 정상 준비된 Codespaces에서는 생략합니다.
 
 ```bash
 python -m pip install -r requirements-tools.txt
@@ -2222,6 +2271,8 @@ python -m pip install -r requirements-tools.txt
 | 1. `pip install -r requirements-tools.txt` | 활성화한 기본 가상환경에 MCP 실습 의존성을 추가합니다. `python -m pip`는 현재 Python과 설치 대상을 일치시킵니다. | 패키지 다운로드·로컬 환경 변경만 수행하며 Microsoft Azure 도구를 호출하지 않습니다. |
 
 </div>
+
+</details>
 
 ## 실행
 
@@ -2239,11 +2290,18 @@ python samples/inventory_api.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `inventory_api.py` | 합성 재고를 읽는 HTTP 서버를 `127.0.0.1:8766`에 띄웁니다. 프롬프트가 바로 돌아오지 않는 것이 정상입니다. | 내 컴퓨터에서만 대기합니다. Microsoft Azure 비용 없음. 끝나면 이 터미널에서 Ctrl+C로 중지합니다. |
+| 1. `inventory_api.py` | 합성 재고를 읽는 HTTP 서버를 `127.0.0.1:8766`에 띄웁니다. 프롬프트가 바로 돌아오지 않는 것이 정상입니다. | 같은 Codespace 안에서만 대기합니다. Microsoft Azure 비용 없음. 끝나면 이 터미널에서 Ctrl+C로 중지합니다. |
 
 </div>
 
-두 번째 터미널에서 같은 실습 폴더를 열고 Python 환경을 다시 선택합니다. **Windows PowerShell에서는 아래 `curl` 대신 `curl.exe`를 사용**해 다른 PowerShell 명령과의 이름 충돌을 피합니다.
+같은 Codespace의 두 번째 터미널에서 같은 실습 폴더를 열고 Python 환경을 확인합니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell을 쓸 때만: curl 이름 충돌 피하기</summary>
+
+아래 `curl` 대신 `curl.exe`를 사용합니다. Codespaces에서는 변경하지 않습니다.
+
+</details>
 
 첫 터미널의 대기 화면은 그대로 두세요. 두 번째 터미널의 준비가 기억나지 않으면 [L01 새 터미널 확인](#l01-new-terminal)으로 돌아갑니다.
 
@@ -2271,7 +2329,7 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 
 서버가 대기 중인 첫 터미널이 아니라 **두 번째 터미널**에서 이어 실행합니다. 이 단계의 MCP 서버는 명령이 따로 시작하므로 서버 창을 하나 더 열 필요가 없습니다.
 
-**macOS/Linux:** 아래를 한 줄씩 실행합니다. 두 번째 줄의 승인 오류는 의도한 결과이며, 그 뒤 승인된 호출로 비교합니다.
+**Codespaces의 Bash 터미널:** 아래를 한 줄씩 실행합니다. 두 번째 줄의 승인 오류는 의도한 결과이며, 그 뒤 승인된 호출로 비교합니다.
 
 ```bash
 python samples/toolbox_lab.py inspect --local
@@ -2293,7 +2351,10 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 </div>
 
-**Windows PowerShell:** 위 블록 **대신** 다음을 한 줄씩 실행합니다. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token)는 Windows 실행기에 JSON의 따옴표를 그대로 전달하기 위한 PowerShell 문법입니다. Python 옵션이나 승인 생략 기능이 아닙니다.
+<details class="environment-option" markdown="1">
+<summary>내 PC에서 실행할 때만: macOS/Linux·Windows PowerShell 명령</summary>
+
+macOS/Linux는 위 Bash 블록을 그대로 사용합니다. **Windows PowerShell**은 위 블록 **대신** 다음을 한 줄씩 실행합니다. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token)는 Windows 실행기에 JSON의 따옴표를 그대로 전달하기 위한 PowerShell 문법입니다. Python 옵션이나 승인 생략 기능이 아닙니다.
 
 ```powershell
 .\.venv\Scripts\python.exe samples/toolbox_lab.py inspect --local
@@ -2314,6 +2375,8 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 | 4. 승인한 초안 함수 | 수량 2의 입력과 도구 이름을 함께 확인합니다. | 290만 원·미주문. 실제 구매 승인 없음. |
 
 </div>
+
+</details>
 
 stdio child process가 서버를 실행하고 initialize → tools/list → tools/call을 실제 교환합니다.
 재고 8개, 단가 1,450,000원, 초안 총액 2,900,000원과 `order_submitted=false`를 확인합니다.
@@ -3378,9 +3441,9 @@ Responses·Voice·Teams protocol을 검증한 것으로 표시하지 않습니�
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 내 PC에서 실행하던 에이전트 코드를 Microsoft Foundry 서버로 옮깁니다.
+**경험할 기능:** Codespaces에서 실행하던 에이전트 코드를 Microsoft Foundry 서버로 옮깁니다.
 
-**무엇이며 왜 중요한가요?** Hosted Agent는 직접 작성한 코드를 Microsoft Foundry에서 실행합니다. 내 PC의 터미널이 없어도 함수를 실행할 서버가 필요할 때 선택합니다. 코드·데이터·설정·통신 규약(protocol)을 함께 맞춰야 합니다.
+**무엇이며 왜 중요한가요?** Hosted Agent는 직접 작성한 코드를 Microsoft Foundry에서 실행합니다. 실습 터미널이 없어도 함수를 실행할 서버가 필요할 때 선택합니다. 코드·데이터·설정·통신 규약(protocol)을 함께 맞춰야 합니다.
 
 **어떻게 사용하나요?** 패키지 만들기 → 로컬 호출 → 승인된 배포 → 같은 버전 원격 호출 순서입니다. 기본 Invocations부터 진행하며 Optimizer용 Responses adapter는 선택입니다.
 
@@ -3397,7 +3460,7 @@ L11의 Search/index와 모델, Python **3.13**, azd **1.34.0**,
 | 지금 상태 | 진행할 단계 | 완료로 기록할 범위 |
 | --- | --- | --- |
 | Microsoft Azure 실행 승인 없음 | 전용 환경 준비 → 1단계 패키지 생성 | 패키징만. 서버 업무 호출·원격 배포는 미실행 |
-| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | 내 PC 서버의 실제 모델·검색 호출. Microsoft Azure Hosted 배포 성공은 아님 |
+| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | Codespaces 안의 서버가 실제 모델·검색을 호출. Microsoft Azure Hosted 배포 성공은 아님 |
 | 배포·역할 변경까지 별도 승인 있음 | 1 → 2 → 3 → 4 → 5단계 | 정확한 원격 버전의 응답과 세션 중지까지 확인 |
 
 먼저 같은 실습 폴더에 **L01의 `.env`·`results/azure-environment.json`과 L11의 `results/search.json`**이 있는지 확인합니다. 프로젝트 주소·언어·Search 대상이 서로 다르면 중단합니다. 다른 사람의 기록이나 화면의 버전 숫자를 복사하지 않습니다.
@@ -3426,13 +3489,18 @@ python scripts/check_sdk.py
 
 MAF 실습용 `.venv-advanced`는 별도입니다. 서로 다른 `azure-ai-projects` 제약을 단순 병합하지 않습니다.
 
-Windows는 L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, 이후 `.venv-live\Scripts\python.exe`로 실행합니다. 아래 `curl`은 Windows에서 `curl.exe`로 실행합니다. macOS/Linux의 `source` 명령은 PowerShell에 붙여넣지 않습니다.
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell에서 진행할 때만</summary>
+
+L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, 이후 `.venv-live\Scripts\python.exe`로 실행합니다. 아래 `curl`은 `curl.exe`로 바꿉니다. Bash의 `source` 명령은 PowerShell에 붙여넣지 않습니다. 환경 변수 문법은 [L00 명령 읽기](#l00)에서 확인합니다. Codespaces에서는 이 변경을 하지 않습니다.
+
+</details>
 
 <a id="l12-azd"></a>
 
-**azd가 없다면** [공식 Microsoft Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)에서 자기 OS의 승인된 설치 경로를 따르고 새 터미널을 엽니다. Microsoft Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다.
+**Codespaces에 azd가 없다면** [공식 Microsoft Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)의 승인된 **Linux 설치 경로**를 따르고 새 터미널을 엽니다. Microsoft Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다. PC 대안을 선택한 경우에만 해당 OS 안내를 따릅니다.
 
-azd는 Microsoft Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. 아래 macOS/Linux의 `KEY=value` 문법을 Windows에서 바꾸는 방법은 [L00 명령 읽기](#l00)에 있습니다.
+azd는 Microsoft Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. Codespaces에서는 아래 Bash 명령을 그대로 사용합니다.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
@@ -3792,7 +3860,14 @@ python3.13 -m venv .venv-advanced
 
 </div>
 
-Windows에서는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 기존 심화 환경이 다른 Python 버전이면 새 폴더에 환경을 만듭니다.
+기존 심화 환경이 다른 Python 버전이면 새 폴더에 환경을 만듭니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell에서 진행할 때만</summary>
+
+환경 생성에는 `py -3.13`, 이후 실행에는 `.venv-advanced\Scripts\python.exe`를 사용합니다. Codespaces에서는 위 Bash 명령을 그대로 사용합니다.
+
+</details>
 
 ### 2. 모델 처리량 확인하기
 
@@ -4018,7 +4093,14 @@ concurrent = ConcurrentBuilder(
 
 ## 준비
 
-[L13 환경 준비](#l15)의 `.venv-advanced`, `.env`, **내 소유 기록** `results/azure-environment.json`, chat 배포의 **100,000 TPM / 60 RPM** 확인을 재사용합니다. L13의 유료 패턴 실행은 선행 조건이 아닙니다. Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다.
+[L13 환경 준비](#l15)의 `.venv-advanced`, `.env`, **내 소유 기록** `results/azure-environment.json`, chat 배포의 **100,000 TPM / 60 RPM** 확인을 재사용합니다. L13의 유료 패턴 실행은 선행 조건이 아닙니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell에서 진행할 때만</summary>
+
+`.venv-advanced\Scripts\python.exe`를 사용합니다. Codespaces에서는 아래 Bash 명령을 그대로 사용합니다.
+
+</details>
 
 ### 먼저 경로 정하기
 
@@ -4713,7 +4795,7 @@ Hosted를 대상으로 사용했다면 agent session compute도 별도로 stop�
 
 **어떻게 사용하나요?** 로컬 결함 과제를 고친 뒤 각 단계의 주체·허용 작업·거절 조건을 적습니다. 실제 권한이나 네트워크를 바꾸는 과제가 아닙니다.
 
-**어디서 실행하나요?** 기본은 내 PC의 Python과 설계표입니다. [인프라](../infra/main.bicep)·[역할 설정 코드](../scripts/runtime_roles.py)는 읽을 참고 자료이며 실행하지 않습니다.
+**어디서 실행하나요?** 기본은 Codespaces의 Python과 설계표입니다. [인프라](../infra/main.bicep)·[역할 설정 코드](../scripts/runtime_roles.py)는 읽을 참고 자료이며 실행하지 않습니다.
 
 ## 준비
 
@@ -4735,7 +4817,7 @@ Hosted를 대상으로 사용했다면 agent session compute도 별도로 stop�
 
 <div class="practice-block" markdown="1">
 
-**직접 해보기:** 아래 과제는 내 PC의 합성 문자열만 사용합니다. A는 제한 견적을 볼 수 있고 B는 볼 수 없습니다. 공용 정책은 둘 다 볼 수 있습니다. Microsoft Azure 역할·실제 문서 ACL을 바꾸는 과제가 아닙니다.
+**직접 해보기:** 아래 과제는 실습 환경의 합성 문자열만 사용합니다. A는 제한 견적을 볼 수 있고 B는 볼 수 없습니다. 공용 정책은 둘 다 볼 수 있습니다. Microsoft Azure 역할·실제 문서 ACL을 바꾸는 과제가 아닙니다.
 
 ```bash
 python samples/prepare_practice.py governance --output practice/governance
@@ -4960,7 +5042,7 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 **어떻게 사용하나요?** 세 실패를 재현하고 후보 선택 조건을 고칩니다. 기존 결과로 릴리스 명세·롤백 판단표를 작성합니다. 새 Hosted 배포는 필요 없습니다.
 
-**어디서 실행하나요?** 내 PC에서 진행합니다. **받은 소스의 `.github/workflows/`**에서 [로컬 검사](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/validate.yml)와 [별도 승인 실행](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/azure-validation.yml)의 조건을 읽습니다.
+**어디서 실행하나요?** Codespaces에서 진행합니다. **받은 소스의 `.github/workflows/`**에서 [로컬 검사](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/validate.yml)와 [별도 승인 실행](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/main/.github/workflows/azure-validation.yml)의 조건을 읽습니다.
 
 ## 준비
 

@@ -22,7 +22,7 @@
 
 **How do you use it?** Repair the local exercise, then record each step's caller, allowed operations, and rejection conditions. This does not change actual permissions or networks.
 
-**Where do you run it?** Start with Python on your PC and a design table. The [infrastructure](../../infra/main.bicep) and [role setup](../../scripts/runtime_roles.py) are references to read, not execute.
+**Where do you run it?** Start with Python in Codespaces and a design table. The [infrastructure](../../infra/main.bicep) and [role setup](../../scripts/runtime_roles.py) are references to read, not execute.
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ Edit only `practice/governance/exercise.py`. Keep `test_exercise.py`, allowed us
 
 <div class="practice-block" markdown="1">
 
-**Try it:** This exercise uses only synthetic strings on your PC. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Microsoft Azure roles nor real document ACLs.
+**Try it:** This exercise uses only synthetic strings in your lab environment. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Microsoft Azure roles nor real document ACLs.
 
 ```bash
 python samples/prepare_practice.py governance --output practice/governance

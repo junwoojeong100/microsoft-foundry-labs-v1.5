@@ -23,16 +23,21 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 
 **어떻게 사용하나요?** 로컬 서버의 재고 응답을 읽은 뒤 MCP로 같은 값을 조회합니다. 도구 목록에 있다는 것과 실제 호출됐다는 것을 구분합니다.
 
-**어디서 실행하나요?** 내 PC의 터미널 두 개를 사용합니다. [HTTP 서버](../samples/inventory_api.py)·[OpenAPI](../samples/inventory.openapi.json)·[MCP 서버](../samples/mcp_server.py)·[클라이언트](../samples/toolbox_lab.py)가 동봉되어 있습니다. [Skill](../data/skills/purchase-review/SKILL.md)은 선택 확장입니다.
+**어디서 실행하나요?** 같은 Codespace의 터미널 두 개를 사용합니다. [HTTP 서버](../samples/inventory_api.py)·[OpenAPI](../samples/inventory.openapi.json)·[MCP 서버](../samples/mcp_server.py)·[클라이언트](../samples/toolbox_lab.py)가 동봉되어 있습니다. [Skill](../data/skills/purchase-review/SKILL.md)은 선택 확장입니다.
 
 ## 준비
 
-L01의 Python 가상환경에 `requirements-tools.txt`를 설치합니다. 가상환경이 없다면 L01의 **가상환경 생성 단계**를 먼저 진행하되 Microsoft Azure 로그인은 하지 않아도 됩니다. 설치에는 인터넷과 승인된 패키지 저장소 접근이 필요하지만 **기본 1–2단계에는 Microsoft Azure 계정이 필요 없습니다.**
-**L01의 Codespaces 준비를 마쳤다면 이 의존성은 이미 설치되어 있으므로 아래 설치 명령을 생략합니다.** 두 터미널 모두 같은 Codespace 안에서 엽니다. 이때 `127.0.0.1`은 내 PC가 아니라 그 Codespace이므로 아래 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
+**L01의 Codespaces를 그대로 사용합니다.** 기본/MCP 의존성은 이미 준비되어 있으므로 다시 설치하지 않습니다. 기본 1–2단계에는 Microsoft Azure 계정이 필요 없습니다.
+두 터미널 모두 같은 Codespace 안에서 엽니다. `127.0.0.1`은 그 Codespace를 가리키므로 아래 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
 클라우드 단계는 L11의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
 **기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
 3–4단계의 클라우드 Toolbox/Skills는 L11 자원 준비 후 선택하는 확장입니다.
 기본 코스 학습자가 L11을 먼저 진행할 필요는 없습니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC를 쓰거나 MCP 패키지가 없을 때만: 수동 설치</summary>
+
+먼저 L01의 Python 가상환경을 선택합니다. 준비하지 않았다면 [내 PC 준비](#l01-pc)를 따릅니다. 다음 설치에는 인터넷과 승인된 패키지 저장소 접근이 필요하며 Microsoft Azure 로그인은 필요 없습니다. 정상 준비된 Codespaces에서는 생략합니다.
 
 ```bash
 python -m pip install -r requirements-tools.txt
@@ -47,6 +52,8 @@ python -m pip install -r requirements-tools.txt
 | 1. `pip install -r requirements-tools.txt` | 활성화한 기본 가상환경에 MCP 실습 의존성을 추가합니다. `python -m pip`는 현재 Python과 설치 대상을 일치시킵니다. | 패키지 다운로드·로컬 환경 변경만 수행하며 Microsoft Azure 도구를 호출하지 않습니다. |
 
 </div>
+
+</details>
 
 ## 실행
 
@@ -64,11 +71,18 @@ python samples/inventory_api.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `inventory_api.py` | 합성 재고를 읽는 HTTP 서버를 `127.0.0.1:8766`에 띄웁니다. 프롬프트가 바로 돌아오지 않는 것이 정상입니다. | 내 컴퓨터에서만 대기합니다. Microsoft Azure 비용 없음. 끝나면 이 터미널에서 Ctrl+C로 중지합니다. |
+| 1. `inventory_api.py` | 합성 재고를 읽는 HTTP 서버를 `127.0.0.1:8766`에 띄웁니다. 프롬프트가 바로 돌아오지 않는 것이 정상입니다. | 같은 Codespace 안에서만 대기합니다. Microsoft Azure 비용 없음. 끝나면 이 터미널에서 Ctrl+C로 중지합니다. |
 
 </div>
 
-두 번째 터미널에서 같은 실습 폴더를 열고 Python 환경을 다시 선택합니다. **Windows PowerShell에서는 아래 `curl` 대신 `curl.exe`를 사용**해 다른 PowerShell 명령과의 이름 충돌을 피합니다.
+같은 Codespace의 두 번째 터미널에서 같은 실습 폴더를 열고 Python 환경을 확인합니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell을 쓸 때만: curl 이름 충돌 피하기</summary>
+
+아래 `curl` 대신 `curl.exe`를 사용합니다. Codespaces에서는 변경하지 않습니다.
+
+</details>
 
 첫 터미널의 대기 화면은 그대로 두세요. 두 번째 터미널의 준비가 기억나지 않으면 [L01 새 터미널 확인](#l01-new-terminal)으로 돌아갑니다.
 
@@ -96,7 +110,7 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 
 서버가 대기 중인 첫 터미널이 아니라 **두 번째 터미널**에서 이어 실행합니다. 이 단계의 MCP 서버는 명령이 따로 시작하므로 서버 창을 하나 더 열 필요가 없습니다.
 
-**macOS/Linux:** 아래를 한 줄씩 실행합니다. 두 번째 줄의 승인 오류는 의도한 결과이며, 그 뒤 승인된 호출로 비교합니다.
+**Codespaces의 Bash 터미널:** 아래를 한 줄씩 실행합니다. 두 번째 줄의 승인 오류는 의도한 결과이며, 그 뒤 승인된 호출로 비교합니다.
 
 ```bash
 python samples/toolbox_lab.py inspect --local
@@ -118,7 +132,10 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 </div>
 
-**Windows PowerShell:** 위 블록 **대신** 다음을 한 줄씩 실행합니다. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token)는 Windows 실행기에 JSON의 따옴표를 그대로 전달하기 위한 PowerShell 문법입니다. Python 옵션이나 승인 생략 기능이 아닙니다.
+<details class="environment-option" markdown="1">
+<summary>내 PC에서 실행할 때만: macOS/Linux·Windows PowerShell 명령</summary>
+
+macOS/Linux는 위 Bash 블록을 그대로 사용합니다. **Windows PowerShell**은 위 블록 **대신** 다음을 한 줄씩 실행합니다. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token)는 Windows 실행기에 JSON의 따옴표를 그대로 전달하기 위한 PowerShell 문법입니다. Python 옵션이나 승인 생략 기능이 아닙니다.
 
 ```powershell
 .\.venv\Scripts\python.exe samples/toolbox_lab.py inspect --local
@@ -139,6 +156,8 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 | 4. 승인한 초안 함수 | 수량 2의 입력과 도구 이름을 함께 확인합니다. | 290만 원·미주문. 실제 구매 승인 없음. |
 
 </div>
+
+</details>
 
 stdio child process가 서버를 실행하고 initialize → tools/list → tools/call을 실제 교환합니다.
 재고 8개, 단가 1,450,000원, 초안 총액 2,900,000원과 `order_submitted=false`를 확인합니다.

@@ -63,7 +63,14 @@ python3.13 -m venv .venv-advanced
 
 </div>
 
-On Windows use `.venv-advanced\Scripts\python.exe`. If an existing advanced environment uses another Python version, create a new environment folder.
+If an existing advanced environment uses another Python version, create a new environment folder.
+
+<details class="environment-option" markdown="1">
+<summary>Only when using Windows PowerShell on your PC</summary>
+
+Create the environment with `py -3.13`, then use `.venv-advanced\Scripts\python.exe`. In Codespaces, use the Bash commands above unchanged.
+
+</details>
 
 ### 2. Check model throughput
 

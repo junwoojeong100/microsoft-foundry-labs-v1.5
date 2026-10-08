@@ -101,10 +101,14 @@ async (page) => {
     check(await page.locator('#l01 #l01-python, #l01 #l01-azure-cli, #l01 #l01-vscode, #l01 #l01-interpreter').count() === 4,
       "participant setup exposes separate Python, Azure CLI, VS Code, and interpreter-selection instructions");
     check(await page.locator('#l01 pre code').evaluateAll(nodes =>
-      ["py -3.13 --version", "python3.13 --version", "az version"].every(command =>
+      ["python --version", "az version", "python samples/workshop.py doctor",
+        "python samples/workshop.py validate-data", "az login --use-device-code"].every(command =>
         nodes.some(node => !node.closest("details") && node.textContent.split("\n").some(line => line.trim() === command))
       )
-    ), "local tool version checks are visible without a hidden setup section");
+    ), "Codespaces readiness and device-code authentication are visible without expanding alternatives");
+    check(await page.locator('#l01 code.language-powershell, #l07 code.language-powershell').evaluateAll(nodes =>
+      nodes.length > 0 && nodes.every(node => node.closest("details.environment-option"))
+    ), "Windows command alternatives are contained in expandable environment options");
     check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: english ? "Concepts and lab map" : "개념과 실습 지도"}).count() === labIds.length, "all active labs explain feature, purpose, method and execution surface");
     check(await page.locator(".command-explanation").count() === edition.shell_blocks, `all ${edition.shell_blocks} shell blocks have visible command explanations`);
     check(await page.locator(".command-explanation tbody tr").count() === edition.commands, `all ${edition.commands} logical CLI commands have individual explanation rows`);
@@ -206,17 +210,54 @@ async (page) => {
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "first-time readers stay in L00");
     check(await page.evaluate(() => document.activeElement.id) === "l00-first-steps", "first-step navigation moves keyboard focus");
     check(await page.locator(`.hero a[href="${page.contosoGuideRelease.archive}"]`).count() === 1, "lab ZIP is available at the entry point");
+    check(await page.locator('.hero a[href="#l01"]').innerText().then(text => text.includes("Codespaces")),
+      "the entry point identifies Codespaces as the default setup");
+    const environmentOptions = page.locator(".hero .environment-options");
+    check(await environmentOptions.evaluate(node => !node.open)
+      && await environmentOptions.locator('a[href="#l01-pc"]').isHidden(),
+      "PC setup and offline downloads are collapsed at the entry point");
+    await environmentOptions.locator("summary").click();
+    check(await environmentOptions.locator(`a[href="${page.contosoGuideRelease.archive}"]`).isVisible(),
+      "offline files remain available when the alternative is expanded");
+    await environmentOptions.locator('a[href="#l01-pc"]').click();
+    await page.waitForFunction(() => document.activeElement.id === "l01-pc");
+    check(await page.locator("#l01 .pc-setup").evaluate(node => node.open),
+      "the PC alternative link opens the matching setup panel");
+    await page.locator("#l01 .pc-setup").evaluate(node => { node.open = false; });
+    await page.goto(`${entry}#l01`);
+    check(await page.locator("#l01 .codespaces-path").isVisible()
+      && await page.locator("#l01 .codespaces-path").evaluate(node => !node.closest("details")),
+      "Codespaces preparation is visible on ordinary L01 entry");
+    check(await page.locator("#l01 .environment-option pre:visible, #l01 .resume-setup pre:visible").count() === 0,
+      "PC installation and resumption commands do not distract from first-time Codespaces setup");
     await page.goto(`${entry}#l01-codespaces`);
     await page.waitForFunction(() => document.activeElement.id === "l01-codespaces");
-    check(await page.locator("#l01 .codespaces-path").evaluate(node => node.open),
-      "Codespaces onboarding links open the optional setup path directly");
+    check(await page.locator("#l01 .codespaces-path code.language-bash").isVisible(),
+      "Codespaces deep links reach the primary preparation commands");
     check(await page.locator('#l01 .codespaces-path a[href="#l01-sign-in"]').isVisible(),
       "Codespaces setup leads to shared authentication rather than repeating PC installation");
     await page.locator('#l01 .codespaces-path a[href="#l01-sign-in"]').click();
     await page.waitForFunction(() => document.activeElement.id === "l01-sign-in");
     check(await page.locator("#l01").innerText().then(text => text.includes("az login --use-device-code")),
       "remote terminal authentication is explicit");
-    await page.locator("#l01 .codespaces-path").evaluate(node => { node.open = false; });
+    await page.goto(`${entry}#l01-python`);
+    await page.waitForFunction(() => document.activeElement.id === "l01-python");
+    check(await page.locator("#l01 .pc-setup").evaluate(node => node.open),
+      "existing Python setup bookmarks expand the new outer PC panel");
+    await page.locator("#l01 .pc-setup").evaluate(node => { node.open = false; });
+    await page.goto(`${entry}#l01-new-terminal`);
+    await page.waitForFunction(() => document.activeElement.id === "l01-new-terminal");
+    check(await page.locator("#l01 .resume-setup").evaluate(node => node.open),
+      "resumption links expand their conditional instructions");
+    check(await page.locator("#l01 .resume-setup code.language-powershell").isHidden(),
+      "resuming Codespaces does not expose Windows substitutions");
+    await page.locator("#l01 .resume-setup").evaluate(node => { node.open = false; });
+    await page.goto(`${entry}#l07`);
+    check(await page.locator("#l07 .environment-option pre:visible").count() === 0,
+      "L07 hides redundant installation and alternate Windows commands");
+    check(await page.locator("#l07 pre:visible code").first().textContent().then(text =>
+      text.trim() === "python samples/inventory_api.py"
+    ), "the prepared Codespaces path starts L07 with the server, not another dependency install");
     await page.goto(`${entry}#l12-codespaces`);
     await page.waitForFunction(() => document.activeElement.id === "l12-codespaces");
     check(await page.locator(".chapter.active").getAttribute("id") === "l12",
@@ -382,7 +423,7 @@ async (page) => {
     });
     const expectedCode = await page.locator("#l06 pre code").first().textContent();
     check(await page.locator("#l06 .code-label").first().innerText() ===
-      (english ? "Terminal · macOS/Linux syntax" : "터미널 명령 · macOS/Linux 문법"),
+      (english ? "Terminal · Bash" : "터미널 명령 · Bash"),
       "code labels identify the destination and shell syntax");
     await page.locator("#l06 .copy-button").first().click();
     check(await page.evaluate(() => window.__workshopCopiedText) === expectedCode, "copy includes code only, not labels");
@@ -394,14 +435,18 @@ async (page) => {
     const setupDetails = page.locator("#l01 .setup-detail");
     check(await setupDetails.count() === 4 && await setupDetails.evaluateAll(nodes => nodes.every(node => !node.open)),
       "first-time installation is available on demand rather than repeated on the prepared path");
-    const setupPosition = () => page.locator("#l01-local").evaluate(node => node.getBoundingClientRect().top + window.scrollY);
+    const pcSetup = page.locator("#l01 .pc-setup");
+    check(await pcSetup.evaluate(node => !node.open), "PC preparation stays collapsed on the default path");
+    const setupPosition = () => page.locator("#l01-sign-in").evaluate(node => node.getBoundingClientRect().top + window.scrollY);
     const compactSetupPosition = await setupPosition();
+    await pcSetup.locator("summary").first().click();
     await setupDetails.evaluateAll(nodes => nodes.forEach(node => { node.open = true; }));
     check(compactSetupPosition < await setupPosition() * .75,
-      "collapsing installation removes at least a quarter of scrolling before local setup");
+      "collapsing PC alternatives removes at least a quarter of scrolling before shared sign-in");
     check(await setupDetails.locator("code.language-bash").evaluateAll(nodes => nodes.every(node => node.getClientRects().length)),
       "expanding installation retains the original OS-specific commands");
     await setupDetails.evaluateAll(nodes => nodes.forEach(node => { node.open = false; }));
+    await pcSetup.locator("summary").first().click();
     await page.goto(`${entry}#l03`);
     const firstResponsePlan = page.locator("#l03 pre").filter({has: page.locator("code.language-bash")}).first();
     await firstResponsePlan.locator(".copy-button").click();
@@ -443,6 +488,18 @@ async (page) => {
     const widths = [1440, 1024, 768, 390, 320];
     for (const width of widths) {
       await page.setViewportSize({width, height: 900});
+      if (width <= 390) {
+        await page.goto(`${entry}#l00`);
+        const options = page.locator(".hero .environment-options");
+        if (!await options.evaluate(node => node.open)) await options.locator("summary").click();
+        check(await options.locator("a").evaluateAll(nodes => nodes.every(node => {
+          const box = node.getBoundingClientRect();
+          const hero = node.closest(".hero").getBoundingClientRect();
+          return box.width > 0 && box.left >= hero.left && box.right <= hero.right
+            && node.scrollWidth <= node.clientWidth + 1;
+        })), `expanded environment links remain usable at ${width}px`);
+        await options.locator("summary").click();
+      }
       await page.goto(`${entry}#l08`);
       const measure = await page.evaluate(() => ({
         viewport: innerWidth,
@@ -471,7 +528,10 @@ async (page) => {
       if ([1440, 390, 320].includes(width)) {
         for (const id of labIds) {
           await page.goto(`${entry}#${id}`);
-          const implementationStates = await page.locator(`#${id} .implementation-detail`).evaluateAll(nodes => {
+          const expandableSetup = page.locator(
+            `#${id} :is(.implementation-detail, .environment-option, .resume-setup, .setup-detail)`
+          );
+          const expandedStates = await expandableSetup.evaluateAll(nodes => {
             const states = nodes.map(node => node.open);
             nodes.forEach(node => { node.open = true; });
             return states;
@@ -503,9 +563,9 @@ async (page) => {
           if (practiceIds.includes(id)) {
             check(await page.locator(`#${id} .practice-block`).isVisible(), `${id} concrete practice remains readable at ${width}px`);
           }
-          await page.locator(`#${id} .implementation-detail`).evaluateAll((nodes, states) => {
+          await expandableSetup.evaluateAll((nodes, states) => {
             nodes.forEach((node, index) => { node.open = states[index]; });
-          }, implementationStates);
+          }, expandedStates);
         }
       }
     }

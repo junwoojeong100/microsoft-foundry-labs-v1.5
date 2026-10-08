@@ -26,7 +26,14 @@
 
 ## 준비
 
-[L13 환경 준비](#l15)의 `.venv-advanced`, `.env`, **내 소유 기록** `results/azure-environment.json`, chat 배포의 **100,000 TPM / 60 RPM** 확인을 재사용합니다. L13의 유료 패턴 실행은 선행 조건이 아닙니다. Windows는 `.venv-advanced\Scripts\python.exe`를 사용합니다.
+[L13 환경 준비](#l15)의 `.venv-advanced`, `.env`, **내 소유 기록** `results/azure-environment.json`, chat 배포의 **100,000 TPM / 60 RPM** 확인을 재사용합니다. L13의 유료 패턴 실행은 선행 조건이 아닙니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell에서 진행할 때만</summary>
+
+`.venv-advanced\Scripts\python.exe`를 사용합니다. Codespaces에서는 아래 Bash 명령을 그대로 사용합니다.
+
+</details>
 
 ### 먼저 경로 정하기
 

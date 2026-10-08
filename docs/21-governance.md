@@ -22,7 +22,7 @@
 
 **어떻게 사용하나요?** 로컬 결함 과제를 고친 뒤 각 단계의 주체·허용 작업·거절 조건을 적습니다. 실제 권한이나 네트워크를 바꾸는 과제가 아닙니다.
 
-**어디서 실행하나요?** 기본은 내 PC의 Python과 설계표입니다. [인프라](../infra/main.bicep)·[역할 설정 코드](../scripts/runtime_roles.py)는 읽을 참고 자료이며 실행하지 않습니다.
+**어디서 실행하나요?** 기본은 Codespaces의 Python과 설계표입니다. [인프라](../infra/main.bicep)·[역할 설정 코드](../scripts/runtime_roles.py)는 읽을 참고 자료이며 실행하지 않습니다.
 
 ## 준비
 
@@ -44,7 +44,7 @@
 
 <div class="practice-block" markdown="1">
 
-**직접 해보기:** 아래 과제는 내 PC의 합성 문자열만 사용합니다. A는 제한 견적을 볼 수 있고 B는 볼 수 없습니다. 공용 정책은 둘 다 볼 수 있습니다. Microsoft Azure 역할·실제 문서 ACL을 바꾸는 과제가 아닙니다.
+**직접 해보기:** 아래 과제는 실습 환경의 합성 문자열만 사용합니다. A는 제한 견적을 볼 수 있고 B는 볼 수 없습니다. 공용 정책은 둘 다 볼 수 있습니다. Microsoft Azure 역할·실제 문서 ACL을 바꾸는 과제가 아닙니다.
 
 ```bash
 python samples/prepare_practice.py governance --output practice/governance

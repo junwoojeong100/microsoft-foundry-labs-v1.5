@@ -38,6 +38,8 @@ Start with these five terms. Learn other acronyms when you need them and use the
 
 **Start with 11 core modules, L00–L10.** The eight advanced modules, L11–L18, are electives. **Finish every path with shared wrap-up L19.** Core-only learners jump directly from L10 to L19 without completing the electives.
 
+**GitHub Codespaces is the default environment.** Start in its prepared browser terminal. Expand PC installation and OS-specific alternatives only when needed.
+
 ```text
 Prepare      L00 overview → L01 your environment → L02 model checks
 Build        L03 first answer → L04 instructions → L05 documents → L06 functions → L07 MCP
@@ -49,7 +51,7 @@ Check/finish L08 evaluation → L09 boundaries → L10 traces → L19 costs and 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
 | Your Microsoft Azure subscription, permissions, and budget scope are ready | [Create your environment in L01](#l01) → inspect your deployment in L02 → first call in L03 | An actual answer/response ID from the project you created |
-| Account, permissions, or cost conditions are still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L07 local MCP → L08 instructions/questions | Valid data, the KRW 2,900,000 draft, and MCP calls; live Microsoft Azure execution remains not performed |
+| Microsoft Azure account, permissions, or cost conditions are still pending | [L01 Codespaces setup/local checks](#l01-codespaces) → L06 local functions → L07 local MCP → L08 instructions/questions | Valid data, the KRW 2,900,000 draft, and MCP calls; live Microsoft Azure execution remains not performed |
 
 The default is **create your environment → run the labs → clean up your resources**. The second path is local preparation, not completion of the Microsoft Foundry experience. **Without Microsoft Azure** groups those local, reading, and design steps.
 
@@ -81,7 +83,7 @@ The default is **create your environment → run the labs → clean up your reso
 
 **How do you use it?** Add one capability per module and check the result. Compare policy claims with the documents, and quantities and amounts with function results. You do not need to memorize every menu.
 
-**Where do you run it?** This page is a guide. The portal is the AI workspace in your browser; the terminal is the command window in your chosen lab environment (PC or Codespaces). **Copy is not Run.**
+**Where do you run it?** This page is a guide. The portal is the AI workspace in your browser; the default terminal is **the command window inside Codespaces**. **Copy is not Run.**
 
 ### The five entry points in the live portal
 
@@ -93,7 +95,14 @@ The default is **create your environment → run the labs → clean up your reso
 
 ### How to read the source code and commands
 
-Download and extract the complete workshop ZIP, then use **File → Open Folder** in VS Code. The **lab folder (repository root)** contains `samples`, `data`, and `requirements.txt` together. Your browser's “View page source” shows the guide's HTML, not the executable samples. Git command knowledge is not required to start.
+Opening [L01's Codespace](#l01-codespaces) prepares the repository in browser VS Code; no ZIP download or Git command is needed. The **lab folder (repository root)** contains `samples`, `data`, and `requirements.txt` together. Your browser's “View page source” shows the guide's HTML, not the executable samples.
+
+<details class="environment-option" markdown="1">
+<summary>Only for the PC alternative: open the ZIP in VS Code</summary>
+
+Extract the complete workshop ZIP, preserve its structure, and use **File → Open Folder** in VS Code. Follow [L01's PC setup](#l01-pc). Only when choosing this alternative do subsequent local exercises run on your PC.
+
+</details>
 
 <details markdown="1">
 <summary>Reference: what the source files do</summary>
@@ -127,16 +136,23 @@ Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python
 
 **Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
 
-**Rules for subsequent commands:** Always run from the **lab folder** containing `samples`, `data`, and `requirements.txt`. In Windows PowerShell, replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for example, `.\.venv\Scripts\python.exe samples/first_response.py`. Advanced modules identify their separate Python environment.
+**Rules for subsequent commands:** In the Codespaces terminal, run from the **lab folder** containing `samples`, `data`, and `requirements.txt`. Use the Bash commands unchanged regardless of your PC's OS. The default `python` is the prepared `.venv`; advanced modules specify their separate Python environment.
 
-**In Codespaces, use Linux/Bash commands regardless of your PC's OS.** “Local execution” means running code inside your chosen lab environment. Both terminals and `127.0.0.1` refer to that same Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges. The repository is already open in browser VS Code, so [this path](#l01-codespaces) does not require downloading the ZIP again.
+**“Local execution” defaults to running code inside Codespaces.** Both terminals and `127.0.0.1` refer to that same Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges.
+
+<details class="environment-option" markdown="1">
+<summary>Only for Windows PowerShell on your PC: change the interpreter path</summary>
+
+Replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for example, `.\.venv\Scripts\python.exe samples/first_response.py`. Do not make this substitution in Codespaces, even from a Windows PC.
+
+</details>
 
 `--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Microsoft Azure cost”: the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details markdown="1">
 <summary>For advanced commands: environment variables, continued lines, and azd</summary>
 
-A `KEY=value` prefix passes an environment variable to **that command only** in macOS/Linux shells. In PowerShell, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in bash; do not paste it unchanged into PowerShell. Combine the command into one line instead. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill` only identifies the authoring tool; learners do not need to install a Copilot skill.
+A `KEY=value` prefix passes an environment variable to **that command only** in Codespaces Bash. If you chose PowerShell on your PC, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in Bash; do not paste it unchanged into PowerShell. Combine the command into one line instead. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill` only identifies the authoring tool; learners do not need to install a Copilot skill.
 
 </details>
 

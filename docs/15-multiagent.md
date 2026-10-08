@@ -63,7 +63,14 @@ python3.13 -m venv .venv-advanced
 
 </div>
 
-Windows에서는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 기존 심화 환경이 다른 Python 버전이면 새 폴더에 환경을 만듭니다.
+기존 심화 환경이 다른 Python 버전이면 새 폴더에 환경을 만듭니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell에서 진행할 때만</summary>
+
+환경 생성에는 `py -3.13`, 이후 실행에는 `.venv-advanced\Scripts\python.exe`를 사용합니다. Codespaces에서는 위 Bash 명령을 그대로 사용합니다.
+
+</details>
 
 ### 2. 모델 처리량 확인하기
 

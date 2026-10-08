@@ -4,7 +4,7 @@
 
 **진행 방식:** 실행 환경 준비 → 로그인·권한 확인 → 전용 환경 생성 → 설정·로그 연결.
 
-**먼저 할 일:** 내 PC 또는 [GitHub Codespaces](#l01-codespaces) 중 실행할 환경 하나를 고르고, 사용할 Microsoft Azure 구독·지역·예산을 확인합니다.
+**먼저 할 일:** Microsoft Azure 구독·권한·예산을 확인한 뒤 [GitHub Codespaces](#l01-codespaces)를 열고 준비된 터미널에서 시작합니다.
 
 **확인할 결과:** `results/azure-environment.json`의 내 프로젝트와 포털의 자원이 일치합니다. 첫 모델 요청은 L03에서 보냅니다.
 
@@ -16,13 +16,13 @@
 
 ## 개념과 실습 지도
 
-**경험할 기능:** Microsoft Foundry 프로젝트·모델·권한·로그와 로컬 Python 환경을 준비합니다.
+**경험할 기능:** Codespaces의 Python 환경을 확인하고 Microsoft Foundry 프로젝트·모델·권한·로그를 준비합니다.
 
 **무엇이며 왜 중요한가요?** 구독은 비용 범위, 리소스 그룹은 자원 묶음, 프로젝트는 에이전트 작업 공간입니다. 로그인은 신원, RBAC는 허용 작업, quota는 사용 가능한 용량입니다.
 
 **어떻게 사용하나요?** 전용 환경을 만들고 포털의 실제 이름·주소를 `.env`와 소유 기록에 대조합니다. 주소를 안다고 권한이 생기지는 않습니다.
 
-**어디서 실행하나요?** 선택한 환경(PC 또는 Codespaces)의 VS Code 터미널에서 명령을 실행하고 Microsoft Azure·Microsoft Foundry 포털에서 결과를 확인합니다. [환경 생성 코드](../scripts/azure_environment.py)와 [Bicep](../infra/main.bicep)이 실제 생성 범위를 정의합니다.
+**어디서 실행하나요?** 기본은 브라우저 VS Code의 **Codespaces 터미널**입니다. Microsoft Azure·Microsoft Foundry 포털에서 결과를 확인합니다. [환경 생성 코드](../scripts/azure_environment.py)와 [Bicep](../infra/main.bicep)이 실제 생성 범위를 정의합니다.
 
 ## 준비
 
@@ -33,20 +33,19 @@
 | 역할 부여 권한 | 대상 범위의 `Microsoft.Authorization/roleAssignments/write`. `Contributor`만으로는 역할을 부여할 수 없음 |
 | quota 조회 권한 | 구독의 `Cognitive Services Usages Reader` 등 모델 사용량 조회 권한 |
 | 지역·예산 | 모델 지원 지역, 허용된 처리 범위, 지출 한도·중단 기준·보존 기한 |
-| 실행 환경 | 내 PC의 Python 3.13·Microsoft Azure CLI 2.86.0 기준·VS Code, 또는 아래 GitHub Codespaces 구성. 인터넷·허용된 패키지 저장소 필요 |
+| 기본 실행 환경 | 브라우저·GitHub 계정·저장소 접근·Codespaces 사용 허용과 비용 범위. Python 3.13·Microsoft Azure CLI·기본/MCP 패키지는 저장소 설정으로 준비 |
 
 자신의 구독이라도 실제 권한을 먼저 확인합니다. 조직 구독에서는 필요한 범위의 권한·비용 승인을 확보한 뒤 진행합니다. 권한이 없으면 해당 작업을 보류하며, 오류를 우회하려고 보안을 끄거나 구독 전체 권한을 확대하지 않습니다. 계정·권한 없이도 로컬 연습은 가능하지만 **Microsoft Foundry 실행 완료와는 별도**입니다.
 
-<a id="l01-pc"></a>
-
 ## 실행
 
-### 1. PC와 실습 파일 준비하기
+<a id="l01-1-pc와-실습-파일-준비하기"></a>
 
-**두 경로 중 하나만 선택합니다.** 이미 PC 도구가 있다면 아래 버전 확인을, 설치를 줄이고 싶다면 **GitHub Codespaces**를 사용합니다. Codespaces는 GitHub가 제공하는 원격 Linux 개발 환경이며 Microsoft Foundry 프로젝트 자체는 아닙니다.
+### 1. GitHub Codespaces에서 시작하기
 
-<details class="optional-path codespaces-path" markdown="1">
-<summary>설치 최소화: 브라우저에서 GitHub Codespaces로 시작하기</summary>
+**이 가이드의 기본 환경은 GitHub Codespaces입니다.** 내 PC에 Python·CLI·VS Code·Docker를 설치하지 않고 브라우저에서 실습합니다. Codespaces는 원격 Linux 개발 환경이며 Microsoft Foundry 프로젝트 자체는 아닙니다. 사용할 수 없는 경우에만 아래 **내 PC 대안**을 펼칩니다.
+
+<section class="codespaces-path" markdown="1">
 
 <a id="l01-codespaces"></a>
 
@@ -81,11 +80,11 @@ python samples/workshop.py validate-data
 
 </div>
 
-**다음:** 위 결과가 맞으면 PC 설치·가상환경 생성은 건너뛰고 **[2. 로그인·구독·권한·비용 확인](#l01-sign-in)**으로 갑니다. Microsoft Azure 준비가 없다면 [L06 로컬 함수](#l06)로 이동합니다. `.env`의 프로젝트 값은 자원을 만든 뒤 이 장의 5단계에서 채웁니다.
+**다음:** 위 결과가 맞으면 **[2. 로그인·구독·권한·비용 확인](#l01-sign-in)**으로 갑니다. 아래 접힌 대안·재개 안내는 지금 수행할 단계가 아닙니다. Microsoft Azure 준비가 없다면 [L06 로컬 함수](#l06)로 이동합니다. `.env`의 프로젝트 값은 자원을 만든 뒤 이 장의 5단계에서 채웁니다.
 
 | 막힌 곳 | 다음 행동 |
 | --- | --- |
-| Codespaces 메뉴 없음·생성 거절 | 저장소 접근·조직 허용·GitHub 사용량을 확인합니다. 허용되지 않으면 PC 경로를 사용합니다. |
+| Codespaces 메뉴 없음·생성 거절 | 저장소 접근·조직 허용·GitHub 사용량을 확인합니다. 허용되지 않으면 [내 PC 대안](#l01-pc)을 펼칩니다. |
 | `Lab tools ready.`가 안 나옴·패키지 설치 실패 | 생성 로그의 첫 오류와 승인된 패키지 접근을 확인합니다. 해결한 뒤 같은 터미널에서 `bash .devcontainer/post-create.sh`를 재실행할 수 있습니다. 기존 `.env`·소유 기록은 보존합니다. |
 | 실행기 경로가 다름 | 새 터미널을 열거나 `source .venv/bin/activate` 후 재확인합니다. Microsoft Azure 환경을 다시 만들지 않습니다. |
 
@@ -93,7 +92,14 @@ python samples/workshop.py validate-data
 
 [공식 생성 안내](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository) · [개발 컨테이너 구성](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
 
-</details>
+</section>
+
+<details class="environment-option pc-setup" markdown="1">
+<summary>다른 환경이 필요할 때만: 내 PC에서 준비하기 (Windows/macOS/Linux)</summary>
+
+<a id="l01-pc"></a>
+
+**Codespaces에서는 이 절을 실행하지 않습니다.** PC에서 진행하는 경우에만 실습 ZIP을 풀고 아래 도구·가상환경을 준비합니다. 준비가 끝나면 같은 2단계로 합류하며, 두 환경의 `.env`·소유 기록을 섞지 않습니다.
 
 **이미 설치했다면 설치 설명을 다시 따라 하지 않습니다.** 자기 OS의 버전 확인 → [실습 파일·가상환경](#l01-local) → [Python 선택](#l01-interpreter) 순으로 갑니다. 처음이라면 아래에서 **자기 OS의 절만** 따라 설치합니다. Microsoft Azure 계정이 없다면 PC·로컬 검사까지 진행하고 2단계 이후는 보류합니다.
 
@@ -369,13 +375,18 @@ Python 확장을 준비한 경우, 위에서 만든 `.venv`를 편집기의 실�
 3. 이 실습 폴더의 **Python 3.13 (`.venv`)**를 선택합니다. 목록에 없으면 **Enter interpreter path**로 macOS/Linux는 `.venv/bin/python`, Windows는 `.venv\Scripts\python.exe`를 직접 선택합니다.
 4. 창 아래 상태 표시줄에서 선택한 환경을 확인합니다. 편집기의 선택이 기존 터미널의 실행기를 바꿨다고 가정하지 말고, 아래 경로 검사도 수행합니다. Windows 터미널 명령은 계속 `.\.venv\Scripts\python.exe`를 사용합니다.
 
+</details>
+
+<details class="resume-setup" markdown="1">
+<summary>중단 후 재개하거나 새 터미널을 열었을 때만: Python 환경 다시 확인</summary>
+
 <a id="l01-new-terminal"></a>
 
 #### 새 터미널이나 다음 날 다시 시작하기
 
-VS Code에서 **같은 실습 폴더 → 터미널 → 새 터미널**을 엽니다. 가상환경을 다시 만들거나 패키지를 재설치하지 않습니다. L07의 두 터미널에서도 각각 아래의 **자기 OS 블록 하나만** 실행하세요.
+같은 Codespace의 VS Code에서 **같은 실습 폴더 → 터미널 → 새 터미널**을 엽니다. 가상환경을 다시 만들거나 패키지를 재설치하지 않습니다. L07의 두 터미널에서도 아래 Bash 명령으로 준비 상태를 확인할 수 있습니다.
 
-**macOS/Linux**
+**Codespaces 터미널**
 
 ```bash
 source .venv/bin/activate
@@ -393,7 +404,10 @@ python -c "import sys; print('Python', sys.version.split()[0]); print(sys.execut
 
 </div>
 
-**Windows PowerShell**
+<details class="environment-option" markdown="1">
+<summary>내 PC에서 재개할 때만: macOS/Linux 또는 Windows PowerShell</summary>
+
+macOS/Linux는 위 Bash 블록을 사용합니다. Windows PowerShell은 **대신** 다음을 실행합니다.
 
 ```powershell
 .\.venv\Scripts\python.exe -c "import sys; print('Python', sys.version.split()[0]); print(sys.executable)"
@@ -411,31 +425,17 @@ python -c "import sys; print('Python', sys.version.split()[0]); print(sys.execut
 
 이후 기본 명령의 `python`도 Windows에서는 `.\.venv\Scripts\python.exe`로 바꿉니다. 경로가 없으면 현재 폴더를 확인하고, 실제로 가상환경을 만들지 않은 경우에만 위 생성 단계로 돌아갑니다.
 
+</details>
+
 **기존 `.venv`가 3.12·3.14 등이라면 재사용하지 않습니다.** 기존 환경을 삭제하거나 덮어쓰지 말고, Python 3.13으로 `.venv-core313` 같은 새 이름의 환경을 준비합니다. 선택한 경우 이 가이드의 `.venv` 경로를 그 이름으로 일관되게 바꾸고 VS Code에서도 같은 실행기를 선택합니다. 가상환경 변경 때문에 기존 Microsoft Azure 환경이나 소유 기록을 다시 만들지는 않습니다.
+
+</details>
 
 <a id="l01-sign-in"></a>
 
 ### 2. 로그인·구독·권한·비용 확인하기
 
-**로그인 명령은 실행 환경에 맞는 하나만 선택합니다.** 포털 로그인이나 GitHub 로그인만으로 CLI에 로그인된 것은 아닙니다.
-
-**내 PC 터미널:**
-
-```bash
-az login
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `az login` | 내 PC의 CLI 인증을 시작합니다. | 비밀번호·MFA는 인증 화면에 직접 입력합니다. 자원 생성 없음. |
-
-</div>
-
-**GitHub Codespaces 터미널:** [device-code 로그인](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser)을 사용합니다.
+**Codespaces 터미널에서 로그인합니다.** 포털 로그인이나 GitHub 로그인만으로 CLI에 로그인된 것은 아닙니다. 아래 [device-code 로그인](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser)을 사용합니다.
 
 ```bash
 az login --use-device-code
@@ -453,7 +453,28 @@ az login --use-device-code
 
 조직 정책이 device-code 로그인을 막으면 허용된 실행·인증 경로를 확인합니다. MFA·Conditional Access를 끄거나 장기 secret으로 우회하지 않습니다.
 
-**두 경로 공통:** 로그인 후 아래를 한 줄씩 실행합니다. 목록에서 사용할 구독 ID를 찾은 뒤 자리표시자를 바꿉니다.
+<details class="environment-option" markdown="1">
+<summary>내 PC를 선택했을 때만: 로컬 브라우저로 로그인</summary>
+
+PC 터미널에서는 다음 명령을 대신 사용할 수 있습니다. 로그인 경로를 둘 다 실행할 필요는 없습니다.
+
+```bash
+az login
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 하는 일 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `az login` | 내 PC의 CLI 인증을 시작합니다. | 비밀번호·MFA는 인증 화면에 직접 입력합니다. 자원 생성 없음. |
+
+</div>
+
+</details>
+
+**로그인 후 구독 확인:** 아래를 한 줄씩 실행합니다. 목록에서 사용할 구독 ID를 찾은 뒤 자리표시자를 바꿉니다.
 
 ```bash
 az account list --query "[].{subscription:name,id:id,tenant:tenantId,state:state}" -o table

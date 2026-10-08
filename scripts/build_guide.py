@@ -410,7 +410,7 @@ def build_language(language):
     <div class="hero-kicker">{ui['hero_kicker']}</div>
     <h2 id="hero-title">{ui['hero_title']}</h2>
     <p>{ui['hero_description']}</p>
-    <div class="hero-actions"><a href="#l00-first-steps" class="primary-link">{ui['start']} <span aria-hidden="true">→</span></a><a href="#l01" class="secondary-link">{ui['ready']}</a><a href="{RELEASE['archive']}" class="secondary-link">{ui['download_kit']}</a></div>
+    <div class="hero-actions"><a href="#l00-first-steps" class="primary-link">{ui['start']} <span aria-hidden="true">→</span></a><a href="#l01" class="secondary-link">{ui['ready']}</a><details class="environment-options"><summary>{ui['environment_options']}</summary><a href="#l01-pc" class="secondary-link">{ui['local_setup']}</a><a href="{RELEASE['archive']}" class="secondary-link">{ui['download_kit']}</a></details></div>
     <div class="hero-stats"><div><strong>{core_count}</strong><span>{ui['stat_core']}</span></div><div><strong>{advanced_count}</strong><span>{ui['stat_electives']}</span></div><div><strong>1</strong><span>{ui['stat_scenario']}</span></div></div>
     <div class="hero-orbit" aria-hidden="true"><span></span><i></i><b>f</b></div>
   </section>

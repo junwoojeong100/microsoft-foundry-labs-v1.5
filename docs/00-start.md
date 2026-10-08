@@ -36,6 +36,8 @@
 
 **처음에는 기본 11개(L00–L10)를 따라갑니다.** 심화 8개(L11–L18)는 선택이고, **마지막에는 공통 마무리 L19**를 진행합니다. 기본만 듣는다면 L10 다음에 L19로 바로 이동하며 심화를 모두 체크할 필요는 없습니다.
 
+**기본 실행 환경은 GitHub Codespaces입니다.** 브라우저의 준비된 터미널에서 시작합니다. 내 PC 설치와 OS별 명령은 필요할 때만 접힌 대안을 펼쳐 봅니다.
+
 ```text
 준비       L00 개요 → L01 내 환경 → L02 모델 확인
 만들기     L03 첫 답변 → L04 지시문 → L05 문서 → L06 함수 → L07 MCP
@@ -47,7 +49,7 @@
 | 지금 내 상황 | 바로 할 일 | 여기까지 되면 다음으로 |
 | --- | --- | --- |
 | Microsoft Azure 구독·필요 권한·비용 범위가 준비됨 | [L01에서 내 환경 생성](#l01) → L02 내 배포 확인 → L03 첫 호출 | 내가 만든 프로젝트에서 실제 답변과 응답 ID 확인 |
-| 계정·권한·비용 조건을 아직 갖추지 못함 | [L01 PC 준비](#l01-pc) → [로컬 검사](#l01-local) → L06 로컬 함수 → L07 로컬 MCP → L08 지침·질문 읽기 | 데이터 검사·290만 원 초안 계산·MCP 호출 확인. 실제 Microsoft Azure 실행은 미실행 |
+| Microsoft Azure 계정·권한·비용 조건을 아직 갖추지 못함 | [L01 Codespaces 준비·로컬 검사](#l01-codespaces) → L06 로컬 함수 → L07 로컬 MCP → L08 지침·질문 읽기 | 데이터 검사·290만 원 초안 계산·MCP 호출 확인. 실제 Microsoft Azure 실행은 미실행 |
 
 기본 경로는 **각자가 환경을 만들고 실습한 뒤 정리**하는 방식입니다. 두 번째 경로는 준비가 끝나기 전의 로컬 연습이며 Microsoft Foundry 실습 완주와는 구분합니다. 웹 목차의 **Microsoft Azure 없이**는 이런 로컬·읽기·설계 단계를 모아 줍니다.
 
@@ -79,7 +81,7 @@
 
 **어떻게 사용하나요?** 각 장에서 한 가지를 추가하고 결과를 확인합니다. 규정은 원문과, 재고·금액은 함수 결과와 대조합니다. 메뉴 이름을 모두 외울 필요는 없습니다.
 
-**어디서 실행하나요?** 이 웹페이지는 설명서입니다. 포털은 브라우저의 AI 작업 화면, 터미널은 선택한 실습 환경(내 PC 또는 Codespaces)의 명령 입력창입니다. **복사 버튼은 실행 버튼이 아닙니다.**
+**어디서 실행하나요?** 이 웹페이지는 설명서입니다. 포털은 브라우저의 AI 작업 화면, 기본 터미널은 **Codespaces 안의 명령 입력창**입니다. **복사 버튼은 실행 버튼이 아닙니다.**
 
 ### 실제 포털의 다섯 입구
 
@@ -91,7 +93,14 @@
 
 ### 소스코드와 명령을 읽는 방법
 
-PC 경로는 전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**에서 엽니다. [Codespaces 경로](#l01-codespaces)는 브라우저 VS Code에 저장소가 이미 열리므로 ZIP을 다시 받지 않습니다. `samples`, `data`, `requirements.txt`가 함께 보이는 폴더가 **실습 폴더(리포 루트)**입니다. 브라우저의 “페이지 소스 보기”는 실행 코드가 아니라 가이드 HTML만 보여 줍니다. Git 명령을 알아야 시작할 수 있는 것은 아닙니다.
+[L01의 Codespaces](#l01-codespaces)를 열면 브라우저 VS Code에 저장소가 준비됩니다. ZIP을 받거나 Git 명령을 실행할 필요는 없습니다. `samples`, `data`, `requirements.txt`가 함께 보이는 폴더가 **실습 폴더(리포 루트)**입니다. 브라우저의 “페이지 소스 보기”는 실행 코드가 아니라 가이드 HTML만 보여 줍니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC를 사용할 때만: ZIP과 VS Code로 실습 폴더 열기</summary>
+
+전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**에서 엽니다. 파일 구조를 유지하고 [L01의 내 PC 준비](#l01-pc)를 따릅니다. 이 대안을 선택한 경우에만 이후 로컬 실행을 자기 PC에서 수행합니다.
+
+</details>
 
 <details markdown="1">
 <summary>참고: 원본 파일의 역할</summary>
@@ -124,16 +133,23 @@ PC 경로는 전체 실습 ZIP을 풀어 VS Code의 **파일 → 폴더 열기**
 
 **붙여넣을 곳을 먼저 확인하세요.** Bash/PowerShell 명령은 터미널, 질문은 본문이 지정한 포털 입력창, `.env` 값은 편집기의 `.env` 파일에 넣습니다. Python 코드 발췌와 JSON 결과 예시는 터미널에 붙여넣는 명령이 아닙니다. 여러 명령이 있는 블록은 한 줄씩 실행하고 결과를 읽은 뒤 다음 줄로 넘어갑니다.
 
-**이후 명령의 공통 규칙:** 항상 `samples`·`data`·`requirements.txt`가 함께 있는 **실습 폴더**에서 실행합니다. 기본 환경의 `python`은 Windows PowerShell에서 `.\.venv\Scripts\python.exe`로 바꿉니다. 예를 들어 `python samples/first_response.py`는 `.\.venv\Scripts\python.exe samples/first_response.py`입니다. 심화는 해당 장이 지정한 별도 Python을 사용합니다.
+**이후 명령의 공통 규칙:** Codespaces 터미널에서 `samples`·`data`·`requirements.txt`가 함께 있는 **실습 폴더**를 사용합니다. PC의 OS와 관계없이 Bash 명령을 그대로 실행합니다. 기본 `python`은 준비된 `.venv`, 심화는 해당 장이 지정한 별도 Python입니다.
 
-**Codespaces라면 PC의 OS와 관계없이 Linux/Bash 명령을 사용합니다.** 이후의 “로컬 실행”은 선택한 실습 환경 안에서 코드를 실행한다는 뜻입니다. 터미널 두 개·`127.0.0.1`도 같은 Codespace 안을 가리킵니다. “Microsoft Azure 호출 없음”은 GitHub Codespaces의 컴퓨트·저장 비용까지 없다는 뜻이 아닙니다.
+**“로컬 실행”은 기본적으로 Codespaces 안에서 코드를 실행한다는 뜻입니다.** 터미널 두 개·`127.0.0.1`도 같은 Codespace 안을 가리킵니다. “Microsoft Azure 호출 없음”은 GitHub Codespaces의 컴퓨트·저장 비용까지 없다는 뜻이 아닙니다.
+
+<details class="environment-option" markdown="1">
+<summary>내 PC의 Windows PowerShell을 사용할 때만: 실행기 바꾸기</summary>
+
+기본 환경의 `python`을 `.\.venv\Scripts\python.exe`로 바꿉니다. 예를 들어 `python samples/first_response.py`는 `.\.venv\Scripts\python.exe samples/first_response.py`입니다. Codespaces에서는 PC가 Windows여도 이 변경을 하지 않습니다.
+
+</details>
 
 `--live`는 모든 CLI의 공통 안전장치가 아닙니다. `azd deploy`, `az login`, 일부 관리 스크립트는 이 옵션 없이도 동작하므로 반드시 해당 해설을 읽으세요. `--local`도 항상 “Microsoft Azure 비용 없음”을 뜻하지 않습니다. L12의 로컬 Hosted 서버는 실제 모델·검색을 호출할 수 있습니다. 브라우저 로그인과 터미널의 `az login`도 별도 세션입니다.
 
 <details markdown="1">
 <summary>심화 명령을 읽을 때: 환경 변수·여러 줄·azd</summary>
 
-명령 앞의 `KEY=value`는 macOS/Linux 셸에서 **그 명령에만** 환경 변수를 전달하는 문법입니다. PowerShell에서는 같은 의미의 `$env:KEY = "value"`로 현재 세션에 값을 설정한 뒤 명령 부분을 실행하며, 끝나면 이전 값으로 복원합니다. 줄 끝 `\`는 bash의 줄 이어쓰기이므로 PowerShell에 그대로 붙이지 말고 한 줄 명령으로 합칩니다. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill`은 제작 도구를 식별하는 값일 뿐, 학습자에게 Copilot skill 설치를 요구하지 않습니다.
+명령 앞의 `KEY=value`는 Codespaces의 Bash에서 **그 명령에만** 환경 변수를 전달하는 문법입니다. 내 PC의 PowerShell을 선택했다면 같은 의미의 `$env:KEY = "value"`로 현재 세션에 값을 설정한 뒤 명령 부분을 실행하며, 끝나면 이전 값으로 복원합니다. 줄 끝 `\`는 Bash의 줄 이어쓰기이므로 PowerShell에 그대로 붙이지 말고 한 줄 명령으로 합칩니다. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill`은 제작 도구를 식별하는 값일 뿐, 학습자에게 Copilot skill 설치를 요구하지 않습니다.
 
 </details>
 

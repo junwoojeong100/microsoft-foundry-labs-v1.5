@@ -4,7 +4,7 @@
 
 **Format:** Prepare your execution environment → verify sign-in and permissions → create a dedicated environment → configure endpoints and telemetry.
 
-**Start here:** Choose either your PC or [GitHub Codespaces](#l01-codespaces), then identify your Microsoft Azure subscription, region, and budget.
+**Start here:** Check your Microsoft Azure subscription, permissions, and budget, then open [GitHub Codespaces](#l01-codespaces) and use its prepared terminal.
 
 **What to check:** Your portal resources match `results/azure-environment.json`. The first model request is in L03.
 
@@ -16,13 +16,13 @@
 
 ## Concepts and lab map
 
-**What you will try:** Prepare a Microsoft Foundry project, models, access, telemetry, and local Python.
+**What you will try:** Check Python in Codespaces, then prepare a Microsoft Foundry project, models, access, and telemetry.
 
 **What is it, and why does it matter?** A subscription is a billing scope, a resource group groups resources, and a project is the agent workspace. Sign-in identifies the caller; RBAC permits actions; quota provides capacity.
 
 **How do you use it?** Create a dedicated environment and compare actual portal names and endpoints with `.env` and the ownership record. An endpoint alone does not grant access.
 
-**Where do you run it?** Use the VS Code terminal in your chosen environment (PC or Codespaces), then inspect the results in Microsoft Azure and Microsoft Foundry portals. The [setup script](../../scripts/azure_environment.py) and [Bicep](../../infra/main.bicep) define the resources created.
+**Where do you run it?** The default is the **Codespaces terminal in browser VS Code**. Inspect results in Microsoft Azure and Microsoft Foundry portals. The [setup script](../../scripts/azure_environment.py) and [Bicep](../../infra/main.bicep) define the resources created.
 
 ## Prerequisites
 
@@ -33,20 +33,19 @@
 | Role-assignment permission | `Microsoft.Authorization/roleAssignments/write` at the target scope; `Contributor` alone cannot grant roles |
 | Quota-read permission | `Cognitive Services Usages Reader` or equivalent subscription permission |
 | Region and budget | Supported models, permitted processing scope, spend limit, stop criteria, and retention deadline |
-| Execution environment | Your PC with Python 3.13, Microsoft Azure CLI 2.86.0 baseline, and VS Code, or the GitHub Codespaces configuration below. Internet and an approved package source are required |
+| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Microsoft Azure CLI, and core/MCP packages |
 
 Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Microsoft Azure access but **do not complete the live Microsoft Foundry path**.
 
-<a id="l01-pc"></a>
-
 ## Steps
 
-### 1. Prepare the PC and lab files
+<a id="l01-1-prepare-the-pc-and-lab-files"></a>
 
-**Choose one of the two paths.** If your PC already has the tools, use the version checks below. To reduce installation, use **GitHub Codespaces**: a remote Linux development environment hosted by GitHub, not a Microsoft Foundry project itself.
+### 1. Start in GitHub Codespaces
 
-<details class="optional-path codespaces-path" markdown="1">
-<summary>Minimize installation: start in your browser with GitHub Codespaces</summary>
+**GitHub Codespaces is this guide's default environment.** Work in your browser without installing Python, CLI, VS Code, or Docker on your PC. Codespaces is a remote Linux development environment, not a Microsoft Foundry project. Expand the **PC alternative** below only when needed.
+
+<section class="codespaces-path" markdown="1">
 
 <a id="l01-codespaces"></a>
 
@@ -83,11 +82,11 @@ python samples/workshop.py validate-data
 
 </div>
 
-**Continue:** If the checks match, skip PC installation and virtual-environment creation and go to **[2. Sign-in, subscription, permissions, and costs](#l01-sign-in)**. Without Microsoft Azure prerequisites, use [L06 local functions](#l06). Fill the project values in `.env` in step 5, after creating the resources.
+**Continue:** If the checks match, go to **[2. Sign-in, subscription, permissions, and costs](#l01-sign-in)**. The collapsed alternatives/resumption notes are not steps to perform now. Without Microsoft Azure prerequisites, use [L06 local functions](#l06). Fill the project values in `.env` in step 5, after creating the resources.
 
 | Where you are blocked | Next action |
 | --- | --- |
-| Codespaces menu missing or creation denied | Check repository access, organizational permission, and GitHub usage. Use the PC path if Codespaces is not permitted. |
+| Codespaces menu missing or creation denied | Check repository access, organizational permission, and GitHub usage. Expand the [PC alternative](#l01-pc) if Codespaces is not permitted. |
 | No `Lab tools ready.` or package installation fails | Inspect the first creation-log error and approved package access. After resolving it, rerun `bash .devcontainer/post-create.sh` in the same terminal. Existing `.env` and ownership records are preserved. |
 | Wrong interpreter path | Open a new terminal or run `source .venv/bin/activate`, then recheck. Do not recreate Microsoft Azure resources. |
 
@@ -95,7 +94,14 @@ On another day, restart **the same Codespace** from [Your Codespaces](https://gi
 
 [Official creation instructions](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository) · [Dev-container configuration](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
 
-</details>
+</section>
+
+<details class="environment-option pc-setup" markdown="1">
+<summary>Only if you need another environment: prepare your PC (Windows/macOS/Linux)</summary>
+
+<a id="l01-pc"></a>
+
+**Do not run this section in Codespaces.** Only for the PC path, extract the lab ZIP and prepare the tools/environment below. Rejoin the same step 2 afterward; do not mix `.env` or ownership records between environments.
 
 **Already installed? Do not repeat installation.** Check versions for your OS, then select the [English profile](#l01-language), [prepare files and the virtual environment](#l01-local), and [select Python](#l01-interpreter). For a first installation, follow **only your OS's sections** below. Without Microsoft Azure access, complete PC/local preparation and leave step 2 onward pending.
 
@@ -407,13 +413,18 @@ If you prepared the Python extension, also use the `.venv` created above for the
 3. Select this lab folder's **Python 3.13 (`.venv`)**. If it is missing, use **Enter interpreter path** to select `.venv/bin/python` on macOS/Linux or `.venv\Scripts\python.exe` on Windows.
 4. Check the environment in the window's bottom Status Bar. Do not assume that editor selection changes an existing terminal's interpreter; also run the path check below. Continue using `.\.venv\Scripts\python.exe` for Windows terminal commands.
 
+</details>
+
+<details class="resume-setup" markdown="1">
+<summary>Only when resuming or opening another terminal: recheck Python</summary>
+
 <a id="l01-new-terminal"></a>
 
 #### Return in a new terminal or another day
 
-Open **the same lab folder → Terminal → New Terminal** in VS Code. Do not recreate the environment or reinstall packages. In each terminal, including both L07 terminals, execute **only your OS's block** below.
+In the same Codespace, open **the same lab folder → Terminal → New Terminal** in VS Code. Do not recreate the environment or reinstall packages. Use the Bash commands below to recheck readiness, including in both L07 terminals.
 
-**macOS/Linux**
+**Codespaces terminal**
 
 ```bash
 source .venv/bin/activate
@@ -433,7 +444,10 @@ python -c "import sys; print('Python', sys.version.split()[0]); print(sys.execut
 
 </div>
 
-**Windows PowerShell**
+<details class="environment-option" markdown="1">
+<summary>Only when resuming on your PC: macOS/Linux or Windows PowerShell</summary>
+
+Use the Bash block above on macOS/Linux. On Windows PowerShell, use this **instead**:
 
 ```powershell
 $env:FOUNDRY_LAB_LANGUAGE = "en"
@@ -453,31 +467,17 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 
 Continue replacing `python` with `.\.venv\Scripts\python.exe` in Windows core commands. If the path is missing, check the current folder and return to environment creation only if it was never prepared.
 
+</details>
+
 **Do not reuse a `.venv` based on 3.12, 3.14, or another version.** Preserve it and create a Python 3.13 environment under a new name such as `.venv-core313`. Consistently replace the guide's `.venv` paths with that name and select the same interpreter in VS Code. Changing Python environments does not require recreating Microsoft Azure resources or ownership records.
+
+</details>
 
 <a id="l01-sign-in"></a>
 
 ### 2. Check sign-in, subscription, permissions, and costs
 
-**Choose only the sign-in command for your execution environment.** Portal or GitHub sign-in does not sign the CLI in automatically.
-
-**Your PC terminal:**
-
-```bash
-az login
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | What it does | Result, cost, or change |
-| --- | --- | --- |
-| 1. `az login` | Starts authentication for your PC's CLI. | Enter passwords/MFA directly in the sign-in screen; no resource creation. |
-
-</div>
-
-**GitHub Codespaces terminal:** Use [device-code sign-in](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser).
+**Sign in from your Codespaces terminal.** Portal or GitHub sign-in does not sign the CLI in automatically. Use [device-code sign-in](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser) below.
 
 ```bash
 az login --use-device-code
@@ -495,7 +495,28 @@ az login --use-device-code
 
 If organizational policy blocks device-code authentication, use an approved execution/authentication path. Do not disable MFA/Conditional Access or substitute a long-lived secret.
 
-**Both paths:** After sign-in, run these lines one at a time. Find your subscription ID in the list before replacing the placeholder.
+<details class="environment-option" markdown="1">
+<summary>Only for the PC alternative: sign in through your local browser</summary>
+
+You can use this command instead from a PC terminal. Do not run both sign-in paths.
+
+```bash
+az login
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `az login` | Starts authentication for your PC's CLI. | Enter passwords/MFA directly in the sign-in screen; no resource creation. |
+
+</div>
+
+</details>
+
+**After sign-in, check the subscription:** Run these lines one at a time. Find your subscription ID in the list before replacing the placeholder.
 
 ```bash
 az account list --query "[].{subscription:name,id:id,tenant:tenantId,state:state}" -o table

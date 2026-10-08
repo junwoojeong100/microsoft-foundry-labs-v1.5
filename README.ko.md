@@ -11,12 +11,12 @@
 **처음이라면 기본 L00–L10 → 공통 마무리 L19 순서로 진행합니다.** L01에서 자신의 환경을 만들며, 실제 Microsoft Azure 작업 전에는 해당 범위의 권한·비용 승인을 확인합니다. 심화 L11–L18은 기본 완주의 필수 조건이 아닙니다.
 
 1. [L00: 기초부터 읽기](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l00-first-steps)에서 무엇을 만들지 확인합니다.
-2. **설치를 줄이려면 [GitHub Codespaces 경로](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01-codespaces)**를 선택합니다. 내 PC에서 진행하려면 [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip)을 풀고 [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01)을 따릅니다. 둘 중 한 환경만 사용하며 Git 명령은 필수가 아닙니다.
+2. **기본 환경인 [GitHub Codespaces](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01-codespaces)를 엽니다.** 브라우저의 준비된 터미널에서 시작하며, 내 PC에 도구를 설치하거나 ZIP을 받을 필요는 없습니다.
 3. 각 장의 시작 카드에서 할 일과 결과를 확인하고 **준비 → 실행 → 성공 기준 → 정리**를 따라갑니다. 마지막 **이 장에서 남길 것 / 다음**을 확인한 뒤 페이지 맨 아래 **다음**으로 이동합니다.
 
 | 진행 중 필요한 안내 | 읽는 방법 |
 | --- | --- |
-| 설치·재개 | L01에서 버전을 확인하고 없는 도구의 설치 설명만 펼칩니다. 다음 날에는 **새 터미널에서 재개**를 사용합니다. |
+| 준비·재개 | L01에서 Codespaces 준비 상태를 확인합니다. 다음 날에는 같은 Codespace를 열고 **새 터미널에서 재개**만 펼칩니다. |
 | 명령·질문·설정 | **터미널 / 포털 Chat / .env / 정상 출력 예** 표시를 먼저 봅니다. 계획을 읽고 멈춘 뒤 실제 실행 명령을 따로 복사합니다. |
 | 용어·오류 | **용어가 낯설어요 / 진행이 막혔어요**를 열고 **읽던 실습으로 돌아가기**로 같은 위치에 복귀합니다. |
 | 완료·기록 | 실제 결과로 성공 기준을 확인합니다. 브라우저 진도는 학습 표시일 뿐 Microsoft Azure 실행 증거가 아닙니다. |
@@ -25,11 +25,18 @@
 
 **Microsoft Azure 준비가 안 됐다면** 웹 목차의 **Microsoft Azure 없이**를 고릅니다. 각 장에서 지정한 로컬·읽기·설계 단계만 진행하며 실제 Microsoft Azure 실습 완료와 구분합니다. 심화를 선택할 때도 장 앞의 선행 조건부터 확인합니다.
 
-### GitHub Codespaces로 설치 최소화
+### 기본 환경: GitHub Codespaces
 
 브라우저와 GitHub 계정으로 **저장소 → Code → Codespaces → New with options**를 엽니다. `.devcontainer/devcontainer.json`이 있는 실습 브랜치, 비용 부담 주체·허용량·머신을 확인한 뒤 생성합니다. 설정이 Python 3.13·Microsoft Azure CLI·Bicep·Python 확장과 기본/MCP 의존성을 준비합니다. **내 PC에 Python·CLI·VS Code·Docker를 설치할 필요는 없습니다.**
 
 생성 후 설치가 끝날 때까지 기다리고 L01의 준비 검사를 수행합니다. Microsoft Azure 로그인·권한·비용 승인은 별도이며 자원을 자동 생성하지 않습니다. Codespaces에서는 Windows PC를 쓰더라도 **Linux/Bash 명령**을 사용합니다. 종료할 때는 [L19](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l12)에서 Microsoft Azure 자원과 Codespace를 **각각** 확인합니다. Codespace를 중지해도 저장 비용과 Microsoft Azure 자원 비용은 남을 수 있습니다.
+
+<details>
+<summary>다른 환경이 필요할 때만: 내 PC에서 실습하기</summary>
+
+Codespaces가 허용되지 않거나 사용할 수 없을 때만 [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip)을 풀고 [L01의 내 PC 준비](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01-pc)를 펼칩니다. Windows/macOS/Linux 도구 설치·가상환경·로그인 대안은 해당 절에 모아 두었습니다. 두 환경의 `.env`·소유 기록을 섞지 않습니다.
+
+</details>
 
 <details>
 <summary>학습 지침과 모델 조건</summary>
@@ -53,8 +60,7 @@ v2는 공용·비공개 질문 분리, 모든 하위 질문의 답변, 주장별
 
 실습 코드 파일별 역할은 [한국어 안내](samples/README.ko.md) · [English](samples/README.md)에서 확인할 수 있습니다.
 
-ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `index.html`을 열고, 코드는 편집기에서 확인합니다.
-Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다.
+Codespaces에서는 파일이 이미 준비되어 있습니다. 오프라인 자료가 필요할 때만 ZIP을 풀어 폴더 구조를 유지하고 `index.ko.html` 또는 `index.html`을 엽니다. Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다.
 기본 코스는 **L00–L10, 약 4시간 45분**입니다. 심화는 **L11–L18**, 공통 마무리는 **L19(10분)**이며 실습 번호는 00–19로 이어집니다. 기본만 진행하면 L10에서 L19로, 심화를 선택하면 선택한 장을 마친 뒤 L19로 이동합니다. 읽기에는 로그인이 필요하지 않습니다.
 
 각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·오케스트레이션·권한·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Microsoft Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L18의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
@@ -68,6 +74,8 @@ L08의 수집은 `samples/instruction_prompt_agent_lab.py`, 원문 평가는 `sa
 ## 내레이션 실습 요약영상
 
 [장별 재생 페이지](downloads/replay/index.html) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4). 두 영상 모두 음성·자막·20개 모듈 챕터를 포함합니다. 실시간 포털 녹화가 아니라 명령과 도식으로 재구성한 학습 영상입니다.
+
+영상에는 PC 준비 경로가 포함되어 있습니다. 현재 기본 환경은 Codespaces이므로 시작·설정 순서는 위의 L01 본문을 우선합니다.
 
 FFmpeg·시스템 음성과 선언된 Playwright가 설치된 macOS에서 `python scripts/build_replay.py`로 다시 만듭니다. 내레이션과 장면 원본은 `content/replay.json`입니다.
 

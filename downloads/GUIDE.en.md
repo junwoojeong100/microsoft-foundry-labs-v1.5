@@ -84,6 +84,8 @@ Start with these five terms. Learn other acronyms when you need them and use the
 
 **Start with 11 core modules, L00–L10.** The eight advanced modules, L11–L18, are electives. **Finish every path with shared wrap-up L19.** Core-only learners jump directly from L10 to L19 without completing the electives.
 
+**GitHub Codespaces is the default environment.** Start in its prepared browser terminal. Expand PC installation and OS-specific alternatives only when needed.
+
 ```text
 Prepare      L00 overview → L01 your environment → L02 model checks
 Build        L03 first answer → L04 instructions → L05 documents → L06 functions → L07 MCP
@@ -95,7 +97,7 @@ Check/finish L08 evaluation → L09 boundaries → L10 traces → L19 costs and 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
 | Your Microsoft Azure subscription, permissions, and budget scope are ready | [Create your environment in L01](#l01) → inspect your deployment in L02 → first call in L03 | An actual answer/response ID from the project you created |
-| Account, permissions, or cost conditions are still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L07 local MCP → L08 instructions/questions | Valid data, the KRW 2,900,000 draft, and MCP calls; live Microsoft Azure execution remains not performed |
+| Microsoft Azure account, permissions, or cost conditions are still pending | [L01 Codespaces setup/local checks](#l01-codespaces) → L06 local functions → L07 local MCP → L08 instructions/questions | Valid data, the KRW 2,900,000 draft, and MCP calls; live Microsoft Azure execution remains not performed |
 
 The default is **create your environment → run the labs → clean up your resources**. The second path is local preparation, not completion of the Microsoft Foundry experience. **Without Microsoft Azure** groups those local, reading, and design steps.
 
@@ -127,7 +129,7 @@ The default is **create your environment → run the labs → clean up your reso
 
 **How do you use it?** Add one capability per module and check the result. Compare policy claims with the documents, and quantities and amounts with function results. You do not need to memorize every menu.
 
-**Where do you run it?** This page is a guide. The portal is the AI workspace in your browser; the terminal is the command window in your chosen lab environment (PC or Codespaces). **Copy is not Run.**
+**Where do you run it?** This page is a guide. The portal is the AI workspace in your browser; the default terminal is **the command window inside Codespaces**. **Copy is not Run.**
 
 ### The five entry points in the live portal
 
@@ -139,7 +141,14 @@ The default is **create your environment → run the labs → clean up your reso
 
 ### How to read the source code and commands
 
-Download and extract the complete workshop ZIP, then use **File → Open Folder** in VS Code. The **lab folder (repository root)** contains `samples`, `data`, and `requirements.txt` together. Your browser's “View page source” shows the guide's HTML, not the executable samples. Git command knowledge is not required to start.
+Opening [L01's Codespace](#l01-codespaces) prepares the repository in browser VS Code; no ZIP download or Git command is needed. The **lab folder (repository root)** contains `samples`, `data`, and `requirements.txt` together. Your browser's “View page source” shows the guide's HTML, not the executable samples.
+
+<details class="environment-option" markdown="1">
+<summary>Only for the PC alternative: open the ZIP in VS Code</summary>
+
+Extract the complete workshop ZIP, preserve its structure, and use **File → Open Folder** in VS Code. Follow [L01's PC setup](#l01-pc). Only when choosing this alternative do subsequent local exercises run on your PC.
+
+</details>
 
 <details markdown="1">
 <summary>Reference: what the source files do</summary>
@@ -173,16 +182,23 @@ Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python
 
 **Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
 
-**Rules for subsequent commands:** Always run from the **lab folder** containing `samples`, `data`, and `requirements.txt`. In Windows PowerShell, replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for example, `.\.venv\Scripts\python.exe samples/first_response.py`. Advanced modules identify their separate Python environment.
+**Rules for subsequent commands:** In the Codespaces terminal, run from the **lab folder** containing `samples`, `data`, and `requirements.txt`. Use the Bash commands unchanged regardless of your PC's OS. The default `python` is the prepared `.venv`; advanced modules specify their separate Python environment.
 
-**In Codespaces, use Linux/Bash commands regardless of your PC's OS.** “Local execution” means running code inside your chosen lab environment. Both terminals and `127.0.0.1` refer to that same Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges. The repository is already open in browser VS Code, so [this path](#l01-codespaces) does not require downloading the ZIP again.
+**“Local execution” defaults to running code inside Codespaces.** Both terminals and `127.0.0.1` refer to that same Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges.
+
+<details class="environment-option" markdown="1">
+<summary>Only for Windows PowerShell on your PC: change the interpreter path</summary>
+
+Replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for example, `.\.venv\Scripts\python.exe samples/first_response.py`. Do not make this substitution in Codespaces, even from a Windows PC.
+
+</details>
 
 `--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Microsoft Azure cost”: the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details markdown="1">
 <summary>For advanced commands: environment variables, continued lines, and azd</summary>
 
-A `KEY=value` prefix passes an environment variable to **that command only** in macOS/Linux shells. In PowerShell, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in bash; do not paste it unchanged into PowerShell. Combine the command into one line instead. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill` only identifies the authoring tool; learners do not need to install a Copilot skill.
+A `KEY=value` prefix passes an environment variable to **that command only** in Codespaces Bash. If you chose PowerShell on your PC, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in Bash; do not paste it unchanged into PowerShell. Combine the command into one line instead. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill` only identifies the authoring tool; learners do not need to install a Copilot skill.
 
 </details>
 
@@ -293,7 +309,7 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 
 **Format:** Prepare your execution environment → verify sign-in and permissions → create a dedicated environment → configure endpoints and telemetry.
 
-**Start here:** Choose either your PC or [GitHub Codespaces](#l01-codespaces), then identify your Microsoft Azure subscription, region, and budget.
+**Start here:** Check your Microsoft Azure subscription, permissions, and budget, then open [GitHub Codespaces](#l01-codespaces) and use its prepared terminal.
 
 **What to check:** Your portal resources match `results/azure-environment.json`. The first model request is in L03.
 
@@ -305,13 +321,13 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 
 ## Concepts and lab map
 
-**What you will try:** Prepare a Microsoft Foundry project, models, access, telemetry, and local Python.
+**What you will try:** Check Python in Codespaces, then prepare a Microsoft Foundry project, models, access, and telemetry.
 
 **What is it, and why does it matter?** A subscription is a billing scope, a resource group groups resources, and a project is the agent workspace. Sign-in identifies the caller; RBAC permits actions; quota provides capacity.
 
 **How do you use it?** Create a dedicated environment and compare actual portal names and endpoints with `.env` and the ownership record. An endpoint alone does not grant access.
 
-**Where do you run it?** Use the VS Code terminal in your chosen environment (PC or Codespaces), then inspect the results in Microsoft Azure and Microsoft Foundry portals. The [setup script](../scripts/azure_environment.py) and [Bicep](../infra/main.bicep) define the resources created.
+**Where do you run it?** The default is the **Codespaces terminal in browser VS Code**. Inspect results in Microsoft Azure and Microsoft Foundry portals. The [setup script](../scripts/azure_environment.py) and [Bicep](../infra/main.bicep) define the resources created.
 
 ## Prerequisites
 
@@ -322,20 +338,19 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 | Role-assignment permission | `Microsoft.Authorization/roleAssignments/write` at the target scope; `Contributor` alone cannot grant roles |
 | Quota-read permission | `Cognitive Services Usages Reader` or equivalent subscription permission |
 | Region and budget | Supported models, permitted processing scope, spend limit, stop criteria, and retention deadline |
-| Execution environment | Your PC with Python 3.13, Microsoft Azure CLI 2.86.0 baseline, and VS Code, or the GitHub Codespaces configuration below. Internet and an approved package source are required |
+| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Microsoft Azure CLI, and core/MCP packages |
 
 Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Microsoft Azure access but **do not complete the live Microsoft Foundry path**.
 
-<a id="l01-pc"></a>
-
 ## Steps
 
-### 1. Prepare the PC and lab files
+<a id="l01-1-prepare-the-pc-and-lab-files"></a>
 
-**Choose one of the two paths.** If your PC already has the tools, use the version checks below. To reduce installation, use **GitHub Codespaces**: a remote Linux development environment hosted by GitHub, not a Microsoft Foundry project itself.
+### 1. Start in GitHub Codespaces
 
-<details class="optional-path codespaces-path" markdown="1">
-<summary>Minimize installation: start in your browser with GitHub Codespaces</summary>
+**GitHub Codespaces is this guide's default environment.** Work in your browser without installing Python, CLI, VS Code, or Docker on your PC. Codespaces is a remote Linux development environment, not a Microsoft Foundry project. Expand the **PC alternative** below only when needed.
+
+<section class="codespaces-path" markdown="1">
 
 <a id="l01-codespaces"></a>
 
@@ -372,11 +387,11 @@ python samples/workshop.py validate-data
 
 </div>
 
-**Continue:** If the checks match, skip PC installation and virtual-environment creation and go to **[2. Sign-in, subscription, permissions, and costs](#l01-sign-in)**. Without Microsoft Azure prerequisites, use [L06 local functions](#l06). Fill the project values in `.env` in step 5, after creating the resources.
+**Continue:** If the checks match, go to **[2. Sign-in, subscription, permissions, and costs](#l01-sign-in)**. The collapsed alternatives/resumption notes are not steps to perform now. Without Microsoft Azure prerequisites, use [L06 local functions](#l06). Fill the project values in `.env` in step 5, after creating the resources.
 
 | Where you are blocked | Next action |
 | --- | --- |
-| Codespaces menu missing or creation denied | Check repository access, organizational permission, and GitHub usage. Use the PC path if Codespaces is not permitted. |
+| Codespaces menu missing or creation denied | Check repository access, organizational permission, and GitHub usage. Expand the [PC alternative](#l01-pc) if Codespaces is not permitted. |
 | No `Lab tools ready.` or package installation fails | Inspect the first creation-log error and approved package access. After resolving it, rerun `bash .devcontainer/post-create.sh` in the same terminal. Existing `.env` and ownership records are preserved. |
 | Wrong interpreter path | Open a new terminal or run `source .venv/bin/activate`, then recheck. Do not recreate Microsoft Azure resources. |
 
@@ -384,7 +399,14 @@ On another day, restart **the same Codespace** from [Your Codespaces](https://gi
 
 [Official creation instructions](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository) · [Dev-container configuration](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
 
-</details>
+</section>
+
+<details class="environment-option pc-setup" markdown="1">
+<summary>Only if you need another environment: prepare your PC (Windows/macOS/Linux)</summary>
+
+<a id="l01-pc"></a>
+
+**Do not run this section in Codespaces.** Only for the PC path, extract the lab ZIP and prepare the tools/environment below. Rejoin the same step 2 afterward; do not mix `.env` or ownership records between environments.
 
 **Already installed? Do not repeat installation.** Check versions for your OS, then select the [English profile](#l01-language), [prepare files and the virtual environment](#l01-local), and [select Python](#l01-interpreter). For a first installation, follow **only your OS's sections** below. Without Microsoft Azure access, complete PC/local preparation and leave step 2 onward pending.
 
@@ -696,13 +718,18 @@ If you prepared the Python extension, also use the `.venv` created above for the
 3. Select this lab folder's **Python 3.13 (`.venv`)**. If it is missing, use **Enter interpreter path** to select `.venv/bin/python` on macOS/Linux or `.venv\Scripts\python.exe` on Windows.
 4. Check the environment in the window's bottom Status Bar. Do not assume that editor selection changes an existing terminal's interpreter; also run the path check below. Continue using `.\.venv\Scripts\python.exe` for Windows terminal commands.
 
+</details>
+
+<details class="resume-setup" markdown="1">
+<summary>Only when resuming or opening another terminal: recheck Python</summary>
+
 <a id="l01-new-terminal"></a>
 
 #### Return in a new terminal or another day
 
-Open **the same lab folder → Terminal → New Terminal** in VS Code. Do not recreate the environment or reinstall packages. In each terminal, including both L07 terminals, execute **only your OS's block** below.
+In the same Codespace, open **the same lab folder → Terminal → New Terminal** in VS Code. Do not recreate the environment or reinstall packages. Use the Bash commands below to recheck readiness, including in both L07 terminals.
 
-**macOS/Linux**
+**Codespaces terminal**
 
 ```bash
 source .venv/bin/activate
@@ -722,7 +749,10 @@ python -c "import sys; print('Python', sys.version.split()[0]); print(sys.execut
 
 </div>
 
-**Windows PowerShell**
+<details class="environment-option" markdown="1">
+<summary>Only when resuming on your PC: macOS/Linux or Windows PowerShell</summary>
+
+Use the Bash block above on macOS/Linux. On Windows PowerShell, use this **instead**:
 
 ```powershell
 $env:FOUNDRY_LAB_LANGUAGE = "en"
@@ -742,31 +772,17 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 
 Continue replacing `python` with `.\.venv\Scripts\python.exe` in Windows core commands. If the path is missing, check the current folder and return to environment creation only if it was never prepared.
 
+</details>
+
 **Do not reuse a `.venv` based on 3.12, 3.14, or another version.** Preserve it and create a Python 3.13 environment under a new name such as `.venv-core313`. Consistently replace the guide's `.venv` paths with that name and select the same interpreter in VS Code. Changing Python environments does not require recreating Microsoft Azure resources or ownership records.
+
+</details>
 
 <a id="l01-sign-in"></a>
 
 ### 2. Check sign-in, subscription, permissions, and costs
 
-**Choose only the sign-in command for your execution environment.** Portal or GitHub sign-in does not sign the CLI in automatically.
-
-**Your PC terminal:**
-
-```bash
-az login
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | What it does | Result, cost, or change |
-| --- | --- | --- |
-| 1. `az login` | Starts authentication for your PC's CLI. | Enter passwords/MFA directly in the sign-in screen; no resource creation. |
-
-</div>
-
-**GitHub Codespaces terminal:** Use [device-code sign-in](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser).
+**Sign in from your Codespaces terminal.** Portal or GitHub sign-in does not sign the CLI in automatically. Use [device-code sign-in](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser) below.
 
 ```bash
 az login --use-device-code
@@ -784,7 +800,28 @@ az login --use-device-code
 
 If organizational policy blocks device-code authentication, use an approved execution/authentication path. Do not disable MFA/Conditional Access or substitute a long-lived secret.
 
-**Both paths:** After sign-in, run these lines one at a time. Find your subscription ID in the list before replacing the placeholder.
+<details class="environment-option" markdown="1">
+<summary>Only for the PC alternative: sign in through your local browser</summary>
+
+You can use this command instead from a PC terminal. Do not run both sign-in paths.
+
+```bash
+az login
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `az login` | Starts authentication for your PC's CLI. | Enter passwords/MFA directly in the sign-in screen; no resource creation. |
+
+</div>
+
+</details>
+
+**After sign-in, check the subscription:** Run these lines one at a time. Find your subscription ID in the list before replacing the placeholder.
 
 ```bash
 az account list --query "[].{subscription:name,id:id,tenant:tenantId,state:state}" -o table
@@ -1938,7 +1975,7 @@ Understand who is responsible for executing function calls. **The model proposes
 
 **What you will try:** Let the model request Python functions that read stock and calculate a draft.
 
-**What is it, and why does it matter?** Function calling lets the model request a function and its inputs. **The program validates and executes it.** Registering a function name in the portal does not run code on your PC.
+**What is it, and why does it matter?** Function calling lets the model request a function and its inputs. **The program validates and executes it.** Registering a function name in the portal does not run code in your lab environment.
 
 **How do you use it?** Check valid and invalid inputs locally first. If you run the Microsoft Azure integration, compare the answer's amounts with the actual function results.
 
@@ -1946,7 +1983,14 @@ Understand who is responsible for executing function calls. **The model proposes
 
 ## Prerequisites
 
-The local exercise requires only Python. Without a virtual environment, use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. Microsoft Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
+Use the Python environment prepared in L01's Codespace. Local functions need no Microsoft Azure account. Microsoft Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
+
+<details class="environment-option" markdown="1">
+<summary>Only for local functions on your PC without a virtual environment</summary>
+
+Use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. This alternative does not include Microsoft Azure integration.
+
+</details>
 
 ## Steps
 
@@ -2028,7 +2072,7 @@ JSON schema's `strict` and `additionalProperties: false` constrain function-argu
 
 #### Portal configuration and the Python function
 
-In the Microsoft Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code on your PC. The application's Python code must validate the arguments and call the function.
+In the Microsoft Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code in your lab environment. The application's Python code must validate the arguments and call the function.
 
 ```python
 def prepare_purchase_request(sku: str, quantity: int) -> dict:
@@ -2247,16 +2291,21 @@ and a Skill provides instructions for repeatable work.** A Skill is neither appr
 
 **How do you use it?** Read the local server's inventory response, then retrieve the same values through MCP. Distinguish a listed tool from an executed tool.
 
-**Where do you run it?** Use two terminals on your PC. The [HTTP server](../samples/inventory_api.py), [OpenAPI](../samples/inventory.openapi.json), [MCP server](../samples/mcp_server.py), and [client](../samples/toolbox_lab.py) are included. The [English Skill](../data/en/skills/purchase-review/SKILL.md) belongs to the optional extension.
+**Where do you run it?** Use two terminals in the same Codespace. The [HTTP server](../samples/inventory_api.py), [OpenAPI](../samples/inventory.openapi.json), [MCP server](../samples/mcp_server.py), and [client](../samples/toolbox_lab.py) are included. The [English Skill](../data/en/skills/purchase-review/SKILL.md) belongs to the optional extension.
 
 ## Prerequisites
 
-Install `requirements-tools.txt` in L01's Python virtual environment. If it does not exist, first follow L01's **virtual-environment creation steps**, without Microsoft Azure sign-in. Installation needs internet and an approved package repository, but **core steps 1–2 need no Microsoft Azure account**.
-**If you completed L01's Codespaces setup, these dependencies are already installed; skip the installation command below.** Open both terminals in that same Codespace. Here `127.0.0.1` means the Codespace, not your PC, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
+**Reuse L01's Codespace.** Core/MCP dependencies are already prepared; do not reinstall them. Core steps 1–2 need no Microsoft Azure account.
+Open both terminals in that same Codespace. Here `127.0.0.1` means the Codespace, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
 The cloud steps require Search from L11 and the Search Index Data Reader role for the project managed identity.
 **Only steps 1–2 below—local HTTP/OpenAPI and MCP—are required for the core course.**
 Cloud Toolbox/Skills in steps 3–4 are optional extensions after preparing the L11 resources.
 Core-course learners do not need to complete L11 first.
+
+<details class="environment-option" markdown="1">
+<summary>Only on your PC or when MCP packages are missing: manual installation</summary>
+
+First select L01's Python environment. If absent, follow [PC setup](#l01-pc). Installation needs internet and an approved package source, but no Microsoft Azure sign-in. Skip this in a successfully prepared Codespace.
 
 ```bash
 python -m pip install -r requirements-tools.txt
@@ -2271,6 +2320,8 @@ python -m pip install -r requirements-tools.txt
 | 1. `pip install -r requirements-tools.txt` | Adds MCP lab dependencies to the activated base virtual environment. `python -m pip` keeps the installer aligned with the current Python. | Downloads packages and changes the local environment only; no Microsoft Azure tools are invoked. |
 
 </div>
+
+</details>
 
 ## Steps
 
@@ -2288,13 +2339,18 @@ python samples/inventory_api.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `inventory_api.py` | Starts an HTTP server that reads synthetic inventory at `127.0.0.1:8766`. It is normal for the shell prompt not to return immediately. | Listens only on your computer. No Microsoft Azure cost. Stop it with Ctrl+C in this terminal when finished. |
+| 1. `inventory_api.py` | Starts an HTTP server that reads synthetic inventory at `127.0.0.1:8766`. It is normal for the shell prompt not to return immediately. | Listens only inside the same Codespace. No Microsoft Azure cost. Stop it with Ctrl+C in this terminal when finished. |
 
 </div>
 
 In a second terminal, change to the same English checkout, reselect `FOUNDRY_LAB_LANGUAGE=en` as in L01 and the appropriate Python environment, then run:
 
-**In Windows PowerShell, use `curl.exe` instead of `curl` below** to avoid the alias for a different PowerShell command.
+<details class="environment-option" markdown="1">
+<summary>Only for Windows PowerShell on your PC: avoid the curl alias</summary>
+
+Use `curl.exe` instead of `curl` below. Do not make this substitution in Codespaces.
+
+</details>
 
 Leave the first terminal's server running. If you are unsure about the second terminal, revisit [L01's new-terminal check](#l01-new-terminal).
 
@@ -2322,7 +2378,7 @@ Do not expose it publicly through a tunnel.
 
 Continue in the **second terminal**, not the one waiting for server requests. These commands start the MCP server separately; no third terminal is needed.
 
-**macOS/Linux:** Run one line at a time. The second line's approval error is intentional; compare it with the approved calls afterward.
+**Codespaces Bash terminal:** Run one line at a time. The second line's approval error is intentional; compare it with the approved calls afterward.
 
 ```bash
 python samples/toolbox_lab.py inspect --local
@@ -2344,7 +2400,10 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 </div>
 
-**Windows PowerShell:** Use this block **instead**. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token) preserves JSON quotes when passing arguments to a Windows executable. It is PowerShell syntax, not a Python option or an approval bypass. Keep each command on one line.
+<details class="environment-option" markdown="1">
+<summary>Only when running on your PC: macOS/Linux and Windows PowerShell commands</summary>
+
+Use the Bash block above on macOS/Linux. In **Windows PowerShell**, use this block **instead**. [`--%`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_parsing#the-stop-parsing-token) preserves JSON quotes when passing arguments to a Windows executable. It is PowerShell syntax, not a Python option or an approval bypass. Keep each command on one line.
 
 ```powershell
 .\.venv\Scripts\python.exe samples/toolbox_lab.py inspect --local
@@ -2365,6 +2424,8 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 | 4. Approved draft function | Checks quantity 2 and the tool name together. | KRW 2,900,000, not ordered; no purchase approval. |
 
 </div>
+
+</details>
 
 A stdio child process runs the server and performs the actual initialize → tools/list → tools/call exchange.
 Check inventory 8, unit price KRW 1,450,000, draft total KRW 2,900,000, and `order_submitted=false`.
@@ -3431,7 +3492,7 @@ Do not describe this as validation of the Responses, Voice, or Teams protocols.
 
 ## Concepts and lab map
 
-**What you will try:** Move agent code from your PC to a Microsoft Foundry server.
+**What you will try:** Move agent code from Codespaces to a Microsoft Foundry server.
 
 **What is it, and why does it matter?** A Hosted Agent runs your code in Microsoft Foundry. Choose it when functions need a server rather than your open terminal. Code, data, settings, and the communication protocol must agree.
 
@@ -3450,7 +3511,7 @@ Verify Hosted capabilities/regions. Use L01's scoped creation/role-assignment pe
 | Current state | Steps to follow | What completion means |
 | --- | --- | --- |
 | No Microsoft Azure execution approval | Prepare the dedicated environment → step 1 packaging | Packaging only; server business calls and deployment not performed |
-| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a PC server, not successful Microsoft Azure Hosted deployment |
+| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a server inside Codespaces, not successful Microsoft Azure Hosted deployment |
 | Deployment and role changes separately approved | Steps 1 → 2 → 3 → 4 → 5 | Inspect the exact remote version's answer and stopped session |
 
 First locate **L01's `.env` and `results/azure-environment.json`, plus L11's `results/search.json`**, in this same lab folder. Stop if project address, language, or Search target differs. Never copy another learner's receipt or a screenshot's version number.
@@ -3479,13 +3540,18 @@ python scripts/check_sdk.py
 
 The `.venv-advanced` environment for the MAF lab is separate. Do not simply merge incompatible `azure-ai-projects` constraints. Keep `FOUNDRY_LAB_LANGUAGE=en` selected in every terminal and use only this English checkout's configuration and receipts.
 
-On Windows, use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-live\Scripts\python.exe`. Use `curl.exe` for the `curl` commands below. Do not paste the macOS/Linux `source` command into PowerShell.
+<details class="environment-option" markdown="1">
+<summary>Only when using Windows PowerShell on your PC</summary>
+
+Use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-live\Scripts\python.exe`. Use `curl.exe` for the `curl` commands below. Do not paste Bash's `source` command into PowerShell. See [L00 command reading](#l00) for environment-variable syntax. Do not make these substitutions in Codespaces.
+
+</details>
 
 <a id="l12-azd"></a>
 
-**If azd is missing,** follow the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) for your OS through an approved distribution path, then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment.
+**If azd is missing in Codespaces,** use the approved **Linux installation path** in the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd), then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
 
-azd and Microsoft Azure CLI have separate authentication. Check versions/extensions and sign-in first. See [L00 command reading](#l00) for translating macOS/Linux's `KEY=value` syntax to Windows.
+azd and Microsoft Azure CLI have separate authentication. Check versions/extensions and sign-in first. Use the Bash commands below unchanged in Codespaces.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
@@ -3842,7 +3908,14 @@ python3.13 -m venv .venv-advanced
 
 </div>
 
-On Windows use `.venv-advanced\Scripts\python.exe`. If an existing advanced environment uses another Python version, create a new environment folder.
+If an existing advanced environment uses another Python version, create a new environment folder.
+
+<details class="environment-option" markdown="1">
+<summary>Only when using Windows PowerShell on your PC</summary>
+
+Create the environment with `py -3.13`, then use `.venv-advanced\Scripts\python.exe`. In Codespaces, use the Bash commands above unchanged.
+
+</details>
 
 ### 2. Check model throughput
 
@@ -4068,7 +4141,14 @@ This module performs local orchestration and model calls only. Hosted sessions a
 
 ## Prerequisites
 
-Reuse [L13's setup](#l15): `.venv-advanced`, `.env`, **your own** `results/azure-environment.json`, and the chat **100,000 TPM / 60 RPM** check. L13's paid patterns are not prerequisites. Use `.venv-advanced\Scripts\python.exe` on Windows and keep the English profile selected.
+Reuse [L13's setup](#l15): `.venv-advanced`, `.env`, **your own** `results/azure-environment.json`, and the chat **100,000 TPM / 60 RPM** check. L13's paid patterns are not prerequisites. Keep the English profile selected.
+
+<details class="environment-option" markdown="1">
+<summary>Only when using Windows PowerShell on your PC</summary>
+
+Use `.venv-advanced\Scripts\python.exe`. In Codespaces, use the Bash commands below unchanged.
+
+</details>
 
 ### Choose your starting path
 
@@ -4763,7 +4843,7 @@ If it targets Hosted, stop the agent session compute separately as well.
 
 **How do you use it?** Repair the local exercise, then record each step's caller, allowed operations, and rejection conditions. This does not change actual permissions or networks.
 
-**Where do you run it?** Start with Python on your PC and a design table. The [infrastructure](../infra/main.bicep) and [role setup](../scripts/runtime_roles.py) are references to read, not execute.
+**Where do you run it?** Start with Python in Codespaces and a design table. The [infrastructure](../infra/main.bicep) and [role setup](../scripts/runtime_roles.py) are references to read, not execute.
 
 ## Prerequisites
 
@@ -4785,7 +4865,7 @@ Edit only `practice/governance/exercise.py`. Keep `test_exercise.py`, allowed us
 
 <div class="practice-block" markdown="1">
 
-**Try it:** This exercise uses only synthetic strings on your PC. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Microsoft Azure roles nor real document ACLs.
+**Try it:** This exercise uses only synthetic strings in your lab environment. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Microsoft Azure roles nor real document ACLs.
 
 ```bash
 python samples/prepare_practice.py governance --output practice/governance
@@ -5010,7 +5090,7 @@ Record any actual temporary roles, policies, gateways, or connections you change
 
 **How do you use it?** Reproduce three failures and repair the candidate-selection conditions. Use existing results to write a release manifest and rollback decision. No new Hosted deployment is required.
 
-**Where do you run it?** Work on your PC. Read **`.github/workflows/` in your supplied sources** to distinguish [local checks](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/validate.yml) from [separately approved execution](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/azure-validation.yml).
+**Where do you run it?** Work in Codespaces. Read **`.github/workflows/` in your supplied sources** to distinguish [local checks](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/validate.yml) from [separately approved execution](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/azure-validation.yml).
 
 ## Prerequisites
 

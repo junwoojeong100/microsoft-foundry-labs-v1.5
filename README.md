@@ -11,12 +11,12 @@ Build a synthetic Contoso purchasing assistant through **20 labs and five refere
 **For a first run, follow core L00–L10 → shared wrap-up L19.** Create your own environment in L01 and verify scoped permissions and cost approval before actual Microsoft Azure operations. Advanced L11–L18 are not required for core completion.
 
 1. Read [L00: the basics](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l00-first-steps) to see what you will build.
-2. **For fewer local installations, choose the [GitHub Codespaces route](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-codespaces).** To use your own PC instead, extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) and follow [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01). Use one environment, not both; Git commands are not required.
+2. **Open the default environment, [GitHub Codespaces](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-codespaces).** Start in its prepared browser terminal; no PC tool installation or ZIP download is required.
 3. Read each module's start card, then follow **Prerequisites → Steps → Success criteria → Cleanup**. Check **Keep / Continue** before using **Next** at the bottom of the page.
 
 | What you need while learning | How to use the guide |
 | --- | --- |
-| Installation or resuming | In L01, check versions and expand installation instructions only for missing tools. Use **Return in a new terminal** on another day. |
+| Preparation or resuming | Check Codespaces readiness in L01. On another day, open the same Codespace and expand **Return in a new terminal** only. |
 | Commands, questions, or settings | Check the **terminal / portal Chat / .env / expected output** label first. Inspect the plan, pause, then copy the actual execution command separately. |
 | A term or an error | Open **Explain a term / I'm stuck**, then **Return to the lab** to resume at the same reading position. |
 | Completion and records | Check success criteria against actual results. Browser progress is a learning marker, not proof of Microsoft Azure execution. |
@@ -25,11 +25,18 @@ Collapsed **implementation references and optional extensions** are not a to-do 
 
 **Not ready for Microsoft Azure?** Select **Without Microsoft Azure** in the web contents. Follow only the stated local, reading, and design steps, separately from live completion. When choosing an elective, check its prerequisites first.
 
-### Minimize installation with GitHub Codespaces
+### Default environment: GitHub Codespaces
 
 With a browser and GitHub account, open **repository → Code → Codespaces → New with options**. Select the lab branch containing `.devcontainer/devcontainer.json` and review the payer, allowance, and machine before creating it. The configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, and core/MCP dependencies. **You do not need Python, CLI, VS Code, or Docker installed on your own PC.**
 
 Wait for post-creation setup to finish, then run L01's readiness checks. Microsoft Azure authentication, permissions, and cost approval remain separate; no resources are created automatically. Use **Linux/Bash commands** in Codespaces even from a Windows PC. At [L19](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l12), check Microsoft Azure resources and the Codespace **separately**. Stopping a Codespace can leave storage charges and Microsoft Azure resource charges.
+
+<details>
+<summary>Only if you need another environment: use your PC</summary>
+
+If Codespaces is unavailable or not permitted, extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) and expand [L01's PC setup](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-pc). Windows/macOS/Linux installation, virtual-environment setup, and alternative sign-in instructions are grouped there. Do not mix `.env` or ownership records between environments.
+
+</details>
 
 <details>
 <summary>Instruction learning path and model conditions</summary>
@@ -53,8 +60,7 @@ The kit pins **`gpt-6-sol / 2026-09-22`**; L01 creates deployment `contoso-chat`
 
 For a file-by-file code reference, see [English](samples/README.md) or [한국어](samples/README.ko.md).
 
-Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.html`; use an editor to inspect code.
-Open Markdown inside the kit's `downloads/` folder to resolve its images and source links.
+Codespaces already contains the files. Download/extract the ZIP only for offline materials, preserve its structure, and open `index.html` or `index.ko.html`. Open Markdown inside the kit's `downloads/` folder to resolve its images and source links.
 The core course is **L00–L10, about 4 hours 45 minutes**. Advanced electives are **L11–L18**, followed by **L19 shared wrap-up (10 minutes)**; lab numbers are continuous from 00 through 19. Core-only learners go directly from L10 to L19; others finish their selected electives before L19. Reading requires no sign-in.
 
 Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Microsoft Azure results; record design completion separately from actual execution. L18's default CI/release-design path does not require Hosted deployment.
@@ -68,6 +74,8 @@ L08 uses `samples/instruction_prompt_agent_lab.py` for collection, followed by `
 ## Narrated lab walkthroughs
 
 [Chapter player](downloads/replay/index.html) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4). Both include narration, subtitles, and all 20 module chapters. These are instructional reconstructions using commands and diagrams, not live portal recordings.
+
+The recordings include the PC preparation route. Codespaces is now the default; follow the current L01 text for startup and configuration order.
 
 Rebuild locally on macOS with installed FFmpeg, system voices, and the declared Playwright dependency: `python scripts/build_replay.py`. Narration and scenes come from `content/replay.json`.
 
