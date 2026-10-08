@@ -8,21 +8,28 @@
 
 ## 처음 시작하는 분
 
-**실습 참여자가 자신의 환경을 만들고 처음부터 끝까지 진행합니다.** L01에서 PC·구독·권한·예산을 확인하고 전용 Foundry 프로젝트·모델·로그를 만든 뒤 에이전트·검색·도구·평가·추적을 경험합니다. 실제 작업에는 해당 범위의 Azure 권한과 비용 승인이 필요합니다.
+**처음이라면 기본 L00–L10 → 공통 마무리 L19 순서로 진행합니다.** L01에서 자신의 환경을 만들며, 실제 Microsoft Azure 작업 전에는 해당 범위의 권한·비용 승인을 확인합니다. 심화 L11–L18은 기본 완주의 필수 조건이 아닙니다.
 
 1. [L00: 기초부터 읽기](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l00-first-steps)에서 무엇을 만들지 확인합니다.
-2. [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip)을 풀고 [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01)의 PC·프로젝트 준비를 진행합니다. Git 명령은 필수가 아닙니다.
-3. 각 장의 **진행 방식 → 먼저 할 일 → 확인할 결과**를 따라갑니다. 기본 11개는 순서대로, 심화 8개는 선택하며 마지막에 공통 마무리 L19를 진행합니다.
+2. **설치를 줄이려면 [GitHub Codespaces 경로](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01-codespaces)**를 선택합니다. 내 PC에서 진행하려면 [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip)을 풀고 [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01)을 따릅니다. 둘 중 한 환경만 사용하며 Git 명령은 필수가 아닙니다.
+3. 각 장의 시작 카드에서 할 일과 결과를 확인하고 **준비 → 실행 → 성공 기준 → 정리**를 따라갑니다. 마지막 **이 장에서 남길 것 / 다음**을 확인한 뒤 페이지 맨 아래 **다음**으로 이동합니다.
 
-웹 가이드는 **기본 11개 + 공통 마무리 1개 경로**로 시작하며 진도도 선택한 경로만 집계합니다. 제목은 할 일에 Responses API·File search·Function Calling·Evaluation·Tracing 같은 기능명을 함께 표시합니다. **용어가 낯설어요 / 진행이 막혔어요**에서 도움말을 읽고 원래 실습으로 돌아갈 수 있습니다.
+| 진행 중 필요한 안내 | 읽는 방법 |
+| --- | --- |
+| 설치·재개 | L01에서 버전을 확인하고 없는 도구의 설치 설명만 펼칩니다. 다음 날에는 **새 터미널에서 재개**를 사용합니다. |
+| 명령·질문·설정 | **터미널 / 포털 Chat / .env / 정상 출력 예** 표시를 먼저 봅니다. 계획을 읽고 멈춘 뒤 실제 실행 명령을 따로 복사합니다. |
+| 용어·오류 | **용어가 낯설어요 / 진행이 막혔어요**를 열고 **읽던 실습으로 돌아가기**로 같은 위치에 복귀합니다. |
+| 완료·기록 | 실제 결과로 성공 기준을 확인합니다. 브라우저 진도는 학습 표시일 뿐 Microsoft Azure 실행 증거가 아닙니다. |
 
-블록에는 **터미널 명령 / 포털 Chat / .env 설정 / 정상 출력 예**를 구분해 표시합니다. 좁은 화면에서는 명령 해설을 세로로 읽을 수 있습니다. L01에는 새 터미널·Windows Python 경로 확인이 있고, L06의 `read-result --input`은 저장된 답·함수 결과·인용을 **새 Azure 호출 없이** 보여 줍니다. 원본이나 평가 판정을 바꾸지 않습니다.
+접힌 **구현 참고·선택 확장**은 모두 수행할 목록이 아닙니다. 기본 경로는 자신의 응답·근거·함수 결과·평가·로그를 확인하며, 별도 Capstone·Teams 게시·Hosted·Optimizer는 요구하지 않습니다.
 
-처음에는 각 장의 **준비 → 실행 → 성공 기준 → 정리**를 따라가며 접힌 **구현 참고**는 필요할 때 읽습니다. 20개 장의 마지막 **이 장에서 남길 것 / 다음**에서 저장할 결과와 재사용할 대상을 확인합니다. L03은 기본 Python 1회 호출, L04·L05·L09는 같은 포털 정책 agent, L06과 L08은 각각 별도 SDK agent입니다. L08의 수집·평가는 서로 다른 명령 블록으로 나눠 원문 완료를 확인한 뒤 평가합니다.
+**Microsoft Azure 준비가 안 됐다면** 웹 목차의 **Microsoft Azure 없이**를 고릅니다. 각 장에서 지정한 로컬·읽기·설계 단계만 진행하며 실제 Microsoft Azure 실습 완료와 구분합니다. 심화를 선택할 때도 장 앞의 선행 조건부터 확인합니다.
 
-계정이 없어도 로컬 함수와 L08의 지침·질문을 읽을 수 있지만 Azure 실습 완료와는 구분합니다. 기본 경로는 자신의 응답을 수집·평가하고 로그를 읽는 흐름입니다. 통합 점검은 L06 후반부, 게시·버전 관리는 선택 L18에서 진행합니다. 별도 Capstone·Teams 게시·Hosted·Optimizer는 기본 완주 조건이 아닙니다.
+### GitHub Codespaces로 설치 최소화
 
-심화마다 시작 경로·설정값 출처·결과 확인 위치를 안내합니다. L11 Search와 L12 Hosted도 직접 자원을 준비·실행합니다. Agent Framework는 L13 순차·동시와 L14 그룹 채팅·핸드오프로 나눕니다. L17 권한·L18 CI/CD는 로컬 결함 수정과 설계이며 실제 Azure 검증·게시와 구분합니다.
+브라우저와 GitHub 계정으로 **저장소 → Code → Codespaces → New with options**를 엽니다. `.devcontainer/devcontainer.json`이 있는 실습 브랜치, 비용 부담 주체·허용량·머신을 확인한 뒤 생성합니다. 설정이 Python 3.13·Microsoft Azure CLI·Bicep·Python 확장과 기본/MCP 의존성을 준비합니다. **내 PC에 Python·CLI·VS Code·Docker를 설치할 필요는 없습니다.**
+
+생성 후 설치가 끝날 때까지 기다리고 L01의 준비 검사를 수행합니다. Microsoft Azure 로그인·권한·비용 승인은 별도이며 자원을 자동 생성하지 않습니다. Codespaces에서는 Windows PC를 쓰더라도 **Linux/Bash 명령**을 사용합니다. 종료할 때는 [L19](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l12)에서 Microsoft Azure 자원과 Codespace를 **각각** 확인합니다. Codespace를 중지해도 저장 비용과 Microsoft Azure 자원 비용은 남을 수 있습니다.
 
 <details>
 <summary>학습 지침과 모델 조건</summary>
@@ -30,7 +37,7 @@
 **학습 흐름은 초기 v1 → 평가 → 이유 분석·개선 → v2 재평가입니다.** `agent-v1.txt`와 `agent-v2.txt`를 같은 조건에서 비교합니다.
 v2는 공용·비공개 질문 분리, 모든 하위 질문의 답변, 주장별 근거, 미확인 사실 보류, 실제 도구 권한·결과 확인을 구체화했습니다.
 
-키트는 **`gpt-6-sol` / `2026-09-22`**를 고정하고 L01이 만드는 호출 이름은 `contoso-chat`입니다. 실제 모델·지역 가용성은 자신의 구독에서 확인합니다. L08은 같은 질문 12개의 v1/v2 원문을 한 번 수집해 Foundry로 평가합니다. Holdout·Hosted 재배포·Optimizer는 필수가 아니며 점수 향상을 미리 보장하지 않습니다.
+키트는 **`gpt-6-sol` / `2026-09-22`**를 고정하고 L01이 만드는 호출 이름은 `contoso-chat`입니다. 실제 모델·지역 가용성은 자신의 구독에서 확인합니다. L08은 같은 질문 12개의 v1/v2 원문을 한 번 수집해 Microsoft Foundry로 평가합니다. Holdout·Hosted 재배포·Optimizer는 필수가 아니며 점수 향상을 미리 보장하지 않습니다.
 
 </details>
 
@@ -50,7 +57,7 @@ ZIP은 먼저 풀고 폴더 구조를 유지합니다. `index.ko.html` 또는 `i
 Markdown도 ZIP 안의 `downloads/`에서 열면 상대 경로의 그림·코드를 함께 볼 수 있습니다.
 기본 코스는 **L00–L10, 약 4시간 45분**입니다. 심화는 **L11–L18**, 공통 마무리는 **L19(10분)**이며 실습 번호는 00–19로 이어집니다. 기본만 진행하면 L10에서 L19로, 심화를 선택하면 선택한 장을 마친 뒤 L19로 이동합니다. 읽기에는 로그인이 필요하지 않습니다.
 
-각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·오케스트레이션·권한·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L18의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
+각 실습은 **확인할 화면·파일 → 값에 근거한 판단 → 실패 시 다음 행동**으로 진행합니다. 후반부의 trace·오케스트레이션·권한·릴리스 과제에는 판독 예시를, 설계형 장에는 Contoso 작성 예를 제공합니다. 예시는 실제 Microsoft Azure 결과가 아니며, 설계 완료와 실제 실행 완료를 따로 기록합니다. L18의 기본 CI/릴리스 설계에는 Hosted 배포가 필요하지 않습니다.
 
 ## 지침 비교 실습
 
@@ -69,7 +76,7 @@ FFmpeg·시스템 음성과 선언된 Playwright가 설치된 macOS에서 `pytho
 합성 Contoso 데이터만 사용합니다. 실제 주문·결제·업무 승인을 수행하지 않습니다.
 개인 `.env`, `.azure/`, 자격 증명과 원시 실행 파일은 Git·패키지에 넣지 않습니다.
 영어 환경은 별도로 `FOUNDRY_LAB_LANGUAGE=en`을 선택하며 한국어가 기본값입니다. 환경과 소유권 기록을 섞지 않습니다.
-새 Azure 호출·권한 변경·리소스 삭제에는 범위와 승인이 필요합니다.
+새 Microsoft Azure 호출·권한 변경·리소스 삭제에는 범위와 승인이 필요합니다.
 
 ## 소스에서 다시 생성하기
 
@@ -88,14 +95,14 @@ python scripts/package_guide.py
 ```
 
 같은 체크인 소스로 두 언어의 HTML/Markdown과 ZIP을 만듭니다. 로컬 검사 기록은 비공개 `results/documentation/`에 두고 패키지에 넣지 않습니다.
-이를 Azure 실행이나 모델 점수 향상 증거로 기록하지 않습니다.
+이를 Microsoft Azure 실행이나 모델 점수 향상 증거로 기록하지 않습니다.
 
 ## GitHub Pages
 
 Pages는 **`main` 브랜치의 루트(`/`)**를 게시합니다. `main`에 push하면 체크인된 HTML과 다운로드 파일이 자동 게시되며 별도의 게시 브랜치는 필요하지 않습니다.
 main 병합은 여전히 승인이 필요하며 이제 사이트 게시도 함께 발생합니다. 병합 전에 HTML/Markdown/ZIP을 다시 생성하고 확인합니다. Pages가 가이드 생성 스크립트를 대신 실행하지는 않습니다.
 기존 자동 검사와 Pages 배포는 독립적으로 실행됩니다. **Pages는 자동 검사가 끝나기를 기다리지 않습니다.**
-`.nojekyll`을 유지하고 강제 push는 하지 않습니다. 브랜치 삭제·공개 범위 변경·Azure 작업은 명시적 승인이 필요합니다.
+`.nojekyll`을 유지하고 강제 push는 하지 않습니다. 브랜치 삭제·공개 범위 변경·Microsoft Azure 작업은 명시적 승인이 필요합니다.
 배포 후 `python scripts/check_pages.py`로 공개 HTML·자산과 병합된 원본을 대조합니다.
 
 Microsoft 공식 교육과정이 아닙니다. 출처와 사용 조건은 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES)를 확인합니다.

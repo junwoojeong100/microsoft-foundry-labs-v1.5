@@ -65,7 +65,7 @@ python samples/memory_lab.py create --live
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `memory_lab.py create` | 생성할 Memory store의 계획을 출력합니다. | Azure 요청 없음. 지원 모델·지역을 먼저 확인합니다. |
+| 1. `memory_lab.py create` | 생성할 Memory store의 계획을 출력합니다. | Microsoft Azure 요청 없음. 지원 모델·지역을 먼저 확인합니다. |
 | 2. `create --live` | 고유 store와 A/B scope를 준비하고 기본 TTL 3600초 등을 설정합니다. | 원격 store 및 `results/memory.json` 생성. 저장·모델/embedding 이용 조건과 비용을 확인합니다. |
 
 </div>
@@ -116,7 +116,7 @@ scope는 receipt에서만 가져오며 임의 사용자 입력으로 바꾸지 �
 ### 4. item 하나만 삭제하고 다시 검색하기
 
 **내 실습 item 하나의 삭제를 명시적으로 허용한 경우에만** 실행합니다.
-Azure store/RG 삭제와 item 삭제는 별개입니다. 이번 환경에 삭제 금지 정책이 있으면
+Microsoft Azure store/RG 삭제와 item 삭제는 별개입니다. 이번 환경에 삭제 금지 정책이 있으면
 이 단계는 미실행으로 기록하고 저장·격리 결과만 보고합니다.
 
 ```bash
@@ -185,7 +185,7 @@ store/item ID, A 검색 결과, B 격리 결과가 있고, 삭제를 수행했�
 ## 막혔을 때
 
 모델/embedding 지원, store 설정, 사용자 scope, API Preview 접근을 확인합니다.
-API가 실패하면 원본 오류를 보존하고 로컬 dict로 대체한 것을 Azure Memory 성공으로 표시하지 않습니다.
+API가 실패하면 원본 오류를 보존하고 로컬 dict로 대체한 것을 Microsoft Azure Memory 성공으로 표시하지 않습니다.
 `memory.json`이 있는데 생성이 실패했다면 자신의 포털과 원본 오류로 원격 생성 여부를 대조합니다. 기록을 지워 반복하거나 미확인 소유 정보를 수정하지 않습니다. 1시간 TTL로 사라진 것은 승인된 삭제 실행 증거가 아니며 새 실습은 별도 소유 기록으로 준비합니다.
 
 ## 정리

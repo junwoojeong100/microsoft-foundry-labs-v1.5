@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Create and test the agent in the Foundry portal, then trace the same settings in raw SDK code.
+**Format:** Create and test the agent in the Microsoft Foundry portal, then trace the same settings in raw SDK code.
 
 **Start here:** Create a Text agent with L02's model and the bundled English instructions.
 
@@ -170,7 +170,7 @@ python samples/workshop.py agent --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. With the English profile selected, the default instruction file is `data/en/prompts/agent-v2.txt`. | No Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
+| 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. With the English profile selected, the default instruction file is `data/en/prompts/agent-v2.txt`. | No Microsoft Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
 | 2. `agent --live` | Creates a uniquely named `contoso-lab-...` agent and conversation, then obtains a real model response. It does not modify the agent created in the portal. | Incurs inference/service costs and creates new lab objects. Keep the printed receipt path for cleanup in L19. |
 
 </div>

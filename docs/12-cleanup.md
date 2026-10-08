@@ -4,7 +4,7 @@
 
 **진행 방식:** 모든 참여자의 공통 마무리 · 기본만 했다면 L10 다음, 심화를 선택했다면 그 마지막에 진행합니다.
 
-**먼저 할 일:** 로컬만 했는지, 포털 또는 SDK로 Azure 자원을 만들었는지 아래 표에서 고릅니다.
+**먼저 할 일:** 로컬만 했는지, 포털 또는 SDK로 Microsoft Azure 자원을 만들었는지 아래 표에서 고릅니다.
 
 **확인할 결과:** 남은 자원의 상태·담당자·다음 비용 확인 시각을 적습니다. 삭제는 정확한 대상의 별도 승인이 있을 때만 합니다.
 
@@ -22,7 +22,7 @@
 
 **어떻게 사용하나요?** 자신이 한 실습의 행만 따라갑니다. 실행 상태·공유 여부·담당자를 확인하고 승인된 대상만 삭제합니다. 비용은 반영 지연을 고려해 다시 확인합니다.
 
-**어디서 실행하나요?** 로컬만 했다면 PC의 서버를 끕니다. Azure 자원을 만들었다면 포털과 소유 기록을 대조합니다. [세션 중지 코드](../scripts/stop_sessions.py)는 심화용이며 `--live` 없이도 동작합니다.
+**어디서 실행하나요?** 로컬만 했다면 PC의 서버를 끕니다. Microsoft Azure 자원을 만들었다면 포털과 소유 기록을 대조합니다. [세션 중지 코드](../scripts/stop_sessions.py)는 심화용이며 `--live` 없이도 동작합니다.
 
 ## 준비
 
@@ -34,7 +34,7 @@ L01의 **내 환경 소유 기록** `results/azure-environment.json`, 포털에�
 
 | 내가 한 실습 | 지금 할 일 |
 | --- | --- |
-| 읽기·로컬 데이터·함수만 | L07 서버를 켰다면 해당 터미널에서 Ctrl+C. Azure 자원을 만들지 않았다면 Azure 삭제 명령은 실행하지 않음 |
+| 읽기·로컬 데이터·함수만 | L07 서버를 켰다면 해당 터미널에서 Ctrl+C. Microsoft Azure 자원을 만들지 않았다면 Microsoft Azure 삭제 명령은 실행하지 않음 |
 | L01에서 환경·포털 agent·파일 생성 | 내 소유 기록·이름으로 아래 목록 대조. 모델·로그·파일의 보존/삭제 범위 확인 |
 | SDK로 L04/L05/L06 실행 | 마지막 `Cleanup:` 명령의 `--receipt` 경로를 찾고 아래 2단계 확인 |
 | L08 응답 수집·평가 | 수집·평가 JSON의 agent 이름과 eval/run ID를 별도 확인. 이 파일들은 `workshop.py cleanup`의 receipt가 아님 |
@@ -65,7 +65,7 @@ python scripts/operations_status.py
 | --- | --- | --- |
 | 1. `stop_sessions.py` | 기록된 Hosted client 세션에 실제 stop을 보내고 같은 ID를 다시 조회합니다. 이 스크립트에는 `--live` 안전 스위치가 없습니다. | 세션 compute 상태를 변경합니다. agent/RG/receipt 삭제는 하지 않으며 미확인 중지는 오류입니다. |
 | 2. `routine_lab.py stop --receipt ... --live` | L16의 정확한 예약 파일을 지정해 disable합니다. 수동/예약용 경로를 구분합니다. | 실제 상태 변경. routine/RG 삭제 없음. 사용한 다른 파일이면 그 경로로 바꿉니다. |
-| 3. `operations_status.py` | 소유 환경의 세션·예약·평가 schedule 등 현재 작업을 조회합니다. | `--live` 없이 실제 Azure를 읽습니다. 남은 작업/조회 실패는 미확인·오류로 알립니다. |
+| 3. `operations_status.py` | 소유 환경의 세션·예약·평가 schedule 등 현재 작업을 조회합니다. | `--live` 없이 실제 Microsoft Azure를 읽습니다. 남은 작업/조회 실패는 미확인·오류로 알립니다. |
 
 </div>
 
@@ -73,7 +73,7 @@ python scripts/operations_status.py
 `operations_status.py`는 **소유 기록으로 제한한 읽기 전용 조회**입니다.
 `operations_status.py`는 세션·optimizer job·활성 평가 schedule·routine을 확인하며,
 현재 프로젝트의 실제 agent 목록에서 배포하지 않은 선택형 adapter를 구분합니다. L16에서 `--receipt`로 지정한 이름이 달라도 `results/`의 소유 routine 기록을 찾아 현재 상태를 조회합니다.
-**삭제 금지 환경에서는 생성한 Azure 자원을 보존**합니다.
+**삭제 금지 환경에서는 생성한 Microsoft Azure 자원을 보존**합니다.
 routine은 disable, Hosted는 compute stop만 수행합니다. `cleanup --live`, `azd down`,
 resource group 삭제를 자동 실행하지 않습니다. 아래 삭제 경로는 정확한 대상의 별도 삭제 승인을 확인한 경우만 사용합니다.
 
@@ -81,7 +81,7 @@ resource group 삭제를 자동 실행하지 않습니다. 아래 삭제 경로�
 
 ### 2. SDK 실습 자원만 정확히 삭제하기
 
-각 Azure 샘플의 마지막 줄에 **자신의 run ID가 들어 있는 cleanup 명령**이 출력됩니다.
+각 Microsoft Azure 샘플의 마지막 줄에 **자신의 run ID가 들어 있는 cleanup 명령**이 출력됩니다.
 자원 보존/삭제 승인을 먼저 확인한 경우에만 해당 명령을 사용하세요.
 
 ```text
@@ -110,11 +110,11 @@ cleanup은 기록된 conversation → 실습 전용 agent → vector store → f
 | 게시된 채널·Bot·앱 | 사용자 접근 회수와 자원 정리를 각각 확인 |
 | Fine-tuned deployment·model | 배포 삭제와 학습된 모델 삭제를 구분 |
 
-vector store의 만료만으로 원본 파일이 정리된다고 생각하지 않습니다. 에이전트·프로젝트·연결된 Azure 자원은 서로 수명주기가 다를 수 있습니다.
+vector store의 만료만으로 원본 파일이 정리된다고 생각하지 않습니다. 에이전트·프로젝트·연결된 Microsoft Azure 자원은 서로 수명주기가 다를 수 있습니다.
 
 ### 4. 마지막 비용·데이터 확인하기
 
-L01에서 내 Azure 환경을 만들었다면 아래 두 명령으로 자원과 비용을 확인합니다. 비용 조회에는 해당 범위의 청구 읽기 권한이 필요하며, 없으면 포털의 조회 가능 범위에서 확인하고 미확인 항목을 남깁니다.
+L01에서 내 Microsoft Azure 환경을 만들었다면 아래 두 명령으로 자원과 비용을 확인합니다. 비용 조회에는 해당 범위의 청구 읽기 권한이 필요하며, 없으면 포털의 조회 가능 범위에서 확인하고 미확인 항목을 남깁니다.
 
 ```bash
 python scripts/azure_environment.py status --live
@@ -134,14 +134,26 @@ python scripts/cost_status.py
 
 Cost Management의 지연 반영을 고려해 **다음 날 다시 확인할 시각**을 정합니다. 본인 전용 환경은 자신이 확인하고, 보존을 넘긴 자원만 책임 주체를 따로 기록합니다. 예산 알림을 꺼도 과금은 멈추지 않습니다.
 
-결과 기록은 학습에 필요한 최소 범위만 남기고 실제 PII·토큰·연결 비밀을 제거합니다. 그룹 삭제는 **전용 실습 그룹임을 소유자가 확인한 경우에만** Azure 포털에서 범위를 검토한 뒤 수행합니다. 이 가이드는 광범위한 `az group delete` 명령을 제공하지 않습니다.
+결과 기록은 학습에 필요한 최소 범위만 남기고 실제 PII·토큰·연결 비밀을 제거합니다. 그룹 삭제는 **전용 실습 그룹임을 소유자가 확인한 경우에만** Microsoft Azure 포털에서 범위를 검토한 뒤 수행합니다. 이 가이드는 광범위한 `az group delete` 명령을 제공하지 않습니다.
+
+<a id="l12-codespaces"></a>
+
+### 5. GitHub Codespaces를 사용했다면 따로 중지하기
+
+**Microsoft Azure 자원 정리와 Codespace 중지는 별개입니다.** 먼저 위의 자원 상태·다음 비용 확인 시각과 자신의 결과를 저장합니다. `.env`·인증 정보·원시 결과를 Git에 올려 보존하지 않습니다.
+
+1. [내 Codespaces](https://github.com/codespaces)에서 지금 사용한 환경의 **… → Stop codespace**를 선택하고 중지 상태를 확인합니다. 브라우저 탭만 닫으면 계속 실행될 수 있습니다.
+2. 중지는 Codespace의 실행 프로세스·컴퓨트를 멈추지만 **저장 공간 비용은 남을 수 있습니다.** Microsoft Azure의 모델·Search·로그·예약을 중지하거나 삭제하는 동작이 아닙니다.
+3. 재개할 때는 같은 Codespace를 열어 [L01 새 터미널 확인](#l01-new-terminal)을 합니다. 삭제·자동 보존 기한 만료 전에 필요한 소유 기록과 결과의 승인된 비공개 보관 방법을 확인합니다. 기록을 잃었다고 Microsoft Azure 자원을 새로 만들지 않습니다.
+
+[공식 중지·재개 안내](https://docs.github.com/en/codespaces/developing-in-a-codespace/stopping-and-starting-a-codespace) · [GitHub 컴퓨트·저장 비용](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)
 
 <details class="implementation-detail" markdown="1">
 <summary>구현 참고: cleanup이 소유 기록의 대상만 삭제하는 방식 — 읽기용·실행하지 않음</summary>
 
 #### 포털 자원 확인과 소유 기록 기반 cleanup 코드
 
-Azure 샘플의 cleanup은 포털에서 선택한 전체 리소스 그룹이 아니라, 소유 receipt에 기록된 자원만 대상으로 합니다. 핵심 검사는 다음과 같습니다.
+Microsoft Azure 샘플의 cleanup은 포털에서 선택한 전체 리소스 그룹이 아니라, 소유 receipt에 기록된 자원만 대상으로 합니다. 핵심 검사는 다음과 같습니다.
 
 ```python
 data = read_receipt(receipt_path, project_endpoint)
@@ -166,7 +178,7 @@ for resource in ordered:
         client.files.delete(file_id=resource_id)
 ```
 
-| Azure Portal에서 확인 | receipt/code에서 확인 |
+| Microsoft Azure Portal에서 확인 | receipt/code에서 확인 |
 | --- | --- |
 | 각 agent/conversation/vector store/file의 실제 ID와 상태 | `receipt["resources"]`의 `kind`, `id`, `cleanup_status` |
 | 모델 배포·Search·Storage처럼 보존될 항목 | workshop receipt 대상이 아니면 별도로 담당자·보존 기한 기록 |
@@ -185,7 +197,7 @@ for resource in ordered:
 | --- | --- | --- | --- |
 | 내가 만든 자원별로 기록 | 실제 확인한 값. 조회하지 못했으면 미확인 | 직접 지정 | 직접 지정 |
 
-Azure 자원을 만들지 않았다면 **“로컬 실습만 수행 / Azure 생성 없음”**으로 적습니다. L07 서버를 켰다면 해당 터미널에서 종료한 것도 확인합니다.
+Microsoft Azure 자원을 만들지 않았다면 **“로컬 실습만 수행 / Microsoft Azure 생성 없음”**으로 적습니다. L07 서버를 켰다면 해당 터미널에서 종료한 것도 확인합니다.
 
 삭제 금지 환경은 “명시적 삭제 승인까지 보존”으로 기록합니다.
 Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있습니다.
@@ -197,11 +209,11 @@ Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있�
 
 ## 정리
 
-선택한 실습과 공통 마무리가 끝났습니다. 나중에 심화를 추가했다면 그때 만든 자원도 이 절차로 다시 확인합니다. 진행 표시를 초기화해도 Azure 자원은 삭제되지 않습니다.
+선택한 실습과 공통 마무리가 끝났습니다. 나중에 심화를 추가했다면 그때 만든 자원도 이 절차로 다시 확인합니다. 진행 표시를 초기화해도 Microsoft Azure 자원은 삭제되지 않습니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** 자원별 실제 상태·담당자·보존 기한·다음 비용 확인 시각. 로컬만 했다면 Azure 생성 없음과 서버 종료를 기록합니다.
+**이 장에서 남길 것:** 자원별 실제 상태·담당자·보존 기한·다음 비용 확인 시각. 로컬만 했다면 Microsoft Azure 생성 없음과 서버 종료를 기록합니다.
 
 **다음:** [진행·완료 체크리스트](#instructor)에 선택한 범위의 실제 실행·로컬·설계·미실행을 마저 표시합니다. 조회하지 못한 자원이나 비용은 미확인으로 남깁니다.
 

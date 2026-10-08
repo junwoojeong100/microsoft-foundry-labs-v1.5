@@ -22,7 +22,7 @@
 
 **어떻게 사용하나요?** 포털의 준비 상태와 소유 기록을 대조하고 같은 이름을 `.env`에 저장합니다. 용량이 부족하면 조회 결과를 읽고 자신의 범위에서 보정합니다.
 
-**어디서 실행하나요?** Foundry 포털의 Models와 터미널의 [model_capacity.py](../samples/model_capacity.py)를 사용합니다. 모델 목록·한도 조회는 추론 요청이 아닙니다.
+**어디서 실행하나요?** Microsoft Foundry 포털의 Models와 터미널의 [model_capacity.py](../samples/model_capacity.py)를 사용합니다. 모델 목록·한도 조회는 추론 요청이 아닙니다.
 
 ## 준비
 
@@ -42,7 +42,7 @@ L01의 `results/azure-environment.json`, `.env`, 생성한 프로젝트·모델�
 | L08 평가 | `gpt-4.1` / `2025-04-14` | `contoso-judge` |
 | L11 검색·L15 Memory | `text-embedding-3-small` / `1` | `contoso-embedding` |
 
-![Foundry의 실제 Discover → Models 화면. 검색창, Available in my project 필터, 지원 기능·배포 유형 필터와 모델 카드가 보인다.](../assets/portal/02-model-catalog.png)
+![Microsoft Foundry의 실제 Discover → Models 화면. 검색창, Available in my project 필터, 지원 기능·배포 유형 필터와 모델 카드가 보인다.](../assets/portal/02-model-catalog.png)
 
 **화면 따라 읽기:** **Discover → Models**는 후보와 모델 카드를 찾는 곳이고 **Build → Models → Deployments**는 실제 배포를 확인하는 곳입니다. 카드가 보인다고 quota·capacity가 확보된 것은 아닙니다. Responses API·함수 호출·File search 지원과 현재 가격·종료 정책을 확인합니다.
 
@@ -52,7 +52,7 @@ L01의 `GlobalStandard`는 사용량 기반 예시입니다. 프로젝트 지역
 
 | 유형 | 확인할 조건 |
 | --- | --- |
-| Standard | 해당 Azure geography의 처리 범위·가용성 |
+| Standard | 해당 Microsoft Azure geography의 처리 범위·가용성 |
 | Global Standard | 전 세계 지원 지역의 처리 범위가 허용되는지 |
 | Data Zone Standard | 지정 zone의 처리 범위. APAC을 한국 한 나라로 해석하지 않음 |
 | Provisioned / PTU | 예약 비용·용량. 이 기본 코스에서는 만들지 않음 |
@@ -121,7 +121,6 @@ L01의 foundation은 카탈로그의 모델별 capacity 단위·증분·quota로
 
 ```bash
 python samples/model_capacity.py plan --learners 1
-python samples/model_capacity.py check --learners 1 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -131,7 +130,22 @@ python samples/model_capacity.py check --learners 1 --live
 | 순서·명령 | 하는 일 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `plan --learners 1` | 용도별 요청 예산과 권장 TPM/RPM을 계산합니다. | 로컬 계산만 합니다. 공유 배포는 실제 동시 인원으로 바꿉니다. |
-| 2. `check ... --live` | 자신의 RG·모델·version·SKU와 실제 `rateLimits`를 조회합니다. | 읽기 전용. 한도가 부족하면 실패하며 모델 시험을 보내지 않습니다. |
+
+</div>
+
+**계획을 읽은 뒤 실제 한도를 조회합니다.** 이 명령은 모델에 질문을 보내거나 배포를 바꾸지 않습니다.
+
+```bash
+python samples/model_capacity.py check --learners 1 --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 하는 일 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `check ... --live` | 자신의 RG·모델·version·SKU와 실제 `rateLimits`를 조회합니다. | 읽기 전용. 한도가 부족하면 실패하며 모델 시험을 보내지 않습니다. |
 
 </div>
 
@@ -152,7 +166,7 @@ python samples/model_capacity.py apply --learners 1 --max-capacity 100 --confirm
 
 | 순서·명령 | 하는 일 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `apply ... --confirm ... --live` | 필요 단위·quota를 확인하고 부족한 배포의 capacity만 변경·재조회합니다. | 실제 Azure 변경. Model ID·version·보호 정책은 유지하며 새 PTU는 만들지 않습니다. |
+| 1. `apply ... --confirm ... --live` | 필요 단위·quota를 확인하고 부족한 배포의 capacity만 변경·재조회합니다. | 실제 Microsoft Azure 변경. Model ID·version·보호 정책은 유지하며 새 PTU는 만들지 않습니다. |
 
 </div>
 

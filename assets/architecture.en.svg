@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="610" viewBox="0 0 1080 610" role="img" aria-labelledby="title desc">
   <title id="title">Contoso lab architecture</title>
-  <desc id="desc">A Prompt or Hosted Agent responds to a user with a Foundry model, policy retrieval, inventory lookup, and purchase-draft tools. No real ordering system is connected. A business system and human approval are required separately. Evaluation, tracing, permissions, and safety controls apply throughout.</desc>
+  <desc id="desc">A Prompt or Hosted Agent responds to a user with a Microsoft Foundry model, policy retrieval, inventory lookup, and purchase-draft tools. No real ordering system is connected. A business system and human approval are required separately. Evaluation, tracing, permissions, and safety controls apply throughout.</desc>
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#487488" stroke-width="1.3"/></marker>
     <style>text{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;fill:#15364b}.title{font-weight:700;font-size:18px}.sub{font-size:13px;fill:#4b6679}.small{font-size:12px;fill:#4b6679}.line{stroke:#487488;stroke-width:2;fill:none;marker-end:url(#arrow)}</style>
@@ -19,7 +19,7 @@
   <text x="305" y="313" style="fill:#b0ebd3" class="sub">Prompt → Hosted extension</text>
   <text x="305" y="339" style="fill:#c5e1eb" class="small">Model suggestion ≠ approval</text>
   <rect x="566" y="166" width="212" height="83" rx="12" fill="#fff" stroke="#bed3dc"/>
-  <text x="586" y="197" class="title">Foundry Models</text><text x="580" y="226" class="sub">Reason, select tools, respond</text>
+  <text x="580" y="188" class="title">Microsoft Foundry</text><text x="580" y="211" class="title">Models</text><text x="580" y="235" class="sub">Reason, select tools, respond</text>
   <path d="M505 258H535V207H566" class="line"/>
   <rect x="566" y="275" width="212" height="82" rx="12" fill="#fff" stroke="#bed3dc"/>
   <text x="580" y="305" class="title">Policy + evidence</text><text x="580" y="334" class="sub">File search → Search / IQ</text>

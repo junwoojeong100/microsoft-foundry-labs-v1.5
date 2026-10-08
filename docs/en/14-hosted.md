@@ -1,4 +1,4 @@
-> **What you will build:** Package this repository's purchasing assistant with English synthetic data and invoke it locally and in Azure.
+> **What you will build:** Package this repository's purchasing assistant with English synthetic data and invoke it locally and in Microsoft Azure.
 
 <div class="lab-brief" markdown="1">
 
@@ -6,7 +6,7 @@
 
 **Start here:** Build the package in its dedicated Python environment. Follow the default Invocations path; skip the Optimizer adapter initially.
 
-**What to check:** Verify the package, local response, remote version response, and stopped session separately. Local servers also incur costs when calling Azure.
+**What to check:** Verify the package, local response, remote version response, and stopped session separately. Local servers also incur costs when calling Microsoft Azure.
 
 </div>
 
@@ -18,9 +18,9 @@ Do not describe this as validation of the Responses, Voice, or Teams protocols.
 
 ## Concepts and lab map
 
-**What you will try:** Move agent code from your PC to a Foundry server.
+**What you will try:** Move agent code from your PC to a Microsoft Foundry server.
 
-**What is it, and why does it matter?** A Hosted Agent runs your code in Foundry. Choose it when functions need a server rather than your open terminal. Code, data, settings, and the communication protocol must agree.
+**What is it, and why does it matter?** A Hosted Agent runs your code in Microsoft Foundry. Choose it when functions need a server rather than your open terminal. Code, data, settings, and the communication protocol must agree.
 
 **How do you use it?** Build the package → call locally → deploy with approval → call the same remote version. Start with Invocations; the Responses adapter for Optimizer is optional.
 
@@ -36,8 +36,8 @@ Verify Hosted capabilities/regions. Use L01's scoped creation/role-assignment pe
 
 | Current state | Steps to follow | What completion means |
 | --- | --- | --- |
-| No Azure execution approval | Prepare the dedicated environment → step 1 packaging | Packaging only; server business calls and deployment not performed |
-| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a PC server, not successful Azure Hosted deployment |
+| No Microsoft Azure execution approval | Prepare the dedicated environment → step 1 packaging | Packaging only; server business calls and deployment not performed |
+| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a PC server, not successful Microsoft Azure Hosted deployment |
 | Deployment and role changes separately approved | Steps 1 → 2 → 3 → 4 → 5 | Inspect the exact remote version's answer and stopped session |
 
 First locate **L01's `.env` and `results/azure-environment.json`, plus L11's `results/search.json`**, in this same lab folder. Stop if project address, language, or Search target differs. Never copy another learner's receipt or a screenshot's version number.
@@ -57,7 +57,7 @@ python scripts/check_sdk.py
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
 | 1. `python3.13 -m venv .venv-live` | Creates a Python 3.13 virtual environment for Hosted. | Creates a local directory. Do not mix it with the advanced MAF environment. |
-| 2. `source .venv-live/bin/activate` | Selects the new environment's Python for the current shell. | Changes only the current terminal; no Azure resources are touched. |
+| 2. `source .venv-live/bin/activate` | Selects the new environment's Python for the current shell. | Changes only the current terminal; no Microsoft Azure resources are touched. |
 | 3. `pip install -r requirements-hosted.txt` | Installs the pinned dependencies for the Hosted server and SDK. | Package downloads and local installation. No model inference. |
 | 4. `pip check` | Checks for conflicts between the installed packages' dependency requirements. | A read-only check. Do not proceed if it reports errors. |
 | 5. `check_sdk.py` | Locally checks the SDK classes and call contracts used by the samples. | An import/API contract check, not evidence of remote deployment or model quality. |
@@ -70,9 +70,9 @@ On Windows, use L01's `py -3.13` approach to create `.venv-live`, then execute w
 
 <a id="l12-azd"></a>
 
-**If azd is missing,** follow the [official Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) for your OS through an approved distribution path, then open a new terminal. Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment.
+**If azd is missing,** follow the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) for your OS through an approved distribution path, then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment.
 
-azd and Azure CLI have separate authentication. Check versions/extensions and sign-in first. See [L00 command reading](#l00) for translating macOS/Linux's `KEY=value` syntax to Windows.
+azd and Microsoft Azure CLI have separate authentication. Check versions/extensions and sign-in first. See [L00 command reading](#l00) for translating macOS/Linux's `KEY=value` syntax to Windows.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
@@ -88,7 +88,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
 | --- | --- | --- |
 | 1. `azd version` | Checks the installed CLI version. | Local inspection, no automatic upgrade. |
 | 2. `azd extension list` | Checks the agent extension/version. | Listing only; no Copilot skill is required. |
-| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Azure CLI sign-in. |
+| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Microsoft Azure CLI sign-in. |
 
 </div>
 
@@ -112,7 +112,9 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login
 
 ## Steps
 
-### 1. Build the package before making Azure calls
+<a id="l14-1-build-the-package-before-making-azure-calls"></a>
+
+### 1. Build the package before making Microsoft Azure calls
 
 ```bash
 python scripts/build_hosted.py
@@ -124,7 +126,7 @@ python scripts/build_hosted.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `build_hosted.py` | Generates a deployment directory, ZIP, and file-hash manifest from checked-in runtime code and the selected English policies, inventory, and instructions. Binds `en` in the generated `lab-profile.json`. | Changes only this English checkout's local `.build/` artifacts. No Azure deployment. The archive does not include `.env` or evaluation reference answers. |
+| 1. `build_hosted.py` | Generates a deployment directory, ZIP, and file-hash manifest from checked-in runtime code and the selected English policies, inventory, and instructions. Binds `en` in the generated `lab-profile.json`. | Changes only this English checkout's local `.build/` artifacts. No Microsoft Azure deployment. The archive does not include `.env` or evaluation reference answers. |
 
 </div>
 
@@ -151,7 +153,7 @@ python scripts/run_hosted_local.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `run_hosted_local.py` | Starts the default Invocations server on loopback port 8088 and passes safe environment settings to the child process. | Keep the server terminal open. Even when execution is local, real requests can use Azure models and search. Stop it with Ctrl+C when finished. |
+| 1. `run_hosted_local.py` | Starts the default Invocations server on loopback port 8088 and passes safe environment settings to the child process. | Keep the server terminal open. Even when execution is local, real requests can use Microsoft Azure models and search. Stop it with Ctrl+C when finished. |
 
 </div>
 
@@ -170,12 +172,12 @@ python samples/hosted_client.py invoke --local --live
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
 | 1. `curl --fail .../readiness` | Reads the local server's readiness endpoint. `--fail` treats HTTP errors as failures. | Checks server connectivity; it is not a purchasing question or model call. |
-| 2. `invoke --local` | Selects the local target but prints only a plan because `--live` is absent. | No business request to the server or Azure inference. `--local` alone does not authorize a real invocation. |
-| 3. `invoke --local --live` | Sends a real synthetic purchasing request to the local server. `--live` authorizes the cost of the model/Search calls behind the server. | Inspect the response JSONL and the function, citation, and contract checks. Do not label local results as a successful Azure Hosted deployment. |
+| 2. `invoke --local` | Selects the local target but prints only a plan because `--live` is absent. | No business request to the server or Microsoft Azure inference. `--local` alone does not authorize a real invocation. |
+| 3. `invoke --local --live` | Sends a real synthetic purchasing request to the local server. `--live` authorizes the cost of the model/Search calls behind the server. | Inspect the response JSONL and the function, citation, and contract checks. Do not label local results as a successful Microsoft Azure Hosted deployment. |
 
 </div>
 
-**The local server also uses real Azure models and search, so invocations incur charges.**
+**The local server also uses real Microsoft Azure models and search, so invocations incur charges.**
 The default binding is loopback; do not expose this unauthenticated development server externally.
 Each request is split into **at most two tool rounds → a separate tool-free, evidence-based answer → source correspondence check**.
 Each tool-round output and the answer remain limited to **2048 tokens**; the source check remains limited to 512 tokens.
@@ -189,7 +191,7 @@ It does not wait for the model to select a search function. Internally, the answ
 only the sections the model selects from the actual returned results are rendered as citations. Missing search results or citations are errors, not successes.
 In `tool_calls`, `execution=server_required` records a real server-side search; it does not pretend the model called it.
 The current runtime requires explicit permission for inventory calls and rechecks every attempted business tool. Missing or invalid draft quantities do not authorize an unrequested lookup. Read-only calls are still tool execution.
-Both packages load `agent-v2.txt`. Its answer procedure is not evidence of a new Azure deployment or quality pass; compare your package hash with the actual invoked version.
+Both packages load `agent-v2.txt`. Its answer procedure is not evidence of a new Microsoft Azure deployment or quality pass; compare your package hash with the actual invoked version.
 
 Use the actual service-issued deployment version, not the instruction number. When a session is already bound to a version, invoke it with `--session-id` only; combining that flag with `--version` is rejected by azd.
 
@@ -309,7 +311,7 @@ async def handle(request: Request):
 | Connect to the portal agent version | Compare the exact numeric version in the invocation/receipt |
 | Handle failure | Record evidence and return an actual 400/413/502 failure |
 
-The portal does not edit the handler; it shows the deployed type/version of the container that includes it. `hosted_runtime.py` is the business flow, while `hosted/main.py` is the HTTP entry point. Local execution may still call real Azure services.
+The portal does not edit the handler; it shows the deployed type/version of the container that includes it. `hosted_runtime.py` is the business flow, while `hosted/main.py` is the HTTP entry point. Local execution may still call real Microsoft Azure services.
 
 </details>
 
@@ -330,7 +332,7 @@ For multiple JSON objects or `incomplete` output, inspect the tool/answer bounda
 
 Stop the local server with Ctrl+C in the terminal where you started it. For interrupted runs,
 use `python scripts/stop_sessions.py` to stop **only recorded sessions**.
-The agent/version/session files and Azure resources remain. Record the remaining storage, log, and Search costs in L19.
+The agent/version/session files and Microsoft Azure resources remain. Record the remaining storage, log, and Search costs in L19.
 
 Hosted's `/app` is read-only. Write remote raw evidence only to the session's `$HOME/.contoso/evidence`,
 not to the code directory. Do not include it in the package.

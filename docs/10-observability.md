@@ -26,7 +26,7 @@
 
 ## 준비
 
-L01에서 만든 Application Insights 연결·로그 읽기 권한과 자신의 L04–L06 결과를 사용합니다. Application Insights는 Azure의 로그 수집·조회 서비스이며 수집·보존에도 비용이 있습니다.
+L01에서 만든 Application Insights 연결·로그 읽기 권한과 자신의 L04–L06 결과를 사용합니다. Application Insights는 Microsoft Azure의 로그 수집·조회 서비스이며 수집·보존에도 비용이 있습니다.
 
 <details class="optional-path" markdown="1">
 <summary>연결이 아직 없다면: 내 프로젝트의 로그 설정 보완</summary>
@@ -79,7 +79,7 @@ trace에서 다음을 찾습니다.
 
 **함수는 성공했는데 답변이 실패:** 도구 출력이 같은 conversation/call ID에 반영됐는지, final output이 완료됐는지 봅니다.
 
-**시간을 읽는 예시 — 설명용 합성이며 실제 Azure trace가 아닙니다.** 아래 자식 작업은 겹치지 않고 순차 실행됐다고 가정합니다.
+**시간을 읽는 예시 — 설명용 합성이며 실제 Microsoft Azure trace가 아닙니다.** 아래 자식 작업은 겹치지 않고 순차 실행됐다고 가정합니다.
 
 | 작업 | 시작~종료(ms) | 관찰 시간 | 판단 |
 | --- | ---: | ---: | --- |
@@ -90,10 +90,30 @@ trace에서 다음을 찾습니다.
 
 관찰된 자식 합계는 3,650ms, 나머지는 350ms입니다. **350ms를 증거 없이 네트워크 지연이라고 단정하지 않습니다.** 병렬 span은 겹치므로 단순 합산도 불가능합니다. 실제 실행에서 모델이 길면 입력·출력 토큰과 반복 호출을, 검색이 길면 반환량·검색 단계를 먼저 봅니다. 정상 실행이라면 오류를 만들어내지 말고 가장 오래 걸린 관찰 구간과 미수집 구간을 구분해 설명하세요.
 
+**포털에서 같은 실행의 작업·시간을 읽었다면 CLI는 건너뜁니다.** 아래는 SDK 응답 파일이 있을 때 같은 로그를 조회하는 대체 경로이지 추가 필수 과제가 아닙니다.
+
+<details class="optional-path" markdown="1">
+<summary>선택: SDK 응답 파일로 App Insights 로그 조회하기</summary>
+
 동봉 CLI는 실제 응답 파일의 response/trace ID로 App Insights를 조회합니다.
 
 ```bash
 python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name
+```
+
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `trace_lab.py` | `--input`은 실제 응답 JSONL, `--app-id`는 해당 Application Insights의 앱 ID, `--agent`는 조회할 agent 이름입니다. 파일에서 식별자를 읽고 KQL 계획을 출력합니다. | Microsoft Azure 조회 없음. 시간 범위와 ID 조건이 자신의 실행만 가리키는지 확인합니다. |
+
+</div>
+
+**조회 전 확인:** 계획의 응답 ID·agent 이름이 내 실행과 같고 로그 읽기 권한이 있을 때, 동일한 세 값을 아래 명령에 넣습니다.
+
+```bash
 python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name --live
 ```
 
@@ -103,8 +123,7 @@ python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실�
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `trace_lab.py` | `--input`은 실제 응답 JSONL, `--app-id`는 해당 Application Insights의 앱 ID, `--agent`는 조회할 agent 이름입니다. 파일에서 식별자를 읽고 KQL 계획을 출력합니다. | Azure 조회 없음. 시간 범위와 ID 조건이 자신의 실행만 가리키는지 확인합니다. |
-| 2. 같은 명령에 `--live` | 확인한 KQL로 실제 로그를 읽습니다. 최근 24시간·최대 200행으로 제한되며 새 모델 추론을 실행하지 않습니다. | Azure 읽기 요청과 조회 결과 기록. 0행이면 상관관계 미확인이며 임의 ID로 채우지 않습니다. 로그 서비스의 이용 조건은 별도입니다. |
+| 1. 같은 명령에 `--live` | 확인한 KQL로 실제 로그를 읽습니다. 최근 24시간·최대 200행으로 제한되며 새 모델 추론을 실행하지 않습니다. | Microsoft Azure 읽기 요청과 조회 결과 기록. 0행이면 상관관계 미확인이며 임의 ID로 채우지 않습니다. 로그 서비스의 이용 조건은 별도입니다. |
 
 </div>
 
@@ -113,6 +132,8 @@ python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실�
 request ID를 trace ID로 바꾸어 채우지 않습니다. L12의 Hosted 결과를 선택했을 때만 `contract.sha256`과 version도 대조합니다. 기본 Prompt Agent JSONL에는 그 Hosted 계약을 요구하지 않습니다.
 
 출력의 `input_rows`와 `correlated_rows`가 같고 `missing_case_ids`가 비어 있으면 **입력과 로그의 연결**이 확인된 것입니다. `model_response_spans_observed`와 `request_trace_ids_observed`는 관찰 계층이 다릅니다. 이 CLI는 연결을 검사하지, 병목이나 답변 정답을 자동 판정하지 않습니다. 출력된 `Evidence:` 파일의 조회 행과 포털 상세를 읽어 위 표를 자신의 값으로 작성하세요.
+
+</details>
 
 <details class="implementation-detail" markdown="1">
 <summary>구현 참고: 응답 ID로 로그를 찾는 Python·KQL 흐름 — 읽기용</summary>

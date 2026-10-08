@@ -170,6 +170,8 @@ async (page) => {
     }
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "home route");
     check(await page.locator("html").getAttribute("lang") === edition.language, "correct language metadata");
+    check(await page.locator(".brand-product").innerText() === "Microsoft Foundry",
+      "the reader header uses the full Microsoft Foundry product name");
     check(await page.locator(".topbar .edition").innerText() ===
       (english ? "Contoso Purchasing Agent" : "Contoso 구매 에이전트"),
       "topbar shows the localized agent name without the edition date");
@@ -204,6 +206,21 @@ async (page) => {
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "first-time readers stay in L00");
     check(await page.evaluate(() => document.activeElement.id) === "l00-first-steps", "first-step navigation moves keyboard focus");
     check(await page.locator(`.hero a[href="${page.contosoGuideRelease.archive}"]`).count() === 1, "lab ZIP is available at the entry point");
+    await page.goto(`${entry}#l01-codespaces`);
+    await page.waitForFunction(() => document.activeElement.id === "l01-codespaces");
+    check(await page.locator("#l01 .codespaces-path").evaluate(node => node.open),
+      "Codespaces onboarding links open the optional setup path directly");
+    check(await page.locator('#l01 .codespaces-path a[href="#l01-sign-in"]').isVisible(),
+      "Codespaces setup leads to shared authentication rather than repeating PC installation");
+    await page.locator('#l01 .codespaces-path a[href="#l01-sign-in"]').click();
+    await page.waitForFunction(() => document.activeElement.id === "l01-sign-in");
+    check(await page.locator("#l01").innerText().then(text => text.includes("az login --use-device-code")),
+      "remote terminal authentication is explicit");
+    await page.locator("#l01 .codespaces-path").evaluate(node => { node.open = false; });
+    await page.goto(`${entry}#l12-codespaces`);
+    await page.waitForFunction(() => document.activeElement.id === "l12-codespaces");
+    check(await page.locator(".chapter.active").getAttribute("id") === "l12",
+      "Codespaces stop guidance remains within shared wrap-up, not an extra module");
     await page.goto(`${entry}#l08`);
     check(await page.locator("#l08 .recorded-answer").count() === 0, "author execution answers are not embedded in the guide");
     check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "new paid evaluation commands are separate from default reading");
@@ -294,6 +311,23 @@ async (page) => {
     check(await page.locator("#learning-path").inputValue() === "core", "troubleshooting preserves the selected path");
     await page.locator("#troubleshooting .return-to-lab").click();
     await page.locator("#l06.active").waitFor({state: "visible"});
+    await page.goto(`${entry}#l06-failures`);
+    await page.waitForFunction(() => document.activeElement.id === "l06-failures");
+    await page.evaluate(() => window.scrollBy(0, 160));
+    const readingPosition = await page.evaluate(() => window.scrollY);
+    await page.locator('.reader-help a[href="#glossary"]').click();
+    await page.locator("#glossary.active").waitFor({state: "visible"});
+    check(await page.locator("#glossary .return-to-lab").getAttribute("href") === "#l06-failures",
+      "help retains the exact lab section, not just the module");
+    await page.locator('.reader-help a[href="#troubleshooting"]').click();
+    await page.locator("#troubleshooting.active").waitFor({state: "visible"});
+    check(await page.locator("#troubleshooting .chapter-pagination .next").getAttribute("href") === "#l06-failures",
+      "moving between references preserves the original lab section");
+    await page.locator("#troubleshooting .chapter-pagination .next").click();
+    await page.waitForFunction(() => document.activeElement.id === "l06-failures");
+    check(Math.abs(await page.evaluate(() => window.scrollY) - readingPosition) <= 1,
+      "returning from help restores the exact reading position");
+    check(await page.locator("#learning-path").inputValue() === "core", "section-level help return preserves the core path");
     await page.locator("#learning-path").selectOption("quick");
     await page.locator("#l00.active").waitFor({state: "visible"});
     check(await page.locator("#progress-label").innerText() === "0 / 6", "quick tour excludes completed labs outside its six modules");
@@ -357,6 +391,22 @@ async (page) => {
     await settings.locator(".copy-button").click();
     check(await page.evaluate(() => window.__workshopCopiedText) === await settings.locator("code").textContent(), "settings copy keeps the exact file content");
     check((await page.locator("#toast").innerText()).includes(".env"), "settings copy directs the learner to the file, not the terminal");
+    const setupDetails = page.locator("#l01 .setup-detail");
+    check(await setupDetails.count() === 4 && await setupDetails.evaluateAll(nodes => nodes.every(node => !node.open)),
+      "first-time installation is available on demand rather than repeated on the prepared path");
+    const setupPosition = () => page.locator("#l01-local").evaluate(node => node.getBoundingClientRect().top + window.scrollY);
+    const compactSetupPosition = await setupPosition();
+    await setupDetails.evaluateAll(nodes => nodes.forEach(node => { node.open = true; }));
+    check(compactSetupPosition < await setupPosition() * .75,
+      "collapsing installation removes at least a quarter of scrolling before local setup");
+    check(await setupDetails.locator("code.language-bash").evaluateAll(nodes => nodes.every(node => node.getClientRects().length)),
+      "expanding installation retains the original OS-specific commands");
+    await setupDetails.evaluateAll(nodes => nodes.forEach(node => { node.open = false; }));
+    await page.goto(`${entry}#l03`);
+    const firstResponsePlan = page.locator("#l03 pre").filter({has: page.locator("code.language-bash")}).first();
+    await firstResponsePlan.locator(".copy-button").click();
+    check(await page.evaluate(() => window.__workshopCopiedText.trim()) === "python samples/first_response.py",
+      "copying the first-response plan cannot also copy the paid execution");
     await page.goto(`${entry}#l04`);
     const question = page.locator("#l04 pre").filter({has: page.locator("code.language-prompt")}).first();
     await question.locator(".copy-button").click();
@@ -460,6 +510,24 @@ async (page) => {
       }
     }
     await page.setViewportSize({width: 390, height: 844});
+    await page.goto(`${entry}#l06-failures`);
+    await page.waitForFunction(() => document.activeElement.id === "l06-failures");
+    await page.evaluate(() => window.scrollBy(0, 80));
+    const mobileReadingPosition = await page.evaluate(() => window.scrollY);
+    const menuBounds = await page.locator("#menu-toggle").boundingBox();
+    check(menuBounds !== null, "mobile contents control is visible");
+    // Locator auto-scroll can move the page before clicking this sticky control.
+    await page.mouse.click(menuBounds.x + menuBounds.width / 2, menuBounds.y + menuBounds.height / 2);
+    check(Math.abs(await page.evaluate(() => window.scrollY) - mobileReadingPosition) <= 1,
+      "opening the mobile contents does not move the underlying reading position");
+    await page.locator('.reader-help a[href="#troubleshooting"]').click();
+    await page.locator("#troubleshooting.active").waitFor({state: "visible"});
+    await page.locator("#troubleshooting .return-to-lab").click();
+    await page.waitForFunction(() => document.activeElement.id === "l06-failures");
+    check(Math.abs(await page.evaluate(() => window.scrollY) - mobileReadingPosition) <= 1,
+      "mobile help returns to the original reading position and section");
+    check(await page.locator("#menu-toggle").getAttribute("aria-expanded") === "false",
+      "mobile help return leaves the contents menu closed");
     await page.locator("#menu-toggle").click();
     check(await page.locator("#menu-toggle").getAttribute("aria-expanded") === "true", "mobile menu opens");
     await page.locator('.chapter-link[data-chapter="l21"]').click();

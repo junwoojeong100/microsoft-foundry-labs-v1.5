@@ -1,5 +1,5 @@
 [
-  {"id":"l00","title":"Start with Azure and Foundry","summary":"Understand the purchasing assistant and choose a path matching your readiness.","status":"Platform overview"},
+  {"id":"l00","title":"Start with Microsoft Azure and Microsoft Foundry","summary":"Understand the purchasing assistant and choose a path matching your readiness.","status":"Platform overview"},
   {"id":"l01","title":"Create your lab environment (Project / RBAC)","summary":"Prepare PC/subscription/budget and create your dedicated project, models, telemetry, and scoped access.","status":"Primarily GA"},
   {"id":"l02","title":"Connect your model deployment (Model Deployment)","summary":"Verify your deployed model's name, version, processing scope, and limits; connect it to code settings.","status":"GA / some Preview"},
   {"id":"l03","title":"Get your first answer from code (Responses API)","summary":"Send one question through the Responses API and read the answer and response ID.","status":"GA"},
@@ -10,7 +10,7 @@
   {"id":"l08","title":"Compare and evaluate your answers (Evaluation)","summary":"Collect and evaluate your matched v1/v2 originals; connect scores, reasons, and errors.","status":"GA / some Preview"},
   {"id":"l09","title":"Reject missing facts and false approval (Safety / Guardrails)","summary":"Use three boundary questions to distinguish verbal refusal from actual function rejection.","status":"Models GA / Agents Preview"},
   {"id":"l10","title":"Follow an answer's execution path (Tracing)","summary":"Find a run's operations and durations in Traces to narrow latency and failure causes.","status":"Tracing GA / Monitoring Preview"},
-  {"id":"l13","title":"AI Search, Foundry IQ, and permission-aware retrieval","summary":"Move beyond a few files to enterprise knowledge from multiple sources.","status":"IQ partially GA / portal Preview"},
+  {"id":"l13","title":"AI Search, Microsoft Foundry IQ, and permission-aware retrieval","summary":"Move beyond a few files to enterprise knowledge from multiple sources.","status":"IQ partially GA / portal Preview"},
   {"id":"l14","title":"Hosted agents and developer tools","summary":"Move your code and framework into a managed runtime.","status":"Core GA / check feature details"},
   {"id":"l15","title":"Agent Framework: sequential and concurrent execution","summary":"Review one purchasing question in sequence or divide it among independent roles, then compare actual inputs and outputs.","status":"Check each SDK and pattern"},
   {"id":"l15-collaboration","title":"Agent Framework: group chat and handoff","summary":"Run revision after review and specialist delegation separately; inspect actual messages, tool calls, and termination.","status":"Check each SDK and pattern"},

@@ -1,6 +1,8 @@
 > **Check these first:** The selected English profile, the current project and endpoint, the calling identity, and the SDK environment used to run the command.
 
-## Stuck before connecting to Azure?
+<a id="troubleshooting-stuck-before-connecting-to-azure"></a>
+
+## Stuck before connecting to Microsoft Azure?
 
 | Symptom | What to do now |
 | --- | --- |
@@ -19,7 +21,7 @@
 
 | Output or symptom | Interpretation and next action |
 | --- | --- |
-| `PLAN ONLY` / `plan_only=true` | Normal plan output, not live Azure execution. Continue with the stated live command only after approval conditions are ready |
+| `PLAN ONLY` / `plan_only=true` | Normal plan output, not live Microsoft Azure execution. Continue with the stated live command only after approval conditions are ready |
 | L06 stock/quantity errors | Expected rejection for the specified failure inputs; record the error kind and continue |
 | L07 `Approval required` | Expected unapproved-local-call rejection; compare it with the exact one-call approval command |
 | Two initial L17 / three initial L18 test failures | Deliberate exercise defects; repair only `exercise.py` and rerun the same tests |

@@ -10,7 +10,7 @@
 
 ## Module contents
 
-- [00. Start with Azure and Foundry](#l00)
+- [00. Start with Microsoft Azure and Microsoft Foundry](#l00)
 - [01. Create your lab environment (Project / RBAC)](#l01)
 - [02. Connect your model deployment (Model Deployment)](#l02)
 - [03. Get your first answer from code (Responses API)](#l03)
@@ -21,7 +21,7 @@
 - [08. Compare and evaluate your answers (Evaluation)](#l08)
 - [09. Reject missing facts and false approval (Safety / Guardrails)](#l09)
 - [10. Follow an answer's execution path (Tracing)](#l10)
-- [11. AI Search, Foundry IQ, and permission-aware retrieval](#l13)
+- [11. AI Search, Microsoft Foundry IQ, and permission-aware retrieval](#l13)
 - [12. Hosted agents and developer tools](#l14)
 - [13. Agent Framework: sequential and concurrent execution](#l15)
 - [14. Agent Framework: group chat and handoff](#l15-collaboration)
@@ -40,7 +40,7 @@
 
 <a id="l00"></a>
 
-# 00. Start with Azure and Foundry
+# 00. Start with Microsoft Azure and Microsoft Foundry
 
 **Core course · Platform overview** · about 10 min
 
@@ -48,9 +48,9 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Reading · no Azure account or installation needed.
+**Format:** Reading · no Microsoft Azure account or installation needed.
 
-**Start here:** Read “New to Azure? Start here” below, then choose your learning path.
+**Start here:** Read “New to Microsoft Azure? Start here” below, then choose your learning path.
 
 **What to check:** Explain one thing the purchasing assistant will do and one thing it must not do.
 
@@ -58,9 +58,11 @@
 
 <a id="l00-first-steps"></a>
 
-## New to Azure? Start here
+<a id="l00-new-to-azure-start-here"></a>
 
-**Azure is Microsoft's cloud platform. Foundry is a workspace on Azure for building and managing AI models and agents.** Here you build a purchasing assistant for the fictional company Contoso. Do not use real company accounts, purchasing records, or payment information as lab data.
+## New to Microsoft Azure? Start here
+
+**Microsoft Azure is Microsoft's cloud platform. Microsoft Foundry is a workspace on Microsoft Azure for building and managing AI models and agents.** Here you build a purchasing assistant for the fictional company Contoso. Do not use real company accounts, purchasing records, or payment information as lab data.
 
 ```text
 User: "Check policy and stock for two laptops, then prepare a draft."
@@ -74,7 +76,7 @@ Start with these five terms. Learn other acronyms when you need them and use the
 
 | Term | Meaning in this lab |
 | --- | --- |
-| Portal | A management website. Azure portal focuses on resources, access, and costs; Foundry portal focuses on AI work |
+| Portal | A management website. Microsoft Azure portal focuses on resources, access, and costs; Microsoft Foundry portal focuses on AI work |
 | Project | A workspace organizing this assistant's agents and connections |
 | Model | The AI that receives input and generates text |
 | Agent | A program combining a model with instructions, knowledge, and tools |
@@ -82,27 +84,33 @@ Start with these five terms. Learn other acronyms when you need them and use the
 
 **Start with 11 core modules, L00–L10.** The eight advanced modules, L11–L18, are electives. **Finish every path with shared wrap-up L19.** Core-only learners jump directly from L10 to L19 without completing the electives.
 
+```text
+Prepare      L00 overview → L01 your environment → L02 model checks
+Build        L03 first answer → L04 instructions → L05 documents → L06 functions → L07 MCP
+Check/finish L08 evaluation → L09 boundaries → L10 traces → L19 costs and wrap-up
+```
+
 **For your first complete run:** Follow **Prerequisites → Steps → Success criteria → Cleanup** in each module. Collapsed **optional and implementation-reference** sections are not required for the main path. Record a successful result before continuing; on failure, use that module's **Troubleshooting** section.
 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
-| Your Azure subscription, permissions, and budget scope are ready | [Create your environment in L01](#l01) → inspect your deployment in L02 → first call in L03 | An actual answer/response ID from the project you created |
-| Account, permissions, or cost conditions are still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L08 instructions/questions | Valid data and the KRW 2,900,000 draft; live Azure execution remains not performed |
+| Your Microsoft Azure subscription, permissions, and budget scope are ready | [Create your environment in L01](#l01) → inspect your deployment in L02 → first call in L03 | An actual answer/response ID from the project you created |
+| Account, permissions, or cost conditions are still pending | [L01 PC setup](#l01-pc) → [English profile](#l01-language) → [local checks](#l01-local) → L06 local functions → L07 local MCP → L08 instructions/questions | Valid data, the KRW 2,900,000 draft, and MCP calls; live Microsoft Azure execution remains not performed |
 
-The default is **create your environment → run the labs → clean up your resources**. The second path is local preparation, not completion of the Foundry experience. **Without Azure** groups those local, reading, and design steps.
+The default is **create your environment → run the labs → clean up your resources**. The second path is local preparation, not completion of the Microsoft Foundry experience. **Without Microsoft Azure** groups those local, reading, and design steps.
 
 ## Objectives
 
-**Foundry is more than a screen for calling models.** It is a development and operations platform for selecting models, connecting agents to knowledge and tools, and managing quality, safety, and cost.
+**Microsoft Foundry is more than a screen for calling models.** It is a development and operations platform for selecting models, connecting agents to knowledge and tools, and managing quality, safety, and cost.
 
 <details markdown="1">
-<summary>Optional reference: which Foundry capabilities do the core labs use?</summary>
+<summary>Optional reference: which Microsoft Foundry capabilities do the core labs use?</summary>
 
 | What you need | Responsible component | What you will do in this guide |
 | --- | --- | --- |
-| Reasoning and text generation | Foundry Models | Compare models using the same questions |
-| Goals, conversations, and tool use | Foundry Agent Service | Build a purchasing and policy assistant |
-| Evidence from company documents | File search / AI Search / Foundry IQ | Find answers in documents and cite them |
+| Reasoning and text generation | Microsoft Foundry Models | Compare models using the same questions |
+| Goals, conversations, and tool use | Microsoft Foundry Agent Service | Build a purchasing and policy assistant |
+| Evidence from company documents | File search / AI Search / Microsoft Foundry IQ | Find answers in documents and cite them |
 | Connections to real systems | Functions / MCP / OpenAPI / Toolbox | Check inventory and prepare purchase drafts |
 | A way to judge correctness | Evaluations / Red teaming | Test answers, tool use, refusals, and approval boundaries |
 | Execution paths and operations | Tracing / Monitoring / Control Plane | Inspect failures, costs, and permissions |
@@ -119,7 +127,7 @@ The default is **create your environment → run the labs → clean up your reso
 
 **How do you use it?** Add one capability per module and check the result. Compare policy claims with the documents, and quantities and amounts with function results. You do not need to memorize every menu.
 
-**Where do you run it?** This page is a guide. The portal is the AI workspace in your browser; the terminal is the command window on your PC. **Copy is not Run.**
+**Where do you run it?** This page is a guide. The portal is the AI workspace in your browser; the terminal is the command window in your chosen lab environment (PC or Codespaces). **Copy is not Run.**
 
 ### The five entry points in the live portal
 
@@ -157,17 +165,19 @@ Read `python samples/first_response.py --query "..." --live` as four parts:
 | `python` | The Python interpreter |
 | `samples/first_response.py` | The focused, one-request lesson |
 | `--query "..."` | The model input. Without `--live`, it is only shown in the plan |
-| `--live` | Permits one actual Azure request in this example |
+| `--live` | Permits one actual Microsoft Azure request in this example |
 
-Follow **L01 environment/telemetry → L02 deployments → L03 first request → L04 instructions → L05 retrieval → L06 functions → L08 evaluation → L10 traces → L19 cleanup**. Read each command as file, operation, and inputs. Compare the SDK blocks with the [sample guide](../samples/README.md), then check request bounds and ownership before execution. Replace descriptive placeholders with your verified values.
+Read each command as file, operation, and inputs. Compare the SDK blocks with the [sample guide](../samples/README.md), then check request bounds and ownership before execution. Replace descriptive placeholders with your verified values.
 
-Code-backed labs pair **Foundry portal settings/actions ↔ the Python code that runs ↔ the result to inspect**. Local Agent Framework and design exercises explicitly state when there is no portal counterpart and when no Azure operation was performed.
+Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python code that runs ↔ the result to inspect**. Local Agent Framework and design exercises explicitly state when there is no portal counterpart and when no Microsoft Azure operation was performed.
 
 **Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
 
 **Rules for subsequent commands:** Always run from the **lab folder** containing `samples`, `data`, and `requirements.txt`. In Windows PowerShell, replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for example, `.\.venv\Scripts\python.exe samples/first_response.py`. Advanced modules identify their separate Python environment.
 
-`--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Azure cost”: the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
+**In Codespaces, use Linux/Bash commands regardless of your PC's OS.** “Local execution” means running code inside your chosen lab environment. Both terminals and `127.0.0.1` refer to that same Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges. The repository is already open in browser VS Code, so [this path](#l01-codespaces) does not require downloading the ZIP again.
+
+`--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Microsoft Azure cost”: the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details markdown="1">
 <summary>For advanced commands: environment variables, continued lines, and azd</summary>
@@ -182,7 +192,7 @@ This guide is for **developers, architects, and technical professionals applying
 
 Keep all files in their original folder structure. Open `index.html` directly to use the web guide. This guide is bilingual: English is the default at `index.html`, Korean is available at `index.ko.html`, and the generated Markdown/ZIP downloads are grouped under `downloads/`. The language switch preserves your current module and progress, but **does not select the runtime's data language**.
 
-Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then use `data/en/` for English policies, prompts, inventory, evaluation, and tuning inputs; without the flag, the original Korean profile remains the default. SKU IDs, wire-contract names/statuses, KRW amounts, quantities, and quality gates remain unchanged. Hosted packages bind their selected language in `lab-profile.json`. Use a clean, separate checkout/worktree with its own `.env`, `.azure/`, and `results/`; never reuse or overwrite a Korean run's private configuration or receipts. You can read the guide and use local exercises offline. Azure labs and official-source links require internet access.
+Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then use `data/en/` for English policies, prompts, inventory, evaluation, and tuning inputs; without the flag, the original Korean profile remains the default. SKU IDs, wire-contract names/statuses, KRW amounts, quantities, and quality gates remain unchanged. Hosted packages bind their selected language in `lab-profile.json`. Use a clean, separate checkout/worktree with its own `.env`, `.azure/`, and `results/`; never reuse or overwrite a Korean run's private configuration or receipts. You can read the downloaded guide and use PC-local exercises offline. Codespaces access, Microsoft Azure labs, and official-source links require internet access.
 
 ## Steps
 
@@ -194,7 +204,7 @@ Follow L01 to select `FOUNDRY_LAB_LANGUAGE=en` in every terminal. Samples then u
 | Core course | L00–L10 → L19 | Core: 4 hours 45 minutes + 10-minute wrap-up; waits and breaks extra |
 | Developer extensions | Core → L11 → L12 → L13/L14 → optional L18 → L19 | Deeper SDK, deployment, and search work |
 | Control and operations | Core → L15 → L16 → L17 → optional L18 → L19 | Create memory/schedules and design access/recovery boundaries in your environment |
-| Practice without Azure | L01 local → L06 local → L08 instructions/questions → design exercises | Neither live Azure execution nor full-course completion |
+| Practice without Microsoft Azure | L01 local → L06 local → L07 local MCP → L08 instructions/questions → optional design → L19 | Neither live Microsoft Azure execution nor full-course completion |
 
 The displayed core time is **4 hours 45 minutes**, plus ten minutes for wrap-up. It estimates direct work; allow extra time for first installation, access/cost approval, provisioning, indexing, and breaks.
 
@@ -231,7 +241,7 @@ Keep your names and paths in the [progress record](#instructor). Do not reuse sc
 
 Check each module's **Success criteria** before marking progress. Browser progress is local to this device, not proof of service execution. Save actual results in your English folder's `results/` and [progress/completion checklist](#instructor), without personal information or tokens.
 
-Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume without losing your path. On a phone, find these links under **Menu**.
+Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume at the original section and reading position. On a phone, find these links under **Menu**.
 
 ## Success criteria
 
@@ -256,7 +266,7 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Your selected path, what the purchasing assistant will do, and its prohibited actions. No Azure call has been made.
+**Keep:** Your selected path, what the purchasing assistant will do, and its prohibited actions. No Microsoft Azure call has been made.
 
 **Continue:** [L01 setup](#l01). If you select the tour or local path on the web, **Next at the page footer** follows that selection; body links describe the core/elective sequence.
 
@@ -277,13 +287,13 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 
 **Core course · Primarily GA** · about 30 min
 
-> **What you will build:** Your own lab resource group, Foundry project, model deployments, telemetry connection, and Python environment.
+> **What you will build:** Your own lab resource group, Microsoft Foundry project, model deployments, telemetry connection, and Python environment.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Prepare the PC → verify sign-in and permissions → create a dedicated environment → configure endpoints and telemetry.
+**Format:** Prepare your execution environment → verify sign-in and permissions → create a dedicated environment → configure endpoints and telemetry.
 
-**Start here:** Extract the kit, open it in VS Code, and identify your Azure subscription, region, and budget.
+**Start here:** Choose either your PC or [GitHub Codespaces](#l01-codespaces), then identify your Microsoft Azure subscription, region, and budget.
 
 **What to check:** Your portal resources match `results/azure-environment.json`. The first model request is in L03.
 
@@ -295,26 +305,26 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 
 ## Concepts and lab map
 
-**What you will try:** Prepare a Foundry project, models, access, telemetry, and local Python.
+**What you will try:** Prepare a Microsoft Foundry project, models, access, telemetry, and local Python.
 
 **What is it, and why does it matter?** A subscription is a billing scope, a resource group groups resources, and a project is the agent workspace. Sign-in identifies the caller; RBAC permits actions; quota provides capacity.
 
 **How do you use it?** Create a dedicated environment and compare actual portal names and endpoints with `.env` and the ownership record. An endpoint alone does not grant access.
 
-**Where do you run it?** Use your PC's VS Code terminal, then inspect the results in Azure and Foundry portals. The [setup script](../scripts/azure_environment.py) and [Bicep](../infra/main.bicep) define the resources created.
+**Where do you run it?** Use the VS Code terminal in your chosen environment (PC or Codespaces), then inspect the results in Microsoft Azure and Microsoft Foundry portals. The [setup script](../scripts/azure_environment.py) and [Bicep](../infra/main.bicep) define the resources created.
 
 ## Prerequisites
 
 | Item | What to verify |
 | --- | --- |
-| Azure account and active subscription | You can sign in and the subscription is Enabled |
-| Creation permission | Permission to create a resource group and deploy Foundry/telemetry resources inside it |
+| Microsoft Azure account and active subscription | You can sign in and the subscription is Enabled |
+| Creation permission | Permission to create a resource group and deploy Microsoft Foundry/telemetry resources inside it |
 | Role-assignment permission | `Microsoft.Authorization/roleAssignments/write` at the target scope; `Contributor` alone cannot grant roles |
 | Quota-read permission | `Cognitive Services Usages Reader` or equivalent subscription permission |
 | Region and budget | Supported models, permitted processing scope, spend limit, stop criteria, and retention deadline |
-| PC | Python 3.13, Azure CLI 2.86.0 baseline, VS Code, internet, and an approved package source |
+| Execution environment | Your PC with Python 3.13, Microsoft Azure CLI 2.86.0 baseline, and VS Code, or the GitHub Codespaces configuration below. Internet and an approved package source are required |
 
-Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Azure access but **do not complete the live Foundry path**.
+Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Microsoft Azure access but **do not complete the live Microsoft Foundry path**.
 
 <a id="l01-pc"></a>
 
@@ -322,14 +332,68 @@ Verify permissions even in your own subscription. In an organizational subscript
 
 ### 1. Prepare the PC and lab files
 
-**Already installed? Do not repeat installation.** Check versions for your OS, then select the [English profile](#l01-language), [prepare files and the virtual environment](#l01-local), and [select Python](#l01-interpreter). For a first installation, follow **only your OS's sections** below. Without Azure access, complete PC/local preparation and leave step 2 onward pending.
+**Choose one of the two paths.** If your PC already has the tools, use the version checks below. To reduce installation, use **GitHub Codespaces**: a remote Linux development environment hosted by GitHub, not a Microsoft Foundry project itself.
 
-Prepare Python, Azure CLI, and VS Code through organization-approved paths. **Check existing tools first and install only what is missing.** Prefer your organization's software portal, approved installers, and package sources. Follow the official download steps below only when permitted. If installation or downloads are blocked, obtain an approved distribution path; do not bypass security warnings, certificate validation, or execution policies.
+<details class="optional-path codespaces-path" markdown="1">
+<summary>Minimize installation: start in your browser with GitHub Codespaces</summary>
+
+<a id="l01-codespaces"></a>
+
+#### Create a Codespace → check readiness → continue the same labs
+
+**Required:** A GitHub account, read access to this repository, organizational permission to use Codespaces, and an approved cost scope. Microsoft Azure subscription/access is separate and needed for the live labs. Codespaces does not automatically connect to your organization's private endpoint/VNet. Without a permitted network route, use local exercises rather than changing security settings.
+
+1. Open [this lab repository](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5), select the lab branch containing `.devcontainer/devcontainer.json`, then **Code → Codespaces → … → New with options**. There is no need to download the ZIP again or run `git clone`.
+2. Review **who pays, available allowance, Region, and Machine type**. A small 2-core configuration is a starting point for core labs; use an organization-approved option. This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope. [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges. Do not assume free use; select **Create codespace** after checking.
+3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`. The repository configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, `.venv`, and core/MCP packages. It copies the `.env` template only if absent. It does not sign into Microsoft Azure, create resources, or grant roles.
+4. Open **Terminal → New Terminal** in the lab root containing `samples`, `data`, and `requirements.txt`. **This is Linux/Bash even on a Windows PC**, so do not substitute PowerShell commands. Select the English data profile before the checks:
+
+```bash
+export FOUNDRY_LAB_LANGUAGE=en
+python --version
+python -c "import sys; print(sys.executable)"
+az version
+python samples/workshop.py doctor
+python samples/workshop.py validate-data
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — Codespaces readiness**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `export FOUNDRY_LAB_LANGUAGE=en` | Selects English synthetic data for this terminal. | Repeat in every new terminal; do not reuse Korean ownership records. |
+| 2. `python --version` | Checks the selected Python version. | `Python 3.13.x`; no Microsoft Azure request. |
+| 3. `python -c` | Reads the actual interpreter path. | Must be this lab folder's `.venv/bin/python`. |
+| 4. `az version` | Reads the installed CLI version. | `azure-cli` 2.86.0 baseline; not a sign-in check. |
+| 5. `doctor` | Checks SDK and `.env` readiness. | Core SDKs must be installed; this does not test the endpoint. |
+| 6. `validate-data` | Checks the bundled synthetic data structure. | Twenty cases, ten dev, ten holdout, three inventory rows; not model evaluation. |
+
+</div>
+
+**Continue:** If the checks match, skip PC installation and virtual-environment creation and go to **[2. Sign-in, subscription, permissions, and costs](#l01-sign-in)**. Without Microsoft Azure prerequisites, use [L06 local functions](#l06). Fill the project values in `.env` in step 5, after creating the resources.
+
+| Where you are blocked | Next action |
+| --- | --- |
+| Codespaces menu missing or creation denied | Check repository access, organizational permission, and GitHub usage. Use the PC path if Codespaces is not permitted. |
+| No `Lab tools ready.` or package installation fails | Inspect the first creation-log error and approved package access. After resolving it, rerun `bash .devcontainer/post-create.sh` in the same terminal. Existing `.env` and ownership records are preserved. |
+| Wrong interpreter path | Open a new terminal or run `source .venv/bin/activate`, then recheck. Do not recreate Microsoft Azure resources. |
+
+On another day, restart **the same Codespace** from [Your Codespaces](https://github.com/codespaces). Its `.env` and `results/` belong to that environment; do not assume they transfer automatically to a new Codespace. Use a separate Codespace per language and do not commit results or authentication data. **[Stop the Codespace in L19](#l12-codespaces)**; closing a browser tab does not stop it. Prepare azd, `.venv-live`, or `.venv-advanced` only when choosing the corresponding elective.
+
+[Official creation instructions](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository) · [Dev-container configuration](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
+
+</details>
+
+**Already installed? Do not repeat installation.** Check versions for your OS, then select the [English profile](#l01-language), [prepare files and the virtual environment](#l01-local), and [select Python](#l01-interpreter). For a first installation, follow **only your OS's sections** below. Without Microsoft Azure access, complete PC/local preparation and leave step 2 onward pending.
+
+Prepare Python, Microsoft Azure CLI, and VS Code through organization-approved paths. **Check existing tools first and install only what is missing.** Prefer your organization's software portal, approved installers, and package sources. Follow the official download steps below only when permitted. If installation or downloads are blocked, obtain an approved distribution path; do not bypass security warnings, certificate validation, or execution policies.
 
 | Tool | Its role in this lab | Ready when |
 | --- | --- | --- |
-| Python 3.13 | Runs actual Python code and the Foundry SDK on your PC. | The version check prints `Python 3.13.x`. |
-| Azure CLI | Signs into Azure and creates or inspects lab resources. | `az version` prints an `azure-cli` version. This kit's baseline is 2.86.0. |
+| Python 3.13 | Runs actual Python code and the Microsoft Foundry SDK on your PC. | The version check prints `Python 3.13.x`. |
+| Microsoft Azure CLI | Signs into Microsoft Azure and creates or inspects lab resources. | `az version` prints an `azure-cli` version. This kit's baseline is 2.86.0. |
 | VS Code | Displays and edits code and opens a PC terminal. | You can open the lab folder and a Python file. Prepare the Python extension below. |
 
 <a id="l01-python"></a>
@@ -338,9 +402,14 @@ Prepare Python, Azure CLI, and VS Code through organization-approved paths. **Ch
 
 **Windows**
 
+<details class="setup-detail" markdown="1">
+<summary>Only if Python 3.13 is missing: Windows installation</summary>
+
 1. On [Python Downloads](https://www.python.org/downloads/windows/), choose a **3.13.x release** and download the installer for your PC. The latest version shown on the landing page is not necessarily 3.13. Use the regular installer, not the `embeddable package`.
 2. Run the approved installer. In the regular installer, select **Add python.exe to PATH** and include `pip` and the Python launcher (`py`). Use **Install Now** or the installation options required by your organization.
 3. Close existing terminals and open a new **PowerShell** window. Explicitly select 3.13 with:
+
+</details>
 
 ```powershell
 py -3.13 --version
@@ -352,9 +421,12 @@ py -3.13 --version
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `py -3.13 --version` | Prints the installed Python 3.13 version. | Local check; no installation, sign-in, or Azure request. |
+| 1. `py -3.13 --version` | Prints the installed Python 3.13 version. | Local check; no installation, sign-in, or Microsoft Azure request. |
 
 </div>
+
+<details class="setup-detail" markdown="1">
+<summary>Only if Python 3.13 is missing: macOS/Linux installation</summary>
 
 **macOS**
 
@@ -376,9 +448,11 @@ sudo apt install python3.13 python3.13-venv
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `apt install ...` | Installs Python 3.13 and virtual-environment support. | Approved package download and PC changes; no Azure request. |
+| 1. `apt install ...` | Installs Python 3.13 and virtual-environment support. | Approved package download and PC changes; no Microsoft Azure request. |
 
 </div>
+
+</details>
 
 On macOS/Linux, open a new terminal and check:
 
@@ -392,7 +466,7 @@ python3.13 --version
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `python3.13 --version` | Prints the Python 3.13 version you will run. | The `x` in `Python 3.13.x` is the actual patch number; no Azure request. |
+| 1. `python3.13 --version` | Prints the Python 3.13 version you will run. | The `x` in `Python 3.13.x` is the actual patch number; no Microsoft Azure request. |
 
 </div>
 
@@ -400,7 +474,12 @@ Having only 3.12, 3.14, or another version does not complete this step. Keep oth
 
 <a id="l01-azure-cli"></a>
 
-#### Install and check Azure CLI
+<a id="l01-install-and-check-azure-cli"></a>
+
+#### Install and check Microsoft Azure CLI
+
+<details class="setup-detail" markdown="1">
+<summary>Only if az is missing: Microsoft Azure CLI installation by OS</summary>
 
 **Windows**
 
@@ -424,7 +503,7 @@ brew install azure-cli
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `brew install azure-cli` | Installs Homebrew's Azure CLI package and required dependencies. | Download and PC changes; separate from preparing the lab's Python 3.13; no Azure request. |
+| 1. `brew install azure-cli` | Installs Homebrew's Microsoft Azure CLI package and required dependencies. | Download and PC changes; separate from preparing the lab's Python 3.13; no Microsoft Azure request. |
 
 </div>
 
@@ -442,9 +521,11 @@ sudo apt install azure-cli
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `apt install azure-cli` | Installs Azure CLI from the configured, approved source. | Download and PC changes; no Azure sign-in or resource creation. |
+| 1. `apt install azure-cli` | Installs Microsoft Azure CLI from the configured, approved source. | Download and PC changes; no Microsoft Azure sign-in or resource creation. |
 
 </div>
+
+</details>
 
 **Check on every OS:** Run this in a new PC terminal. The same command works in PowerShell.
 
@@ -458,21 +539,26 @@ az version
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `az version` | Prints local Azure CLI and installed extension versions. | Not a sign-in, permission, or Azure connectivity check; no model call or resource creation. |
+| 1. `az version` | Prints local Microsoft Azure CLI and installed extension versions. | Not a sign-in, permission, or Microsoft Azure connectivity check; no model call or resource creation. |
 
 </div>
 
-Record the `azure-cli` value. Current MSI, Homebrew, and apt packages may differ from the kit baseline of 2.86.0. With another approved version, check subsequent commands' behavior; do not arbitrarily upgrade or downgrade. **Azure sign-in is in step 2 below.**
+Record the `azure-cli` value. Current MSI, Homebrew, and apt packages may differ from the kit baseline of 2.86.0. With another approved version, check subsequent commands' behavior; do not arbitrarily upgrade or downgrade. **Microsoft Azure sign-in is in step 2 below.**
 
 <a id="l01-vscode"></a>
 
 #### Install VS Code and open the lab folder
+
+<details class="setup-detail" markdown="1">
+<summary>Only if VS Code is missing: installation by OS</summary>
 
 **Windows:** On [VS Code Downloads](https://code.visualstudio.com/download), choose the **User Installer** for your PC and follow approved installation options. Use your organization's distribution when available. Open **Visual Studio Code** from the Start menu.
 
 **macOS:** On the same page, choose Apple Silicon, Intel, or Universal for your Mac. Open the distribution's `.dmg` or `.zip`, move **Visual Studio Code.app → Applications**, and launch it.
 
 **Linux:** Choose the `.deb` or `.rpm` for your distribution and install it through an approved software installer. Apply only approved settings if it asks to add a package source.
+
+</details>
 
 In VS Code, check the installed version under **Help → About** (macOS: **Code → About Visual Studio Code**). You can use the folder-opening steps below without a `code` terminal command.
 
@@ -542,7 +628,7 @@ python3.13 samples/workshop.py validate-data
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `doctor` | Prints Python/SDK availability and whether `.env` exists. | Local inspection; not CLI sign-in or Azure connection validation. |
+| 1. `doctor` | Prints Python/SDK availability and whether `.env` exists. | Local inspection; not CLI sign-in or Microsoft Azure connection validation. |
 | 2. `validate-data` | Checks synthetic data shape, scenario separation, and inventory. | Data validation, not model-quality evaluation. |
 
 </div>
@@ -572,7 +658,7 @@ cp -n .env.example .env
 | --- | --- | --- |
 | 1. `venv .venv` | Creates this folder's Python environment. | Local folder creation. |
 | 2. `source .../activate` | Selects it in the current terminal. | Reselect it in each new terminal. |
-| 3. `pip install -r ...` | Installs the declared SDK dependencies. | Package download/local installation; no Azure request. |
+| 3. `pip install -r ...` | Installs the declared SDK dependencies. | Package download/local installation; no Microsoft Azure request. |
 | 4. `cp -n ...` | Copies the settings template only if absent. | Preserves existing `.env`. |
 
 </div>
@@ -631,8 +717,8 @@ python -c "import sys; print('Python', sys.version.split()[0]); print(sys.execut
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
 | 1. `source .venv/bin/activate` | Selects the core lab's Python in this terminal. | Local shell change only. |
-| 2. `export FOUNDRY_LAB_LANGUAGE=en` | Reselects English synthetic inputs in this terminal. | Does not change the web reader language or any Azure resource. |
-| 3. `python -c` | Prints the current interpreter **version and path**. | Both `Python 3.13.x` and this folder's `.venv/bin/python` must match; no Azure request. |
+| 2. `export FOUNDRY_LAB_LANGUAGE=en` | Reselects English synthetic inputs in this terminal. | Does not change the web reader language or any Microsoft Azure resource. |
+| 3. `python -c` | Prints the current interpreter **version and path**. | Both `Python 3.13.x` and this folder's `.venv/bin/python` must match; no Microsoft Azure request. |
 
 </div>
 
@@ -649,19 +735,58 @@ $env:FOUNDRY_LAB_LANGUAGE = "en"
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `$env:FOUNDRY_LAB_LANGUAGE = "en"` | Reselects English synthetic inputs in this session. | No Azure change; do not reuse Korean records. |
-| 2. `.venv\Scripts\python.exe -c` | Directly selects the environment's executable and prints its **version and path**. | Both `Python 3.13.x` and this folder's `.venv\Scripts\python.exe` must match. No activation, policy change, or Azure request. |
+| 1. `$env:FOUNDRY_LAB_LANGUAGE = "en"` | Reselects English synthetic inputs in this session. | No Microsoft Azure change; do not reuse Korean records. |
+| 2. `.venv\Scripts\python.exe -c` | Directly selects the environment's executable and prints its **version and path**. | Both `Python 3.13.x` and this folder's `.venv\Scripts\python.exe` must match. No activation, policy change, or Microsoft Azure request. |
 
 </div>
 
 Continue replacing `python` with `.\.venv\Scripts\python.exe` in Windows core commands. If the path is missing, check the current folder and return to environment creation only if it was never prepared.
 
-**Do not reuse a `.venv` based on 3.12, 3.14, or another version.** Preserve it and create a Python 3.13 environment under a new name such as `.venv-core313`. Consistently replace the guide's `.venv` paths with that name and select the same interpreter in VS Code. Changing Python environments does not require recreating Azure resources or ownership records.
+**Do not reuse a `.venv` based on 3.12, 3.14, or another version.** Preserve it and create a Python 3.13 environment under a new name such as `.venv-core313`. Consistently replace the guide's `.venv` paths with that name and select the same interpreter in VS Code. Changing Python environments does not require recreating Microsoft Azure resources or ownership records.
+
+<a id="l01-sign-in"></a>
 
 ### 2. Check sign-in, subscription, permissions, and costs
 
+**Choose only the sign-in command for your execution environment.** Portal or GitHub sign-in does not sign the CLI in automatically.
+
+**Your PC terminal:**
+
 ```bash
 az login
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `az login` | Starts authentication for your PC's CLI. | Enter passwords/MFA directly in the sign-in screen; no resource creation. |
+
+</div>
+
+**GitHub Codespaces terminal:** Use [device-code sign-in](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser).
+
+```bash
+az login --use-device-code
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `az login --use-device-code` | Starts authentication for the CLI in Codespaces. | Open the Microsoft sign-in page named by your terminal, enter **the code you just requested**, and complete MFA yourself. Do not share codes, tokens, or passwords. No resource creation. |
+
+</div>
+
+If organizational policy blocks device-code authentication, use an approved execution/authentication path. Do not disable MFA/Conditional Access or substitute a long-lived secret.
+
+**Both paths:** After sign-in, run these lines one at a time. Find your subscription ID in the list before replacing the placeholder.
+
+```bash
 az account list --query "[].{subscription:name,id:id,tenant:tenantId,state:state}" -o table
 az account set --subscription "actual-subscription-id"
 az account show --query "{subscription:name,id:id,tenant:tenantId,state:state}" -o table
@@ -673,14 +798,13 @@ az account show --query "{subscription:name,id:id,tenant:tenantId,state:state}" 
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `az login` | Starts CLI user authentication. | Enter passwords/MFA directly in the authentication screen; portal sign-in is separate. |
-| 2. `az account list` | Lists subscriptions, tenants, and states accessible to your account. | Find the ID of the permitted Enabled subscription; no model call or resource creation. |
-| 3. `az account set` | Replaces the placeholder with your subscription ID and selects it. | Changes the local CLI target, not permissions. |
-| 4. `az account show` | Rechecks the current subscription, tenant, and state **after selection**. | Confirm the selected ID and Enabled state before creation. |
+| 1. `az account list` | Lists subscriptions, tenants, and states accessible to your account. | Find the ID of the permitted Enabled subscription; no model call or resource creation. |
+| 2. `az account set` | Replaces the placeholder with your subscription ID and selects it. | Changes the local CLI target, not permissions. |
+| 3. `az account show` | Rechecks the current subscription, tenant, and state **after selection**. | Confirm the selected ID and Enabled state before creation. |
 
 </div>
 
-In Azure portal **Subscriptions → Access control (IAM) → View my access**, verify the prerequisite permissions. Creation and role assignment are different capabilities. Grant subsequent roles only at your lab project/resource scopes.
+In Microsoft Azure portal **Subscriptions → Access control (IAM) → View my access**, verify the prerequisite permissions. Creation and role assignment are different capabilities. Grant subsequent roles only at your lab project/resource scopes.
 
 Some screens still show **Azure AI User**, the previous name of **Foundry User**. The role ID and core permissions are unchanged; the rename does not require a duplicate assignment.
 
@@ -695,39 +819,53 @@ Replace the three placeholders before executing:
 | Placeholder | Value to supply | Where to verify |
 | --- | --- | --- |
 | `actual-subscription-id` | The selected subscription ID | `id` in the preceding `az account show`, not the display name or tenant ID |
-| `permitted-region` | An approved Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
+| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
 | `"Approved amount, service scope, and retention deadline"` | Your approved amount, services, and stop/retention deadline | Step 2's actual cost approval. Supplying this text does not grant approval or access |
 
 ```bash
 python scripts/azure_environment.py create
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — inspect the plan first.**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `create` | Prints the dedicated-environment plan. | `PLAN ONLY`; no Microsoft Azure request or sign-in/permission validation. |
+
+</div>
+
+**Create for real:** Replace the three values above and verify approval for that subscription, region, and cost scope before running this line.
+
+```bash
 python scripts/azure_environment.py create --subscription actual-subscription-id --location permitted-region --cost-authorization "Approved amount, service scope, and retention deadline" --live
 ```
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough — read the plan, then supply your actual values.**
+**Command walkthrough**
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `create` | Prints the dedicated-environment plan. | `PLAN ONLY`; no Azure request or sign-in/permission validation. |
-| 2. `create ... --live` | Records scope and cost authorization and creates a unique resource group. | Actual Azure creation; no reuse or overwrite of an existing group/receipt. |
+| 1. `create ... --live` | Records scope and cost authorization and creates a unique resource group. | Actual Microsoft Azure creation; no reuse or overwrite of an existing group/receipt. |
 
 </div>
 
-In Azure portal **Resource groups**, verify the returned name, region, and tags. Do not share or commit `.env` or the receipt. If a receipt already exists, inspect its resources instead of deleting it and restarting.
+**Stop and check:** Match `resource_group` and `location` in `results/azure-environment.json` to the name, region, and ownership tags in Microsoft Azure portal **Resource groups** before step 4. Do not share or commit `.env` or the receipt. If a receipt already exists, inspect its resources instead of deleting it and restarting.
 
-![Resource-group example. Compare your own generated group, region, and ownership tags in Azure portal before proceeding.](../assets/portal/en/18-resource-group.png)
+![Resource-group example. Compare your own generated group, region, and ownership tags in Microsoft Azure portal before proceeding.](../assets/portal/en/18-resource-group.png)
 
-### 4. Create the Foundry project, models, and required roles
+<a id="l01-4-create-the-foundry-project-models-and-required-roles"></a>
 
-`foundation` uses [main.bicep](../infra/main.bicep) to create **a Foundry resource/project and three chat/judge/embedding deployments**. Chat supports the core labs, judge supports L08, and embedding supports optional L11/L15. It sends no inference request.
+### 4. Create the Microsoft Foundry project, models, and required roles
+
+`foundation` uses [main.bicep](../infra/main.bicep) to create **a Microsoft Foundry resource/project and three chat/judge/embedding deployments**. Chat supports the core labs, judge supports L08, and embedding supports optional L11/L15. It sends no inference request.
 
 This kit pins `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, and `text-embedding-3-small / 1`. Verify availability in your subscription/region. If unavailable, record the limitation and stop; do not silently substitute a model and claim equivalent validation.
 
 ```bash
 python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
-python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
-python scripts/azure_environment.py roles --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -737,17 +875,49 @@ python scripts/azure_environment.py roles --live
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
 | 1. `foundation` | Shows the per-learner TPM/RPM and capacity-sizing plan. | Local calculation; not live catalog/quota verification. |
-| 2. `foundation ... --live` | Checks the actual catalog/quota and deploys the project and models in the owned group. | Real creation; capacity ceiling 100 per deployment is not money. Converts model-specific units and verifies actual limits afterward. |
-| 3. `roles --live` | Assigns the current user/project identity scoped data roles on the project and parent resource. | Access change requiring `roleAssignments/write`; no subscription-wide role is created. |
 
 </div>
 
-**Portal check:** In [Foundry](https://ai.azure.com), enable **New Foundry**, open your project, and compare **Manage → Project details** Name/Parent resource/Location with the receipt. Under **Build → Models → Deployments**, verify `contoso-chat`, `contoso-judge`, and `contoso-embedding` are ready. Do not create them again in the portal.
+**Deploy for real:** Continue only when the model, processing scope, and capacity plan match your approved scope.
+
+```bash
+python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `foundation ... --live` | Checks the actual catalog/quota and deploys the project and models in the owned group. | Real creation; capacity ceiling 100 per deployment is not money. Converts model-specific units and verifies actual limits afterward. |
+
+</div>
+
+**Stop and check:** The command must finish without errors, and the receipt's `operations` must contain an entry with `step=foundation` and `status=Succeeded`. For partial failure or timeout, read the recovery guidance below instead of proceeding to role assignment.
+
+**Assign roles:** Run only after deployment completes and you have role-assignment permission on the target project and parent resource.
+
+```bash
+python scripts/azure_environment.py roles --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `roles --live` | Assigns the current user/project identity scoped data roles on the project and parent resource. | Access change requiring `roleAssignments/write`; no subscription-wide role is created. |
+
+</div>
+
+**Portal check:** In [Microsoft Foundry](https://ai.azure.com), enable **New Foundry**, open your project, and compare **Manage → Project details** Name/Parent resource/Location with the receipt. Under **Build → Models → Deployments**, verify `contoso-chat`, `contoso-judge`, and `contoso-embedding` are ready. Do not create them again in the portal.
 
 | Creation code | What to inspect in the portal |
 | --- | --- |
-| RG creation in `create` | Unique Azure Resource groups name and ownership tags |
-| Foundry account/project in `foundation` | Project name, parent resource, and region |
+| RG creation in `create` | Unique Microsoft Azure Resource groups name and ownership tags |
+| Microsoft Foundry account/project in `foundation` | Project name, parent resource, and region |
 | Bicep model deployments | Model ID/version and deployment names such as `contoso-chat` |
 | Scoped assignments in `roles` | Caller/managed identity and scope in the resource's IAM |
 
@@ -759,6 +929,21 @@ Connect telemetry **before the first agent request**, so L10 can inspect L04 and
 
 ```bash
 python scripts/azure_environment.py monitoring
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `monitoring` | Prints the telemetry-resource/connection plan. | No Microsoft Azure request. |
+
+</div>
+
+**Connect for real:** Continue only when no connection already exists and log collection/retention costs are within your approved scope.
+
+```bash
 python scripts/azure_environment.py monitoring --live
 ```
 
@@ -768,14 +953,13 @@ python scripts/azure_environment.py monitoring --live
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `monitoring` | Prints the telemetry-resource/connection plan. | No Azure request. |
-| 2. `monitoring --live` | Creates Log Analytics, Application Insights, and the project connection in the owned group. | Collection/retention charges may apply; a recorded existing connection is not overwritten. |
+| 1. `monitoring --live` | Creates Log Analytics, Application Insights, and the project connection in the owned group. | Collection/retention charges may apply; a recorded existing connection is not overwritten. |
 
 </div>
 
 Inspect the connection under **Agents → Traces** or **Manage → Project details → Connected resources**. Querying logs requires read access to the target Application Insights/Log Analytics resources. If necessary, assign scoped `Log Analytics Reader` or the required minimum equivalent in your resource IAM. Protected tables may require additional access.
 
-Model/agent SDK requests use Entra authentication. The bundled [observability.bicep](../infra/observability.bicep) references the telemetry connection string inside Azure without printing it. This is not a claim of Entra-authenticated trace ingestion.
+Model/agent SDK requests use Entra authentication. The bundled [observability.bicep](../infra/observability.bicep) references the telemetry connection string inside Microsoft Azure without printing it. This is not a claim of Entra-authenticated trace ingestion.
 
 ![Project settings example. Locate the project, parent resource, region, and Connected resources under Manage → Project details.](../assets/portal/en/13-project-settings.png)
 
@@ -871,7 +1055,7 @@ Do not delete resources yet. Retain your ownership record and deadline, then rev
 
 **How do you use it?** Compare portal readiness with the ownership record and save the same name in `.env`. Inspect insufficient capacity before changing it within your scope.
 
-**Where do you run it?** Use Models in the Foundry portal and [model_capacity.py](../samples/model_capacity.py) in your terminal. Listing models/limits is not inference.
+**Where do you run it?** Use Models in the Microsoft Foundry portal and [model_capacity.py](../samples/model_capacity.py) in your terminal. Listing models/limits is not inference.
 
 ## Prerequisites
 
@@ -901,7 +1085,7 @@ L01's `GlobalStandard` is a usage-based example. Project location, model availab
 
 | Type | What to verify |
 | --- | --- |
-| Standard | Azure geography processing scope and availability |
+| Standard | Microsoft Azure geography processing scope and availability |
 | Global Standard | Processing across supported worldwide regions is permitted |
 | Data Zone Standard | The designated zone; APAC does not mean Korea alone |
 | Provisioned / PTU | Reserved capacity/cost; not created for the core course |
@@ -970,7 +1154,6 @@ For the portal form comparison, **Deploy → Custom settings** on a model card e
 
 ```bash
 python samples/model_capacity.py plan --learners 1
-python samples/model_capacity.py check --learners 1 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -980,7 +1163,22 @@ python samples/model_capacity.py check --learners 1 --live
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
 | 1. `plan --learners 1` | Calculates request budgets and recommended limits. | Local only; use actual simultaneous learner count for shared deployments. |
-| 2. `check ... --live` | Reads your RG, model/version, SKU, and actual `rateLimits`. | Read-only; insufficient limits fail without a model test. |
+
+</div>
+
+**After reading the plan, query the actual limits.** This command does not send a model question or change the deployment.
+
+```bash
+python samples/model_capacity.py check --learners 1 --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `check ... --live` | Reads your RG, model/version, SKU, and actual `rateLimits`. | Read-only; insufficient limits fail without a model test. |
 
 </div>
 
@@ -1001,7 +1199,7 @@ python samples/model_capacity.py apply --learners 1 --max-capacity 100 --confirm
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `apply ... --confirm ... --live` | Checks required units/quota, changes only insufficient capacity, and reads it back. | Actual Azure change; retains model/version/protection settings and creates no PTU. |
+| 1. `apply ... --confirm ... --live` | Checks required units/quota, changes only insufficient capacity, and reads it back. | Actual Microsoft Azure change; retains model/version/protection settings and creates no PTU. |
 
 </div>
 
@@ -1100,13 +1298,13 @@ Reuse L01's three deployments in subsequent modules. Record names, costs, and re
 
 ## Prerequisites
 
-Use L01's sign-in, virtual environment, `.env`, and L02's ready deployment. Verify model-invocation access and cost scope for one request. This example targets Azure public cloud; sovereign clouds need their own authentication/domain settings.
+Use L01's sign-in, virtual environment, `.env`, and L02's ready deployment. Verify model-invocation access and cost scope for one request. This example targets Microsoft Azure public cloud; sovereign clouds need their own authentication/domain settings.
 
 ## Steps
 
 ### 1. Match portal settings with Python arguments
 
-**On the default path, do not select Send here; use step 3's Python command.** Send the question in Chat only for the portal alternative, then omit Python's `--live` call. Step 2's excerpt is an expandable reading reference.
+**On the default path, do not select Send here; use step 2's Python command.** Send the question in Chat only for the portal alternative, then omit Python's `--live` call. The collapsed SDK excerpt is a reading reference.
 
 Open **Build → Models → Deployments → contoso-chat → Playground**. Do not select **Save as agent**. Verify a model-only request without extra instructions or retrieval tools.
 
@@ -1131,9 +1329,11 @@ How should you respond when no company policy has been provided?
 The screenshot's 256 is an example. Set 512 to match this code's budget and keep unnecessary **Web search** tools off. Do not add unsupported Temperature/Top P settings.
 
 <details class="implementation-detail" markdown="1">
-<summary>Implementation reference: read the SDK request — execute through step 3 below</summary>
+<summary>Implementation reference: read the SDK request — execute through step 2 below</summary>
 
-### 2. Read the direct SDK request
+<a id="l03-2-read-the-direct-sdk-request"></a>
+
+### Read the direct SDK request
 
 Trace connection → request → response validation below. The endpoint is a placeholder; find where `client` and `response` are created. **This is a reading block**. Use the next step's `--live` command to execute the request once.
 
@@ -1174,31 +1374,49 @@ The executable adds `.env` loading, input-size checks, and `--live` opt-in. `rea
 
 </details>
 
-### 3. Inspect the plan, then execute once
+<a id="l03-3-inspect-the-plan-then-execute-once"></a>
+
+### 2. Inspect the plan, then execute once
 
 ```bash
 python samples/first_response.py
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — inspect the question without sending it.**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `first_response.py` | Prints the default question and `PLAN ONLY`. | No Microsoft Azure request, configuration validation, or sign-in. |
+
+</div>
+
+**Stop and check:** Confirm the planned question, the project/deployment in `.env`, and cost scope for one request before continuing. If you already selected portal Send, **skip this command and read that answer instead.**
+
+```bash
 python samples/first_response.py --live
 ```
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough — execute the second line only when the inspected scope is correct.**
+**Command walkthrough**
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `first_response.py` | Prints the default question and `PLAN ONLY`. | No Azure request, configuration validation, or sign-in. |
-| 2. `first_response.py --live` | Sends one question to the project/deployment in `.env`. | At most 512 output tokens, zero automatic SDK retries, 60-second request timeout. Billable inference; no agent/store creation. |
+| 1. `first_response.py --live` | Sends one question to the project/deployment in `.env`. | At most 512 output tokens, zero automatic SDK retries, 60-second request timeout. Billable inference; no agent/store creation. |
 
 </div>
 
-If you already selected portal Send, skip the second line and inspect that answer. Portal and Python are separate requests, and even identical questions can produce different IDs/wording.
+Portal and Python are separate requests, and even identical questions can produce different IDs/wording.
 
 Record the answer, status, and `response_id`. No company policy was supplied, so definite price limits or stock claims are unsupported. If the portal does not expose an ID, record it unverified rather than inventing one.
 
 `first_response.py` **prints to the terminal; it does not save a result file automatically.** Keep the question, deployment, answer, and ID in your private progress record. L06's integrated run creates the separate response JSONL used in L10.
 
-### 4. Change one input
+<a id="l03-4-change-one-input"></a>
+
+### 3. Change one input
 
 Change the question without transmitting it first:
 
@@ -1271,7 +1489,7 @@ Retain the model deployment. This lab creates no separate agent/vector store. Cr
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Create and test the agent in the Foundry portal, then trace the same settings in raw SDK code.
+**Format:** Create and test the agent in the Microsoft Foundry portal, then trace the same settings in raw SDK code.
 
 **Start here:** Create a Text agent with L02's model and the bundled English instructions.
 
@@ -1439,7 +1657,7 @@ python samples/workshop.py agent --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. With the English profile selected, the default instruction file is `data/en/prompts/agent-v2.txt`. | No Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
+| 1. `agent` | Prints the plan for creating and invoking a Prompt Agent. With the English profile selected, the default instruction file is `data/en/prompts/agent-v2.txt`. | No Microsoft Azure requests. First distinguish capabilities described in the instructions from tools that will actually be connected. |
 | 2. `agent --live` | Creates a uniquely named `contoso-lab-...` agent and conversation, then obtains a real model response. It does not modify the agent created in the portal. | Incurs inference/service costs and creates new lab objects. Keep the printed receipt path for cleanup in L19. |
 
 </div>
@@ -1671,9 +1889,9 @@ Do not start by uploading the documents again. Check the connected vector store 
 Retain the knowledge connection for later labs. SDK store expiration **one day after last activity** does not delete uploaded files. In L19, inspect remaining resources and delete only approved targets or record retention deadlines.
 
 <details markdown="1">
-<summary>When should you choose File search or Foundry IQ?</summary>
+<summary>When should you choose File search or Microsoft Foundry IQ?</summary>
 
-Use File search for quick validation with a few files. Use Azure AI Search when you need direct control over indexes, hybrid retrieval, and filters. Consider Foundry IQ for sharing multiple knowledge sources and agentic retrieval. None of these paths automatically implements per-user document permissions just by connecting a source.
+Use File search for quick validation with a few files. Use Microsoft Azure AI Search when you need direct control over indexes, hybrid retrieval, and filters. Consider Microsoft Foundry IQ for sharing multiple knowledge sources and agentic retrieval. None of these paths automatically implements per-user document permissions just by connecting a source.
 
 </details>
 
@@ -1704,7 +1922,7 @@ Use File search for quick validation with a few files. Use Azure AI Search when 
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Local functions first, then approved Azure integration · no real orders.
+**Format:** Local functions first, then approved Microsoft Azure integration · no real orders.
 
 **Start here:** Run `python samples/workshop.py tools` to check inventory and draft calculations without a model.
 
@@ -1722,13 +1940,13 @@ Understand who is responsible for executing function calls. **The model proposes
 
 **What is it, and why does it matter?** Function calling lets the model request a function and its inputs. **The program validates and executes it.** Registering a function name in the portal does not run code on your PC.
 
-**How do you use it?** Check valid and invalid inputs locally first. If you run the Azure integration, compare the answer's amounts with the actual function results.
+**How do you use it?** Check valid and invalid inputs locally first. If you run the Microsoft Azure integration, compare the answer's amounts with the actual function results.
 
 **Where do you run it?** Run [workshop.py](../samples/workshop.py) in the terminal with the [English synthetic inventory](../data/en/inventory.csv). Keep L01's English profile selected. No actual ordering API is connected.
 
 ## Prerequisites
 
-The local exercise requires only Python. Without a virtual environment, use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
+The local exercise requires only Python. Without a virtual environment, use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. Microsoft Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
 
 ## Steps
 
@@ -1753,7 +1971,7 @@ python samples/workshop.py tools
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `tools` | Directly runs the inventory lookup and purchase-draft functions with the default SKU `NB-14` and quantity 2. The model does not select a function at this stage. | No network access, Azure cost, or inventory changes. Check the KRW 2,900,000 total and the not-ordered state. |
+| 1. `tools` | Directly runs the inventory lookup and purchase-draft functions with the default SKU `NB-14` and quantity 2. The model does not select a function at this stage. | No network access, Microsoft Azure cost, or inventory changes. Check the KRW 2,900,000 total and the not-ordered state. |
 
 </div>
 
@@ -1788,7 +2006,7 @@ python samples/workshop.py tools --sku KB-01 --quantity -1
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `--sku MON-27 --quantity 1` | `--sku` is the item code; `--quantity` is the requested quantity. Requests one monitor when inventory is 0. | An insufficient-stock error for an out-of-stock item is correct. Creating a draft would be a failure. No Azure calls. |
+| 1. `--sku MON-27 --quantity 1` | `--sku` is the item code; `--quantity` is the requested quantity. Requests one monitor when inventory is 0. | An insufficient-stock error for an out-of-stock item is correct. Creating a draft would be a failure. No Microsoft Azure calls. |
 | 2. `--sku NB-14 --quantity 10` | Requests a quantity within the allowed input range of 1–10 but above the actual inventory of 8. | Confirms that type/range validation and stock validation are separate. Produces an insufficient-stock error; no external changes. |
 | 3. `--sku KB-01 --quantity -1` | Tests business-input validation with a negative quantity. | An invalid-quantity error is correct. Do not arbitrarily treat the program's failure exit as success. |
 
@@ -1810,7 +2028,7 @@ JSON schema's `strict` and `additionalProperties: false` constrain function-argu
 
 #### Portal configuration and the Python function
 
-In the Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code on your PC. The application's Python code must validate the arguments and call the function.
+In the Microsoft Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code on your PC. The application's Python code must validate the arguments and call the function.
 
 ```python
 def prepare_purchase_request(sku: str, quantity: int) -> dict:
@@ -1849,12 +2067,27 @@ The L06 Python path reads the synthetic inventory CSV and calculates a draft. Sa
 
 ### 4. Connect knowledge and functions to the same agent
 
-**Azure calls start here.** Without an account, skip step 4 and record only your local results.
+**Microsoft Azure calls start here.** Without an account, skip step 4 and record only your local results.
 
 The terminal now runs the integration. `capstone` creates **a new agent with three policies and two functions**; it does not edit L05's portal agent. Reuse the portal agent in L09 and the new integrated result for this module's final review and L10 tracing.
 
 ```bash
 python samples/workshop.py capstone
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `capstone` | Prints the integration plan for using policy documents together with two functions. | No Microsoft Azure calls. Check that both function definitions and an actual executor are present. |
+
+</div>
+
+**Stop and check:** Read the new agent/file/conversation plan and call limits. Run the next line only when L01's project, permissions, and cost scope are ready and you have not already run this integration. If you have a result, continue to `read-result` below instead.
+
+```bash
 python samples/workshop.py capstone --live
 ```
 
@@ -1864,8 +2097,7 @@ python samples/workshop.py capstone --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `capstone` | Prints the integration plan for using policy documents together with two functions. | No Azure calls. Check that both function definitions and an actual executor are present. |
-| 2. `capstone --live` | Creates a new agent, knowledge resources, and conversation, then executes the model's function requests through the local dispatcher. Limited to 5 rounds and 8 function calls. | Model, retrieval, and file costs may apply. Check `tool_calls`, citations, and the final draft, and keep the creation receipt. No actual order is placed. |
+| 1. `capstone --live` | Creates a new agent, knowledge resources, and conversation, then executes the model's function requests through the local dispatcher. Limited to 5 rounds and 8 function calls. | Model, retrieval, and file costs may apply. Check `tool_calls`, citations, and the final draft, and keep the creation receipt. No actual order is placed. |
 
 </div>
 
@@ -1900,7 +2132,7 @@ for call in calls:
     })
 ```
 
-For safe lab execution, the sample limits a run to 5 response rounds and 8 function calls. Errors are returned explicitly, and execution stops if a limit is exceeded. These are educational limits in this sample, not Foundry service limits.
+For safe lab execution, the sample limits a run to 5 response rounds and 8 function calls. Errors are returned explicitly, and execution stops if a limit is exceeded. These are educational limits in this sample, not Microsoft Foundry service limits.
 
 </details>
 
@@ -1918,7 +2150,7 @@ python samples/workshop.py read-result --input results/contoso-lab-ACTUAL_ID-res
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `read-result --input` | Displays L04/L05/L06 SDK response JSONL as questions, original answers, function inputs/results, and citations. | **Local reading only.** No Azure calls, regrading, or source changes; no sign-in needed. `--live` is unsupported. |
+| 1. `read-result --input` | Displays L04/L05/L06 SDK response JSONL as questions, original answers, function inputs/results, and citations. | **Local reading only.** No Microsoft Azure calls, regrading, or source changes; no sign-in needed. `--live` is unsupported. |
 
 </div>
 
@@ -1948,7 +2180,7 @@ Even if the user asks to claim approval, output must remain `order_submitted=fal
 
 Inspect the original JSONL's `tool_calls`, `citations`, and `response_id` alongside the natural-language answer. **A definite stock claim without an inventory result is a failure.** Never fill an unverified condition with an expected answer.
 
-If you did not run Azure integration, record **“local functions checked / Azure integration not performed.”** Local calculations or L08's tool-free instruction evaluation cannot substitute for an actual integrated result.
+If you did not run Microsoft Azure integration, record **“local functions checked / Microsoft Azure integration not performed.”** Local calculations or L08's tool-free instruction evaluation cannot substitute for an actual integrated result.
 
 ### 7. Record the result and configuration together
 
@@ -1958,7 +2190,7 @@ If actual evidence supports all five items, record **“integration lab complete
 
 ## Success criteria
 
-You have inspected the tool arguments, execution results, and final answer. Insufficient stock and invalid quantities produce explicit errors, and the agent does not claim that an actual order succeeded. If you ran Azure integration, retain evidence for all five items and the configuration bundle. Core completion does not require repeating a separate capstone or publishing to Teams.
+You have inspected the tool arguments, execution results, and final answer. Insufficient stock and invalid quantities produce explicit errors, and the agent does not claim that an actual order succeeded. If you ran Microsoft Azure integration, retain evidence for all five items and the configuration bundle. Core completion does not require repeating a separate capstone or publishing to Teams.
 
 ## Troubleshooting
 
@@ -2019,7 +2251,8 @@ and a Skill provides instructions for repeatable work.** A Skill is neither appr
 
 ## Prerequisites
 
-Install `requirements-tools.txt` in L01's Python virtual environment. If it does not exist, first follow L01's **virtual-environment creation steps**, without Azure sign-in. Installation needs internet and an approved package repository, but **core steps 1–2 need no Azure account**.
+Install `requirements-tools.txt` in L01's Python virtual environment. If it does not exist, first follow L01's **virtual-environment creation steps**, without Microsoft Azure sign-in. Installation needs internet and an approved package repository, but **core steps 1–2 need no Microsoft Azure account**.
+**If you completed L01's Codespaces setup, these dependencies are already installed; skip the installation command below.** Open both terminals in that same Codespace. Here `127.0.0.1` means the Codespace, not your PC, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
 The cloud steps require Search from L11 and the Search Index Data Reader role for the project managed identity.
 **Only steps 1–2 below—local HTTP/OpenAPI and MCP—are required for the core course.**
 Cloud Toolbox/Skills in steps 3–4 are optional extensions after preparing the L11 resources.
@@ -2035,7 +2268,7 @@ python -m pip install -r requirements-tools.txt
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `pip install -r requirements-tools.txt` | Adds MCP lab dependencies to the activated base virtual environment. `python -m pip` keeps the installer aligned with the current Python. | Downloads packages and changes the local environment only; no Azure tools are invoked. |
+| 1. `pip install -r requirements-tools.txt` | Adds MCP lab dependencies to the activated base virtual environment. `python -m pip` keeps the installer aligned with the current Python. | Downloads packages and changes the local environment only; no Microsoft Azure tools are invoked. |
 
 </div>
 
@@ -2055,7 +2288,7 @@ python samples/inventory_api.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `inventory_api.py` | Starts an HTTP server that reads synthetic inventory at `127.0.0.1:8766`. It is normal for the shell prompt not to return immediately. | Listens only on your computer. No Azure cost. Stop it with Ctrl+C in this terminal when finished. |
+| 1. `inventory_api.py` | Starts an HTTP server that reads synthetic inventory at `127.0.0.1:8766`. It is normal for the shell prompt not to return immediately. | Listens only on your computer. No Microsoft Azure cost. Stop it with Ctrl+C in this terminal when finished. |
 
 </div>
 
@@ -2077,7 +2310,7 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `curl .../health` | `curl` is an HTTP client. `--fail` makes HTTP error statuses produce a failure exit rather than being treated as normal responses. | Checks only local server readiness. This is not a model or MCP call. |
-| 2. `curl .../inventory/NB-14` | `NB-14` in the URL is the item to look up. The server returns inventory JSON read from the CSV. | Compare the stock count of 8 and unit price of KRW 1,450,000 with the contract. Read-only; no Azure cost. |
+| 2. `curl .../inventory/NB-14` | `NB-14` in the URL is the item to look up. The server returns inventory JSON read from the CSV. | Compare the stock count of 8 and unit price of KRW 1,450,000 with the contract. Read-only; no Microsoft Azure cost. |
 
 </div>
 
@@ -2104,7 +2337,7 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `inspect --local` | Starts a separate stdio MCP server as a child process, initializes it, and retrieves tool names and contracts. This does not reuse the HTTP server from the previous step. | Check the actual local MCP exchange and tool names. No Azure calls. |
+| 1. `inspect --local` | Starts a separate stdio MCP server as a child process, initializes it, and retrieves tool names and contracts. This does not reuse the HTTP server from the previous step. | Check the actual local MCP exchange and tool names. No Microsoft Azure calls. |
 | 2. Unapproved `call` | Supplies the exact tool/arguments but omits `--approve-tool`. | `Approval required` and a failing exit are expected; rejection occurs before `tools/call`. |
 | 3. Approved `call ... get_stock` | `--tool` names the tool; `--arguments` supplies JSON; `--approve-tool` permits this name/arguments once. | Check actual inventory and local evidence. |
 | 4. `call ... prepare_purchase_request` | Calls the draft function with quantity 2. Outer single quotes preserve the JSON's double quotes. | KRW 2,900,000, pending approval, and not ordered. Tool approval is not purchase approval. |
@@ -2126,7 +2359,7 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `inspect --local` | Lists local MCP tools using the environment's Python. | No Azure call. |
+| 1. `inspect --local` | Lists local MCP tools using the environment's Python. | No Microsoft Azure call. |
 | 2. Unapproved `call` | Preserves the JSON but does not approve the tool. | Expected `Approval required` error; no tool execution. |
 | 3. Approved `get_stock` | Permits this exact name and JSON once. | Local stock 8 and unit price KRW 1,450,000. |
 | 4. Approved draft function | Checks quantity 2 and the tool name together. | KRW 2,900,000, not ordered; no purchase approval. |
@@ -2156,7 +2389,7 @@ python samples/toolbox_lab.py inspect --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `create` | Displays the plan for creating a remote Toolbox/Skill. Creation with `--local` is neither necessary nor allowed. | No Azure requests. |
+| 1. `create` | Displays the plan for creating a remote Toolbox/Skill. Creation with `--local` is neither necessary nor allowed. | No Microsoft Azure requests. |
 | 2. `create --live` | Registers a uniquely named Toolbox and script-free Skill, and connects the exact version. | Creates remote objects and a local `results/toolbox.json` record. First check the connected services' costs and permission requirements. |
 | 3. `inspect --live` | Connects to the receipt's remote endpoint as the current Entra identity and reads lists and Skill resources. | A remote read request, distinct from a successful business-tool execution. An empty list is not marked as success. |
 
@@ -2197,7 +2430,7 @@ python samples/toolbox_lab.py call --tool ACTUAL_OPENAPI_SEARCH_TOOL_NAME --argu
 
 OpenAPI tool arguments must follow the `inputSchema` from `tools/list`.
 For this MCP tool, pass `"api-version":"2024-07-01"` at the top level and nest `search`, `top`, and `select` inside **`body`**. The example uses `top: 3`; keep it at most 5 and retain the specified `select` fields. A flat object containing `search`/`top`/`select` is not this tool's contract. The Microsoft Learn tool's `query` argument is a separate schema, not an alternative for this OpenAPI call.
-Use `python samples/toolbox_lab.py openapi` to inspect **the complete contract generated by this repository**. `openapi` is a local command that builds and prints contract JSON from the Search configuration/receipt. It makes no Azure requests or tool calls, but requires the L11 configuration to produce the correct endpoint.
+Use `python samples/toolbox_lab.py openapi` to inspect **the complete contract generated by this repository**. `openapi` is a local command that builds and prints contract JSON from the Search configuration/receipt. It makes no Microsoft Azure requests or tool calls, but requires the L11 configuration to produce the correct endpoint.
 Specifying only an API version's schema default does not send the actual query parameter.
 
 Preserve actual output and tool errors in `results/contoso-toolbox-*.jsonl`.
@@ -2209,9 +2442,11 @@ For the optional cloud call in Windows PowerShell, replace `python` with `.\.ven
 </details>
 
 <details class="implementation-detail" markdown="1">
-<summary>Implementation reference: local MCP servers versus Foundry connections — read only</summary>
+<summary>Implementation reference: local MCP servers versus Microsoft Foundry connections — read only</summary>
 
-### Local code versus the Foundry portal
+<a id="l07-local-code-versus-the-foundry-portal"></a>
+
+### Local code versus the Microsoft Foundry portal
 
 The bundled MCP server exposes the synthetic Python functions as MCP tools:
 
@@ -2234,9 +2469,9 @@ server.run(transport="stdio")
 
 | Lab surface | Actual code and behavior |
 | --- | --- |
-| HTTP server in terminal one | `Handler.do_GET()` in `inventory_api.py` handles `/inventory/<sku>`. It listens only on `127.0.0.1`, so the Foundry portal cannot call it directly. |
+| HTTP server in terminal one | `Handler.do_GET()` in `inventory_api.py` handles `/inventory/<sku>`. It listens only on `127.0.0.1`, so the Microsoft Foundry portal cannot call it directly. |
 | MCP call in terminal two | `mcp_server.py` exposes stdio tools; `toolbox_lab.py --local` starts it as a child process and sends `tools/list` / `tools/call`. |
-| Optional Foundry Cloud Toolbox | `toolbox_lab.py create` registers `MCPToolboxTool` / `OpenApiToolboxTool` and managed identity settings. Inspect the same Toolbox/version in the portal. |
+| Optional Microsoft Foundry Cloud Toolbox | `toolbox_lab.py create` registers `MCPToolboxTool` / `OpenApiToolboxTool` and managed identity settings. Inspect the same Toolbox/version in the portal. |
 | One-time tool approval | `--approve-tool` is enforced by the bundled client for the exact tool name and arguments. It is not business approval or permission to order. |
 
 The local HTTP/MCP code runs on your computer, not inside a portal button. Portal integration uses an approved cloud Toolbox/OpenAPI connection, not a tunnel to the local server.
@@ -2295,7 +2530,7 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Compare inputs → collect your answers → evaluate the same originals in Foundry → analyze reasons.
+**Format:** Compare inputs → collect your answers → evaluate the same originals in Microsoft Foundry → analyze reasons.
 
 **Start here:** Read both instruction files and the fixed questions, then identify what an answer must address.
 
@@ -2315,7 +2550,7 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 **How do you use it?** Read fixed inputs and verify the request budget. Collect your originals once, evaluate them, and preserve ties/regressions.
 
-**Where do you run it?** Read the [questions](../data/en/evaluation/instruction-comparison.json) and [v1](../data/en/prompts/agent-v1.txt)/[v2](../data/en/prompts/agent-v2.txt), then use the [collector](../samples/instruction_prompt_agent_lab.py) and [evaluator](../samples/instruction_evaluation.py). Inspect results in Foundry Evaluations.
+**Where do you run it?** Read the [questions](../data/en/evaluation/instruction-comparison.json) and [v1](../data/en/prompts/agent-v1.txt)/[v2](../data/en/prompts/agent-v2.txt), then use the [collector](../samples/instruction_prompt_agent_lab.py) and [evaluator](../samples/instruction_evaluation.py). Inspect results in Microsoft Foundry Evaluations.
 
 ## Prerequisites
 
@@ -2324,7 +2559,7 @@ Use **your L01 project, chat/judge deployments, and ownership receipt**. Do not 
 | Term | Plain-language meaning |
 | --- | --- |
 | v1 / v2 | Starting / improved instructions, not service-issued agent-version numbers |
-| Judge / Native evaluation | The grading model / an evaluation performed by Foundry |
+| Judge / Native evaluation | The grading model / an evaluation performed by Microsoft Foundry |
 | Completeness / Relevance / Groundedness | Were all requests addressed / was the answer relevant / was it supported? |
 | Dev / Holdout | Practice data exposed during improvement / a separate final test excluded from improvement |
 
@@ -2365,7 +2600,7 @@ python samples/instruction_prompt_agent_lab.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `instruction_prompt_agent_lab.py` | Read the two instruction versions, twelve fixed questions, model, and request bound. | Plan only; no Azure calls. |
+| 1. `instruction_prompt_agent_lab.py` | Read the two instruction versions, twelve fixed questions, model, and request bound. | Plan only; no Microsoft Azure calls. |
 
 </div>
 
@@ -2440,7 +2675,7 @@ native = client.evals.runs.create(
 )
 ```
 
-| Foundry portal | Value to inspect in the source |
+| Microsoft Foundry portal | Value to inspect in the source |
 | --- | --- |
 | Agents → Versions | `agent_reference.name/version` identifies the instruction version used for each answer |
 | Evaluations → Criteria | `testing_criteria=criteria` and the fixed judge deployment |
@@ -2474,7 +2709,7 @@ Native completeness, relevance, and groundedness use **1–5 ordinal** scores. R
 
 The local checklist checks forty criteria across twelve questions using **mechanical text-and-citation matching**. It can miss paraphrases and is not a semantic evaluator or a business safety/access gate.
 
-![Foundry evaluation view. Locate execution status and per-row scores, errors, and omissions.](../assets/portal/en/08-evaluations.png)
+![Microsoft Foundry evaluation view. Locate execution status and per-row scores, errors, and omissions.](../assets/portal/en/08-evaluations.png)
 
 Find your run under **Build → Evaluations** and inspect status, evaluator identity, and row-level results. `completed` does not establish that every score is valid. Errors, omissions, and missing numeric scores remain failures; never fill them with zero or a passing verdict.
 
@@ -2609,7 +2844,7 @@ Record the policy name, target, intervention points, and annotate/block behavior
 
 First record the target agent/version, boundary under test, maximum requests/time/cost, and the person responsible for stopping. If these are missing or support is unconfirmed, do not submit; record **design only**. For an approved run, register only an authorized target and inspect input → response → tool record → judgment for each case. Check the Red teaming service's GA status separately from each scanner.
 
-**Worked interpretation — synthetic teaching example, not an Azure result.**
+**Worked interpretation — synthetic teaching example, not a Microsoft Azure result.**
 
 | Observation | Judgment | Next action |
 | --- | --- | --- |
@@ -2715,7 +2950,7 @@ Set retention boundaries for test policies and scan results. A single safety-eva
 
 ## Prerequisites
 
-Use the Application Insights connection/read access you prepared in L01 and your L04–L06 results. Application Insights collects/queries Azure execution logs; ingestion and retention have costs.
+Use the Application Insights connection/read access you prepared in L01 and your L04–L06 results. Application Insights collects/queries Microsoft Azure execution logs; ingestion and retention have costs.
 
 <details class="optional-path" markdown="1">
 <summary>If not connected yet: finish your project's telemetry setup</summary>
@@ -2768,7 +3003,7 @@ Find the following in the trace.
 
 **The function succeeded but the answer failed:** Check whether the tool output was returned to the same conversation/call ID and whether the final output completed.
 
-**Timing example — synthetic teaching data, not an Azure trace.** Assume these child operations run sequentially without overlap.
+**Timing example — synthetic teaching data, not a Microsoft Azure trace.** Assume these child operations run sequentially without overlap.
 
 | Operation | Start–end (ms) | Observed duration | Judgment |
 | --- | ---: | ---: | --- |
@@ -2779,10 +3014,30 @@ Find the following in the trace.
 
 Observed children total 3,650ms, leaving 350ms. **Do not call the remaining 350ms network latency without evidence.** Parallel spans overlap and cannot simply be summed. If the model dominates, inspect token counts and repeated calls; if retrieval dominates, inspect returned volume and retrieval stages. For a successful request, explain the longest observed interval and missing intervals rather than inventing an error.
 
+**Skip the CLI if you have read the same run's operations and durations in the portal.** It is an alternative for learners with an SDK response file, not an additional required task.
+
+<details class="optional-path" markdown="1">
+<summary>Optional: query App Insights using an SDK response file</summary>
+
 The bundled CLI queries App Insights using response/trace IDs from an actual response file.
 
 ```bash
 python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `trace_lab.py` | `--input` is the actual English response JSONL, `--app-id` is the Application Insights application ID, and `--agent` is the agent name to query. Replace the placeholders with values from your owned English environment. Reads identifiers from the file and prints a KQL plan. | No Microsoft Azure query. Check that the time window and ID conditions refer only to your run. |
+
+</div>
+
+**Before querying:** Verify that the plan's response IDs and agent name match your run and that you have log-read access. Use the same three values in the following command.
+
+```bash
 python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME --live
 ```
 
@@ -2792,8 +3047,7 @@ python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTU
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `trace_lab.py` | `--input` is the actual English response JSONL, `--app-id` is the Application Insights application ID, and `--agent` is the agent name to query. Replace the placeholders with values from your owned English environment. Reads identifiers from the file and prints a KQL plan. | No Azure query. Check that the time window and ID conditions refer only to your run. |
-| 2. The same command with `--live` | Reads actual logs using the reviewed KQL. Limited to the last 24 hours and at most 200 rows; does not run new model inference. | Sends an Azure read request and records query results. Zero rows means correlation is unverified; do not fill in arbitrary IDs. Log-service usage terms apply separately. |
+| 1. The same command with `--live` | Reads actual logs using the reviewed KQL. Limited to the last 24 hours and at most 200 rows; does not run new model inference. | Sends a Microsoft Azure read request and records query results. Zero rows means correlation is unverified; do not fill in arbitrary IDs. Log-service usage terms apply separately. |
 
 </div>
 
@@ -2802,6 +3056,8 @@ Print the KQL first and review its scope. It covers the last 24 hours, returns a
 do not relabel a request ID as a trace ID. Compare `contract.sha256` and version only when using L12 Hosted results; do not require that Hosted contract in the basic Prompt Agent JSONL.
 
 Equal `input_rows` and `correlated_rows`, with empty `missing_case_ids`, establish **input-to-log correlation**. `model_response_spans_observed` and `request_trace_ids_observed` measure different observation layers. This CLI checks correlation, not bottlenecks or answer correctness. Read the query rows in the printed `Evidence:` file and the portal details, then fill the table with your own values.
+
+</details>
 
 <details class="implementation-detail" markdown="1">
 <summary>Implementation reference: finding logs through response IDs and KQL — read only</summary>
@@ -2884,13 +3140,13 @@ Record only the trace IDs needed for diagnosis and minimal evidence. Set log ret
 
 <a id="l13"></a>
 
-# 11. AI Search, Foundry IQ, and permission-aware retrieval
+# 11. AI Search, Microsoft Foundry IQ, and permission-aware retrieval
 
 **Advanced course · IQ partially GA / portal Preview** · about 45 min
 
 > **Learning order: Independent elective** — An L01 project and model. This module prepares Search, embeddings, and an index, which also provide the foundation for L12.
 
-> **What you will build:** Load the bundled Contoso policies into Search and compare the actual evidence returned by keyword, hybrid, and Foundry IQ searches.
+> **What you will build:** Load the bundled Contoso policies into Search and compare the actual evidence returned by keyword, hybrid, and Microsoft Foundry IQ searches.
 
 <div class="lab-brief" markdown="1">
 
@@ -2910,7 +3166,7 @@ Do not extend this claim to Preview query planning, answer synthesis, or user AC
 
 ## Concepts and lab map
 
-**What you will try:** Compare keyword, hybrid, and Foundry IQ retrieval for the same policy question.
+**What you will try:** Compare keyword, hybrid, and Microsoft Foundry IQ retrieval for the same policy question.
 
 **What is it, and why does it matter?** An index organizes searchable documents. Keyword matches words, vector matches similar meaning, and hybrid combines both. Semantic ranking reranks candidates. IQ provides a common retrieval path across connected knowledge sources.
 
@@ -2942,7 +3198,7 @@ python samples/search_lab.py corpus
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `corpus` | Splits bundled policies into sections and prints IDs, filenames, and content hashes. Read the text in the named source files. | Local reading/transformation only; no Azure or embedding calls. Verify 3 documents and 13 sections. |
+| 1. `corpus` | Splits bundled policies into sections and prints IDs, filenames, and content hashes. Read the text in the named source files. | Local reading/transformation only; no Microsoft Azure or embedding calls. Verify 3 documents and 13 sections. |
 
 </div>
 
@@ -2962,7 +3218,7 @@ python scripts/azure_environment.py search --live
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `search` | Prints the owned-group Search creation plan. | No Azure request. |
+| 1. `search` | Prints the owned-group Search creation plan. | No Microsoft Azure request. |
 | 2. `search --live` | Creates Basic with one partition/replica, Entra authentication, semantic settings, and minimum scoped roles. | Actual service/access changes and ongoing costs. Records endpoint/ID in your `results/azure-environment.json`. |
 
 </div>
@@ -2972,7 +3228,7 @@ embedding deployment name, and embedding resource name.
 
 | Setting | Where to get it | Common mistake |
 | --- | --- | --- |
-| `FOUNDRY_SEARCH_ENDPOINT` | Your Search Overview URL or environment receipt `search_endpoint` | Not a Foundry project address |
+| `FOUNDRY_SEARCH_ENDPOINT` | Your Search Overview URL or environment receipt `search_endpoint` | Not a Microsoft Foundry project address |
 | `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME` | L02's actual embedding **deployment name** | May differ from the model product name |
 | `FOUNDRY_EMBEDDING_ENDPOINT` | OpenAI endpoint of the parent resource hosting that model | Not an `/api/projects/...` address |
 
@@ -3007,7 +3263,7 @@ python samples/search_lab.py initialize --live
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `initialize` | Prints a `PLAN ONLY` notice; it does not validate actual configuration or access. | No Azure requests. Manually compare endpoints and prerequisite models using the table above. |
+| 1. `initialize` | Prints a `PLAN ONLY` notice; it does not validate actual configuration or access. | No Microsoft Azure requests. Manually compare endpoints and prerequisite models using the table above. |
 | 2. `initialize --live` | Creates a new, uniquely named index in the existing Search service, then generates embeddings, uploads documents, and connects IQ. | Embedding/API/storage charges may apply. Check the created items in `results/search.json`; this command does not create the Search service itself. |
 
 </div>
@@ -3104,7 +3360,7 @@ hits = validate_hits(raw["value"])
 | Search index fields and semantic configuration | `index_schema(name)` and the index PUT in `initialize()` |
 | Search Explorer query, result count, and selected fields | `search`, `top`, and `select` payload values |
 | Hybrid path | `embeddings([query])`, then `vectorQueries` |
-| Foundry IQ Knowledge base retrieval | `/knowledgebases/{kb}/retrieve` and `references/sourceData` |
+| Microsoft Foundry IQ Knowledge base retrieval | `/knowledgebases/{kb}/retrieve` and `references/sourceData` |
 | Whether returned evidence is valid | `validate_hits()` compares real policy chunk IDs and hashes |
 
 L11's `corpus` inspects local synthetic input. Only `initialize/query --live` accesses or changes remote resources. Confirm that the portal Knowledge connection and the code's index/knowledge-base name refer to the same owned record.
@@ -3155,7 +3411,7 @@ Record your Search retention deadline and next cost-check time. Unlike Hosted co
 
 > **Learning order: Prerequisites required** — Reuse your L11 Search/index and L01 models/receipt for local invocation and deployment. Needed only for L18's actual Hosted branch.
 
-> **What you will build:** Package this repository's purchasing assistant with English synthetic data and invoke it locally and in Azure.
+> **What you will build:** Package this repository's purchasing assistant with English synthetic data and invoke it locally and in Microsoft Azure.
 
 <div class="lab-brief" markdown="1">
 
@@ -3163,7 +3419,7 @@ Record your Search retention deadline and next cost-check time. Unlike Hosted co
 
 **Start here:** Build the package in its dedicated Python environment. Follow the default Invocations path; skip the Optimizer adapter initially.
 
-**What to check:** Verify the package, local response, remote version response, and stopped session separately. Local servers also incur costs when calling Azure.
+**What to check:** Verify the package, local response, remote version response, and stopped session separately. Local servers also incur costs when calling Microsoft Azure.
 
 </div>
 
@@ -3175,9 +3431,9 @@ Do not describe this as validation of the Responses, Voice, or Teams protocols.
 
 ## Concepts and lab map
 
-**What you will try:** Move agent code from your PC to a Foundry server.
+**What you will try:** Move agent code from your PC to a Microsoft Foundry server.
 
-**What is it, and why does it matter?** A Hosted Agent runs your code in Foundry. Choose it when functions need a server rather than your open terminal. Code, data, settings, and the communication protocol must agree.
+**What is it, and why does it matter?** A Hosted Agent runs your code in Microsoft Foundry. Choose it when functions need a server rather than your open terminal. Code, data, settings, and the communication protocol must agree.
 
 **How do you use it?** Build the package → call locally → deploy with approval → call the same remote version. Start with Invocations; the Responses adapter for Optimizer is optional.
 
@@ -3193,8 +3449,8 @@ Verify Hosted capabilities/regions. Use L01's scoped creation/role-assignment pe
 
 | Current state | Steps to follow | What completion means |
 | --- | --- | --- |
-| No Azure execution approval | Prepare the dedicated environment → step 1 packaging | Packaging only; server business calls and deployment not performed |
-| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a PC server, not successful Azure Hosted deployment |
+| No Microsoft Azure execution approval | Prepare the dedicated environment → step 1 packaging | Packaging only; server business calls and deployment not performed |
+| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a PC server, not successful Microsoft Azure Hosted deployment |
 | Deployment and role changes separately approved | Steps 1 → 2 → 3 → 4 → 5 | Inspect the exact remote version's answer and stopped session |
 
 First locate **L01's `.env` and `results/azure-environment.json`, plus L11's `results/search.json`**, in this same lab folder. Stop if project address, language, or Search target differs. Never copy another learner's receipt or a screenshot's version number.
@@ -3214,7 +3470,7 @@ python scripts/check_sdk.py
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
 | 1. `python3.13 -m venv .venv-live` | Creates a Python 3.13 virtual environment for Hosted. | Creates a local directory. Do not mix it with the advanced MAF environment. |
-| 2. `source .venv-live/bin/activate` | Selects the new environment's Python for the current shell. | Changes only the current terminal; no Azure resources are touched. |
+| 2. `source .venv-live/bin/activate` | Selects the new environment's Python for the current shell. | Changes only the current terminal; no Microsoft Azure resources are touched. |
 | 3. `pip install -r requirements-hosted.txt` | Installs the pinned dependencies for the Hosted server and SDK. | Package downloads and local installation. No model inference. |
 | 4. `pip check` | Checks for conflicts between the installed packages' dependency requirements. | A read-only check. Do not proceed if it reports errors. |
 | 5. `check_sdk.py` | Locally checks the SDK classes and call contracts used by the samples. | An import/API contract check, not evidence of remote deployment or model quality. |
@@ -3227,9 +3483,9 @@ On Windows, use L01's `py -3.13` approach to create `.venv-live`, then execute w
 
 <a id="l12-azd"></a>
 
-**If azd is missing,** follow the [official Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) for your OS through an approved distribution path, then open a new terminal. Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment.
+**If azd is missing,** follow the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) for your OS through an approved distribution path, then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment.
 
-azd and Azure CLI have separate authentication. Check versions/extensions and sign-in first. See [L00 command reading](#l00) for translating macOS/Linux's `KEY=value` syntax to Windows.
+azd and Microsoft Azure CLI have separate authentication. Check versions/extensions and sign-in first. See [L00 command reading](#l00) for translating macOS/Linux's `KEY=value` syntax to Windows.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
@@ -3245,7 +3501,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
 | --- | --- | --- |
 | 1. `azd version` | Checks the installed CLI version. | Local inspection, no automatic upgrade. |
 | 2. `azd extension list` | Checks the agent extension/version. | Listing only; no Copilot skill is required. |
-| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Azure CLI sign-in. |
+| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Microsoft Azure CLI sign-in. |
 
 </div>
 
@@ -3269,7 +3525,9 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login
 
 ## Steps
 
-### 1. Build the package before making Azure calls
+<a id="l14-1-build-the-package-before-making-azure-calls"></a>
+
+### 1. Build the package before making Microsoft Azure calls
 
 ```bash
 python scripts/build_hosted.py
@@ -3281,7 +3539,7 @@ python scripts/build_hosted.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `build_hosted.py` | Generates a deployment directory, ZIP, and file-hash manifest from checked-in runtime code and the selected English policies, inventory, and instructions. Binds `en` in the generated `lab-profile.json`. | Changes only this English checkout's local `.build/` artifacts. No Azure deployment. The archive does not include `.env` or evaluation reference answers. |
+| 1. `build_hosted.py` | Generates a deployment directory, ZIP, and file-hash manifest from checked-in runtime code and the selected English policies, inventory, and instructions. Binds `en` in the generated `lab-profile.json`. | Changes only this English checkout's local `.build/` artifacts. No Microsoft Azure deployment. The archive does not include `.env` or evaluation reference answers. |
 
 </div>
 
@@ -3308,7 +3566,7 @@ python scripts/run_hosted_local.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `run_hosted_local.py` | Starts the default Invocations server on loopback port 8088 and passes safe environment settings to the child process. | Keep the server terminal open. Even when execution is local, real requests can use Azure models and search. Stop it with Ctrl+C when finished. |
+| 1. `run_hosted_local.py` | Starts the default Invocations server on loopback port 8088 and passes safe environment settings to the child process. | Keep the server terminal open. Even when execution is local, real requests can use Microsoft Azure models and search. Stop it with Ctrl+C when finished. |
 
 </div>
 
@@ -3327,12 +3585,12 @@ python samples/hosted_client.py invoke --local --live
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
 | 1. `curl --fail .../readiness` | Reads the local server's readiness endpoint. `--fail` treats HTTP errors as failures. | Checks server connectivity; it is not a purchasing question or model call. |
-| 2. `invoke --local` | Selects the local target but prints only a plan because `--live` is absent. | No business request to the server or Azure inference. `--local` alone does not authorize a real invocation. |
-| 3. `invoke --local --live` | Sends a real synthetic purchasing request to the local server. `--live` authorizes the cost of the model/Search calls behind the server. | Inspect the response JSONL and the function, citation, and contract checks. Do not label local results as a successful Azure Hosted deployment. |
+| 2. `invoke --local` | Selects the local target but prints only a plan because `--live` is absent. | No business request to the server or Microsoft Azure inference. `--local` alone does not authorize a real invocation. |
+| 3. `invoke --local --live` | Sends a real synthetic purchasing request to the local server. `--live` authorizes the cost of the model/Search calls behind the server. | Inspect the response JSONL and the function, citation, and contract checks. Do not label local results as a successful Microsoft Azure Hosted deployment. |
 
 </div>
 
-**The local server also uses real Azure models and search, so invocations incur charges.**
+**The local server also uses real Microsoft Azure models and search, so invocations incur charges.**
 The default binding is loopback; do not expose this unauthenticated development server externally.
 Each request is split into **at most two tool rounds → a separate tool-free, evidence-based answer → source correspondence check**.
 Each tool-round output and the answer remain limited to **2048 tokens**; the source check remains limited to 512 tokens.
@@ -3346,7 +3604,7 @@ It does not wait for the model to select a search function. Internally, the answ
 only the sections the model selects from the actual returned results are rendered as citations. Missing search results or citations are errors, not successes.
 In `tool_calls`, `execution=server_required` records a real server-side search; it does not pretend the model called it.
 The current runtime requires explicit permission for inventory calls and rechecks every attempted business tool. Missing or invalid draft quantities do not authorize an unrequested lookup. Read-only calls are still tool execution.
-Both packages load `agent-v2.txt`. Its answer procedure is not evidence of a new Azure deployment or quality pass; compare your package hash with the actual invoked version.
+Both packages load `agent-v2.txt`. Its answer procedure is not evidence of a new Microsoft Azure deployment or quality pass; compare your package hash with the actual invoked version.
 
 Use the actual service-issued deployment version, not the instruction number. When a session is already bound to a version, invoke it with `--session-id` only; combining that flag with `--version` is rejected by azd.
 
@@ -3466,7 +3724,7 @@ async def handle(request: Request):
 | Connect to the portal agent version | Compare the exact numeric version in the invocation/receipt |
 | Handle failure | Record evidence and return an actual 400/413/502 failure |
 
-The portal does not edit the handler; it shows the deployed type/version of the container that includes it. `hosted_runtime.py` is the business flow, while `hosted/main.py` is the HTTP entry point. Local execution may still call real Azure services.
+The portal does not edit the handler; it shows the deployed type/version of the container that includes it. `hosted_runtime.py` is the business flow, while `hosted/main.py` is the HTTP entry point. Local execution may still call real Microsoft Azure services.
 
 </details>
 
@@ -3487,7 +3745,7 @@ For multiple JSON objects or `incomplete` output, inspect the tool/answer bounda
 
 Stop the local server with Ctrl+C in the terminal where you started it. For interrupted runs,
 use `python scripts/stop_sessions.py` to stop **only recorded sessions**.
-The agent/version/session files and Azure resources remain. Record the remaining storage, log, and Search costs in L19.
+The agent/version/session files and Microsoft Azure resources remain. Record the remaining storage, log, and Search costs in L19.
 
 Hosted's `/app` is read-only. Write remote raw evidence only to the session's `$HOME/.contoso/evidence`,
 not to the code directory. Do not include it in the package.
@@ -3523,7 +3781,7 @@ not to the code directory. Do not include it in the package.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Run Agent Framework orchestration locally against an approved Foundry model. No Hosted deployment is performed.
+**Format:** Run Agent Framework orchestration locally against an approved Microsoft Foundry model. No Hosted deployment is performed.
 
 **Start here:** Prepare the separate advanced environment, finish L02's TPM/RPM check, and read the plan for one selected pattern.
 
@@ -3534,7 +3792,7 @@ not to the code directory. Do not include it in the package.
 ## Objectives
 
 **Experience how the same roles behave under different coordination patterns.** More agents do not automatically make an answer faster or more accurate.
-This module uses the official Builders in `agent_framework.orchestrations`. It is separate from the Foundry portal Workflows feature, scheduled to retire on **2026-12-01**.
+This module uses the official Builders in `agent_framework.orchestrations`. It is separate from the Microsoft Foundry portal Workflows feature, scheduled to retire on **2026-12-01**.
 
 ## Concepts and lab map
 
@@ -3544,7 +3802,7 @@ This module uses the official Builders in `agent_framework.orchestrations`. It i
 
 **How do you use it?** Change only `--mode` under the same policy and question. Compare role order and actual outputs. Revision after review and specialist delegation have their own [L14 exercise](#l15-collaboration).
 
-**Where do you run it?** Run [multi_agent.py](../samples/multi_agent.py) in a separate Python environment. Only the model is in Azure; this is not a remote A2A or business-approval exercise.
+**Where do you run it?** Run [multi_agent.py](../samples/multi_agent.py) in a separate Python environment. Only the model is in Microsoft Azure; this is not a remote A2A or business-approval exercise.
 
 ## Prerequisites
 
@@ -3557,7 +3815,7 @@ Keep the advanced SDK in `requirements-advanced.txt` separate. `agent-framework-
 
 | Current state | Steps to follow | What to retain |
 | --- | --- | --- |
-| No Azure approval | Step 1 environment → step 3 plan | Explain roles and call limits; model execution remains not performed |
+| No Microsoft Azure approval | Step 1 environment → step 3 plan | Explain roles and call limits; model execution remains not performed |
 | Model, ownership receipt, and cost approval ready | 1 → 2 → 3 → 4 → 5 | Sequential/concurrent answers to one question and a comparison |
 
 Reuse L01/L02's `.env` and your receipt; Hosted/Search are unnecessary. **Unlike L06, these SDK roles review policy/questions without a stock function.** Keep the English profile selected.
@@ -3579,7 +3837,7 @@ python3.13 -m venv .venv-advanced
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `python3.13 -m venv` | Create the advanced environment separately from the core SDK. | Local environment creation; do not overwrite an existing environment. |
-| 2. `pip install -r requirements-advanced.txt` | Install compatible Foundry integration and orchestration Builders. | Package downloads only; no Azure request. |
+| 2. `pip install -r requirements-advanced.txt` | Install compatible Microsoft Foundry integration and orchestration Builders. | Package downloads only; no Microsoft Azure request. |
 | 3. `pip check` | Check dependencies in that same environment. | Resolve conflicts before executing. |
 
 </div>
@@ -3599,7 +3857,7 @@ On Windows use `.venv-advanced\Scripts\python.exe`. If an existing advanced envi
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `model_capacity.py plan --roles chat` | Read the chat TPM/RPM plan for one learner running one lab. | Local calculation; no Azure request. |
+| 1. `model_capacity.py plan --roles chat` | Read the chat TPM/RPM plan for one learner running one lab. | Local calculation; no Microsoft Azure request. |
 | 2. `check --roles chat --live` | Read the owned resource group and deployment's actual `rateLimits`. | Read-only. Below-minimum capacity fails without a model call. |
 
 </div>
@@ -3618,7 +3876,7 @@ If insufficient, verify your update permissions/quota/cost scope, then use L02's
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `multi_agent.py --mode concurrent` | Read the selected pattern's roles and call limit. Use the other modes below to inspect their plans. | Without `--live`, no SDK initialization, Azure request, or execution evidence is created. |
+| 1. `multi_agent.py --mode concurrent` | Read the selected pattern's roles and call limit. Use the other modes below to inspect their plans. | Without `--live`, no SDK initialization, Microsoft Azure request, or execution evidence is created. |
 
 </div>
 
@@ -3732,13 +3990,13 @@ concurrent = ConcurrentBuilder(
 ).build()
 ```
 
-| Foundry/code location | What it controls |
+| Microsoft Foundry/code location | What it controls |
 | --- | --- |
 | Portal → Models → Deployments | Model deployment called by the Python client |
 | `build_role(...)` | Each SDK agent's instructions and role |
 | `SequentialBuilder` | Sends the drafter's output to the reviewer |
 | `ConcurrentBuilder` | Runs independent roles together and collects per-stage output |
-| `multi_agent.py` in `.venv-advanced` | Builds orchestration locally; only approved model requests go to Foundry |
+| `multi_agent.py` in `.venv-advanced` | Builds orchestration locally; only approved model requests go to Microsoft Foundry |
 
 `drafter`, `reviewer`, `policy_agent`, `budget_agent`, and `risk` are SDK agents configured by `build_role()` with instructions/model client. `multi_agent.py` executes only the selected Builder. This is local code, not a portal workflow; verify actual inputs/stages/output in `Evidence:`.
 
@@ -3806,7 +4064,7 @@ This module performs local orchestration and model calls only. Hosted sessions a
 
 **How do you use it?** Run both patterns against the same policy and question. Inspect intermediate answers and actual delegation calls without increasing iteration or cost limits.
 
-**Where do you run it?** Run [multi_agent.py](../samples/multi_agent.py) in `.venv-advanced`. Only the model is in Azure; no Hosted or remote A2A server is created.
+**Where do you run it?** Run [multi_agent.py](../samples/multi_agent.py) in `.venv-advanced`. Only the model is in Microsoft Azure; no Hosted or remote A2A server is created.
 
 ## Prerequisites
 
@@ -3816,7 +4074,7 @@ Reuse [L13's setup](#l15): `.venv-advanced`, `.env`, **your own** `results/azure
 
 | Current state | Steps to follow | What to retain |
 | --- | --- | --- |
-| No Azure approval | Read both plans in step 1 | Explain differences and call limits; actual execution remains not performed |
+| No Microsoft Azure approval | Read both plans in step 1 | Explain differences and call limits; actual execution remains not performed |
 | Model, receipt, and cost approval ready | Plan → group chat → inspect → handoff → compare | Two original files and a revision/delegation comparison |
 
 No additional resources need deployment. Both patterns together use **at most seven model calls**. Preserve **180 seconds per run, 2,048 output tokens per response, and zero retries**. Start the next pattern **at least one minute** after the previous start.
@@ -3836,7 +4094,7 @@ No additional resources need deployment. Both patterns together use **at most se
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `--mode group-chat` | Read the drafter → reviewer → revised draft plan. | No SDK initialization, Azure call, or execution evidence. Plans at most three calls. |
+| 1. `--mode group-chat` | Read the drafter → reviewer → revised draft plan. | No SDK initialization, Microsoft Azure call, or execution evidence. Plans at most three calls. |
 | 2. `--mode handoff` | Read the coordinator → policy or budget specialist plan. | No actual delegation. Plans at most four calls. |
 
 </div>
@@ -3910,7 +4168,7 @@ Compare the Builder responsibilities using the official [group-chat](https://lea
 
 #### Portal model deployment and Group chat/Handoff code
 
-L14 has no Group chat/Handoff editor in the Foundry portal. The portal supplies the model deployment; Python Agent Framework code selects participants, routes messages, and defines termination.
+L14 has no Group chat/Handoff editor in the Microsoft Foundry portal. The portal supplies the model deployment; Python Agent Framework code selects participants, routes messages, and defines termination.
 
 ```python
 from agent_framework.orchestrations import GroupChatBuilder, HandoffBuilder
@@ -3948,7 +4206,7 @@ handoff_workflow = (
 | `participants` | Agent author for each stage |
 | `selection_func`, `max_rounds` | Who spoke in group chat and where it stopped |
 | `with_start_agent`, `add_handoff` | Whether a real control transfer appears in `handoff_calls` |
-| Portal model deployment | Approved Foundry model called by each participant |
+| Portal model deployment | Approved Microsoft Foundry model called by each participant |
 
 Participants are SDK agents from `build_role()`. Group chat stops after three assistant turns; handoff stops after a specialist answer. `multi_agent.py` executes only the chosen workflow, without storing this graph in the portal.
 
@@ -4064,7 +4322,7 @@ python samples/memory_lab.py create --live
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `memory_lab.py create` | Prints the plan for the Memory store to create. | No Azure requests. Check supported models and regions first. |
+| 1. `memory_lab.py create` | Prints the plan for the Memory store to create. | No Microsoft Azure requests. Check supported models and regions first. |
 | 2. `create --live` | Prepares a unique store and A/B scopes, with settings including a default TTL of 3600 seconds. | Creates the remote store and `results/memory.json`. Check storage and model/embedding usage conditions and costs. |
 
 </div>
@@ -4115,7 +4373,7 @@ In a real service, the server must derive the scope from the authenticated princ
 ### 4. Delete only the one item, then search again
 
 Run this step **only after explicit approval to delete your exact lab item**.
-Deleting an item is separate from deleting an Azure store/RG. If the environment has a no-deletion policy,
+Deleting an item is separate from deleting a Microsoft Azure store/RG. If the environment has a no-deletion policy,
 record this step as not executed and report only the storage and isolation results.
 
 ```bash
@@ -4184,7 +4442,7 @@ Separately identify features not executed, such as automatic remember/forget pro
 ## Troubleshooting
 
 Check model/embedding support, store settings, user scopes, and Preview API access.
-If the API fails, preserve the original error. Do not substitute a local dictionary and label it Azure Memory success.
+If the API fails, preserve the original error. Do not substitute a local dictionary and label it Microsoft Azure Memory success.
 If creation failed but `memory.json` exists, reconcile your portal and original error first. Do not erase the receipt or edit unverified ownership. TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record.
 
 ## Cleanup
@@ -4279,7 +4537,7 @@ Do not automatically upgrade CLI extensions/global settings or use resources fro
 | Project/App Insights | Your own L01 `results/azure-environment.json` and telemetry connection | Matches `.env` and allows reading action traces |
 | Two `--receipt` paths | The **distinct new manual/scheduled files** below | Never overwrite previous or other-language records |
 
-Follow **one manual execution → one timer execution → verify both disabled**. Without Azure approval, read only the first `create` plan. Resolve log access and response-collection prerequisites before scheduling. Do not reschedule merely because an execution's trace is absent.
+Follow **one manual execution → one timer execution → verify both disabled**. Without Microsoft Azure approval, read only the first `create` plan. Resolve log access and response-collection prerequisites before scheduling. Do not reschedule merely because an execution's trace is absent.
 
 ## Steps
 
@@ -4297,7 +4555,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispa
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `create --agent ... --receipt ...` | Replace `ACTUAL_AGENT_NAME` with the actual English agent name, specify a new ownership-record path, and read only the creation plan. `--receipt` is the file that tracks execution results and targets. | No Azure requests. Select an agent capable of server-side execution, not one with only local functions. |
+| 1. `create --agent ... --receipt ...` | Replace `ACTUAL_AGENT_NAME` with the actual English agent name, specify a new ownership-record path, and read only the creation plan. `--receipt` is the file that tracks execution results and targets. | No Microsoft Azure requests. Select an agent capable of server-side execution, not one with only local functions. |
 | 2. `create ... --live` | Creates a disabled one-time timer and records it in the specified receipt. The environment variable also passes through to child azd processes. | Creates a real schedule object. This alone does not establish successful scheduled execution. |
 | 3. `dispatch ... --live` | Requests one manual execution of the disabled routine in the same receipt. A pre-attempt file limits duplicate requests. | Model/agent invocation charges may apply. Do not label manual acceptance/execution as successful automatic scheduling. |
 
@@ -4485,7 +4743,7 @@ If it targets Hosted, stop the agent session compute separately as well.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Local code repair plus optional design · no Azure account needed to start.
+**Format:** Local code repair plus optional design · no Microsoft Azure account needed to start.
 
 **Start here:** Reproduce two failures in the synthetic cache/access exercise, then map responsibilities across user → agent → tool → data.
 
@@ -4495,7 +4753,7 @@ If it targets Hosted, stop the agent session compute separately as well.
 
 ## Objectives
 
-**Seeing a Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the Foundry AI Gateway experience include Preview capabilities.
+**Seeing a Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the Microsoft Foundry AI Gateway experience include Preview capabilities.
 
 ## Concepts and lab map
 
@@ -4509,14 +4767,14 @@ If it targets Hosted, stop the agent session compute separately as well.
 
 ## Prerequisites
 
-The default is local Python repair and your **principal → action → scope → deny condition → inspection/revocation method** table. No Azure account is needed, but this is not live access validation. Real role, gateway, private-endpoint, or policy changes require relevant permissions and separate change scope.
+The default is local Python repair and your **principal → action → scope → deny condition → inspection/revocation method** table. No Microsoft Azure account is needed, but this is not live access validation. Real role, gateway, private-endpoint, or policy changes require relevant permissions and separate change scope.
 
 ### Choose your starting path
 
 | Goal | Sequence | What to retain |
 | --- | --- | --- |
 | Experience the permission/cache boundary | Step 1 copy → two failures → edit `exercise.py` → five passes with unchanged tests | Local before/after behavior and explanation |
-| Design an organizational implementation | Above → step 2 identity table → steps 4–5 gateway/network boundaries | Your own design; Azure changes not performed |
+| Design an organizational implementation | Above → step 2 identity table → steps 4–5 gateway/network boundaries | Your own design; Microsoft Azure changes not performed |
 | Portal read access also available | Additionally observe **one owned asset** in step 3 | Observation time, filters, and read scope |
 
 Edit only `practice/governance/exercise.py`. Keep `test_exercise.py`, allowed users, and the `data/exercises/` originals unchanged. If the folder exists, choose another `--output` path and update the test command's path too.
@@ -4527,7 +4785,7 @@ Edit only `practice/governance/exercise.py`. Keep `test_exercise.py`, allowed us
 
 <div class="practice-block" markdown="1">
 
-**Try it:** This exercise uses only synthetic strings on your PC. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Azure roles nor real document ACLs.
+**Try it:** This exercise uses only synthetic strings on your PC. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Microsoft Azure roles nor real document ACLs.
 
 ```bash
 python samples/prepare_practice.py governance --output practice/governance
@@ -4573,14 +4831,16 @@ A cache does not replace authentication or authorization. This example rechecks 
 
 </details>
 
-**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Azure RBAC, network, or document ACL verification.**
+**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Microsoft Azure RBAC, network, or document ACL verification.**
 
 </div>
 
 <details class="implementation-detail" markdown="1">
-<summary>Implementation reference: the cache repair versus Azure RBAC — read only</summary>
+<summary>Implementation reference: the cache repair versus Microsoft Azure RBAC — read only</summary>
 
-#### Local code and the Azure portal boundary
+<a id="l21-local-code-and-the-azure-portal-boundary"></a>
+
+#### Local code and the Microsoft Azure portal boundary
 
 This `exercise.py` uses only fake documents and a fake grants table. The defect is that a cached document is returned before checking the current permission.
 
@@ -4598,10 +4858,10 @@ def read_document(user, document_id, grants, cache):
 | --- | --- |
 | `prepare_practice.py governance` | Copies the flawed example to a new `practice/governance` folder |
 | Edit `exercise.py` + run `test_exercise.py` | Checks B and revoked A against local cache/fake grants |
-| Azure portal/RBAC | Not changed or validated in this exercise |
-| `infra/main.bicep`, `runtime_roles.py` | Design references only; not applied to Azure |
+| Microsoft Azure portal/RBAC | Not changed or validated in this exercise |
+| `infra/main.bicep`, `runtime_roles.py` | Design references only; not applied to Microsoft Azure |
 
-L01 prepared your actual Azure roles; this module studies **application cache/document authorization**. These are different checks. Actual ACL tests require permitted identities, separate synthetic restricted documents, and access logs; local passes do not substitute.
+L01 prepared your actual Microsoft Azure roles; this module studies **application cache/document authorization**. These are different checks. Actual ACL tests require permitted identities, separate synthetic restricted documents, and access logs; local passes do not substitute.
 
 </details>
 
@@ -4622,7 +4882,7 @@ Do not assume L12's direct Search caller and L07's connection caller are identic
 
 Under **Operate → Assets**, find the agents/models/tools your permissions allow you to see. Check how resources from other projects appear. **Manage** covers quota, details, gateways, and similar settings for the currently selected project/resource; **Operate** takes a fleet-wide view.
 
-Compare execution status, costs, alerts, evaluations, and policy information. Registering an external agent expands visibility; registration does not automatically apply Foundry runtime guardrails to that agent.
+Compare execution status, costs, alerts, evaluations, and policy information. Registering an external agent expands visibility; registration does not automatically apply Microsoft Foundry runtime guardrails to that agent.
 
 For one owned asset, record **name, project, owner, last observation time, and policy target**. An empty list is not proof of no assets; check filters, tenant, and read scope first. Do not inspect an unfamiliar team's assets for workshop material.
 
@@ -4640,11 +4900,11 @@ Choose one reason you need an APIM-based gateway: token limits, rate limits, all
 
 **Example plan:** Assume a limit of 2 requests per 60 seconds for an isolated synthetic test principal and design a check that rejects the third request. Record identity key, policy scope, rejection status such as 429, counter/trace location, at most 3 requests with zero retries, and a stop owner. Actual configuration and requests require separate approval. Distributed counters or prior requests may affect observations; inspect that evidence rather than retrying until a pass.
 
-**Quota is not a billing cap, and a budget alert is not a hard stop.** Distinguish Foundry's gateway UI from APIM service state. Do not leave tool/document authorization solely to the gateway.
+**Quota is not a billing cap, and a budget alert is not a hard stop.** Distinguish Microsoft Foundry's gateway UI from APIM service state. Do not leave tool/document authorization solely to the gateway.
 
 ### 5. Network design exercise
 
-Draw three paths: **user → Foundry**, **Foundry → tools/data**, and **tools/data → external destinations**.
+Draw three paths: **user → Microsoft Foundry**, **Microsoft Foundry → tools/data**, and **tools/data → external destinations**.
 
 ```text
 Fictional users A/B
@@ -4660,12 +4920,12 @@ This is a **desired-boundary design**, not a claim that the bundled IaC builds p
 
 | Configuration | What it addresses | What it does not address |
 | --- | --- | --- |
-| Private endpoint | Private inbound connections to Foundry | Blocking all tool egress |
+| Private endpoint | Private inbound connections to Microsoft Foundry | Blocking all tool egress |
 | VNet/managed network settings | Supported outbound paths | Automatically supporting unsupported tools |
 | Private DNS | Correct address resolution | RBAC or application authentication |
 | Firewall/egress policy | Control over allowed destinations | User ACLs on the data itself |
 
-Prepare the required private endpoints separately for private Search, Storage, and other resources. One Foundry private endpoint does not make every connected resource private.
+Prepare the required private endpoints separately for private Search, Storage, and other resources. One Microsoft Foundry private endpoint does not make every connected resource private.
 
 | What to inspect | How to judge it | Next action on failure |
 | --- | --- | --- |
@@ -4679,7 +4939,7 @@ The last row is an **ACL design exercise**. The current shared Contoso index can
 
 ### 6. Check policies, encryption, and information protection
 
-Use Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
+Use Microsoft Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
 
 Defender, Purview, and Entra integrations may each require product-specific configuration, permissions, and licenses. Do not present the existence of a dashboard as organizational compliance certification. Include diagnostic logs, content provenance, and how users are informed of AI use in operational documentation.
 
@@ -4694,11 +4954,11 @@ Do not assume every 403 is an RBAC problem. Separate endpoint DNS, public networ
 
 ## Cleanup
 
-Record any actual temporary roles, policies, gateways, or connections you changed and revoke them only within permitted scope. Design-only means no Azure change. Do not delete shared networks or production policies.
+Record any actual temporary roles, policies, gateways, or connections you changed and revoke them only within permitted scope. Design-only means no Microsoft Azure change. Do not delete shared networks or production policies.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Repaired `practice/governance/exercise.py`, the same five tests and repair explanation, identity/action/scope/rejection table, and network design. Distinguish actual Azure checks.
+**Keep:** Repaired `practice/governance/exercise.py`, the same five tests and repair explanation, identity/action/scope/rejection table, and network design. Distinguish actual Microsoft Azure checks.
 
 **Continue:** [L18](#l22) if you select release/recovery, otherwise [L19](#l12).
 
@@ -4738,7 +4998,7 @@ Record any actual temporary roles, policies, gateways, or connections you change
 
 ## Objectives
 
-**Passing source checks, deploying to Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.
+**Passing source checks, deploying to Microsoft Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.
 
 **What does this add?** Practice blocking a bad promotion and choosing a recovery target when you want delivery/operations automation. This is a capability choice, not a participant-persona split. Neither documentation builds nor Teams publishing is a core completion requirement.
 
@@ -4774,10 +5034,10 @@ Open `validate.yml` in an editor and locate `on`, `jobs`, `needs`, and `if`. Com
 
 | What to inspect | How to judge it | Next action on failure |
 | --- | --- | --- |
-| `push` / `pull_request` → `offline`, `sdk` | Document/data/code and SDK contract checks, not Azure deployment | Read the failed job's **first error and command**, not just its final “failed” message |
+| `push` / `pull_request` → `offline`, `sdk` | Document/data/code and SDK contract checks, not Microsoft Azure deployment | Read the failed job's **first error and command**, not just its final “failed” message |
 | `azure` with `needs: [offline, sdk]` | Both prerequisite checks must pass before the paid path can run | Do not call a failed/skipped job a successful deployment |
 | `workflow_dispatch`, `acknowledge_cost`, `repository_id` | Explicit opt-in and this repository's identity; forks do not inherit access | Keep the default false; do not remove repository or approval conditions for the exercise |
-| `environment`, `id-token: write` in `azure-validation.yml` | OIDC authenticates a workflow identity; Azure roles and environment approval remain separate | Escalate branch/environment/tenant/project mismatches; do not substitute a long-lived secret |
+| `environment`, `id-token: write` in `azure-validation.yml` | OIDC authenticates a workflow identity; Microsoft Azure roles and environment approval remain separate | Escalate branch/environment/tenant/project mismatches; do not substitute a long-lived secret |
 
 If GitHub is available, open **Actions → run → job → failed step** and locate the same items. Otherwise inspect sources and record “workflow execution unverified.” The default exercise requires neither a new push nor a paid workflow dispatch.
 
@@ -4801,9 +5061,9 @@ python scripts/check_guide.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Azure calls. |
+| 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Microsoft Azure calls. |
 | 2. `build_guide.py` | Generate both HTML/Markdown editions from sources and metadata. | Local file changes; do not edit generated output manually. |
-| 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Azure or model quality. |
+| 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Microsoft Azure or model quality. |
 | 4. `check_guide.py` | Check 20 modules and five reference sections, command explanations, links, and image files. | Save documentation checks to `results/documentation/`. |
 
 </div>
@@ -4831,7 +5091,7 @@ python -m unittest discover -s practice/delivery -p "test_exercise.py" -v
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `prepare_practice.py delivery` | Copies a flawed function, tests, and an optional workflow template into a new folder. | Local files only; no GitHub push or Azure deployment. |
+| 1. `prepare_practice.py delivery` | Copies a flawed function, tests, and an optional workflow template into a new folder. | Local files only; no GitHub push or Microsoft Azure deployment. |
 | 2. `unittest discover` | Separates a good candidate, failed run, quality failure, critical failure, and missing row. | Initially **three of five tests fail intentionally**. Do not hide these failures. |
 
 </div>
@@ -4860,7 +5120,7 @@ def choose_version(previous: str, candidate: str, checks: dict) -> str:
 
 **Explain the result:** Describe the incorrect promotion prevented by each of the three failed tests. Complete a `previous version / candidate / failure evidence / version to keep` table. This function performs neither deployment nor state migration, so do not call it completed remote rollback.
 
-**Optional: observe the same failure→repair in GitHub.** Use only a new branch in an approved personal training repository. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit, then on a commit changing only `exercise.py`; expect failure then success. The template has manual dispatch, read-only permissions, and Python checks—no Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
+**Optional: observe the same failure→repair in GitHub.** Use only a new branch in an approved personal training repository. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit, then on a commit changing only `exercise.py`; expect failure then success. The template has manual dispatch, read-only permissions, and Python checks—no Microsoft Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
 
 </div>
 
@@ -4946,21 +5206,21 @@ Record **RTO (target service recovery time)** and **RPO (acceptable data-loss in
 
 #### Local promotion code versus portal Publish
 
-`practice/delivery/exercise.py`'s `choose_version()` is a **local candidate-selection function**. As in the repair example above, it returns the candidate only when all four checks pass. It does not change a Foundry agent version or publish anything.
+`practice/delivery/exercise.py`'s `choose_version()` is a **local candidate-selection function**. As in the repair example above, it returns the candidate only when all four checks pass. It does not change a Microsoft Foundry agent version or publish anything.
 
 | What the exercise inspects | What actually happens |
 | --- | --- |
 | `choose_version(previous, candidate, checks)` | Returns either the prior version or candidate in a local fixture |
 | `test_exercise.py` | Checks local combinations of completion, quality, critical failures, and missing rows |
-| Agent version/Publish in the Foundry portal | Separate approved operations to select and publish an exact numeric agent version |
-| `azure-validation.yml` | A separate manual approval path; local fixture tests do not run the Azure workflow |
+| Agent version/Publish in the Microsoft Foundry portal | Separate approved operations to select and publish an exact numeric agent version |
+| `azure-validation.yml` | A separate manual approval path; local fixture tests do not run the Microsoft Azure workflow |
 
 A passing local test and an actual portal Publish are different records. The core exercise runs only the first two rows and does not claim that a real version change or Publish was completed.
 
 ## Success criteria
 
 Reproduce the three local failures, repair only the function, and obtain five passes. If you use GitHub, distinguish failed/passing runs from their different commits.
-Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Azure not executed. Hold promotion without quality evidence for the same candidate.
+Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Microsoft Azure not executed. Hold promotion without quality evidence for the same candidate.
 If you choose publishing, separately record the runnable agent version, app Publish version, audience, and invocation results. Publishing success alone is neither business-release approval nor a complete authorization assessment.
 
 ## Troubleshooting
@@ -4969,7 +5229,7 @@ If `azure` is skipped, read its opt-in condition; skipping on an ordinary push i
 
 ## Cleanup
 
-Exclude private settings, raw responses, and receipts from the kit. Keep your CI interpretation, release manifest, and recovery decision together. Actual paid runs, access changes, and Azure deletion each require separate approval. Check remaining resources and costs in L19.
+Exclude private settings, raw responses, and receipts from the kit. Keep your CI interpretation, release manifest, and recovery decision together. Actual paid runs, access changes, and Microsoft Azure deletion each require separate approval. Check remaining resources and costs in L19.
 
 <div class="lab-handoff" markdown="1">
 
@@ -5023,7 +5283,7 @@ Exclude private settings, raw responses, and receipts from the kit. Keep your CI
 
 **How do you use it?** Follow only the row for work you performed. Check execution state, shared use, and ownership. Delete only approved targets and recheck costs after billing delays.
 
-**Where do you run it?** For local-only work, stop your PC's server. For Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../scripts/stop_sessions.py) acts without `--live`.
+**Where do you run it?** For local-only work, stop your PC's server. For Microsoft Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../scripts/stop_sessions.py) acts without `--live`.
 
 ## Prerequisites
 
@@ -5035,7 +5295,7 @@ Collect **your L01 environment receipt** `results/azure-environment.json`, porta
 
 | What you did | What to do now |
 | --- | --- |
-| Reading, local data, or local functions only | If you started L07's server, press Ctrl+C in its terminal. Do not run Azure deletion commands when you created no Azure resources |
+| Reading, local data, or local functions only | If you started L07's server, press Ctrl+C in its terminal. Do not run Microsoft Azure deletion commands when you created no Microsoft Azure resources |
 | Created the L01 environment/portal agents/files | Compare your receipt/names with step 3; verify model/log/file retention or deletion scope |
 | Ran L04/L05/L06 through the SDK | Find the `--receipt` path in the final `Cleanup:` command; review step 2 |
 | Collected/evaluated in L08 | Inspect the collection/evaluation JSON's agent names and eval/run IDs separately; these are not `workshop.py cleanup` receipts |
@@ -5066,7 +5326,7 @@ python scripts/operations_status.py
 | --- | --- | --- |
 | 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
 | 2. `routine_lab.py stop --receipt ... --live` | Disables the exact L16 schedule; distinguish manual/timer receipt paths. | Actual state change, no routine/RG deletion. Replace the path if you used a different file. |
-| 3. `operations_status.py` | Reads current sessions/schedules/evaluation work in your environment. | Actual Azure read without `--live`; active work/query failures remain errors or unverified. |
+| 3. `operations_status.py` | Reads current sessions/schedules/evaluation work in your environment. | Actual Microsoft Azure read without `--live`; active work/query failures remain errors or unverified. |
 
 </div>
 
@@ -5074,7 +5334,7 @@ Use each command only if you ran the corresponding lab and have its receipt.
 `operations_status.py` is a **read-only query scoped by ownership records**.
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
 it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also finds owned routine receipts under `results/` to query current state when L16 used a custom `--receipt` filename.
-**In a no-deletion environment, retain owned Azure resources until explicit deletion approval.**
+**In a no-deletion environment, retain owned Microsoft Azure resources until explicit deletion approval.**
 Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
 and resource-group deletion are not run automatically. The deletion path requires approval of the exact targets. Inspect your environment rather than another run's status.
 
@@ -5082,7 +5342,7 @@ and resource-group deletion are not run automatically. The deletion path require
 
 ### 2. Delete only the exact SDK lab resources
 
-Each Azure sample prints a **cleanup command containing your own run ID** on its final line.
+Each Microsoft Azure sample prints a **cleanup command containing your own run ID** on its final line.
 Use it only after checking resource-retention/deletion approval.
 
 ```text
@@ -5111,7 +5371,7 @@ Cleanup processes recorded conversations → lab-only agent → vector store →
 | Published channels, Bots, and apps | Verify user-access revocation separately from resource cleanup |
 | Fine-tuned deployments and models | Distinguish deployment deletion from deletion of a trained model |
 
-Do not assume vector store expiration removes the original files. Agents, projects, and connected Azure resources can have different lifecycles.
+Do not assume vector store expiration removes the original files. Agents, projects, and connected Microsoft Azure resources can have different lifecycles.
 
 ### 4. Make a final cost and data check
 
@@ -5135,7 +5395,19 @@ python scripts/cost_status.py
 
 Allow for Cost Management delay and set a **next-day recheck time**. Review your own dedicated environment; separately record responsibility if handing over retained resources. Turning off alerts does not stop billing.
 
-Retain only the minimum results needed for learning, and remove real PII, tokens, and connection secrets. Delete a resource group **only after its owner confirms it is a dedicated lab group**, and after reviewing the scope in the Azure portal. This guide does not provide a broad `az group delete` command.
+Retain only the minimum results needed for learning, and remove real PII, tokens, and connection secrets. Delete a resource group **only after its owner confirms it is a dedicated lab group**, and after reviewing the scope in the Microsoft Azure portal. This guide does not provide a broad `az group delete` command.
+
+<a id="l12-codespaces"></a>
+
+### 5. Stop GitHub Codespaces separately if you used it
+
+**Microsoft Azure cleanup and stopping a Codespace are separate actions.** First save resource states, the next cost-check time, and your results. Do not preserve `.env`, authentication data, or raw results by committing them to Git.
+
+1. Open [Your Codespaces](https://github.com/codespaces), choose **… → Stop codespace** for the environment you used, and verify that it stopped. Closing the browser tab can leave it running.
+2. Stopping ends Codespace processes and compute, but **storage charges may remain**. It does not stop or delete Microsoft Azure models, Search, logs, or schedules.
+3. To resume, open the same Codespace and use [L01's new-terminal check](#l01-new-terminal). Before deletion or automatic retention expiry, confirm an approved private way to retain needed ownership records/results. Lost records are not a reason to create replacement Microsoft Azure resources.
+
+[Official stop/resume instructions](https://docs.github.com/en/codespaces/developing-in-a-codespace/stopping-and-starting-a-codespace) · [GitHub compute/storage charges](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)
 
 <details class="implementation-detail" markdown="1">
 <summary>Implementation reference: cleanup deletes only receipt-scoped targets — read only, do not execute</summary>
@@ -5167,7 +5439,7 @@ for resource in ordered:
         client.files.delete(file_id=resource_id)
 ```
 
-| What to inspect in the Azure portal | What to inspect in the receipt/code |
+| What to inspect in the Microsoft Azure portal | What to inspect in the receipt/code |
 | --- | --- |
 | Actual ID/state for each agent/conversation/vector store/file | `kind`, `id`, and `cleanup_status` in `receipt["resources"]` |
 | Retained model deployments, Search, or Storage | If outside the workshop receipt, record a separate owner and retention date |
@@ -5186,7 +5458,7 @@ For each created resource, record **state (deleted / shared / retained)** togeth
 | --- | --- | --- | --- |
 | Record each resource you created | Observed value; write unverified if you could not inspect it | Assign explicitly | Assign explicitly |
 
-If you created no Azure resources, write **“local exercises only / no Azure creation.”** If you started L07's server, confirm it stopped in that terminal.
+If you created no Microsoft Azure resources, write **“local exercises only / no Microsoft Azure creation.”** If you started L07's server, confirm it stopped in that terminal.
 
 For environments where deletion is prohibited, record “Retain until explicit deletion approval.”
 Search Basic, logs, and storage may continue to incur costs without requests.
@@ -5198,11 +5470,11 @@ Do not hide deletion errors. Record the resource ID, error code, and responsible
 
 ## Cleanup
 
-Your selected labs and shared wrap-up are complete. If you add electives later, return here for the resources created then. Resetting the progress display does not delete Azure resources.
+Your selected labs and shared wrap-up are complete. If you add electives later, return here for the resources created then. Resetting the progress display does not delete Microsoft Azure resources.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Actual state, owner, retention deadline, and next cost-check time for each resource. Local-only learners record no Azure creation and confirm server shutdown.
+**Keep:** Actual state, owner, retention deadline, and next cost-check time for each resource. Local-only learners record no Microsoft Azure creation and confirm server shutdown.
 
 **Continue:** Complete the [progress checklist](#instructor) with actual execution/local/design/not-run labels for your chosen scope. Unqueried resources or costs remain unverified.
 
@@ -5225,7 +5497,9 @@ Your selected labs and shared wrap-up are complete. If you add electives later, 
 
 > **Check these first:** The selected English profile, the current project and endpoint, the calling identity, and the SDK environment used to run the command.
 
-## Stuck before connecting to Azure?
+<a id="troubleshooting-stuck-before-connecting-to-azure"></a>
+
+## Stuck before connecting to Microsoft Azure?
 
 | Symptom | What to do now |
 | --- | --- |
@@ -5244,7 +5518,7 @@ Your selected labs and shared wrap-up are complete. If you add electives later, 
 
 | Output or symptom | Interpretation and next action |
 | --- | --- |
-| `PLAN ONLY` / `plan_only=true` | Normal plan output, not live Azure execution. Continue with the stated live command only after approval conditions are ready |
+| `PLAN ONLY` / `plan_only=true` | Normal plan output, not live Microsoft Azure execution. Continue with the stated live command only after approval conditions are ready |
 | L06 stock/quantity errors | Expected rejection for the specified failure inputs; record the error kind and continue |
 | L07 `Approval required` | Expected unapproved-local-call rejection; compare it with the exact one-call approval command |
 | Two initial L17 / three initial L18 test failures | Deliberate exercise defects; repair only `exercise.py` and rerun the same tests |
@@ -5345,7 +5619,7 @@ First check the new/Classic portal, Preview access, tenant rollout, region, and 
 
 ## Starting checklist
 
-The guide follows one participant's end-to-end workflow. Azure permissions, organizational approval, and feature availability remain action prerequisites; do not assume somebody else completed them.
+The guide follows one participant's end-to-end workflow. Microsoft Azure permissions, organizational approval, and feature availability remain action prerequisites; do not assume somebody else completed them.
 
 | Item | Evidence |
 | --- | --- |
@@ -5392,7 +5666,7 @@ Choose electives by **capability to learn**, not participant persona. Mark unsup
 
 Core L00–L10 displays **285 minutes (4 hours 45 minutes)**; L19 adds ten, totaling 295. The eight electives display **335 minutes (5 hours 35 minutes)**. All modules total **630 minutes (10 hours 30 minutes)**.
 
-These estimate direct work. Add initial installation, permissions/cost approval, quota, Azure creation/indexing/deployment waits, and breaks. They do not guarantee every elective's service operations fit within the displayed duration.
+These estimate direct work. Add initial installation, permissions/cost approval, quota, Microsoft Azure creation/indexing/deployment waits, and breaks. They do not guarantee every elective's service operations fit within the displayed duration.
 
 ### 90-minute summary path
 
@@ -5451,12 +5725,12 @@ L13/L14/L17/L18 follow **Try it → Change one thing → Explain the result**. E
 
 | Observation | Correct interpretation |
 | --- | --- |
-| Plan output/client initialization | Not an actual successful Azure request |
+| Plan output/client initialization | Not an actual successful Microsoft Azure request |
 | File upload | Separate from indexing completion |
 | Agent claims a lookup/order succeeded | Requires actual tool evidence; real ordering is not connected |
 | `completed` | Execution finished, not answer/quality certification |
 | Only some evaluation rows succeed | Do not omit errors/missing rows to produce a passing average |
-| Local access/release tests pass | Not actual Azure RBAC/deployment/rollback verification |
+| Local access/release tests pass | Not actual Microsoft Azure RBAC/deployment/rollback verification |
 | Memory A/B searches | Lab-scope comparison, not a complete authenticated-user access test |
 | One successful evaluation | Not generalization, production release, or independent holdout validation |
 
@@ -5478,13 +5752,15 @@ Do not rewrite criteria, baseline v1, or failed originals after observing result
 
 > **Models reason, agents pursue goals, tools provide actual capabilities, and the operations layer verifies and controls that behavior.**
 
+Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, API identifiers, and actual menu/role names such as `New Foundry`, `Foundry User`, and `Azure AI User` retain their literal spelling so you can match the screen.
+
 ## Getting started and PC setup
 
 | Term | Plain-language meaning | Do not confuse it with |
 | --- | --- | --- |
-| Azure | Microsoft's cloud platform | A program running only on your PC |
+| Microsoft Azure | Microsoft's cloud platform | A program running only on your PC |
 | Tenant / Microsoft Entra ID | An organizational account boundary / identity service | The subscription used for billing |
-| Subscription / Resource group | A billing/management scope / a collection of resources within it | A Foundry project |
+| Subscription / Resource group | A billing/management scope / a collection of resources within it | A Microsoft Foundry project |
 | Portal / Playground | A management website / a screen for trying inputs and responses | The guide website you are reading |
 | Endpoint | The service address used by code | Sign-in permission or an API key |
 | CLI / Terminal / SDK | A command-line tool / its input window / libraries used by code | One application that provides all three |
@@ -5493,7 +5769,7 @@ Do not rewrite criteria, baseline v1, or failed originals after observing result
 | `true` / `false` / `null` | True / false / no value; `order_submitted=false` means no order was submitted | Treating null as success, zero cost, or no problem |
 | Receipt | A record of resource IDs and the lab's ownership scope | A payment receipt or deletion approval |
 | RBAC / Scope | Role-based permissions / the boundary where they apply | Full access obtained by signing in |
-| Foundry resource | A parent Azure resource grouping resources related to security, management, and billing | A single agent |
+| Microsoft Foundry resource | A parent Microsoft Azure resource grouping resources related to security, management, and billing | A single agent |
 | Project | A workspace for agents, connections, data, and related work | A Classic hub |
 | Lab language profile | `FOUNDRY_LAB_LANGUAGE=en` selects English synthetic inputs; Hosted packages bind their language in `lab-profile.json` | The guide's browser-language switch or a new quality-pass result |
 
@@ -5507,11 +5783,11 @@ Do not rewrite criteria, baseline v1, or failed originals after observing result
 | Prompt / Instructions | Input for this request / common instructions for the agent | Actual permissions or company documents |
 | Token / Latency | A unit of model input/output processing / time to an answer | Token counts being identical to words, characters, or a currency amount |
 | Prompt Agent | A managed agent defined by a model, instructions, and tools | A single prompt string |
-| Hosted Agent | Your code/framework running in Foundry | Running Python locally |
+| Hosted Agent | Your code/framework running in Microsoft Foundry | Running Python locally |
 | Conversation | Dialogue context across multiple turns | Long-term memory |
 | Response | The result of one model/agent execution | Only the final text |
 | Tool | A capability an agent can call | Permission to make the call |
-| SKU / Schema | Here, an item code such as `NB-14` / agreed input and output names and types | An Azure deployment SKU denotes a service type, a different use of the term |
+| SKU / Schema | Here, an item code such as `NB-14` / agreed input and output names and types | A Microsoft Azure deployment SKU denotes a service type, a different use of the term |
 | Function calling | A pattern in which application functions execute model requests | Running Python inside the model |
 | MCP | A common protocol for connecting tools and context | A security policy granting permissions |
 | OpenAPI | An HTTP API's input/output contract | A platform that deploys APIs |
@@ -5523,7 +5799,7 @@ Do not rewrite criteria, baseline v1, or failed originals after observing result
 | Citation | A connection to actual evidence supporting a claim | A model-written filename alone proving the claim |
 | Embedding | Meaning represented as a numeric vector | A natural-language reference answer |
 | Hybrid search | Using keyword and vector search together | Multi-agent orchestration |
-| Foundry IQ | An enterprise knowledge retrieval layer across multiple sources | A new name for Fabric/Work IQ |
+| Microsoft Foundry IQ | An enterprise knowledge retrieval layer across multiple sources | A new name for Fabric/Work IQ |
 
 ## Evaluation, operations, and advanced topics
 
@@ -5533,7 +5809,7 @@ Do not rewrite criteria, baseline v1, or failed originals after observing result
 | Routine | Invoking an agent on a schedule or event | Complex orchestration itself |
 | Autopilot | A persistent organizational agent, including an agent user account | Every form of automated execution |
 | Evaluation | Comparing expected behavior with actual results | Checking whether a string is nonempty |
-| Judge / Native evaluation | A grading model / evaluation run by Foundry's service | The answer-generating model or an infallible judgment |
+| Judge / Native evaluation | A grading model / evaluation run by Microsoft Foundry's service | The answer-generating model or an infallible judgment |
 | Dev / Holdout | Practice data used while improving / separate exam data excluded from improvement | A guarantee that every file named `holdout` is unexposed |
 | Groundedness | The degree to which supplied evidence supports an answer | Truthfulness about every fact in the world |
 | Trace / Span | The full execution path / an individual operation within it | Permission to store unlimited raw content |
@@ -5552,7 +5828,7 @@ Do not rewrite criteria, baseline v1, or failed originals after observing result
 | --- | --- | --- |
 | One summary | A model call | An agent if recurring work emerges |
 | Answers from 3 files | File search | Search if you need index control |
-| Enterprise knowledge from multiple sources | Consider Foundry IQ | ACLs, freshness, and observability |
+| Enterprise knowledge from multiple sources | Consider Microsoft Foundry IQ | ACLs, freshness, and observability |
 | One API call | A function/OpenAPI | Toolbox for reuse |
 | Custom execution code | Hosted Agent | CI/CD, scale, and operations |
 | A simple periodic invocation | Routine | A framework for complex branching |
@@ -5600,11 +5876,11 @@ There are **68 capability mappings** across 20 modules.
 | Developer surfaces | New Foundry portal / Discover, Build, Operate, Manage | [L00](#l00) | Direct lab | GA / some Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Developer surfaces | Model, Agent, and Image playgrounds / Video playground | [L02](#l02) | Conditional lab | GA / Video Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Developer surfaces | Hands-on Python SDK / .NET, JavaScript, and Java references | [L03](#l03) | Direct lab | Check each language and feature | [Official documentation](https://learn.microsoft.com/azure/foundry/quickstarts/get-started-code) |
-| Developer surfaces | Azure Developer CLI / Foundry Dev Pack / templates | [L12](#l14) | Conditional lab | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
+| Developer surfaces | Microsoft Azure Developer CLI / Microsoft Foundry Dev Pack / templates | [L12](#l14) | Conditional lab | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
 | Developer surfaces | VS Code Toolkit / Agent inspector / local tracing | [L12](#l14) | Conditional lab | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code) |
-| Developer surfaces | Foundry Agent Canvas | [L12](#l14) | Reference | Check current availability and access | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) |
-| Developer surfaces | Foundry Skill / coding agent / Foundry MCP Server | [L12](#l14) | Reference | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
-| Models | Multi-provider model catalog / Azure direct, partner, and community models | [L02](#l02) | Direct lab | Check each model | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure) |
+| Developer surfaces | Microsoft Foundry Agent Canvas | [L12](#l14) | Reference | Check current availability and access | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) |
+| Developer surfaces | Microsoft Foundry Skill / coding agent / Microsoft Foundry MCP Server | [L12](#l14) | Reference | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
+| Models | Multi-provider model catalog / Microsoft Azure direct, partner, and community models | [L02](#l02) | Direct lab | Check each model | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure) |
 | Models | Model comparison / benchmarks / leaderboards | [L02](#l02) | Direct lab | Leaderboards Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Models | Model deployment / endpoints / management APIs | [L02](#l02) | Direct lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) |
 | Models | Standard, Global, and Data Zone / processing location | [L02](#l02) | Direct lab | Check each model and region | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) |
@@ -5621,7 +5897,7 @@ There are **68 capability mappings** across 20 modules.
 | Agents | Runtime protocols / Responses, Invocations, WebSocket | [L12](#l14) | Design | Check each protocol | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) |
 | Agents | Microsoft Agent Framework / sequential, concurrent, group-chat, and handoff patterns | [L13](#l15) | Direct lab | Check each SDK and pattern | [Official documentation](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) |
 | Agents | A2A / distinguish remote protocols from SDK orchestration | [L14](#l15-collaboration) | Reference | 1.0 GA, distinct from 0.3 Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/agent-to-agent) |
-| Agents | Human-in-the-loop / distinguish handoff from business approval | [L14](#l15-collaboration) | Reference | Foundry long-running HITL Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) |
+| Agents | Human-in-the-loop / distinguish handoff from business approval | [L14](#l15-collaboration) | Reference | Microsoft Foundry long-running HITL Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) |
 | Agents | Routines / timer, schedule, and event triggers / reminders | [L16](#l17) | Conditional lab | Routines GA / check details | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/routines) |
 | Agents | Long-running agents / state, recovery, reconnect, steering | [L16](#l17) | Design | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/long-running-agent-resilience) |
 | Agents | Agent identity / Entra Agent ID | [L17](#l21) | Design | Check each configuration and operation | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-identity) |
@@ -5634,9 +5910,9 @@ There are **68 capability mappings** across 20 modules.
 | Tools | Toolbox / shared endpoints / versions and central management | [L07](#l07) | Conditional lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
 | Tools | Tool search / large-scale tool discovery | [L07](#l07) | Reference | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
 | Tools | Create skills, pin versions, and read MCP resources / private catalog reference | [L07](#l07) | Conditional lab | Skills Preview / check details | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
-| Tools | Azure Functions / connector-based actions | [L07](#l07) | Design | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
+| Tools | Microsoft Azure Functions / connector-based actions | [L07](#l07) | Design | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
 | Knowledge | RAG / chunking / embeddings / keyword, vector, hybrid, and semantic retrieval | [L11](#l13) | Conditional lab | Check each feature | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/retrieval-augmented-generation) |
-| Knowledge | Foundry IQ / knowledge bases and knowledge sources | [L11](#l13) | Conditional lab | Partially GA / portal Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
+| Knowledge | Microsoft Foundry IQ / knowledge bases and knowledge sources | [L11](#l13) | Conditional lab | Partially GA / portal Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
 | Knowledge | Hands-on IQ minimal/extractive retrieval / query planning and answer synthesis reference | [L11](#l13) | Conditional lab | GA / Preview varies by API scope | [Official documentation](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-migrate) |
 | Knowledge | Document ACLs and user tokens / permission-aware retrieval | [L11](#l13) | Design | Separate from Search RBAC for shared policies; executable ACL code not included | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/foundry-iq-connect) |
 | Knowledge | Freshness / indexers / incremental updates / source deletion | [L11](#l13) | Design | Check each feature and API | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
@@ -5658,10 +5934,10 @@ There are **68 capability mappings** across 20 modules.
 | Safety | Responsible AI / transparency / content provenance and copyright conditions | [L17](#l21) | Design | Check each policy and service | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
 | Enterprise management | Control Plane / fleet inventory, Overview, Assets, Compliance | [L17](#l21) | Conditional lab | Key Operate panes are Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/control-plane/overview) |
 | Enterprise management | Register external agents / cross-platform observability | [L17](#l21) | Design | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
-| Enterprise management | AI Gateway / APIM / token and rate limits, routing, caching | [L17](#l21) | Design | Foundry experience Preview / check configuration | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/ai-gateway) |
+| Enterprise management | AI Gateway / APIM / token and rate limits, routing, caching | [L17](#l21) | Design | Microsoft Foundry experience Preview / check configuration | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/ai-gateway) |
 | Enterprise management | RBAC / Agent Consumer / keyless access, managed identities, scopes | [L01](#l01) | Direct lab | Check each role and operation | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/rbac-foundry) |
 | Enterprise management | VNets, private endpoints, DNS, egress, and network security | [L17](#l21) | Design | Support and limitations vary by feature | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/configure-private-link) |
-| Enterprise management | CMK / Azure Policy / Entra, Defender, and Purview integration | [L17](#l21) | Design | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/customer-managed-keys) |
+| Enterprise management | CMK / Microsoft Azure Policy / Entra, Defender, and Purview integration | [L17](#l21) | Design | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/customer-managed-keys) |
 | Enterprise management | Quota / capacity / regions / cost management and cleanup | [L19](#l12) | Direct lab | Service-specific requirements | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/planning) |
 | Enterprise management | Hands-on local CI / OIDC, agent release, and rollback design | [L18](#l22) | Direct lab | Default source checks/design / live deployment requires L14 and separate approval | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/set-up-cicd-hosted-agent) |
 | Enterprise management | High availability / disaster recovery / RTO and RPO | [L18](#l22) | Design | Check each service and deployment | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/high-availability-resiliency) |
@@ -5693,7 +5969,7 @@ Compare code with official examples for your installed SDK version. A GA portal 
 | --- | --- |
 | New portal GA | Separate from individual feature GA |
 | Scheduled portal Workflows retirement | 2026-12-01; consider MAF for new implementations |
-| Foundry IQ | Some APIs GA, portal experience Preview |
+| Microsoft Foundry IQ | Some APIs GA, portal experience Preview |
 | Memory, Voice, Agent guardrails | Keep API-specific Preview/access conditions explicit |
 | Agent Optimizer | Limited preview, optional exercise |
 | Content Understanding | Distinguish 2025-11-01 GA and 2026-06-01-preview |

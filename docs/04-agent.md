@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** Foundry 포털에서 직접 만들고, 같은 설정을 원본 SDK 코드와 대조합니다.
+**진행 방식:** Microsoft Foundry 포털에서 직접 만들고, 같은 설정을 원본 SDK 코드와 대조합니다.
 
 **먼저 할 일:** L02의 모델을 선택해 Text 에이전트를 만들고 동봉 지시문을 넣습니다.
 
@@ -170,7 +170,7 @@ python samples/workshop.py agent --live
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `agent` | 생성·호출할 Prompt Agent의 실행 계획을 출력합니다. 기본 지시 파일은 `data/prompts/agent-v2.txt`입니다. | Azure 요청 없음. 지시문이 설명한 기능과 실제 연결할 도구를 먼저 구분합니다. |
+| 1. `agent` | 생성·호출할 Prompt Agent의 실행 계획을 출력합니다. 기본 지시 파일은 `data/prompts/agent-v2.txt`입니다. | Microsoft Azure 요청 없음. 지시문이 설명한 기능과 실제 연결할 도구를 먼저 구분합니다. |
 | 2. `agent --live` | 고유 `contoso-lab-...` agent와 대화를 만들고 실제 모델 응답을 받습니다. 포털에서 만든 agent를 수정하지 않습니다. | 추론·서비스 비용과 새 실습 객체가 생깁니다. 출력된 receipt 경로는 L19 정리용으로 보관합니다. |
 
 </div>

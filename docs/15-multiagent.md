@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 로컬에서 Agent Framework orchestration을 실행하고 승인된 Foundry 모델을 호출합니다. Hosted 배포는 하지 않습니다.
+**진행 방식:** 로컬에서 Agent Framework orchestration을 실행하고 승인된 Microsoft Foundry 모델을 호출합니다. Hosted 배포는 하지 않습니다.
 
 **먼저 할 일:** 별도 심화 환경을 준비하고 L02의 TPM/RPM 확인을 마친 뒤 실행할 패턴 하나의 계획을 읽습니다.
 
@@ -13,7 +13,7 @@
 ## 목표
 
 **같은 역할도 연결 방식에 따라 다르게 동작함을 경험합니다.** 여러 에이전트를 쓰는 것이 항상 더 빠르거나 정확하다는 뜻은 아닙니다.
-이 모듈은 `agent_framework.orchestrations`의 공식 Builder를 사용합니다. Foundry 포털 Workflows와는 다른 코드 기반 실행이며, 포털 Workflows는 **2026-12-01 종료 예정**입니다.
+이 모듈은 `agent_framework.orchestrations`의 공식 Builder를 사용합니다. Microsoft Foundry 포털 Workflows와는 다른 코드 기반 실행이며, 포털 Workflows는 **2026-12-01 종료 예정**입니다.
 
 ## 개념과 실습 지도
 
@@ -23,7 +23,7 @@
 
 **어떻게 사용하나요?** 같은 정책·질문에서 `--mode`만 바꾸고 역할 순서와 실제 출력을 비교합니다. 검토 후 수정·담당자 전환은 [L14](#l15-collaboration)에서 별도로 진행합니다.
 
-**어디서 실행하나요?** [multi_agent.py](../samples/multi_agent.py)를 별도 Python 환경에서 실행합니다. 모델만 Azure에 있으며, 원격 A2A나 실제 업무 승인 실습은 아닙니다.
+**어디서 실행하나요?** [multi_agent.py](../samples/multi_agent.py)를 별도 Python 환경에서 실행합니다. 모델만 Microsoft Azure에 있으며, 원격 A2A나 실제 업무 승인 실습은 아닙니다.
 
 ## 준비
 
@@ -36,7 +36,7 @@ L13·L14는 **chat 배포만** 사용합니다. 한 명 기준 최소 권장값�
 
 | 지금 상태 | 진행할 단계 | 남길 결과 |
 | --- | --- | --- |
-| Azure 승인 없음 | 1단계 환경 준비 → 3단계 계획 읽기 | 역할·최대 호출 수 설명. 실제 응답은 미실행 |
+| Microsoft Azure 승인 없음 | 1단계 환경 준비 → 3단계 계획 읽기 | 역할·최대 호출 수 설명. 실제 응답은 미실행 |
 | 모델·소유 기록·비용 승인 있음 | 1 → 2 → 3 → 4 → 5 | 같은 질문의 순차·동시 응답과 비교표 |
 
 L01·L02의 `.env`와 자신의 소유 기록을 재사용하며 Hosted·Search는 필요하지 않습니다. **L06과 달리 실제 재고 함수는 호출하지 않고, 정책과 질문을 SDK agent 역할별로 검토하는 실습**입니다.
@@ -58,7 +58,7 @@ python3.13 -m venv .venv-advanced
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `python3.13 -m venv` | 기본 SDK와 별도의 심화 환경을 만듭니다. | 로컬 환경 생성. 기존 환경을 덮어쓰지 않습니다. |
-| 2. `pip install -r requirements-advanced.txt` | Foundry 연동과 네 가지 orchestration Builder의 호환 조합을 설치합니다. | 패키지 다운로드만 수행하며 Azure를 호출하지 않습니다. |
+| 2. `pip install -r requirements-advanced.txt` | Microsoft Foundry 연동과 네 가지 orchestration Builder의 호환 조합을 설치합니다. | 패키지 다운로드만 수행하며 Microsoft Azure를 호출하지 않습니다. |
 | 3. `pip check` | 같은 심화 환경의 의존성을 확인합니다. | 충돌하면 실행 전에 해결합니다. |
 
 </div>
@@ -78,7 +78,7 @@ Windows에서는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 기존 
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `model_capacity.py plan --roles chat` | 한 명이 한 실습을 진행하는 조건의 chat TPM/RPM 계획을 봅니다. | 로컬 계산이며 Azure 호출은 없습니다. |
+| 1. `model_capacity.py plan --roles chat` | 한 명이 한 실습을 진행하는 조건의 chat TPM/RPM 계획을 봅니다. | 로컬 계산이며 Microsoft Azure 호출은 없습니다. |
 | 2. `check --roles chat --live` | 소유 RG와 실제 배포의 `rateLimits`를 조회합니다. | 읽기 전용입니다. 최소치 미달이면 실패하며 모델 호출은 하지 않습니다. |
 
 </div>
@@ -97,7 +97,7 @@ Windows에서는 `.venv-advanced\Scripts\python.exe`를 사용합니다. 기존 
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `multi_agent.py --mode concurrent` | 선택한 패턴의 역할과 호출 상한을 읽습니다. 아래 다른 mode도 같은 방식으로 계획을 볼 수 있습니다. | `--live`가 없으면 SDK 초기화·Azure 요청·실행 기록 생성이 없습니다. |
+| 1. `multi_agent.py --mode concurrent` | 선택한 패턴의 역할과 호출 상한을 읽습니다. 아래 다른 mode도 같은 방식으로 계획을 볼 수 있습니다. | `--live`가 없으면 SDK 초기화·Microsoft Azure 요청·실행 기록 생성이 없습니다. |
 
 </div>
 
@@ -211,13 +211,13 @@ concurrent = ConcurrentBuilder(
 ).build()
 ```
 
-| Foundry/코드 위치 | 무엇을 조작하나요? |
+| Microsoft Foundry/코드 위치 | 무엇을 조작하나요? |
 | --- | --- |
 | Portal → Models → Deployments | Python client가 호출할 모델 배포를 선택 |
 | `build_role(...)` | 각 SDK agent의 instructions·모델 호출 역할을 정의 |
 | `SequentialBuilder` | 작성자 출력을 검토자 입력으로 전달 |
 | `ConcurrentBuilder` | 독립 역할을 동시에 실행하고 stage별 결과 수집 |
-| `.venv-advanced`의 `multi_agent.py` | orchestration을 로컬에서 만들고, 승인 시 모델 요청만 Foundry에 전송 |
+| `.venv-advanced`의 `multi_agent.py` | orchestration을 로컬에서 만들고, 승인 시 모델 요청만 Microsoft Foundry에 전송 |
 
 위 `drafter`·`reviewer`·`policy_agent`·`budget_agent`·`risk`는 `build_role()`로 instructions와 모델 client를 지정한 SDK agent입니다. `multi_agent.py`는 선택한 mode의 Builder 하나만 실행합니다. 이 설정은 포털에서 만든 workflow가 아니라 로컬 코드이며 `Evidence:`의 실제 입력·stage·출력으로 확인합니다.
 

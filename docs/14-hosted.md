@@ -1,4 +1,4 @@
-> **완성할 결과:** 이 저장소의 구매 에이전트 코드를 패키징하고 로컬·Azure에서 호출합니다.
+> **완성할 결과:** 이 저장소의 구매 에이전트 코드를 패키징하고 로컬·Microsoft Azure에서 호출합니다.
 
 <div class="lab-brief" markdown="1">
 
@@ -6,7 +6,7 @@
 
 **먼저 할 일:** 전용 Python 환경에서 패키지를 만듭니다. 기본 Invocations 경로부터 진행하고 Optimizer용 adapter는 건너뜁니다.
 
-**확인할 결과:** 패키지·로컬 응답·원격 버전 응답·세션 정지를 각각 확인합니다. 로컬 서버도 Azure 호출 시 비용이 듭니다.
+**확인할 결과:** 패키지·로컬 응답·원격 버전 응답·세션 정지를 각각 확인합니다. 로컬 서버도 Microsoft Azure 호출 시 비용이 듭니다.
 
 </div>
 
@@ -18,9 +18,9 @@ Responses·Voice·Teams protocol을 검증한 것으로 표시하지 않습니�
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 내 PC에서 실행하던 에이전트 코드를 Foundry 서버로 옮깁니다.
+**경험할 기능:** 내 PC에서 실행하던 에이전트 코드를 Microsoft Foundry 서버로 옮깁니다.
 
-**무엇이며 왜 중요한가요?** Hosted Agent는 직접 작성한 코드를 Foundry에서 실행합니다. 내 PC의 터미널이 없어도 함수를 실행할 서버가 필요할 때 선택합니다. 코드·데이터·설정·통신 규약(protocol)을 함께 맞춰야 합니다.
+**무엇이며 왜 중요한가요?** Hosted Agent는 직접 작성한 코드를 Microsoft Foundry에서 실행합니다. 내 PC의 터미널이 없어도 함수를 실행할 서버가 필요할 때 선택합니다. 코드·데이터·설정·통신 규약(protocol)을 함께 맞춰야 합니다.
 
 **어떻게 사용하나요?** 패키지 만들기 → 로컬 호출 → 승인된 배포 → 같은 버전 원격 호출 순서입니다. 기본 Invocations부터 진행하며 Optimizer용 Responses adapter는 선택입니다.
 
@@ -36,8 +36,8 @@ L11의 Search/index와 모델, Python **3.13**, azd **1.34.0**,
 
 | 지금 상태 | 진행할 단계 | 완료로 기록할 범위 |
 | --- | --- | --- |
-| Azure 실행 승인 없음 | 전용 환경 준비 → 1단계 패키지 생성 | 패키징만. 서버 업무 호출·원격 배포는 미실행 |
-| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | 내 PC 서버의 실제 모델·검색 호출. Azure Hosted 배포 성공은 아님 |
+| Microsoft Azure 실행 승인 없음 | 전용 환경 준비 → 1단계 패키지 생성 | 패키징만. 서버 업무 호출·원격 배포는 미실행 |
+| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | 내 PC 서버의 실제 모델·검색 호출. Microsoft Azure Hosted 배포 성공은 아님 |
 | 배포·역할 변경까지 별도 승인 있음 | 1 → 2 → 3 → 4 → 5단계 | 정확한 원격 버전의 응답과 세션 중지까지 확인 |
 
 먼저 같은 실습 폴더에 **L01의 `.env`·`results/azure-environment.json`과 L11의 `results/search.json`**이 있는지 확인합니다. 프로젝트 주소·언어·Search 대상이 서로 다르면 중단합니다. 다른 사람의 기록이나 화면의 버전 숫자를 복사하지 않습니다.
@@ -57,7 +57,7 @@ python scripts/check_sdk.py
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `python3.13 -m venv .venv-live` | Hosted용 Python 3.13 가상환경을 만듭니다. | 로컬 폴더 생성. MAF 심화 환경과 섞지 않습니다. |
-| 2. `source .venv-live/bin/activate` | 현재 셸의 Python을 새 환경으로 선택합니다. | 현재 터미널만 변경하며 Azure 자원은 건드리지 않습니다. |
+| 2. `source .venv-live/bin/activate` | 현재 셸의 Python을 새 환경으로 선택합니다. | 현재 터미널만 변경하며 Microsoft Azure 자원은 건드리지 않습니다. |
 | 3. `pip install -r requirements-hosted.txt` | Hosted 서버와 SDK의 고정 의존성을 설치합니다. | 패키지 다운로드·로컬 설치. 모델 추론 없음. |
 | 4. `pip check` | 설치된 패키지들의 의존성 요구가 서로 충돌하는지 확인합니다. | 읽기 검사이며 오류가 있으면 다음 단계로 넘어가지 않습니다. |
 | 5. `check_sdk.py` | 샘플이 사용하는 SDK 클래스와 호출 계약을 로컬에서 검사합니다. | import/API 계약 검사이지 원격 배포·모델 품질 검사 결과는 아닙니다. |
@@ -70,9 +70,9 @@ Windows는 L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 �
 
 <a id="l12-azd"></a>
 
-**azd가 없다면** [공식 Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)에서 자기 OS의 승인된 설치 경로를 따르고 새 터미널을 엽니다. Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다.
+**azd가 없다면** [공식 Microsoft Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)에서 자기 OS의 승인된 설치 경로를 따르고 새 터미널을 엽니다. Microsoft Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다.
 
-azd는 Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. 아래 macOS/Linux의 `KEY=value` 문법을 Windows에서 바꾸는 방법은 [L00 명령 읽기](#l00)에 있습니다.
+azd는 Microsoft Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. 아래 macOS/Linux의 `KEY=value` 문법을 Windows에서 바꾸는 방법은 [L00 명령 읽기](#l00)에 있습니다.
 
 ```bash
 AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
@@ -88,7 +88,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
 | --- | --- | --- |
 | 1. `azd version` | 설치된 CLI 버전을 확인합니다. | 로컬 확인. 자동 업데이트하지 않습니다. |
 | 2. `azd extension list` | agent 확장과 실제 버전을 확인합니다. | 목록 조회. skill 설치는 필요 없습니다. |
-| 3. `auth login --check-status` | azd 사용자 인증 상태를 확인합니다. | 배포·모델 호출 없음. Azure CLI 로그인과 별도입니다. |
+| 3. `auth login --check-status` | azd 사용자 인증 상태를 확인합니다. | 배포·모델 호출 없음. Microsoft Azure CLI 로그인과 별도입니다. |
 
 </div>
 
@@ -112,7 +112,9 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login
 
 ## 실행
 
-### 1. Azure 호출 없이 패키지부터 만들기
+<a id="l14-1-azure-호출-없이-패키지부터-만들기"></a>
+
+### 1. Microsoft Azure 호출 없이 패키지부터 만들기
 
 ```bash
 python scripts/build_hosted.py
@@ -124,7 +126,7 @@ python scripts/build_hosted.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `build_hosted.py` | 체크인된 실행 코드·정책·설정에서 배포용 디렉터리와 ZIP, 파일 해시 명세를 생성합니다. | 로컬 `.build/` 산출물 변경. Azure 배포 없음. `.env`나 평가 정답을 압축에 넣지 않습니다. |
+| 1. `build_hosted.py` | 체크인된 실행 코드·정책·설정에서 배포용 디렉터리와 ZIP, 파일 해시 명세를 생성합니다. | 로컬 `.build/` 산출물 변경. Microsoft Azure 배포 없음. `.env`나 평가 정답을 압축에 넣지 않습니다. |
 
 </div>
 
@@ -151,7 +153,7 @@ python scripts/run_hosted_local.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `run_hosted_local.py` | 기본 Invocations 서버를 loopback 8088 포트에서 시작하고 안전한 환경 설정을 자식 프로세스에 전달합니다. | 서버 터미널을 켜 둡니다. 로컬 실행 위치라도 실제 요청은 Azure 모델·검색을 사용할 수 있습니다. 끝나면 Ctrl+C로 중지합니다. |
+| 1. `run_hosted_local.py` | 기본 Invocations 서버를 loopback 8088 포트에서 시작하고 안전한 환경 설정을 자식 프로세스에 전달합니다. | 서버 터미널을 켜 둡니다. 로컬 실행 위치라도 실제 요청은 Microsoft Azure 모델·검색을 사용할 수 있습니다. 끝나면 Ctrl+C로 중지합니다. |
 
 </div>
 
@@ -170,12 +172,12 @@ python samples/hosted_client.py invoke --local --live
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `curl --fail .../readiness` | 로컬 서버의 준비 endpoint를 읽습니다. `--fail`은 HTTP 오류를 실패로 처리합니다. | 서버 연결 확인이며 구매 질문·모델 호출은 아닙니다. |
-| 2. `invoke --local` | 호출 대상을 로컬로 선택하지만 `--live`가 없어 계획만 출력합니다. | 서버 업무 요청·Azure 추론 없음. `--local`만으로 실제 호출을 허용하지 않습니다. |
-| 3. `invoke --local --live` | 로컬 서버에 합성 구매 요청을 실제 보냅니다. `--live`는 서버 뒤의 모델·Search 호출 비용을 허용한다는 의미입니다. | 응답 JSONL과 함수·인용·계약 검사를 확인합니다. 로컬 결과를 Azure Hosted 배포 성공으로 표시하지 않습니다. |
+| 2. `invoke --local` | 호출 대상을 로컬로 선택하지만 `--live`가 없어 계획만 출력합니다. | 서버 업무 요청·Microsoft Azure 추론 없음. `--local`만으로 실제 호출을 허용하지 않습니다. |
+| 3. `invoke --local --live` | 로컬 서버에 합성 구매 요청을 실제 보냅니다. `--live`는 서버 뒤의 모델·Search 호출 비용을 허용한다는 의미입니다. | 응답 JSONL과 함수·인용·계약 검사를 확인합니다. 로컬 결과를 Microsoft Azure Hosted 배포 성공으로 표시하지 않습니다. |
 
 </div>
 
-**로컬 서버도 실제 Azure 모델·검색을 사용하므로 호출에는 비용이 발생합니다.**
+**로컬 서버도 실제 Microsoft Azure 모델·검색을 사용하므로 호출에는 비용이 발생합니다.**
 기본 bind는 loopback이며 인증 없는 개발 서버를 외부에 노출하지 않습니다.
 한 요청은 **도구 실행 최대 2라운드 → 답변 1회 → 출처 선택 1회**이며 최대 4회 모델 요청입니다. 도구/답변은 각각 최대 2,048토큰, 출처 선택은 512토큰입니다. 전체 서버 예산은 요청 최대 12회·300초·도구 기록 최대 8회이며 SDK 자동 재시도는 0회입니다.
 
@@ -200,7 +202,7 @@ python samples/hosted_client.py invoke --local --live
 두 모델의 실제 선택을 합쳐 표시합니다. 원문 답변과 출처 선택 응답 ID는 각각 보존합니다.
 초안·승인·권한 판단의 필수 인용이 빠지면 오류로 처리하며 서버가 자동 보충하지 않습니다.
 
-현재 패키지는 `agent-v2.txt`를 사용합니다. 명시적인 요청·도구 권한·실제 결과·주장별 인용을 구분하며, 지침 준비를 실제 Azure 검증과 혼동하지 않습니다. 자신의 패키지 해시와 실행한 버전의 원문을 대조합니다.
+현재 패키지는 `agent-v2.txt`를 사용합니다. 명시적인 요청·도구 권한·실제 결과·주장별 인용을 구분하며, 지침 준비를 실제 Microsoft Azure 검증과 혼동하지 않습니다. 자신의 패키지 해시와 실행한 버전의 원문을 대조합니다.
 
 </details>
 
@@ -314,7 +316,7 @@ async def handle(request: Request):
 | 포털의 agent version과 연결 | 정확한 숫자 version을 호출 입력/receipt에서 대조 |
 | 오류 처리 | 증거 기록 후 400/413/502를 실제 실패로 반환 |
 
-포털에서 handler 코드를 편집하는 것이 아니라, 이 코드가 포함된 container의 배포 유형·version을 확인합니다. `hosted_runtime.py`는 업무 흐름이고 `hosted/main.py`는 HTTP entrypoint입니다. 로컬 실행도 실제 Azure 서비스를 부를 수 있습니다.
+포털에서 handler 코드를 편집하는 것이 아니라, 이 코드가 포함된 container의 배포 유형·version을 확인합니다. `hosted_runtime.py`는 업무 흐름이고 `hosted/main.py`는 HTTP entrypoint입니다. 로컬 실행도 실제 Microsoft Azure 서비스를 부를 수 있습니다.
 
 </details>
 
@@ -333,7 +335,7 @@ health 실패는 entry point/의존성, 502는 보존된 upstream 오류, 403은
 
 로컬 서버는 시작한 터미널의 Ctrl+C로 종료합니다. 중단된 실행은
 `python scripts/stop_sessions.py`로 **기록된 세션만** 정지합니다.
-agent/version/session 파일·Azure 자원은 남습니다. 남은 storage·로그·Search 비용을 L19에 기록합니다.
+agent/version/session 파일·Microsoft Azure 자원은 남습니다. 남은 storage·로그·Search 비용을 L19에 기록합니다.
 
 Hosted의 `/app`은 읽기 전용입니다. 원격 원시 증거는 세션의 `$HOME/.contoso/evidence`에만
 기록하고 코드 폴더에 쓰지 않습니다. 이를 패키지에 포함하지 않습니다.

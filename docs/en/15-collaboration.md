@@ -22,7 +22,7 @@
 
 **How do you use it?** Run both patterns against the same policy and question. Inspect intermediate answers and actual delegation calls without increasing iteration or cost limits.
 
-**Where do you run it?** Run [multi_agent.py](../../samples/multi_agent.py) in `.venv-advanced`. Only the model is in Azure; no Hosted or remote A2A server is created.
+**Where do you run it?** Run [multi_agent.py](../../samples/multi_agent.py) in `.venv-advanced`. Only the model is in Microsoft Azure; no Hosted or remote A2A server is created.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ Reuse [L13's setup](#l15): `.venv-advanced`, `.env`, **your own** `results/azure
 
 | Current state | Steps to follow | What to retain |
 | --- | --- | --- |
-| No Azure approval | Read both plans in step 1 | Explain differences and call limits; actual execution remains not performed |
+| No Microsoft Azure approval | Read both plans in step 1 | Explain differences and call limits; actual execution remains not performed |
 | Model, receipt, and cost approval ready | Plan → group chat → inspect → handoff → compare | Two original files and a revision/delegation comparison |
 
 No additional resources need deployment. Both patterns together use **at most seven model calls**. Preserve **180 seconds per run, 2,048 output tokens per response, and zero retries**. Start the next pattern **at least one minute** after the previous start.
@@ -52,7 +52,7 @@ No additional resources need deployment. Both patterns together use **at most se
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `--mode group-chat` | Read the drafter → reviewer → revised draft plan. | No SDK initialization, Azure call, or execution evidence. Plans at most three calls. |
+| 1. `--mode group-chat` | Read the drafter → reviewer → revised draft plan. | No SDK initialization, Microsoft Azure call, or execution evidence. Plans at most three calls. |
 | 2. `--mode handoff` | Read the coordinator → policy or budget specialist plan. | No actual delegation. Plans at most four calls. |
 
 </div>
@@ -126,7 +126,7 @@ Compare the Builder responsibilities using the official [group-chat](https://lea
 
 #### Portal model deployment and Group chat/Handoff code
 
-L14 has no Group chat/Handoff editor in the Foundry portal. The portal supplies the model deployment; Python Agent Framework code selects participants, routes messages, and defines termination.
+L14 has no Group chat/Handoff editor in the Microsoft Foundry portal. The portal supplies the model deployment; Python Agent Framework code selects participants, routes messages, and defines termination.
 
 ```python
 from agent_framework.orchestrations import GroupChatBuilder, HandoffBuilder
@@ -164,7 +164,7 @@ handoff_workflow = (
 | `participants` | Agent author for each stage |
 | `selection_func`, `max_rounds` | Who spoke in group chat and where it stopped |
 | `with_start_agent`, `add_handoff` | Whether a real control transfer appears in `handoff_calls` |
-| Portal model deployment | Approved Foundry model called by each participant |
+| Portal model deployment | Approved Microsoft Foundry model called by each participant |
 
 Participants are SDK agents from `build_role()`. Group chat stops after three assistant turns; handoff stops after a specialist answer. `multi_agent.py` executes only the chosen workflow, without storing this graph in the portal.
 

@@ -22,7 +22,7 @@
 
 **How do you use it?** Follow only the row for work you performed. Check execution state, shared use, and ownership. Delete only approved targets and recheck costs after billing delays.
 
-**Where do you run it?** For local-only work, stop your PC's server. For Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../../scripts/stop_sessions.py) acts without `--live`.
+**Where do you run it?** For local-only work, stop your PC's server. For Microsoft Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../../scripts/stop_sessions.py) acts without `--live`.
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ Collect **your L01 environment receipt** `results/azure-environment.json`, porta
 
 | What you did | What to do now |
 | --- | --- |
-| Reading, local data, or local functions only | If you started L07's server, press Ctrl+C in its terminal. Do not run Azure deletion commands when you created no Azure resources |
+| Reading, local data, or local functions only | If you started L07's server, press Ctrl+C in its terminal. Do not run Microsoft Azure deletion commands when you created no Microsoft Azure resources |
 | Created the L01 environment/portal agents/files | Compare your receipt/names with step 3; verify model/log/file retention or deletion scope |
 | Ran L04/L05/L06 through the SDK | Find the `--receipt` path in the final `Cleanup:` command; review step 2 |
 | Collected/evaluated in L08 | Inspect the collection/evaluation JSON's agent names and eval/run IDs separately; these are not `workshop.py cleanup` receipts |
@@ -65,7 +65,7 @@ python scripts/operations_status.py
 | --- | --- | --- |
 | 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
 | 2. `routine_lab.py stop --receipt ... --live` | Disables the exact L16 schedule; distinguish manual/timer receipt paths. | Actual state change, no routine/RG deletion. Replace the path if you used a different file. |
-| 3. `operations_status.py` | Reads current sessions/schedules/evaluation work in your environment. | Actual Azure read without `--live`; active work/query failures remain errors or unverified. |
+| 3. `operations_status.py` | Reads current sessions/schedules/evaluation work in your environment. | Actual Microsoft Azure read without `--live`; active work/query failures remain errors or unverified. |
 
 </div>
 
@@ -73,7 +73,7 @@ Use each command only if you ran the corresponding lab and have its receipt.
 `operations_status.py` is a **read-only query scoped by ownership records**.
 `operations_status.py` checks sessions, optimizer jobs, active evaluation schedules, and routines;
 it distinguishes optional adapters that are absent from the current project's actual agent inventory. It also finds owned routine receipts under `results/` to query current state when L16 used a custom `--receipt` filename.
-**In a no-deletion environment, retain owned Azure resources until explicit deletion approval.**
+**In a no-deletion environment, retain owned Microsoft Azure resources until explicit deletion approval.**
 Disable routines and stop only recorded Hosted compute, then verify those exact states. A previous report does not establish that all work is inactive now. `cleanup --live`, `azd down`,
 and resource-group deletion are not run automatically. The deletion path requires approval of the exact targets. Inspect your environment rather than another run's status.
 
@@ -81,7 +81,7 @@ and resource-group deletion are not run automatically. The deletion path require
 
 ### 2. Delete only the exact SDK lab resources
 
-Each Azure sample prints a **cleanup command containing your own run ID** on its final line.
+Each Microsoft Azure sample prints a **cleanup command containing your own run ID** on its final line.
 Use it only after checking resource-retention/deletion approval.
 
 ```text
@@ -110,7 +110,7 @@ Cleanup processes recorded conversations → lab-only agent → vector store →
 | Published channels, Bots, and apps | Verify user-access revocation separately from resource cleanup |
 | Fine-tuned deployments and models | Distinguish deployment deletion from deletion of a trained model |
 
-Do not assume vector store expiration removes the original files. Agents, projects, and connected Azure resources can have different lifecycles.
+Do not assume vector store expiration removes the original files. Agents, projects, and connected Microsoft Azure resources can have different lifecycles.
 
 ### 4. Make a final cost and data check
 
@@ -134,7 +134,19 @@ python scripts/cost_status.py
 
 Allow for Cost Management delay and set a **next-day recheck time**. Review your own dedicated environment; separately record responsibility if handing over retained resources. Turning off alerts does not stop billing.
 
-Retain only the minimum results needed for learning, and remove real PII, tokens, and connection secrets. Delete a resource group **only after its owner confirms it is a dedicated lab group**, and after reviewing the scope in the Azure portal. This guide does not provide a broad `az group delete` command.
+Retain only the minimum results needed for learning, and remove real PII, tokens, and connection secrets. Delete a resource group **only after its owner confirms it is a dedicated lab group**, and after reviewing the scope in the Microsoft Azure portal. This guide does not provide a broad `az group delete` command.
+
+<a id="l12-codespaces"></a>
+
+### 5. Stop GitHub Codespaces separately if you used it
+
+**Microsoft Azure cleanup and stopping a Codespace are separate actions.** First save resource states, the next cost-check time, and your results. Do not preserve `.env`, authentication data, or raw results by committing them to Git.
+
+1. Open [Your Codespaces](https://github.com/codespaces), choose **… → Stop codespace** for the environment you used, and verify that it stopped. Closing the browser tab can leave it running.
+2. Stopping ends Codespace processes and compute, but **storage charges may remain**. It does not stop or delete Microsoft Azure models, Search, logs, or schedules.
+3. To resume, open the same Codespace and use [L01's new-terminal check](#l01-new-terminal). Before deletion or automatic retention expiry, confirm an approved private way to retain needed ownership records/results. Lost records are not a reason to create replacement Microsoft Azure resources.
+
+[Official stop/resume instructions](https://docs.github.com/en/codespaces/developing-in-a-codespace/stopping-and-starting-a-codespace) · [GitHub compute/storage charges](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)
 
 <details class="implementation-detail" markdown="1">
 <summary>Implementation reference: cleanup deletes only receipt-scoped targets — read only, do not execute</summary>
@@ -166,7 +178,7 @@ for resource in ordered:
         client.files.delete(file_id=resource_id)
 ```
 
-| What to inspect in the Azure portal | What to inspect in the receipt/code |
+| What to inspect in the Microsoft Azure portal | What to inspect in the receipt/code |
 | --- | --- |
 | Actual ID/state for each agent/conversation/vector store/file | `kind`, `id`, and `cleanup_status` in `receipt["resources"]` |
 | Retained model deployments, Search, or Storage | If outside the workshop receipt, record a separate owner and retention date |
@@ -185,7 +197,7 @@ For each created resource, record **state (deleted / shared / retained)** togeth
 | --- | --- | --- | --- |
 | Record each resource you created | Observed value; write unverified if you could not inspect it | Assign explicitly | Assign explicitly |
 
-If you created no Azure resources, write **“local exercises only / no Azure creation.”** If you started L07's server, confirm it stopped in that terminal.
+If you created no Microsoft Azure resources, write **“local exercises only / no Microsoft Azure creation.”** If you started L07's server, confirm it stopped in that terminal.
 
 For environments where deletion is prohibited, record “Retain until explicit deletion approval.”
 Search Basic, logs, and storage may continue to incur costs without requests.
@@ -197,11 +209,11 @@ Do not hide deletion errors. Record the resource ID, error code, and responsible
 
 ## Cleanup
 
-Your selected labs and shared wrap-up are complete. If you add electives later, return here for the resources created then. Resetting the progress display does not delete Azure resources.
+Your selected labs and shared wrap-up are complete. If you add electives later, return here for the resources created then. Resetting the progress display does not delete Microsoft Azure resources.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Actual state, owner, retention deadline, and next cost-check time for each resource. Local-only learners record no Azure creation and confirm server shutdown.
+**Keep:** Actual state, owner, retention deadline, and next cost-check time for each resource. Local-only learners record no Microsoft Azure creation and confirm server shutdown.
 
 **Continue:** Complete the [progress checklist](#instructor) with actual execution/local/design/not-run labels for your chosen scope. Unqueried resources or costs remain unverified.
 

@@ -26,13 +26,13 @@
 
 ## Prerequisites
 
-Use L01's sign-in, virtual environment, `.env`, and L02's ready deployment. Verify model-invocation access and cost scope for one request. This example targets Azure public cloud; sovereign clouds need their own authentication/domain settings.
+Use L01's sign-in, virtual environment, `.env`, and L02's ready deployment. Verify model-invocation access and cost scope for one request. This example targets Microsoft Azure public cloud; sovereign clouds need their own authentication/domain settings.
 
 ## Steps
 
 ### 1. Match portal settings with Python arguments
 
-**On the default path, do not select Send here; use step 3's Python command.** Send the question in Chat only for the portal alternative, then omit Python's `--live` call. Step 2's excerpt is an expandable reading reference.
+**On the default path, do not select Send here; use step 2's Python command.** Send the question in Chat only for the portal alternative, then omit Python's `--live` call. The collapsed SDK excerpt is a reading reference.
 
 Open **Build → Models → Deployments → contoso-chat → Playground**. Do not select **Save as agent**. Verify a model-only request without extra instructions or retrieval tools.
 
@@ -57,9 +57,11 @@ How should you respond when no company policy has been provided?
 The screenshot's 256 is an example. Set 512 to match this code's budget and keep unnecessary **Web search** tools off. Do not add unsupported Temperature/Top P settings.
 
 <details class="implementation-detail" markdown="1">
-<summary>Implementation reference: read the SDK request — execute through step 3 below</summary>
+<summary>Implementation reference: read the SDK request — execute through step 2 below</summary>
 
-### 2. Read the direct SDK request
+<a id="l03-2-read-the-direct-sdk-request"></a>
+
+### Read the direct SDK request
 
 Trace connection → request → response validation below. The endpoint is a placeholder; find where `client` and `response` are created. **This is a reading block**. Use the next step's `--live` command to execute the request once.
 
@@ -100,31 +102,49 @@ The executable adds `.env` loading, input-size checks, and `--live` opt-in. `rea
 
 </details>
 
-### 3. Inspect the plan, then execute once
+<a id="l03-3-inspect-the-plan-then-execute-once"></a>
+
+### 2. Inspect the plan, then execute once
 
 ```bash
 python samples/first_response.py
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — inspect the question without sending it.**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `first_response.py` | Prints the default question and `PLAN ONLY`. | No Microsoft Azure request, configuration validation, or sign-in. |
+
+</div>
+
+**Stop and check:** Confirm the planned question, the project/deployment in `.env`, and cost scope for one request before continuing. If you already selected portal Send, **skip this command and read that answer instead.**
+
+```bash
 python samples/first_response.py --live
 ```
 
 <div class="command-explanation" markdown="1">
 
-**Command walkthrough — execute the second line only when the inspected scope is correct.**
+**Command walkthrough**
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `first_response.py` | Prints the default question and `PLAN ONLY`. | No Azure request, configuration validation, or sign-in. |
-| 2. `first_response.py --live` | Sends one question to the project/deployment in `.env`. | At most 512 output tokens, zero automatic SDK retries, 60-second request timeout. Billable inference; no agent/store creation. |
+| 1. `first_response.py --live` | Sends one question to the project/deployment in `.env`. | At most 512 output tokens, zero automatic SDK retries, 60-second request timeout. Billable inference; no agent/store creation. |
 
 </div>
 
-If you already selected portal Send, skip the second line and inspect that answer. Portal and Python are separate requests, and even identical questions can produce different IDs/wording.
+Portal and Python are separate requests, and even identical questions can produce different IDs/wording.
 
 Record the answer, status, and `response_id`. No company policy was supplied, so definite price limits or stock claims are unsupported. If the portal does not expose an ID, record it unverified rather than inventing one.
 
 `first_response.py` **prints to the terminal; it does not save a result file automatically.** Keep the question, deployment, answer, and ID in your private progress record. L06's integrated run creates the separate response JSONL used in L10.
 
-### 4. Change one input
+<a id="l03-4-change-one-input"></a>
+
+### 3. Change one input
 
 Change the question without transmitting it first:
 

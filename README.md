@@ -8,21 +8,28 @@ Build a synthetic Contoso purchasing assistant through **20 labs and five refere
 
 ## First time here?
 
-**You create your own environment and follow the guide end to end.** In L01, prepare your PC/subscription, verify permissions/budget, and create a dedicated Foundry project, models, and telemetry. Then build agents, retrieval, tools, evaluations, and traces. Actual operations require the relevant scoped Azure permissions and cost approval.
+**For a first run, follow core L00–L10 → shared wrap-up L19.** Create your own environment in L01 and verify scoped permissions and cost approval before actual Microsoft Azure operations. Advanced L11–L18 are not required for core completion.
 
 1. Read [L00: the basics](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l00-first-steps) to see what you will build.
-2. Extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip), then follow [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01) for PC/project setup. Git commands are not required.
-3. Follow **Format → Start here → What to check** in each module. Take 11 core modules in order, choose among eight advanced electives, and finish with shared wrap-up L19.
+2. **For fewer local installations, choose the [GitHub Codespaces route](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-codespaces).** To use your own PC instead, extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) and follow [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01). Use one environment, not both; Git commands are not required.
+3. Read each module's start card, then follow **Prerequisites → Steps → Success criteria → Cleanup**. Check **Keep / Continue** before using **Next** at the bottom of the page.
 
-The web reader starts with **11 core modules plus one shared wrap-up** and counts progress only within the selected path. Action-led titles also identify features such as Responses API, File search, Function Calling, Evaluation, and Tracing. **Explain a term / I'm stuck** opens help with a return link to the original lab.
+| What you need while learning | How to use the guide |
+| --- | --- |
+| Installation or resuming | In L01, check versions and expand installation instructions only for missing tools. Use **Return in a new terminal** on another day. |
+| Commands, questions, or settings | Check the **terminal / portal Chat / .env / expected output** label first. Inspect the plan, pause, then copy the actual execution command separately. |
+| A term or an error | Open **Explain a term / I'm stuck**, then **Return to the lab** to resume at the same reading position. |
+| Completion and records | Check success criteria against actual results. Browser progress is a learning marker, not proof of Microsoft Azure execution. |
 
-Blocks distinguish **terminal commands / portal Chat / .env settings / expected output**. On narrow screens, command walkthroughs read vertically. L01 explains new-terminal and Windows Python selection. L06's `read-result --input` displays saved answers, function results, and citations **without new Azure calls**, changing neither originals nor evaluation judgments.
+Collapsed **implementation references and optional extensions** are not a to-do list. The core path checks your answers, evidence, function results, evaluations, and logs; it does not require a separate capstone, Teams publishing, Hosted, or Optimizer.
 
-For a first run, follow **Prerequisites → Steps → Success criteria → Cleanup**, opening collapsed **implementation references** only when needed. Every module ends with **Keep / Continue** to identify saved results and reused targets. L03 defaults to one Python request; L04/L05/L09 reuse one portal policy agent; L06 and L08 create separate SDK agents. L08 collection and evaluation use separate command blocks with an original-completion check between them.
+**Not ready for Microsoft Azure?** Select **Without Microsoft Azure** in the web contents. Follow only the stated local, reading, and design steps, separately from live completion. When choosing an elective, check its prerequisites first.
 
-Without Azure access, practice local functions and read L08's inputs, separately from live completion. The default path collects/evaluates your own answers and reads your logs. Review integration in L06 and optional publishing/version management in L18. No separate capstone, Teams publishing, Hosted, or Optimizer is required for core completion.
+### Minimize installation with GitHub Codespaces
 
-Every advanced lab identifies its starting path, configuration sources, and result locations. Create the L11 Search/L12 Hosted resources yourself. Agent Framework is split into L13 sequential/concurrent and L14 group-chat/handoff. L17 access and L18 CI/CD use local repairs/design, separately from actual Azure validation or publishing.
+With a browser and GitHub account, open **repository → Code → Codespaces → New with options**. Select the lab branch containing `.devcontainer/devcontainer.json` and review the payer, allowance, and machine before creating it. The configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, and core/MCP dependencies. **You do not need Python, CLI, VS Code, or Docker installed on your own PC.**
+
+Wait for post-creation setup to finish, then run L01's readiness checks. Microsoft Azure authentication, permissions, and cost approval remain separate; no resources are created automatically. Use **Linux/Bash commands** in Codespaces even from a Windows PC. At [L19](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l12), check Microsoft Azure resources and the Codespace **separately**. Stopping a Codespace can leave storage charges and Microsoft Azure resource charges.
 
 <details>
 <summary>Instruction learning path and model conditions</summary>
@@ -50,7 +57,7 @@ Extract the ZIP first and keep its structure. Open `index.html` or `index.ko.htm
 Open Markdown inside the kit's `downloads/` folder to resolve its images and source links.
 The core course is **L00–L10, about 4 hours 45 minutes**. Advanced electives are **L11–L18**, followed by **L19 shared wrap-up (10 minutes)**; lab numbers are continuous from 00 through 19. Core-only learners go directly from L10 to L19; others finish their selected electives before L19. Reading requires no sign-in.
 
-Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Azure results; record design completion separately from actual execution. L18's default CI/release-design path does not require Hosted deployment.
+Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Microsoft Azure results; record design completion separately from actual execution. L18's default CI/release-design path does not require Hosted deployment.
 
 ## Compare instruction versions
 
@@ -69,7 +76,7 @@ Rebuild locally on macOS with installed FFmpeg, system voices, and the declared 
 Use only synthetic Contoso data. These tools never place real orders, take payments, or grant business approval.
 Keep private `.env`, `.azure/`, credentials, and raw personal execution files out of Git and the kit.
 Select `FOUNDRY_LAB_LANGUAGE=en` in the separate English environment; Korean remains the default. Do not mix environments or ownership receipts.
-New Azure calls, access changes, and resource deletion require explicit scope and approval.
+New Microsoft Azure calls, access changes, and resource deletion require explicit scope and approval.
 
 ## Edit and regenerate
 
@@ -87,7 +94,7 @@ python scripts/package_guide.py
 ```
 
 The same checked-in sources produce both HTML/Markdown editions and one ZIP. Keep local reports under private `results/documentation/`; do not package them.
-Local checks are not Azure execution or measured model improvement.
+Local checks are not Microsoft Azure execution or measured model improvement.
 
 Learner-facing numbers come from `number` in `content/chapters.json`. Existing IDs and source filenames remain stable identifiers for links, progress, and historical records, so they can differ from display numbers. The former `#l11` link opens L06's integration review; historical validation numbers and originals remain unchanged.
 
@@ -96,7 +103,7 @@ Learner-facing numbers come from `number` in `content/chapters.json`. Existing I
 Pages serves the **root of the `main` branch** (`/`). A push to `main` automatically publishes the checked-in HTML and download files; no separate publishing branch is needed.
 Merging into `main` still requires approval and now also publishes the site. Regenerate and review HTML/Markdown/ZIP before merging; Pages does not run the guide generators.
 The existing validation workflow and Pages deployment run independently: **Pages does not wait for validation to finish**.
-Keep `.nojekyll` and do not force-push. Branch deletion, repository visibility changes, and Azure operations require explicit approval.
+Keep `.nojekyll` and do not force-push. Branch deletion, repository visibility changes, and Microsoft Azure operations require explicit approval.
 Use `python scripts/check_pages.py` after deployment to compare the public HTML/assets with the merged sources.
 
 This is not an official Microsoft curriculum. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).

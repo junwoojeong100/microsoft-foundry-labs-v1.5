@@ -22,7 +22,7 @@
 
 **How do you use it?** Compare portal readiness with the ownership record and save the same name in `.env`. Inspect insufficient capacity before changing it within your scope.
 
-**Where do you run it?** Use Models in the Foundry portal and [model_capacity.py](../../samples/model_capacity.py) in your terminal. Listing models/limits is not inference.
+**Where do you run it?** Use Models in the Microsoft Foundry portal and [model_capacity.py](../../samples/model_capacity.py) in your terminal. Listing models/limits is not inference.
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ L01's `GlobalStandard` is a usage-based example. Project location, model availab
 
 | Type | What to verify |
 | --- | --- |
-| Standard | Azure geography processing scope and availability |
+| Standard | Microsoft Azure geography processing scope and availability |
 | Global Standard | Processing across supported worldwide regions is permitted |
 | Data Zone Standard | The designated zone; APAC does not mean Korea alone |
 | Provisioned / PTU | Reserved capacity/cost; not created for the core course |
@@ -121,7 +121,6 @@ For the portal form comparison, **Deploy → Custom settings** on a model card e
 
 ```bash
 python samples/model_capacity.py plan --learners 1
-python samples/model_capacity.py check --learners 1 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -131,7 +130,22 @@ python samples/model_capacity.py check --learners 1 --live
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
 | 1. `plan --learners 1` | Calculates request budgets and recommended limits. | Local only; use actual simultaneous learner count for shared deployments. |
-| 2. `check ... --live` | Reads your RG, model/version, SKU, and actual `rateLimits`. | Read-only; insufficient limits fail without a model test. |
+
+</div>
+
+**After reading the plan, query the actual limits.** This command does not send a model question or change the deployment.
+
+```bash
+python samples/model_capacity.py check --learners 1 --live
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `check ... --live` | Reads your RG, model/version, SKU, and actual `rateLimits`. | Read-only; insufficient limits fail without a model test. |
 
 </div>
 
@@ -152,7 +166,7 @@ python samples/model_capacity.py apply --learners 1 --max-capacity 100 --confirm
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `apply ... --confirm ... --live` | Checks required units/quota, changes only insufficient capacity, and reads it back. | Actual Azure change; retains model/version/protection settings and creates no PTU. |
+| 1. `apply ... --confirm ... --live` | Checks required units/quota, changes only insufficient capacity, and reads it back. | Actual Microsoft Azure change; retains model/version/protection settings and creates no PTU. |
 
 </div>
 

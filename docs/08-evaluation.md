@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 지침·질문 비교 → 내 응답 수집 → 같은 원문의 Foundry 평가 → 이유 분석.
+**진행 방식:** 지침·질문 비교 → 내 응답 수집 → 같은 원문의 Microsoft Foundry 평가 → 이유 분석.
 
 **먼저 할 일:** 동봉 지침 두 개와 고정 질문을 읽고, 답변에서 확인해야 할 항목을 적습니다.
 
@@ -26,12 +26,12 @@
 
 ## 준비
 
-L01에서 만든 **자신의 프로젝트·chat/judge 배포·소유 기록**을 사용합니다. 타인의 결과를 받아 실습 성공으로 기록하지 않습니다. Azure 실행 조건이 없을 때는 지침·질문·채점 기준만 읽고 실제 평가 미실행으로 남깁니다.
+L01에서 만든 **자신의 프로젝트·chat/judge 배포·소유 기록**을 사용합니다. 타인의 결과를 받아 실습 성공으로 기록하지 않습니다. Microsoft Azure 실행 조건이 없을 때는 지침·질문·채점 기준만 읽고 실제 평가 미실행으로 남깁니다.
 
 | 용어 | 쉬운 뜻 |
 | --- | --- |
 | v1 / v2 | 시작 지침 / 개선한 지침. 서비스의 agent version 번호와는 별개 |
-| Judge / Native 평가 | 채점용 모델 / Foundry 서비스가 수행하는 평가 |
+| Judge / Native 평가 | 채점용 모델 / Microsoft Foundry 서비스가 수행하는 평가 |
 | 완결성 / 관련성 / 근거성 | 요청을 다 다뤘는가 / 질문에 맞는가 / 자료가 답을 뒷받침하는가 |
 | Dev / Holdout | 개선 과정에서 보는 연습 자료 / 개선에 노출하지 않는 별도 최종 시험지 |
 
@@ -72,7 +72,7 @@ python samples/instruction_prompt_agent_lab.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `instruction_prompt_agent_lab.py` | v1/v2와 고정 질문 12개, 모델, 호출 상한을 읽습니다. | 계획만 출력하며 Azure 호출은 없습니다. |
+| 1. `instruction_prompt_agent_lab.py` | v1/v2와 고정 질문 12개, 모델, 호출 상한을 읽습니다. | 계획만 출력하며 Microsoft Azure 호출은 없습니다. |
 
 </div>
 
@@ -106,7 +106,7 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. Native 평가 `--live` | `--input`의 실제 원문 24개를 Foundry 평가에 제출합니다. L06 응답 JSONL이나 소유 receipt를 넣지 않습니다. | 대상 모델 재호출 0건. 언어별 Native 1회·600초·취소 확인 90초 이내. 점수·이유는 `--output`에 기록합니다. |
+| 1. Native 평가 `--live` | `--input`의 실제 원문 24개를 Microsoft Foundry 평가에 제출합니다. L06 응답 JSONL이나 소유 receipt를 넣지 않습니다. | 대상 모델 재호출 0건. 언어별 Native 1회·600초·취소 확인 90초 이내. 점수·이유는 `--output`에 기록합니다. |
 
 </div>
 
@@ -119,7 +119,7 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 
 #### 포털 평가와 실제 SDK 호출의 대응
 
-응답 수집과 평가는 서로 다른 API 호출입니다. 수집 스크립트는 대상 Prompt Agent를 v1/v2의 고정 버전으로 한 번씩 호출하고, 평가는 저장된 24개 원문을 Foundry evaluator에 제출합니다.
+응답 수집과 평가는 서로 다른 API 호출입니다. 수집 스크립트는 대상 Prompt Agent를 v1/v2의 고정 버전으로 한 번씩 호출하고, 평가는 저장된 24개 원문을 Microsoft Foundry evaluator에 제출합니다.
 아래는 실제 호출 부분 발췌입니다. `shared_input`은 한 문항의 질문과 동일 정책 문맥, `criteria`는 완결성·관련성·근거성의 고정 evaluator 설정, `rows`는 저장된 24개 원문입니다. `data_source_config`는 각 행의 필수 필드를 정의한 schema이며 코드 발췌를 단독 실행하지 않습니다.
 
 ```python
@@ -148,7 +148,7 @@ native = client.evals.runs.create(
 )
 ```
 
-| Foundry portal | 원본 코드에서 확인할 값 |
+| Microsoft Foundry portal | 원본 코드에서 확인할 값 |
 | --- | --- |
 | Agents → Versions | `agent_reference.name/version`이 각 응답에 사용한 지침 버전 |
 | Evaluations → Criteria | `testing_criteria=criteria`와 고정 judge deployment |
@@ -182,7 +182,7 @@ Native 완결성·관련성·근거성은 **1–5 ordinal** 점수입니다. 관
 
 로컬 체크리스트는 12문항의 총 40개 기준을 검사하는 **기계적인 텍스트·인용 체크**입니다. 표현 차이를 놓칠 수 있으므로 자동 의미 평가나 업무 safety/access 게이트로 사용하지 않습니다.
 
-![Foundry 평가 화면. 실행 상태와 행별 점수·오류·누락을 구분하는 위치를 확인합니다.](../assets/portal/08-evaluations.png)
+![Microsoft Foundry 평가 화면. 실행 상태와 행별 점수·오류·누락을 구분하는 위치를 확인합니다.](../assets/portal/08-evaluations.png)
 
 포털 **Build → Evaluations**에서 자신의 실행을 찾고 상태, 평가자, 행별 결과를 확인합니다. `completed`만으로 모든 행의 점수가 유효하다고 판단하지 않습니다. 오류·누락·숫자가 아닌 점수는 실패이며, 임의로 0점이나 통과로 채우지 않습니다.
 

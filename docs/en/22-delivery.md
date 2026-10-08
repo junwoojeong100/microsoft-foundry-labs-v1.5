@@ -12,7 +12,7 @@
 
 ## Objectives
 
-**Passing source checks, deploying to Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.
+**Passing source checks, deploying to Microsoft Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.
 
 **What does this add?** Practice blocking a bad promotion and choosing a recovery target when you want delivery/operations automation. This is a capability choice, not a participant-persona split. Neither documentation builds nor Teams publishing is a core completion requirement.
 
@@ -48,10 +48,10 @@ Open `validate.yml` in an editor and locate `on`, `jobs`, `needs`, and `if`. Com
 
 | What to inspect | How to judge it | Next action on failure |
 | --- | --- | --- |
-| `push` / `pull_request` → `offline`, `sdk` | Document/data/code and SDK contract checks, not Azure deployment | Read the failed job's **first error and command**, not just its final “failed” message |
+| `push` / `pull_request` → `offline`, `sdk` | Document/data/code and SDK contract checks, not Microsoft Azure deployment | Read the failed job's **first error and command**, not just its final “failed” message |
 | `azure` with `needs: [offline, sdk]` | Both prerequisite checks must pass before the paid path can run | Do not call a failed/skipped job a successful deployment |
 | `workflow_dispatch`, `acknowledge_cost`, `repository_id` | Explicit opt-in and this repository's identity; forks do not inherit access | Keep the default false; do not remove repository or approval conditions for the exercise |
-| `environment`, `id-token: write` in `azure-validation.yml` | OIDC authenticates a workflow identity; Azure roles and environment approval remain separate | Escalate branch/environment/tenant/project mismatches; do not substitute a long-lived secret |
+| `environment`, `id-token: write` in `azure-validation.yml` | OIDC authenticates a workflow identity; Microsoft Azure roles and environment approval remain separate | Escalate branch/environment/tenant/project mismatches; do not substitute a long-lived secret |
 
 If GitHub is available, open **Actions → run → job → failed step** and locate the same items. Otherwise inspect sources and record “workflow execution unverified.” The default exercise requires neither a new push nor a paid workflow dispatch.
 
@@ -75,9 +75,9 @@ python scripts/check_guide.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Azure calls. |
+| 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Microsoft Azure calls. |
 | 2. `build_guide.py` | Generate both HTML/Markdown editions from sources and metadata. | Local file changes; do not edit generated output manually. |
-| 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Azure or model quality. |
+| 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Microsoft Azure or model quality. |
 | 4. `check_guide.py` | Check 20 modules and five reference sections, command explanations, links, and image files. | Save documentation checks to `results/documentation/`. |
 
 </div>
@@ -105,7 +105,7 @@ python -m unittest discover -s practice/delivery -p "test_exercise.py" -v
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `prepare_practice.py delivery` | Copies a flawed function, tests, and an optional workflow template into a new folder. | Local files only; no GitHub push or Azure deployment. |
+| 1. `prepare_practice.py delivery` | Copies a flawed function, tests, and an optional workflow template into a new folder. | Local files only; no GitHub push or Microsoft Azure deployment. |
 | 2. `unittest discover` | Separates a good candidate, failed run, quality failure, critical failure, and missing row. | Initially **three of five tests fail intentionally**. Do not hide these failures. |
 
 </div>
@@ -134,7 +134,7 @@ def choose_version(previous: str, candidate: str, checks: dict) -> str:
 
 **Explain the result:** Describe the incorrect promotion prevented by each of the three failed tests. Complete a `previous version / candidate / failure evidence / version to keep` table. This function performs neither deployment nor state migration, so do not call it completed remote rollback.
 
-**Optional: observe the same failure→repair in GitHub.** Use only a new branch in an approved personal training repository. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit, then on a commit changing only `exercise.py`; expect failure then success. The template has manual dispatch, read-only permissions, and Python checks—no Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
+**Optional: observe the same failure→repair in GitHub.** Use only a new branch in an approved personal training repository. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit, then on a commit changing only `exercise.py`; expect failure then success. The template has manual dispatch, read-only permissions, and Python checks—no Microsoft Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
 
 </div>
 
@@ -220,21 +220,21 @@ Record **RTO (target service recovery time)** and **RPO (acceptable data-loss in
 
 #### Local promotion code versus portal Publish
 
-`practice/delivery/exercise.py`'s `choose_version()` is a **local candidate-selection function**. As in the repair example above, it returns the candidate only when all four checks pass. It does not change a Foundry agent version or publish anything.
+`practice/delivery/exercise.py`'s `choose_version()` is a **local candidate-selection function**. As in the repair example above, it returns the candidate only when all four checks pass. It does not change a Microsoft Foundry agent version or publish anything.
 
 | What the exercise inspects | What actually happens |
 | --- | --- |
 | `choose_version(previous, candidate, checks)` | Returns either the prior version or candidate in a local fixture |
 | `test_exercise.py` | Checks local combinations of completion, quality, critical failures, and missing rows |
-| Agent version/Publish in the Foundry portal | Separate approved operations to select and publish an exact numeric agent version |
-| `azure-validation.yml` | A separate manual approval path; local fixture tests do not run the Azure workflow |
+| Agent version/Publish in the Microsoft Foundry portal | Separate approved operations to select and publish an exact numeric agent version |
+| `azure-validation.yml` | A separate manual approval path; local fixture tests do not run the Microsoft Azure workflow |
 
 A passing local test and an actual portal Publish are different records. The core exercise runs only the first two rows and does not claim that a real version change or Publish was completed.
 
 ## Success criteria
 
 Reproduce the three local failures, repair only the function, and obtain five passes. If you use GitHub, distinguish failed/passing runs from their different commits.
-Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Azure not executed. Hold promotion without quality evidence for the same candidate.
+Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Microsoft Azure not executed. Hold promotion without quality evidence for the same candidate.
 If you choose publishing, separately record the runnable agent version, app Publish version, audience, and invocation results. Publishing success alone is neither business-release approval nor a complete authorization assessment.
 
 ## Troubleshooting
@@ -243,7 +243,7 @@ If `azure` is skipped, read its opt-in condition; skipping on an ordinary push i
 
 ## Cleanup
 
-Exclude private settings, raw responses, and receipts from the kit. Keep your CI interpretation, release manifest, and recovery decision together. Actual paid runs, access changes, and Azure deletion each require separate approval. Check remaining resources and costs in L19.
+Exclude private settings, raw responses, and receipts from the kit. Keep your CI interpretation, release manifest, and recovery decision together. Actual paid runs, access changes, and Microsoft Azure deletion each require separate approval. Check remaining resources and costs in L19.
 
 <div class="lab-handoff" markdown="1">
 
