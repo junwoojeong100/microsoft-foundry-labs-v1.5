@@ -185,9 +185,9 @@ Do not start by uploading the documents again. Check the connected vector store 
 Retain the knowledge connection for later labs. SDK store expiration **one day after last activity** does not delete uploaded files. In L19, inspect remaining resources and delete only approved targets or record retention deadlines.
 
 <details markdown="1">
-<summary>When should you choose File search or Foundry IQ?</summary>
+<summary>When should you choose File search or Microsoft Foundry IQ?</summary>
 
-Use File search for quick validation with a few files. Use Azure AI Search when you need direct control over indexes, hybrid retrieval, and filters. Consider Foundry IQ for sharing multiple knowledge sources and agentic retrieval. None of these paths automatically implements per-user document permissions just by connecting a source.
+Use File search for quick validation with a few files. Use Microsoft Azure AI Search when you need direct control over indexes, hybrid retrieval, and filters. Consider Microsoft Foundry IQ for sharing multiple knowledge sources and agentic retrieval. None of these paths automatically implements per-user document permissions just by connecting a source.
 
 </details>
 

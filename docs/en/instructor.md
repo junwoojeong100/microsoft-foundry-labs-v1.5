@@ -2,7 +2,7 @@
 
 ## Starting checklist
 
-The guide follows one participant's end-to-end workflow. Azure permissions, organizational approval, and feature availability remain action prerequisites; do not assume somebody else completed them.
+The guide follows one participant's end-to-end workflow. Microsoft Azure permissions, organizational approval, and feature availability remain action prerequisites; do not assume somebody else completed them.
 
 | Item | Evidence |
 | --- | --- |
@@ -49,7 +49,7 @@ Choose electives by **capability to learn**, not participant persona. Mark unsup
 
 Core L00–L10 displays **285 minutes (4 hours 45 minutes)**; L19 adds ten, totaling 295. The eight electives display **335 minutes (5 hours 35 minutes)**. All modules total **630 minutes (10 hours 30 minutes)**.
 
-These estimate direct work. Add initial installation, permissions/cost approval, quota, Azure creation/indexing/deployment waits, and breaks. They do not guarantee every elective's service operations fit within the displayed duration.
+These estimate direct work. Add initial installation, permissions/cost approval, quota, Microsoft Azure creation/indexing/deployment waits, and breaks. They do not guarantee every elective's service operations fit within the displayed duration.
 
 ### 90-minute summary path
 
@@ -108,12 +108,12 @@ L13/L14/L17/L18 follow **Try it → Change one thing → Explain the result**. E
 
 | Observation | Correct interpretation |
 | --- | --- |
-| Plan output/client initialization | Not an actual successful Azure request |
+| Plan output/client initialization | Not an actual successful Microsoft Azure request |
 | File upload | Separate from indexing completion |
 | Agent claims a lookup/order succeeded | Requires actual tool evidence; real ordering is not connected |
 | `completed` | Execution finished, not answer/quality certification |
 | Only some evaluation rows succeed | Do not omit errors/missing rows to produce a passing average |
-| Local access/release tests pass | Not actual Azure RBAC/deployment/rollback verification |
+| Local access/release tests pass | Not actual Microsoft Azure RBAC/deployment/rollback verification |
 | Memory A/B searches | Lab-scope comparison, not a complete authenticated-user access test |
 | One successful evaluation | Not generalization, production release, or independent holdout validation |
 

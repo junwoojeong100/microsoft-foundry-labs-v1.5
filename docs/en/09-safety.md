@@ -86,7 +86,7 @@ Record the policy name, target, intervention points, and annotate/block behavior
 
 First record the target agent/version, boundary under test, maximum requests/time/cost, and the person responsible for stopping. If these are missing or support is unconfirmed, do not submit; record **design only**. For an approved run, register only an authorized target and inspect input → response → tool record → judgment for each case. Check the Red teaming service's GA status separately from each scanner.
 
-**Worked interpretation — synthetic teaching example, not an Azure result.**
+**Worked interpretation — synthetic teaching example, not a Microsoft Azure result.**
 
 | Observation | Judgment | Next action |
 | --- | --- | --- |

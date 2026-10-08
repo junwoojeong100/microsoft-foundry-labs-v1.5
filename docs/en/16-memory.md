@@ -65,7 +65,7 @@ python samples/memory_lab.py create --live
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `memory_lab.py create` | Prints the plan for the Memory store to create. | No Azure requests. Check supported models and regions first. |
+| 1. `memory_lab.py create` | Prints the plan for the Memory store to create. | No Microsoft Azure requests. Check supported models and regions first. |
 | 2. `create --live` | Prepares a unique store and A/B scopes, with settings including a default TTL of 3600 seconds. | Creates the remote store and `results/memory.json`. Check storage and model/embedding usage conditions and costs. |
 
 </div>
@@ -116,7 +116,7 @@ In a real service, the server must derive the scope from the authenticated princ
 ### 4. Delete only the one item, then search again
 
 Run this step **only after explicit approval to delete your exact lab item**.
-Deleting an item is separate from deleting an Azure store/RG. If the environment has a no-deletion policy,
+Deleting an item is separate from deleting a Microsoft Azure store/RG. If the environment has a no-deletion policy,
 record this step as not executed and report only the storage and isolation results.
 
 ```bash
@@ -185,7 +185,7 @@ Separately identify features not executed, such as automatic remember/forget pro
 ## Troubleshooting
 
 Check model/embedding support, store settings, user scopes, and Preview API access.
-If the API fails, preserve the original error. Do not substitute a local dictionary and label it Azure Memory success.
+If the API fails, preserve the original error. Do not substitute a local dictionary and label it Microsoft Azure Memory success.
 If creation failed but `memory.json` exists, reconcile your portal and original error first. Do not erase the receipt or edit unverified ownership. TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record.
 
 ## Cleanup

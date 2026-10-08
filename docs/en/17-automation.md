@@ -61,7 +61,7 @@ Do not automatically upgrade CLI extensions/global settings or use resources fro
 | Project/App Insights | Your own L01 `results/azure-environment.json` and telemetry connection | Matches `.env` and allows reading action traces |
 | Two `--receipt` paths | The **distinct new manual/scheduled files** below | Never overwrite previous or other-language records |
 
-Follow **one manual execution → one timer execution → verify both disabled**. Without Azure approval, read only the first `create` plan. Resolve log access and response-collection prerequisites before scheduling. Do not reschedule merely because an execution's trace is absent.
+Follow **one manual execution → one timer execution → verify both disabled**. Without Microsoft Azure approval, read only the first `create` plan. Resolve log access and response-collection prerequisites before scheduling. Do not reschedule merely because an execution's trace is absent.
 
 ## Steps
 
@@ -79,7 +79,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispa
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `create --agent ... --receipt ...` | Replace `ACTUAL_AGENT_NAME` with the actual English agent name, specify a new ownership-record path, and read only the creation plan. `--receipt` is the file that tracks execution results and targets. | No Azure requests. Select an agent capable of server-side execution, not one with only local functions. |
+| 1. `create --agent ... --receipt ...` | Replace `ACTUAL_AGENT_NAME` with the actual English agent name, specify a new ownership-record path, and read only the creation plan. `--receipt` is the file that tracks execution results and targets. | No Microsoft Azure requests. Select an agent capable of server-side execution, not one with only local functions. |
 | 2. `create ... --live` | Creates a disabled one-time timer and records it in the specified receipt. The environment variable also passes through to child azd processes. | Creates a real schedule object. This alone does not establish successful scheduled execution. |
 | 3. `dispatch ... --live` | Requests one manual execution of the disabled routine in the same receipt. A pre-attempt file limits duplicate requests. | Model/agent invocation charges may apply. Do not label manual acceptance/execution as successful automatic scheduling. |
 

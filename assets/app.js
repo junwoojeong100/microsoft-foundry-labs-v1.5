@@ -16,6 +16,8 @@
   const offline = new Set(["l00", "l01", "l06", "l07", "l08", "l12", "l15", "l15-collaboration", "l21", "l22", "instructor", "troubleshooting"]);
   let activeId = "l00";
   let lastLabId = "l00";
+  let lastLabHash = "#l00";
+  let lastLabScrollY = 0;
   let state = {done: [], theme: "light", path: "core"};
   let toastTimer;
 
@@ -103,9 +105,9 @@
     const index = pages.findIndex(page => page.id === activeId);
     const navigation = document.querySelector(`#${activeId} .chapter-pagination`);
     const isReference = pageMap.get(activeId).track === "reference";
-    const link = (page, label, next = false) => {
+    const link = (page, label, next = false, hash = `#${page.id}`) => {
       const node = document.createElement("a");
-      node.href = `#${page.id}`;
+      node.href = hash;
       if (next) node.className = "next";
       const caption = document.createElement("span");
       caption.textContent = label;
@@ -116,7 +118,8 @@
       index > 0 ? link(pages[index - 1], ui.previous) : document.createElement("span"),
       index >= 0 && index + 1 < pages.length
         ? link(pages[index + 1], ui.next, true)
-        : link(pageMap.get(isReference ? lastLabId : "l00"), isReference ? ui.return_to_lab : ui.back, true),
+        : link(pageMap.get(isReference ? lastLabId : "l00"), isReference ? ui.return_to_lab : ui.back, true,
+          isReference ? lastLabHash : "#l00"),
     );
   }
 
@@ -132,11 +135,16 @@
     const target = document.getElementById(hash);
     const article = target && (target.matches(".chapter") ? target : target.closest(".chapter"));
     const id = article ? article.id : "l00";
+    const restoreReadingPosition = pageMap.get(activeId).track === "reference"
+      && id === lastLabId && location.hash === lastLabHash;
     activeId = id;
     const isReference = pageMap.get(id).track === "reference";
-    if (!isReference) lastLabId = id;
+    if (!isReference) {
+      lastLabId = id;
+      lastLabHash = article ? `#${encodeURIComponent(hash)}` : "#l00";
+    }
     document.querySelectorAll(".return-to-lab").forEach(link => {
-      link.href = `#${lastLabId}`;
+      link.href = lastLabHash;
       link.textContent = `${ui.return_to_lab} · L${pageMap.get(lastLabId).number}`;
     });
     search.value = "";
@@ -166,7 +174,12 @@
     });
     if (focus || (article && target !== article)) {
       const heading = document.getElementById(`${id}-title`);
-      if (target && target !== article) {
+      if (restoreReadingPosition) {
+        const destination = target && target !== article ? target : heading;
+        destination.setAttribute("tabindex", "-1");
+        destination.focus({preventScroll: true});
+        window.scrollTo({top: lastLabScrollY, behavior: "auto"});
+      } else if (target && target !== article) {
         target.scrollIntoView({block: "start", behavior: "auto"});
         target.setAttribute("tabindex", "-1");
         target.focus({preventScroll: true});
@@ -298,7 +311,7 @@
     sidebar.classList.toggle("open", open);
     document.body.classList.toggle("no-scroll", open);
     menu.setAttribute("aria-expanded", String(open));
-    if (open) search.focus();
+    if (open) search.focus({preventScroll: true});
   });
   document.addEventListener("keydown", event => {
     const editing = event.target.matches("input, textarea, select, [contenteditable]");
@@ -309,7 +322,7 @@
         menu.setAttribute("aria-expanded", "true");
         document.body.classList.add("no-scroll");
       }
-      search.focus();
+      search.focus({preventScroll: true});
       search.select();
     }
     if (event.key === "Escape") {
@@ -327,6 +340,20 @@
   document.querySelectorAll(".chapter-link").forEach(link => link.addEventListener("click", () => {
     if (location.hash === link.getAttribute("href")) showPage(true);
   }));
+  document.addEventListener("click", event => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || pageMap.get(activeId).track === "reference") return;
+    let target;
+    try {
+      target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+    } catch (error) {
+      if (!(error instanceof URIError)) throw error;
+      return;
+    }
+    if (target?.closest(".chapter")?.dataset.track === "reference") {
+      lastLabScrollY = window.scrollY;
+    }
+  });
   window.matchMedia("(max-width: 850px)").addEventListener("change", event => { if (!event.matches) closeMenu(); });
   window.addEventListener("hashchange", () => showPage(true));
   document.documentElement.classList.add("js");

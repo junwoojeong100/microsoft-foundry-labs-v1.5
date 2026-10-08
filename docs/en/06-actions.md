@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Local functions first, then approved Azure integration · no real orders.
+**Format:** Local functions first, then approved Microsoft Azure integration · no real orders.
 
 **Start here:** Run `python samples/workshop.py tools` to check inventory and draft calculations without a model.
 
@@ -20,13 +20,13 @@ Understand who is responsible for executing function calls. **The model proposes
 
 **What is it, and why does it matter?** Function calling lets the model request a function and its inputs. **The program validates and executes it.** Registering a function name in the portal does not run code on your PC.
 
-**How do you use it?** Check valid and invalid inputs locally first. If you run the Azure integration, compare the answer's amounts with the actual function results.
+**How do you use it?** Check valid and invalid inputs locally first. If you run the Microsoft Azure integration, compare the answer's amounts with the actual function results.
 
 **Where do you run it?** Run [workshop.py](../../samples/workshop.py) in the terminal with the [English synthetic inventory](../../data/en/inventory.csv). Keep L01's English profile selected. No actual ordering API is connected.
 
 ## Prerequisites
 
-The local exercise requires only Python. Without a virtual environment, use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
+The local exercise requires only Python. Without a virtual environment, use L01's `python3.13` (Windows: `py -3.13`) instead of `python` below. Microsoft Azure integration requires L01–L05's environment and document concepts, but **not the optional L04/L05 SDK commands**. `samples/workshop.py` has no ordering, payment, or email functions.
 
 ## Steps
 
@@ -51,7 +51,7 @@ python samples/workshop.py tools
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `tools` | Directly runs the inventory lookup and purchase-draft functions with the default SKU `NB-14` and quantity 2. The model does not select a function at this stage. | No network access, Azure cost, or inventory changes. Check the KRW 2,900,000 total and the not-ordered state. |
+| 1. `tools` | Directly runs the inventory lookup and purchase-draft functions with the default SKU `NB-14` and quantity 2. The model does not select a function at this stage. | No network access, Microsoft Azure cost, or inventory changes. Check the KRW 2,900,000 total and the not-ordered state. |
 
 </div>
 
@@ -86,7 +86,7 @@ python samples/workshop.py tools --sku KB-01 --quantity -1
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `--sku MON-27 --quantity 1` | `--sku` is the item code; `--quantity` is the requested quantity. Requests one monitor when inventory is 0. | An insufficient-stock error for an out-of-stock item is correct. Creating a draft would be a failure. No Azure calls. |
+| 1. `--sku MON-27 --quantity 1` | `--sku` is the item code; `--quantity` is the requested quantity. Requests one monitor when inventory is 0. | An insufficient-stock error for an out-of-stock item is correct. Creating a draft would be a failure. No Microsoft Azure calls. |
 | 2. `--sku NB-14 --quantity 10` | Requests a quantity within the allowed input range of 1–10 but above the actual inventory of 8. | Confirms that type/range validation and stock validation are separate. Produces an insufficient-stock error; no external changes. |
 | 3. `--sku KB-01 --quantity -1` | Tests business-input validation with a negative quantity. | An invalid-quantity error is correct. Do not arbitrarily treat the program's failure exit as success. |
 
@@ -108,7 +108,7 @@ JSON schema's `strict` and `additionalProperties: false` constrain function-argu
 
 #### Portal configuration and the Python function
 
-In the Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code on your PC. The application's Python code must validate the arguments and call the function.
+In the Microsoft Foundry portal, **Tools → Function** registers a name and JSON schema. That setting alone does not run code on your PC. The application's Python code must validate the arguments and call the function.
 
 ```python
 def prepare_purchase_request(sku: str, quantity: int) -> dict:
@@ -147,12 +147,27 @@ The L06 Python path reads the synthetic inventory CSV and calculates a draft. Sa
 
 ### 4. Connect knowledge and functions to the same agent
 
-**Azure calls start here.** Without an account, skip step 4 and record only your local results.
+**Microsoft Azure calls start here.** Without an account, skip step 4 and record only your local results.
 
 The terminal now runs the integration. `capstone` creates **a new agent with three policies and two functions**; it does not edit L05's portal agent. Reuse the portal agent in L09 and the new integrated result for this module's final review and L10 tracing.
 
 ```bash
 python samples/workshop.py capstone
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `capstone` | Prints the integration plan for using policy documents together with two functions. | No Microsoft Azure calls. Check that both function definitions and an actual executor are present. |
+
+</div>
+
+**Stop and check:** Read the new agent/file/conversation plan and call limits. Run the next line only when L01's project, permissions, and cost scope are ready and you have not already run this integration. If you have a result, continue to `read-result` below instead.
+
+```bash
 python samples/workshop.py capstone --live
 ```
 
@@ -162,8 +177,7 @@ python samples/workshop.py capstone --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `capstone` | Prints the integration plan for using policy documents together with two functions. | No Azure calls. Check that both function definitions and an actual executor are present. |
-| 2. `capstone --live` | Creates a new agent, knowledge resources, and conversation, then executes the model's function requests through the local dispatcher. Limited to 5 rounds and 8 function calls. | Model, retrieval, and file costs may apply. Check `tool_calls`, citations, and the final draft, and keep the creation receipt. No actual order is placed. |
+| 1. `capstone --live` | Creates a new agent, knowledge resources, and conversation, then executes the model's function requests through the local dispatcher. Limited to 5 rounds and 8 function calls. | Model, retrieval, and file costs may apply. Check `tool_calls`, citations, and the final draft, and keep the creation receipt. No actual order is placed. |
 
 </div>
 
@@ -198,7 +212,7 @@ for call in calls:
     })
 ```
 
-For safe lab execution, the sample limits a run to 5 response rounds and 8 function calls. Errors are returned explicitly, and execution stops if a limit is exceeded. These are educational limits in this sample, not Foundry service limits.
+For safe lab execution, the sample limits a run to 5 response rounds and 8 function calls. Errors are returned explicitly, and execution stops if a limit is exceeded. These are educational limits in this sample, not Microsoft Foundry service limits.
 
 </details>
 
@@ -216,7 +230,7 @@ python samples/workshop.py read-result --input results/contoso-lab-ACTUAL_ID-res
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `read-result --input` | Displays L04/L05/L06 SDK response JSONL as questions, original answers, function inputs/results, and citations. | **Local reading only.** No Azure calls, regrading, or source changes; no sign-in needed. `--live` is unsupported. |
+| 1. `read-result --input` | Displays L04/L05/L06 SDK response JSONL as questions, original answers, function inputs/results, and citations. | **Local reading only.** No Microsoft Azure calls, regrading, or source changes; no sign-in needed. `--live` is unsupported. |
 
 </div>
 
@@ -246,7 +260,7 @@ Even if the user asks to claim approval, output must remain `order_submitted=fal
 
 Inspect the original JSONL's `tool_calls`, `citations`, and `response_id` alongside the natural-language answer. **A definite stock claim without an inventory result is a failure.** Never fill an unverified condition with an expected answer.
 
-If you did not run Azure integration, record **“local functions checked / Azure integration not performed.”** Local calculations or L08's tool-free instruction evaluation cannot substitute for an actual integrated result.
+If you did not run Microsoft Azure integration, record **“local functions checked / Microsoft Azure integration not performed.”** Local calculations or L08's tool-free instruction evaluation cannot substitute for an actual integrated result.
 
 ### 7. Record the result and configuration together
 
@@ -256,7 +270,7 @@ If actual evidence supports all five items, record **“integration lab complete
 
 ## Success criteria
 
-You have inspected the tool arguments, execution results, and final answer. Insufficient stock and invalid quantities produce explicit errors, and the agent does not claim that an actual order succeeded. If you ran Azure integration, retain evidence for all five items and the configuration bundle. Core completion does not require repeating a separate capstone or publishing to Teams.
+You have inspected the tool arguments, execution results, and final answer. Insufficient stock and invalid quantities produce explicit errors, and the agent does not claim that an actual order succeeded. If you ran Microsoft Azure integration, retain evidence for all five items and the configuration bundle. Core completion does not require repeating a separate capstone or publishing to Teams.
 
 ## Troubleshooting
 

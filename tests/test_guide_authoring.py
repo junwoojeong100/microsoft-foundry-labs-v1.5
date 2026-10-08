@@ -49,6 +49,72 @@ class ReadingSurfaceParser(HTMLParser):
 
 
 class GuideAuthoringTests(unittest.TestCase):
+    def test_learner_prose_uses_full_product_names_without_renaming_literal_interfaces(self):
+        for language in ("ko", "en"):
+            chapters, _, _ = build_guide.load_content(language)
+            texts = {chapter["file"]: (ROOT / chapter["file"]).read_text()
+                     for chapter in chapters if "file" in chapter}
+            readme = build_guide.RELEASE["languages"][language]["readme"]
+            texts[readme] = (ROOT / readme).read_text()
+            labels = build_guide.read_json("reader-labels.json")[language]
+            texts["labels"] = json.dumps(labels, ensure_ascii=False)
+            for name, text in texts.items():
+                rendered = build_guide.markdown.markdown(text, extensions=["fenced_code", "tables", "md_in_html"])
+                rendered = re.sub(r"<(?:pre|code)\b[^>]*>.*?</(?:pre|code)>", "", rendered, flags=re.S)
+                plain = unescape(re.sub(r"<[^>]+>", " ", rendered))
+                for literal in ("Microsoft Azure", "Microsoft Foundry", "MICROSOFT AZURE",
+                                "Azure AI User", "Foundry User", "New Foundry", "Azure OpenAI endpoint"):
+                    plain = plain.replace(literal, "")
+                with self.subTest(language=language, source=name):
+                    self.assertNotRegex(plain, r"(?<![A-Za-z0-9_-])(?:Azure|Foundry|AZURE|FOUNDRY)(?![A-Za-z0-9_-])")
+                    self.assertNotIn("Microsoft Microsoft", text)
+
+    def test_codespaces_route_prepares_tools_without_automatic_live_actions(self):
+        config = json.loads((ROOT / ".devcontainer/devcontainer.json").read_text())
+        self.assertEqual(config["features"]["ghcr.io/devcontainers/features/azure-cli:1"]["version"],
+                         build_guide.RELEASE["azure_cli"])
+        self.assertIn("3.13", config["image"])
+        self.assertEqual(config["otherPortsAttributes"]["onAutoForward"], "ignore")
+        self.assertNotIn("forwardPorts", config)
+        for directory in ("docs", "docs/en"):
+            setup = (ROOT / directory / "01-setup.md").read_text()
+            cleanup = (ROOT / directory / "12-cleanup.md").read_text()
+            route = re.search(r'<details class="optional-path codespaces-path" markdown="1">(.*?)</details>', setup, re.S)[1]
+            with self.subTest(directory=directory):
+                self.assertIn('id="l01-codespaces"', route)
+                self.assertIn("#l01-sign-in", route)
+                self.assertIn('id="l01-sign-in"', setup)
+                self.assertIn("az login --use-device-code", setup)
+                self.assertIn("#l12-codespaces", route)
+                self.assertIn('id="l12-codespaces"', cleanup)
+                for command in re.findall(r"^```bash\n(.*?)^```[^\S\n]*$", route, re.M | re.S):
+                    self.assertNotIn("--live", command)
+                    self.assertNotIn("az login", command)
+
+    def test_primary_commands_separate_plans_from_live_execution(self):
+        for directory in ("docs", "docs/en"):
+            for filename in ("01-setup.md", "02-models.md", "03-responses.md", "06-actions.md", "10-observability.md"):
+                text = (ROOT / directory / filename).read_text()
+                for block in re.findall(r"^```bash\n(.*?)^```[^\S\n]*$", text, re.M | re.S):
+                    commands = [
+                        shlex.split(line) for line in block.replace("\\\n", " ").splitlines()
+                        if line.strip() and not line.lstrip().startswith("#")
+                    ]
+                    with self.subTest(directory=directory, filename=filename, block=block):
+                        if any("--live" in command for command in commands):
+                            self.assertTrue(all("--live" in command for command in commands),
+                                            "A copy action must not combine a plan with live execution.")
+                        if any("scripts/azure_environment.py" in command and "roles" in command for command in commands):
+                            self.assertEqual(len(commands), 1, "Check deployment before granting roles.")
+
+    def test_first_response_visible_steps_have_no_gap_for_optional_code(self):
+        for directory in ("docs", "docs/en"):
+            text = (ROOT / directory / "03-responses.md").read_text()
+            visible = re.sub(r"<details\b.*?</details>", "", text, flags=re.S)
+            numbers = [int(number) for number in re.findall(r"^### (\d+)\.", visible, re.M)]
+            with self.subTest(directory=directory):
+                self.assertEqual(numbers, [1, 2, 3])
+
     def test_all_modules_end_with_saved_results_and_resolvable_next_steps(self):
         for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)

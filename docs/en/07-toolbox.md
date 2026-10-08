@@ -27,7 +27,8 @@ and a Skill provides instructions for repeatable work.** A Skill is neither appr
 
 ## Prerequisites
 
-Install `requirements-tools.txt` in L01's Python virtual environment. If it does not exist, first follow L01's **virtual-environment creation steps**, without Azure sign-in. Installation needs internet and an approved package repository, but **core steps 1–2 need no Azure account**.
+Install `requirements-tools.txt` in L01's Python virtual environment. If it does not exist, first follow L01's **virtual-environment creation steps**, without Microsoft Azure sign-in. Installation needs internet and an approved package repository, but **core steps 1–2 need no Microsoft Azure account**.
+**If you completed L01's Codespaces setup, these dependencies are already installed; skip the installation command below.** Open both terminals in that same Codespace. Here `127.0.0.1` means the Codespace, not your PC, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
 The cloud steps require Search from L11 and the Search Index Data Reader role for the project managed identity.
 **Only steps 1–2 below—local HTTP/OpenAPI and MCP—are required for the core course.**
 Cloud Toolbox/Skills in steps 3–4 are optional extensions after preparing the L11 resources.
@@ -43,7 +44,7 @@ python -m pip install -r requirements-tools.txt
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `pip install -r requirements-tools.txt` | Adds MCP lab dependencies to the activated base virtual environment. `python -m pip` keeps the installer aligned with the current Python. | Downloads packages and changes the local environment only; no Azure tools are invoked. |
+| 1. `pip install -r requirements-tools.txt` | Adds MCP lab dependencies to the activated base virtual environment. `python -m pip` keeps the installer aligned with the current Python. | Downloads packages and changes the local environment only; no Microsoft Azure tools are invoked. |
 
 </div>
 
@@ -63,7 +64,7 @@ python samples/inventory_api.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `inventory_api.py` | Starts an HTTP server that reads synthetic inventory at `127.0.0.1:8766`. It is normal for the shell prompt not to return immediately. | Listens only on your computer. No Azure cost. Stop it with Ctrl+C in this terminal when finished. |
+| 1. `inventory_api.py` | Starts an HTTP server that reads synthetic inventory at `127.0.0.1:8766`. It is normal for the shell prompt not to return immediately. | Listens only on your computer. No Microsoft Azure cost. Stop it with Ctrl+C in this terminal when finished. |
 
 </div>
 
@@ -85,7 +86,7 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `curl .../health` | `curl` is an HTTP client. `--fail` makes HTTP error statuses produce a failure exit rather than being treated as normal responses. | Checks only local server readiness. This is not a model or MCP call. |
-| 2. `curl .../inventory/NB-14` | `NB-14` in the URL is the item to look up. The server returns inventory JSON read from the CSV. | Compare the stock count of 8 and unit price of KRW 1,450,000 with the contract. Read-only; no Azure cost. |
+| 2. `curl .../inventory/NB-14` | `NB-14` in the URL is the item to look up. The server returns inventory JSON read from the CSV. | Compare the stock count of 8 and unit price of KRW 1,450,000 with the contract. Read-only; no Microsoft Azure cost. |
 
 </div>
 
@@ -112,7 +113,7 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `inspect --local` | Starts a separate stdio MCP server as a child process, initializes it, and retrieves tool names and contracts. This does not reuse the HTTP server from the previous step. | Check the actual local MCP exchange and tool names. No Azure calls. |
+| 1. `inspect --local` | Starts a separate stdio MCP server as a child process, initializes it, and retrieves tool names and contracts. This does not reuse the HTTP server from the previous step. | Check the actual local MCP exchange and tool names. No Microsoft Azure calls. |
 | 2. Unapproved `call` | Supplies the exact tool/arguments but omits `--approve-tool`. | `Approval required` and a failing exit are expected; rejection occurs before `tools/call`. |
 | 3. Approved `call ... get_stock` | `--tool` names the tool; `--arguments` supplies JSON; `--approve-tool` permits this name/arguments once. | Check actual inventory and local evidence. |
 | 4. `call ... prepare_purchase_request` | Calls the draft function with quantity 2. Outer single quotes preserve the JSON's double quotes. | KRW 2,900,000, pending approval, and not ordered. Tool approval is not purchase approval. |
@@ -134,7 +135,7 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `inspect --local` | Lists local MCP tools using the environment's Python. | No Azure call. |
+| 1. `inspect --local` | Lists local MCP tools using the environment's Python. | No Microsoft Azure call. |
 | 2. Unapproved `call` | Preserves the JSON but does not approve the tool. | Expected `Approval required` error; no tool execution. |
 | 3. Approved `get_stock` | Permits this exact name and JSON once. | Local stock 8 and unit price KRW 1,450,000. |
 | 4. Approved draft function | Checks quantity 2 and the tool name together. | KRW 2,900,000, not ordered; no purchase approval. |
@@ -164,7 +165,7 @@ python samples/toolbox_lab.py inspect --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `create` | Displays the plan for creating a remote Toolbox/Skill. Creation with `--local` is neither necessary nor allowed. | No Azure requests. |
+| 1. `create` | Displays the plan for creating a remote Toolbox/Skill. Creation with `--local` is neither necessary nor allowed. | No Microsoft Azure requests. |
 | 2. `create --live` | Registers a uniquely named Toolbox and script-free Skill, and connects the exact version. | Creates remote objects and a local `results/toolbox.json` record. First check the connected services' costs and permission requirements. |
 | 3. `inspect --live` | Connects to the receipt's remote endpoint as the current Entra identity and reads lists and Skill resources. | A remote read request, distinct from a successful business-tool execution. An empty list is not marked as success. |
 
@@ -205,7 +206,7 @@ python samples/toolbox_lab.py call --tool ACTUAL_OPENAPI_SEARCH_TOOL_NAME --argu
 
 OpenAPI tool arguments must follow the `inputSchema` from `tools/list`.
 For this MCP tool, pass `"api-version":"2024-07-01"` at the top level and nest `search`, `top`, and `select` inside **`body`**. The example uses `top: 3`; keep it at most 5 and retain the specified `select` fields. A flat object containing `search`/`top`/`select` is not this tool's contract. The Microsoft Learn tool's `query` argument is a separate schema, not an alternative for this OpenAPI call.
-Use `python samples/toolbox_lab.py openapi` to inspect **the complete contract generated by this repository**. `openapi` is a local command that builds and prints contract JSON from the Search configuration/receipt. It makes no Azure requests or tool calls, but requires the L11 configuration to produce the correct endpoint.
+Use `python samples/toolbox_lab.py openapi` to inspect **the complete contract generated by this repository**. `openapi` is a local command that builds and prints contract JSON from the Search configuration/receipt. It makes no Microsoft Azure requests or tool calls, but requires the L11 configuration to produce the correct endpoint.
 Specifying only an API version's schema default does not send the actual query parameter.
 
 Preserve actual output and tool errors in `results/contoso-toolbox-*.jsonl`.
@@ -217,9 +218,11 @@ For the optional cloud call in Windows PowerShell, replace `python` with `.\.ven
 </details>
 
 <details class="implementation-detail" markdown="1">
-<summary>Implementation reference: local MCP servers versus Foundry connections — read only</summary>
+<summary>Implementation reference: local MCP servers versus Microsoft Foundry connections — read only</summary>
 
-### Local code versus the Foundry portal
+<a id="l07-local-code-versus-the-foundry-portal"></a>
+
+### Local code versus the Microsoft Foundry portal
 
 The bundled MCP server exposes the synthetic Python functions as MCP tools:
 
@@ -242,9 +245,9 @@ server.run(transport="stdio")
 
 | Lab surface | Actual code and behavior |
 | --- | --- |
-| HTTP server in terminal one | `Handler.do_GET()` in `inventory_api.py` handles `/inventory/<sku>`. It listens only on `127.0.0.1`, so the Foundry portal cannot call it directly. |
+| HTTP server in terminal one | `Handler.do_GET()` in `inventory_api.py` handles `/inventory/<sku>`. It listens only on `127.0.0.1`, so the Microsoft Foundry portal cannot call it directly. |
 | MCP call in terminal two | `mcp_server.py` exposes stdio tools; `toolbox_lab.py --local` starts it as a child process and sends `tools/list` / `tools/call`. |
-| Optional Foundry Cloud Toolbox | `toolbox_lab.py create` registers `MCPToolboxTool` / `OpenApiToolboxTool` and managed identity settings. Inspect the same Toolbox/version in the portal. |
+| Optional Microsoft Foundry Cloud Toolbox | `toolbox_lab.py create` registers `MCPToolboxTool` / `OpenApiToolboxTool` and managed identity settings. Inspect the same Toolbox/version in the portal. |
 | One-time tool approval | `--approve-tool` is enforced by the bundled client for the exact tool name and arguments. It is not business approval or permission to order. |
 
 The local HTTP/MCP code runs on your computer, not inside a portal button. Portal integration uses an approved cloud Toolbox/OpenAPI connection, not a tunnel to the local server.

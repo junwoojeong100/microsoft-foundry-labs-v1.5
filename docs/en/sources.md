@@ -11,7 +11,7 @@ Compare code with official examples for your installed SDK version. A GA portal 
 | --- | --- |
 | New portal GA | Separate from individual feature GA |
 | Scheduled portal Workflows retirement | 2026-12-01; consider MAF for new implementations |
-| Foundry IQ | Some APIs GA, portal experience Preview |
+| Microsoft Foundry IQ | Some APIs GA, portal experience Preview |
 | Memory, Voice, Agent guardrails | Keep API-specific Preview/access conditions explicit |
 | Agent Optimizer | Limited preview, optional exercise |
 | Content Understanding | Distinguish 2025-11-01 GA and 2026-06-01-preview |

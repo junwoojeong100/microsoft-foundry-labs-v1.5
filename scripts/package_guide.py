@@ -45,7 +45,7 @@ def main():
     for edition in RELEASE["languages"].values():
         files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "receipt_html"))
         files.append(ROOT / "content" / edition["portal_manifest"])
-    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "downloads/replay", ".github/workflows")
+    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "downloads/replay", ".github/workflows", ".devcontainer")
     for directory in {ROOT / name for name in directories}:
         files.extend(
             path for path in directory.rglob("*")
@@ -79,7 +79,8 @@ def main():
             for key in ("readme", "html", "markdown", "receipt_html")
         ]
         essentials += ["content/" + edition["portal_manifest"] for edition in RELEASE["languages"].values()]
-        for essential in (*essentials, "samples/workshop.py", "data/evaluation/cases.jsonl"):
+        for essential in (*essentials, "samples/workshop.py", "data/evaluation/cases.jsonl",
+                          ".devcontainer/devcontainer.json", ".devcontainer/post-create.sh"):
             if f"{NAME}/{essential}" not in names:
                 raise ValueError(f"Missing package artifact: {essential}")
         local_paths = set()

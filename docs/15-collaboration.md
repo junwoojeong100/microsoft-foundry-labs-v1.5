@@ -22,7 +22,7 @@
 
 **어떻게 사용하나요?** 같은 정책·질문으로 두 패턴을 실행하고, 중간 답과 실제 핸드오프 도구 호출을 읽습니다. 반복 수와 비용 상한은 바꾸지 않습니다.
 
-**어디서 실행하나요?** [multi_agent.py](../samples/multi_agent.py)를 `.venv-advanced`에서 실행합니다. 모델만 Azure에 있으며 Hosted·원격 A2A 서버는 만들지 않습니다.
+**어디서 실행하나요?** [multi_agent.py](../samples/multi_agent.py)를 `.venv-advanced`에서 실행합니다. 모델만 Microsoft Azure에 있으며 Hosted·원격 A2A 서버는 만들지 않습니다.
 
 ## 준비
 
@@ -32,7 +32,7 @@
 
 | 지금 상태 | 진행할 단계 | 남길 결과 |
 | --- | --- | --- |
-| Azure 승인 없음 | 1단계의 두 계획만 읽기 | 차이·호출 상한 설명, 실제 실행 미실행 |
+| Microsoft Azure 승인 없음 | 1단계의 두 계획만 읽기 | 차이·호출 상한 설명, 실제 실행 미실행 |
 | 모델·소유 기록·비용 승인 있음 | 계획 → 그룹 채팅 → 결과 읽기 → 핸드오프 → 비교 | 두 원본 파일과 수정/위임 비교표 |
 
 추가 자원을 배포할 필요는 없습니다. 두 패턴을 모두 선택하면 **최대 7회 모델 호출**입니다. 실행당 **180초·응답당 2,048토큰·재시도 0회**를 유지하며, 다음 패턴은 이전 시작부터 **1분 이상** 지난 뒤 시작합니다.
@@ -52,7 +52,7 @@
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `--mode group-chat` | 작성자 → 검토자 → 작성자 수정의 계획을 읽습니다. | SDK 초기화·Azure 호출·실행 증거 생성 없음. 최대 3회 호출 계획. |
+| 1. `--mode group-chat` | 작성자 → 검토자 → 작성자 수정의 계획을 읽습니다. | SDK 초기화·Microsoft Azure 호출·실행 증거 생성 없음. 최대 3회 호출 계획. |
 | 2. `--mode handoff` | 분류 담당자 → 정책 또는 금액 담당자의 계획을 읽습니다. | 실제 위임 없음. 최대 4회 호출 계획. |
 
 </div>
@@ -126,7 +126,7 @@
 
 #### 포털 모델 배포와 Group chat/Handoff 코드
 
-L14에는 Foundry Portal에서 설정하는 Group chat/Handoff 편집기가 없습니다. 포털은 모델 배포를 제공하고, 실제 참여자 선택·메시지 전달·종료 조건은 아래 Agent Framework 코드가 정합니다.
+L14에는 Microsoft Foundry Portal에서 설정하는 Group chat/Handoff 편집기가 없습니다. 포털은 모델 배포를 제공하고, 실제 참여자 선택·메시지 전달·종료 조건은 아래 Agent Framework 코드가 정합니다.
 
 ```python
 from agent_framework.orchestrations import GroupChatBuilder, HandoffBuilder
@@ -164,7 +164,7 @@ handoff_workflow = (
 | `participants` | 각 stage의 agent author |
 | `selection_func`, `max_rounds` | Group chat에서 누가 말했고 어디서 멈췄는지 |
 | `with_start_agent`, `add_handoff` | `handoff_calls`에 실제 제어 이전이 기록됐는지 |
-| Portal의 model deployment | 각 participant가 호출한 승인된 Foundry model |
+| Portal의 model deployment | 각 participant가 호출한 승인된 Microsoft Foundry model |
 
 참여자 변수는 `build_role()`이 만든 SDK agent입니다. 그룹 채팅은 세 발언, 핸드오프는 전문가 답변을 종료 조건으로 사용합니다. `multi_agent.py`는 선택한 workflow만 실행하며 포털에 이 그래프를 저장하지 않습니다.
 

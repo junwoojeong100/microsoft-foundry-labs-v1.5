@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Local code repair plus optional design · no Azure account needed to start.
+**Format:** Local code repair plus optional design · no Microsoft Azure account needed to start.
 
 **Start here:** Reproduce two failures in the synthetic cache/access exercise, then map responsibilities across user → agent → tool → data.
 
@@ -12,7 +12,7 @@
 
 ## Objectives
 
-**Seeing a Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the Foundry AI Gateway experience include Preview capabilities.
+**Seeing a Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the Microsoft Foundry AI Gateway experience include Preview capabilities.
 
 ## Concepts and lab map
 
@@ -26,14 +26,14 @@
 
 ## Prerequisites
 
-The default is local Python repair and your **principal → action → scope → deny condition → inspection/revocation method** table. No Azure account is needed, but this is not live access validation. Real role, gateway, private-endpoint, or policy changes require relevant permissions and separate change scope.
+The default is local Python repair and your **principal → action → scope → deny condition → inspection/revocation method** table. No Microsoft Azure account is needed, but this is not live access validation. Real role, gateway, private-endpoint, or policy changes require relevant permissions and separate change scope.
 
 ### Choose your starting path
 
 | Goal | Sequence | What to retain |
 | --- | --- | --- |
 | Experience the permission/cache boundary | Step 1 copy → two failures → edit `exercise.py` → five passes with unchanged tests | Local before/after behavior and explanation |
-| Design an organizational implementation | Above → step 2 identity table → steps 4–5 gateway/network boundaries | Your own design; Azure changes not performed |
+| Design an organizational implementation | Above → step 2 identity table → steps 4–5 gateway/network boundaries | Your own design; Microsoft Azure changes not performed |
 | Portal read access also available | Additionally observe **one owned asset** in step 3 | Observation time, filters, and read scope |
 
 Edit only `practice/governance/exercise.py`. Keep `test_exercise.py`, allowed users, and the `data/exercises/` originals unchanged. If the folder exists, choose another `--output` path and update the test command's path too.
@@ -44,7 +44,7 @@ Edit only `practice/governance/exercise.py`. Keep `test_exercise.py`, allowed us
 
 <div class="practice-block" markdown="1">
 
-**Try it:** This exercise uses only synthetic strings on your PC. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Azure roles nor real document ACLs.
+**Try it:** This exercise uses only synthetic strings on your PC. A may read the restricted quote; B may not. Both may read the public policy. It changes neither Microsoft Azure roles nor real document ACLs.
 
 ```bash
 python samples/prepare_practice.py governance --output practice/governance
@@ -90,14 +90,16 @@ A cache does not replace authentication or authorization. This example rechecks 
 
 </details>
 
-**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Azure RBAC, network, or document ACL verification.**
+**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Microsoft Azure RBAC, network, or document ACL verification.**
 
 </div>
 
 <details class="implementation-detail" markdown="1">
-<summary>Implementation reference: the cache repair versus Azure RBAC — read only</summary>
+<summary>Implementation reference: the cache repair versus Microsoft Azure RBAC — read only</summary>
 
-#### Local code and the Azure portal boundary
+<a id="l21-local-code-and-the-azure-portal-boundary"></a>
+
+#### Local code and the Microsoft Azure portal boundary
 
 This `exercise.py` uses only fake documents and a fake grants table. The defect is that a cached document is returned before checking the current permission.
 
@@ -115,10 +117,10 @@ def read_document(user, document_id, grants, cache):
 | --- | --- |
 | `prepare_practice.py governance` | Copies the flawed example to a new `practice/governance` folder |
 | Edit `exercise.py` + run `test_exercise.py` | Checks B and revoked A against local cache/fake grants |
-| Azure portal/RBAC | Not changed or validated in this exercise |
-| `infra/main.bicep`, `runtime_roles.py` | Design references only; not applied to Azure |
+| Microsoft Azure portal/RBAC | Not changed or validated in this exercise |
+| `infra/main.bicep`, `runtime_roles.py` | Design references only; not applied to Microsoft Azure |
 
-L01 prepared your actual Azure roles; this module studies **application cache/document authorization**. These are different checks. Actual ACL tests require permitted identities, separate synthetic restricted documents, and access logs; local passes do not substitute.
+L01 prepared your actual Microsoft Azure roles; this module studies **application cache/document authorization**. These are different checks. Actual ACL tests require permitted identities, separate synthetic restricted documents, and access logs; local passes do not substitute.
 
 </details>
 
@@ -139,7 +141,7 @@ Do not assume L12's direct Search caller and L07's connection caller are identic
 
 Under **Operate → Assets**, find the agents/models/tools your permissions allow you to see. Check how resources from other projects appear. **Manage** covers quota, details, gateways, and similar settings for the currently selected project/resource; **Operate** takes a fleet-wide view.
 
-Compare execution status, costs, alerts, evaluations, and policy information. Registering an external agent expands visibility; registration does not automatically apply Foundry runtime guardrails to that agent.
+Compare execution status, costs, alerts, evaluations, and policy information. Registering an external agent expands visibility; registration does not automatically apply Microsoft Foundry runtime guardrails to that agent.
 
 For one owned asset, record **name, project, owner, last observation time, and policy target**. An empty list is not proof of no assets; check filters, tenant, and read scope first. Do not inspect an unfamiliar team's assets for workshop material.
 
@@ -157,11 +159,11 @@ Choose one reason you need an APIM-based gateway: token limits, rate limits, all
 
 **Example plan:** Assume a limit of 2 requests per 60 seconds for an isolated synthetic test principal and design a check that rejects the third request. Record identity key, policy scope, rejection status such as 429, counter/trace location, at most 3 requests with zero retries, and a stop owner. Actual configuration and requests require separate approval. Distributed counters or prior requests may affect observations; inspect that evidence rather than retrying until a pass.
 
-**Quota is not a billing cap, and a budget alert is not a hard stop.** Distinguish Foundry's gateway UI from APIM service state. Do not leave tool/document authorization solely to the gateway.
+**Quota is not a billing cap, and a budget alert is not a hard stop.** Distinguish Microsoft Foundry's gateway UI from APIM service state. Do not leave tool/document authorization solely to the gateway.
 
 ### 5. Network design exercise
 
-Draw three paths: **user → Foundry**, **Foundry → tools/data**, and **tools/data → external destinations**.
+Draw three paths: **user → Microsoft Foundry**, **Microsoft Foundry → tools/data**, and **tools/data → external destinations**.
 
 ```text
 Fictional users A/B
@@ -177,12 +179,12 @@ This is a **desired-boundary design**, not a claim that the bundled IaC builds p
 
 | Configuration | What it addresses | What it does not address |
 | --- | --- | --- |
-| Private endpoint | Private inbound connections to Foundry | Blocking all tool egress |
+| Private endpoint | Private inbound connections to Microsoft Foundry | Blocking all tool egress |
 | VNet/managed network settings | Supported outbound paths | Automatically supporting unsupported tools |
 | Private DNS | Correct address resolution | RBAC or application authentication |
 | Firewall/egress policy | Control over allowed destinations | User ACLs on the data itself |
 
-Prepare the required private endpoints separately for private Search, Storage, and other resources. One Foundry private endpoint does not make every connected resource private.
+Prepare the required private endpoints separately for private Search, Storage, and other resources. One Microsoft Foundry private endpoint does not make every connected resource private.
 
 | What to inspect | How to judge it | Next action on failure |
 | --- | --- | --- |
@@ -196,7 +198,7 @@ The last row is an **ACL design exercise**. The current shared Contoso index can
 
 ### 6. Check policies, encryption, and information protection
 
-Use Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
+Use Microsoft Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
 
 Defender, Purview, and Entra integrations may each require product-specific configuration, permissions, and licenses. Do not present the existence of a dashboard as organizational compliance certification. Include diagnostic logs, content provenance, and how users are informed of AI use in operational documentation.
 
@@ -211,11 +213,11 @@ Do not assume every 403 is an RBAC problem. Separate endpoint DNS, public networ
 
 ## Cleanup
 
-Record any actual temporary roles, policies, gateways, or connections you changed and revoke them only within permitted scope. Design-only means no Azure change. Do not delete shared networks or production policies.
+Record any actual temporary roles, policies, gateways, or connections you changed and revoke them only within permitted scope. Design-only means no Microsoft Azure change. Do not delete shared networks or production policies.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Repaired `practice/governance/exercise.py`, the same five tests and repair explanation, identity/action/scope/rejection table, and network design. Distinguish actual Azure checks.
+**Keep:** Repaired `practice/governance/exercise.py`, the same five tests and repair explanation, identity/action/scope/rejection table, and network design. Distinguish actual Microsoft Azure checks.
 
 **Continue:** [L18](#l22) if you select release/recovery, otherwise [L19](#l12).
 

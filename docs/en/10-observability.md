@@ -26,7 +26,7 @@
 
 ## Prerequisites
 
-Use the Application Insights connection/read access you prepared in L01 and your L04–L06 results. Application Insights collects/queries Azure execution logs; ingestion and retention have costs.
+Use the Application Insights connection/read access you prepared in L01 and your L04–L06 results. Application Insights collects/queries Microsoft Azure execution logs; ingestion and retention have costs.
 
 <details class="optional-path" markdown="1">
 <summary>If not connected yet: finish your project's telemetry setup</summary>
@@ -79,7 +79,7 @@ Find the following in the trace.
 
 **The function succeeded but the answer failed:** Check whether the tool output was returned to the same conversation/call ID and whether the final output completed.
 
-**Timing example — synthetic teaching data, not an Azure trace.** Assume these child operations run sequentially without overlap.
+**Timing example — synthetic teaching data, not a Microsoft Azure trace.** Assume these child operations run sequentially without overlap.
 
 | Operation | Start–end (ms) | Observed duration | Judgment |
 | --- | ---: | ---: | --- |
@@ -90,10 +90,30 @@ Find the following in the trace.
 
 Observed children total 3,650ms, leaving 350ms. **Do not call the remaining 350ms network latency without evidence.** Parallel spans overlap and cannot simply be summed. If the model dominates, inspect token counts and repeated calls; if retrieval dominates, inspect returned volume and retrieval stages. For a successful request, explain the longest observed interval and missing intervals rather than inventing an error.
 
+**Skip the CLI if you have read the same run's operations and durations in the portal.** It is an alternative for learners with an SDK response file, not an additional required task.
+
+<details class="optional-path" markdown="1">
+<summary>Optional: query App Insights using an SDK response file</summary>
+
 The bundled CLI queries App Insights using response/trace IDs from an actual response file.
 
 ```bash
 python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Details and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `trace_lab.py` | `--input` is the actual English response JSONL, `--app-id` is the Application Insights application ID, and `--agent` is the agent name to query. Replace the placeholders with values from your owned English environment. Reads identifiers from the file and prints a KQL plan. | No Microsoft Azure query. Check that the time window and ID conditions refer only to your run. |
+
+</div>
+
+**Before querying:** Verify that the plan's response IDs and agent name match your run and that you have log-read access. Use the same three values in the following command.
+
+```bash
 python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME --live
 ```
 
@@ -103,8 +123,7 @@ python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTU
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `trace_lab.py` | `--input` is the actual English response JSONL, `--app-id` is the Application Insights application ID, and `--agent` is the agent name to query. Replace the placeholders with values from your owned English environment. Reads identifiers from the file and prints a KQL plan. | No Azure query. Check that the time window and ID conditions refer only to your run. |
-| 2. The same command with `--live` | Reads actual logs using the reviewed KQL. Limited to the last 24 hours and at most 200 rows; does not run new model inference. | Sends an Azure read request and records query results. Zero rows means correlation is unverified; do not fill in arbitrary IDs. Log-service usage terms apply separately. |
+| 1. The same command with `--live` | Reads actual logs using the reviewed KQL. Limited to the last 24 hours and at most 200 rows; does not run new model inference. | Sends a Microsoft Azure read request and records query results. Zero rows means correlation is unverified; do not fill in arbitrary IDs. Log-service usage terms apply separately. |
 
 </div>
 
@@ -113,6 +132,8 @@ Print the KQL first and review its scope. It covers the last 24 hours, returns a
 do not relabel a request ID as a trace ID. Compare `contract.sha256` and version only when using L12 Hosted results; do not require that Hosted contract in the basic Prompt Agent JSONL.
 
 Equal `input_rows` and `correlated_rows`, with empty `missing_case_ids`, establish **input-to-log correlation**. `model_response_spans_observed` and `request_trace_ids_observed` measure different observation layers. This CLI checks correlation, not bottlenecks or answer correctness. Read the query rows in the printed `Evidence:` file and the portal details, then fill the table with your own values.
+
+</details>
 
 <details class="implementation-detail" markdown="1">
 <summary>Implementation reference: finding logs through response IDs and KQL — read only</summary>

@@ -380,7 +380,7 @@ def build_language(language):
 <header class="topbar">
   <a class="brand" href="#l00" aria-label="{ui['home']}">
     <img class="brand-mark" src="assets/microsoft-foundry.svg" alt="Microsoft Foundry" width="42" height="42">
-    <span><strong>Foundry <span class="brand-light">Lab Guide</span></strong><small>{ui['tagline']}</small></span>
+    <span><strong><span class="brand-product">Microsoft Foundry</span> <span class="brand-light">Lab Guide</span></strong><small>{ui['tagline']}</small></span>
   </a>
   <div class="top-actions">
     <span class="edition"><span aria-hidden="true"></span>{escape(ui['scenario_name'])}</span>

@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Compare inputs → collect your answers → evaluate the same originals in Foundry → analyze reasons.
+**Format:** Compare inputs → collect your answers → evaluate the same originals in Microsoft Foundry → analyze reasons.
 
 **Start here:** Read both instruction files and the fixed questions, then identify what an answer must address.
 
@@ -22,7 +22,7 @@
 
 **How do you use it?** Read fixed inputs and verify the request budget. Collect your originals once, evaluate them, and preserve ties/regressions.
 
-**Where do you run it?** Read the [questions](../../data/en/evaluation/instruction-comparison.json) and [v1](../../data/en/prompts/agent-v1.txt)/[v2](../../data/en/prompts/agent-v2.txt), then use the [collector](../../samples/instruction_prompt_agent_lab.py) and [evaluator](../../samples/instruction_evaluation.py). Inspect results in Foundry Evaluations.
+**Where do you run it?** Read the [questions](../../data/en/evaluation/instruction-comparison.json) and [v1](../../data/en/prompts/agent-v1.txt)/[v2](../../data/en/prompts/agent-v2.txt), then use the [collector](../../samples/instruction_prompt_agent_lab.py) and [evaluator](../../samples/instruction_evaluation.py). Inspect results in Microsoft Foundry Evaluations.
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ Use **your L01 project, chat/judge deployments, and ownership receipt**. Do not 
 | Term | Plain-language meaning |
 | --- | --- |
 | v1 / v2 | Starting / improved instructions, not service-issued agent-version numbers |
-| Judge / Native evaluation | The grading model / an evaluation performed by Foundry |
+| Judge / Native evaluation | The grading model / an evaluation performed by Microsoft Foundry |
 | Completeness / Relevance / Groundedness | Were all requests addressed / was the answer relevant / was it supported? |
 | Dev / Holdout | Practice data exposed during improvement / a separate final test excluded from improvement |
 
@@ -72,7 +72,7 @@ python samples/instruction_prompt_agent_lab.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `instruction_prompt_agent_lab.py` | Read the two instruction versions, twelve fixed questions, model, and request bound. | Plan only; no Azure calls. |
+| 1. `instruction_prompt_agent_lab.py` | Read the two instruction versions, twelve fixed questions, model, and request bound. | Plan only; no Microsoft Azure calls. |
 
 </div>
 
@@ -147,7 +147,7 @@ native = client.evals.runs.create(
 )
 ```
 
-| Foundry portal | Value to inspect in the source |
+| Microsoft Foundry portal | Value to inspect in the source |
 | --- | --- |
 | Agents → Versions | `agent_reference.name/version` identifies the instruction version used for each answer |
 | Evaluations → Criteria | `testing_criteria=criteria` and the fixed judge deployment |
@@ -181,7 +181,7 @@ Native completeness, relevance, and groundedness use **1–5 ordinal** scores. R
 
 The local checklist checks forty criteria across twelve questions using **mechanical text-and-citation matching**. It can miss paraphrases and is not a semantic evaluator or a business safety/access gate.
 
-![Foundry evaluation view. Locate execution status and per-row scores, errors, and omissions.](../../assets/portal/en/08-evaluations.png)
+![Microsoft Foundry evaluation view. Locate execution status and per-row scores, errors, and omissions.](../../assets/portal/en/08-evaluations.png)
 
 Find your run under **Build → Evaluations** and inspect status, evaluator identity, and row-level results. `completed` does not establish that every score is valid. Errors, omissions, and missing numeric scores remain failures; never fill them with zero or a passing verdict.
 

@@ -27,7 +27,8 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 
 ## 준비
 
-L01의 Python 가상환경에 `requirements-tools.txt`를 설치합니다. 가상환경이 없다면 L01의 **가상환경 생성 단계**를 먼저 진행하되 Azure 로그인은 하지 않아도 됩니다. 설치에는 인터넷과 승인된 패키지 저장소 접근이 필요하지만 **기본 1–2단계에는 Azure 계정이 필요 없습니다.**
+L01의 Python 가상환경에 `requirements-tools.txt`를 설치합니다. 가상환경이 없다면 L01의 **가상환경 생성 단계**를 먼저 진행하되 Microsoft Azure 로그인은 하지 않아도 됩니다. 설치에는 인터넷과 승인된 패키지 저장소 접근이 필요하지만 **기본 1–2단계에는 Microsoft Azure 계정이 필요 없습니다.**
+**L01의 Codespaces 준비를 마쳤다면 이 의존성은 이미 설치되어 있으므로 아래 설치 명령을 생략합니다.** 두 터미널 모두 같은 Codespace 안에서 엽니다. 이때 `127.0.0.1`은 내 PC가 아니라 그 Codespace이므로 아래 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
 클라우드 단계는 L11의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
 **기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
 3–4단계의 클라우드 Toolbox/Skills는 L11 자원 준비 후 선택하는 확장입니다.
@@ -43,7 +44,7 @@ python -m pip install -r requirements-tools.txt
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `pip install -r requirements-tools.txt` | 활성화한 기본 가상환경에 MCP 실습 의존성을 추가합니다. `python -m pip`는 현재 Python과 설치 대상을 일치시킵니다. | 패키지 다운로드·로컬 환경 변경만 수행하며 Azure 도구를 호출하지 않습니다. |
+| 1. `pip install -r requirements-tools.txt` | 활성화한 기본 가상환경에 MCP 실습 의존성을 추가합니다. `python -m pip`는 현재 Python과 설치 대상을 일치시킵니다. | 패키지 다운로드·로컬 환경 변경만 수행하며 Microsoft Azure 도구를 호출하지 않습니다. |
 
 </div>
 
@@ -63,7 +64,7 @@ python samples/inventory_api.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `inventory_api.py` | 합성 재고를 읽는 HTTP 서버를 `127.0.0.1:8766`에 띄웁니다. 프롬프트가 바로 돌아오지 않는 것이 정상입니다. | 내 컴퓨터에서만 대기합니다. Azure 비용 없음. 끝나면 이 터미널에서 Ctrl+C로 중지합니다. |
+| 1. `inventory_api.py` | 합성 재고를 읽는 HTTP 서버를 `127.0.0.1:8766`에 띄웁니다. 프롬프트가 바로 돌아오지 않는 것이 정상입니다. | 내 컴퓨터에서만 대기합니다. Microsoft Azure 비용 없음. 끝나면 이 터미널에서 Ctrl+C로 중지합니다. |
 
 </div>
 
@@ -83,7 +84,7 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
 | 1. `curl .../health` | `curl`은 HTTP 클라이언트입니다. `--fail`은 HTTP 오류 상태를 정상 응답처럼 넘기지 않고 실패 종료하게 합니다. | 로컬 서버 준비 상태만 확인합니다. 모델·MCP 호출이 아닙니다. |
-| 2. `curl .../inventory/NB-14` | URL의 `NB-14`가 조회할 품목입니다. 서버가 CSV에서 읽은 재고 JSON을 반환합니다. | 재고 8개·단가 145만 원을 계약과 대조합니다. 읽기 전용·Azure 비용 없음. |
+| 2. `curl .../inventory/NB-14` | URL의 `NB-14`가 조회할 품목입니다. 서버가 CSV에서 읽은 재고 JSON을 반환합니다. | 재고 8개·단가 145만 원을 계약과 대조합니다. 읽기 전용·Microsoft Azure 비용 없음. |
 
 </div>
 
@@ -110,7 +111,7 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `inspect --local` | 별도 stdio MCP 서버를 자식 프로세스로 실행하고 초기화·도구 목록/계약을 조회합니다. 앞의 HTTP 서버를 재사용하는 경로는 아닙니다. | 실제 로컬 MCP 교환과 도구 이름을 확인합니다. Azure 호출 없음. |
+| 1. `inspect --local` | 별도 stdio MCP 서버를 자식 프로세스로 실행하고 초기화·도구 목록/계약을 조회합니다. 앞의 HTTP 서버를 재사용하는 경로는 아닙니다. | 실제 로컬 MCP 교환과 도구 이름을 확인합니다. Microsoft Azure 호출 없음. |
 | 2. 승인 없는 `call` | 정확한 도구·인수를 주되 `--approve-tool`은 주지 않습니다. | `Approval required` 오류와 실패 종료가 정상입니다. 실제 `tools/call` 전에 차단됩니다. |
 | 3. 승인한 `call ... get_stock` | `--tool`은 도구 이름, `--arguments`는 JSON, `--approve-tool`은 이 이름·인수의 1회 호출 허용입니다. | 재고 조회 결과와 로컬 evidence를 확인합니다. |
 | 4. `call ... prepare_purchase_request` | JSON의 수량 2로 초안 도구를 호출합니다. 외부 작은따옴표는 셸에서 JSON의 큰따옴표를 보존합니다. | 290만 원·승인 대기·미주문 상태. 도구 호출 승인은 구매 승인이 아닙니다. |
@@ -132,7 +133,7 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 
 | 순서·명령 | 하는 일 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `inspect --local` | 가상환경의 Python으로 로컬 MCP 목록을 읽습니다. | Azure 호출 없음. |
+| 1. `inspect --local` | 가상환경의 Python으로 로컬 MCP 목록을 읽습니다. | Microsoft Azure 호출 없음. |
 | 2. 승인 없는 `call` | JSON을 보존해 전달하되 도구 승인은 하지 않습니다. | `Approval required` 오류가 정상. 도구 실행 없음. |
 | 3. 승인한 `get_stock` | 같은 JSON과 정확한 이름으로 이번 호출만 허용합니다. | 로컬 재고 8개·단가 145만 원. |
 | 4. 승인한 초안 함수 | 수량 2의 입력과 도구 이름을 함께 확인합니다. | 290만 원·미주문. 실제 구매 승인 없음. |
@@ -162,7 +163,7 @@ python samples/toolbox_lab.py inspect --live
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `create` | 원격 Toolbox/Skill 생성 계획을 표시합니다. `--local` 생성은 필요 없으며 허용되지 않습니다. | Azure 요청 없음. |
+| 1. `create` | 원격 Toolbox/Skill 생성 계획을 표시합니다. `--local` 생성은 필요 없으며 허용되지 않습니다. | Microsoft Azure 요청 없음. |
 | 2. `create --live` | 고유 Toolbox와 script-free Skill을 실제 등록하고 정확한 버전을 연결합니다. | 원격 객체 생성과 로컬 `results/toolbox.json` 기록. 연결 대상 서비스의 비용·권한 조건을 먼저 확인합니다. |
 | 3. `inspect --live` | receipt의 원격 endpoint에 현재 Entra 주체로 연결하여 목록·Skill 리소스를 읽습니다. | 원격 읽기 요청이며 업무 도구 실행 성공과는 구분합니다. 빈 목록을 성공으로 표시하지 않습니다. |
 
@@ -203,7 +204,7 @@ python samples/toolbox_lab.py call --tool 실제-OPENAPI-검색도구명 --argum
 
 OpenAPI 도구의 인수는 `tools/list`의 `inputSchema`를 따릅니다.
 `api-version=2024-07-01`을 최상위에, `search`, `top<=5`, 지정 `select`를 **`body` 안에** 전달합니다. `search`를 최상위에 놓거나 Learn 도구의 `query`를 대신 쓰지 않습니다.
-`python samples/toolbox_lab.py openapi`로 **이 저장소가 생성하는 전체 계약**을 확인할 수 있습니다. `openapi`는 Search 설정/receipt로 계약 JSON을 구성해 출력하는 로컬 명령입니다. Azure 요청이나 도구 실행은 없지만 L11의 설정이 있어야 올바른 endpoint가 들어갑니다.
+`python samples/toolbox_lab.py openapi`로 **이 저장소가 생성하는 전체 계약**을 확인할 수 있습니다. `openapi`는 Search 설정/receipt로 계약 JSON을 구성해 출력하는 로컬 명령입니다. Microsoft Azure 요청이나 도구 실행은 없지만 L11의 설정이 있어야 올바른 endpoint가 들어갑니다.
 API version의 schema default만 적는 것은 실제 query parameter 전송이 아닙니다.
 
 Windows PowerShell에서 위 클라우드 호출을 선택했다면 `python`을 `.\.venv\Scripts\python.exe`로 바꾸고 실행기 뒤에 `--%`를 둡니다. `--arguments`는 바깥 **큰따옴표**로 감싸고 JSON 내부의 큰따옴표를 `\"`로 바꾸는 위 로컬 예제와 같은 문법을 사용합니다. 두 곳의 도구 이름은 직접 실제 값으로 바꿉니다. 승인 옵션이나 `--live`를 빼서 오류를 피하지 않습니다.
@@ -215,9 +216,11 @@ Skill은 resources/list에 있어야 하며 resources/read의 본문까지 확�
 </details>
 
 <details class="implementation-detail" markdown="1">
-<summary>구현 참고: 로컬 MCP 서버와 Foundry 연결의 차이 — 읽기용</summary>
+<summary>구현 참고: 로컬 MCP 서버와 Microsoft Foundry 연결의 차이 — 읽기용</summary>
 
-### 로컬 코드와 Foundry 포털의 경계
+<a id="l07-로컬-코드와-foundry-포털의-경계"></a>
+
+### 로컬 코드와 Microsoft Foundry 포털의 경계
 
 동봉 MCP 서버의 원본 코드는 합성 Python 함수를 MCP 도구로 노출합니다.
 
@@ -240,9 +243,9 @@ server.run(transport="stdio")
 
 | 실습 표면 | 실제 코드·동작 |
 | --- | --- |
-| 첫 터미널의 HTTP 서버 | `inventory_api.py`의 `Handler.do_GET()`가 `/inventory/<sku>`를 처리합니다. `127.0.0.1` 전용이라 Foundry 포털에서 직접 호출할 수 없습니다. |
+| 첫 터미널의 HTTP 서버 | `inventory_api.py`의 `Handler.do_GET()`가 `/inventory/<sku>`를 처리합니다. `127.0.0.1` 전용이라 Microsoft Foundry 포털에서 직접 호출할 수 없습니다. |
 | 두 번째 터미널의 MCP 호출 | `mcp_server.py`가 stdio tool을 제공하고 `toolbox_lab.py --local`이 자식 프로세스로 시작해 `tools/list`·`tools/call`을 보냅니다. |
-| Foundry의 Cloud Toolbox 선택 확장 | `toolbox_lab.py create`가 `MCPToolboxTool`/`OpenApiToolboxTool` 설정과 managed identity를 등록합니다. 포털에서는 같은 Toolbox/version을 확인합니다. |
+| Microsoft Foundry의 Cloud Toolbox 선택 확장 | `toolbox_lab.py create`가 `MCPToolboxTool`/`OpenApiToolboxTool` 설정과 managed identity를 등록합니다. 포털에서는 같은 Toolbox/version을 확인합니다. |
 | 한 번의 도구 승인 | `--approve-tool`은 동봉 client가 정확한 도구 이름·인수에만 적용합니다. 로컬 Python 함수의 실제 실행 승인은 별도 업무 승인이나 주문 권한이 아닙니다. |
 
 즉, 로컬 HTTP/MCP 코드는 포털의 버튼이 아니라 내 컴퓨터에서 실행됩니다. 포털 연동은 동봉 서버를 터널링하는 방식이 아니라 승인된 클라우드 Toolbox/OpenAPI 연결을 사용합니다.

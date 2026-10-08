@@ -12,7 +12,7 @@
 
 ## 목표
 
-**소스 검사가 통과한 것, Azure 배포가 된 것, 사용자가 써도 되는 것은 서로 다릅니다.** 세 판단을 분리하고 무엇이 실패하면 배포를 보류하거나 이전 버전으로 돌아갈지 정합니다.
+**소스 검사가 통과한 것, Microsoft Azure 배포가 된 것, 사용자가 써도 되는 것은 서로 다릅니다.** 세 판단을 분리하고 무엇이 실패하면 배포를 보류하거나 이전 버전으로 돌아갈지 정합니다.
 
 **무엇을 더 배우나요?** 배포·운영 자동화가 필요할 때 실패한 후보의 승격을 막고 복구 대상을 정하는 연습입니다. 참여자 역할에 따른 분기가 아니라 기능 선택이며, 문서 빌드나 Teams 게시 자체가 기본 완주 조건은 아닙니다.
 
@@ -48,10 +48,10 @@ L01의 환경과 저장소 소스가 필요합니다. **Search·Hosted·Optimize
 
 | 확인할 것 | 어떻게 판단하나요? | 실패하면 다음 행동 |
 | --- | --- | --- |
-| `push` / `pull_request` → `offline`, `sdk` | 문서·데이터·코드와 SDK 계약 검사. Azure 배포 아님 | 실패 job의 **첫 오류와 실행 명령** 확인. 마지막 “failed” 문구만 읽지 않음 |
+| `push` / `pull_request` → `offline`, `sdk` | 문서·데이터·코드와 SDK 계약 검사. Microsoft Azure 배포 아님 | 실패 job의 **첫 오류와 실행 명령** 확인. 마지막 “failed” 문구만 읽지 않음 |
 | `azure`의 `needs: [offline, sdk]` | 두 선행 검사를 통과해야 유료 경로에 진입 가능 | 실패/건너뜀을 배포 성공으로 표시하지 않음 |
 | `workflow_dispatch`, `acknowledge_cost`, `repository_id` | 명시적 opt-in과 이 저장소 조건. fork에 같은 권한이 생기지 않음 | 기본 false 유지. 실습을 위해 repository ID나 승인 조건을 제거하지 않음 |
-| `azure-validation.yml`의 `environment`, `id-token: write` | OIDC는 workflow identity 인증이며 별도의 Azure 역할·환경 승인이 필요 | branch/environment/tenant/project 불일치를 고치도록 담당자에게 전달. 장기 secret으로 임의 우회하지 않음 |
+| `azure-validation.yml`의 `environment`, `id-token: write` | OIDC는 workflow identity 인증이며 별도의 Microsoft Azure 역할·환경 승인이 필요 | branch/environment/tenant/project 불일치를 고치도록 담당자에게 전달. 장기 secret으로 임의 우회하지 않음 |
 
 GitHub를 사용할 수 있으면 **Actions → 해당 실행 → job → 실패 step**을 열어 같은 항목을 찾습니다. 없으면 소스만 읽고 “workflow 실행 미확인”으로 남깁니다. 기본 과제는 새 push나 유료 workflow dispatch를 요구하지 않습니다.
 
@@ -75,9 +75,9 @@ python scripts/check_guide.py
 
 | 순서와 명령 | 하는 일과 옵션 | 결과·비용·변경 |
 | --- | --- | --- |
-| 1. `pip install -r requirements-docs.txt` | 현재 가상환경에 선언된 Markdown 생성 의존성을 준비합니다. 이미 있으면 생략합니다. | 패키지 다운로드·로컬 설치. Azure 호출 없음. |
+| 1. `pip install -r requirements-docs.txt` | 현재 가상환경에 선언된 Markdown 생성 의존성을 준비합니다. 이미 있으면 생략합니다. | 패키지 다운로드·로컬 설치. Microsoft Azure 호출 없음. |
 | 2. `build_guide.py` | 두 언어의 원본·메타데이터로 HTML/Markdown을 생성합니다. | 로컬 파일 변경. 생성물을 손으로 수정하지 않습니다. |
-| 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | 공유 테스트를 한국어 기본값과 별도의 영어 검사로 실행합니다. | 로컬 계약 검사이며 Azure나 모델 품질 검사가 아닙니다. |
+| 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | 공유 테스트를 한국어 기본값과 별도의 영어 검사로 실행합니다. | 로컬 계약 검사이며 Microsoft Azure나 모델 품질 검사가 아닙니다. |
 | 4. `check_guide.py` | 20개 모듈과 5개 참고 절, 명령 해설, 링크, 그림 파일을 확인합니다. | 문서 검사 결과를 `results/documentation/`에 저장합니다. |
 
 </div>
@@ -105,7 +105,7 @@ python -m unittest discover -s practice/delivery -p "test_exercise.py" -v
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `prepare_practice.py delivery` | 결함 함수·테스트·선택형 workflow 템플릿을 새 폴더에 복사합니다. | 로컬 파일만 생성. GitHub push나 Azure 배포 없음. |
+| 1. `prepare_practice.py delivery` | 결함 함수·테스트·선택형 workflow 템플릿을 새 폴더에 복사합니다. | 로컬 파일만 생성. GitHub push나 Microsoft Azure 배포 없음. |
 | 2. `unittest discover` | 정상 후보·실행 실패·품질 실패·critical 실패·행 누락을 구분합니다. | 처음에는 **5개 중 3개 실패**가 정상입니다. 이 실패를 숨기지 않습니다. |
 
 </div>
@@ -134,7 +134,7 @@ def choose_version(previous: str, candidate: str, checks: dict) -> str:
 
 **결과 설명하기:** 실패한 세 테스트가 어떤 잘못된 승격을 막았는지 적고, `이전 버전 / 후보 / 실패 근거 / 유지할 버전` 표를 완성합니다. 이 함수에는 실제 배포·상태 이관이 없으므로 원격 롤백 완료라고 쓰지 않습니다.
 
-**선택: GitHub에서 같은 실패→수정 보기.** 승인된 개인 실습 저장소의 새 브랜치에서만 진행합니다. 복사된 `workflow.yml`을 `.github/workflows/contoso-practice.yml`로 두고 `practice/delivery` 코드·테스트를 함께 관리합니다. 초기 결함 상태로 Actions의 **Contoso local delivery practice → Run workflow**를 실행하면 실패하고, `exercise.py`만 고친 커밋으로 다시 실행하면 통과해야 합니다. 템플릿은 수동 실행·읽기 권한·Python 검사만 사용하며 Azure 로그인·secret·배포 단계가 없습니다. 이 저장소의 기존 `validate.yml`을 대체하거나 `acknowledge_cost`를 켜지 않습니다.
+**선택: GitHub에서 같은 실패→수정 보기.** 승인된 개인 실습 저장소의 새 브랜치에서만 진행합니다. 복사된 `workflow.yml`을 `.github/workflows/contoso-practice.yml`로 두고 `practice/delivery` 코드·테스트를 함께 관리합니다. 초기 결함 상태로 Actions의 **Contoso local delivery practice → Run workflow**를 실행하면 실패하고, `exercise.py`만 고친 커밋으로 다시 실행하면 통과해야 합니다. 템플릿은 수동 실행·읽기 권한·Python 검사만 사용하며 Microsoft Azure 로그인·secret·배포 단계가 없습니다. 이 저장소의 기존 `validate.yml`을 대체하거나 `acknowledge_cost`를 켜지 않습니다.
 
 </div>
 
@@ -220,21 +220,21 @@ private 프로젝트는 일반 포털 게시 경로가 지원되지 않을 수 �
 
 #### 로컬 승격 코드와 포털 Publish의 차이
 
-`practice/delivery/exercise.py`의 `choose_version()`은 **로컬 후보 선택 함수**입니다. 위의 수정 예처럼 네 조건이 모두 참일 때만 candidate를 반환합니다. 이 함수는 Foundry agent version을 바꾸거나 Publish를 실행하지 않습니다.
+`practice/delivery/exercise.py`의 `choose_version()`은 **로컬 후보 선택 함수**입니다. 위의 수정 예처럼 네 조건이 모두 참일 때만 candidate를 반환합니다. 이 함수는 Microsoft Foundry agent version을 바꾸거나 Publish를 실행하지 않습니다.
 
 | 실습에서 보는 것 | 실제로 하는 일 |
 | --- | --- |
 | `choose_version(previous, candidate, checks)` | 로컬 fixture에서 이전 버전 유지/후보 선택만 반환 |
 | `test_exercise.py` | 완료·quality·critical failures·missing rows 조합을 로컬에서 확인 |
-| Foundry Portal의 version/Publish | 정확한 숫자 agent version을 선택·게시하는 별도 승인 운영 작업 |
-| `azure-validation.yml` | 별도 manual 승인 경로. 로컬 fixture 테스트가 Azure workflow를 실행하지 않음 |
+| Microsoft Foundry Portal의 version/Publish | 정확한 숫자 agent version을 선택·게시하는 별도 승인 운영 작업 |
+| `azure-validation.yml` | 별도 manual 승인 경로. 로컬 fixture 테스트가 Microsoft Azure workflow를 실행하지 않음 |
 
 따라서 로컬 테스트 통과와 Portal의 실제 Publish는 서로 다른 결과 기록입니다. 기본 과제는 첫 두 줄만 실행하고, 실제 버전 전환·게시를 완료한 것으로 쓰지 않습니다.
 
 ## 성공 기준
 
 로컬 실패 3건을 재현하고 함수만 고쳐 5개 테스트를 통과시켰으며, GitHub 경로를 선택했다면 서로 다른 커밋의 실패·성공 실행을 구분합니다.
-**CI 판독표, 릴리스 명세, 실패 시 롤백 결정, 모델/비용 재확인 담당자**가 있습니다. 로컬 통과·설계 완료·Azure 미실행을 구분하고, 같은 후보의 품질 근거가 없으면 승격 보류라고 판단할 수 있습니다.
+**CI 판독표, 릴리스 명세, 실패 시 롤백 결정, 모델/비용 재확인 담당자**가 있습니다. 로컬 통과·설계 완료·Microsoft Azure 미실행을 구분하고, 같은 후보의 품질 근거가 없으면 승격 보류라고 판단할 수 있습니다.
 게시를 선택했다면 agent 실행 버전과 앱 Publish version, 대상 사용자·호출 결과를 구분해 남깁니다. 게시 성공만으로 업무 출시 승인이나 전체 권한 검증 완료를 주장하지 않습니다.
 
 ## 막혔을 때
@@ -243,7 +243,7 @@ private 프로젝트는 일반 포털 게시 경로가 지원되지 않을 수 �
 
 ## 정리
 
-개인 설정·원시 응답·receipt는 패키지에 넣지 않습니다. 작성한 CI 판독표·릴리스 명세·복구 판단표를 함께 보관합니다. 실제 유료 실행·권한 변경·Azure 삭제는 각각 별도 승인이 필요하며, 남은 자원과 비용은 L19에서 확인합니다.
+개인 설정·원시 응답·receipt는 패키지에 넣지 않습니다. 작성한 CI 판독표·릴리스 명세·복구 판단표를 함께 보관합니다. 실제 유료 실행·권한 변경·Microsoft Azure 삭제는 각각 별도 승인이 필요하며, 남은 자원과 비용은 L19에서 확인합니다.
 
 <div class="lab-handoff" markdown="1">
 

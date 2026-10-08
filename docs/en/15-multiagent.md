@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Run Agent Framework orchestration locally against an approved Foundry model. No Hosted deployment is performed.
+**Format:** Run Agent Framework orchestration locally against an approved Microsoft Foundry model. No Hosted deployment is performed.
 
 **Start here:** Prepare the separate advanced environment, finish L02's TPM/RPM check, and read the plan for one selected pattern.
 
@@ -13,7 +13,7 @@
 ## Objectives
 
 **Experience how the same roles behave under different coordination patterns.** More agents do not automatically make an answer faster or more accurate.
-This module uses the official Builders in `agent_framework.orchestrations`. It is separate from the Foundry portal Workflows feature, scheduled to retire on **2026-12-01**.
+This module uses the official Builders in `agent_framework.orchestrations`. It is separate from the Microsoft Foundry portal Workflows feature, scheduled to retire on **2026-12-01**.
 
 ## Concepts and lab map
 
@@ -23,7 +23,7 @@ This module uses the official Builders in `agent_framework.orchestrations`. It i
 
 **How do you use it?** Change only `--mode` under the same policy and question. Compare role order and actual outputs. Revision after review and specialist delegation have their own [L14 exercise](#l15-collaboration).
 
-**Where do you run it?** Run [multi_agent.py](../../samples/multi_agent.py) in a separate Python environment. Only the model is in Azure; this is not a remote A2A or business-approval exercise.
+**Where do you run it?** Run [multi_agent.py](../../samples/multi_agent.py) in a separate Python environment. Only the model is in Microsoft Azure; this is not a remote A2A or business-approval exercise.
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ Keep the advanced SDK in `requirements-advanced.txt` separate. `agent-framework-
 
 | Current state | Steps to follow | What to retain |
 | --- | --- | --- |
-| No Azure approval | Step 1 environment → step 3 plan | Explain roles and call limits; model execution remains not performed |
+| No Microsoft Azure approval | Step 1 environment → step 3 plan | Explain roles and call limits; model execution remains not performed |
 | Model, ownership receipt, and cost approval ready | 1 → 2 → 3 → 4 → 5 | Sequential/concurrent answers to one question and a comparison |
 
 Reuse L01/L02's `.env` and your receipt; Hosted/Search are unnecessary. **Unlike L06, these SDK roles review policy/questions without a stock function.** Keep the English profile selected.
@@ -58,7 +58,7 @@ python3.13 -m venv .venv-advanced
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `python3.13 -m venv` | Create the advanced environment separately from the core SDK. | Local environment creation; do not overwrite an existing environment. |
-| 2. `pip install -r requirements-advanced.txt` | Install compatible Foundry integration and orchestration Builders. | Package downloads only; no Azure request. |
+| 2. `pip install -r requirements-advanced.txt` | Install compatible Microsoft Foundry integration and orchestration Builders. | Package downloads only; no Microsoft Azure request. |
 | 3. `pip check` | Check dependencies in that same environment. | Resolve conflicts before executing. |
 
 </div>
@@ -78,7 +78,7 @@ On Windows use `.venv-advanced\Scripts\python.exe`. If an existing advanced envi
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `model_capacity.py plan --roles chat` | Read the chat TPM/RPM plan for one learner running one lab. | Local calculation; no Azure request. |
+| 1. `model_capacity.py plan --roles chat` | Read the chat TPM/RPM plan for one learner running one lab. | Local calculation; no Microsoft Azure request. |
 | 2. `check --roles chat --live` | Read the owned resource group and deployment's actual `rateLimits`. | Read-only. Below-minimum capacity fails without a model call. |
 
 </div>
@@ -97,7 +97,7 @@ If insufficient, verify your update permissions/quota/cost scope, then use L02's
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `multi_agent.py --mode concurrent` | Read the selected pattern's roles and call limit. Use the other modes below to inspect their plans. | Without `--live`, no SDK initialization, Azure request, or execution evidence is created. |
+| 1. `multi_agent.py --mode concurrent` | Read the selected pattern's roles and call limit. Use the other modes below to inspect their plans. | Without `--live`, no SDK initialization, Microsoft Azure request, or execution evidence is created. |
 
 </div>
 
@@ -211,13 +211,13 @@ concurrent = ConcurrentBuilder(
 ).build()
 ```
 
-| Foundry/code location | What it controls |
+| Microsoft Foundry/code location | What it controls |
 | --- | --- |
 | Portal → Models → Deployments | Model deployment called by the Python client |
 | `build_role(...)` | Each SDK agent's instructions and role |
 | `SequentialBuilder` | Sends the drafter's output to the reviewer |
 | `ConcurrentBuilder` | Runs independent roles together and collects per-stage output |
-| `multi_agent.py` in `.venv-advanced` | Builds orchestration locally; only approved model requests go to Foundry |
+| `multi_agent.py` in `.venv-advanced` | Builds orchestration locally; only approved model requests go to Microsoft Foundry |
 
 `drafter`, `reviewer`, `policy_agent`, `budget_agent`, and `risk` are SDK agents configured by `build_role()` with instructions/model client. `multi_agent.py` executes only the selected Builder. This is local code, not a portal workflow; verify actual inputs/stages/output in `Evidence:`.
 
