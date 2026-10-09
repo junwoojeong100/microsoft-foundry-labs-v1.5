@@ -174,11 +174,18 @@ This is the raw SDK flow for reading. Running it creates a separate store, agent
 
 ## Success criteria
 
-The 2 answerable questions have real supporting evidence, and the agent withholds an answer to the question not covered by the documents. You have compared the facts in the responses with the originals and confirmed that indexing completed.
+- You confirmed that indexing of all three files is **Completed**.
+- The 2 answerable questions have real citations, and you compared the facts in the responses with the originals.
+- The agent withholds an answer to the question not covered by the documents.
 
 ## Troubleshooting
 
-Do not start by uploading the documents again. Check the connected vector store ID, indexing failure reason, supported file formats, model/tool support, and the correct agent version. If a table appears only as an image in the file, first check for searchable text; do not assume File search has read it.
+Do not start by uploading the documents again. Check these first:
+
+- The connected vector store ID and the indexing failure reason
+- Supported file formats and model/tool support
+- The correct agent version
+- Whether a table that appears only as an image in the file has searchable text; do not assume File search has read it
 
 ## Cleanup
 

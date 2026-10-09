@@ -180,11 +180,19 @@ APIs/tool support vary by model. Check the model card and official SDK examples 
 
 ## Success criteria
 
-Your selected portal or Python request returned an actual answer; record the available status/ID, question, and deployment name. SDK execution must pass completed/nonempty-text checks. Plan-only means model execution not performed.
+- Your selected portal or Python request returned an actual answer.
+- You recorded the question, deployment name, and the available status/ID.
+- The Python path passed the completed and nonempty-text checks.
+- If you only read the plan, model execution is **not performed**.
 
 ## Troubleshooting
 
-Incomplete/empty responses do not pass. Check output limits, refusals, quota, authentication, and deployment names instead of automatically retrying 429. Portal Send and Python commands do not replay each other's results.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| Incomplete or empty response | Output limit, refusal, and deployment name | Do not record it as a pass; find the cause first. |
+| Authentication or permission error | Sign-in state, model-call permission, and the deployment name in `.env` | Compare with the values you verified in L01 and L02. |
+| 429 | Quota and request limits | Do not retry automatically; check the limits. |
+| The portal and Python answers/IDs differ | They are separate requests | Neither command replays the other's result; record each separately. |
 
 ## Cleanup
 

@@ -277,11 +277,18 @@ If actual evidence supports all five items, record **“integration lab complete
 
 ## Success criteria
 
-You have inspected the tool arguments, execution results, and final answer. Insufficient stock and invalid quantities produce explicit errors, and the agent does not claim that an actual order succeeded. If you ran Microsoft Azure integration, retain evidence for all five items and the configuration bundle. Core completion does not require repeating a separate capstone or publishing to Teams.
+- You inspected the tool arguments, execution results, and final answer.
+- Out-of-stock, insufficient-stock, and invalid-quantity requests produce explicit errors, and the agent does not claim that an actual order succeeded.
+- If you ran Microsoft Azure integration, you retained evidence for all five items and the configuration bundle.
+- Core completion does not require repeating a separate capstone or publishing to Teams.
 
 ## Troubleshooting
 
-Use the SDK if you cannot edit the function schema in the portal. Registering a function definition and having a process running to execute it are separate things. **Invoking an agent with client-side function tools from the portal or a server-side evaluation does not automatically execute your local Python functions.**
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| You cannot edit the function schema in the portal | Whether the portal supports editing it | Use the SDK. |
+| You registered a function but nothing executes | Registering a function definition and running a process that executes it are separate things | Check that a process to execute the function is running. |
+| You invoked the agent from the portal or a server-side evaluation and your local function did not run | **Invoking an agent with client-side function tools from the portal or a server-side evaluation does not automatically execute your local Python functions.** | This is expected. As in step 4, the local dispatcher in your terminal does the executing. |
 
 ## Cleanup
 

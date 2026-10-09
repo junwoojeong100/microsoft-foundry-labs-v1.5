@@ -1,4 +1,4 @@
-> **이 모듈에서 만드는 것:** CI 결과, 에이전트 릴리스 명세, 롤백 판단표, 모델·비용 점검표. 실제 배포 없이도 작성할 수 있으며 실행 증거와 설계를 구분합니다.
+> **완성할 결과:** CI 결과, 에이전트 릴리스 명세, 롤백 판단표, 모델·비용 점검표. 실제 배포 없이도 작성할 수 있으며 실행 증거와 설계를 구분합니다.
 
 <div class="lab-brief" markdown="1">
 
@@ -134,7 +134,13 @@ def choose_version(previous: str, candidate: str, checks: dict) -> str:
 
 **결과 설명하기:** 실패한 세 테스트가 어떤 잘못된 승격을 막았는지 적고, `이전 버전 / 후보 / 실패 근거 / 유지할 버전` 표를 완성합니다. 이 함수에는 실제 배포·상태 이관이 없으므로 원격 롤백 완료라고 쓰지 않습니다.
 
-**선택: GitHub에서 같은 실패→수정 보기.** 승인된 개인 실습 저장소의 새 브랜치에서만 진행합니다. 복사된 `workflow.yml`을 `.github/workflows/contoso-practice.yml`로 두고 `practice/delivery` 코드·테스트를 함께 관리합니다. 초기 결함 상태로 Actions의 **Contoso local delivery practice → Run workflow**를 실행하면 실패하고, `exercise.py`만 고친 커밋으로 다시 실행하면 통과해야 합니다. 템플릿은 수동 실행·읽기 권한·Python 검사만 사용하며 Microsoft Azure 로그인·secret·배포 단계가 없습니다. 이 저장소의 기존 `validate.yml`을 대체하거나 `acknowledge_cost`를 켜지 않습니다.
+**선택: GitHub에서 같은 실패→수정 보기.** 승인된 개인 실습 저장소의 **새 브랜치**에서만 진행합니다.
+
+1. 복사된 `workflow.yml`을 `.github/workflows/contoso-practice.yml`로 두고 `practice/delivery` 코드·테스트를 함께 관리합니다.
+2. 초기 결함 상태로 Actions의 **Contoso local delivery practice → Run workflow**를 실행합니다. 실패해야 합니다.
+3. `exercise.py`만 고친 커밋으로 다시 실행합니다. 통과해야 합니다.
+
+템플릿은 수동 실행·읽기 권한·Python 검사만 사용하며 Microsoft Azure 로그인·secret·배포 단계가 없습니다. 이 저장소의 기존 `validate.yml`을 대체하거나 `acknowledge_cost`를 켜지 않습니다.
 
 </div>
 
@@ -233,13 +239,18 @@ private 프로젝트는 일반 포털 게시 경로가 지원되지 않을 수 �
 
 ## 성공 기준
 
-로컬 실패 3건을 재현하고 함수만 고쳐 5개 테스트를 통과시켰으며, GitHub 경로를 선택했다면 서로 다른 커밋의 실패·성공 실행을 구분합니다.
-**CI 판독표, 릴리스 명세, 실패 시 롤백 결정, 모델/비용 재확인 담당자**가 있습니다. 로컬 통과·설계 완료·Microsoft Azure 미실행을 구분하고, 같은 후보의 품질 근거가 없으면 승격 보류라고 판단할 수 있습니다.
-게시를 선택했다면 agent 실행 버전과 앱 Publish version, 대상 사용자·호출 결과를 구분해 남깁니다. 게시 성공만으로 업무 출시 승인이나 전체 권한 검증 완료를 주장하지 않습니다.
+- 로컬 실패 3건을 재현하고 함수만 고쳐 5개 테스트를 통과시켰습니다. GitHub 경로를 선택했다면 서로 다른 커밋의 실패·성공 실행을 구분했습니다.
+- **CI 판독표, 릴리스 명세, 실패 시 롤백 결정, 모델/비용 재확인 담당자**가 있습니다.
+- 로컬 통과·설계 완료·Microsoft Azure 미실행을 구분하고, 같은 후보의 품질 근거가 없으면 승격 보류라고 판단할 수 있습니다.
+- 게시를 선택했다면 agent 실행 버전과 앱 Publish version, 대상 사용자·호출 결과를 구분해 남겼습니다. 게시 성공만으로 업무 출시 승인이나 전체 권한 검증 완료를 주장하지 않습니다.
 
 ## 막혔을 때
 
-`azure`가 skipped라면 먼저 opt-in 조건을 읽습니다. 기본 push에서 건너뛴 것은 오류가 아닙니다. workflow 성공인데 응답이 틀렸다면 어떤 검사가 실제로 실행됐는지 확인합니다. 배포/롤백 오류는 agent version·protocol·runtime identity·모델/연결을 순서대로 대조하며 무조건 재배포하지 않습니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| `azure`가 skipped | opt-in 조건 | 기본 push에서 건너뛴 것은 오류가 아닙니다. |
+| workflow는 성공인데 응답이 틀림 | 어떤 검사가 실제로 실행됐는지 | workflow 성공만으로 응답이 맞다고 판단하지 않습니다. |
+| 배포/롤백 오류 | agent version·protocol·runtime identity·모델/연결을 순서대로 대조 | 무조건 재배포하지 않습니다. |
 
 ## 정리
 

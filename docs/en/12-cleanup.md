@@ -22,7 +22,7 @@
 
 **How do you use it?** Follow only the row for work you performed. Check execution state, shared use, and ownership. Delete only approved targets and recheck costs after billing delays.
 
-**Where do you run it?** For local-only work, stop your PC's server. For Microsoft Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../../scripts/stop_sessions.py) acts without `--live`.
+**Where do you run it?** For local-only work, stop the server in the same Codespace (or on your PC if you used the PC alternative). For Microsoft Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../../scripts/stop_sessions.py) acts without `--live`.
 
 ## Prerequisites
 
@@ -191,21 +191,24 @@ This excerpt shows target verification/deletion calls in `cleanup()`. The functi
 
 ## Success criteria
 
-For each created resource, record **state (deleted / shared / retained)** together with **an owner and next check time**. Retained resources also need a deadline. Check that no unintended routines, continuous evaluations, or voice sessions remain active.
+- For each created resource, you recorded **state (deleted / shared / retained)** together with **an owner and next check time**. Retained resources also have a deadline.
+- You checked that no unintended routines, continuous evaluations, or voice sessions remain active. If you started L07's server, you confirmed it stopped in that terminal.
+- If you created no Microsoft Azure resources, you wrote **“local exercises only / no Microsoft Azure creation.”**
+
+Record one row per resource, like this:
 
 | Resource name | State and evidence | Owner | Retention deadline / next cost check |
 | --- | --- | --- | --- |
 | Record each resource you created | Observed value; write unverified if you could not inspect it | Assign explicitly | Assign explicitly |
 
-If you created no Microsoft Azure resources, write **“local exercises only / no Microsoft Azure creation.”** If you started L07's server, confirm it stopped in that terminal.
-
-For environments where deletion is prohibited, record “Retain until explicit deletion approval.”
-Search Basic, logs, and storage may continue to incur costs without requests.
-A follow-up within 24 hours of validation completion is recommended. Do not conclude “zero cost” without someone responsible for checking.
+For environments where deletion is prohibited, record “Retain until explicit deletion approval.” Search Basic, logs, and storage may continue to incur costs without requests. A follow-up within 24 hours of validation completion is recommended. Do not conclude “zero cost” without someone responsible for checking.
 
 ## Troubleshooting
 
-Do not hide deletion errors. Record the resource ID, error code, and responsible owner, and flag potential ongoing costs. If a timeout leaves it unclear whether the server created an object, check the lab name and creation time in the portal as well as the receipt.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| A deletion error | The resource ID, error code, and responsible owner | Do not hide it; record it and flag potential ongoing costs. |
+| After a timeout it is unclear whether the server created an object | The receipt and the lab name and creation time in the portal | Compare both. |
 
 ## Cleanup
 

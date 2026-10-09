@@ -86,11 +86,12 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispa
 </div>
 
 Create a uniquely named one-time timer in the **disabled** state, then dispatch it manually.
-The manifest has 1 trigger and 1 action; the English input is “Summarize Contoso policies; no external sending, orders, or approvals.”
-Pass `action.input` through a file; do not use a nonexistent create `--input` option.
-Do not overwrite an existing receipt. Specify a separate path with `--receipt` for a new experiment.
-Before dispatch, the script exclusively creates a separate `.dispatch.json` attempt record, so even after a timeout
-it does not automatically invoke the same receipt again. A manual acceptance ID alone does not establish execution success.
+
+- The manifest has 1 trigger and 1 action; the English input is “Summarize Contoso policies; no external sending, orders, or approvals.”
+- Pass `action.input` through a file; do not use a nonexistent create `--input` option.
+- Do not overwrite an existing receipt. Specify a separate path with `--receipt` for a new experiment.
+- Before dispatch, the script exclusively creates a separate `.dispatch.json` attempt record, so even after a timeout it does not automatically invoke the same receipt again.
+- A manual acceptance ID alone does not establish execution success.
 
 ### 2. Verify real scheduled execution
 
@@ -111,11 +112,10 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py sched
 
 </div>
 
-The script checks for the actual action trace for up to 6 minutes and disables the routine in `finally`.
-It puts a unique verification marker in the input and looks only for an `invoke_agent` span for the same agent,
-after the scheduled time, with exactly the same user input. Verification requires all of the following:
-a successful span, an actual response ID, an assistant `finish_reason=stop`, and nonempty output.
-Redacted output, in-progress/failed records, and responses to different inputs are not success evidence.
+The script checks for the actual action trace for up to 6 minutes and disables the routine in `finally`. It puts a unique verification marker in the input and looks only for an `invoke_agent` span for the same agent, after the scheduled time, with exactly the same user input.
+
+- **Verification requires all of these:** a successful span, an actual response ID, an assistant `finish_reason=stop`, and nonempty output.
+- **Not success evidence:** redacted output, in-progress/failed records, and responses to different inputs.
 
 <details class="optional-path" markdown="1">
 <summary>Why inspect traces instead of CLI run history?</summary>
@@ -219,17 +219,19 @@ created = azd(
 
 ## Success criteria
 
-You have verified the action execution after the actual scheduled time, the completed business response, and the disabled state.
-If you only created a schedule or manually dispatched it, record execution as complete only for that scope.
-If the status query failed, do not write “it has probably stopped.”
-If you could not read the run ID, leave it `null`, distinct from response/trace IDs.
-Human content review is optional guidance; do not mark an unperformed review as completed.
+- You verified the action execution after the actual scheduled time, the completed business response, and the disabled state.
+- If you only created a schedule or manually dispatched it, record execution as complete only for that scope.
+- If the status query failed, do not write “it has probably stopped.”
+- If you could not read the run ID, leave it `null`, distinct from response/trace IDs.
+- Human content review is optional guidance; do not mark an unperformed review as completed.
 
 ## Troubleshooting
 
-A CLI JSON decode error can occur after the service operation has already succeeded.
-Rather than immediately recreating it under a new name, first check show/list for the receipt's name.
-Distinguish permission, protocol, model quota, and tool authentication errors using actual action traces and original errors, not an empty CLI run-history result.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| A CLI JSON decode error | It can occur after the service operation has already succeeded | Rather than immediately recreating it under a new name, first check show/list for the receipt's name. |
+| A permission, protocol, model quota, or tool authentication error | The actual action traces and the original error | Compare both to tell the causes apart. |
+| The CLI run history is empty | An empty result alone does not identify a cause | Do not conclude a cause from it. |
 
 ## Cleanup
 

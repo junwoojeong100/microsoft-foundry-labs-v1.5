@@ -204,12 +204,16 @@ Defender, Purview, and Entra integrations may each require product-specific conf
 
 ## Success criteria
 
-Reproduce the two initial local failures and explain why your repair passes all five tests without expanding access.
-Complete a per-principal allow/deny table, three network paths, one denied-case design, and audit/revocation owners. Distinguish **design example, read-only observation, and actual allow/deny tests**; claim a live test only with evidence from both sides.
+- You reproduced the two initial local failures and can explain why your repair passes all five tests without expanding access.
+- You completed a per-principal allow/deny table, three network paths, one denied-case design, and audit/revocation owners.
+- You distinguished **design example, read-only observation, and actual allow/deny tests**; claim a live test only with evidence from both sides.
 
 ## Troubleshooting
 
-Do not assume every 403 is an RBAC problem. Separate endpoint DNS, public network blocking, VNet paths, and identity. Broader permissions do not fix an unsupported feature.
+| Symptom | Check first |
+| --- | --- |
+| 403 | Do not assume it is an RBAC problem. Separate endpoint DNS, public network blocking, VNet paths, and identity. |
+| An unsupported feature | Broader permissions do not fix it. |
 
 ## Cleanup
 

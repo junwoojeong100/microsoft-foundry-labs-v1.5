@@ -232,13 +232,19 @@ concurrent = ConcurrentBuilder(
 
 ## Success criteria
 
-Distinguish actual draft propagation in sequential execution from the three independent concurrent results. Explain the responses, elapsed time, and tokens for the patterns you ran.
-A reviewer's agreement is neither human approval nor an automatic quality pass. If you only read plans, model execution remains not performed.
+- You can distinguish actual draft propagation in sequential execution from the three independent concurrent results.
+- You can explain the responses, elapsed time, and tokens for the patterns you ran.
+- You did not treat a reviewer's agreement as human approval or an automatic quality pass.
+- If you only read plans, model execution remains **not performed**.
 
 ## Troubleshooting
 
-For `agent_framework_orchestrations` import errors, check the advanced environment's installation path. If TPM/RPM is insufficient, return to L02. On 429, do not keep sending requests; inspect the error, limits, and other simultaneous users.
-An oversized input or truncated response is a failure. Inspect context length and actual output rather than fabricating results or blindly increasing limits.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| `agent_framework_orchestrations` import error | The advanced environment's installation path | Do not mix it with the core environment. |
+| TPM/RPM is insufficient | L02 throughput | Return to L02. |
+| 429 | The earlier error, limits, and other simultaneous users | Do not keep sending requests. |
+| Oversized input or truncated response | Context length and actual output | It is a failure. Do not fabricate results or blindly increase limits. |
 
 ## Cleanup
 

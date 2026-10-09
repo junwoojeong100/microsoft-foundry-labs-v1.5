@@ -174,8 +174,8 @@ main { padding: 38px 48px 48px; min-width: 0; max-width: 1220px; margin: 0 auto;
 .operator-only > summary::before { content: "↳ "; color: var(--amber); }
 .prose strong { color: var(--heading); font-weight: 750; }
 .prose h2 { font-size: 25px; color: var(--heading); letter-spacing: -.6px; margin: 44px 0 16px; line-height: 1.4; padding-top: 6px; }
-.prose h3 { font-size: 19px; color: var(--heading); letter-spacing: -.3px; margin: 30px 0 14px; line-height: 1.55; }
-.prose h4 { font-size: 18px; color: var(--heading); margin: 26px 0 12px; line-height: 1.55; }
+.prose h3 { font-size: 20px; color: var(--heading); letter-spacing: -.3px; margin: 32px 0 14px; line-height: 1.55; }
+.prose h4 { font-size: 16.5px; color: var(--accent); margin: 24px 0 10px; line-height: 1.55; }
 .prose h2::before { content: ""; display: inline-block; width: 4px; height: 19px; border-radius: 3px; background: var(--accent); margin-right: 10px; vertical-align: -1px; }
 .prose blockquote { margin: 22px 0; background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 15px 20px; border-radius: 0 9px 9px 0; font-size: 16px; }
 .prose blockquote p { margin: 0; }

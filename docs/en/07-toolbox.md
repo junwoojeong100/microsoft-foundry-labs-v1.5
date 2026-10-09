@@ -1,4 +1,4 @@
-> **What you will build:** Verification of actual MCP/OpenAPI results—not just tool lists—along with Toolbox/Skill versions, authentication identities, and approval decisions.
+> **What you will build:** Query the same inventory over local HTTP and MCP, and verify that a tool call without approval is blocked. Cloud Toolbox/Skills are an optional extension.
 
 <div class="lab-brief" markdown="1">
 
@@ -27,12 +27,14 @@ and a Skill provides instructions for repeatable work.** A Skill is neither appr
 
 ## Prerequisites
 
-**Reuse L01's Codespace.** Core/MCP dependencies are already prepared; do not reinstall them. Core steps 1–2 need no Microsoft Azure account.
-Open both terminals in that same Codespace. Here `127.0.0.1` means the Codespace, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
-The cloud steps require Search from L11 and the Search Index Data Reader role for the project managed identity.
-**Only steps 1–2 below—local HTTP/OpenAPI and MCP—are required for the core course.**
-Cloud Toolbox/Skills in steps 3–4 are optional extensions after preparing the L11 resources.
-Core-course learners do not need to complete L11 first.
+**Reuse L01's Codespace.** Core/MCP dependencies are already prepared; do not reinstall them.
+
+| Scope | Steps to do | What you need |
+| --- | --- | --- |
+| Core course | 1. Local HTTP/OpenAPI → 2. MCP calls → stop the server | Two terminals in the same Codespace. No Microsoft Azure account |
+| Optional extension | The collapsed cloud Toolbox/Skills in steps 3–4 | Search from L11 and the Search Index Data Reader role for the project managed identity |
+
+**Core-course learners do not need to complete L11 first.** Open both terminals in the same Codespace. Here `127.0.0.1` means the Codespace, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
 
 <details class="environment-option" markdown="1">
 <summary>Only on your PC or when MCP packages are missing: manual installation</summary>
@@ -273,22 +275,24 @@ The local HTTP/MCP code runs on your computer, not inside a portal button. Porta
 
 ## Success criteria
 
-For the core course, complete this chapter by verifying the local HTTP response, actual results from both MCP tools, and the approval block for each tool.
-If you perform the cloud extension, separately retain tools/list, call, and Skill-read results, plus the version, caller, backend identity, and approval records.
-Do not count these as execution of Tool search Preview or an external business-system integration.
+- You verified the local HTTP response (8 units in stock, unit price KRW 1,450,000).
+- You verified the actual results from both MCP tools, and that an unapproved call is blocked before it is made.
+- You stopped the server terminal with Ctrl+C.
+- If you perform the cloud extension, separately retain tools/list, call, and Skill-read results, plus the version, caller, backend identity, and approval records. Do not count these as execution of Tool search Preview or an external business-system integration.
 
 ## Troubleshooting
 
-| Local symptom | Next action |
+| Symptom | Next action |
 | --- | --- |
 | `Connection refused` | Check the server and its port in the first terminal; call from the second terminal |
 | `Address already in use` | Check your own server window first. Do not forcibly stop another process. If you use an available port with `inventory_api.py --port 18766`, change both `curl` URLs to that same port |
 | `No module named mcp` | Check the L01 Python path and whether that environment has `requirements-tools.txt` installed |
 | JSON parsing error | Use your OS's block, particularly Windows's `--%` and quoting syntax |
 | `Approval required` | Expected for the unapproved-call exercise; for an approved call, compare the exact reviewed name/arguments with `--approve-tool` |
+| `403` in the cloud extension | Distinguish the caller from the project managed identity |
+| Empty list in the cloud extension | Check the connection, schema, and tool-support status |
 
-For 403 errors, distinguish the caller from the project managed identity. For an empty list, check
-the connection, schema, and tool-support status. Do not hide errors by switching authentication to `anonymous` or approval to `never`.
+Do not hide errors by switching authentication to `anonymous` or approval to `never`.
 
 ## Cleanup
 

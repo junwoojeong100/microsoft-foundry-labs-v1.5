@@ -134,7 +134,13 @@ def choose_version(previous: str, candidate: str, checks: dict) -> str:
 
 **Explain the result:** Describe the incorrect promotion prevented by each of the three failed tests. Complete a `previous version / candidate / failure evidence / version to keep` table. This function performs neither deployment nor state migration, so do not call it completed remote rollback.
 
-**Optional: observe the same failure→repair in GitHub.** Use only a new branch in an approved personal training repository. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit, then on a commit changing only `exercise.py`; expect failure then success. The template has manual dispatch, read-only permissions, and Python checks—no Microsoft Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
+**Optional: observe the same failure→repair in GitHub.** Use only a **new branch** in an approved personal training repository.
+
+1. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`.
+2. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit. It should fail.
+3. Run it again on a commit changing only `exercise.py`. It should pass.
+
+The template has manual dispatch, read-only permissions, and Python checks—no Microsoft Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
 
 </div>
 
@@ -233,13 +239,18 @@ A passing local test and an actual portal Publish are different records. The cor
 
 ## Success criteria
 
-Reproduce the three local failures, repair only the function, and obtain five passes. If you use GitHub, distinguish failed/passing runs from their different commits.
-Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Microsoft Azure not executed. Hold promotion without quality evidence for the same candidate.
-If you choose publishing, separately record the runnable agent version, app Publish version, audience, and invocation results. Publishing success alone is neither business-release approval nor a complete authorization assessment.
+- You reproduced the three local failures, repaired only the function, and obtained five passes. If you use GitHub, you distinguished failed/passing runs from their different commits.
+- You retained a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**.
+- You distinguished local pass, design complete, and Microsoft Azure not executed, and you hold promotion without quality evidence for the same candidate.
+- If you chose publishing, you separately recorded the runnable agent version, app Publish version, audience, and invocation results. Publishing success alone is neither business-release approval nor a complete authorization assessment.
 
 ## Troubleshooting
 
-If `azure` is skipped, read its opt-in condition; skipping on an ordinary push is not an error. If a workflow is green but the answer is wrong, check what actually ran. For deployment/rollback failures, inspect agent version, protocol, runtime identity, and model/connections in order rather than blindly redeploying.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| `azure` is skipped | Its opt-in condition | Skipping on an ordinary push is not an error. |
+| A workflow is green but the answer is wrong | What actually ran | Do not treat a green workflow as proof the answer is right. |
+| A deployment/rollback failure | Agent version, protocol, runtime identity, and model/connections, in that order | Do not blindly redeploy. |
 
 ## Cleanup
 

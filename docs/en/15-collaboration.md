@@ -179,7 +179,9 @@ Participants are SDK agents from `build_role()`. Group chat stops after three as
 
 ## Success criteria
 
-Within the patterns you ran, identify group chat's three contributions and final revision, and handoff's actual delegation call, specialist answer, and terminal state. Do not report review/delegation as human approval or remote A2A success.
+- Within the patterns you ran, you identified group chat's three contributions and final revision.
+- You identified handoff's actual delegation call, specialist answer, and terminal state.
+- You did not report review/delegation as human approval or remote A2A success.
 
 ## Troubleshooting
 

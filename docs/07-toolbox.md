@@ -1,4 +1,4 @@
-> **완성할 결과:** 목록뿐 아니라 MCP/OpenAPI의 실제 결과, Toolbox/Skill 버전, 인증 주체와 승인 결정을 확인합니다.
+> **완성할 결과:** 로컬 HTTP와 MCP로 같은 재고를 조회하고, 승인 없는 도구 호출이 차단되는 것을 확인합니다. 클라우드 Toolbox/Skill은 선택 확장입니다.
 
 <div class="lab-brief" markdown="1">
 
@@ -27,12 +27,14 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 
 ## 준비
 
-**L01의 Codespaces를 그대로 사용합니다.** 기본/MCP 의존성은 이미 준비되어 있으므로 다시 설치하지 않습니다. 기본 1–2단계에는 Microsoft Azure 계정이 필요 없습니다.
-두 터미널 모두 같은 Codespace 안에서 엽니다. `127.0.0.1`은 그 Codespace를 가리키므로 아래 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
-클라우드 단계는 L11의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
-**기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
-3–4단계의 클라우드 Toolbox/Skills는 L11 자원 준비 후 선택하는 확장입니다.
-기본 코스 학습자가 L11을 먼저 진행할 필요는 없습니다.
+**L01의 Codespaces를 그대로 사용합니다.** 기본/MCP 의존성은 이미 준비되어 있으므로 다시 설치하지 않습니다.
+
+| 범위 | 진행할 단계 | 필요한 것 |
+| --- | --- | --- |
+| 기본 코스 | 1. 로컬 HTTP/OpenAPI → 2. MCP 호출 → 서버 중지 | 같은 Codespace의 터미널 두 개. Microsoft Azure 계정 불필요 |
+| 선택 확장 | 접힌 3–4단계의 클라우드 Toolbox/Skills | L11의 Search, 프로젝트 관리 ID의 Search Index Data Reader 역할 |
+
+**기본 코스는 L11을 먼저 할 필요가 없습니다.** 두 터미널 모두 같은 Codespace에서 엽니다. `127.0.0.1`은 그 Codespace를 가리키므로 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
 
 <details class="environment-option" markdown="1">
 <summary>내 PC를 쓰거나 MCP 패키지가 없을 때만: 수동 설치</summary>
@@ -57,7 +59,7 @@ python -m pip install -r requirements-tools.txt
 
 ## 실행
 
-### 1. 로컬 HTTP/OpenAPI 계약
+### 1. 로컬 HTTP/OpenAPI 계약 확인하기
 
 첫 터미널에서 서버를 시작하고 켜 둡니다.
 
@@ -106,7 +108,7 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 이 서버는 loopback·무인증 연습용입니다. 클라우드에서 접근하지 못하는 것이 정상이며
 터널로 외부 공개하지 않습니다.
 
-### 2. 동봉 MCP 서버를 실제 호출
+### 2. 동봉 MCP 서버를 실제로 호출하기
 
 서버가 대기 중인 첫 터미널이 아니라 **두 번째 터미널**에서 이어 실행합니다. 이 단계의 MCP 서버는 명령이 따로 시작하므로 서버 창을 하나 더 열 필요가 없습니다.
 
@@ -273,22 +275,24 @@ server.run(transport="stdio")
 
 ## 성공 기준
 
-기본 코스는 로컬 HTTP 응답과 MCP 2종의 실제 결과, 도구별 승인 차단을 확인하면 이 장을 완료합니다.
-클라우드 확장을 수행했다면 tools/list·call·Skill read, version·caller·backend identity·승인 기록까지 별도로 확보합니다.
-Tool search Preview나 외부 업무 시스템 연결을 실행한 것으로 합산하지 않습니다.
+- 로컬 HTTP 응답(재고 8개·단가 145만 원)을 확인했습니다.
+- MCP 도구 2종의 실제 결과를 확인했고, 승인 없는 호출이 호출 전에 차단됨을 확인했습니다.
+- 서버 터미널을 Ctrl+C로 종료했습니다.
+- 클라우드 확장을 수행했다면 tools/list·call·Skill read, version·caller·backend identity·승인 기록까지 **별도로** 확보했습니다. Tool search Preview나 외부 업무 시스템 연결을 실행한 것으로 합산하지 않습니다.
 
 ## 막혔을 때
 
-| 로컬 증상 | 다음 행동 |
+| 증상 | 다음 행동 |
 | --- | --- |
 | `Connection refused` | 첫 터미널의 서버가 켜져 있는지와 현재 포트를 확인. 서버 창에서는 대기하고 두 번째 창에서 호출 |
 | `Address already in use` | 먼저 자신이 켠 서버 창 확인. 다른 프로세스를 강제 종료하지 말고 사용 가능한 포트로 `inventory_api.py --port 18766`을 실행했다면 두 `curl` URL도 같은 포트로 변경 |
 | `No module named mcp` | L01에서 Python 경로를 확인하고 그 가상환경에 `requirements-tools.txt`가 설치됐는지 확인 |
 | JSON 해석 오류 | 자기 OS의 명령 블록 사용. 특히 Windows는 위 `--%`·따옴표 문법을 그대로 사용 |
 | `Approval required` | 승인 없는 호출 과제에서는 정상. 승인한 호출을 하려면 확인한 이름·인수의 `--approve-tool` 값 대조 |
+| 클라우드 확장의 `403` | 호출자와 프로젝트 MI를 구분해 확인 |
+| 클라우드 확장의 빈 목록 | connection·schema·도구 지원 상태를 확인 |
 
-403은 호출자와 프로젝트 MI를 구분해 봅니다. 빈 목록은 connection/schema/도구 지원 상태를
-확인합니다. 인증을 `anonymous`나 승인을 `never`로 바꾸어 오류를 숨기지 않습니다.
+인증을 `anonymous`나 승인을 `never`로 바꾸어 오류를 숨기지 않습니다.
 
 ## 정리
 

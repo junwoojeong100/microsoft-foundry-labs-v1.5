@@ -1,4 +1,4 @@
-> **What you build:** A method for comparing v1/v2 answers under matched conditions and explaining differences, ties, or failures using scores and judge reasons.
+> **What you will build:** A method for comparing v1/v2 answers under matched conditions and explaining differences, ties, or failures using scores and judge reasons.
 
 <div class="lab-brief" markdown="1">
 
@@ -26,7 +26,17 @@
 
 ## Prerequisites
 
-Use **your L01 project, chat/judge deployments, and ownership receipt**. Do not count another person's results as your execution. Without live prerequisites, read inputs/rubric and record actual evaluation not performed.
+**Without live prerequisites, stop after the instruction/question comparison in step 1** and record actual collection and evaluation as not performed. When you do run them, use your own environment from L01, and do not count another person's results as your execution.
+
+| What you do | What you need |
+| --- | --- |
+| Read the instructions and questions | The bundled v1/v2 and question files. No Microsoft Azure account |
+| Collect your answers | L01's project, ownership record, and `.env`; the chat deployment checked in L02; and a request budget |
+| Evaluate the saved originals | The judge deployment in the same environment, an evaluation cost scope, and the completed collection file |
+
+Chat is **`gpt-6-sol / 2026-09-22`**, deployment `contoso-chat`. The judge is **`gpt-4.1 / 2025-04-14`**, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`. `.env` and `results/azure-environment.json` must point to the same target; check the actual TPM/RPM in L02. **Search, Hosted, Optimizer, and holdout are unnecessary for this comparison.**
+
+The collection code reads back the current RG ownership tags, project, deployments, and throughput, and uses a collision-resistant **evaluation-only Prompt Agent** with pinned v1/v2 versions. It does not evaluate L06's function execution.
 
 | Term | Plain-language meaning |
 | --- | --- |
@@ -34,12 +44,6 @@ Use **your L01 project, chat/judge deployments, and ownership receipt**. Do not 
 | Judge / Native evaluation | The grading model / an evaluation performed by Microsoft Foundry |
 | Completeness / Relevance / Groundedness | Were all requests addressed / was the answer relevant / was it supported? |
 | Dev / Holdout | Practice data exposed during improvement / a separate final test excluded from improvement |
-
-Use L01's environment and L02's **`gpt-6-sol / 2026-09-22`**, deployment `contoso-chat`. `.env` and the ownership record must agree.
-
-Native evaluation uses L01's distinct **`gpt-4.1 / 2025-04-14`** judge, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`. Check chat/judge limits in L02. Search, Hosted, Optimizer, and holdout are unnecessary.
-
-New execution uses **your own `results/azure-environment.json` and `.env`**. The collection code reads back current RG ownership tags, project, deployments, and throughput, creates a collision-resistant Prompt Agent name, and pins v1/v2 versions.
 
 Keep `FOUNDRY_LAB_LANGUAGE=en` selected in the separate English folder. Both instructions receive the same synthetic policy context; this is not live Search retrieval. Expected behavior and grading criteria are excluded from target-model input and supplied only to the judge.
 
@@ -61,6 +65,17 @@ Do not put case IDs or question-specific answers into instructions. Without an a
 ### 2. Collect and evaluate your own answers once
 
 Verify your project, language, request count, time, and cost scope. With prerequisites met, the default is **plan → collect → evaluate**.
+
+```text
+The same 12 questions + the same policy context
+  ├─ v1 instructions → your 12 answers
+  └─ v2 instructions → your 12 answers
+       ↓ check the 24 originals in the collection JSON, then stop
+       ↓ submit only that completed file to Native evaluation
+Evaluation JSON → compare originals, scores, and judge reasons for the same question
+```
+
+**Collection and evaluation are separate runs.** Do not run the commands below back to back; check that collection completed in between. Evaluation does not call the target agent again.
 
 ```bash
 python samples/instruction_prompt_agent_lab.py
@@ -193,12 +208,19 @@ These are exposed **dev** questions, not an independent **holdout** or a general
 
 ## Success criteria
 
-For reading only, explain the comparison conditions and evidence to inspect, and record **actual evaluation not run**.
-For live execution, connect all twelve v1/v2 pairs with pinned versions, native scores, judge reasons, errors, and missing rows. Explain differences, ties, or regressions from evidence; never promise an improvement beforehand.
+- **If you only read:** explain the comparison conditions and the evidence to inspect, and record **actual evaluation not run**.
+- **If you ran it:** connect all twelve v1/v2 pairs with pinned versions, native scores, judge reasons, errors, and missing rows.
+- Explain differences, ties, or regressions from evidence; never promise an improvement beforehand.
 
 ## Troubleshooting
 
-For 401/403, check your project, caller identity, and roles. For 404, check the actual deployment name and endpoint. For 429, inspect TPM/RPM and shared traffic rather than retrying indefinitely. Do not submit a failed or partial collection to evaluation, or silently change the target or judge model.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| 401/403 | Your project, caller identity, and roles | Check only the missing role. |
+| 404 | The actual deployment name and endpoint | Compare with `.env` and the ownership record. |
+| 429 | TPM/RPM and shared traffic | Do not retry indefinitely. |
+| The collection file is failed or partial | `status` and `rows` in the collection JSON | Do not submit it to evaluation. |
+| You want to change the model or judge | Whether both instructions still share the same conditions | Do not silently change the target or judge model. |
 
 ## Cleanup
 

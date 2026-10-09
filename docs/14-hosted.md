@@ -135,15 +135,12 @@ python scripts/build_hosted.py
 
 </div>
 
-`.build/contoso/`와 `.build/contoso-code.zip`을 만듭니다.
-Optimizer용 Responses 프로필은 `.build/contoso-responses/`에 별도로 생성합니다.
-이 분리 덕분에 Optimizer의 설정 로딩을 고쳐도 이미 검증한 기본 Invocations 런타임을 바꾸지 않습니다.
-구매 정책·재고·instructions·실행 코드·고정 의존성만 포함하고,
-`.env`, 인증, 평가 정답, 기존 결과, 개인 환경은 포함하지 않습니다.
-`package-manifest.json`의 파일별 hash와 runtime contract를 확인합니다.
-외부 샘플 저장소를 복제할 필요가 없습니다.
+- **만들어지는 것:** `.build/contoso/`와 `.build/contoso-code.zip`. Optimizer용 Responses 프로필은 `.build/contoso-responses/`에 별도로 생성합니다. 이 분리 덕분에 Optimizer의 설정 로딩을 고쳐도 이미 검증한 기본 Invocations 런타임을 바꾸지 않습니다.
+- **포함:** 구매 정책·재고·instructions·실행 코드·고정 의존성
+- **제외:** `.env`, 인증, 평가 정답, 기존 결과, 개인 환경
+- **확인:** `package-manifest.json`의 파일별 hash와 runtime contract. 외부 샘플 저장소를 복제할 필요가 없습니다.
 
-### 2. 로컬 실행과 호출
+### 2. 로컬에서 실행하고 호출하기
 
 서버 터미널에서 다음 동봉 helper를 실행합니다. L01/L11의 `.env`와 `results/search.json`에서
 허용된 비밀 없는 값만 자식 프로세스로 전달합니다.
@@ -243,7 +240,7 @@ python scripts/runtime_roles.py --agent contoso-purchasing --live
 
 `configure_hosted.py`가 `AZURE_LOCATION`을 포함한 프로젝트 바인딩을 준비합니다. `.azure/`와 `azd env get-values` 전체를 공개하지 않습니다. 동봉 `azure.yaml`은 **code deployment**이며 Docker/ACR가 필수는 아닙니다. 이미 L01에서 자원을 만들었으므로 여기서 `azd provision`을 추가 실행하지 않습니다. 배포마다 새 immutable version이 생깁니다.
 
-### 4. 정확한 버전 원격 호출
+### 4. 정확한 버전을 원격 호출하기
 
 ```bash
 python samples/hosted_client.py invoke --version 실제숫자 --live
@@ -327,13 +324,19 @@ async def handle(request: Request):
 
 ## 성공 기준
 
-패키징·서버 시작·로컬 업무 결과·배포·같은 버전 원격 업무 결과를 각각 확인했습니다.
-hash·도구·citation이 연결되고, 배포만 성공한 상태를 품질 통과로 표시하지 않습니다.
+- 패키징·서버 시작·로컬 업무 결과·배포·같은 버전 원격 업무 결과를 **각각** 확인했습니다.
+- hash·도구·citation이 연결됩니다.
+- 배포만 성공한 상태를 품질 통과로 표시하지 않았습니다.
 
 ## 막혔을 때
 
-health 실패는 entry point/의존성, 502는 보존된 upstream 오류, 403은 runtime ID의
-모델/Search 역할부터 확인합니다. 424 cold start는 로그를 확인하고 제한된 횟수만 재시도합니다.
+| 증상 | 먼저 확인할 것 |
+| --- | --- |
+| health 실패 | entry point와 의존성 |
+| 502 | 보존된 upstream 오류 |
+| 403 | runtime ID의 모델/Search 역할 |
+| 424 cold start | 로그를 확인하고 제한된 횟수만 재시도합니다. |
+
 오류 문장을 HTTP 200의 정상 답변으로 바꾸지 않습니다.
 
 ## 정리
