@@ -6,7 +6,7 @@
 
 **Execution boundary:** Create your own permitted lab environment and use synthetic Contoso data. Confirm costs and scoped permissions before live actions; never place orders, make payments, or grant business approval.
 
-[Synthetic English receipt](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html)
+[Sample receipt (optional L03 image input)](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html)
 
 ## Module contents
 
@@ -217,7 +217,7 @@ Replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for e
 <details markdown="1">
 <summary>For advanced commands: environment variables, continued lines, and azd</summary>
 
-A `KEY=value` prefix passes an environment variable to **that command only** in Codespaces Bash. If you chose PowerShell on your PC, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in Bash; do not paste it unchanged into PowerShell. Combine the command into one line instead. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill` only identifies the authoring tool; learners do not need to install a Copilot skill.
+A `KEY=value` prefix passes an environment variable to **that command only** in Codespaces Bash. If you chose PowerShell on your PC, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in Bash; do not paste it unchanged into PowerShell. Combine the command into one line instead.
 
 </details>
 
@@ -349,7 +349,7 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 | Role-assignment permission | `Microsoft.Authorization/roleAssignments/write` at the target scope; `Contributor` alone cannot grant roles |
 | Quota-read permission | `Cognitive Services Usages Reader` or equivalent subscription permission |
 | Region and budget | Supported models, permitted processing scope, spend limit, stop criteria, and retention deadline |
-| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Microsoft Azure CLI, and core/MCP packages |
+| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Microsoft Azure CLI, Microsoft Azure Developer CLI (azd), and core/MCP packages |
 
 Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Microsoft Azure access but **do not complete the live Microsoft Foundry path**.
 
@@ -381,13 +381,13 @@ If you do not yet have Microsoft Azure access, stop after **step 1** and continu
 
 **Required:** A GitHub account, read access to this repository, organizational permission to use Codespaces, and an approved cost scope. Microsoft Azure subscription/access is separate and needed for the live labs. Codespaces does not automatically connect to your organization's private endpoint/VNet. Without a permitted network route, use local exercises rather than changing security settings.
 
-1. Open [this lab repository](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5), select the lab branch containing `.devcontainer/devcontainer.json`, then **Code → Codespaces → … → New with options**. There is no need to download the ZIP again or run `git clone`.
+1. Open [this lab repository](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5), select the default branch `main` (it contains `.devcontainer/devcontainer.json`), then **Code → Codespaces → … → New with options**. There is no need to download the ZIP again or run `git clone`.
 2. Review **who pays, available allowance, Region, and Machine type**, then select **Create codespace**. Do not assume free use; check first.
     - A small 2-core configuration is a starting point for core labs; use an organization-approved option.
     - This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope.
     - [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges.
 3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`.
-    - The repository configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
+    - The repository configuration prepares Python 3.13, Microsoft Azure CLI, Microsoft Azure Developer CLI (azd), Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
     - It does not sign into Microsoft Azure, create resources, or grant roles.
 4. Open **Terminal → New Terminal** in the lab root containing `samples`, `data`, and `requirements.txt`. **This is Linux/Bash even on a Windows PC**, so do not substitute PowerShell commands. Select the English data profile before the checks:
 
@@ -410,7 +410,7 @@ python samples/workshop.py validate-data
 | 2. `python --version` | Checks the selected Python version. | `Python 3.13.x`; no Microsoft Azure request. |
 | 3. `python -c` | Reads the actual interpreter path. | Must be this lab folder's `.venv/bin/python`. |
 | 4. `az version` | Reads the installed CLI version. | `azure-cli` 2.86.0 baseline; not a sign-in check. |
-| 5. `doctor` | Checks SDK and `.env` readiness. | Core SDKs must be installed; this does not test the endpoint. |
+| 5. `doctor` | Checks the SDK installation and the `.env` format, offline. | Core SDKs must be installed. At this point `.env` still holds the example values, so `project endpoint: not set yet` is expected. This does not test the endpoint. |
 | 6. `validate-data` | Checks the bundled synthetic data structure. | Twenty cases, ten dev, ten holdout, three inventory rows; not model evaluation. |
 
 </div>
@@ -423,7 +423,7 @@ python samples/workshop.py validate-data
 | No `Lab tools ready.` or package installation fails | Inspect the first creation-log error and approved package access. After resolving it, rerun `bash .devcontainer/post-create.sh` in the same terminal. Existing `.env` and ownership records are preserved. |
 | Wrong interpreter path | Open a new terminal or run `source .venv/bin/activate`, then recheck. Do not recreate Microsoft Azure resources. |
 
-On another day, restart **the same Codespace** from [Your Codespaces](https://github.com/codespaces). Its `.env` and `results/` belong to that environment; do not assume they transfer automatically to a new Codespace. Use a separate Codespace per language and do not commit results or authentication data. **[Stop the Codespace in L19](#l12-codespaces)**; closing a browser tab does not stop it. Prepare azd, `.venv-live`, or `.venv-advanced` only when choosing the corresponding elective.
+On another day, restart **the same Codespace** from [Your Codespaces](https://github.com/codespaces). Its `.env` and `results/` belong to that environment; do not assume they transfer automatically to a new Codespace. Use a separate Codespace per language and do not commit results or authentication data. **[Stop the Codespace in L19](#l12-codespaces)**; closing a browser tab does not stop it. azd is already installed; prepare `.venv-live` or `.venv-advanced` only when choosing the corresponding elective.
 
 [Official creation instructions](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository) · [Dev-container configuration](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
 
@@ -875,6 +875,29 @@ Some screens still show **Azure AI User**, the previous name of **Foundry User**
 
 Record **the amount, services, stop time, and retention deadline**. Budget alerts, TPM/RPM, and log-ingestion limits are not hard spending caps. At the limit, stop new requests/schedules and use [L19](#l12) to inspect remaining resources.
 
+<details markdown="1">
+<summary>Before you set a budget: the scale of the core course — up to 42 model requests; see per-module caps</summary>
+
+The table lists the **maximum requests per run that the guide documents or the code enforces**. It gives no money amounts because prices change. Multiply the requests by (input size + output-token cap) to get a token ceiling, enter it with your model and SKU in the [Microsoft Azure pricing calculator](https://azure.microsoft.com/pricing/calculator/), and add the "left behind" items for as long as you keep them.
+
+| Module | Runs that can cost money | Model-request cap | Left behind (check in L19) |
+| --- | --- | --- | --- |
+| L01 | `create`, `foundation`, `roles`, `monitoring --live` | 0 | Resource group, project, three model deployments, logs |
+| L02 | Optional `model_capacity.py test --live` | 5 (chat 3, judge 1, embedding 1; code cap) | Three deployments |
+| L03 | `first_response.py --live` | 1, optional +1 (512 output tokens; code cap) | None |
+| L04 | Portal Send; optional `workshop.py agent --live` | Portal 5; SDK 1 | Agent version |
+| L05 | Portal Send; optional `workshop.py rag --live` | Portal 3; SDK 1 plus three file uploads | Vector store, three files, agent |
+| L06 | `workshop.py capstone --live` | Up to 5 rounds and 8 function calls (code cap) | Agent, conversation, vector store, files |
+| L07 | Local lab (the core path makes no Microsoft Azure call) | 0 | None |
+| L08 | `instruction_prompt_agent_lab.py --live` → `instruction_evaluation.py --live` | 24 per language (code cap) plus one evaluation run | Prompt Agent, evaluator, eval run |
+| L09 | Portal Send | 3 | None |
+| L10 | Optional `trace_lab.py --live` | One log query, 0 model requests | L01 logs (30-day retention, 1 GB/day cap; not a spend cap) |
+| L19 | `cost_status.py`, `operations_status.py`, `stop_sessions.py` (read Microsoft Azure without `--live`) | 0 | — |
+
+The core path totals **at most 42** requests (L03 1 + L04 5 + L05 3 + L06 5 + L08 24 + L09 3 + optional L10 1), and L08's evaluation run is separate. Caps for the electives (L11–L18) are in each module's **Steps** tables; for Search, Hosted sessions, Memory, and Routines, check in L19 what stays after you create them. Quota, TPM, budget alerts, and log limits do not stop spending, so write your own limit into `--cost-authorization`.
+
+</details>
+
 <a id="l01-resource-group"></a>
 
 ### 3. Create your dedicated resource group
@@ -893,16 +916,29 @@ python scripts/azure_environment.py create
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `create` | Prints the dedicated-environment plan. | `PLAN ONLY`; no Microsoft Azure request or sign-in/permission validation. |
+| 1. `create` | Prints the resource-group name pattern, tags, record location, and the options a real run needs. | `PLAN ONLY` plus a plan JSON; no Microsoft Azure request or sign-in/permission validation. |
 
 </div>
+
+<a id="l01-regions"></a>
+
+**Choose the region before you create.** The region of the resource group and project cannot be changed later; a different region means a new environment. The core course needs only a region where `foundation` can deploy the models, but optional labs have regional limits (per the official documentation, checked 2026-10-09).
+
+| Optional lab | Region condition | Source |
+| --- | --- | --- |
+| L05 File search | Not available in Italy North or Brazil South | [Tool support by region](https://learn.microsoft.com/azure/foundry/agents/concepts/limits-quotas-regions) |
+| L12 Hosted agents | Only in the officially supported regions | [Supported regions](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) |
+| L15 Memory | Only in the officially supported regions (East US is not listed) | [Supported regions](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory) |
+| L16 Routines | Unavailable in UK West, Switzerland West, Japan West, UAE North, and Norway East | [Routines article](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines) |
+
+To do the optional labs, check these pages and [Microsoft Foundry region support](https://learn.microsoft.com/azure/foundry/reference/region-support) before choosing. The lists can change. If you pick a region that does not support an optional lab, record only that lab as not performed and continue the core course.
 
 **Create for real:** When the plan is right and you have approval for that subscription, region, and cost scope, replace the three placeholders below with your own values and run the line that follows.
 
 | Placeholder | Value to supply | Where to verify |
 | --- | --- | --- |
 | `actual-subscription-id` | The selected subscription ID | `id` in the preceding `az account show`, not the display name or tenant ID |
-| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
+| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`. Use the lowercase region **code**, not a portal display name such as `East US`. The example does not guarantee model or feature availability, and optional labs have [regional limits](#l01-regions) |
 | `"Approved amount, service scope, and retention deadline"` | Your approved amount, services, and stop/retention deadline | Step 2's actual cost approval. Supplying this text does not grant approval or access |
 
 ```bash
@@ -919,7 +955,9 @@ python scripts/azure_environment.py create --subscription actual-subscription-id
 
 </div>
 
-**Stop and check:** Match `resource_group` and `location` in `results/azure-environment.json` to the name, region, and ownership tags in Microsoft Azure portal **Resource groups** before step 4. Do not share or commit `.env` or the receipt. If a receipt already exists, inspect its resources instead of deleting it and restarting.
+**If it stops halfway, run the same command again.** This also applies to a policy denial, a missing permission, a timeout, or Ctrl+C. When no resource group was created, the earlier attempt's record is **kept** as `results/azure-environment.failed-<time>.json` (never deleted) and a fresh attempt starts. When the group exists and is proven to belong to this run, it is adopted and reused. First fix the cause on the first error line (permission, policy, or region).
+
+**Stop and check:** Match `resource_group` and `location` in `results/azure-environment.json` to the name, region, and ownership tags in Microsoft Azure portal **Resource groups** before step 4. Do not share or commit `.env` or the receipt. A finished receipt is never overwritten by `create`, so do not delete it. If the same command shows `ledger already exists`, the environment already exists; continue to step 4.
 
 ![Resource-group example. Compare your own generated group, region, and ownership tags in Microsoft Azure portal before proceeding.](../assets/portal/en/18-resource-group.png)
 
@@ -1036,7 +1074,41 @@ Model/agent SDK requests use Entra authentication. The bundled [observability.bi
 
 #### 5-2. Save the project values in `.env`
 
-Open `.env` in VS Code and save your actual values. This is **file configuration**, not a terminal command:
+The project endpoint and deployment names are already in the ownership record. Do not retype them; let the command below save them into `.env`. First preview only what would change.
+
+```bash
+python scripts/azure_environment.py env
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — preview what would change.**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `env` | Compares the ownership record's project endpoint and three deployment names with the current `.env`. | Each setting is shown as `added`, `updated`, or `unchanged`. No file change and no Microsoft Azure request. |
+
+</div>
+
+If the values are your environment, save them and check right away.
+
+```bash
+python scripts/azure_environment.py env --write
+python samples/workshop.py doctor
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `env --write` | Saves only those four settings into `.env`; comments, Search settings, and every other line are kept. | Local file change (a new file is readable and writable only by you). No Microsoft Azure request. |
+| 2. `doctor` | Checks the `.env` format and its agreement with the ownership record, offline. | You should see `.env check: matches results/azure-environment.json`. Fix any `PROBLEM` as advised. This is not an endpoint connection test. |
+
+</div>
+
+To edit by hand, open `.env` in VS Code and save the values. The block below is **file configuration**, not a terminal command:
 
 ```env
 FOUNDRY_PROJECT_ENDPOINT=https://actual-resource.services.ai.azure.com/api/projects/contoso-workshop-en
@@ -1084,6 +1156,9 @@ with (
 | Deployment failure | Model, region, quota, and capacity | If unsupported, record the limitation and stop. Do not substitute a model and claim the same validation. |
 | Private-endpoint environment | An approved VPN/VNet path | Connect through that path. Do not turn on public access as a bypass. |
 | Installation failure | The current Python and the permitted package source | Recheck the Python path and version with the [interpreter check](#l01-new-terminal). |
+| `create` stops halfway (policy, permission, timeout) | The first error line and the record files in `results/` | Fix the cause and **run the same `create` command again**. An attempt that created nothing is kept automatically as `…failed-<time>.json`. |
+| `.env:N: unknown setting` or a `FOUNDRY_LAB_LANGUAGE` error | Whether `.env` has lines other than the `FOUNDRY_…` settings | Select the language in the terminal with `export FOUNDRY_LAB_LANGUAGE=en`, not in `.env`. Save the four settings again with `python scripts/azure_environment.py env --write`. |
+| `doctor` shows `PROBLEM .env endpoint differs…` | The endpoint in `.env` versus `results/azure-environment.json` | Save the ownership record's values again with `python scripts/azure_environment.py env --write`. |
 
 ## Cleanup
 
@@ -1532,7 +1607,7 @@ If a real comparison is necessary, verify cost scope and send **one additional r
 | Streaming | First-output time versus final completion |
 | Structured outputs | JSON parsing, schema, and type checks |
 | Embeddings | Retrieval vectors, not generated answers |
-| Vision | Supported synthetic receipt input versus actual price/quantity |
+| Vision | Give a supported model the [sample receipt](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) as an image or PDF (browser print → save), then compare the document number, items, quantities, and total it reads with `data/en/receipt.expected.json` (KB-01 × 2 at 89,000 = 178,000 KRW, approval pending) |
 
 APIs/tool support vary by model. Check the model card and official SDK examples before adding options.
 
@@ -1848,7 +1923,7 @@ You cannot evaluate RAG quality if you do not know where the correct answers are
 ### 2. Connect File search
 
 1. In **Build → Agents**, open **your agent name recorded in L04**. Do not create another agent.
-2. Open the built-in file-search connection under **Tools/Knowledge → File search**. If unavailable, verify project support and choose the SDK path below. L07's Cloud Toolbox extension is not a prerequisite.
+2. Open the built-in file-search connection under **Tools/Knowledge → File search**. If unavailable, verify project support, including the region (File search is not offered in Italy North or Brazil South), and choose the SDK path below where the tool is supported. L07's Cloud Toolbox extension is not a prerequisite.
 3. Create your lab's vector store and upload **only the three Markdown files** from `data/en/policies/`. Do not upload the entire ZIP or `data/` folder.
 4. Confirm indexing is **Completed** for all three files. Upload completion is not search readiness. **Save** the connection and record the agent version and store name.
 5. Choose **New chat**, then submit each of the three questions below once. Keep this separate from L04's conversation without knowledge.
@@ -1899,11 +1974,11 @@ python samples/workshop.py rag --live
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `rag` | Displays the synthetic policies to use and the RAG execution plan. Without `--live`, nothing is uploaded. | Reviews the plan locally only. |
-| 2. `rag --live` | Performs file upload → vector store attachment → up to 180 seconds of indexing wait → new agent creation → a question. | Model, File search, and file-storage costs may apply. Compare answer citations with the file/store IDs in the receipt. This command does not reuse portal-created objects. |
+| 2. `rag --live` | Performs file upload → vector store attachment → up to 180 seconds of indexing wait per file → new agent creation → a question. | Model, File search, and file-storage costs may apply. Compare answer citations with the file/store IDs in the receipt. This command does not reuse portal-created objects. |
 
 </div>
 
-The executable uploads files, attaches the store, waits up to 180 seconds for indexing, creates an agent, and asks **one default price-limit question**, not all three questions above. If indexing does not finish, it stops rather than claiming completion. Use the receipt to inspect remaining files and their status.
+The executable uploads files, attaches the store, waits up to 180 seconds per file for indexing (up to 540 seconds for three), creates an agent, and asks **one default price-limit question**, not all three questions above. If indexing does not finish, it stops rather than claiming completion. Use the receipt to inspect remaining files and their status.
 
 To finish the three-question check, find the new agent name/version in the receipt and open it under **Build → Agents**. Verify the additional request budget before sending step 3's questions. If Chat is unavailable, record **default-question retrieval/citations checked / three-question comparison not run**. Do not repeatedly run `rag --live` for each question and recreate resources.
 
@@ -2212,7 +2287,7 @@ python samples/workshop.py capstone --live
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `capstone --live` | Creates a new agent, knowledge resources, and conversation, then executes the model's function requests through the local dispatcher. Limited to 5 rounds and 8 function calls. | Model, retrieval, and file costs may apply. Check `tool_calls`, citations, and the final draft, and keep the creation receipt. No actual order is placed. |
+| 1. `capstone --live` | Creates a new agent, knowledge resources, and conversation, then executes the model's function requests through the local dispatcher. Limited to 5 rounds and 8 function calls; the indexing wait for uploaded files is up to 180 seconds per file. | Model, retrieval, and file costs may apply. Check `tool_calls`, citations, and the final draft, and keep the creation receipt. No actual order is placed. |
 
 </div>
 
@@ -2474,7 +2549,7 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `inspect --local` | Starts a separate stdio MCP server as a child process, initializes it, and retrieves tool names and contracts. This does not reuse the HTTP server from the previous step. | Check the actual local MCP exchange and tool names. No Microsoft Azure calls. |
-| 2. Unapproved `call` | Supplies the exact tool/arguments but omits `--approve-tool`. | `Approval required` and a failing exit are expected; rejection occurs before `tools/call`. |
+| 2. Unapproved `call` | Supplies the exact tool/arguments but omits `--approve-tool`. | A one-line `ERROR: Approval required: …` and exit code 2 are expected; rejection occurs before `tools/call`. |
 | 3. Approved `call ... get_stock` | `--tool` names the tool; `--arguments` supplies JSON; `--approve-tool` permits this name/arguments once. | Check actual inventory and local evidence. |
 | 4. `call ... prepare_purchase_request` | Calls the draft function with quantity 2. Outer single quotes preserve the JSON's double quotes. | KRW 2,900,000, pending approval, and not ordered. Tool approval is not purchase approval. |
 
@@ -2796,7 +2871,7 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 
 </div>
 
-Keep Korean and English input/output paths distinct. Across both languages, collection is bounded to 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count.
+Keep Korean and English input/output paths distinct. Each run is limited to 24 responses and 600 seconds; across both languages the total is at most 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count. If the collection or evaluation command stopped **before any model, agent, or evaluator request** (not signed in, wrong deployment name, a `.env` error), its record is kept as `…failed-<time>.json` and you can run the same command again.
 
 When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request.
 
@@ -2864,6 +2939,8 @@ Record **the request / both actual answers / relevant policy sections / the judg
 ### 4. Distinguish scores from completed execution
 
 Native completeness, relevance, and groundedness use **1–5 ordinal** scores. Relevance and groundedness use built-in evaluators; completeness uses the same custom rubric for both instructions. The binary summary of scores at least four is not the five-point scale itself.
+
+Note: Microsoft Learn's current agent-evaluation article (checked 2026-10-09) presents generated rubric evaluators (weighted dimensions, score normalized to 0–1) as the recommended primary measure and requires `azure-ai-projects` 2.8.0 or later. This lab keeps its pinned SDK (2.7.0) and the fixed 1–5 completeness evaluator, so do not compare the two scales.
 
 The local checklist checks forty criteria across twelve questions using **mechanical text-and-citation matching**. It can miss paraphrases and is not a semantic evaluator or a business safety/access gate.
 
@@ -3392,7 +3469,7 @@ python scripts/azure_environment.py search --live
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
 | 1. `search` | Prints the owned-group Search creation plan. | No Microsoft Azure request. |
-| 2. `search --live` | Creates Basic with one partition/replica, Entra authentication, semantic settings, and minimum scoped roles. | Actual service/access changes and ongoing costs. Records endpoint/ID in your `results/azure-environment.json`. |
+| 2. `search --live` | Creates Basic with one partition/replica, Entra authentication, semantic settings, and minimum scoped roles. | Actual service/access changes and ongoing costs. Records endpoint/ID in your `results/azure-environment.json`. It checks L01's project information and your sign-in before creating the service; if the service exists but role assignment stopped, the same command leaves **your existing service untouched and grants only the missing roles**. |
 
 </div>
 
@@ -3661,14 +3738,14 @@ Use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-l
 
 <a id="l12-azd"></a>
 
-**If azd is missing in Codespaces,** use the approved **Linux installation path** in the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd), then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
+**Codespaces provides azd 1.34.0 and also tries to install the `azure.ai.agents` extension.** Use the commands below to check the version, extension, and sign-in, and install only what is missing. Follow the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) only where azd is absent (for example the PC alternative), then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
 
 azd and Microsoft Azure CLI have separate authentication. Check versions/extensions and sign-in first. Use the Bash commands below unchanged in Codespaces.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
+azd version
+azd extension list
+azd auth login --check-status
 ```
 
 <div class="command-explanation" markdown="1">
@@ -3686,8 +3763,8 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
 Run only the missing prerequisite below. Do not reinstall a compatible existing environment.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension install azure.ai.agents --version 1.0.0-beta.10
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login
+azd extension install azure.ai.agents --version 1.0.0-beta.10
+azd auth login
 ```
 
 <div class="command-explanation" markdown="1">
@@ -3728,8 +3805,8 @@ python scripts/build_hosted.py
 
 ### 2. Run and invoke locally
 
-In the server terminal, run the following bundled helper. It passes only approved, non-secret values
-from the L01/L11 `.env` and `results/search.json` to the child process.
+In the server terminal, run the following bundled helper. It adds the non-secret settings
+from the L01/L11 `.env` and `results/search.json` to your current shell environment and passes both to the child process. Other variables you exported are inherited too, so keep tokens and keys out of shell environment variables.
 
 ```bash
 python scripts/run_hosted_local.py
@@ -3741,7 +3818,7 @@ python scripts/run_hosted_local.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `run_hosted_local.py` | Starts the default Invocations server on loopback port 8088 and passes safe environment settings to the child process. | Keep the server terminal open. Even when execution is local, real requests can use Microsoft Azure models and search. Stop it with Ctrl+C when finished. |
+| 1. `run_hosted_local.py` | Starts the default Invocations server on loopback port 8088 and passes the `.env` project settings plus your current shell environment to the child process. | Keep the server terminal open. Even when execution is local, real requests can use Microsoft Azure models and search. Stop it with Ctrl+C when finished. |
 
 </div>
 
@@ -3808,8 +3885,8 @@ Bind your L01 receipt and L11 Search settings to azd. Verify deployment/runtime-
 
 ```bash
 python scripts/configure_hosted.py
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing --no-prompt
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai agent show contoso-purchasing --output json
+azd deploy contoso-purchasing --no-prompt
+azd ai agent show contoso-purchasing --output json
 python scripts/runtime_roles.py --agent contoso-purchasing --live
 ```
 
@@ -4487,7 +4564,7 @@ Do not judge memory success merely from a natural-language answer that happens t
 
 ## Prerequisites
 
-Memory is in **Preview** and requires a supported region, chat/embedding deployments, and project roles.
+Memory is in **Preview** and requires a [supported region](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory) (checked 2026-10-09: East US 2 is listed, East US is not), chat/embedding deployments, and project roles.
 Current VNet integration limitations mean you must not change a private environment's security settings just to run the lab.
 Prepare the core Python SDK environment and `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME` in the English checkout's `.env`, with `FOUNDRY_LAB_LANGUAGE=en` selected.
 
@@ -4711,12 +4788,12 @@ Creating a schedule object is separate from a successful business result.
 
 You first need a Prompt Agent that runs on the server. Use L05's File search agent
 for this routine. L13/L14 Agent Framework roles execute in local code and are not remote routine targets. Scheduling an agent with local client-side functions does not execute those local functions.
-Distinguish the GA status of the Routines service from the Beta status of the azd extension, and check current conditions such as CMK limitations.
+Distinguish the GA status of the Routines service from the Beta status of the azd extension, and check current conditions such as CMK limitations. Routines are unavailable in UK West, Switzerland West, Japan West, UAE North, and Norway East; if **Routines** is not visible in Microsoft Foundry, record this lab as not performed ([official article](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines)).
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
+azd version
+azd extension list
+azd ai routine --help
 ```
 
 <div class="command-explanation" markdown="1">
@@ -4725,7 +4802,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `azd version` | Checks the current azd version. The preceding `AZURE_DEV_USER_AGENT=...` is an environment variable identifying this command process. | Prints a local version. It does not mean the skill is installed, a user is signed in, or permissions have been granted. |
+| 1. `azd version` | Checks the current azd version. | Prints a local version. It does not mean the skill is installed, a user is signed in, or permissions have been granted. |
 | 2. `azd extension list` | Lists installed extensions and their versions. | Reads the list only; it does not automatically install or upgrade anything. |
 | 3. `azd ai routine --help` | Reads the actual subcommands and options available in the installed extension. | Shows help; no schedule creation or inference. |
 
@@ -4751,8 +4828,8 @@ Follow **one manual execution → one timer execution → verify both disabled**
 
 ```bash
 python samples/routine_lab.py create --agent ACTUAL_AGENT_NAME --receipt results/routine-en-manual.json
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py create --agent ACTUAL_AGENT_NAME --receipt results/routine-en-manual.json --live
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispatch --receipt results/routine-en-manual.json --live
+python samples/routine_lab.py create --agent ACTUAL_AGENT_NAME --receipt results/routine-en-manual.json --live
+python samples/routine_lab.py dispatch --receipt results/routine-en-manual.json --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -4781,7 +4858,7 @@ Using the path below with a new receipt creates a **one-time timer** for 2 minut
 Do not substitute manual dispatch for successful scheduled execution.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py scheduled-test --agent ACTUAL_AGENT_NAME --receipt results/routine-en-scheduled.json --delay-seconds 120 --wait-seconds 360 --live
+python samples/routine_lab.py scheduled-test --agent ACTUAL_AGENT_NAME --receipt results/routine-en-scheduled.json --delay-seconds 120 --wait-seconds 360 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -4822,8 +4899,8 @@ Open the `Evidence:` original beside its receipt and connect **same agent → af
 **Read the screen:** Under **Agents → Routines**, first find your schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. Connect **Last run** to your trace/response from the previous step and inspect the business output.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py status --receipt results/routine-en-scheduled.json --live
+python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live
+python samples/routine_lab.py status --receipt results/routine-en-scheduled.json --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -5547,7 +5624,7 @@ python scripts/operations_status.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
+| 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. One failure does not stop the others from being attempted; the failures are reported at the end. |
 | 2. `routine_lab.py stop --receipt ... --live` | Disables the exact L16 schedule; distinguish manual/timer receipt paths. | Actual state change, no routine/RG deletion. Replace the path if you used a different file. |
 | 3. `operations_status.py` | Reads current sessions/schedules/evaluation work in your environment. | Actual Microsoft Azure read without `--live`; active work/query failures remain errors or unverified. |
 
@@ -5594,7 +5671,7 @@ Cleanup processes recorded conversations → lab-only agent → vector store →
 | Published channels, Bots, and apps | Verify user-access revocation separately from resource cleanup |
 | Fine-tuned deployments and models | Distinguish deployment deletion from deletion of a trained model |
 
-Do not assume vector store expiration removes the original files. Agents, projects, and connected Microsoft Azure resources can have different lifecycles.
+Do not assume vector store expiration removes the original files. Conversely, deleting an uploaded file object removes it from every vector store, agent, and conversation that uses it, so delete only file IDs in your own receipt. Agents, projects, and connected Microsoft Azure resources can have different lifecycles.
 
 ### 4. Make a final cost and data check
 
@@ -5737,6 +5814,8 @@ Your selected labs and shared wrap-up are complete. If you add electives later, 
 | Packages disappear in a new terminal | Use [L01's new-terminal check](#l01-new-terminal), including the English profile. Do not reinstall packages into a different Python |
 | `read-result` reports a file, format, or language error | Check L06's `Responses:` path, the `-responses.jsonl` ending, and English profile. Ownership receipts and L08 JSON use different formats; do not fix this with another paid call |
 | No project in the portal | Compare your L01 account, tenant, receipt, and creation state; do not duplicate the environment or erase records |
+| L01 `create` stops halfway or is interrupted | Fix the first error line (policy, permission, region, timeout) and **run the same command again**. An attempt that created nothing is kept automatically as `results/azure-environment.failed-<time>.json` (never deleted) |
+| `.env:N: unknown setting` / `FOUNDRY_LAB_LANGUAGE` error | Select the language in the terminal with `export FOUNDRY_LAB_LANGUAGE=en` and keep only `FOUNDRY_…` settings in `.env`. Save the four settings with `python scripts/azure_environment.py env --write` and check with `python samples/workshop.py doctor` |
 
 ## A 60-second diagnostic sequence
 
@@ -5746,7 +5825,8 @@ Your selected labs and shared wrap-up are complete. If you add electives later, 
 | --- | --- |
 | `PLAN ONLY` / `plan_only=true` | Normal plan output, not live Microsoft Azure execution. Continue with the stated live command only after approval conditions are ready |
 | L06 stock/quantity errors | Expected rejection for the specified failure inputs; record the error kind and continue |
-| L07 `Approval required` | Expected unapproved-local-call rejection; compare it with the exact one-call approval command |
+| L07 `Approval required` | Expected unapproved-local-call rejection (a one-line `ERROR: Approval required: …`, exit code 2); compare it with the exact one-call approval command |
+| An L08 command leaves `…failed-<time>.json` and stops | A record from before any model or agent request. Fix the cause (sign-in, deployment name, `.env`) and run the same command again. Never overwrite or resample an original once requests started |
 | Two initial L17 / three initial L18 test failures | Deliberate exercise defects; repair only `exercise.py` and rerun the same tests |
 | Server does not return to an input prompt | Normal while waiting; check health/readiness in the second terminal, not the server window |
 | Windows MCP JSON parsing error | Use L07's **Windows PowerShell block**; a JSON format error is not an approval rejection |
@@ -5818,7 +5898,7 @@ Items already checked:
 Paid resources that may still remain:
 ```
 
-Redact internal endpoints and tenant/subscription IDs as appropriate for the audience as well. Do not attach secrets, tokens, or real user data.
+Redact internal endpoints and tenant/subscription IDs as appropriate for the audience as well. Do not attach secrets, tokens, or real user data. To report a problem with the guide itself or suggest an improvement, fill in only the items above in a [GitHub issue](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/issues/new/choose).
 
 ## When the screen differs from the documentation
 
@@ -5994,6 +6074,7 @@ Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, A
 | JSON / JSONL | Named data values / one JSON record per line | Commands to execute in a terminal |
 | `true` / `false` / `null` | True / false / no value; `order_submitted=false` means no order was submitted | Treating null as success, zero cost, or no problem |
 | Receipt | A record of resource IDs and the lab's ownership scope | A payment receipt or deletion approval |
+| Sample receipt | The fictional purchase receipt (`data/en/receipt.html`) used as input in the optional L03 Vision exercise | The ownership Receipt or a real payment document |
 | RBAC / Scope | Role-based permissions / the boundary where they apply | Full access obtained by signing in |
 | Microsoft Foundry resource | A parent Microsoft Azure resource grouping resources related to security, management, and billing | A single agent |
 | Project | A workspace for agents, connections, data, and related work | A Classic hub |

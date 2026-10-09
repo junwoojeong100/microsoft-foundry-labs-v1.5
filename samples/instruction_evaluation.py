@@ -15,6 +15,8 @@ from evaluation_lab import check_native_completeness, wait_for_native
 from evidence import Evidence, digest, redacted, serializable
 from grounding import answer_format, parse_answer
 from instruction_lab import cases, model_input, score, summarize, verify_profile
+from lab_cli import run
+from original_files import Attempt, open_original, retryable_original
 from search_lab import policy_chunks
 from workshop import DATA, LANGUAGE, RESULTS, ROOT, config_values
 
@@ -135,6 +137,13 @@ def audit(native: dict, rows: list[dict], identities: dict, *, metric_names: tup
 
 
 def evaluate(source: Path, output: Path) -> dict:
+    # A failure before the first Azure change (no sign-in, wrong judge deployment) keeps its record under
+    # a .failed-<time> name, so the same command can be run again after the cause is fixed.
+    with retryable_original(output) as attempt:
+        return _evaluate(source, output, attempt)
+
+
+def _evaluate(source: Path, output: Path, attempt: Attempt) -> dict:
     from azure.ai.projects.models import TestingCriterionAzureAIEvaluator
     from azure.core.exceptions import AzureError
     from openai import OpenAIError
@@ -143,7 +152,7 @@ def evaluate(source: Path, output: Path) -> dict:
     if not output.resolve().is_relative_to(RESULTS.resolve()):
         raise ValueError("Keep native originals inside results/.")
     output.parent.mkdir(parents=True, exist_ok=True)
-    descriptor = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    descriptor = open_original(output, attempt)
     evidence = Evidence("instruction-native")
     report = {
         "schema": "contoso-instruction-native", "language": LANGUAGE, "status": "started",
@@ -181,6 +190,7 @@ def evaluate(source: Path, output: Path) -> dict:
                            for name in ("relevance", "groundedness")}
                 report["builtin_catalog"] = builtin
                 evaluator_name = "contoso-learning-completeness-" + uuid4().hex[:8]
+                attempt.side_effects = True
                 evaluator = project.beta.evaluators.create_version(
                     name=evaluator_name,
                     evaluator_version={
@@ -282,4 +292,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

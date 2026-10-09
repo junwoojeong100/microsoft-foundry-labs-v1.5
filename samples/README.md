@@ -70,7 +70,7 @@
 
 | Script files | Purpose |
 | --- | --- |
-| `scripts/azure_environment.py` | You create your dedicated environment/models/roles/telemetry in L01 and Search in L11. Creation/changes require `--live`, scoped permissions, and cost approval. |
+| `scripts/azure_environment.py` | You create your dedicated environment/models/roles/telemetry in L01 and Search in L11. Creation/changes require `--live`, scoped permissions, and cost approval. `env` copies the recorded project endpoint and deployment names into `.env` (with `--write`) without calling Microsoft Azure. |
 | `scripts/build_hosted.py`, `run_hosted_local.py`, `configure_hosted.py`, `runtime_roles.py` | Build, run, configure, and set permissions for a Hosted Agent. These are not Python syntax exercises. |
 | `scripts/stop_sessions.py`, `operations_status.py`, `cost_status.py` | Stop recorded sessions or inspect the owned environment and its costs. Follow L19. |
 | `scripts/build_guide.py`, `check_guide.py`, `package_guide.py` | Guide source generation/validation/packaging, referenced in L18; not AI agent deployment or live Microsoft Foundry execution. |
@@ -87,7 +87,9 @@ These files are usually imported by the lab scripts rather than run directly.
 | [evaluation_data.py](evaluation_data.py) | Handles evaluation-data versions and splits; development-data loading does not open sealed holdout data. |
 | [grounding.py](grounding.py) | Selects and validates citations against actually retrieved sources; it does not invent references. |
 | [hosted_runtime.py](hosted_runtime.py) | One bounded purchasing-assistant turn shared by local and Hosted invocations. |
+| [lab_cli.py](lab_cli.py) | Runs a lab entry point and shows an expected learner error as one `ERROR:` line (exit code 2) instead of a traceback; set `FOUNDRY_LAB_DEBUG=1` to see the traceback. |
 | [lab_profile.py](lab_profile.py) | Uses `FOUNDRY_LAB_LANGUAGE` to select the Korean or English synthetic corpus without mixing profiles. |
+| [original_files.py](original_files.py) | Keeps one-shot result originals safe: a run that failed before any Azure change keeps its record as `…failed-<time>.json` so the same command can be run again. |
 | [request_contract.py](request_contract.py) | Checks that draft-tool arguments are grounded in the user's explicit request and rejects invented quantities. |
 | [inventory.openapi.json](inventory.openapi.json) | OpenAPI contract for the L07 local inventory API. Its server is `127.0.0.1` and cannot be reached directly from Microsoft Foundry. |
 

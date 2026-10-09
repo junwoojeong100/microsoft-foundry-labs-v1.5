@@ -168,7 +168,7 @@
 <details markdown="1">
 <summary>심화 명령을 읽을 때: 환경 변수·여러 줄·azd</summary>
 
-명령 앞의 `KEY=value`는 Codespaces의 Bash에서 **그 명령에만** 환경 변수를 전달하는 문법입니다. 내 PC의 PowerShell을 선택했다면 같은 의미의 `$env:KEY = "value"`로 현재 세션에 값을 설정한 뒤 명령 부분을 실행하며, 끝나면 이전 값으로 복원합니다. 줄 끝 `\`는 Bash의 줄 이어쓰기이므로 PowerShell에 그대로 붙이지 말고 한 줄 명령으로 합칩니다. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill`은 제작 도구를 식별하는 값일 뿐, 학습자에게 Copilot skill 설치를 요구하지 않습니다.
+명령 앞의 `KEY=value`는 Codespaces의 Bash에서 **그 명령에만** 환경 변수를 전달하는 문법입니다. 내 PC의 PowerShell을 선택했다면 같은 의미의 `$env:KEY = "value"`로 현재 세션에 값을 설정한 뒤 명령 부분을 실행하며, 끝나면 이전 값으로 복원합니다. 줄 끝 `\`는 Bash의 줄 이어쓰기이므로 PowerShell에 그대로 붙이지 말고 한 줄 명령으로 합칩니다.
 
 </details>
 

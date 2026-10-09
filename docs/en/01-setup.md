@@ -33,7 +33,7 @@
 | Role-assignment permission | `Microsoft.Authorization/roleAssignments/write` at the target scope; `Contributor` alone cannot grant roles |
 | Quota-read permission | `Cognitive Services Usages Reader` or equivalent subscription permission |
 | Region and budget | Supported models, permitted processing scope, spend limit, stop criteria, and retention deadline |
-| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Microsoft Azure CLI, and core/MCP packages |
+| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Microsoft Azure CLI, Microsoft Azure Developer CLI (azd), and core/MCP packages |
 
 Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Microsoft Azure access but **do not complete the live Microsoft Foundry path**.
 
@@ -65,13 +65,13 @@ If you do not yet have Microsoft Azure access, stop after **step 1** and continu
 
 **Required:** A GitHub account, read access to this repository, organizational permission to use Codespaces, and an approved cost scope. Microsoft Azure subscription/access is separate and needed for the live labs. Codespaces does not automatically connect to your organization's private endpoint/VNet. Without a permitted network route, use local exercises rather than changing security settings.
 
-1. Open [this lab repository](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5), select the lab branch containing `.devcontainer/devcontainer.json`, then **Code → Codespaces → … → New with options**. There is no need to download the ZIP again or run `git clone`.
+1. Open [this lab repository](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5), select the default branch `main` (it contains `.devcontainer/devcontainer.json`), then **Code → Codespaces → … → New with options**. There is no need to download the ZIP again or run `git clone`.
 2. Review **who pays, available allowance, Region, and Machine type**, then select **Create codespace**. Do not assume free use; check first.
     - A small 2-core configuration is a starting point for core labs; use an organization-approved option.
     - This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope.
     - [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges.
 3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`.
-    - The repository configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
+    - The repository configuration prepares Python 3.13, Microsoft Azure CLI, Microsoft Azure Developer CLI (azd), Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
     - It does not sign into Microsoft Azure, create resources, or grant roles.
 4. Open **Terminal → New Terminal** in the lab root containing `samples`, `data`, and `requirements.txt`. **This is Linux/Bash even on a Windows PC**, so do not substitute PowerShell commands. Select the English data profile before the checks:
 
@@ -94,7 +94,7 @@ python samples/workshop.py validate-data
 | 2. `python --version` | Checks the selected Python version. | `Python 3.13.x`; no Microsoft Azure request. |
 | 3. `python -c` | Reads the actual interpreter path. | Must be this lab folder's `.venv/bin/python`. |
 | 4. `az version` | Reads the installed CLI version. | `azure-cli` 2.86.0 baseline; not a sign-in check. |
-| 5. `doctor` | Checks SDK and `.env` readiness. | Core SDKs must be installed; this does not test the endpoint. |
+| 5. `doctor` | Checks the SDK installation and the `.env` format, offline. | Core SDKs must be installed. At this point `.env` still holds the example values, so `project endpoint: not set yet` is expected. This does not test the endpoint. |
 | 6. `validate-data` | Checks the bundled synthetic data structure. | Twenty cases, ten dev, ten holdout, three inventory rows; not model evaluation. |
 
 </div>
@@ -107,7 +107,7 @@ python samples/workshop.py validate-data
 | No `Lab tools ready.` or package installation fails | Inspect the first creation-log error and approved package access. After resolving it, rerun `bash .devcontainer/post-create.sh` in the same terminal. Existing `.env` and ownership records are preserved. |
 | Wrong interpreter path | Open a new terminal or run `source .venv/bin/activate`, then recheck. Do not recreate Microsoft Azure resources. |
 
-On another day, restart **the same Codespace** from [Your Codespaces](https://github.com/codespaces). Its `.env` and `results/` belong to that environment; do not assume they transfer automatically to a new Codespace. Use a separate Codespace per language and do not commit results or authentication data. **[Stop the Codespace in L19](#l12-codespaces)**; closing a browser tab does not stop it. Prepare azd, `.venv-live`, or `.venv-advanced` only when choosing the corresponding elective.
+On another day, restart **the same Codespace** from [Your Codespaces](https://github.com/codespaces). Its `.env` and `results/` belong to that environment; do not assume they transfer automatically to a new Codespace. Use a separate Codespace per language and do not commit results or authentication data. **[Stop the Codespace in L19](#l12-codespaces)**; closing a browser tab does not stop it. azd is already installed; prepare `.venv-live` or `.venv-advanced` only when choosing the corresponding elective.
 
 [Official creation instructions](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository) · [Dev-container configuration](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
 
@@ -559,6 +559,29 @@ Some screens still show **Azure AI User**, the previous name of **Foundry User**
 
 Record **the amount, services, stop time, and retention deadline**. Budget alerts, TPM/RPM, and log-ingestion limits are not hard spending caps. At the limit, stop new requests/schedules and use [L19](#l12) to inspect remaining resources.
 
+<details markdown="1">
+<summary>Before you set a budget: the scale of the core course — up to 42 model requests; see per-module caps</summary>
+
+The table lists the **maximum requests per run that the guide documents or the code enforces**. It gives no money amounts because prices change. Multiply the requests by (input size + output-token cap) to get a token ceiling, enter it with your model and SKU in the [Microsoft Azure pricing calculator](https://azure.microsoft.com/pricing/calculator/), and add the "left behind" items for as long as you keep them.
+
+| Module | Runs that can cost money | Model-request cap | Left behind (check in L19) |
+| --- | --- | --- | --- |
+| L01 | `create`, `foundation`, `roles`, `monitoring --live` | 0 | Resource group, project, three model deployments, logs |
+| L02 | Optional `model_capacity.py test --live` | 5 (chat 3, judge 1, embedding 1; code cap) | Three deployments |
+| L03 | `first_response.py --live` | 1, optional +1 (512 output tokens; code cap) | None |
+| L04 | Portal Send; optional `workshop.py agent --live` | Portal 5; SDK 1 | Agent version |
+| L05 | Portal Send; optional `workshop.py rag --live` | Portal 3; SDK 1 plus three file uploads | Vector store, three files, agent |
+| L06 | `workshop.py capstone --live` | Up to 5 rounds and 8 function calls (code cap) | Agent, conversation, vector store, files |
+| L07 | Local lab (the core path makes no Microsoft Azure call) | 0 | None |
+| L08 | `instruction_prompt_agent_lab.py --live` → `instruction_evaluation.py --live` | 24 per language (code cap) plus one evaluation run | Prompt Agent, evaluator, eval run |
+| L09 | Portal Send | 3 | None |
+| L10 | Optional `trace_lab.py --live` | One log query, 0 model requests | L01 logs (30-day retention, 1 GB/day cap; not a spend cap) |
+| L19 | `cost_status.py`, `operations_status.py`, `stop_sessions.py` (read Microsoft Azure without `--live`) | 0 | — |
+
+The core path totals **at most 42** requests (L03 1 + L04 5 + L05 3 + L06 5 + L08 24 + L09 3 + optional L10 1), and L08's evaluation run is separate. Caps for the electives (L11–L18) are in each module's **Steps** tables; for Search, Hosted sessions, Memory, and Routines, check in L19 what stays after you create them. Quota, TPM, budget alerts, and log limits do not stop spending, so write your own limit into `--cost-authorization`.
+
+</details>
+
 <a id="l01-resource-group"></a>
 
 ### 3. Create your dedicated resource group
@@ -577,16 +600,29 @@ python scripts/azure_environment.py create
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `create` | Prints the dedicated-environment plan. | `PLAN ONLY`; no Microsoft Azure request or sign-in/permission validation. |
+| 1. `create` | Prints the resource-group name pattern, tags, record location, and the options a real run needs. | `PLAN ONLY` plus a plan JSON; no Microsoft Azure request or sign-in/permission validation. |
 
 </div>
+
+<a id="l01-regions"></a>
+
+**Choose the region before you create.** The region of the resource group and project cannot be changed later; a different region means a new environment. The core course needs only a region where `foundation` can deploy the models, but optional labs have regional limits (per the official documentation, checked 2026-10-09).
+
+| Optional lab | Region condition | Source |
+| --- | --- | --- |
+| L05 File search | Not available in Italy North or Brazil South | [Tool support by region](https://learn.microsoft.com/azure/foundry/agents/concepts/limits-quotas-regions) |
+| L12 Hosted agents | Only in the officially supported regions | [Supported regions](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) |
+| L15 Memory | Only in the officially supported regions (East US is not listed) | [Supported regions](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory) |
+| L16 Routines | Unavailable in UK West, Switzerland West, Japan West, UAE North, and Norway East | [Routines article](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines) |
+
+To do the optional labs, check these pages and [Microsoft Foundry region support](https://learn.microsoft.com/azure/foundry/reference/region-support) before choosing. The lists can change. If you pick a region that does not support an optional lab, record only that lab as not performed and continue the core course.
 
 **Create for real:** When the plan is right and you have approval for that subscription, region, and cost scope, replace the three placeholders below with your own values and run the line that follows.
 
 | Placeholder | Value to supply | Where to verify |
 | --- | --- | --- |
 | `actual-subscription-id` | The selected subscription ID | `id` in the preceding `az account show`, not the display name or tenant ID |
-| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
+| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`. Use the lowercase region **code**, not a portal display name such as `East US`. The example does not guarantee model or feature availability, and optional labs have [regional limits](#l01-regions) |
 | `"Approved amount, service scope, and retention deadline"` | Your approved amount, services, and stop/retention deadline | Step 2's actual cost approval. Supplying this text does not grant approval or access |
 
 ```bash
@@ -603,7 +639,9 @@ python scripts/azure_environment.py create --subscription actual-subscription-id
 
 </div>
 
-**Stop and check:** Match `resource_group` and `location` in `results/azure-environment.json` to the name, region, and ownership tags in Microsoft Azure portal **Resource groups** before step 4. Do not share or commit `.env` or the receipt. If a receipt already exists, inspect its resources instead of deleting it and restarting.
+**If it stops halfway, run the same command again.** This also applies to a policy denial, a missing permission, a timeout, or Ctrl+C. When no resource group was created, the earlier attempt's record is **kept** as `results/azure-environment.failed-<time>.json` (never deleted) and a fresh attempt starts. When the group exists and is proven to belong to this run, it is adopted and reused. First fix the cause on the first error line (permission, policy, or region).
+
+**Stop and check:** Match `resource_group` and `location` in `results/azure-environment.json` to the name, region, and ownership tags in Microsoft Azure portal **Resource groups** before step 4. Do not share or commit `.env` or the receipt. A finished receipt is never overwritten by `create`, so do not delete it. If the same command shows `ledger already exists`, the environment already exists; continue to step 4.
 
 ![Resource-group example. Compare your own generated group, region, and ownership tags in Microsoft Azure portal before proceeding.](../../assets/portal/en/18-resource-group.png)
 
@@ -720,7 +758,41 @@ Model/agent SDK requests use Entra authentication. The bundled [observability.bi
 
 #### 5-2. Save the project values in `.env`
 
-Open `.env` in VS Code and save your actual values. This is **file configuration**, not a terminal command:
+The project endpoint and deployment names are already in the ownership record. Do not retype them; let the command below save them into `.env`. First preview only what would change.
+
+```bash
+python scripts/azure_environment.py env
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough — preview what would change.**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `env` | Compares the ownership record's project endpoint and three deployment names with the current `.env`. | Each setting is shown as `added`, `updated`, or `unchanged`. No file change and no Microsoft Azure request. |
+
+</div>
+
+If the values are your environment, save them and check right away.
+
+```bash
+python scripts/azure_environment.py env --write
+python samples/workshop.py doctor
+```
+
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | What it does | Result, cost, or change |
+| --- | --- | --- |
+| 1. `env --write` | Saves only those four settings into `.env`; comments, Search settings, and every other line are kept. | Local file change (a new file is readable and writable only by you). No Microsoft Azure request. |
+| 2. `doctor` | Checks the `.env` format and its agreement with the ownership record, offline. | You should see `.env check: matches results/azure-environment.json`. Fix any `PROBLEM` as advised. This is not an endpoint connection test. |
+
+</div>
+
+To edit by hand, open `.env` in VS Code and save the values. The block below is **file configuration**, not a terminal command:
 
 ```env
 FOUNDRY_PROJECT_ENDPOINT=https://actual-resource.services.ai.azure.com/api/projects/contoso-workshop-en
@@ -768,6 +840,9 @@ with (
 | Deployment failure | Model, region, quota, and capacity | If unsupported, record the limitation and stop. Do not substitute a model and claim the same validation. |
 | Private-endpoint environment | An approved VPN/VNet path | Connect through that path. Do not turn on public access as a bypass. |
 | Installation failure | The current Python and the permitted package source | Recheck the Python path and version with the [interpreter check](#l01-new-terminal). |
+| `create` stops halfway (policy, permission, timeout) | The first error line and the record files in `results/` | Fix the cause and **run the same `create` command again**. An attempt that created nothing is kept automatically as `…failed-<time>.json`. |
+| `.env:N: unknown setting` or a `FOUNDRY_LAB_LANGUAGE` error | Whether `.env` has lines other than the `FOUNDRY_…` settings | Select the language in the terminal with `export FOUNDRY_LAB_LANGUAGE=en`, not in `.env`. Save the four settings again with `python scripts/azure_environment.py env --write`. |
+| `doctor` shows `PROBLEM .env endpoint differs…` | The endpoint in `.env` versus `results/azure-environment.json` | Save the ownership record's values again with `python scripts/azure_environment.py env --write`. |
 
 ## Cleanup
 

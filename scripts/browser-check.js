@@ -131,7 +131,14 @@ async (page) => {
         return [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, "0")).join("") === item.sha256;
       }));
       const images = [...document.querySelectorAll('img[src^="assets/portal/"]')];
+      const deferred = images.every(image =>
+        image.loading === "lazy" && image.decoding === "async" && image.width > 0 && image.height > 0 &&
+        image.getAttribute("width") && image.getAttribute("height")
+      );
+      // Figures load lazily in the reader; force them to load so offline availability is still verified.
+      await Promise.all(images.map(image => { image.loading = "eager"; return image.decode().catch(() => {}); }));
       return {
+        deferred,
         declared: manifest.captures.map(item => item.path).sort(),
         rendered: [...new Set(images.map(image => image.getAttribute("src")))].sort(),
         genuine: manifest.capture_method === "playwright-mcp-headless" && manifest.synthetic_ui === false,
@@ -153,6 +160,7 @@ async (page) => {
     check(captures.declared.length === edition.portal_screenshots && JSON.stringify(captures.declared) === JSON.stringify(captures.rendered), "language-specific portal capture manifest matches the rendered guide");
     check(captures.genuine && captures.scoped && captures.provenance && captures.hashesMatch, "active and archived portal captures retain genuine scoped provenance and original hashes");
     check(captures.loaded && captures.captioned, "all offline portal images load with concise screen-example captions");
+    check(captures.deferred, "portal screenshots load lazily and reserve their size, so the first page does not download every image");
     check(await page.locator('.provenance-note, a[href^="content/portal-screenshots"]').count() === 0,
       "capture audits stay in maintenance records rather than learner navigation");
     check(await page.locator('a[href^="validation/"], a[href^="results/"]').count() === 0, "execution records remain outside the guide");
@@ -519,11 +527,14 @@ async (page) => {
       check(measure.brandRight <= measure.actionsLeft, `brand and header controls do not overlap at ${width}px`);
       check(await page.locator(`.language-switch [data-language="${other}"]`).isVisible(), `language switch remains available at ${width}px`);
       await page.goto(`${entry}#l04`);
-      const imageBounds = await page.locator("#l04 .portal-capture img").evaluateAll(images => images.map(image => ({
-        width: image.getBoundingClientRect().width,
-        container: image.closest("figure").getBoundingClientRect().width,
-        loaded: image.complete && image.naturalWidth > 0,
-      })));
+      const imageBounds = await page.locator("#l04 .portal-capture img").evaluateAll(async images => {
+        await Promise.all(images.map(image => { image.loading = "eager"; return image.decode().catch(() => {}); }));
+        return images.map(image => ({
+          width: image.getBoundingClientRect().width,
+          container: image.closest("figure").getBoundingClientRect().width,
+          loaded: image.complete && image.naturalWidth > 0,
+        }));
+      });
       check(imageBounds.length > 0 && imageBounds.every(image => image.loaded && image.width <= image.container + 1), `portal screenshots fit the reader at ${width}px`);
       if ([1440, 390, 320].includes(width)) {
         for (const id of labIds) {

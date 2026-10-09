@@ -27,7 +27,7 @@
 
 ### 기본 환경: GitHub Codespaces
 
-브라우저와 GitHub 계정으로 **저장소 → Code → Codespaces → New with options**를 엽니다. 실습 브랜치·비용 부담 주체·허용량·머신을 확인한 뒤 생성합니다. 도구·패키지 준비와 상태 검사는 [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01-codespaces)에 모아 두었습니다.
+브라우저와 GitHub 계정으로 **저장소 → Code → Codespaces → New with options**를 엽니다. 기본 브랜치(`main`)·비용 부담 주체·허용량·머신을 확인한 뒤 생성합니다. 도구·패키지 준비와 상태 검사는 [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01-codespaces)에 모아 두었습니다.
 
 Codespaces에서는 Windows PC를 쓰더라도 **Linux/Bash 명령**을 사용합니다. Microsoft Azure 로그인·자원 생성은 별도 단계입니다. 종료할 때는 [L19](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l12)에서 Microsoft Azure 자원과 Codespace를 **각각** 확인합니다. Codespace를 중지해도 저장 비용과 Microsoft Azure 자원 비용은 남을 수 있습니다.
 
@@ -59,7 +59,7 @@ L08은 같은 질문 12개의 v1/v2 원문을 한 번 수집(`samples/instructio
 | Markdown | [한국어](downloads/GUIDE.ko.md) · [English](downloads/GUIDE.en.md) |
 | 전체 실습 패키지 | [두 언어 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
 | 내레이션 요약영상 | [장별 재생 페이지](downloads/replay/index.html) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4) |
-| 합성 영수증 | [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) |
+| 샘플 영수증(L03 선택 · 이미지 입력용) | [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) |
 
 실습 코드 파일별 역할은 [한국어 안내](samples/README.ko.md) · [English](samples/README.md)에서 확인할 수 있습니다.
 
@@ -99,7 +99,7 @@ npm run guide:browser
 python scripts/package_guide.py
 ```
 
-같은 체크인 소스로 두 언어의 HTML/Markdown과 ZIP을 만듭니다. 로컬 검사 기록은 비공개 `results/documentation/`에 두고 패키지에 넣지 않습니다.
+같은 체크인 소스로 두 언어의 HTML/Markdown과 ZIP을 만듭니다. 자동 검사는 다시 생성한 HTML/Markdown이 체크인된 파일과 다르면, 그리고 `python scripts/package_guide.py --check`가 체크인된 ZIP이 소스와 다르면 실패합니다. ZIP은 같은 소스에서 같은 항목을 만들도록(고정 시각·정렬) 구성되며, 모든 검사를 통과한 뒤에만 기존 ZIP을 교체합니다. 로컬 검사 기록은 비공개 `results/documentation/`에 두고 패키지에 넣지 않습니다.
 이를 Microsoft Azure 실행이나 모델 점수 향상 증거로 기록하지 않습니다.
 
 ### 요약영상 다시 만들기
@@ -112,8 +112,11 @@ Pages는 **`main` 브랜치의 루트(`/`)**를 게시합니다. `main`에 push�
 main 병합은 여전히 승인이 필요하며 이제 사이트 게시도 함께 발생합니다. 병합 전에 HTML/Markdown/ZIP을 다시 생성하고 확인합니다. Pages가 가이드 생성 스크립트를 대신 실행하지는 않습니다.
 기존 자동 검사와 Pages 배포는 독립적으로 실행됩니다. **Pages는 자동 검사가 끝나기를 기다리지 않습니다.**
 `.nojekyll`을 유지하고 강제 push는 하지 않습니다. 브랜치 삭제·공개 범위 변경·Microsoft Azure 작업은 명시적 승인이 필요합니다.
-배포 후 `python scripts/check_pages.py`로 공개 HTML·자산과 병합된 원본을 대조합니다.
+배포 후 `python scripts/check_pages.py`로 공개 HTML·자산·ZIP과 병합된 원본을 대조합니다. 공식 문서가 검토일 이후 바뀌었는지는 `python scripts/check_links.py`가 알려 줍니다(`--fail-on-changed`로 실패 처리).
+학습자가 Codespaces를 더 빨리 시작하게 하려면 저장소 **Settings → Codespaces**에서 `main`의 prebuild를 설정할 수 있습니다(선택, 사용량 발생).
 
 </details>
 
 Microsoft 공식 교육과정이 아닙니다. 출처와 사용 조건은 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES)를 확인합니다.
+
+저장소의 코드와 문서는 [MIT 라이선스](LICENSE)로 공개하며 Microsoft 제품 이름·아이콘·포털 화면은 제외합니다. 가이드의 오류나 개선 제안은 [이슈](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/issues/new/choose)로 남겨 주세요. `.env`·키·개인정보는 붙이지 않습니다.

@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import time
+from urllib.error import HTTPError, URLError
 from urllib.parse import quote, unquote, urljoin, urlparse
 from urllib.request import Request, urlopen
 
@@ -13,15 +15,25 @@ ROOT = Path(__file__).resolve().parents[1]
 RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
 
 
-def fetch(address):
+RETRY_STATUS = {404, 429, 500, 502, 503, 504}  # 404: a just-merged file may not be published yet
+
+
+def fetch(address, attempts=4):
     request = Request(address, headers={
         "User-Agent": "ContosoGuide-PagesCheck/1.0",
         "Cache-Control": "no-cache",
     })
-    with urlopen(request, timeout=30) as response:
-        if response.status != 200:
-            raise ValueError(f"Published file returned HTTP {response.status}: {address}")
-        return response.read()
+    for attempt in range(attempts):
+        try:
+            with urlopen(request, timeout=30) as response:
+                if response.status != 200:
+                    raise ValueError(f"Published file returned HTTP {response.status}: {address}")
+                return response.read()
+        except (HTTPError, URLError, TimeoutError) as error:
+            transient = not isinstance(error, HTTPError) or error.code in RETRY_STATUS
+            if not transient or attempt + 1 == attempts:
+                raise
+            time.sleep(3 * (attempt + 1))
 
 
 def check():
@@ -61,11 +73,14 @@ def check():
             raise ValueError(f"Unexpected linked public file: {relative}")
         if fetch(urljoin(base, quote(relative))) != path.read_bytes():
             raise ValueError(f"Published asset differs from the local source: {relative}")
+    archive = RELEASE["archive"]
+    if fetch(urljoin(base, quote(archive))) != (ROOT / archive).read_bytes():
+        raise ValueError(f"Published kit ZIP differs from the local archive: {archive}")
     report = {
         "checked_at": datetime.now(timezone.utc).isoformat(),
         "scope": "Unauthenticated GitHub Pages requests only; not Azure execution or quality evidence.",
         "site_url": base, "default_language": RELEASE["default_language"],
-        "html": rows, "linked_files_checked": len(assets), "status": "passed",
+        "html": rows, "linked_files_checked": len(assets), "archive_checked": archive, "status": "passed",
     }
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report

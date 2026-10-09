@@ -128,7 +128,7 @@ python samples/toolbox_lab.py call --local --tool prepare_purchase_request --arg
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `inspect --local` | Starts a separate stdio MCP server as a child process, initializes it, and retrieves tool names and contracts. This does not reuse the HTTP server from the previous step. | Check the actual local MCP exchange and tool names. No Microsoft Azure calls. |
-| 2. Unapproved `call` | Supplies the exact tool/arguments but omits `--approve-tool`. | `Approval required` and a failing exit are expected; rejection occurs before `tools/call`. |
+| 2. Unapproved `call` | Supplies the exact tool/arguments but omits `--approve-tool`. | A one-line `ERROR: Approval required: …` and exit code 2 are expected; rejection occurs before `tools/call`. |
 | 3. Approved `call ... get_stock` | `--tool` names the tool; `--arguments` supplies JSON; `--approve-tool` permits this name/arguments once. | Check actual inventory and local evidence. |
 | 4. `call ... prepare_purchase_request` | Calls the draft function with quantity 2. Outer single quotes preserve the JSON's double quotes. | KRW 2,900,000, pending approval, and not ordered. Tool approval is not purchase approval. |
 

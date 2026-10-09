@@ -172,7 +172,7 @@ If a real comparison is necessary, verify cost scope and send **one additional r
 | Streaming | First-output time versus final completion |
 | Structured outputs | JSON parsing, schema, and type checks |
 | Embeddings | Retrieval vectors, not generated answers |
-| Vision | Supported synthetic receipt input versus actual price/quantity |
+| Vision | Give a supported model the [sample receipt](../../data/en/receipt.html) as an image or PDF (browser print → save), then compare the document number, items, quantities, and total it reads with `data/en/receipt.expected.json` (KB-01 × 2 at 89,000 = 178,000 KRW, approval pending) |
 
 APIs/tool support vary by model. Check the model card and official SDK examples before adding options.
 

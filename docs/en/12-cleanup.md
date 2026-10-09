@@ -63,7 +63,7 @@ python scripts/operations_status.py
 
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
-| 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. |
+| 1. `stop_sessions.py` | Sends actual stop requests for recorded Hosted client sessions, then queries the same IDs again. This script has no `--live` safety switch. | Changes session compute state. Does not delete agents, resource groups, or receipts; an unverified stop is an error. One failure does not stop the others from being attempted; the failures are reported at the end. |
 | 2. `routine_lab.py stop --receipt ... --live` | Disables the exact L16 schedule; distinguish manual/timer receipt paths. | Actual state change, no routine/RG deletion. Replace the path if you used a different file. |
 | 3. `operations_status.py` | Reads current sessions/schedules/evaluation work in your environment. | Actual Microsoft Azure read without `--live`; active work/query failures remain errors or unverified. |
 
@@ -110,7 +110,7 @@ Cleanup processes recorded conversations → lab-only agent → vector store →
 | Published channels, Bots, and apps | Verify user-access revocation separately from resource cleanup |
 | Fine-tuned deployments and models | Distinguish deployment deletion from deletion of a trained model |
 
-Do not assume vector store expiration removes the original files. Agents, projects, and connected Microsoft Azure resources can have different lifecycles.
+Do not assume vector store expiration removes the original files. Conversely, deleting an uploaded file object removes it from every vector store, agent, and conversation that uses it, so delete only file IDs in your own receipt. Agents, projects, and connected Microsoft Azure resources can have different lifecycles.
 
 ### 4. Make a final cost and data check
 

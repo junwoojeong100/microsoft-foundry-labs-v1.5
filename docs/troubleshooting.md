@@ -14,6 +14,8 @@
 | 어제 되던 `python`에서 패키지를 못 찾음 | [L01 새 터미널 확인](#l01-new-terminal)으로 현재 실행기 경로 확인. 다른 Python에 패키지를 다시 설치하지 않음 |
 | `read-result`에서 파일·형식·언어 오류 | L06의 `Responses:` 경로와 `-responses.jsonl` 끝부분 확인. 소유 receipt나 L08 JSON은 다른 형식이며 새 유료 호출로 해결하지 않음 |
 | 포털에서 프로젝트가 안 보임 | L01의 내 계정·조직·소유 기록과 생성 상태를 대조. 새 환경을 중복 생성하거나 기록을 지우지 않음 |
+| L01 `create`가 중간에 실패하거나 중단됨 | 오류 첫 줄(정책·권한·지역·시간 초과)을 해결하고 **같은 명령을 다시 실행**. 만들어지지 않은 시도는 `results/azure-environment.failed-<시각>.json`으로 자동 보관(삭제하지 않음) |
+| `.env:N: unknown setting` / `FOUNDRY_LAB_LANGUAGE` 오류 | 언어는 터미널의 `export FOUNDRY_LAB_LANGUAGE=en`으로 지정하고 `.env`에는 `FOUNDRY_…` 설정만 둠. `python scripts/azure_environment.py env --write`로 네 설정을 저장하고 `python samples/workshop.py doctor`로 확인 |
 
 ## 60초 진단 순서
 
@@ -23,7 +25,8 @@
 | --- | --- |
 | `PLAN ONLY` / `plan_only=true` | 정상 계획 출력. 실제 Microsoft Azure 실행은 아님. 승인 조건을 갖춘 경우에만 본문의 실행 명령으로 진행 |
 | L06 품절·수량 오류 | 지정한 실패 입력이면 정상 차단. 오류 종류를 기록하고 다음 사례로 진행 |
-| L07 `Approval required` | 승인 없는 로컬 호출 과제의 정상 차단. 그 뒤의 정확한 1회 승인 명령과 비교 |
+| L07 `Approval required` | 승인 없는 로컬 호출 과제의 정상 차단(`ERROR: Approval required: …` 한 줄, 종료 코드 2). 그 뒤의 정확한 1회 승인 명령과 비교 |
+| L08 명령이 `…failed-<시각>.json`을 남기고 멈춤 | 모델·에이전트 요청 전에 멈춘 기록. 원인(로그인·배포 이름·`.env`)을 고친 뒤 같은 명령을 다시 실행. 요청이 시작된 뒤의 원본은 덮어쓰거나 재수집하지 않음 |
 | L17 처음 2개 / L18 처음 3개 테스트 실패 | 의도한 결함 과제. `exercise.py`만 고치고 같은 테스트를 다시 실행 |
 | 서버 실행 후 입력 프롬프트가 돌아오지 않음 | 대기 중이면 정상. 두 번째 터미널에서 health/readiness 확인; 첫 창에서 추가 명령을 입력하지 않음 |
 | Windows MCP JSON 해석 오류 | L07의 **Windows PowerShell 전용 블록** 사용. JSON 형식 오류를 승인 오류로 기록하지 않음 |
@@ -85,7 +88,7 @@ response 또는 request ID:
 남아 있을 수 있는 유료 자원:
 ```
 
-내부 endpoint·tenant·subscription ID도 공유 대상에 맞춰 가립니다. 비밀·토큰·실제 사용자 데이터는 첨부하지 않습니다.
+내부 endpoint·tenant·subscription ID도 공유 대상에 맞춰 가립니다. 비밀·토큰·실제 사용자 데이터는 첨부하지 않습니다. 가이드 자체의 오류나 개선 제안은 위 항목만 채워 [GitHub 이슈](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/issues/new/choose)로 남길 수 있습니다.
 
 ## 화면이 문서와 다를 때
 

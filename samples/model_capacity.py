@@ -17,6 +17,7 @@ from typing import Callable
 from uuid import UUID
 
 from evidence import Evidence, digest
+from lab_cli import run
 from lab_profile import LANGUAGE
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -606,4 +607,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    run(main)

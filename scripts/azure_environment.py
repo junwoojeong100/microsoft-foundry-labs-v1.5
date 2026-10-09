@@ -6,7 +6,9 @@ import argparse
 import base64
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import time
@@ -14,9 +16,37 @@ from uuid import UUID, uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
-from workshop import LANGUAGE, save_json
+from workshop import ENDPOINT_KEY, LANGUAGE, MODEL_KEY, env_pair, save_json, validate_endpoint
 
 LEDGER = ROOT / "results/azure-environment.json"
+ENV_FILE = ROOT / ".env"
+LOCATION_CODE = re.compile(r"[a-z0-9]+")
+ROLE_PLAN = (
+    ("you (signed-in user)", "Foundry User", "project"),
+    ("you (signed-in user)", "Cognitive Services OpenAI User", "Foundry resource"),
+    ("project managed identity", "Cognitive Services OpenAI User", "Foundry resource"),
+    ("project managed identity", "Foundry User", "Foundry resource"),
+)
+
+
+class LocalError(ValueError):
+    """A problem with local files only; it is never recorded as a failed Azure operation."""
+
+
+def shown(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
+def load_ledger() -> dict:
+    if not LEDGER.exists():
+        raise LocalError(
+            f"{shown(LEDGER)} was not found. L01 step 3 creates it (python scripts/azure_environment.py create ... --live). "
+            "If you created no Microsoft Azure resources, skip this command."
+        )
+    return json.loads(LEDGER.read_text(encoding="utf-8"))
 
 
 def persist(state: dict) -> None:
@@ -41,7 +71,7 @@ def az(*args: str, timeout: int = 180) -> object:
 
 
 def owned(*, verify_location: bool = False) -> dict:
-    state = json.loads(LEDGER.read_text(encoding="utf-8"))
+    state = load_ledger()
     if state.get("language", "ko") != LANGUAGE:
         raise ValueError("Selected language differs from the owned environment. No changes are allowed.")
     group = az("group", "show", "--subscription", state["subscription"], "--name", state["resource_group"])
@@ -74,11 +104,61 @@ def current_user_id(state: dict) -> str:
     return principal
 
 
+def archive_ledger() -> Path:
+    """Keep a failed attempt as evidence, but free the canonical path for a clean retry."""
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    target = LEDGER.with_name(f"azure-environment.failed-{stamp}.json")
+    LEDGER.rename(target)
+    return target
+
+
+def finish_interrupted_create() -> dict | None:
+    """Resolve a ledger left by a `create` that never recorded its resource group.
+
+    A ledger is written before the resource group is requested, so a policy denial, timeout or Ctrl+C
+    leaves it behind. Returns the ledger when the resource group exists and is proven to belong to this
+    run (adopted); returns None after archiving a ledger whose resource group was never created.
+    """
+    state = json.loads(LEDGER.read_text(encoding="utf-8"))
+    if any(item.get("step") == "create-rg" and item.get("status") == "succeeded" for item in state.get("operations", [])):
+        raise LocalError(
+            f"An environment ledger already exists (resource group {state.get('resource_group')}); it will not be "
+            "overwritten. Continue with the next L01 step, or inspect it with "
+            "`python scripts/azure_environment.py status --live`."
+        )
+    if not az("group", "exists", "--subscription", state["subscription"], "--name", state["resource_group"]):
+        archived = archive_ledger()
+        print(f"The earlier create attempt never produced a resource group; its record was kept as {shown(archived)}.")
+        return None
+    group = az("group", "show", "--subscription", state["subscription"], "--name", state["resource_group"])
+    if (
+        state.get("language", "ko") != LANGUAGE
+        or group.get("tags", {}).get("validationRun") != state.get("run_id")
+        or str(group.get("id", "")).lower() != str(state.get("resource_group_id", "")).lower()
+    ):
+        raise ValueError("A resource group with the recorded name exists but is not proven to belong to this run; nothing was changed.")
+    state["resource_group_id"] = group["id"]
+    state["operations"].append({"step": "create-rg", "status": "succeeded", "recovered": True})
+    persist(state)
+    return state
+
+
 def create(args: argparse.Namespace) -> None:
-    if LEDGER.exists():
-        raise ValueError("An environment ledger already exists. It will not be overwritten.")
     if not args.subscription or not args.location:
         raise ValueError("--subscription and --location are required.")
+    if not LOCATION_CODE.fullmatch(args.location):
+        raise ValueError(
+            "--location must be an Azure region code such as eastus (lowercase letters and digits), "
+            "not a display name such as 'East US'."
+        )
+    if LEDGER.exists():
+        adopted = finish_interrupted_create()
+        if adopted is not None:
+            print(json.dumps({
+                "resource_group": adopted["resource_group"], "location": adopted["location"],
+                "ledger": shown(LEDGER), "recovered": True,
+            }))
+            return
     account = az("account", "show", "--subscription", args.subscription)
     if account["state"] != "Enabled":
         raise ValueError("Subscription is not enabled.")
@@ -108,7 +188,7 @@ def create(args: argparse.Namespace) -> None:
     state["resource_group_id"] = group["id"]
     state["operations"].append({"step": "create-rg", "status": "succeeded"})
     persist(state)
-    print(json.dumps({"resource_group": rg, "location": args.location, "ledger": str(LEDGER.relative_to(ROOT))}))
+    print(json.dumps({"resource_group": rg, "location": args.location, "ledger": shown(LEDGER)}))
 
 
 def foundation(args: argparse.Namespace) -> None:
@@ -229,33 +309,50 @@ def roles() -> None:
 
 def search() -> None:
     state = owned()
-    services = az("search", "service", "list", "--subscription", state["subscription"], "--resource-group", state["resource_group"])
-    if services:
-        raise ValueError("Search already exists in this RG. Inspect ownership instead of overwriting.")
-    resource = az(
-        "search", "service", "create", "--subscription", state["subscription"],
-        "--resource-group", state["resource_group"], "--name", state["search_name"],
-        "--location", state["location"], "--sku", "basic", "--partition-count", "1", "--replica-count", "1",
-        "--identity-type", "SystemAssigned", "--disable-local-auth", "true",
-        "--tags", "repository=microsoft-foundry-labs-v1.5", "scenario=Contoso", f"validationRun={state['run_id']}",
-        "--semantic-search", "free", timeout=600,
-    )
-    state["search_id"] = resource["id"]
-    state["search_endpoint"] = f"https://{state['search_name']}.search.windows.net"
-    persist(state)
+    # Check every prerequisite before anything billable exists, so a missing foundation step or a
+    # sign-in mismatch cannot leave a Basic search service without roles.
+    try:
+        project_principal = state["foundation"]["projectPrincipalId"]["value"]
+    except (KeyError, TypeError) as exc:
+        raise ValueError("Search needs the project identity recorded by foundation (L01 step 4); nothing was created.") from exc
     user = current_user_id(state)
+    services = az("search", "service", "list", "--subscription", state["subscription"], "--resource-group", state["resource_group"])
+    resource = None
+    if services:
+        recorded = str(state.get("search_id", "")).lower()
+        mine = [item for item in services if recorded and str(item.get("id", "")).lower() == recorded
+                and item.get("name") == state["search_name"]
+                and (item.get("tags") or {}).get("validationRun") == state["run_id"]]
+        if len(services) != 1 or len(mine) != 1:
+            raise ValueError("Search already exists in this RG. Inspect ownership instead of overwriting.")
+        resource = mine[0]  # An earlier run created it but stopped before the role grants: resume only those.
+    if resource is None:
+        resource = az(
+            "search", "service", "create", "--subscription", state["subscription"],
+            "--resource-group", state["resource_group"], "--name", state["search_name"],
+            "--location", state["location"], "--sku", "basic", "--partition-count", "1", "--replica-count", "1",
+            "--identity-type", "SystemAssigned", "--disable-local-auth", "true",
+            "--tags", "repository=microsoft-foundry-labs-v1.5", "scenario=Contoso", f"validationRun={state['run_id']}",
+            "--semantic-search", "free", timeout=600,
+        )
+        state["search_id"] = resource["id"]
+        state["search_endpoint"] = f"https://{state['search_name']}.search.windows.net"
+        persist(state)
+    granted = {(item.get("role"), str(item.get("scope", "")).lower()) for item in state.get("role_assignments", [])}
     for principal, principal_type, role in [
         (user, "User", "Search Service Contributor"),
         (user, "User", "Search Index Data Contributor"),
-        (state["foundation"]["projectPrincipalId"]["value"], "ServicePrincipal", "Search Index Data Reader"),
+        (project_principal, "ServicePrincipal", "Search Index Data Reader"),
     ]:
+        if (role, resource["id"].lower()) in granted:
+            continue
         grant = az(
             "role", "assignment", "create", "--subscription", state["subscription"],
             "--assignee-object-id", principal, "--assignee-principal-type", principal_type,
             "--role", role, "--scope", resource["id"],
         )
         state.setdefault("role_assignments", []).append({"id": grant["id"], "scope": resource["id"], "role": role})
-    persist(state)
+        persist(state)
     status()
 
 
@@ -377,10 +474,129 @@ def reflection(args: argparse.Namespace) -> None:
     raise RuntimeError("Reflection deployment was not confirmed within the bounded wait; inspect the receipt.")
 
 
+def observability_limits() -> str:
+    text = (ROOT / "infra/observability.bicep").read_text(encoding="utf-8")
+    days = re.search(r"retentionInDays:\s*(\d+)", text)
+    quota = re.search(r"dailyQuotaGb:\s*(\d+)", text)
+    if not days or not quota:
+        return "retention and daily ingestion cap are set in infra/observability.bicep"
+    return f"{days[1]}-day retention, {quota[1]} GB/day ingestion cap"
+
+
+def plan_detail(args: argparse.Namespace) -> dict | None:
+    """Describe what a --live run would do, using only local files (no Azure calls)."""
+    recorded = {}
+    if LEDGER.exists():
+        try:
+            state = json.loads(LEDGER.read_text(encoding="utf-8"))
+            recorded = {key: state[key] for key in ("resource_group", "account_name", "project_name", "run_id", "location")
+                        if key in state}
+        except (OSError, ValueError):
+            recorded = {}
+    if args.step == "create":
+        return {
+            "would_create": {
+                "resource_group": f"rg-contoso-{'en' if LANGUAGE == 'en' else 'a'}-<yymmdd><6 random hex>",
+                "location": args.location or "(required: --location, a region code such as eastus)",
+                "tags": ["repository=microsoft-foundry-labs-v1.5", "scenario=Contoso", "validationRun=<run id>",
+                         "retention=retain-until-explicit-approval", f"language={LANGUAGE}"],
+            },
+            "records_to": shown(LEDGER),
+            "existing_ledger": LEDGER.exists(),
+            "if_ledger_exists": "A ledger whose resource group was never created is archived and retried; a finished one is never overwritten.",
+            "needed_to_run": ["--subscription", "--location", "--cost-authorization", "--live"],
+            "azure_calls": 0,
+        }
+    if args.step == "roles":
+        return {
+            "would_grant": [{"to": who, "role": role, "scope": scope} for who, role, scope in ROLE_PLAN],
+            "target": recorded or "(needs the ledger from L01 step 3)",
+            "needs": "roleAssignments/write on the project and its parent Foundry resource; no subscription-wide role is created",
+            "azure_calls": 0,
+        }
+    if args.step == "monitoring":
+        return {
+            "would_create": [f"Log Analytics workspace log-<run id> ({observability_limits()})",
+                             "Application Insights appi-<run id> (workspace-based)",
+                             "project connection contoso-tracing"],
+            "target": recorded or "(needs the ledger from L01 step 3)",
+            "may_incur_cost": "log ingestion and retention",
+            "azure_calls": 0,
+        }
+    if args.step == "search":
+        return {
+            "would_create": ["Azure AI Search service srch-<run id>: Basic SKU, 1 partition, 1 replica, local auth disabled, free semantic search"],
+            "would_grant": ["Search Service Contributor (you)", "Search Index Data Contributor (you)",
+                            "Search Index Data Reader (project managed identity)"],
+            "target": recorded or "(needs the ledger from L01 step 3)",
+            "may_incur_cost": "a Basic search service is billed for as long as it exists",
+            "azure_calls": 0,
+        }
+    return None
+
+
+def update_env(path: Path, settings: dict[str, str], *, write: bool) -> dict[str, str]:
+    """Set only the given keys in .env, keeping every other line; return added/updated/unchanged per key."""
+    lines: list[str] = []
+    status: dict[str, str] = {}
+    for line in (path.read_text(encoding="utf-8-sig").splitlines() if path.exists() else []):
+        pair = env_pair(line)
+        if pair and pair[0] in settings:
+            if pair[0] in status:
+                continue  # drop duplicate definitions so the saved value is the only one
+            status[pair[0]] = "unchanged" if pair[1] == settings[pair[0]] else "updated"
+            lines.append(f"{pair[0]}={settings[pair[0]]}")
+        else:
+            lines.append(line)
+    for key, value in settings.items():
+        if key not in status:
+            status[key] = "added"
+            lines.append(f"{key}={value}")
+    if write:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_name(path.name + ".tmp")
+        mode = path.stat().st_mode & 0o777 if path.exists() else 0o600
+        temporary.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        os.chmod(temporary, mode)
+        temporary.replace(path)
+    return status
+
+
+def env_step(args: argparse.Namespace) -> None:
+    """Copy the project endpoint and deployment names from the ownership record into .env (local only)."""
+    state = load_ledger()
+    if state.get("language", "ko") != LANGUAGE:
+        raise LocalError("Selected language differs from the owned environment; .env was not changed.")
+    deployments = state.get("model_deployments") or {}
+    endpoint = state.get("project_endpoint")
+    if not endpoint or not all(deployments.get(role) for role in ("chat", "judge", "embedding")):
+        raise LocalError("The ownership record has no project endpoint or model deployments yet. Finish L01 step 4 (foundation) first.")
+    try:
+        validate_endpoint(endpoint)
+    except ValueError as exc:
+        raise LocalError(f"The recorded project endpoint is not usable: {exc}") from exc
+    settings = {
+        ENDPOINT_KEY: endpoint,
+        MODEL_KEY: deployments["chat"],
+        "FOUNDRY_JUDGE_DEPLOYMENT_NAME": deployments["judge"],
+        "FOUNDRY_EMBEDDING_DEPLOYMENT_NAME": deployments["embedding"],
+    }
+    try:
+        result = update_env(ENV_FILE, settings, write=args.write)
+    except ValueError as exc:
+        raise LocalError(f"{shown(ENV_FILE)} could not be updated: {exc}") from exc
+    print(json.dumps({
+        "env_file": shown(ENV_FILE), "written": args.write, "settings": result, "azure_calls": 0,
+        "next": ("python samples/workshop.py doctor" if args.write
+                 else "Add --write to save these four settings; every other line in .env is kept."),
+    }, ensure_ascii=False, indent=2))
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("step", choices=["create", "foundation", "roles", "search", "monitoring", "status", "throughput", "reflection"])
+    parser.add_argument("step", choices=["create", "foundation", "roles", "search", "monitoring", "status", "throughput", "reflection", "env"])
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--write", action="store_true", help="With `env`: save the four project settings into the local .env file.")
     parser.add_argument("--subscription")
     parser.add_argument("--location")
     parser.add_argument("--cost-authorization", help="Record the user's explicit monetary limit or explicit no-limit authorization.")
@@ -393,6 +609,9 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--max-capacity", type=int, default=100, help="Ceiling for new/increased capacity units per model.")
     parser.add_argument("--resume", action="store_true", help="Explicitly resume only owned partial foundation resources.")
     args = parser.parse_args(argv)
+    if args.step == "env":
+        env_step(args)
+        return
     if args.step == "foundation":
         from model_capacity import requirements
         plan = requirements(args.learners)
@@ -410,6 +629,8 @@ def main(argv: list[str] | None = None) -> None:
                 "capacity_resolution": "Resolve SKU unit rates, allowed capacity and quota before deployment.",
                 "max_capacity": args.max_capacity, "azure_calls": 0,
             }, ensure_ascii=False, indent=2))
+        elif (detail := plan_detail(args)) is not None:
+            print(json.dumps(detail, ensure_ascii=False, indent=2))
         return
     if args.step == "create":
         if not args.cost_authorization:
@@ -428,6 +649,9 @@ def main(argv: list[str] | None = None) -> None:
 if __name__ == "__main__":
     try:
         main()
+    except LocalError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        raise SystemExit(2)
     except (ValueError, RuntimeError, OSError, subprocess.TimeoutExpired) as exc:
         if LEDGER.exists():
             state = json.loads(LEDGER.read_text(encoding="utf-8"))

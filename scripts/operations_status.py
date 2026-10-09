@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "samples"))
 from cloud import project_client
 from evidence import Evidence
 from routine_lab import azd
+from lab_cli import run
 from workshop import RESULTS, save_json
 from azure_environment import owned
 
@@ -100,4 +101,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

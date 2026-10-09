@@ -1,6 +1,7 @@
 name: Validate offline workshop
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
     inputs:
@@ -35,6 +36,7 @@ jobs:
       language: ${{ inputs.language }}
   offline:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -48,11 +50,48 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - run: python samples/workshop.py validate-data
       - run: python scripts/build_guide.py
+      - name: Generated HTML/Markdown must match the committed files
+        run: git diff --exit-code -- index.html index.ko.html downloads/GUIDE.en.md downloads/GUIDE.ko.md
       - run: python scripts/check_guide.py
       - run: python scripts/build_hosted.py
       - run: python scripts/check_independence.py
+      - name: The committed ZIP must match the sources
+        run: python scripts/package_guide.py --check
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run guide:browser
+  advanced:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            requirements-advanced.txt
+            requirements-local.txt
+      - run: python -m pip install -r requirements-advanced.txt
+      - run: python -m pip check
+      # `python scripts/check_sdk.py --advanced` is not run yet: on a clean install it fails in
+      # samples/multi_agent.py (one_response, fixture path without an audit) and needs a separate fix.
+      - name: The local-model environment installs cleanly
+        run: |
+          python -m venv .venv-local-check
+          .venv-local-check/bin/python -m pip install -r requirements-local.txt
+          .venv-local-check/bin/python -m pip check
   sdk:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

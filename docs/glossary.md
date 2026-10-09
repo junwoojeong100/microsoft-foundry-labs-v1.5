@@ -16,6 +16,7 @@
 | JSON / JSONL | 이름과 값으로 쓰는 데이터 / 한 줄에 JSON 하나인 기록 파일 | 터미널에서 실행할 명령 |
 | `true` / `false` / `null` | 참 / 거짓 / 값 없음. 예: `order_submitted=false`는 주문하지 않았다는 뜻 | `null`을 성공·0원·문제없음으로 해석 |
 | Receipt | 실습이 만든 자원 ID·소유 범위를 기록한 파일 | 결제 영수증이나 삭제 승인 자체 |
+| 샘플 영수증 | L03 선택 Vision 연습의 입력으로 쓰는 가짜 구매 영수증(`data/receipt.html`) | 소유 기록(Receipt)이나 실제 결제 문서 |
 | RBAC / Scope | 역할 기반 권한 / 그 권한이 적용되는 범위 | 로그인만 하면 얻는 전체 권한 |
 | Microsoft Foundry resource | 보안·관리·청구 관련 자원을 묶는 상위 Microsoft Azure 자원 | agent 한 개 |
 | Project | agent·연결·데이터 등의 작업 공간 | Classic hub |

@@ -4,10 +4,12 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 from urllib.parse import unquote, urlparse
 import zipfile
+import zlib
 
 from check_guide import GuideParser
 from build_guide import load_portal_captures
@@ -26,31 +28,29 @@ def check_package_path(path):
         raise ValueError(f"Private or generated cloud data in package: {path}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
-    args = parser.parse_args()
-    report_dir = (ROOT / args.report_dir).resolve()
-    if not report_dir.is_relative_to(ROOT / "results") or report_dir == ROOT / "results":
-        raise ValueError("Reports must be inside private results/.")
-    files = [
-        ROOT / name for name in (
-            ".nojekyll",
-            ".env.example", ".gitignore", "requirements.txt",
-            "requirements-docs.txt", "requirements-advanced.txt", "requirements-local.txt",
-            "requirements-hosted.txt", "requirements-tools.txt", "requirements-live.lock.txt",
-            "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
-        )
-    ]
+IGNORED_NAMES = {".DS_Store", "Thumbs.db"}
+ROOT_FILES = (
+    ".nojekyll",
+    ".env.example", ".gitignore", "requirements.txt",
+    "requirements-docs.txt", "requirements-advanced.txt", "requirements-local.txt",
+    "requirements-hosted.txt", "requirements-tools.txt", "requirements-live.lock.txt",
+    "package.json", "package-lock.json", ".python-version", "azure.yaml", "AGENTS.md", "THIRD_PARTY_NOTICES",
+    "LICENSE",
+)
+DIRECTORIES = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra",
+               "downloads/replay", ".github", ".devcontainer")
+
+
+def collect_files(report_dir: Path) -> list[Path]:
+    files = [ROOT / name for name in ROOT_FILES]
     for edition in RELEASE["languages"].values():
         files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "receipt_html"))
         files.append(ROOT / "content" / edition["portal_manifest"])
-    directories = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra", "downloads/replay", ".github/workflows", ".devcontainer")
-    for directory in {ROOT / name for name in directories}:
+    for directory in {ROOT / name for name in DIRECTORIES}:
         files.extend(
             path for path in directory.rglob("*")
             if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".tmp"}
-            and path != report_dir / "package.json"
+            and path.name not in IGNORED_NAMES and path != report_dir / "package.json"
         )
     for path in files:
         check_package_path(path.relative_to(ROOT))
@@ -58,16 +58,48 @@ def main():
             part.is_symlink() for part in (path, *path.parents) if part.is_relative_to(ROOT)
         ):
             raise ValueError(f"Package input must be an existing regular file: {path.relative_to(ROOT)}")
-    captures = {language: load_portal_captures(language) for language in RELEASE["languages"]}
-    all_captures = {
-        language: load_portal_captures(language, include_archived=True)
-        for language in RELEASE["languages"]
-    }
-    target = ROOT / RELEASE["archive"]
-    target.parent.mkdir(parents=True, exist_ok=True)
+    return sorted(set(files))
+
+
+def entry_info(path: Path) -> zipfile.ZipInfo:
+    """Same inputs give the same entries on every machine: fixed edition date, Unix attributes, sorted names."""
+    year, month, day = (int(part) for part in RELEASE["edition"].split("-"))
+    info = zipfile.ZipInfo(f"{NAME}/{path.relative_to(ROOT).as_posix()}", (year, month, day, 0, 0, 0))
+    info.create_system = 3
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = (0o755 if path.stat().st_mode & 0o111 else 0o644) << 16
+    return info
+
+
+def write_archive(target: Path, files: list[Path]) -> None:
     with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
-        for path in sorted(set(files)):
-            archive.write(path, f"{NAME}/{path.relative_to(ROOT).as_posix()}")
+        for path in files:
+            archive.writestr(entry_info(path), path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+
+
+def mismatches(target: Path, files: list[Path]) -> list[str]:
+    """Compare the ZIP's members (name, size, CRC-32) with the files that would be packaged now.
+
+    CRC-32 and size do not depend on the compressor, so the check passes on any platform.
+    """
+    if not target.is_file():
+        return [f"missing archive: {target.name}"]
+    expected = {}
+    for path in files:
+        data = path.read_bytes()
+        expected[f"{NAME}/{path.relative_to(ROOT).as_posix()}"] = (len(data), zlib.crc32(data) & 0xFFFFFFFF)
+    with zipfile.ZipFile(target) as archive:
+        if archive.testzip() is not None:
+            return ["archive integrity check failed"]
+        actual = {info.filename: (info.file_size, info.CRC) for info in archive.infolist()}
+    problems = [f"missing from ZIP: {name}" for name in sorted(expected.keys() - actual.keys())]
+    problems += [f"not in the kit sources: {name}" for name in sorted(actual.keys() - expected.keys())]
+    problems += [f"differs from the source file: {name}" for name in sorted(expected.keys() & actual.keys())
+                 if expected[name] != actual[name]]
+    return problems
+
+
+def verify_archive(target: Path, all_captures: dict) -> tuple[list[str], set[str]]:
     with zipfile.ZipFile(target) as archive:
         if archive.testzip() is not None:
             raise ValueError("Archive integrity check failed.")
@@ -115,6 +147,44 @@ def main():
                 packed = archive.read(f"{NAME}/{capture['path']}")
                 if hashlib.sha256(packed).hexdigest() != capture["sha256"]:
                     raise ValueError(f"Portal screenshot differs in ZIP: {capture['path']}")
+    return names, local_paths
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report-dir", type=Path, default=Path(RELEASE["documentation_validation"]))
+    parser.add_argument("--check", action="store_true",
+                        help="Do not write: fail when the committed ZIP differs from the current sources.")
+    args = parser.parse_args()
+    report_dir = (ROOT / args.report_dir).resolve()
+    if not report_dir.is_relative_to(ROOT / "results") or report_dir == ROOT / "results":
+        raise ValueError("Reports must be inside private results/.")
+    files = collect_files(report_dir)
+    target = ROOT / RELEASE["archive"]
+    if args.check:
+        problems = mismatches(target, files)
+        if problems:
+            shown = "\n  ".join(problems[:15])
+            more = f"\n  ... and {len(problems) - 15} more" if len(problems) > 15 else ""
+            raise SystemExit(
+                f"The committed ZIP is out of date with the sources ({len(problems)} differences). "
+                f"Run python scripts/package_guide.py and commit the result.\n  {shown}{more}"
+            )
+        print(f"The committed ZIP matches the current sources ({len(files)} files).")
+        return
+    captures = {language: load_portal_captures(language) for language in RELEASE["languages"]}
+    all_captures = {
+        language: load_portal_captures(language, include_archived=True)
+        for language in RELEASE["languages"]
+    }
+    target.parent.mkdir(parents=True, exist_ok=True)
+    staging = target.with_name(target.name + ".tmp")
+    try:
+        write_archive(staging, files)
+        names, local_paths = verify_archive(staging, all_captures)
+        os.replace(staging, target)  # the published ZIP is replaced only after every check passed
+    finally:
+        staging.unlink(missing_ok=True)
     print(f"Packaged {len(names)} files: {target.name} ({target.stat().st_size / 1_000_000:.2f} MB)")
     report = {
         "created_at": datetime.now(timezone.utc).isoformat(), "archive": target.name,

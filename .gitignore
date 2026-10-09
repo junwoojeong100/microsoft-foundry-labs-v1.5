@@ -1,13 +1,12 @@
-.venv/
-.venv-advanced/
-.venv-live/
-.venv-clean/
+.venv*/
 .build/
 .foundry/
 node_modules/
 __pycache__/
 *.pyc
 .env
+.env.*
+!.env.example
 .azure/
 results/
 validation/

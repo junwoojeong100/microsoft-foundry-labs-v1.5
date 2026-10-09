@@ -7,6 +7,7 @@ import re
 
 from cloud import Rest, credential
 from evidence import Budget, Evidence
+from lab_cli import run
 from workshop import load_jsonl
 
 
@@ -77,15 +78,21 @@ def main() -> None:
     if not re.fullmatch(r"[0-9a-fA-F-]{36}", args.app_id):
         raise ValueError("Expected the Application Insights app ID, not an instrumentation key.")
     evidence = Evidence("trace")
-    with credential() as cred:
-        rest = Rest("https://api.applicationinsights.io", cred, "https://api.applicationinsights.io/.default",
-                    evidence, Budget(max_requests=1))
-        result = rest.request("POST", f"/v1/apps/{args.app_id}/query", {"query": query, "timespan": "P1D"})
-    report = correlation_report(rows, result)
-    evidence.append("correlation", report)
-    print(json.dumps(report, ensure_ascii=False, indent=2))
-    print(f"Evidence: {evidence.path}")
+    try:
+        with credential() as cred:
+            rest = Rest("https://api.applicationinsights.io", cred, "https://api.applicationinsights.io/.default",
+                        evidence, Budget(max_requests=1))
+            result = rest.request("POST", f"/v1/apps/{args.app_id}/query", {"query": query, "timespan": "P1D"})
+        report = correlation_report(rows, result)
+        evidence.append("correlation", report)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    except (ValueError, RuntimeError, OSError) as exc:
+        # Zero or partial rows are an unverified correlation, not a pass; keep that outcome on record.
+        evidence.failure(exc)
+        raise
+    finally:
+        print(f"Evidence: {evidence.path}")
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

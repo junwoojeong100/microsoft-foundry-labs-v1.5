@@ -13,6 +13,7 @@ from uuid import uuid4
 
 from cloud import credential, project_client
 from evidence import Evidence, serializable
+from lab_cli import leaf_exception, run
 from search_lab import SEARCH_API, configuration
 from workshop import DATA, LANGUAGE, RESULTS, ROOT, read_config, save_json
 
@@ -188,6 +189,14 @@ def main() -> None:
             create(evidence)
         else:
             asyncio.run(inspect_or_call(args, evidence))
+    except BaseExceptionGroup as group:
+        # MCP sessions run inside task groups, which wrap the real error (for example the intended
+        # "Approval required" stop) in an ExceptionGroup. Record and show only the real error.
+        error = leaf_exception(group)
+        if not isinstance(error, (ValueError, RuntimeError, OSError, TimeoutError)):
+            raise
+        evidence.failure(error)
+        raise error from None
     except (ValueError, RuntimeError, OSError, TimeoutError) as exc:
         evidence.failure(exc)
         raise
@@ -196,4 +205,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

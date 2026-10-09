@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import posixpath
 import re
+import struct
 from urllib.parse import unquote, urlparse, urlunparse
 
 import markdown
@@ -17,10 +18,24 @@ from markdown.extensions.toc import slugify_unicode
 
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
+FEEDBACK_URL = "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/issues/new/choose"
 
 
 def read_json(name: str):
     return json.loads((ROOT / "content" / name).read_text(encoding="utf-8"))
+
+
+def deferred_image(image: str, source: str) -> str:
+    """Load figures only when they are near the viewport, and reserve their space from the PNG header."""
+    attributes = ' loading="lazy" decoding="async"'
+    path = ROOT / source
+    if path.suffix == ".png" and path.is_file():
+        header = path.read_bytes()[:24]
+        if header[:8] == b"\x89PNG\r\n\x1a\n":
+            width, height = struct.unpack(">II", header[16:24])
+            attributes += f' width="{width}" height="{height}"'
+    closing = " />" if image.endswith(" />") else ">"
+    return image[:-len(closing)] + attributes + closing
 
 
 def load_portal_captures(language, *, include_archived=False):
@@ -239,6 +254,7 @@ def render_chapter(chapter, body, source_map, previous, following, captures, ui)
             if capture else ""
         )
         kind = ' class="portal-capture"' if capture else ""
+        image = deferred_image(image, source)
         return (
             f'<figure{kind}>{image}<figcaption><span>{description}</span>{note}'
             f'<a href="{source}" target="_blank" rel="noopener noreferrer">{ui["original"]}</a></figcaption></figure>'
@@ -418,7 +434,7 @@ def build_language(language):
   <section id="search-results" class="search-results" aria-labelledby="search-title" hidden><h1 id="search-title">{ui['search_results']}</h1><p id="search-count" role="status" aria-live="polite"></p><div id="search-list"></div></section>
   <p id="storage-warning" class="storage-warning" role="status" hidden>{ui['storage_warning']}</p>
 {''.join(pages)}
-  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{RELEASE['archive']}">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="#sources">{ui['sources']}</a></footer>
+  <footer class="site-footer"><strong>{ui['footer_title']}</strong><p>{ui['footer_note']}</p><a href="{edition['readme']}">{ui['getting_started']}</a><a href="{edition['markdown']}">{ui['markdown']}</a><a href="{RELEASE['archive']}">{ui['zip']}</a><a href="{edition['receipt_html']}">{ui['receipt']}</a><a href="#sources">{ui['sources']}</a><a href="{FEEDBACK_URL}" target="_blank" rel="noopener noreferrer">{ui['feedback']}</a></footer>
 </main>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
