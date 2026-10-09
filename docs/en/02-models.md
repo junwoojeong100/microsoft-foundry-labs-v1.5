@@ -203,11 +203,17 @@ Model router is a separate deployment that selects a model per request. Inspect 
 
 ## Success criteria
 
-You can identify your provider, Model ID, version, Name, region/type, and actual TPM/RPM. Portal, `.env`, and ownership record agree; the deployment is ready before L03.
+- You can identify your provider, Model ID, version, Name, region/type, and actual TPM/RPM.
+- The deployment name agrees across the portal, `.env`, and ownership record.
+- The deployment is ready before L03.
 
 ## Troubleshooting
 
-For missing models or failed limit queries, inspect region, type, quota, and access. A particular capacity can fail despite available quota. Do not retry 429 indefinitely.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| A model is missing or the limit query fails | Region, type, quota, and access | If you could not read the numbers, do not mark the deployment ready. |
+| Quota is available but deployment fails | The model's capacity unit and increment | A particular capacity can fail despite available quota. Read the query result and adjust within your own scope. |
+| 429 | Current TPM/RPM | Do not retry indefinitely. |
 
 ## Cleanup
 

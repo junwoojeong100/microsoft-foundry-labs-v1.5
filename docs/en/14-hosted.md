@@ -135,13 +135,10 @@ python scripts/build_hosted.py
 
 </div>
 
-This creates `.build/contoso/` and `.build/contoso-code.zip`.
-The Responses profile for Optimizer is generated separately in `.build/contoso-responses/`.
-The default Invocations and Optimizer Responses builds are separate; each needs its own execution evidence.
-Only purchasing policies, inventory, instructions, runtime code, profile metadata, and pinned dependencies are included.
-The package excludes `.env`, authentication material, evaluation reference answers, existing results, and personal environment files.
-Check `language=en` in `lab-profile.json` and the language, per-file hashes, and runtime contract in `package-manifest.json`. The package keeps its bound language at runtime and rejects a conflicting profile; a browser-language change cannot switch a deployed package's corpus. Rebuild from the selected English profile before deployment rather than reusing a Korean ZIP.
-There is no need to clone an external sample repository.
+- **Created:** `.build/contoso/` and `.build/contoso-code.zip`. The Responses profile for Optimizer is generated separately in `.build/contoso-responses/`; the default Invocations and Optimizer Responses builds are separate, and each needs its own execution evidence.
+- **Included:** purchasing policies, inventory, instructions, runtime code, profile metadata, and pinned dependencies.
+- **Excluded:** `.env`, authentication material, evaluation reference answers, existing results, and personal environment files.
+- **Check:** `language=en` in `lab-profile.json`, and the language, per-file hashes, and runtime contract in `package-manifest.json`. The package keeps its bound language at runtime and rejects a conflicting profile; a browser-language change cannot switch a deployed package's corpus. Rebuild from the selected English profile before deployment rather than reusing a Korean ZIP. There is no need to clone an external sample repository.
 
 ### 2. Run and invoke locally
 
@@ -322,16 +319,22 @@ The portal does not edit the handler; it shows the deployed type/version of the 
 
 ## Success criteria
 
-You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
-Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
+- You separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
+- Hashes, tools, and citations are connected.
+- You did not label a successful deployment alone as a quality pass.
 
 ## Troubleshooting
 
-For health failures, check the entry point/dependencies; for 502, the preserved upstream error; and for 403,
-the runtime identity's model/Search roles first. For a 424 cold start, inspect logs and retry only a bounded number of times.
-Do not turn an error message into a normal answer with HTTP 200.
+| Symptom | Check first |
+| --- | --- |
+| Health failure | The entry point and dependencies |
+| 502 | The preserved upstream error |
+| 403 | The runtime identity's model/Search roles |
+| 424 cold start | Inspect logs and retry only a bounded number of times |
+| Multiple JSON objects or `incomplete` output | The tool/answer boundary and actual results. Do not increase the 2048-token limit or weaken citation checks. |
+| A remote timeout | Existing evidence and the recorded session state. A timeout does not prove that the server did nothing; take any further action only after separate approval. |
 
-For multiple JSON objects or `incomplete` output, inspect the tool/answer boundary and actual results rather than increasing the 2048-token limit or weakening citation checks. A remote timeout does not prove that the server did nothing: inspect existing evidence and the recorded session state before any separately approved action.
+Do not turn an error message into a normal answer with HTTP 200.
 
 ## Cleanup
 

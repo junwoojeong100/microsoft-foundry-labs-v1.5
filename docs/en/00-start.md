@@ -36,9 +36,7 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | Agent | A program combining a model with instructions, knowledge, and tools |
 | Deployment | Making a model available to call in your environment; not training the model |
 
-**Start with 11 core modules, L00–L10.** The eight advanced modules, L11–L18, are electives. **Finish every path with shared wrap-up L19.** Core-only learners jump directly from L10 to L19 without completing the electives.
-
-**GitHub Codespaces is the default environment.** Start in its prepared browser terminal. Expand PC installation and OS-specific alternatives only when needed.
+**Core is 11 modules (L00–L10); finish every path with shared wrap-up L19.** The eight advanced modules (L11–L18) are electives and need not all be completed. The default environment is **GitHub Codespaces**, the prepared browser terminal. Expand PC installation and OS-specific alternatives only when needed.
 
 ```text
 Prepare      L00 overview → L01 your environment → L02 model checks
@@ -46,7 +44,9 @@ Build        L03 first answer → L04 instructions → L05 documents → L06 fun
 Check/finish L08 evaluation → L09 boundaries → L10 traces → L19 costs and wrap-up
 ```
 
-**For your first complete run:** Follow **Prerequisites → Steps → Success criteria → Cleanup** in each module. Collapsed **optional and implementation-reference** sections are not required for the main path. Record a successful result before continuing; on failure, use that module's **Troubleshooting** section.
+Each module follows **Prerequisites → Steps → Success criteria → Cleanup**. Record a successful result before continuing; on failure, use that module's **Troubleshooting** section. Collapsed **optional and implementation-reference** sections are not required for the main path. Core-only learners go directly from L10 to L19.
+
+**Choose the path that matches your situation.**
 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
@@ -54,6 +54,20 @@ Check/finish L08 evaluation → L09 boundaries → L10 traces → L19 costs and 
 | Microsoft Azure account, permissions, or cost conditions are still pending | [L01 Codespaces setup/local checks](#l01-codespaces) → L06 local functions → L07 local MCP → L08 instructions/questions | Valid data, the KRW 2,900,000 draft, and MCP calls; live Microsoft Azure execution remains not performed |
 
 The default is **create your environment → run the labs → clean up your resources**. The second path is local preparation, not completion of the Microsoft Foundry experience. **Without Microsoft Azure** groups those local, reading, and design steps.
+
+<a id="l00-agent-map"></a>
+
+### Same scenario, three different agents
+
+**Not every module modifies the same agent.** The core course uses the targets below. Do not mix their names or result files.
+
+| Target | Created in → reused in | What to check and keep |
+| --- | --- | --- |
+| Portal policy agent | L04 creation → L05 documents → L09 boundary questions | Your name/version/store, answers, and citations. No inventory functions |
+| Integrated SDK agent | Created separately in L06 → the same result traced in L10 | Printed `Responses:` JSONL and `Resource receipt:` JSON paths |
+| Instruction-evaluation agent | Created separately in L08 → only the saved originals evaluated | Collection JSON and Native evaluation JSON; not an evaluation of L06 function execution |
+
+Keep your names and paths in the [progress record](#instructor). Do not reuse screenshot names or another participant's files.
 
 ## Objectives
 
@@ -95,7 +109,20 @@ The default is **create your environment → run the labs → clean up your reso
 
 ### How to read the source code and commands
 
-Opening [L01's Codespace](#l01-codespaces) prepares the repository in browser VS Code; no ZIP download or Git command is needed. The **lab folder (repository root)** contains `samples`, `data`, and `requirements.txt` together. Your browser's “View page source” shows the guide's HTML, not the executable samples.
+Use the repository prepared in [L01's Codespace](#l01-codespaces). Run commands from the **lab folder (repository root)**, where `samples`, `data`, and `requirements.txt` appear together. Even from a Windows PC, the Codespaces terminal is **Linux/Bash**. The default `python` is the prepared `.venv`; advanced modules specify their separate Python environment.
+
+| Block in the text | Where to paste it and how to use it |
+| --- | --- |
+| Bash / PowerShell command | The terminal the step names. Run a multi-command block one line at a time and read each result |
+| Question or instructions | The portal input the step names |
+| `.env` settings | The editor's `.env` file |
+| Python excerpt or JSON result example | Reading material to compare against; not a terminal command |
+
+**Three things to remember before running a command**
+
+1. **Copy is not Run.** Read the walkthrough below the command first for request counts, changes, and costs. Replace descriptive placeholders with your verified values, and judge the result by each module's success criteria.
+2. **“Local” means running inside the same Codespace.** Both terminals and `127.0.0.1` refer to that Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges.
+3. **Do not judge safety by option names.** `--live` is not a universal CLI safety switch: `azd deploy`, `az login`, and some management scripts work without it. `--local` does not always mean “no Microsoft Azure cost” either; the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details class="environment-option" markdown="1">
 <summary>Only for the PC alternative: open the ZIP in VS Code</summary>
@@ -105,7 +132,9 @@ Extract the complete workshop ZIP, preserve its structure, and use **File → Op
 </details>
 
 <details markdown="1">
-<summary>Reference: what the source files do</summary>
+<summary>Reference: find the source files and read Python commands</summary>
+
+Your browser's “View page source” shows only the guide's HTML. Find the executable code in the files below. Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python code that runs ↔ the result to inspect**; local Agent Framework and design exercises explicitly state when there is no portal counterpart and when no Microsoft Azure operation was performed.
 
 | What to look for | Source file |
 | --- | --- |
@@ -119,8 +148,6 @@ Extract the complete workshop ZIP, preserve its structure, and use **File → Op
 | English synthetic inputs and unchanged business contracts | [data/en/profile-manifest.json](../../data/en/profile-manifest.json) |
 | Learner module sources | [docs/en/00-start.md](../../docs/en/00-start.md) in English and [docs/00-start.md](../../docs/00-start.md) in Korean — regenerate HTML/Markdown/ZIP after editing |
 
-</details>
-
 Read `python samples/first_response.py --query "..." --live` as four parts:
 
 | Part | Meaning |
@@ -130,15 +157,9 @@ Read `python samples/first_response.py --query "..." --live` as four parts:
 | `--query "..."` | The model input. Without `--live`, it is only shown in the plan |
 | `--live` | Permits one actual Microsoft Azure request in this example |
 
-Read each command as file, operation, and inputs. Compare the SDK blocks with the [sample guide](../../samples/README.md), then check request bounds and ownership before execution. Replace descriptive placeholders with your verified values.
+Read each command as file, operation, and inputs. Compare the SDK blocks with the [sample guide](../../samples/README.md), then check request bounds and ownership.
 
-Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python code that runs ↔ the result to inspect**. Local Agent Framework and design exercises explicitly state when there is no portal counterpart and when no Microsoft Azure operation was performed.
-
-**Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
-
-**Rules for subsequent commands:** In the Codespaces terminal, run from the **lab folder** containing `samples`, `data`, and `requirements.txt`. Use the Bash commands unchanged regardless of your PC's OS. The default `python` is the prepared `.venv`; advanced modules specify their separate Python environment.
-
-**“Local execution” defaults to running code inside Codespaces.** Both terminals and `127.0.0.1` refer to that same Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges.
+</details>
 
 <details class="environment-option" markdown="1">
 <summary>Only for Windows PowerShell on your PC: change the interpreter path</summary>
@@ -146,8 +167,6 @@ Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python
 Replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for example, `.\.venv\Scripts\python.exe samples/first_response.py`. Do not make this substitution in Codespaces, even from a Windows PC.
 
 </details>
-
-`--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Microsoft Azure cost”: the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details markdown="1">
 <summary>For advanced commands: environment variables, continued lines, and azd</summary>
@@ -189,15 +208,7 @@ Check company policy and NB-14 inventory, then prepare a purchase request draft.
 
 The completed system searches the policy, retrieves an inventory count of 8 and a unit price of KRW 1,450,000, and returns a **draft awaiting approval** for a total of KRW 2,900,000. Approval is required from both the team manager and the purchasing representative. **An answer claiming “Order completed” is a failure.**
 
-**The core course uses three separate agents.** Not every module modifies the same agent.
-
-| Target | Created in → reused in | Record to keep |
-| --- | --- | --- |
-| Portal policy agent | L04 creation → L05 documents → L09 boundary questions | Your name/version/store, answers, and citations. No inventory functions |
-| Integrated SDK agent | Created separately in L06 → the same result traced in L10 | Printed `Responses:` JSONL and `Resource receipt:` JSON paths |
-| Instruction-evaluation agent | Created separately in L08 → only the saved originals evaluated | Collection JSON and Native evaluation JSON; not an evaluation of L06 function execution |
-
-Keep your names and paths in the [progress record](#instructor). Do not reuse screenshot names or another participant's files.
+The labs use the agents and result files separated in the [three-target table](#l00-agent-map) above.
 
 ### 3. Learn three important distinctions
 

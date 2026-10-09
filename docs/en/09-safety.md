@@ -131,11 +131,17 @@ This function does not decide whether an approval is genuine or interpret all po
 
 ## Success criteria
 
-Each of the three questions has an **original response/ID, expected behavior, actual judgment, and responsible failure layer**. Distinguish L06 function rejection from a natural-language refusal. Mark Red teaming and document ACL checks not executed when applicable. Do not describe Content Safety as a substitute for business authorization.
+- Each of the three questions has an **original response/ID, expected behavior, actual judgment, and responsible failure layer**.
+- You distinguished L06 function rejection from a natural-language refusal.
+- You marked Red teaming and document ACL checks **not executed** when applicable.
+- You did not describe Content Safety as a substitute for business authorization.
 
 ## Troubleshooting
 
-A tool response can be risky even when only input/output filters are enabled. Check the relevant intervention point. If you find a false positive, report its target, evidence, and reproducible example to the responsible owner rather than turning off the entire filter.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| A tool response is risky but not filtered | Only input/output filters may be enabled | Check the relevant intervention point. |
+| You find a false positive | The target, evidence, and a reproducible example | Report them to the responsible owner; do not turn off the entire filter. |
 
 ## Cleanup
 

@@ -178,15 +178,18 @@ This compares **scope-specific retrieval**. The same API caller selects both sco
 
 ## Success criteria
 
-You have the store/item IDs, A's search results, and B's isolation results; if deletion was performed, you also verified the post-deletion search.
-If deletion was not permitted, distinguish **implementation complete / storage and isolation executed / deletion not executed**.
-Separately identify features not executed, such as automatic remember/forget prompts and procedural memory.
+- You have the store/item IDs, A's search results, and B's isolation results.
+- If deletion was performed, you also verified the post-deletion search.
+- If deletion was not permitted, you distinguished **implementation complete / storage and isolation executed / deletion not executed**.
+- You separately identified features not executed, such as automatic remember/forget prompts and procedural memory.
 
 ## Troubleshooting
 
-Check model/embedding support, store settings, user scopes, and Preview API access.
-If the API fails, preserve the original error. Do not substitute a local dictionary and label it Microsoft Azure Memory success.
-If creation failed but `memory.json` exists, reconcile your portal and original error first. Do not erase the receipt or edit unverified ownership. TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| The API call fails | Model/embedding support, store settings, user scopes, and Preview API access | Preserve the original error. Do not substitute a local dictionary and label it Microsoft Azure Memory success. |
+| Creation failed but `memory.json` exists | Your portal and the original error | Reconcile whether the remote object exists. Do not erase the receipt or edit unverified ownership. |
+| An item disappears after one hour | The one-hour TTL | TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record. |
 
 ## Cleanup
 

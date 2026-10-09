@@ -82,9 +82,7 @@ Start with these five terms. Learn other acronyms when you need them and use the
 | Agent | A program combining a model with instructions, knowledge, and tools |
 | Deployment | Making a model available to call in your environment; not training the model |
 
-**Start with 11 core modules, L00–L10.** The eight advanced modules, L11–L18, are electives. **Finish every path with shared wrap-up L19.** Core-only learners jump directly from L10 to L19 without completing the electives.
-
-**GitHub Codespaces is the default environment.** Start in its prepared browser terminal. Expand PC installation and OS-specific alternatives only when needed.
+**Core is 11 modules (L00–L10); finish every path with shared wrap-up L19.** The eight advanced modules (L11–L18) are electives and need not all be completed. The default environment is **GitHub Codespaces**, the prepared browser terminal. Expand PC installation and OS-specific alternatives only when needed.
 
 ```text
 Prepare      L00 overview → L01 your environment → L02 model checks
@@ -92,7 +90,9 @@ Build        L03 first answer → L04 instructions → L05 documents → L06 fun
 Check/finish L08 evaluation → L09 boundaries → L10 traces → L19 costs and wrap-up
 ```
 
-**For your first complete run:** Follow **Prerequisites → Steps → Success criteria → Cleanup** in each module. Collapsed **optional and implementation-reference** sections are not required for the main path. Record a successful result before continuing; on failure, use that module's **Troubleshooting** section.
+Each module follows **Prerequisites → Steps → Success criteria → Cleanup**. Record a successful result before continuing; on failure, use that module's **Troubleshooting** section. Collapsed **optional and implementation-reference** sections are not required for the main path. Core-only learners go directly from L10 to L19.
+
+**Choose the path that matches your situation.**
 
 | Your situation | Start here | Ready to continue when |
 | --- | --- | --- |
@@ -100,6 +100,20 @@ Check/finish L08 evaluation → L09 boundaries → L10 traces → L19 costs and 
 | Microsoft Azure account, permissions, or cost conditions are still pending | [L01 Codespaces setup/local checks](#l01-codespaces) → L06 local functions → L07 local MCP → L08 instructions/questions | Valid data, the KRW 2,900,000 draft, and MCP calls; live Microsoft Azure execution remains not performed |
 
 The default is **create your environment → run the labs → clean up your resources**. The second path is local preparation, not completion of the Microsoft Foundry experience. **Without Microsoft Azure** groups those local, reading, and design steps.
+
+<a id="l00-agent-map"></a>
+
+### Same scenario, three different agents
+
+**Not every module modifies the same agent.** The core course uses the targets below. Do not mix their names or result files.
+
+| Target | Created in → reused in | What to check and keep |
+| --- | --- | --- |
+| Portal policy agent | L04 creation → L05 documents → L09 boundary questions | Your name/version/store, answers, and citations. No inventory functions |
+| Integrated SDK agent | Created separately in L06 → the same result traced in L10 | Printed `Responses:` JSONL and `Resource receipt:` JSON paths |
+| Instruction-evaluation agent | Created separately in L08 → only the saved originals evaluated | Collection JSON and Native evaluation JSON; not an evaluation of L06 function execution |
+
+Keep your names and paths in the [progress record](#instructor). Do not reuse screenshot names or another participant's files.
 
 ## Objectives
 
@@ -141,7 +155,20 @@ The default is **create your environment → run the labs → clean up your reso
 
 ### How to read the source code and commands
 
-Opening [L01's Codespace](#l01-codespaces) prepares the repository in browser VS Code; no ZIP download or Git command is needed. The **lab folder (repository root)** contains `samples`, `data`, and `requirements.txt` together. Your browser's “View page source” shows the guide's HTML, not the executable samples.
+Use the repository prepared in [L01's Codespace](#l01-codespaces). Run commands from the **lab folder (repository root)**, where `samples`, `data`, and `requirements.txt` appear together. Even from a Windows PC, the Codespaces terminal is **Linux/Bash**. The default `python` is the prepared `.venv`; advanced modules specify their separate Python environment.
+
+| Block in the text | Where to paste it and how to use it |
+| --- | --- |
+| Bash / PowerShell command | The terminal the step names. Run a multi-command block one line at a time and read each result |
+| Question or instructions | The portal input the step names |
+| `.env` settings | The editor's `.env` file |
+| Python excerpt or JSON result example | Reading material to compare against; not a terminal command |
+
+**Three things to remember before running a command**
+
+1. **Copy is not Run.** Read the walkthrough below the command first for request counts, changes, and costs. Replace descriptive placeholders with your verified values, and judge the result by each module's success criteria.
+2. **“Local” means running inside the same Codespace.** Both terminals and `127.0.0.1` refer to that Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges.
+3. **Do not judge safety by option names.** `--live` is not a universal CLI safety switch: `azd deploy`, `az login`, and some management scripts work without it. `--local` does not always mean “no Microsoft Azure cost” either; the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details class="environment-option" markdown="1">
 <summary>Only for the PC alternative: open the ZIP in VS Code</summary>
@@ -151,7 +178,9 @@ Extract the complete workshop ZIP, preserve its structure, and use **File → Op
 </details>
 
 <details markdown="1">
-<summary>Reference: what the source files do</summary>
+<summary>Reference: find the source files and read Python commands</summary>
+
+Your browser's “View page source” shows only the guide's HTML. Find the executable code in the files below. Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python code that runs ↔ the result to inspect**; local Agent Framework and design exercises explicitly state when there is no portal counterpart and when no Microsoft Azure operation was performed.
 
 | What to look for | Source file |
 | --- | --- |
@@ -165,8 +194,6 @@ Extract the complete workshop ZIP, preserve its structure, and use **File → Op
 | English synthetic inputs and unchanged business contracts | [data/en/profile-manifest.json](../data/en/profile-manifest.json) |
 | Learner module sources | [docs/en/00-start.md](../docs/en/00-start.md) in English and [docs/00-start.md](../docs/00-start.md) in Korean — regenerate HTML/Markdown/ZIP after editing |
 
-</details>
-
 Read `python samples/first_response.py --query "..." --live` as four parts:
 
 | Part | Meaning |
@@ -176,15 +203,9 @@ Read `python samples/first_response.py --query "..." --live` as four parts:
 | `--query "..."` | The model input. Without `--live`, it is only shown in the plan |
 | `--live` | Permits one actual Microsoft Azure request in this example |
 
-Read each command as file, operation, and inputs. Compare the SDK blocks with the [sample guide](../samples/README.md), then check request bounds and ownership before execution. Replace descriptive placeholders with your verified values.
+Read each command as file, operation, and inputs. Compare the SDK blocks with the [sample guide](../samples/README.md), then check request bounds and ownership.
 
-Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python code that runs ↔ the result to inspect**. Local Agent Framework and design exercises explicitly state when there is no portal counterpart and when no Microsoft Azure operation was performed.
-
-**Check where to paste first.** Bash/PowerShell commands go in a terminal, questions in the portal input named by the step, and `.env` values in the editor's `.env` file. Python excerpts and JSON result examples are not terminal commands. Run multi-command blocks one line at a time, reading the result before continuing.
-
-**Rules for subsequent commands:** In the Codespaces terminal, run from the **lab folder** containing `samples`, `data`, and `requirements.txt`. Use the Bash commands unchanged regardless of your PC's OS. The default `python` is the prepared `.venv`; advanced modules specify their separate Python environment.
-
-**“Local execution” defaults to running code inside Codespaces.** Both terminals and `127.0.0.1` refer to that same Codespace. “No Microsoft Azure calls” does not mean there are no GitHub Codespaces compute/storage charges.
+</details>
 
 <details class="environment-option" markdown="1">
 <summary>Only for Windows PowerShell on your PC: change the interpreter path</summary>
@@ -192,8 +213,6 @@ Code-backed labs pair **Microsoft Foundry portal settings/actions ↔ the Python
 Replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for example, `.\.venv\Scripts\python.exe samples/first_response.py`. Do not make this substitution in Codespaces, even from a Windows PC.
 
 </details>
-
-`--live` is not a universal CLI safety switch. `azd deploy`, `az login`, and some management scripts work without it, so always read the accompanying explanation. Nor does `--local` always mean “no Microsoft Azure cost”: the local Hosted server in L12 can call real models and search services. Browser sign-in and terminal `az login` also use separate sessions.
 
 <details markdown="1">
 <summary>For advanced commands: environment variables, continued lines, and azd</summary>
@@ -235,15 +254,7 @@ Check company policy and NB-14 inventory, then prepare a purchase request draft.
 
 The completed system searches the policy, retrieves an inventory count of 8 and a unit price of KRW 1,450,000, and returns a **draft awaiting approval** for a total of KRW 2,900,000. Approval is required from both the team manager and the purchasing representative. **An answer claiming “Order completed” is a failure.**
 
-**The core course uses three separate agents.** Not every module modifies the same agent.
-
-| Target | Created in → reused in | Record to keep |
-| --- | --- | --- |
-| Portal policy agent | L04 creation → L05 documents → L09 boundary questions | Your name/version/store, answers, and citations. No inventory functions |
-| Integrated SDK agent | Created separately in L06 → the same result traced in L10 | Printed `Responses:` JSONL and `Resource receipt:` JSON paths |
-| Instruction-evaluation agent | Created separately in L08 → only the saved originals evaluated | Collection JSON and Native evaluation JSON; not an evaluation of L06 function execution |
-
-Keep your names and paths in the [progress record](#instructor). Do not reuse screenshot names or another participant's files.
+The labs use the agents and result files separated in the [three-target table](#l00-agent-map) above.
 
 ### 3. Learn three important distinctions
 
@@ -323,9 +334,9 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 
 **What you will try:** Check Python in Codespaces, then prepare a Microsoft Foundry project, models, access, and telemetry.
 
-**What is it, and why does it matter?** A subscription is a billing scope, a resource group groups resources, and a project is the agent workspace. Sign-in identifies the caller; RBAC permits actions; quota provides capacity.
+**What is it, and why does it matter?** A subscription is a billing scope, a resource group (RG) groups resources, and a project is the agent workspace. Sign-in identifies the caller; RBAC permits actions; quota provides capacity.
 
-**How do you use it?** Create a dedicated environment and compare actual portal names and endpoints with `.env` and the ownership record. An endpoint alone does not grant access.
+**How do you use it?** Create a dedicated environment and compare actual portal names and endpoints with `.env` and the ownership record (`results/azure-environment.json`). An endpoint alone does not grant access.
 
 **Where do you run it?** The default is the **Codespaces terminal in browser VS Code**. Inspect results in Microsoft Azure and Microsoft Foundry portals. The [setup script](../scripts/azure_environment.py) and [Bicep](../infra/main.bicep) define the resources created.
 
@@ -344,6 +355,18 @@ Verify permissions even in your own subscription. In an organizational subscript
 
 ## Steps
 
+**Follow these five steps in order.** Move on only when a step's result is correct. If a step is already done, compare it with the records from the same environment instead of creating it again.
+
+| Step | What to do | Check before moving on |
+| --- | --- | --- |
+| [1. Prepare Codespaces](#l01-codespaces) | Check tools and data in the prepared terminal | Python 3.13, your `.venv`, and local checks pass |
+| [2. Sign in and confirm scope](#l01-sign-in) | Confirm your account, subscription, permissions, region, and cost | An approved scope and budget |
+| [3. Dedicated resource group](#l01-resource-group) | Read the creation plan, then run only the approved scope | Your RG in `results/azure-environment.json` |
+| [4. Project, models, and roles](#l01-4-create-the-foundry-project-models-and-required-roles) | Read the deployment plan → create for real → grant the required roles | Your project, three models, and usable access |
+| [5. Telemetry and settings](#l01-settings) | Connect logs and save `.env` | Portal, `.env`, and ownership record match one environment |
+
+If you do not yet have Microsoft Azure access, stop after **step 1** and continue to [L06 local functions](#l06). When you resume in a new terminal or on another day, start with the [interpreter check](#l01-new-terminal).
+
 <a id="l01-1-prepare-the-pc-and-lab-files"></a>
 
 ### 1. Start in GitHub Codespaces
@@ -359,8 +382,13 @@ Verify permissions even in your own subscription. In an organizational subscript
 **Required:** A GitHub account, read access to this repository, organizational permission to use Codespaces, and an approved cost scope. Microsoft Azure subscription/access is separate and needed for the live labs. Codespaces does not automatically connect to your organization's private endpoint/VNet. Without a permitted network route, use local exercises rather than changing security settings.
 
 1. Open [this lab repository](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5), select the lab branch containing `.devcontainer/devcontainer.json`, then **Code → Codespaces → … → New with options**. There is no need to download the ZIP again or run `git clone`.
-2. Review **who pays, available allowance, Region, and Machine type**. A small 2-core configuration is a starting point for core labs; use an organization-approved option. This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope. [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges. Do not assume free use; select **Create codespace** after checking.
-3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`. The repository configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, `.venv`, and core/MCP packages. It copies the `.env` template only if absent. It does not sign into Microsoft Azure, create resources, or grant roles.
+2. Review **who pays, available allowance, Region, and Machine type**, then select **Create codespace**. Do not assume free use; check first.
+    - A small 2-core configuration is a starting point for core labs; use an organization-approved option.
+    - This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope.
+    - [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges.
+3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`.
+    - The repository configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
+    - It does not sign into Microsoft Azure, create resources, or grant roles.
 4. Open **Terminal → New Terminal** in the lab root containing `samples`, `data`, and `requirements.txt`. **This is Linux/Bash even on a Windows PC**, so do not substitute PowerShell commands. Select the English data profile before the checks:
 
 ```bash
@@ -847,17 +875,13 @@ Some screens still show **Azure AI User**, the previous name of **Foundry User**
 
 Record **the amount, services, stop time, and retention deadline**. Budget alerts, TPM/RPM, and log-ingestion limits are not hard spending caps. At the limit, stop new requests/schedules and use [L19](#l12) to inspect remaining resources.
 
+<a id="l01-resource-group"></a>
+
 ### 3. Create your dedicated resource group
 
 The default path creates a **new dedicated environment** using the bundled code, then inspects it in the portal. It does not alter a shared environment. Generated names and ownership tags are recorded in `results/azure-environment.json`, which later evaluation, retrieval, and deployment use to verify scope.
 
-Replace the three placeholders before executing:
-
-| Placeholder | Value to supply | Where to verify |
-| --- | --- | --- |
-| `actual-subscription-id` | The selected subscription ID | `id` in the preceding `az account show`, not the display name or tenant ID |
-| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
-| `"Approved amount, service scope, and retention deadline"` | Your approved amount, services, and stop/retention deadline | Step 2's actual cost approval. Supplying this text does not grant approval or access |
+Read the plan first. This command has no values to replace.
 
 ```bash
 python scripts/azure_environment.py create
@@ -873,7 +897,13 @@ python scripts/azure_environment.py create
 
 </div>
 
-**Create for real:** Replace the three values above and verify approval for that subscription, region, and cost scope before running this line.
+**Create for real:** When the plan is right and you have approval for that subscription, region, and cost scope, replace the three placeholders below with your own values and run the line that follows.
+
+| Placeholder | Value to supply | Where to verify |
+| --- | --- | --- |
+| `actual-subscription-id` | The selected subscription ID | `id` in the preceding `az account show`, not the display name or tenant ID |
+| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
+| `"Approved amount, service scope, and retention deadline"` | Your approved amount, services, and stop/retention deadline | Step 2's actual cost approval. Supplying this text does not grant approval or access |
 
 ```bash
 python scripts/azure_environment.py create --subscription actual-subscription-id --location permitted-region --cost-authorization "Approved amount, service scope, and retention deadline" --live
@@ -960,7 +990,11 @@ python scripts/azure_environment.py roles --live
 
 Preserve the original error and deployment operations after partial failure. Use `foundation --resume --live` only for the same owned partial deployment, with **the same model/SKU arguments**. It does not select a new environment or erase previous failure records.
 
+<a id="l01-settings"></a>
+
 ### 5. Connect telemetry and complete local settings
+
+#### 5-1. Connect telemetry
 
 Connect telemetry **before the first agent request**, so L10 can inspect L04 and later runs:
 
@@ -1000,6 +1034,8 @@ Model/agent SDK requests use Entra authentication. The bundled [observability.bi
 
 ![Project settings example. Locate the project, parent resource, region, and Connected resources under Manage → Project details.](../assets/portal/en/13-project-settings.png)
 
+#### 5-2. Save the project values in `.env`
+
 Open `.env` in VS Code and save your actual values. This is **file configuration**, not a terminal command:
 
 ```env
@@ -1034,11 +1070,20 @@ with (
 
 ## Success criteria
 
-You created your dedicated resource group, project, three models, and telemetry connection and checked permissions, region, and budget. Local data checks pass; the portal, `.env`, and `results/azure-environment.json` identify the same English environment. A plan/client configuration is not a successful model request. Continue to [L02](#l02) to inspect your deployments.
+- You created your dedicated resource group, project, three model deployments, and telemetry connection, and checked permissions, region, and budget.
+- Local data checks (`validate-data`) pass.
+- The portal, `.env`, and `results/azure-environment.json` identify the same English environment.
+- A plan or client configuration alone is not recorded as a successful model request. Send the first request in L03; inspect your deployments in [L02](#l02).
 
 ## Troubleshooting
 
-For 401, check CLI authentication; for 403, check action-specific permissions and networking; for deployment failure, check model, region, quota, and capacity. Private endpoints require an approved VPN/VNet path, not a public-access bypass. For installation failures, check the interpreter and permitted package source.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| 401 | CLI sign-in state | Recheck `az login --use-device-code` and `az account show` in [step 2](#l01-sign-in). |
+| 403 | Action-specific permissions (create, role assignment, read) and the network path | Secure only the missing permission and hold that action. Do not broaden access or disable security. |
+| Deployment failure | Model, region, quota, and capacity | If unsupported, record the limitation and stop. Do not substitute a model and claim the same validation. |
+| Private-endpoint environment | An approved VPN/VNet path | Connect through that path. Do not turn on public access as a bypass. |
+| Installation failure | The current Python and the permitted package source | Recheck the Python path and version with the [interpreter check](#l01-new-terminal). |
 
 ## Cleanup
 
@@ -1273,11 +1318,17 @@ Model router is a separate deployment that selects a model per request. Inspect 
 
 ## Success criteria
 
-You can identify your provider, Model ID, version, Name, region/type, and actual TPM/RPM. Portal, `.env`, and ownership record agree; the deployment is ready before L03.
+- You can identify your provider, Model ID, version, Name, region/type, and actual TPM/RPM.
+- The deployment name agrees across the portal, `.env`, and ownership record.
+- The deployment is ready before L03.
 
 ## Troubleshooting
 
-For missing models or failed limit queries, inspect region, type, quota, and access. A particular capacity can fail despite available quota. Do not retry 429 indefinitely.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| A model is missing or the limit query fails | Region, type, quota, and access | If you could not read the numbers, do not mark the deployment ready. |
+| Quota is available but deployment fails | The model's capacity unit and increment | A particular capacity can fail despite available quota. Read the query result and adjust within your own scope. |
+| 429 | Current TPM/RPM | Do not retry indefinitely. |
 
 ## Cleanup
 
@@ -1489,11 +1540,19 @@ APIs/tool support vary by model. Check the model card and official SDK examples 
 
 ## Success criteria
 
-Your selected portal or Python request returned an actual answer; record the available status/ID, question, and deployment name. SDK execution must pass completed/nonempty-text checks. Plan-only means model execution not performed.
+- Your selected portal or Python request returned an actual answer.
+- You recorded the question, deployment name, and the available status/ID.
+- The Python path passed the completed and nonempty-text checks.
+- If you only read the plan, model execution is **not performed**.
 
 ## Troubleshooting
 
-Incomplete/empty responses do not pass. Check output limits, refusals, quota, authentication, and deployment names instead of automatically retrying 429. Portal Send and Python commands do not replay each other's results.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| Incomplete or empty response | Output limit, refusal, and deployment name | Do not record it as a pass; find the cause first. |
+| Authentication or permission error | Sign-in state, model-call permission, and the deployment name in `.env` | Compare with the values you verified in L01 and L02. |
+| 429 | Quota and request limits | Do not retry automatically; check the limits. |
+| The portal and Python answers/IDs differ | They are separate requests | Neither command replays the other's result; record each separately. |
 
 ## Cleanup
 
@@ -1707,11 +1766,16 @@ The default input is **one price-limit question**, not the five portal questions
 
 ## Success criteria
 
-The instructions define the role, grounding requirements, handling of missing information and tool failures, and prohibited actions. The agent retains context within the same conversation and does not pretend that unavailable knowledge or tools produced a successful result.
+- The saved instructions define the role, grounding requirements, handling of missing information and tool failures, and prohibited actions.
+- On the two boundary questions, the agent did not invent a missing policy or claim a successful stock lookup.
+- The same conversation kept the earlier context (for example, “monitor”), and a new conversation did not inherit it.
 
 ## Troubleshooting
 
-Earlier conversation context can mask an instruction change. After selecting the new version, also test in a **new conversation**. Do not mix SDK 1.x Threads/Runs code into the 2.x sample.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| The answer is unchanged after editing instructions | Earlier conversation context can mask the change | After selecting the new version, also test in a **new conversation**. |
+| The sample code does not fit | Whether SDK 1.x Threads/Runs code was mixed in | Stay on the 2.x sample and do not mix in 1.x code. |
 
 ## Cleanup
 
@@ -1915,11 +1979,18 @@ This is the raw SDK flow for reading. Running it creates a separate store, agent
 
 ## Success criteria
 
-The 2 answerable questions have real supporting evidence, and the agent withholds an answer to the question not covered by the documents. You have compared the facts in the responses with the originals and confirmed that indexing completed.
+- You confirmed that indexing of all three files is **Completed**.
+- The 2 answerable questions have real citations, and you compared the facts in the responses with the originals.
+- The agent withholds an answer to the question not covered by the documents.
 
 ## Troubleshooting
 
-Do not start by uploading the documents again. Check the connected vector store ID, indexing failure reason, supported file formats, model/tool support, and the correct agent version. If a table appears only as an image in the file, first check for searchable text; do not assume File search has read it.
+Do not start by uploading the documents again. Check these first:
+
+- The connected vector store ID and the indexing failure reason
+- Supported file formats and model/tool support
+- The correct agent version
+- Whether a table that appears only as an image in the file has searchable text; do not assume File search has read it
 
 ## Cleanup
 
@@ -2234,11 +2305,18 @@ If actual evidence supports all five items, record **“integration lab complete
 
 ## Success criteria
 
-You have inspected the tool arguments, execution results, and final answer. Insufficient stock and invalid quantities produce explicit errors, and the agent does not claim that an actual order succeeded. If you ran Microsoft Azure integration, retain evidence for all five items and the configuration bundle. Core completion does not require repeating a separate capstone or publishing to Teams.
+- You inspected the tool arguments, execution results, and final answer.
+- Out-of-stock, insufficient-stock, and invalid-quantity requests produce explicit errors, and the agent does not claim that an actual order succeeded.
+- If you ran Microsoft Azure integration, you retained evidence for all five items and the configuration bundle.
+- Core completion does not require repeating a separate capstone or publishing to Teams.
 
 ## Troubleshooting
 
-Use the SDK if you cannot edit the function schema in the portal. Registering a function definition and having a process running to execute it are separate things. **Invoking an agent with client-side function tools from the portal or a server-side evaluation does not automatically execute your local Python functions.**
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| You cannot edit the function schema in the portal | Whether the portal supports editing it | Use the SDK. |
+| You registered a function but nothing executes | Registering a function definition and running a process that executes it are separate things | Check that a process to execute the function is running. |
+| You invoked the agent from the portal or a server-side evaluation and your local function did not run | **Invoking an agent with client-side function tools from the portal or a server-side evaluation does not automatically execute your local Python functions.** | This is expected. As in step 4, the local dispatcher in your terminal does the executing. |
 
 ## Cleanup
 
@@ -2266,7 +2344,7 @@ Local functions do not change external state. Azure-created agents, conversation
 
 **Core course · Check each tool** · about 30 min
 
-> **What you will build:** Verification of actual MCP/OpenAPI results—not just tool lists—along with Toolbox/Skill versions, authentication identities, and approval decisions.
+> **What you will build:** Query the same inventory over local HTTP and MCP, and verify that a tool call without approval is blocked. Cloud Toolbox/Skills are an optional extension.
 
 <div class="lab-brief" markdown="1">
 
@@ -2295,12 +2373,14 @@ and a Skill provides instructions for repeatable work.** A Skill is neither appr
 
 ## Prerequisites
 
-**Reuse L01's Codespace.** Core/MCP dependencies are already prepared; do not reinstall them. Core steps 1–2 need no Microsoft Azure account.
-Open both terminals in that same Codespace. Here `127.0.0.1` means the Codespace, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
-The cloud steps require Search from L11 and the Search Index Data Reader role for the project managed identity.
-**Only steps 1–2 below—local HTTP/OpenAPI and MCP—are required for the core course.**
-Cloud Toolbox/Skills in steps 3–4 are optional extensions after preparing the L11 resources.
-Core-course learners do not need to complete L11 first.
+**Reuse L01's Codespace.** Core/MCP dependencies are already prepared; do not reinstall them.
+
+| Scope | Steps to do | What you need |
+| --- | --- | --- |
+| Core course | 1. Local HTTP/OpenAPI → 2. MCP calls → stop the server | Two terminals in the same Codespace. No Microsoft Azure account |
+| Optional extension | The collapsed cloud Toolbox/Skills in steps 3–4 | Search from L11 and the Search Index Data Reader role for the project managed identity |
+
+**Core-course learners do not need to complete L11 first.** Open both terminals in the same Codespace. Here `127.0.0.1` means the Codespace, so run `curl` in its terminal too. Browser port forwarding or Public port exposure is not needed.
 
 <details class="environment-option" markdown="1">
 <summary>Only on your PC or when MCP packages are missing: manual installation</summary>
@@ -2541,22 +2621,24 @@ The local HTTP/MCP code runs on your computer, not inside a portal button. Porta
 
 ## Success criteria
 
-For the core course, complete this chapter by verifying the local HTTP response, actual results from both MCP tools, and the approval block for each tool.
-If you perform the cloud extension, separately retain tools/list, call, and Skill-read results, plus the version, caller, backend identity, and approval records.
-Do not count these as execution of Tool search Preview or an external business-system integration.
+- You verified the local HTTP response (8 units in stock, unit price KRW 1,450,000).
+- You verified the actual results from both MCP tools, and that an unapproved call is blocked before it is made.
+- You stopped the server terminal with Ctrl+C.
+- If you perform the cloud extension, separately retain tools/list, call, and Skill-read results, plus the version, caller, backend identity, and approval records. Do not count these as execution of Tool search Preview or an external business-system integration.
 
 ## Troubleshooting
 
-| Local symptom | Next action |
+| Symptom | Next action |
 | --- | --- |
 | `Connection refused` | Check the server and its port in the first terminal; call from the second terminal |
 | `Address already in use` | Check your own server window first. Do not forcibly stop another process. If you use an available port with `inventory_api.py --port 18766`, change both `curl` URLs to that same port |
 | `No module named mcp` | Check the L01 Python path and whether that environment has `requirements-tools.txt` installed |
 | JSON parsing error | Use your OS's block, particularly Windows's `--%` and quoting syntax |
 | `Approval required` | Expected for the unapproved-call exercise; for an approved call, compare the exact reviewed name/arguments with `--approve-tool` |
+| `403` in the cloud extension | Distinguish the caller from the project managed identity |
+| Empty list in the cloud extension | Check the connection, schema, and tool-support status |
 
-For 403 errors, distinguish the caller from the project managed identity. For an empty list, check
-the connection, schema, and tool-support status. Do not hide errors by switching authentication to `anonymous` or approval to `never`.
+Do not hide errors by switching authentication to `anonymous` or approval to `never`.
 
 ## Cleanup
 
@@ -2587,7 +2669,7 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 **Core course · GA / some Preview** · about 35 min
 
-> **What you build:** A method for comparing v1/v2 answers under matched conditions and explaining differences, ties, or failures using scores and judge reasons.
+> **What you will build:** A method for comparing v1/v2 answers under matched conditions and explaining differences, ties, or failures using scores and judge reasons.
 
 <div class="lab-brief" markdown="1">
 
@@ -2615,7 +2697,17 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 ## Prerequisites
 
-Use **your L01 project, chat/judge deployments, and ownership receipt**. Do not count another person's results as your execution. Without live prerequisites, read inputs/rubric and record actual evaluation not performed.
+**Without live prerequisites, stop after the instruction/question comparison in step 1** and record actual collection and evaluation as not performed. When you do run them, use your own environment from L01, and do not count another person's results as your execution.
+
+| What you do | What you need |
+| --- | --- |
+| Read the instructions and questions | The bundled v1/v2 and question files. No Microsoft Azure account |
+| Collect your answers | L01's project, ownership record, and `.env`; the chat deployment checked in L02; and a request budget |
+| Evaluate the saved originals | The judge deployment in the same environment, an evaluation cost scope, and the completed collection file |
+
+Chat is **`gpt-6-sol / 2026-09-22`**, deployment `contoso-chat`. The judge is **`gpt-4.1 / 2025-04-14`**, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`. `.env` and `results/azure-environment.json` must point to the same target; check the actual TPM/RPM in L02. **Search, Hosted, Optimizer, and holdout are unnecessary for this comparison.**
+
+The collection code reads back the current RG ownership tags, project, deployments, and throughput, and uses a collision-resistant **evaluation-only Prompt Agent** with pinned v1/v2 versions. It does not evaluate L06's function execution.
 
 | Term | Plain-language meaning |
 | --- | --- |
@@ -2623,12 +2715,6 @@ Use **your L01 project, chat/judge deployments, and ownership receipt**. Do not 
 | Judge / Native evaluation | The grading model / an evaluation performed by Microsoft Foundry |
 | Completeness / Relevance / Groundedness | Were all requests addressed / was the answer relevant / was it supported? |
 | Dev / Holdout | Practice data exposed during improvement / a separate final test excluded from improvement |
-
-Use L01's environment and L02's **`gpt-6-sol / 2026-09-22`**, deployment `contoso-chat`. `.env` and the ownership record must agree.
-
-Native evaluation uses L01's distinct **`gpt-4.1 / 2025-04-14`** judge, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`. Check chat/judge limits in L02. Search, Hosted, Optimizer, and holdout are unnecessary.
-
-New execution uses **your own `results/azure-environment.json` and `.env`**. The collection code reads back current RG ownership tags, project, deployments, and throughput, creates a collision-resistant Prompt Agent name, and pins v1/v2 versions.
 
 Keep `FOUNDRY_LAB_LANGUAGE=en` selected in the separate English folder. Both instructions receive the same synthetic policy context; this is not live Search retrieval. Expected behavior and grading criteria are excluded from target-model input and supplied only to the judge.
 
@@ -2650,6 +2736,17 @@ Do not put case IDs or question-specific answers into instructions. Without an a
 ### 2. Collect and evaluate your own answers once
 
 Verify your project, language, request count, time, and cost scope. With prerequisites met, the default is **plan → collect → evaluate**.
+
+```text
+The same 12 questions + the same policy context
+  ├─ v1 instructions → your 12 answers
+  └─ v2 instructions → your 12 answers
+       ↓ check the 24 originals in the collection JSON, then stop
+       ↓ submit only that completed file to Native evaluation
+Evaluation JSON → compare originals, scores, and judge reasons for the same question
+```
+
+**Collection and evaluation are separate runs.** Do not run the commands below back to back; check that collection completed in between. Evaluation does not call the target agent again.
 
 ```bash
 python samples/instruction_prompt_agent_lab.py
@@ -2782,12 +2879,19 @@ These are exposed **dev** questions, not an independent **holdout** or a general
 
 ## Success criteria
 
-For reading only, explain the comparison conditions and evidence to inspect, and record **actual evaluation not run**.
-For live execution, connect all twelve v1/v2 pairs with pinned versions, native scores, judge reasons, errors, and missing rows. Explain differences, ties, or regressions from evidence; never promise an improvement beforehand.
+- **If you only read:** explain the comparison conditions and the evidence to inspect, and record **actual evaluation not run**.
+- **If you ran it:** connect all twelve v1/v2 pairs with pinned versions, native scores, judge reasons, errors, and missing rows.
+- Explain differences, ties, or regressions from evidence; never promise an improvement beforehand.
 
 ## Troubleshooting
 
-For 401/403, check your project, caller identity, and roles. For 404, check the actual deployment name and endpoint. For 429, inspect TPM/RPM and shared traffic rather than retrying indefinitely. Do not submit a failed or partial collection to evaluation, or silently change the target or judge model.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| 401/403 | Your project, caller identity, and roles | Check only the missing role. |
+| 404 | The actual deployment name and endpoint | Compare with `.env` and the ownership record. |
+| 429 | TPM/RPM and shared traffic | Do not retry indefinitely. |
+| The collection file is failed or partial | `status` and `rows` in the collection JSON | Do not submit it to evaluation. |
+| You want to change the model or judge | Whether both instructions still share the same conditions | Do not silently change the target or judge model. |
 
 ## Cleanup
 
@@ -2950,11 +3054,17 @@ This function does not decide whether an approval is genuine or interpret all po
 
 ## Success criteria
 
-Each of the three questions has an **original response/ID, expected behavior, actual judgment, and responsible failure layer**. Distinguish L06 function rejection from a natural-language refusal. Mark Red teaming and document ACL checks not executed when applicable. Do not describe Content Safety as a substitute for business authorization.
+- Each of the three questions has an **original response/ID, expected behavior, actual judgment, and responsible failure layer**.
+- You distinguished L06 function rejection from a natural-language refusal.
+- You marked Red teaming and document ACL checks **not executed** when applicable.
+- You did not describe Content Safety as a substitute for business authorization.
 
 ## Troubleshooting
 
-A tool response can be risky even when only input/output filters are enabled. Check the relevant intervention point. If you find a false positive, report its target, evidence, and reproducible example to the responsible owner rather than turning off the entire filter.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| A tool response is risky but not filtered | Only input/output filters may be enabled | Check the relevant intervention point. |
+| You find a false positive | The target, evidence, and a reproducible example | Report them to the responsible owner; do not turn off the entire filter. |
 
 ## Cleanup
 
@@ -3167,7 +3277,9 @@ User thumbs-up/down feedback is a useful signal, not a ground-truth label. Follo
 
 ## Success criteria
 
-Link one of your runs' **response/trace IDs, version, observed operations/durations, judgment, and next action**. If you only read the example, record **design complete / actual trace unverified**. Missing traces are not “no errors.”
+- You linked one of your runs' **response/trace IDs, version, observed operations/durations, judgment, and next action**.
+- If you only read the example, you recorded **design complete / actual trace unverified**.
+- You did not treat missing traces as “no errors.”
 
 ## Troubleshooting
 
@@ -3335,11 +3447,9 @@ An existing receipt is not overwritten. After a partial failure, inspect the `cr
 
 **Pause here:** Open `results/search.json` and check that `created` includes `index`, `knowledge_source`, and `knowledge_base`. The printed `Evidence:` file contains the actual upload response; inspect all 13 items' `status`. Counting 13 local corpus entries does not establish remote upload success.
 
-To check the schema of an existing index you own and continue the remaining steps, use `initialize --resume --live`.
-`--resume` continues only partial work on the matching index recorded in the same receipt. It is not an option for overwriting a new experiment or schema change as though it were an existing success.
-Embedding calls use `/openai/v1/embeddings` on the **resource's OpenAI endpoint**.
-Do not assume that an endpoint supporting Responses on the project also supports embeddings.
-The embedding caller additionally needs the Cognitive Services OpenAI User role on the parent resource.
+- **Resume:** To check the schema of an existing index you own and continue the remaining steps, use `initialize --resume --live`. `--resume` continues only partial work on the matching index recorded in the same receipt. It is not an option for overwriting a new experiment or schema change as though it were an existing success.
+- **Embedding calls:** Use `/openai/v1/embeddings` on the **resource's OpenAI endpoint**. Do not assume that an endpoint supporting Responses on the project also supports embeddings.
+- **Required role:** The embedding caller additionally needs the Cognitive Services OpenAI User role on the parent resource.
 
 Search uses the `2024-07-01` contract; IQ uses `2026-04-01`.
 Entra tokens are used instead of keys, kept only in memory, and never logged.
@@ -3430,15 +3540,17 @@ L11's `corpus` inspects local synthetic input. Only `initialize/query --live` ac
 
 ## Success criteria
 
-All 13 sections show successful upload status, and the actual results from all three paths match the original sections.
-If you also completed L12, connect the response citations to the actual tool results.
-Do not label successful retrieval alone as completed permission-aware validation or IQ answer synthesis.
+- All 13 sections show successful upload status, and the actual results from all three paths match the original sections.
+- If you also completed L12, you connected the response citations to the actual tool results.
+- You did not label successful retrieval alone as completed permission-aware validation or IQ answer synthesis.
 
 ## Troubleshooting
 
-For 403, check Search data roles and propagation delays. For 400, check the API version, semantic configuration,
-and embedding dimensions. Do not work around an error by switching to a Preview version string.
-For 404, check whether `results/search.json` refers to resources at the current endpoint.
+| Symptom | Check first |
+| --- | --- |
+| 403 | Search data roles and propagation delays |
+| 400 | The API version, semantic configuration, and embedding dimensions. Do not work around an error by switching to a Preview version string. |
+| 404 | Whether `results/search.json` refers to resources at the current endpoint |
 
 ## Cleanup
 
@@ -3609,13 +3721,10 @@ python scripts/build_hosted.py
 
 </div>
 
-This creates `.build/contoso/` and `.build/contoso-code.zip`.
-The Responses profile for Optimizer is generated separately in `.build/contoso-responses/`.
-The default Invocations and Optimizer Responses builds are separate; each needs its own execution evidence.
-Only purchasing policies, inventory, instructions, runtime code, profile metadata, and pinned dependencies are included.
-The package excludes `.env`, authentication material, evaluation reference answers, existing results, and personal environment files.
-Check `language=en` in `lab-profile.json` and the language, per-file hashes, and runtime contract in `package-manifest.json`. The package keeps its bound language at runtime and rejects a conflicting profile; a browser-language change cannot switch a deployed package's corpus. Rebuild from the selected English profile before deployment rather than reusing a Korean ZIP.
-There is no need to clone an external sample repository.
+- **Created:** `.build/contoso/` and `.build/contoso-code.zip`. The Responses profile for Optimizer is generated separately in `.build/contoso-responses/`; the default Invocations and Optimizer Responses builds are separate, and each needs its own execution evidence.
+- **Included:** purchasing policies, inventory, instructions, runtime code, profile metadata, and pinned dependencies.
+- **Excluded:** `.env`, authentication material, evaluation reference answers, existing results, and personal environment files.
+- **Check:** `language=en` in `lab-profile.json`, and the language, per-file hashes, and runtime contract in `package-manifest.json`. The package keeps its bound language at runtime and rejects a conflicting profile; a browser-language change cannot switch a deployed package's corpus. Rebuild from the selected English profile before deployment rather than reusing a Korean ZIP. There is no need to clone an external sample repository.
 
 ### 2. Run and invoke locally
 
@@ -3796,16 +3905,22 @@ The portal does not edit the handler; it shows the deployed type/version of the 
 
 ## Success criteria
 
-You have separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
-Hashes, tools, and citations are connected; a successful deployment alone is not labeled a quality pass.
+- You separately verified packaging, server startup, the local business result, deployment, and the remote business result for the same version.
+- Hashes, tools, and citations are connected.
+- You did not label a successful deployment alone as a quality pass.
 
 ## Troubleshooting
 
-For health failures, check the entry point/dependencies; for 502, the preserved upstream error; and for 403,
-the runtime identity's model/Search roles first. For a 424 cold start, inspect logs and retry only a bounded number of times.
-Do not turn an error message into a normal answer with HTTP 200.
+| Symptom | Check first |
+| --- | --- |
+| Health failure | The entry point and dependencies |
+| 502 | The preserved upstream error |
+| 403 | The runtime identity's model/Search roles |
+| 424 cold start | Inspect logs and retry only a bounded number of times |
+| Multiple JSON objects or `incomplete` output | The tool/answer boundary and actual results. Do not increase the 2048-token limit or weaken citation checks. |
+| A remote timeout | Existing evidence and the recorded session state. A timeout does not prove that the server did nothing; take any further action only after separate approval. |
 
-For multiple JSON objects or `incomplete` output, inspect the tool/answer boundary and actual results rather than increasing the 2048-token limit or weakening citation checks. A remote timeout does not prove that the server did nothing: inspect existing evidence and the recorded session state before any separately approved action.
+Do not turn an error message into a normal answer with HTTP 200.
 
 ## Cleanup
 
@@ -4077,13 +4192,19 @@ concurrent = ConcurrentBuilder(
 
 ## Success criteria
 
-Distinguish actual draft propagation in sequential execution from the three independent concurrent results. Explain the responses, elapsed time, and tokens for the patterns you ran.
-A reviewer's agreement is neither human approval nor an automatic quality pass. If you only read plans, model execution remains not performed.
+- You can distinguish actual draft propagation in sequential execution from the three independent concurrent results.
+- You can explain the responses, elapsed time, and tokens for the patterns you ran.
+- You did not treat a reviewer's agreement as human approval or an automatic quality pass.
+- If you only read plans, model execution remains **not performed**.
 
 ## Troubleshooting
 
-For `agent_framework_orchestrations` import errors, check the advanced environment's installation path. If TPM/RPM is insufficient, return to L02. On 429, do not keep sending requests; inspect the error, limits, and other simultaneous users.
-An oversized input or truncated response is a failure. Inspect context length and actual output rather than fabricating results or blindly increasing limits.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| `agent_framework_orchestrations` import error | The advanced environment's installation path | Do not mix it with the core environment. |
+| TPM/RPM is insufficient | L02 throughput | Return to L02. |
+| 429 | The earlier error, limits, and other simultaneous users | Do not keep sending requests. |
+| Oversized input or truncated response | Context length and actual output | It is a failure. Do not fabricate results or blindly increase limits. |
 
 ## Cleanup
 
@@ -4294,7 +4415,9 @@ Participants are SDK agents from `build_role()`. Group chat stops after three as
 
 ## Success criteria
 
-Within the patterns you ran, identify group chat's three contributions and final revision, and handoff's actual delegation call, specialist answer, and terminal state. Do not report review/delegation as human approval or remote A2A success.
+- Within the patterns you ran, you identified group chat's three contributions and final revision.
+- You identified handoff's actual delegation call, specialist answer, and terminal state.
+- You did not report review/delegation as human approval or remote A2A success.
 
 ## Troubleshooting
 
@@ -4515,15 +4638,18 @@ This compares **scope-specific retrieval**. The same API caller selects both sco
 
 ## Success criteria
 
-You have the store/item IDs, A's search results, and B's isolation results; if deletion was performed, you also verified the post-deletion search.
-If deletion was not permitted, distinguish **implementation complete / storage and isolation executed / deletion not executed**.
-Separately identify features not executed, such as automatic remember/forget prompts and procedural memory.
+- You have the store/item IDs, A's search results, and B's isolation results.
+- If deletion was performed, you also verified the post-deletion search.
+- If deletion was not permitted, you distinguished **implementation complete / storage and isolation executed / deletion not executed**.
+- You separately identified features not executed, such as automatic remember/forget prompts and procedural memory.
 
 ## Troubleshooting
 
-Check model/embedding support, store settings, user scopes, and Preview API access.
-If the API fails, preserve the original error. Do not substitute a local dictionary and label it Microsoft Azure Memory success.
-If creation failed but `memory.json` exists, reconcile your portal and original error first. Do not erase the receipt or edit unverified ownership. TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| The API call fails | Model/embedding support, store settings, user scopes, and Preview API access | Preserve the original error. Do not substitute a local dictionary and label it Microsoft Azure Memory success. |
+| Creation failed but `memory.json` exists | Your portal and the original error | Reconcile whether the remote object exists. Do not erase the receipt or edit unverified ownership. |
+| An item disappears after one hour | The one-hour TTL | TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record. |
 
 ## Cleanup
 
@@ -4642,11 +4768,12 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispa
 </div>
 
 Create a uniquely named one-time timer in the **disabled** state, then dispatch it manually.
-The manifest has 1 trigger and 1 action; the English input is “Summarize Contoso policies; no external sending, orders, or approvals.”
-Pass `action.input` through a file; do not use a nonexistent create `--input` option.
-Do not overwrite an existing receipt. Specify a separate path with `--receipt` for a new experiment.
-Before dispatch, the script exclusively creates a separate `.dispatch.json` attempt record, so even after a timeout
-it does not automatically invoke the same receipt again. A manual acceptance ID alone does not establish execution success.
+
+- The manifest has 1 trigger and 1 action; the English input is “Summarize Contoso policies; no external sending, orders, or approvals.”
+- Pass `action.input` through a file; do not use a nonexistent create `--input` option.
+- Do not overwrite an existing receipt. Specify a separate path with `--receipt` for a new experiment.
+- Before dispatch, the script exclusively creates a separate `.dispatch.json` attempt record, so even after a timeout it does not automatically invoke the same receipt again.
+- A manual acceptance ID alone does not establish execution success.
 
 ### 2. Verify real scheduled execution
 
@@ -4667,11 +4794,10 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py sched
 
 </div>
 
-The script checks for the actual action trace for up to 6 minutes and disables the routine in `finally`.
-It puts a unique verification marker in the input and looks only for an `invoke_agent` span for the same agent,
-after the scheduled time, with exactly the same user input. Verification requires all of the following:
-a successful span, an actual response ID, an assistant `finish_reason=stop`, and nonempty output.
-Redacted output, in-progress/failed records, and responses to different inputs are not success evidence.
+The script checks for the actual action trace for up to 6 minutes and disables the routine in `finally`. It puts a unique verification marker in the input and looks only for an `invoke_agent` span for the same agent, after the scheduled time, with exactly the same user input.
+
+- **Verification requires all of these:** a successful span, an actual response ID, an assistant `finish_reason=stop`, and nonempty output.
+- **Not success evidence:** redacted output, in-progress/failed records, and responses to different inputs.
 
 <details class="optional-path" markdown="1">
 <summary>Why inspect traces instead of CLI run history?</summary>
@@ -4775,17 +4901,19 @@ created = azd(
 
 ## Success criteria
 
-You have verified the action execution after the actual scheduled time, the completed business response, and the disabled state.
-If you only created a schedule or manually dispatched it, record execution as complete only for that scope.
-If the status query failed, do not write “it has probably stopped.”
-If you could not read the run ID, leave it `null`, distinct from response/trace IDs.
-Human content review is optional guidance; do not mark an unperformed review as completed.
+- You verified the action execution after the actual scheduled time, the completed business response, and the disabled state.
+- If you only created a schedule or manually dispatched it, record execution as complete only for that scope.
+- If the status query failed, do not write “it has probably stopped.”
+- If you could not read the run ID, leave it `null`, distinct from response/trace IDs.
+- Human content review is optional guidance; do not mark an unperformed review as completed.
 
 ## Troubleshooting
 
-A CLI JSON decode error can occur after the service operation has already succeeded.
-Rather than immediately recreating it under a new name, first check show/list for the receipt's name.
-Distinguish permission, protocol, model quota, and tool authentication errors using actual action traces and original errors, not an empty CLI run-history result.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| A CLI JSON decode error | It can occur after the service operation has already succeeded | Rather than immediately recreating it under a new name, first check show/list for the receipt's name. |
+| A permission, protocol, model quota, or tool authentication error | The actual action traces and the original error | Compare both to tell the causes apart. |
+| The CLI run history is empty | An empty result alone does not identify a cause | Do not conclude a cause from it. |
 
 ## Cleanup
 
@@ -5025,12 +5153,16 @@ Defender, Purview, and Entra integrations may each require product-specific conf
 
 ## Success criteria
 
-Reproduce the two initial local failures and explain why your repair passes all five tests without expanding access.
-Complete a per-principal allow/deny table, three network paths, one denied-case design, and audit/revocation owners. Distinguish **design example, read-only observation, and actual allow/deny tests**; claim a live test only with evidence from both sides.
+- You reproduced the two initial local failures and can explain why your repair passes all five tests without expanding access.
+- You completed a per-principal allow/deny table, three network paths, one denied-case design, and audit/revocation owners.
+- You distinguished **design example, read-only observation, and actual allow/deny tests**; claim a live test only with evidence from both sides.
 
 ## Troubleshooting
 
-Do not assume every 403 is an RBAC problem. Separate endpoint DNS, public network blocking, VNet paths, and identity. Broader permissions do not fix an unsupported feature.
+| Symptom | Check first |
+| --- | --- |
+| 403 | Do not assume it is an RBAC problem. Separate endpoint DNS, public network blocking, VNet paths, and identity. |
+| An unsupported feature | Broader permissions do not fix it. |
 
 ## Cleanup
 
@@ -5200,7 +5332,13 @@ def choose_version(previous: str, candidate: str, checks: dict) -> str:
 
 **Explain the result:** Describe the incorrect promotion prevented by each of the three failed tests. Complete a `previous version / candidate / failure evidence / version to keep` table. This function performs neither deployment nor state migration, so do not call it completed remote rollback.
 
-**Optional: observe the same failure→repair in GitHub.** Use only a new branch in an approved personal training repository. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit, then on a commit changing only `exercise.py`; expect failure then success. The template has manual dispatch, read-only permissions, and Python checks—no Microsoft Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
+**Optional: observe the same failure→repair in GitHub.** Use only a **new branch** in an approved personal training repository.
+
+1. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`.
+2. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit. It should fail.
+3. Run it again on a commit changing only `exercise.py`. It should pass.
+
+The template has manual dispatch, read-only permissions, and Python checks—no Microsoft Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
 
 </div>
 
@@ -5299,13 +5437,18 @@ A passing local test and an actual portal Publish are different records. The cor
 
 ## Success criteria
 
-Reproduce the three local failures, repair only the function, and obtain five passes. If you use GitHub, distinguish failed/passing runs from their different commits.
-Retain a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**. Distinguish local pass, design complete, and Microsoft Azure not executed. Hold promotion without quality evidence for the same candidate.
-If you choose publishing, separately record the runnable agent version, app Publish version, audience, and invocation results. Publishing success alone is neither business-release approval nor a complete authorization assessment.
+- You reproduced the three local failures, repaired only the function, and obtained five passes. If you use GitHub, you distinguished failed/passing runs from their different commits.
+- You retained a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**.
+- You distinguished local pass, design complete, and Microsoft Azure not executed, and you hold promotion without quality evidence for the same candidate.
+- If you chose publishing, you separately recorded the runnable agent version, app Publish version, audience, and invocation results. Publishing success alone is neither business-release approval nor a complete authorization assessment.
 
 ## Troubleshooting
 
-If `azure` is skipped, read its opt-in condition; skipping on an ordinary push is not an error. If a workflow is green but the answer is wrong, check what actually ran. For deployment/rollback failures, inspect agent version, protocol, runtime identity, and model/connections in order rather than blindly redeploying.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| `azure` is skipped | Its opt-in condition | Skipping on an ordinary push is not an error. |
+| A workflow is green but the answer is wrong | What actually ran | Do not treat a green workflow as proof the answer is right. |
+| A deployment/rollback failure | Agent version, protocol, runtime identity, and model/connections, in that order | Do not blindly redeploy. |
 
 ## Cleanup
 
@@ -5363,7 +5506,7 @@ Exclude private settings, raw responses, and receipts from the kit. Keep your CI
 
 **How do you use it?** Follow only the row for work you performed. Check execution state, shared use, and ownership. Delete only approved targets and recheck costs after billing delays.
 
-**Where do you run it?** For local-only work, stop your PC's server. For Microsoft Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../scripts/stop_sessions.py) acts without `--live`.
+**Where do you run it?** For local-only work, stop the server in the same Codespace (or on your PC if you used the PC alternative). For Microsoft Azure resources, compare the portal with your ownership records. The advanced [session-stop script](../scripts/stop_sessions.py) acts without `--live`.
 
 ## Prerequisites
 
@@ -5532,21 +5675,24 @@ This excerpt shows target verification/deletion calls in `cleanup()`. The functi
 
 ## Success criteria
 
-For each created resource, record **state (deleted / shared / retained)** together with **an owner and next check time**. Retained resources also need a deadline. Check that no unintended routines, continuous evaluations, or voice sessions remain active.
+- For each created resource, you recorded **state (deleted / shared / retained)** together with **an owner and next check time**. Retained resources also have a deadline.
+- You checked that no unintended routines, continuous evaluations, or voice sessions remain active. If you started L07's server, you confirmed it stopped in that terminal.
+- If you created no Microsoft Azure resources, you wrote **“local exercises only / no Microsoft Azure creation.”**
+
+Record one row per resource, like this:
 
 | Resource name | State and evidence | Owner | Retention deadline / next cost check |
 | --- | --- | --- | --- |
 | Record each resource you created | Observed value; write unverified if you could not inspect it | Assign explicitly | Assign explicitly |
 
-If you created no Microsoft Azure resources, write **“local exercises only / no Microsoft Azure creation.”** If you started L07's server, confirm it stopped in that terminal.
-
-For environments where deletion is prohibited, record “Retain until explicit deletion approval.”
-Search Basic, logs, and storage may continue to incur costs without requests.
-A follow-up within 24 hours of validation completion is recommended. Do not conclude “zero cost” without someone responsible for checking.
+For environments where deletion is prohibited, record “Retain until explicit deletion approval.” Search Basic, logs, and storage may continue to incur costs without requests. A follow-up within 24 hours of validation completion is recommended. Do not conclude “zero cost” without someone responsible for checking.
 
 ## Troubleshooting
 
-Do not hide deletion errors. Record the resource ID, error code, and responsible owner, and flag potential ongoing costs. If a timeout leaves it unclear whether the server created an object, check the lab name and creation time in the portal as well as the receipt.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| A deletion error | The resource ID, error code, and responsible owner | Do not hide it; record it and flag potential ongoing costs. |
+| After a timeout it is unclear whether the server created an object | The receipt and the lab name and creation time in the portal | Compare both. |
 
 ## Cleanup
 

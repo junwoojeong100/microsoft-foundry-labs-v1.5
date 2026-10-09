@@ -18,9 +18,9 @@
 
 **경험할 기능:** Codespaces의 Python 환경을 확인하고 Microsoft Foundry 프로젝트·모델·권한·로그를 준비합니다.
 
-**무엇이며 왜 중요한가요?** 구독은 비용 범위, 리소스 그룹은 자원 묶음, 프로젝트는 에이전트 작업 공간입니다. 로그인은 신원, RBAC는 허용 작업, quota는 사용 가능한 용량입니다.
+**무엇이며 왜 중요한가요?** 구독은 비용 범위, 리소스 그룹(RG)은 자원 묶음, 프로젝트는 에이전트 작업 공간입니다. 로그인은 신원, RBAC는 허용 작업, quota는 사용 가능한 용량입니다.
 
-**어떻게 사용하나요?** 전용 환경을 만들고 포털의 실제 이름·주소를 `.env`와 소유 기록에 대조합니다. 주소를 안다고 권한이 생기지는 않습니다.
+**어떻게 사용하나요?** 전용 환경을 만들고 포털의 실제 이름·주소를 `.env`와 소유 기록(`results/azure-environment.json`)에 대조합니다. 주소를 안다고 권한이 생기지는 않습니다.
 
 **어디서 실행하나요?** 기본은 브라우저 VS Code의 **Codespaces 터미널**입니다. Microsoft Azure·Microsoft Foundry 포털에서 결과를 확인합니다. [환경 생성 코드](../scripts/azure_environment.py)와 [Bicep](../infra/main.bicep)이 실제 생성 범위를 정의합니다.
 
@@ -39,6 +39,18 @@
 
 ## 실행
 
+**아래 5단계를 순서대로 진행합니다.** 각 단계의 결과가 맞을 때만 다음으로 이동합니다. 이미 준비한 단계는 같은 환경의 기록을 대조하며, 다시 생성하지 않습니다.
+
+| 단계 | 할 일 | 다음으로 가기 전 확인 |
+| --- | --- | --- |
+| [1. Codespaces 준비](#l01-codespaces) | 준비된 터미널에서 도구·데이터 검사 | Python 3.13·내 `.venv`·로컬 검사 통과 |
+| [2. 로그인·범위 확인](#l01-sign-in) | 내 계정·구독·권한·지역·비용 확인 | 승인된 작업 범위와 예산 |
+| [3. 전용 리소스 그룹](#l01-resource-group) | 생성 계획 확인 후 승인된 범위만 실행 | `results/azure-environment.json`의 내 RG |
+| [4. 프로젝트·모델·역할](#l01-4-foundry-프로젝트모델필요한-역할-만들기) | 배포 계획 확인 → 실제 생성 → 필요한 역할 | 내 프로젝트·세 모델·사용 권한 |
+| [5. 로그·설정](#l01-settings) | 로그 연결과 `.env` 저장 | 포털·`.env`·소유 기록이 같은 환경 |
+
+Microsoft Azure 조건이 아직 없다면 **1단계까지만** 진행하고 [L06 로컬 함수](#l06)로 갑니다. 새 터미널이나 다음 날 재개할 때는 [실행기 확인](#l01-new-terminal)부터 합니다.
+
 <a id="l01-1-pc와-실습-파일-준비하기"></a>
 
 ### 1. GitHub Codespaces에서 시작하기
@@ -54,8 +66,13 @@
 **필요한 것:** GitHub 계정·이 저장소의 읽기 권한·조직의 Codespaces 사용 허용과 비용 범위입니다. Microsoft Azure 구독·권한은 실제 클라우드 실습을 할 때 별도로 필요합니다. 회사의 private endpoint/VNet에 Codespaces가 자동 연결되는 것은 아닙니다. 허용된 네트워크 경로가 없다면 로컬 연습까지만 진행하며 보안 설정을 바꾸지 않습니다.
 
 1. [현재 실습 저장소](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5)를 열고 `.devcontainer/devcontainer.json`이 있는 실습 브랜치를 선택합니다. **Code → Codespaces → … → New with options**를 엽니다. ZIP을 다시 받거나 `git clone`을 할 필요는 없습니다.
-2. **비용 부담 주체·허용량·Region·Machine type**을 확인합니다. 기본 실습은 작은 2-core 구성을 출발점으로 삼을 수 있으며 조직이 허용한 구성을 선택합니다. 이 Region은 개발 환경의 위치이며 이후 Microsoft Azure의 리전·모델 처리 범위를 정하지 않습니다. [GitHub 사용량·비용](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)은 Microsoft Azure 비용과 별도입니다. 무료라고 가정하지 말고 확인한 뒤 **Create codespace**를 선택합니다.
-3. 브라우저의 VS Code가 열려도 **post-create 설치가 끝날 때까지 기다립니다.** 터미널에 `Lab tools ready.`가 보여야 합니다. 저장소 설정이 Python 3.13·Microsoft Azure CLI·Bicep·Python 확장·`.venv`·기본/MCP 패키지를 준비하고 `.env`가 없을 때만 템플릿을 복사합니다. Microsoft Azure 로그인·자원 생성·역할 부여는 하지 않습니다.
+2. **비용 부담 주체·허용량·Region·Machine type**을 확인한 뒤 **Create codespace**를 선택합니다. 무료라고 가정하지 말고 확인합니다.
+    - 기본 실습은 작은 2-core 구성을 출발점으로 삼을 수 있으며, 조직이 허용한 구성을 선택합니다.
+    - 이 Region은 개발 환경의 위치입니다. 이후 Microsoft Azure의 리전·모델 처리 범위를 정하지 않습니다.
+    - [GitHub 사용량·비용](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)은 Microsoft Azure 비용과 별도입니다.
+3. 브라우저의 VS Code가 열려도 **post-create 설치가 끝날 때까지 기다립니다.** 터미널에 `Lab tools ready.`가 보여야 합니다.
+    - 저장소 설정이 Python 3.13·Microsoft Azure CLI·Bicep·Python 확장·`.venv`·기본/MCP 패키지를 준비하고, `.env`가 없을 때만 템플릿을 복사합니다.
+    - Microsoft Azure 로그인·자원 생성·역할 부여는 하지 않습니다.
 4. **Terminal → New Terminal**을 열고 `samples`·`data`·`requirements.txt`가 보이는 실습 루트에서 아래를 실행합니다. **PC가 Windows여도 이 터미널은 Linux/Bash**이므로 PowerShell 명령으로 바꾸지 않습니다.
 
 ```bash
@@ -500,17 +517,13 @@ Microsoft Azure 포털의 **구독 → Access control (IAM) → View my access**
 
 예산에는 **금액·사용할 서비스·중단 시점·보존 기한**을 적습니다. 예산 알림, TPM/RPM, 로그 수집 제한은 총 과금을 강제로 차단하는 장치가 아닙니다. 한도를 넘으면 새 요청·예약을 중지하고 [L19](#l12)에서 남은 자원을 확인합니다.
 
+<a id="l01-resource-group"></a>
+
 ### 3. 내 실습 전용 리소스 그룹 만들기
 
 기본 경로는 동봉 코드로 **새 전용 환경**을 만들고 포털에서 확인하는 방식입니다. 기존 공용 환경에 손대지 않으며, 자동 생성한 이름과 소유 태그를 `results/azure-environment.json`에 기록합니다. 이 기록은 이후 평가·검색·배포의 대상 확인에 필요합니다.
 
-아래 명령의 세 자리표시자를 먼저 바꿉니다.
-
-| 자리표시자 | 넣을 값 | 확인할 곳 |
-| --- | --- | --- |
-| `실제-구독-ID` | 사용할 구독의 ID | 위 `az account show`의 `id`. 표시 이름이나 tenant ID가 아님 |
-| `허용-리전` | 승인받은 Microsoft Azure 지역 **코드** | 예: `eastus`. 포털의 번역된 표시 이름을 넣지 않으며, 예시 지역의 모델 가용성을 보장하지 않음 |
-| `"승인된 금액·사용 범위·보존 기한"` | 자신이 승인받은 금액·서비스 범위·종료/보존 기한 | 2단계의 실제 비용 승인 기록. 이 문자열을 입력한다고 승인이나 권한이 생기지 않음 |
+먼저 계획만 읽습니다. 이 명령에는 바꿀 값이 없습니다.
 
 ```bash
 python scripts/azure_environment.py create
@@ -526,7 +539,13 @@ python scripts/azure_environment.py create
 
 </div>
 
-**실제 생성:** 위 세 값을 바꿨고 해당 구독·지역·비용 범위를 승인받았다면 다음 한 줄을 실행합니다.
+**실제 생성:** 계획이 맞고 해당 구독·지역·비용 범위를 승인받았다면, 아래 세 자리표시자를 자신의 값으로 바꿔 다음 한 줄을 실행합니다.
+
+| 자리표시자 | 넣을 값 | 확인할 곳 |
+| --- | --- | --- |
+| `실제-구독-ID` | 사용할 구독의 ID | 위 `az account show`의 `id`. 표시 이름이나 tenant ID가 아님 |
+| `허용-리전` | 승인받은 Microsoft Azure 지역 **코드** | 예: `eastus`. 포털의 번역된 표시 이름을 넣지 않으며, 예시 지역의 모델 가용성을 보장하지 않음 |
+| `"승인된 금액·사용 범위·보존 기한"` | 자신이 승인받은 금액·서비스 범위·종료/보존 기한 | 2단계의 실제 비용 승인 기록. 이 문자열을 입력한다고 승인이나 권한이 생기지 않음 |
 
 ```bash
 python scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인된 금액·사용 범위·보존 기한" --live
@@ -611,7 +630,11 @@ python scripts/azure_environment.py roles --live
 
 부분 실패는 원본 오류와 deployment operation을 보존합니다. 같은 소유 자원의 부분 배포를 재개할 때만 `foundation --resume --live`를 **동일 모델·SKU 인수와 함께** 사용합니다. 새 환경으로 바꾸거나 기록을 덮어쓰는 옵션이 아닙니다.
 
+<a id="l01-settings"></a>
+
 ### 5. 로그 연결과 로컬 설정 완성하기
+
+#### 5-1. 로그 연결하기
 
 L04 이후 실행을 L10에서 다시 보기 위해 **첫 agent 호출 전에** 로그를 연결합니다.
 
@@ -651,6 +674,8 @@ python scripts/azure_environment.py monitoring --live
 
 ![프로젝트 설정 예시. Manage → Project details에서 프로젝트·상위 리소스·리전과 Connected resources를 확인한다.](../assets/portal/13-project-settings.png)
 
+#### 5-2. `.env`에 프로젝트 값 저장하기
+
 VS Code에서 `.env`를 열고 자신의 값으로 저장합니다. 아래는 **파일 설정**이며 터미널 명령이 아닙니다.
 
 ```env
@@ -685,11 +710,20 @@ with (
 
 ## 성공 기준
 
-내 전용 RG·프로젝트·세 모델·로그 연결을 만들고, 역할·지역·예산을 확인했습니다. 로컬 데이터 검사가 통과하며 포털·`.env`·`results/azure-environment.json`이 같은 환경을 가리킵니다. 계획 출력이나 client 생성만으로 모델 호출 성공이라고 기록하지 않습니다. [L02](#l02)에서 내가 만든 배포를 확인합니다.
+- 내 전용 리소스 그룹·프로젝트·세 모델 배포·로그 연결을 만들고, 역할·지역·예산을 확인했습니다.
+- 로컬 데이터 검사(`validate-data`)가 통과했습니다.
+- 포털·`.env`·`results/azure-environment.json`이 같은 환경을 가리킵니다.
+- 계획 출력이나 client 생성만으로는 모델 호출 성공이라고 기록하지 않았습니다. 첫 요청은 L03에서 보내며, [L02](#l02)에서 내가 만든 배포를 확인합니다.
 
 ## 막혔을 때
 
-401은 CLI 인증, 403은 작업별 권한과 네트워크, 배포 실패는 모델·지역·quota·capacity부터 확인합니다. Private endpoint 환경은 승인된 VPN/VNet 경로에서 접근하며 public access를 임의로 켜지 않습니다. 설치 실패는 현재 Python과 허용된 패키지 저장소를 확인합니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| 401 | CLI 로그인 상태 | [2단계](#l01-sign-in)의 `az login --use-device-code`와 `az account show`를 다시 확인합니다. |
+| 403 | 작업별 권한(생성·역할 부여·조회)과 네트워크 경로 | 부족한 권한만 확보하고 해당 작업을 보류합니다. 권한을 넓히거나 보안을 끄지 않습니다. |
+| 배포 실패 | 모델·지역·quota·capacity | 지원되지 않으면 그 조건을 기록하고 중단합니다. 다른 모델로 바꿔 같은 검증이라고 기록하지 않습니다. |
+| Private endpoint 환경 | 승인된 VPN/VNet 경로 | 그 경로에서 접근합니다. public access를 임의로 켜지 않습니다. |
+| 설치 실패 | 현재 Python과 허용된 패키지 저장소 | [실행기 확인](#l01-new-terminal)으로 Python 경로·버전을 다시 확인합니다. |
 
 ## 정리
 

@@ -183,11 +183,16 @@ The default input is **one price-limit question**, not the five portal questions
 
 ## Success criteria
 
-The instructions define the role, grounding requirements, handling of missing information and tool failures, and prohibited actions. The agent retains context within the same conversation and does not pretend that unavailable knowledge or tools produced a successful result.
+- The saved instructions define the role, grounding requirements, handling of missing information and tool failures, and prohibited actions.
+- On the two boundary questions, the agent did not invent a missing policy or claim a successful stock lookup.
+- The same conversation kept the earlier context (for example, “monitor”), and a new conversation did not inherit it.
 
 ## Troubleshooting
 
-Earlier conversation context can mask an instruction change. After selecting the new version, also test in a **new conversation**. Do not mix SDK 1.x Threads/Runs code into the 2.x sample.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| The answer is unchanged after editing instructions | Earlier conversation context can mask the change | After selecting the new version, also test in a **new conversation**. |
+| The sample code does not fit | Whether SDK 1.x Threads/Runs code was mixed in | Stay on the 2.x sample and do not mix in 1.x code. |
 
 ## Cleanup
 

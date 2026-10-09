@@ -182,7 +182,9 @@ User thumbs-up/down feedback is a useful signal, not a ground-truth label. Follo
 
 ## Success criteria
 
-Link one of your runs' **response/trace IDs, version, observed operations/durations, judgment, and next action**. If you only read the example, record **design complete / actual trace unverified**. Missing traces are not “no errors.”
+- You linked one of your runs' **response/trace IDs, version, observed operations/durations, judgment, and next action**.
+- If you only read the example, you recorded **design complete / actual trace unverified**.
+- You did not treat missing traces as “no errors.”
 
 ## Troubleshooting
 

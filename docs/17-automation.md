@@ -65,7 +65,7 @@ CLI 확장/전역 설정을 자동 업그레이드하거나 다른 환경의 리
 
 ## 실행
 
-### 1. 먼저 비활성 routine의 수동 호출
+### 1. 비활성 routine을 먼저 수동 호출하기
 
 ```bash
 python samples/routine_lab.py create --agent 실제-agent-name --receipt results/routine-v2-manual.json
@@ -86,11 +86,12 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispa
 </div>
 
 고유 이름의 1회 timer를 **disabled**로 만들고 수동 dispatch합니다.
-manifest는 trigger 1개·action 1개이며 input은 “Contoso 정책 요약, 외부 발송·주문·승인 금지”입니다.
-`action.input`을 파일로 전달하고 존재하지 않는 create `--input` 옵션을 사용하지 않습니다.
-기존 receipt를 덮어쓰지 않습니다. 새 실험은 `--receipt`로 별도 경로를 지정합니다.
-dispatch 전에 별도 `.dispatch.json` 시도 기록을 독점 생성하므로 timeout이 나도 같은
-receipt를 자동 재호출하지 않습니다. 수동 접수 ID만으로 실행 성공을 판정하지 않습니다.
+
+- manifest는 trigger 1개·action 1개이며 input은 “Contoso 정책 요약, 외부 발송·주문·승인 금지”입니다.
+- `action.input`을 파일로 전달하고 존재하지 않는 create `--input` 옵션을 사용하지 않습니다.
+- 기존 receipt를 덮어쓰지 않습니다. 새 실험은 `--receipt`로 별도 경로를 지정합니다.
+- dispatch 전에 별도 `.dispatch.json` 시도 기록을 독점 생성하므로 timeout이 나도 같은 receipt를 자동 재호출하지 않습니다.
+- 수동 접수 ID만으로 실행 성공을 판정하지 않습니다.
 
 ### 2. 실제 예약 실행 확인
 
@@ -111,11 +112,10 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py sched
 
 </div>
 
-최대 6분 동안 실제 action trace를 확인하고 `finally`에서 disable합니다.
-입력에 고유 검증 표식을 넣고 같은 agent·예약 시각 이후·정확히 같은 사용자 입력의
-`invoke_agent` span만 찾습니다. 성공 span, 실제 response ID, assistant의
-`finish_reason=stop`, 비어 있지 않은 출력이 모두 있어야 검증됩니다.
-가려진 출력, 진행 중/실패 기록, 다른 입력의 응답은 성공 증거가 아닙니다.
+최대 6분 동안 실제 action trace를 확인하고 `finally`에서 disable합니다. 입력에 고유 검증 표식을 넣고, 같은 agent·예약 시각 이후·정확히 같은 사용자 입력의 `invoke_agent` span만 찾습니다.
+
+- **검증 조건(모두 필요):** 성공 span, 실제 response ID, assistant의 `finish_reason=stop`, 비어 있지 않은 출력
+- **성공 증거가 아님:** 가려진 출력, 진행 중/실패 기록, 다른 입력의 응답
 
 <details class="optional-path" markdown="1">
 <summary>왜 CLI 실행 이력 대신 trace를 확인하나요?</summary>
@@ -168,7 +168,7 @@ disable 호출이 timeout/디코딩 오류로 끝나도 `show`를 다시 수행�
 
 `dispatch`와 `scheduled-test`는 종료 시 중지를 시도하지만, 오류가 있었으면 **그때 사용한 receipt**로 3단계의 `stop`·`status`를 수행합니다. 수동 실행 오류에 예약용 경로를 복사하지 않습니다.
 
-### 4. identity와 복구 경계
+### 4. identity와 복구 경계 구분하기
 
 routine creator, agent runtime identity, 도구 connection identity를 구분합니다.
 사용자가 이벤트를 만들었다고 모든 하위 호출이 그 사람으로 실행되는 것은 아닙니다.
@@ -219,17 +219,19 @@ created = azd(
 
 ## 성공 기준
 
-실제 예약 시점 이후의 action 실행, 완료된 업무 응답, disabled 상태를 확인했습니다.
-예약 생성만 됐거나 수동 dispatch만 했다면 그 범위까지만 실행 완료로 기록합니다.
-상태 조회가 실패했다면 “아마 중지됐을 것”이라고 쓰지 않습니다.
-run ID를 읽지 못했다면 response/trace ID와 구분해 `null`로 남깁니다.
-사람의 내용 검토는 선택 안내이며, 실행하지 않은 검토를 완료했다고 표시하지 않습니다.
+- 실제 예약 시점 이후의 action 실행, 완료된 업무 응답, disabled 상태를 확인했습니다.
+- 예약 생성만 됐거나 수동 dispatch만 했다면 그 범위까지만 실행 완료로 기록합니다.
+- 상태 조회가 실패했다면 “아마 중지됐을 것”이라고 쓰지 않습니다.
+- run ID를 읽지 못했다면 response/trace ID와 구분해 `null`로 남깁니다.
+- 사람의 내용 검토는 선택 안내이며, 실행하지 않은 검토를 완료했다고 표시하지 않습니다.
 
 ## 막혔을 때
 
-CLI JSON decode 오류는 서비스 작업이 이미 성공한 뒤 발생할 수도 있습니다.
-새 이름으로 무조건 재생성하지 말고 receipt 이름의 show/list를 먼저 확인합니다.
-권한·protocol·model quota·도구 인증 오류는 실제 action trace와 원본 오류에서 구분합니다. 빈 CLI run history로 원인을 단정하지 않습니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| CLI JSON decode 오류 | 서비스 작업이 이미 성공한 뒤 발생할 수도 있음 | 새 이름으로 무조건 재생성하지 말고 receipt 이름의 show/list를 먼저 확인합니다. |
+| 권한·protocol·model quota·도구 인증 오류 | 실제 action trace와 원본 오류 | 둘을 대조해 원인을 구분합니다. |
+| CLI run history가 비어 있음 | 비어 있다는 사실만으로는 원인을 알 수 없음 | 원인을 단정하지 않습니다. |
 
 ## 정리
 

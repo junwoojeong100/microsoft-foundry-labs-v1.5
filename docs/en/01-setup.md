@@ -18,9 +18,9 @@
 
 **What you will try:** Check Python in Codespaces, then prepare a Microsoft Foundry project, models, access, and telemetry.
 
-**What is it, and why does it matter?** A subscription is a billing scope, a resource group groups resources, and a project is the agent workspace. Sign-in identifies the caller; RBAC permits actions; quota provides capacity.
+**What is it, and why does it matter?** A subscription is a billing scope, a resource group (RG) groups resources, and a project is the agent workspace. Sign-in identifies the caller; RBAC permits actions; quota provides capacity.
 
-**How do you use it?** Create a dedicated environment and compare actual portal names and endpoints with `.env` and the ownership record. An endpoint alone does not grant access.
+**How do you use it?** Create a dedicated environment and compare actual portal names and endpoints with `.env` and the ownership record (`results/azure-environment.json`). An endpoint alone does not grant access.
 
 **Where do you run it?** The default is the **Codespaces terminal in browser VS Code**. Inspect results in Microsoft Azure and Microsoft Foundry portals. The [setup script](../../scripts/azure_environment.py) and [Bicep](../../infra/main.bicep) define the resources created.
 
@@ -39,6 +39,18 @@ Verify permissions even in your own subscription. In an organizational subscript
 
 ## Steps
 
+**Follow these five steps in order.** Move on only when a step's result is correct. If a step is already done, compare it with the records from the same environment instead of creating it again.
+
+| Step | What to do | Check before moving on |
+| --- | --- | --- |
+| [1. Prepare Codespaces](#l01-codespaces) | Check tools and data in the prepared terminal | Python 3.13, your `.venv`, and local checks pass |
+| [2. Sign in and confirm scope](#l01-sign-in) | Confirm your account, subscription, permissions, region, and cost | An approved scope and budget |
+| [3. Dedicated resource group](#l01-resource-group) | Read the creation plan, then run only the approved scope | Your RG in `results/azure-environment.json` |
+| [4. Project, models, and roles](#l01-4-create-the-foundry-project-models-and-required-roles) | Read the deployment plan → create for real → grant the required roles | Your project, three models, and usable access |
+| [5. Telemetry and settings](#l01-settings) | Connect logs and save `.env` | Portal, `.env`, and ownership record match one environment |
+
+If you do not yet have Microsoft Azure access, stop after **step 1** and continue to [L06 local functions](#l06). When you resume in a new terminal or on another day, start with the [interpreter check](#l01-new-terminal).
+
 <a id="l01-1-prepare-the-pc-and-lab-files"></a>
 
 ### 1. Start in GitHub Codespaces
@@ -54,8 +66,13 @@ Verify permissions even in your own subscription. In an organizational subscript
 **Required:** A GitHub account, read access to this repository, organizational permission to use Codespaces, and an approved cost scope. Microsoft Azure subscription/access is separate and needed for the live labs. Codespaces does not automatically connect to your organization's private endpoint/VNet. Without a permitted network route, use local exercises rather than changing security settings.
 
 1. Open [this lab repository](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5), select the lab branch containing `.devcontainer/devcontainer.json`, then **Code → Codespaces → … → New with options**. There is no need to download the ZIP again or run `git clone`.
-2. Review **who pays, available allowance, Region, and Machine type**. A small 2-core configuration is a starting point for core labs; use an organization-approved option. This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope. [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges. Do not assume free use; select **Create codespace** after checking.
-3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`. The repository configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, `.venv`, and core/MCP packages. It copies the `.env` template only if absent. It does not sign into Microsoft Azure, create resources, or grant roles.
+2. Review **who pays, available allowance, Region, and Machine type**, then select **Create codespace**. Do not assume free use; check first.
+    - A small 2-core configuration is a starting point for core labs; use an organization-approved option.
+    - This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope.
+    - [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges.
+3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`.
+    - The repository configuration prepares Python 3.13, Microsoft Azure CLI, Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
+    - It does not sign into Microsoft Azure, create resources, or grant roles.
 4. Open **Terminal → New Terminal** in the lab root containing `samples`, `data`, and `requirements.txt`. **This is Linux/Bash even on a Windows PC**, so do not substitute PowerShell commands. Select the English data profile before the checks:
 
 ```bash
@@ -542,17 +559,13 @@ Some screens still show **Azure AI User**, the previous name of **Foundry User**
 
 Record **the amount, services, stop time, and retention deadline**. Budget alerts, TPM/RPM, and log-ingestion limits are not hard spending caps. At the limit, stop new requests/schedules and use [L19](#l12) to inspect remaining resources.
 
+<a id="l01-resource-group"></a>
+
 ### 3. Create your dedicated resource group
 
 The default path creates a **new dedicated environment** using the bundled code, then inspects it in the portal. It does not alter a shared environment. Generated names and ownership tags are recorded in `results/azure-environment.json`, which later evaluation, retrieval, and deployment use to verify scope.
 
-Replace the three placeholders before executing:
-
-| Placeholder | Value to supply | Where to verify |
-| --- | --- | --- |
-| `actual-subscription-id` | The selected subscription ID | `id` in the preceding `az account show`, not the display name or tenant ID |
-| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
-| `"Approved amount, service scope, and retention deadline"` | Your approved amount, services, and stop/retention deadline | Step 2's actual cost approval. Supplying this text does not grant approval or access |
+Read the plan first. This command has no values to replace.
 
 ```bash
 python scripts/azure_environment.py create
@@ -568,7 +581,13 @@ python scripts/azure_environment.py create
 
 </div>
 
-**Create for real:** Replace the three values above and verify approval for that subscription, region, and cost scope before running this line.
+**Create for real:** When the plan is right and you have approval for that subscription, region, and cost scope, replace the three placeholders below with your own values and run the line that follows.
+
+| Placeholder | Value to supply | Where to verify |
+| --- | --- | --- |
+| `actual-subscription-id` | The selected subscription ID | `id` in the preceding `az account show`, not the display name or tenant ID |
+| `permitted-region` | An approved Microsoft Azure **location code** | For example, `eastus`, not a translated portal display name; this example does not guarantee model availability |
+| `"Approved amount, service scope, and retention deadline"` | Your approved amount, services, and stop/retention deadline | Step 2's actual cost approval. Supplying this text does not grant approval or access |
 
 ```bash
 python scripts/azure_environment.py create --subscription actual-subscription-id --location permitted-region --cost-authorization "Approved amount, service scope, and retention deadline" --live
@@ -655,7 +674,11 @@ python scripts/azure_environment.py roles --live
 
 Preserve the original error and deployment operations after partial failure. Use `foundation --resume --live` only for the same owned partial deployment, with **the same model/SKU arguments**. It does not select a new environment or erase previous failure records.
 
+<a id="l01-settings"></a>
+
 ### 5. Connect telemetry and complete local settings
+
+#### 5-1. Connect telemetry
 
 Connect telemetry **before the first agent request**, so L10 can inspect L04 and later runs:
 
@@ -695,6 +718,8 @@ Model/agent SDK requests use Entra authentication. The bundled [observability.bi
 
 ![Project settings example. Locate the project, parent resource, region, and Connected resources under Manage → Project details.](../../assets/portal/en/13-project-settings.png)
 
+#### 5-2. Save the project values in `.env`
+
 Open `.env` in VS Code and save your actual values. This is **file configuration**, not a terminal command:
 
 ```env
@@ -729,11 +754,20 @@ with (
 
 ## Success criteria
 
-You created your dedicated resource group, project, three models, and telemetry connection and checked permissions, region, and budget. Local data checks pass; the portal, `.env`, and `results/azure-environment.json` identify the same English environment. A plan/client configuration is not a successful model request. Continue to [L02](#l02) to inspect your deployments.
+- You created your dedicated resource group, project, three model deployments, and telemetry connection, and checked permissions, region, and budget.
+- Local data checks (`validate-data`) pass.
+- The portal, `.env`, and `results/azure-environment.json` identify the same English environment.
+- A plan or client configuration alone is not recorded as a successful model request. Send the first request in L03; inspect your deployments in [L02](#l02).
 
 ## Troubleshooting
 
-For 401, check CLI authentication; for 403, check action-specific permissions and networking; for deployment failure, check model, region, quota, and capacity. Private endpoints require an approved VPN/VNet path, not a public-access bypass. For installation failures, check the interpreter and permitted package source.
+| Symptom | Check first | Next action |
+| --- | --- | --- |
+| 401 | CLI sign-in state | Recheck `az login --use-device-code` and `az account show` in [step 2](#l01-sign-in). |
+| 403 | Action-specific permissions (create, role assignment, read) and the network path | Secure only the missing permission and hold that action. Do not broaden access or disable security. |
+| Deployment failure | Model, region, quota, and capacity | If unsupported, record the limitation and stop. Do not substitute a model and claim the same validation. |
+| Private-endpoint environment | An approved VPN/VNet path | Connect through that path. Do not turn on public access as a bypass. |
+| Installation failure | The current Python and the permitted package source | Recheck the Python path and version with the [interpreter check](#l01-new-terminal). |
 
 ## Cleanup
 

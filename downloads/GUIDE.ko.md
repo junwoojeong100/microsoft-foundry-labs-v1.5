@@ -80,9 +80,7 @@
 | 에이전트(Agent) | 모델에 지시·지식·도구를 연결해 일을 처리하는 프로그램 |
 | 배포(Deployment) | 모델을 내 프로젝트에서 호출할 수 있도록 준비하는 것. 학습시키는 작업이 아님 |
 
-**처음에는 기본 11개(L00–L10)를 따라갑니다.** 심화 8개(L11–L18)는 선택이고, **마지막에는 공통 마무리 L19**를 진행합니다. 기본만 듣는다면 L10 다음에 L19로 바로 이동하며 심화를 모두 체크할 필요는 없습니다.
-
-**기본 실행 환경은 GitHub Codespaces입니다.** 브라우저의 준비된 터미널에서 시작합니다. 내 PC 설치와 OS별 명령은 필요할 때만 접힌 대안을 펼쳐 봅니다.
+**기본 코스는 11개(L00–L10)이고, 마지막에 공통 마무리 L19를 진행합니다.** 심화 8개(L11–L18)는 선택이며 모두 완료할 필요는 없습니다. 기본 실행 환경은 **GitHub Codespaces**(브라우저의 준비된 터미널)입니다. 내 PC 설치와 OS별 명령은 필요할 때만 접힌 대안을 펼칩니다.
 
 ```text
 준비       L00 개요 → L01 내 환경 → L02 모델 확인
@@ -90,7 +88,9 @@
 확인·종료  L08 평가 → L09 경계 질문 → L10 추적 → L19 비용·마무리
 ```
 
-**처음 완주할 때의 읽는 순서:** 각 장의 **준비 → 실행 → 성공 기준 → 정리**를 따라가세요. 접힌 **선택·구현 참고**는 기본 진행에 필요하지 않습니다. 단계가 성공하면 결과를 기록하고 다음으로, 실패하면 그 장의 **막혔을 때**로 이동합니다.
+각 장은 **준비 → 실행 → 성공 기준 → 정리** 순서입니다. 단계가 성공하면 결과를 기록하고 다음으로, 실패하면 그 장의 **막혔을 때**로 이동합니다. 접힌 **선택·구현 참고**는 기본 진행에 필요하지 않습니다. 기본만 진행한다면 L10 다음에 L19로 바로 이동합니다.
+
+**지금 내 상황에 맞는 길을 고르세요.**
 
 | 지금 내 상황 | 바로 할 일 | 여기까지 되면 다음으로 |
 | --- | --- | --- |
@@ -98,6 +98,20 @@
 | Microsoft Azure 계정·권한·비용 조건을 아직 갖추지 못함 | [L01 Codespaces 준비·로컬 검사](#l01-codespaces) → L06 로컬 함수 → L07 로컬 MCP → L08 지침·질문 읽기 | 데이터 검사·290만 원 초안 계산·MCP 호출 확인. 실제 Microsoft Azure 실행은 미실행 |
 
 기본 경로는 **각자가 환경을 만들고 실습한 뒤 정리**하는 방식입니다. 두 번째 경로는 준비가 끝나기 전의 로컬 연습이며 Microsoft Foundry 실습 완주와는 구분합니다. 웹 목차의 **Microsoft Azure 없이**는 이런 로컬·읽기·설계 단계를 모아 줍니다.
+
+<a id="l00-agent-map"></a>
+
+### 같은 시나리오, 서로 다른 세 가지 에이전트
+
+**모든 장이 같은 에이전트를 계속 수정하는 것은 아닙니다.** 기본 코스는 다음 대상을 나눠 사용합니다. 이름과 결과 파일을 섞지 마세요.
+
+| 대상 | 만드는 장 → 다시 쓰는 장 | 확인하고 남길 것 |
+| --- | --- | --- |
+| 포털 정책 에이전트 | L04 생성 → L05 문서 연결 → L09 경계 질문 | 내 이름·버전·store·질문별 답과 인용. 재고 함수는 없음 |
+| SDK 통합 에이전트 | L06에서 별도 생성 → 같은 결과로 L10 추적 | 출력된 `Responses:` JSONL과 `Resource receipt:` JSON 경로 |
+| 지침 평가 전용 에이전트 | L08에서 별도 생성 → 저장한 원문만 평가 | 수집 JSON과 Native 평가 JSON. L06의 함수 실행 평가가 아님 |
+
+내 이름·파일 경로는 [진행 기록](#instructor)에 모읍니다. 스크린샷의 이름이나 다른 참여자의 파일은 재사용하지 않습니다.
 
 ## 목표
 
@@ -139,7 +153,20 @@
 
 ### 소스코드와 명령을 읽는 방법
 
-[L01의 Codespaces](#l01-codespaces)를 열면 브라우저 VS Code에 저장소가 준비됩니다. ZIP을 받거나 Git 명령을 실행할 필요는 없습니다. `samples`, `data`, `requirements.txt`가 함께 보이는 폴더가 **실습 폴더(리포 루트)**입니다. 브라우저의 “페이지 소스 보기”는 실행 코드가 아니라 가이드 HTML만 보여 줍니다.
+[L01의 Codespaces](#l01-codespaces)에 준비된 저장소를 사용합니다. `samples`·`data`·`requirements.txt`가 함께 보이는 **실습 폴더(리포 루트)**에서 실행합니다. PC가 Windows여도 Codespaces 터미널은 **Linux/Bash**입니다. 기본 `python`은 준비된 `.venv`, 심화는 해당 장이 지정한 별도 Python입니다.
+
+| 본문의 블록 | 붙여넣을 곳·사용 방법 |
+| --- | --- |
+| Bash / PowerShell 명령 | 지정된 터미널. 여러 명령은 한 줄씩 실행하고 결과를 확인 |
+| 질문·지시문 | 본문이 지정한 포털 입력창 |
+| `.env` 설정 | 편집기의 `.env` 파일 |
+| Python 코드 발췌·JSON 결과 예 | 읽고 대조하는 자료. 터미널 명령이 아님 |
+
+**명령을 실행하기 전에 기억할 세 가지**
+
+1. **복사 버튼은 실행 버튼이 아닙니다.** 명령 아래 해설에서 요청 수·변경·비용을 먼저 확인합니다. `실제-...`·`승인된-...`은 자신의 값으로 바꾸고, 실행 후에는 각 장의 성공 기준으로 판단합니다.
+2. **“로컬”은 같은 Codespace 안에서 실행한다는 뜻입니다.** 터미널 두 개·`127.0.0.1`도 그 Codespace를 가리킵니다. “Microsoft Azure 호출 없음”은 Codespaces의 컴퓨트·저장 비용까지 없다는 뜻이 아닙니다.
+3. **옵션 이름만으로 안전하다고 판단하지 마세요.** `--live`는 모든 CLI의 공통 안전장치가 아닙니다. `azd deploy`, `az login`, 일부 관리 스크립트는 이 옵션 없이도 동작하며, `--local`도 항상 “Microsoft Azure 비용 없음”을 뜻하지 않습니다(L12의 로컬 Hosted 서버는 실제 모델·검색을 호출할 수 있음). 브라우저 로그인과 터미널의 `az login`은 별도 세션입니다.
 
 <details class="environment-option" markdown="1">
 <summary>내 PC를 사용할 때만: ZIP과 VS Code로 실습 폴더 열기</summary>
@@ -149,7 +176,9 @@
 </details>
 
 <details markdown="1">
-<summary>참고: 원본 파일의 역할</summary>
+<summary>참고: 원본 파일 찾기와 Python 명령 읽기</summary>
+
+브라우저의 “페이지 소스 보기”는 가이드 HTML만 보여 줍니다. 실행 코드는 아래 파일에서 찾습니다. 각 장은 **포털 설정/동작 ↔ 실행 코드 ↔ 확인할 결과**를 연결하며, 포털 대응 기능이 없는 로컬·설계 연습은 그 범위를 따로 표시합니다.
 
 | 찾아볼 것 | 실제 원본 |
 | --- | --- |
@@ -162,8 +191,6 @@
 | 인프라 정의 | [infra/main.bicep](../infra/main.bicep) |
 | 학습 문서의 원문 | [docs/00-start.md](../docs/00-start.md) — 수정 후 HTML/Markdown/ZIP 재생성 |
 
-</details>
-
 `python samples/first_response.py --query "..." --live`는 네 부분으로 읽습니다.
 
 | 부분 | 뜻 |
@@ -173,15 +200,9 @@
 | `--query "..."` | 모델에 보낼 입력. `--live`가 없으면 계획에만 표시 |
 | `--live` | 이 예제에서 한 번의 실제 Microsoft Azure 요청을 허용 |
 
-각 Python 명령은 실행 파일·작업·입력값을 나눠 읽습니다. 본문의 SDK 코드와 [샘플 안내](../samples/README.ko.md)를 대조하고, 실제 실행 명령의 요청 상한·소유 기록을 확인하세요. `실제-...`·`승인된-...`은 자신의 값으로 바꿀 자리표시자입니다.
+각 Python 명령은 실행 파일·작업·입력값을 나눠 읽습니다. 본문의 SDK 코드와 [샘플 안내](../samples/README.ko.md)를 대조하고 요청 상한·소유 기록을 확인하세요.
 
-이후 코드가 나오는 각 장은 **Microsoft Foundry 포털의 설정/동작 ↔ 실행되는 Python 코드 ↔ 확인할 결과**를 함께 보여줍니다. 포털 대응 기능이 없는 로컬 Agent Framework·설계 연습은 그 사실과 Microsoft Azure 미실행 범위를 명시합니다.
-
-**붙여넣을 곳을 먼저 확인하세요.** Bash/PowerShell 명령은 터미널, 질문은 본문이 지정한 포털 입력창, `.env` 값은 편집기의 `.env` 파일에 넣습니다. Python 코드 발췌와 JSON 결과 예시는 터미널에 붙여넣는 명령이 아닙니다. 여러 명령이 있는 블록은 한 줄씩 실행하고 결과를 읽은 뒤 다음 줄로 넘어갑니다.
-
-**이후 명령의 공통 규칙:** Codespaces 터미널에서 `samples`·`data`·`requirements.txt`가 함께 있는 **실습 폴더**를 사용합니다. PC의 OS와 관계없이 Bash 명령을 그대로 실행합니다. 기본 `python`은 준비된 `.venv`, 심화는 해당 장이 지정한 별도 Python입니다.
-
-**“로컬 실행”은 기본적으로 Codespaces 안에서 코드를 실행한다는 뜻입니다.** 터미널 두 개·`127.0.0.1`도 같은 Codespace 안을 가리킵니다. “Microsoft Azure 호출 없음”은 GitHub Codespaces의 컴퓨트·저장 비용까지 없다는 뜻이 아닙니다.
+</details>
 
 <details class="environment-option" markdown="1">
 <summary>내 PC의 Windows PowerShell을 사용할 때만: 실행기 바꾸기</summary>
@@ -189,8 +210,6 @@
 기본 환경의 `python`을 `.\.venv\Scripts\python.exe`로 바꿉니다. 예를 들어 `python samples/first_response.py`는 `.\.venv\Scripts\python.exe samples/first_response.py`입니다. Codespaces에서는 PC가 Windows여도 이 변경을 하지 않습니다.
 
 </details>
-
-`--live`는 모든 CLI의 공통 안전장치가 아닙니다. `azd deploy`, `az login`, 일부 관리 스크립트는 이 옵션 없이도 동작하므로 반드시 해당 해설을 읽으세요. `--local`도 항상 “Microsoft Azure 비용 없음”을 뜻하지 않습니다. L12의 로컬 Hosted 서버는 실제 모델·검색을 호출할 수 있습니다. 브라우저 로그인과 터미널의 `az login`도 별도 세션입니다.
 
 <details markdown="1">
 <summary>심화 명령을 읽을 때: 환경 변수·여러 줄·azd</summary>
@@ -230,15 +249,7 @@
 
 완성된 시스템은 정책을 검색하고, 재고 8개·단가 145만 원을 조회하며, 총액 290만 원의 **승인 대기 초안**을 반환합니다. 팀장과 구매 담당자 승인이 필요합니다. **“주문 완료”라고 답하면 실패**입니다.
 
-**기본 코스의 실행 대상은 세 가지입니다.** 모든 장이 같은 에이전트를 계속 수정하는 것은 아닙니다.
-
-| 대상 | 만드는 장 → 다시 쓰는 장 | 남길 기록 |
-| --- | --- | --- |
-| 포털 정책 에이전트 | L04 생성 → L05 문서 연결 → L09 경계 질문 | 내 이름·버전·store·질문별 답과 인용. 재고 함수는 없음 |
-| SDK 통합 에이전트 | L06에서 별도 생성 → 같은 결과로 L10 추적 | 출력된 `Responses:` JSONL과 `Resource receipt:` JSON 경로 |
-| 지침 평가 전용 에이전트 | L08에서 별도 생성 → 저장한 원문만 평가 | 수집 JSON과 Native 평가 JSON. L06의 함수 실행 평가가 아님 |
-
-내 이름·파일 경로는 [진행 기록](#instructor)에 모읍니다. 스크린샷의 이름이나 다른 참여자의 파일은 재사용하지 않습니다.
+실습에서 사용하는 에이전트와 결과 파일은 앞의 [세 가지 대상 표](#l00-agent-map)로 구분합니다.
 
 ### 3. 세 가지 구분 익히기
 
@@ -318,9 +329,9 @@
 
 **경험할 기능:** Codespaces의 Python 환경을 확인하고 Microsoft Foundry 프로젝트·모델·권한·로그를 준비합니다.
 
-**무엇이며 왜 중요한가요?** 구독은 비용 범위, 리소스 그룹은 자원 묶음, 프로젝트는 에이전트 작업 공간입니다. 로그인은 신원, RBAC는 허용 작업, quota는 사용 가능한 용량입니다.
+**무엇이며 왜 중요한가요?** 구독은 비용 범위, 리소스 그룹(RG)은 자원 묶음, 프로젝트는 에이전트 작업 공간입니다. 로그인은 신원, RBAC는 허용 작업, quota는 사용 가능한 용량입니다.
 
-**어떻게 사용하나요?** 전용 환경을 만들고 포털의 실제 이름·주소를 `.env`와 소유 기록에 대조합니다. 주소를 안다고 권한이 생기지는 않습니다.
+**어떻게 사용하나요?** 전용 환경을 만들고 포털의 실제 이름·주소를 `.env`와 소유 기록(`results/azure-environment.json`)에 대조합니다. 주소를 안다고 권한이 생기지는 않습니다.
 
 **어디서 실행하나요?** 기본은 브라우저 VS Code의 **Codespaces 터미널**입니다. Microsoft Azure·Microsoft Foundry 포털에서 결과를 확인합니다. [환경 생성 코드](../scripts/azure_environment.py)와 [Bicep](../infra/main.bicep)이 실제 생성 범위를 정의합니다.
 
@@ -339,6 +350,18 @@
 
 ## 실행
 
+**아래 5단계를 순서대로 진행합니다.** 각 단계의 결과가 맞을 때만 다음으로 이동합니다. 이미 준비한 단계는 같은 환경의 기록을 대조하며, 다시 생성하지 않습니다.
+
+| 단계 | 할 일 | 다음으로 가기 전 확인 |
+| --- | --- | --- |
+| [1. Codespaces 준비](#l01-codespaces) | 준비된 터미널에서 도구·데이터 검사 | Python 3.13·내 `.venv`·로컬 검사 통과 |
+| [2. 로그인·범위 확인](#l01-sign-in) | 내 계정·구독·권한·지역·비용 확인 | 승인된 작업 범위와 예산 |
+| [3. 전용 리소스 그룹](#l01-resource-group) | 생성 계획 확인 후 승인된 범위만 실행 | `results/azure-environment.json`의 내 RG |
+| [4. 프로젝트·모델·역할](#l01-4-foundry-프로젝트모델필요한-역할-만들기) | 배포 계획 확인 → 실제 생성 → 필요한 역할 | 내 프로젝트·세 모델·사용 권한 |
+| [5. 로그·설정](#l01-settings) | 로그 연결과 `.env` 저장 | 포털·`.env`·소유 기록이 같은 환경 |
+
+Microsoft Azure 조건이 아직 없다면 **1단계까지만** 진행하고 [L06 로컬 함수](#l06)로 갑니다. 새 터미널이나 다음 날 재개할 때는 [실행기 확인](#l01-new-terminal)부터 합니다.
+
 <a id="l01-1-pc와-실습-파일-준비하기"></a>
 
 ### 1. GitHub Codespaces에서 시작하기
@@ -354,8 +377,13 @@
 **필요한 것:** GitHub 계정·이 저장소의 읽기 권한·조직의 Codespaces 사용 허용과 비용 범위입니다. Microsoft Azure 구독·권한은 실제 클라우드 실습을 할 때 별도로 필요합니다. 회사의 private endpoint/VNet에 Codespaces가 자동 연결되는 것은 아닙니다. 허용된 네트워크 경로가 없다면 로컬 연습까지만 진행하며 보안 설정을 바꾸지 않습니다.
 
 1. [현재 실습 저장소](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5)를 열고 `.devcontainer/devcontainer.json`이 있는 실습 브랜치를 선택합니다. **Code → Codespaces → … → New with options**를 엽니다. ZIP을 다시 받거나 `git clone`을 할 필요는 없습니다.
-2. **비용 부담 주체·허용량·Region·Machine type**을 확인합니다. 기본 실습은 작은 2-core 구성을 출발점으로 삼을 수 있으며 조직이 허용한 구성을 선택합니다. 이 Region은 개발 환경의 위치이며 이후 Microsoft Azure의 리전·모델 처리 범위를 정하지 않습니다. [GitHub 사용량·비용](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)은 Microsoft Azure 비용과 별도입니다. 무료라고 가정하지 말고 확인한 뒤 **Create codespace**를 선택합니다.
-3. 브라우저의 VS Code가 열려도 **post-create 설치가 끝날 때까지 기다립니다.** 터미널에 `Lab tools ready.`가 보여야 합니다. 저장소 설정이 Python 3.13·Microsoft Azure CLI·Bicep·Python 확장·`.venv`·기본/MCP 패키지를 준비하고 `.env`가 없을 때만 템플릿을 복사합니다. Microsoft Azure 로그인·자원 생성·역할 부여는 하지 않습니다.
+2. **비용 부담 주체·허용량·Region·Machine type**을 확인한 뒤 **Create codespace**를 선택합니다. 무료라고 가정하지 말고 확인합니다.
+    - 기본 실습은 작은 2-core 구성을 출발점으로 삼을 수 있으며, 조직이 허용한 구성을 선택합니다.
+    - 이 Region은 개발 환경의 위치입니다. 이후 Microsoft Azure의 리전·모델 처리 범위를 정하지 않습니다.
+    - [GitHub 사용량·비용](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)은 Microsoft Azure 비용과 별도입니다.
+3. 브라우저의 VS Code가 열려도 **post-create 설치가 끝날 때까지 기다립니다.** 터미널에 `Lab tools ready.`가 보여야 합니다.
+    - 저장소 설정이 Python 3.13·Microsoft Azure CLI·Bicep·Python 확장·`.venv`·기본/MCP 패키지를 준비하고, `.env`가 없을 때만 템플릿을 복사합니다.
+    - Microsoft Azure 로그인·자원 생성·역할 부여는 하지 않습니다.
 4. **Terminal → New Terminal**을 열고 `samples`·`data`·`requirements.txt`가 보이는 실습 루트에서 아래를 실행합니다. **PC가 Windows여도 이 터미널은 Linux/Bash**이므로 PowerShell 명령으로 바꾸지 않습니다.
 
 ```bash
@@ -800,17 +828,13 @@ Microsoft Azure 포털의 **구독 → Access control (IAM) → View my access**
 
 예산에는 **금액·사용할 서비스·중단 시점·보존 기한**을 적습니다. 예산 알림, TPM/RPM, 로그 수집 제한은 총 과금을 강제로 차단하는 장치가 아닙니다. 한도를 넘으면 새 요청·예약을 중지하고 [L19](#l12)에서 남은 자원을 확인합니다.
 
+<a id="l01-resource-group"></a>
+
 ### 3. 내 실습 전용 리소스 그룹 만들기
 
 기본 경로는 동봉 코드로 **새 전용 환경**을 만들고 포털에서 확인하는 방식입니다. 기존 공용 환경에 손대지 않으며, 자동 생성한 이름과 소유 태그를 `results/azure-environment.json`에 기록합니다. 이 기록은 이후 평가·검색·배포의 대상 확인에 필요합니다.
 
-아래 명령의 세 자리표시자를 먼저 바꿉니다.
-
-| 자리표시자 | 넣을 값 | 확인할 곳 |
-| --- | --- | --- |
-| `실제-구독-ID` | 사용할 구독의 ID | 위 `az account show`의 `id`. 표시 이름이나 tenant ID가 아님 |
-| `허용-리전` | 승인받은 Microsoft Azure 지역 **코드** | 예: `eastus`. 포털의 번역된 표시 이름을 넣지 않으며, 예시 지역의 모델 가용성을 보장하지 않음 |
-| `"승인된 금액·사용 범위·보존 기한"` | 자신이 승인받은 금액·서비스 범위·종료/보존 기한 | 2단계의 실제 비용 승인 기록. 이 문자열을 입력한다고 승인이나 권한이 생기지 않음 |
+먼저 계획만 읽습니다. 이 명령에는 바꿀 값이 없습니다.
 
 ```bash
 python scripts/azure_environment.py create
@@ -826,7 +850,13 @@ python scripts/azure_environment.py create
 
 </div>
 
-**실제 생성:** 위 세 값을 바꿨고 해당 구독·지역·비용 범위를 승인받았다면 다음 한 줄을 실행합니다.
+**실제 생성:** 계획이 맞고 해당 구독·지역·비용 범위를 승인받았다면, 아래 세 자리표시자를 자신의 값으로 바꿔 다음 한 줄을 실행합니다.
+
+| 자리표시자 | 넣을 값 | 확인할 곳 |
+| --- | --- | --- |
+| `실제-구독-ID` | 사용할 구독의 ID | 위 `az account show`의 `id`. 표시 이름이나 tenant ID가 아님 |
+| `허용-리전` | 승인받은 Microsoft Azure 지역 **코드** | 예: `eastus`. 포털의 번역된 표시 이름을 넣지 않으며, 예시 지역의 모델 가용성을 보장하지 않음 |
+| `"승인된 금액·사용 범위·보존 기한"` | 자신이 승인받은 금액·서비스 범위·종료/보존 기한 | 2단계의 실제 비용 승인 기록. 이 문자열을 입력한다고 승인이나 권한이 생기지 않음 |
 
 ```bash
 python scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인된 금액·사용 범위·보존 기한" --live
@@ -911,7 +941,11 @@ python scripts/azure_environment.py roles --live
 
 부분 실패는 원본 오류와 deployment operation을 보존합니다. 같은 소유 자원의 부분 배포를 재개할 때만 `foundation --resume --live`를 **동일 모델·SKU 인수와 함께** 사용합니다. 새 환경으로 바꾸거나 기록을 덮어쓰는 옵션이 아닙니다.
 
+<a id="l01-settings"></a>
+
 ### 5. 로그 연결과 로컬 설정 완성하기
+
+#### 5-1. 로그 연결하기
 
 L04 이후 실행을 L10에서 다시 보기 위해 **첫 agent 호출 전에** 로그를 연결합니다.
 
@@ -951,6 +985,8 @@ python scripts/azure_environment.py monitoring --live
 
 ![프로젝트 설정 예시. Manage → Project details에서 프로젝트·상위 리소스·리전과 Connected resources를 확인한다.](../assets/portal/13-project-settings.png)
 
+#### 5-2. `.env`에 프로젝트 값 저장하기
+
 VS Code에서 `.env`를 열고 자신의 값으로 저장합니다. 아래는 **파일 설정**이며 터미널 명령이 아닙니다.
 
 ```env
@@ -985,11 +1021,20 @@ with (
 
 ## 성공 기준
 
-내 전용 RG·프로젝트·세 모델·로그 연결을 만들고, 역할·지역·예산을 확인했습니다. 로컬 데이터 검사가 통과하며 포털·`.env`·`results/azure-environment.json`이 같은 환경을 가리킵니다. 계획 출력이나 client 생성만으로 모델 호출 성공이라고 기록하지 않습니다. [L02](#l02)에서 내가 만든 배포를 확인합니다.
+- 내 전용 리소스 그룹·프로젝트·세 모델 배포·로그 연결을 만들고, 역할·지역·예산을 확인했습니다.
+- 로컬 데이터 검사(`validate-data`)가 통과했습니다.
+- 포털·`.env`·`results/azure-environment.json`이 같은 환경을 가리킵니다.
+- 계획 출력이나 client 생성만으로는 모델 호출 성공이라고 기록하지 않았습니다. 첫 요청은 L03에서 보내며, [L02](#l02)에서 내가 만든 배포를 확인합니다.
 
 ## 막혔을 때
 
-401은 CLI 인증, 403은 작업별 권한과 네트워크, 배포 실패는 모델·지역·quota·capacity부터 확인합니다. Private endpoint 환경은 승인된 VPN/VNet 경로에서 접근하며 public access를 임의로 켜지 않습니다. 설치 실패는 현재 Python과 허용된 패키지 저장소를 확인합니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| 401 | CLI 로그인 상태 | [2단계](#l01-sign-in)의 `az login --use-device-code`와 `az account show`를 다시 확인합니다. |
+| 403 | 작업별 권한(생성·역할 부여·조회)과 네트워크 경로 | 부족한 권한만 확보하고 해당 작업을 보류합니다. 권한을 넓히거나 보안을 끄지 않습니다. |
+| 배포 실패 | 모델·지역·quota·capacity | 지원되지 않으면 그 조건을 기록하고 중단합니다. 다른 모델로 바꿔 같은 검증이라고 기록하지 않습니다. |
+| Private endpoint 환경 | 승인된 VPN/VNet 경로 | 그 경로에서 접근합니다. public access를 임의로 켜지 않습니다. |
+| 설치 실패 | 현재 Python과 허용된 패키지 저장소 | [실행기 확인](#l01-new-terminal)으로 Python 경로·버전을 다시 확인합니다. |
 
 ## 정리
 
@@ -1224,11 +1269,17 @@ Model router는 요청에 따라 모델을 선택하는 별도 배포입니다. 
 
 ## 성공 기준
 
-내 배포의 제공자·Model ID·version·Name·지역·유형과 실제 TPM/RPM을 설명할 수 있습니다. 포털·`.env`·소유 기록의 호출 이름이 일치하고, L03 실행 전에 배포가 준비된 상태입니다.
+- 내 배포의 제공자·Model ID·version·Name·지역·유형과 실제 TPM/RPM을 설명할 수 있습니다.
+- 포털·`.env`·소유 기록의 호출 이름이 일치합니다.
+- L03 실행 전에 배포가 준비된 상태입니다.
 
 ## 막혔을 때
 
-모델이 없거나 한도 조회가 실패하면 지역·유형·quota·접근 권한을 확인합니다. quota가 있어도 특정 capacity 배포는 실패할 수 있습니다. 429 뒤 무한 재시도를 하지 않습니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| 모델이 없거나 한도 조회가 실패 | 지역·유형·quota·접근 권한 | 숫자를 조회하지 못했다면 준비 완료로 표시하지 않습니다. |
+| quota가 있는데 배포가 실패 | 특정 모델의 capacity 단위·증분 | quota가 있어도 특정 capacity 배포는 실패할 수 있습니다. 조회 결과를 읽고 자신의 범위에서 보정합니다. |
+| 429 | 현재 TPM/RPM | 429 뒤 무한 재시도를 하지 않습니다. |
 
 ## 정리
 
@@ -1440,11 +1491,19 @@ python samples/first_response.py --query "회사 규정이 없는데 노트북 �
 
 ## 성공 기준
 
-선택한 포털 또는 Python 요청에서 실제 답변을 받았고, 가능한 상태·ID와 질문·배포 이름을 기록했습니다. SDK 경로는 완료·비어 있지 않은 텍스트 검사를 통과해야 합니다. 계획만 봤다면 모델 호출은 미실행입니다.
+- 선택한 포털 또는 Python 요청에서 실제 답변을 받았습니다.
+- 질문·배포 이름과 가능한 상태·ID를 기록했습니다.
+- Python 경로는 완료 상태와 비어 있지 않은 텍스트 검사를 통과했습니다.
+- 계획만 봤다면 모델 호출은 **미실행**입니다.
 
 ## 막혔을 때
 
-미완료·빈 응답은 성공이 아닙니다. 출력 한도·거절·quota·인증과 배포 이름을 확인하고 429를 자동 반복하지 않습니다. 포털 Send와 Python 명령은 서로의 결과를 다시 보는 명령이 아닙니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| 미완료·빈 응답 | 출력 한도·거절 여부·배포 이름 | 성공으로 기록하지 않고 원인을 확인합니다. |
+| 인증·권한 오류 | 로그인 상태·모델 호출 권한·`.env`의 배포 이름 | L01·L02에서 확인한 값과 대조합니다. |
+| 429 | quota와 호출 한도 | 자동으로 반복하지 않고 한도를 확인합니다. |
+| 포털과 Python의 답·ID가 서로 다름 | 두 실행은 별도 요청 | 서로의 결과를 다시 보는 명령이 아니므로 각각 기록합니다. |
 
 ## 정리
 
@@ -1658,11 +1717,16 @@ python samples/workshop.py agent --live
 
 ## 성공 기준
 
-역할·근거·없는 정보 처리·도구 실패 처리·금지 행동이 instructions에 있습니다. 같은 대화의 맥락은 유지하고, 없는 지식이나 도구의 성공은 가장하지 않습니다.
+- 저장한 지침에 역할·근거·없는 정보 처리·도구 실패 처리·금지 행동이 있습니다.
+- 한계 질문 2개에서 없는 규정이나 재고 조회 성공을 가장하지 않았습니다.
+- 같은 대화에서는 앞선 맥락(예: 모니터)을 유지하고, 새 대화에서는 이어받지 않았습니다.
 
 ## 막혔을 때
 
-이전 대화의 문맥이 instruction 변경을 가릴 수 있습니다. 새 버전을 선택한 뒤 **새 conversation**에서도 확인하세요. SDK 1.x의 Threads/Runs 코드를 2.x 샘플에 섞지 않습니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| instruction을 바꿨는데 답이 그대로임 | 이전 대화의 문맥이 변경을 가릴 수 있음 | 새 버전을 선택한 뒤 **새 conversation**에서도 확인합니다. |
+| 샘플 코드가 맞지 않음 | SDK 1.x의 Threads/Runs 코드를 섞었는지 | 2.x 샘플 기준을 유지하고 1.x 코드를 섞지 않습니다. |
 
 ## 정리
 
@@ -1866,11 +1930,18 @@ response = client.responses.create(
 
 ## 성공 기준
 
-정답 질문 2개에 실제 근거가 있고, 문서에 없는 질문은 유보합니다. 응답의 사실을 원문과 대조했으며 인덱싱 완료 상태를 확인했습니다.
+- 파일 3개의 인덱싱이 **Completed**임을 확인했습니다.
+- 정답이 있는 질문 2개에 실제 근거가 있고, 응답의 사실을 원문과 대조했습니다.
+- 문서에 없는 질문은 유보했습니다.
 
 ## 막혔을 때
 
-“문서를 다시 올려보자”부터 시작하지 않습니다. 연결한 vector store ID, 인덱싱 실패 사유, 지원 파일 형식, 모델/tool 지원, 올바른 agent 버전을 확인합니다. 실제 파일에 이미지로만 들어 있는 표라면 검색 가능한 텍스트가 있는지 먼저 확인하고, File search만으로 읽었다고 가정하지 않습니다.
+“문서를 다시 올려보자”부터 시작하지 않습니다. 먼저 다음을 확인합니다.
+
+- 연결한 vector store ID와 인덱싱 실패 사유
+- 지원 파일 형식과 모델/tool 지원
+- 올바른 agent 버전
+- 실제 파일에 이미지로만 들어 있는 표라면 검색 가능한 텍스트가 있는지. File search만으로 읽었다고 가정하지 않습니다.
 
 ## 정리
 
@@ -2185,11 +2256,18 @@ Microsoft Azure 통합을 실행하지 않았다면 **“로컬 함수 확인 / 
 
 ## 성공 기준
 
-도구 인수·실행 결과·최종 답변을 모두 확인했습니다. 재고 부족과 잘못된 수량이 명시적 오류이며, 실제 주문 성공을 주장하지 않습니다. Microsoft Azure 통합을 실행했다면 다섯 항목의 근거와 설정 묶음을 남깁니다. 별도 종합 실습이나 Teams 게시를 반복해야 기본 과제를 마치는 것은 아닙니다.
+- 도구 인수·실행 결과·최종 답변을 모두 확인했습니다.
+- 품절·재고 부족·잘못된 수량이 명시적 오류이며, 실제 주문 성공을 주장하지 않습니다.
+- Microsoft Azure 통합을 실행했다면 다섯 항목의 근거와 설정 묶음을 남겼습니다.
+- 별도 종합 실습이나 Teams 게시는 기본 과제에 필요하지 않습니다.
 
 ## 막혔을 때
 
-포털에서 함수 schema를 편집할 수 없으면 SDK를 사용합니다. 함수 정의를 등록하는 것과 해당 함수를 실행할 프로세스가 떠 있는 것은 별개입니다. **클라이언트 함수 도구를 정의한 agent를 포털이나 서버 평가에서 호출한다고 로컬 Python 함수가 자동 실행되지 않습니다.**
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| 포털에서 함수 schema를 편집할 수 없음 | 포털의 편집 지원 여부 | SDK를 사용합니다. |
+| 함수를 등록했는데 실행되지 않음 | 함수 정의 등록과 실행 프로세스는 별개입니다. | 함수를 실행할 프로세스가 떠 있는지 확인합니다. |
+| 포털이나 서버 평가에서 호출했는데 로컬 함수가 실행되지 않음 | **클라이언트 함수 도구를 정의한 agent를 포털이나 서버 평가에서 호출해도 로컬 Python 함수가 자동 실행되지 않습니다.** | 정상입니다. 4단계처럼 터미널의 로컬 dispatcher가 실행을 담당합니다. |
 
 ## 정리
 
@@ -2217,7 +2295,7 @@ Microsoft Azure 통합을 실행하지 않았다면 **“로컬 함수 확인 / 
 
 **기본 코스 · 도구별 확인** · 약 30분
 
-> **완성할 결과:** 목록뿐 아니라 MCP/OpenAPI의 실제 결과, Toolbox/Skill 버전, 인증 주체와 승인 결정을 확인합니다.
+> **완성할 결과:** 로컬 HTTP와 MCP로 같은 재고를 조회하고, 승인 없는 도구 호출이 차단되는 것을 확인합니다. 클라우드 Toolbox/Skill은 선택 확장입니다.
 
 <div class="lab-brief" markdown="1">
 
@@ -2246,12 +2324,14 @@ Skill은 반복 작업의 수행 지침**입니다. Skill은 승인 권한이나
 
 ## 준비
 
-**L01의 Codespaces를 그대로 사용합니다.** 기본/MCP 의존성은 이미 준비되어 있으므로 다시 설치하지 않습니다. 기본 1–2단계에는 Microsoft Azure 계정이 필요 없습니다.
-두 터미널 모두 같은 Codespace 안에서 엽니다. `127.0.0.1`은 그 Codespace를 가리키므로 아래 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
-클라우드 단계는 L11의 Search와 프로젝트 관리 ID의 Search Index Data Reader 역할이 필요합니다.
-**기본 코스의 필수 범위는 아래 1–2단계(로컬 HTTP/OpenAPI·MCP)입니다.**
-3–4단계의 클라우드 Toolbox/Skills는 L11 자원 준비 후 선택하는 확장입니다.
-기본 코스 학습자가 L11을 먼저 진행할 필요는 없습니다.
+**L01의 Codespaces를 그대로 사용합니다.** 기본/MCP 의존성은 이미 준비되어 있으므로 다시 설치하지 않습니다.
+
+| 범위 | 진행할 단계 | 필요한 것 |
+| --- | --- | --- |
+| 기본 코스 | 1. 로컬 HTTP/OpenAPI → 2. MCP 호출 → 서버 중지 | 같은 Codespace의 터미널 두 개. Microsoft Azure 계정 불필요 |
+| 선택 확장 | 접힌 3–4단계의 클라우드 Toolbox/Skills | L11의 Search, 프로젝트 관리 ID의 Search Index Data Reader 역할 |
+
+**기본 코스는 L11을 먼저 할 필요가 없습니다.** 두 터미널 모두 같은 Codespace에서 엽니다. `127.0.0.1`은 그 Codespace를 가리키므로 `curl`도 그 터미널에서 실행합니다. 브라우저용 포트 전달이나 Public 포트 공개는 필요하지 않습니다.
 
 <details class="environment-option" markdown="1">
 <summary>내 PC를 쓰거나 MCP 패키지가 없을 때만: 수동 설치</summary>
@@ -2276,7 +2356,7 @@ python -m pip install -r requirements-tools.txt
 
 ## 실행
 
-### 1. 로컬 HTTP/OpenAPI 계약
+### 1. 로컬 HTTP/OpenAPI 계약 확인하기
 
 첫 터미널에서 서버를 시작하고 켜 둡니다.
 
@@ -2325,7 +2405,7 @@ curl --fail http://127.0.0.1:8766/inventory/NB-14
 이 서버는 loopback·무인증 연습용입니다. 클라우드에서 접근하지 못하는 것이 정상이며
 터널로 외부 공개하지 않습니다.
 
-### 2. 동봉 MCP 서버를 실제 호출
+### 2. 동봉 MCP 서버를 실제로 호출하기
 
 서버가 대기 중인 첫 터미널이 아니라 **두 번째 터미널**에서 이어 실행합니다. 이 단계의 MCP 서버는 명령이 따로 시작하므로 서버 창을 하나 더 열 필요가 없습니다.
 
@@ -2492,22 +2572,24 @@ server.run(transport="stdio")
 
 ## 성공 기준
 
-기본 코스는 로컬 HTTP 응답과 MCP 2종의 실제 결과, 도구별 승인 차단을 확인하면 이 장을 완료합니다.
-클라우드 확장을 수행했다면 tools/list·call·Skill read, version·caller·backend identity·승인 기록까지 별도로 확보합니다.
-Tool search Preview나 외부 업무 시스템 연결을 실행한 것으로 합산하지 않습니다.
+- 로컬 HTTP 응답(재고 8개·단가 145만 원)을 확인했습니다.
+- MCP 도구 2종의 실제 결과를 확인했고, 승인 없는 호출이 호출 전에 차단됨을 확인했습니다.
+- 서버 터미널을 Ctrl+C로 종료했습니다.
+- 클라우드 확장을 수행했다면 tools/list·call·Skill read, version·caller·backend identity·승인 기록까지 **별도로** 확보했습니다. Tool search Preview나 외부 업무 시스템 연결을 실행한 것으로 합산하지 않습니다.
 
 ## 막혔을 때
 
-| 로컬 증상 | 다음 행동 |
+| 증상 | 다음 행동 |
 | --- | --- |
 | `Connection refused` | 첫 터미널의 서버가 켜져 있는지와 현재 포트를 확인. 서버 창에서는 대기하고 두 번째 창에서 호출 |
 | `Address already in use` | 먼저 자신이 켠 서버 창 확인. 다른 프로세스를 강제 종료하지 말고 사용 가능한 포트로 `inventory_api.py --port 18766`을 실행했다면 두 `curl` URL도 같은 포트로 변경 |
 | `No module named mcp` | L01에서 Python 경로를 확인하고 그 가상환경에 `requirements-tools.txt`가 설치됐는지 확인 |
 | JSON 해석 오류 | 자기 OS의 명령 블록 사용. 특히 Windows는 위 `--%`·따옴표 문법을 그대로 사용 |
 | `Approval required` | 승인 없는 호출 과제에서는 정상. 승인한 호출을 하려면 확인한 이름·인수의 `--approve-tool` 값 대조 |
+| 클라우드 확장의 `403` | 호출자와 프로젝트 MI를 구분해 확인 |
+| 클라우드 확장의 빈 목록 | connection·schema·도구 지원 상태를 확인 |
 
-403은 호출자와 프로젝트 MI를 구분해 봅니다. 빈 목록은 connection/schema/도구 지원 상태를
-확인합니다. 인증을 `anonymous`나 승인을 `never`로 바꾸어 오류를 숨기지 않습니다.
+인증을 `anonymous`나 승인을 `never`로 바꾸어 오류를 숨기지 않습니다.
 
 ## 정리
 
@@ -2538,7 +2620,7 @@ Toolbox/Skill version은 소유 receipt와 함께 보존하며, 삭제는 별도
 
 **기본 코스 · GA / 일부 Preview** · 약 35분
 
-> **이 모듈에서 만드는 것:** 같은 조건의 v1/v2 답변을 비교하고, 점수와 채점 이유를 근거로 차이·동점·실패를 설명하는 방법입니다.
+> **완성할 결과:** 같은 조건의 v1/v2 답변을 비교하고, 점수와 채점 이유를 근거로 차이·동점·실패를 설명하는 방법입니다.
 
 <div class="lab-brief" markdown="1">
 
@@ -2566,7 +2648,17 @@ Toolbox/Skill version은 소유 receipt와 함께 보존하며, 삭제는 별도
 
 ## 준비
 
-L01에서 만든 **자신의 프로젝트·chat/judge 배포·소유 기록**을 사용합니다. 타인의 결과를 받아 실습 성공으로 기록하지 않습니다. Microsoft Azure 실행 조건이 없을 때는 지침·질문·채점 기준만 읽고 실제 평가 미실행으로 남깁니다.
+**실행 조건이 없으면 1단계의 지침·질문 비교까지만** 진행하고 실제 수집·평가는 미실행으로 기록합니다. 실행할 때는 L01에서 만든 자신의 환경을 사용하며, 타인의 결과를 실습 성공으로 기록하지 않습니다.
+
+| 할 일 | 준비할 것 |
+| --- | --- |
+| 지침·질문 읽기 | 동봉 v1/v2와 질문 파일. Microsoft Azure 계정 불필요 |
+| 내 응답 수집 | L01의 프로젝트·소유 기록·`.env`, L02에서 확인한 chat 배포와 요청 예산 |
+| 저장한 원문 평가 | 같은 환경의 judge 배포와 평가 비용 범위. 수집 완료 파일 |
+
+chat은 **`gpt-6-sol` / `2026-09-22`**, 호출 이름은 `contoso-chat`입니다. judge는 **`gpt-4.1` / `2025-04-14`**, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`입니다. `.env`·`results/azure-environment.json`의 대상이 같아야 하며 L02에서 실제 TPM/RPM을 확인합니다. **Search·Hosted·Optimizer·holdout은 이 비교에 필요하지 않습니다.**
+
+수집 코드는 현재 RG 소유 태그·프로젝트·배포·TPM/RPM을 조회하고, 충돌하지 않는 **평가 전용 Prompt Agent**와 고정된 v1/v2 버전을 사용합니다. L06의 함수 실행을 평가하는 단계가 아닙니다.
 
 | 용어 | 쉬운 뜻 |
 | --- | --- |
@@ -2574,12 +2666,6 @@ L01에서 만든 **자신의 프로젝트·chat/judge 배포·소유 기록**을
 | Judge / Native 평가 | 채점용 모델 / Microsoft Foundry 서비스가 수행하는 평가 |
 | 완결성 / 관련성 / 근거성 | 요청을 다 다뤘는가 / 질문에 맞는가 / 자료가 답을 뒷받침하는가 |
 | Dev / Holdout | 개선 과정에서 보는 연습 자료 / 개선에 노출하지 않는 별도 최종 시험지 |
-
-L01의 환경과 L02의 **`gpt-6-sol` / `2026-09-22`**, 호출 이름 `contoso-chat`을 사용합니다. `.env`와 소유 기록의 대상이 같아야 합니다.
-
-Native 평가에는 L01이 만든 **`gpt-4.1` / `2025-04-14`** judge, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`가 필요합니다. L02에서 실제 chat/judge TPM/RPM을 확인합니다. Search·Hosted·Optimizer·holdout은 필요하지 않습니다.
-
-새 실행은 **자신의 `results/azure-environment.json`과 `.env`**를 사용합니다. 수집 코드는 현재 RG 소유 태그·프로젝트·배포·TPM/RPM을 조회하고, 충돌하지 않는 평가용 Prompt Agent 이름과 고정된 v1/v2 버전을 사용합니다.
 
 한국어는 기본값입니다. 영어는 별도 폴더에서 `FOUNDRY_LAB_LANGUAGE=en`을 유지합니다. 두 지침에는 같은 합성 정책 문맥을 제공하며 이를 실제 Search 조회라고 표시하지 않습니다. 질문의 기대 행동과 채점 기준은 대상 모델 입력에 넣지 않고 judge에게만 제공합니다.
 
@@ -2601,6 +2687,17 @@ Native 평가에는 L01이 만든 **`gpt-4.1` / `2025-04-14`** judge, `FOUNDRY_J
 ### 2. 내 응답을 한 번 수집하고 평가하기
 
 내 프로젝트·언어·요청 수·시간·비용 범위를 확인합니다. 조건을 갖춘 기본 실습 경로는 **계획 → 수집 → 평가**입니다.
+
+```text
+같은 질문 12개 + 같은 정책 문맥
+  ├─ v1 지침 → 내 답변 12개
+  └─ v2 지침 → 내 답변 12개
+       ↓ 수집 JSON의 24개 원문을 확인하고 멈춤
+       ↓ 완료된 같은 파일만 Native 평가에 제출
+평가 JSON → 같은 문항의 원문·점수·채점 이유 비교
+```
+
+**수집과 평가는 별도 실행입니다.** 아래 명령을 한꺼번에 실행하지 말고 수집 완료 확인을 사이에 둡니다. 평가는 대상 에이전트를 다시 호출하지 않습니다.
 
 ```bash
 python samples/instruction_prompt_agent_lab.py
@@ -2734,12 +2831,19 @@ v1이 이미 충분한 답을 냈으면 동점일 수 있고, 생성 변동으�
 
 ## 성공 기준
 
-지침·질문 읽기만 했다면 비교 조건과 확인할 근거를 설명하고 **실제 평가 미실행**으로 기록합니다.
-실행했다면 12문항의 v1/v2 원문·고정 버전·Native 점수·채점 이유·오류/누락을 연결하고, 근거에 따라 차이·동점·하락을 설명합니다. 점수 향상을 미리 약속하지 않습니다.
+- **읽기만 했다면:** 비교 조건과 확인할 근거를 설명하고 **실제 평가 미실행**으로 기록합니다.
+- **실행했다면:** 12문항의 v1/v2 원문·고정 버전·Native 점수·채점 이유·오류/누락을 연결했습니다.
+- 근거에 따라 차이·동점·하락을 설명하며, 점수 향상을 미리 약속하지 않습니다.
 
 ## 막혔을 때
 
-401/403은 자신의 프로젝트와 인증 주체·역할을, 404는 실제 배포 이름과 endpoint를 확인합니다. 429는 TPM/RPM·공유 트래픽을 확인하고 무한 재시도하지 않습니다. 수집 파일이 실패·부분 완료이면 평가에 제출하지 않습니다. 모델이나 judge를 임의로 바꾸어 비교 조건을 섞지 않습니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| 401/403 | 자신의 프로젝트와 인증 주체·역할 | 부족한 역할만 확인합니다. |
+| 404 | 실제 배포 이름과 endpoint | `.env`·소유 기록의 값과 대조합니다. |
+| 429 | TPM/RPM·공유 트래픽 | 무한 재시도하지 않습니다. |
+| 수집 파일이 실패·부분 완료 | 수집 JSON의 `status`·`rows` | 평가에 제출하지 않습니다. |
+| 모델이나 judge를 바꾸고 싶음 | 두 지침의 비교 조건이 같은지 | 임의로 바꾸어 비교 조건을 섞지 않습니다. |
 
 ## 정리
 
@@ -2902,11 +3006,17 @@ if not any(match[0].upper() == sku for match in matches):
 
 ## 성공 기준
 
-세 질문 각각에 **원문/response ID, 기대 행동, 실제 판정, 실패 시 담당 계층**이 있습니다. L06 함수 차단과 자연어 거절을 구분하고, Red teaming·문서 ACL을 실행하지 않았다면 미실행으로 표시합니다. Content Safety가 업무 권한 검사를 대신한다고 말하지 않습니다.
+- 세 질문 각각에 **원문/response ID, 기대 행동, 실제 판정, 실패 시 담당 계층**이 있습니다.
+- L06 함수 차단과 자연어 거절을 구분했습니다.
+- Red teaming·문서 ACL을 실행하지 않았다면 **미실행**으로 표시했습니다.
+- Content Safety가 업무 권한 검사를 대신한다고 기록하지 않았습니다.
 
 ## 막혔을 때
 
-도구 응답이 위험하지만 입력/출력 필터만 켜져 있을 수 있습니다. 해당 intervention point를 확인합니다. 오탐을 발견해도 필터 전체를 끄지 말고 대상·근거·재현 사례를 담당자에게 전달합니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| 도구 응답이 위험한데 걸러지지 않음 | 입력/출력 필터만 켜져 있을 수 있음 | 해당 intervention point를 확인합니다. |
+| 필터의 오탐을 발견 | 대상·근거·재현 사례 | 필터 전체를 끄지 말고 담당자에게 전달합니다. |
 
 ## 정리
 
@@ -3119,7 +3229,9 @@ Monitoring dashboard와 continuous evaluation은 Preview 범위를 확인한 뒤
 
 ## 성공 기준
 
-자기 실행 하나의 **response/trace ID, 버전, 관찰된 작업·시간, 판단, 다음 조치**를 연결했습니다. 예시만 읽었다면 **설계 완료 / 실제 trace 미확인**으로 구분합니다. trace가 없는 상태를 “오류 없음”으로 기록하지 않습니다.
+- 자기 실행 하나의 **response/trace ID, 버전, 관찰된 작업·시간, 판단, 다음 조치**를 연결했습니다.
+- 예시만 읽었다면 **설계 완료 / 실제 trace 미확인**으로 구분했습니다.
+- trace가 없는 상태를 “오류 없음”으로 기록하지 않았습니다.
 
 ## 막혔을 때
 
@@ -3284,11 +3396,9 @@ python samples/search_lab.py initialize --live
 
 **여기서 멈춰 확인:** 편집기로 `results/search.json`을 열어 `created`에 `index`, `knowledge_source`, `knowledge_base`가 모두 있는지 봅니다. 출력 마지막의 `Evidence:` 파일에는 실제 업로드 응답이 있으며 13개 항목의 `status`를 대조합니다. 로컬 `corpus`의 13개를 세었다고 원격 업로드 성공으로 표시하지 않습니다.
 
-기존 소유 index의 schema를 확인하고 남은 단계를 이어가려면 `initialize --resume --live`를 사용합니다.
-`--resume`은 같은 receipt와 일치하는 index의 부분 작업만 잇는 옵션입니다. 새로운 실험이나 schema 변경을 기존 성공처럼 덮어쓰는 옵션이 아닙니다.
-embedding은 **리소스 OpenAI endpoint**의 `/openai/v1/embeddings`로 호출합니다.
-project OpenAI endpoint에서 Responses가 된다고 embeddings도 지원된다고 가정하지 않습니다.
-embedding 호출자는 부모 리소스의 Cognitive Services OpenAI User 역할이 추가로 필요합니다.
+- **재개:** 기존 소유 index의 schema를 확인하고 남은 단계를 이어가려면 `initialize --resume --live`를 사용합니다. `--resume`은 같은 receipt와 일치하는 index의 부분 작업만 잇는 옵션입니다. 새로운 실험이나 schema 변경을 기존 성공처럼 덮어쓰는 옵션이 아닙니다.
+- **embedding 호출:** **리소스 OpenAI endpoint**의 `/openai/v1/embeddings`로 호출합니다. project OpenAI endpoint에서 Responses가 된다고 embeddings도 지원된다고 가정하지 않습니다.
+- **필요한 역할:** embedding 호출자는 부모 리소스의 Cognitive Services OpenAI User 역할이 추가로 필요합니다.
 
 검색은 `2024-07-01`, IQ는 `2026-04-01` 계약을 사용합니다.
 키 대신 Entra 토큰을 메모리 안에서만 사용하며 로그에 기록하지 않습니다.
@@ -3379,15 +3489,17 @@ L11의 `corpus`는 로컬 합성 입력 확인이고, `initialize/query --live`�
 
 ## 성공 기준
 
-13개 절의 upload 상태가 모두 성공이며, 세 경로의 실제 결과와 원본 절이 일치합니다.
-L12까지 수행했다면 응답의 citation과 실제 tool result를 연결합니다.
-검색만 성공한 것을 permission-aware 검증 완료나 IQ answer synthesis 완료로 표시하지 않습니다.
+- 13개 절의 upload 상태가 모두 성공이며, 세 경로의 실제 결과와 원본 절이 일치합니다.
+- L12까지 수행했다면 응답의 citation과 실제 tool result를 연결했습니다.
+- 검색만 성공한 것을 permission-aware 검증 완료나 IQ answer synthesis 완료로 표시하지 않았습니다.
 
 ## 막혔을 때
 
-403은 Search 데이터 역할과 전파 지연을 확인합니다. 400은 API 버전·semantic 설정·
-embedding 차원을 확인합니다. Preview 문자열로 바꾸어 우회하지 마세요.
-404는 `results/search.json`이 현재 endpoint의 자원인지 확인합니다.
+| 증상 | 먼저 확인할 것 |
+| --- | --- |
+| 403 | Search 데이터 역할과 전파 지연 |
+| 400 | API 버전·semantic 설정·embedding 차원. Preview 문자열로 바꾸어 우회하지 않습니다. |
+| 404 | `results/search.json`이 현재 endpoint의 자원인지 |
 
 ## 정리
 
@@ -3558,15 +3670,12 @@ python scripts/build_hosted.py
 
 </div>
 
-`.build/contoso/`와 `.build/contoso-code.zip`을 만듭니다.
-Optimizer용 Responses 프로필은 `.build/contoso-responses/`에 별도로 생성합니다.
-이 분리 덕분에 Optimizer의 설정 로딩을 고쳐도 이미 검증한 기본 Invocations 런타임을 바꾸지 않습니다.
-구매 정책·재고·instructions·실행 코드·고정 의존성만 포함하고,
-`.env`, 인증, 평가 정답, 기존 결과, 개인 환경은 포함하지 않습니다.
-`package-manifest.json`의 파일별 hash와 runtime contract를 확인합니다.
-외부 샘플 저장소를 복제할 필요가 없습니다.
+- **만들어지는 것:** `.build/contoso/`와 `.build/contoso-code.zip`. Optimizer용 Responses 프로필은 `.build/contoso-responses/`에 별도로 생성합니다. 이 분리 덕분에 Optimizer의 설정 로딩을 고쳐도 이미 검증한 기본 Invocations 런타임을 바꾸지 않습니다.
+- **포함:** 구매 정책·재고·instructions·실행 코드·고정 의존성
+- **제외:** `.env`, 인증, 평가 정답, 기존 결과, 개인 환경
+- **확인:** `package-manifest.json`의 파일별 hash와 runtime contract. 외부 샘플 저장소를 복제할 필요가 없습니다.
 
-### 2. 로컬 실행과 호출
+### 2. 로컬에서 실행하고 호출하기
 
 서버 터미널에서 다음 동봉 helper를 실행합니다. L01/L11의 `.env`와 `results/search.json`에서
 허용된 비밀 없는 값만 자식 프로세스로 전달합니다.
@@ -3666,7 +3775,7 @@ python scripts/runtime_roles.py --agent contoso-purchasing --live
 
 `configure_hosted.py`가 `AZURE_LOCATION`을 포함한 프로젝트 바인딩을 준비합니다. `.azure/`와 `azd env get-values` 전체를 공개하지 않습니다. 동봉 `azure.yaml`은 **code deployment**이며 Docker/ACR가 필수는 아닙니다. 이미 L01에서 자원을 만들었으므로 여기서 `azd provision`을 추가 실행하지 않습니다. 배포마다 새 immutable version이 생깁니다.
 
-### 4. 정확한 버전 원격 호출
+### 4. 정확한 버전을 원격 호출하기
 
 ```bash
 python samples/hosted_client.py invoke --version 실제숫자 --live
@@ -3750,13 +3859,19 @@ async def handle(request: Request):
 
 ## 성공 기준
 
-패키징·서버 시작·로컬 업무 결과·배포·같은 버전 원격 업무 결과를 각각 확인했습니다.
-hash·도구·citation이 연결되고, 배포만 성공한 상태를 품질 통과로 표시하지 않습니다.
+- 패키징·서버 시작·로컬 업무 결과·배포·같은 버전 원격 업무 결과를 **각각** 확인했습니다.
+- hash·도구·citation이 연결됩니다.
+- 배포만 성공한 상태를 품질 통과로 표시하지 않았습니다.
 
 ## 막혔을 때
 
-health 실패는 entry point/의존성, 502는 보존된 upstream 오류, 403은 runtime ID의
-모델/Search 역할부터 확인합니다. 424 cold start는 로그를 확인하고 제한된 횟수만 재시도합니다.
+| 증상 | 먼저 확인할 것 |
+| --- | --- |
+| health 실패 | entry point와 의존성 |
+| 502 | 보존된 upstream 오류 |
+| 403 | runtime ID의 모델/Search 역할 |
+| 424 cold start | 로그를 확인하고 제한된 횟수만 재시도합니다. |
+
 오류 문장을 HTTP 200의 정상 답변으로 바꾸지 않습니다.
 
 ## 정리
@@ -4029,13 +4144,19 @@ concurrent = ConcurrentBuilder(
 
 ## 성공 기준
 
-순차의 실제 초안 전달과 동시 실행의 세 독립 결과를 구분하고, 선택해 실행한 패턴의 응답·시간·토큰을 설명할 수 있습니다.
-검토자가 동의한 것을 사람 승인이나 자동 품질 합격으로 기록하지 않습니다. 계획만 읽었다면 모델 실행은 미실행입니다.
+- 순차의 실제 초안 전달과 동시 실행의 세 독립 결과를 구분합니다.
+- 선택해 실행한 패턴의 응답·시간·토큰을 설명할 수 있습니다.
+- 검토자가 동의한 것을 사람 승인이나 자동 품질 합격으로 기록하지 않았습니다.
+- 계획만 읽었다면 모델 실행은 **미실행**입니다.
 
 ## 막혔을 때
 
-`agent_framework_orchestrations` import 오류는 심화 환경의 설치 경로부터 확인합니다. TPM/RPM 미달이면 L02로 돌아가며, 429가 나오면 새 호출을 반복하지 않고 기존 오류·한도·다른 사용자의 동시 사용을 확인합니다.
-입력 예산 초과나 응답 잘림은 실패입니다. 결과를 꾸미거나 상한을 무작정 늘리지 말고 대화 길이와 실제 응답을 확인합니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| `agent_framework_orchestrations` import 오류 | 심화 환경의 설치 경로 | 기본 환경과 섞지 않습니다. |
+| TPM/RPM 미달 | L02의 처리량 | L02로 돌아갑니다. |
+| 429 | 기존 오류·한도·다른 사용자의 동시 사용 | 새 호출을 반복하지 않습니다. |
+| 입력 예산 초과·응답 잘림 | 대화 길이와 실제 응답 | 실패입니다. 결과를 꾸미거나 상한을 무작정 늘리지 않습니다. |
 
 ## 정리
 
@@ -4246,7 +4367,9 @@ handoff_workflow = (
 
 ## 성공 기준
 
-그룹 채팅의 세 발언과 최종 수정 답, 핸드오프의 실제 도구 호출·전문가 응답·종료 상태를 선택한 실행 범위에서 확인했습니다. 역할의 검토·위임을 사람의 승인이나 원격 A2A 성공으로 표시하지 않습니다.
+- 선택한 실행 범위에서 그룹 채팅의 세 발언과 최종 수정 답을 확인했습니다.
+- 핸드오프의 실제 도구 호출·전문가 응답·종료 상태를 확인했습니다.
+- 역할의 검토·위임을 사람의 승인이나 원격 A2A 성공으로 표시하지 않았습니다.
 
 ## 막혔을 때
 
@@ -4467,15 +4590,18 @@ result = store.search_memories(
 
 ## 성공 기준
 
-store/item ID, A 검색 결과, B 격리 결과가 있고, 삭제를 수행했다면 삭제 후 검색까지 확인했습니다.
-삭제가 허용되지 않았다면 **구현 완료 / 저장·격리 실행 완료 / 삭제 미실행**으로 분리합니다.
-자동 remember/forget prompt, procedural memory 등 실행하지 않은 기능은 별도로 표시합니다.
+- store/item ID, A 검색 결과, B 격리 결과가 있습니다.
+- 삭제를 수행했다면 삭제 후 검색까지 확인했습니다.
+- 삭제가 허용되지 않았다면 **구현 완료 / 저장·격리 실행 완료 / 삭제 미실행**으로 분리했습니다.
+- 자동 remember/forget prompt, procedural memory 등 실행하지 않은 기능은 별도로 표시했습니다.
 
 ## 막혔을 때
 
-모델/embedding 지원, store 설정, 사용자 scope, API Preview 접근을 확인합니다.
-API가 실패하면 원본 오류를 보존하고 로컬 dict로 대체한 것을 Microsoft Azure Memory 성공으로 표시하지 않습니다.
-`memory.json`이 있는데 생성이 실패했다면 자신의 포털과 원본 오류로 원격 생성 여부를 대조합니다. 기록을 지워 반복하거나 미확인 소유 정보를 수정하지 않습니다. 1시간 TTL로 사라진 것은 승인된 삭제 실행 증거가 아니며 새 실습은 별도 소유 기록으로 준비합니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| API 호출이 실패 | 모델/embedding 지원, store 설정, 사용자 scope, API Preview 접근 | 원본 오류를 보존합니다. 로컬 dict로 대체한 것을 Microsoft Azure Memory 성공으로 표시하지 않습니다. |
+| `memory.json`이 있는데 생성이 실패 | 자신의 포털과 원본 오류 | 원격 생성 여부를 대조합니다. 기록을 지워 반복하거나 미확인 소유 정보를 수정하지 않습니다. |
+| item이 1시간 뒤 사라짐 | 1시간 TTL | TTL로 사라진 것은 승인된 삭제 실행 증거가 아닙니다. 새 실습은 별도 소유 기록으로 준비합니다. |
 
 ## 정리
 
@@ -4573,7 +4699,7 @@ CLI 확장/전역 설정을 자동 업그레이드하거나 다른 환경의 리
 
 ## 실행
 
-### 1. 먼저 비활성 routine의 수동 호출
+### 1. 비활성 routine을 먼저 수동 호출하기
 
 ```bash
 python samples/routine_lab.py create --agent 실제-agent-name --receipt results/routine-v2-manual.json
@@ -4594,11 +4720,12 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispa
 </div>
 
 고유 이름의 1회 timer를 **disabled**로 만들고 수동 dispatch합니다.
-manifest는 trigger 1개·action 1개이며 input은 “Contoso 정책 요약, 외부 발송·주문·승인 금지”입니다.
-`action.input`을 파일로 전달하고 존재하지 않는 create `--input` 옵션을 사용하지 않습니다.
-기존 receipt를 덮어쓰지 않습니다. 새 실험은 `--receipt`로 별도 경로를 지정합니다.
-dispatch 전에 별도 `.dispatch.json` 시도 기록을 독점 생성하므로 timeout이 나도 같은
-receipt를 자동 재호출하지 않습니다. 수동 접수 ID만으로 실행 성공을 판정하지 않습니다.
+
+- manifest는 trigger 1개·action 1개이며 input은 “Contoso 정책 요약, 외부 발송·주문·승인 금지”입니다.
+- `action.input`을 파일로 전달하고 존재하지 않는 create `--input` 옵션을 사용하지 않습니다.
+- 기존 receipt를 덮어쓰지 않습니다. 새 실험은 `--receipt`로 별도 경로를 지정합니다.
+- dispatch 전에 별도 `.dispatch.json` 시도 기록을 독점 생성하므로 timeout이 나도 같은 receipt를 자동 재호출하지 않습니다.
+- 수동 접수 ID만으로 실행 성공을 판정하지 않습니다.
 
 ### 2. 실제 예약 실행 확인
 
@@ -4619,11 +4746,10 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py sched
 
 </div>
 
-최대 6분 동안 실제 action trace를 확인하고 `finally`에서 disable합니다.
-입력에 고유 검증 표식을 넣고 같은 agent·예약 시각 이후·정확히 같은 사용자 입력의
-`invoke_agent` span만 찾습니다. 성공 span, 실제 response ID, assistant의
-`finish_reason=stop`, 비어 있지 않은 출력이 모두 있어야 검증됩니다.
-가려진 출력, 진행 중/실패 기록, 다른 입력의 응답은 성공 증거가 아닙니다.
+최대 6분 동안 실제 action trace를 확인하고 `finally`에서 disable합니다. 입력에 고유 검증 표식을 넣고, 같은 agent·예약 시각 이후·정확히 같은 사용자 입력의 `invoke_agent` span만 찾습니다.
+
+- **검증 조건(모두 필요):** 성공 span, 실제 response ID, assistant의 `finish_reason=stop`, 비어 있지 않은 출력
+- **성공 증거가 아님:** 가려진 출력, 진행 중/실패 기록, 다른 입력의 응답
 
 <details class="optional-path" markdown="1">
 <summary>왜 CLI 실행 이력 대신 trace를 확인하나요?</summary>
@@ -4676,7 +4802,7 @@ disable 호출이 timeout/디코딩 오류로 끝나도 `show`를 다시 수행�
 
 `dispatch`와 `scheduled-test`는 종료 시 중지를 시도하지만, 오류가 있었으면 **그때 사용한 receipt**로 3단계의 `stop`·`status`를 수행합니다. 수동 실행 오류에 예약용 경로를 복사하지 않습니다.
 
-### 4. identity와 복구 경계
+### 4. identity와 복구 경계 구분하기
 
 routine creator, agent runtime identity, 도구 connection identity를 구분합니다.
 사용자가 이벤트를 만들었다고 모든 하위 호출이 그 사람으로 실행되는 것은 아닙니다.
@@ -4727,17 +4853,19 @@ created = azd(
 
 ## 성공 기준
 
-실제 예약 시점 이후의 action 실행, 완료된 업무 응답, disabled 상태를 확인했습니다.
-예약 생성만 됐거나 수동 dispatch만 했다면 그 범위까지만 실행 완료로 기록합니다.
-상태 조회가 실패했다면 “아마 중지됐을 것”이라고 쓰지 않습니다.
-run ID를 읽지 못했다면 response/trace ID와 구분해 `null`로 남깁니다.
-사람의 내용 검토는 선택 안내이며, 실행하지 않은 검토를 완료했다고 표시하지 않습니다.
+- 실제 예약 시점 이후의 action 실행, 완료된 업무 응답, disabled 상태를 확인했습니다.
+- 예약 생성만 됐거나 수동 dispatch만 했다면 그 범위까지만 실행 완료로 기록합니다.
+- 상태 조회가 실패했다면 “아마 중지됐을 것”이라고 쓰지 않습니다.
+- run ID를 읽지 못했다면 response/trace ID와 구분해 `null`로 남깁니다.
+- 사람의 내용 검토는 선택 안내이며, 실행하지 않은 검토를 완료했다고 표시하지 않습니다.
 
 ## 막혔을 때
 
-CLI JSON decode 오류는 서비스 작업이 이미 성공한 뒤 발생할 수도 있습니다.
-새 이름으로 무조건 재생성하지 말고 receipt 이름의 show/list를 먼저 확인합니다.
-권한·protocol·model quota·도구 인증 오류는 실제 action trace와 원본 오류에서 구분합니다. 빈 CLI run history로 원인을 단정하지 않습니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| CLI JSON decode 오류 | 서비스 작업이 이미 성공한 뒤 발생할 수도 있음 | 새 이름으로 무조건 재생성하지 말고 receipt 이름의 show/list를 먼저 확인합니다. |
+| 권한·protocol·model quota·도구 인증 오류 | 실제 action trace와 원본 오류 | 둘을 대조해 원인을 구분합니다. |
+| CLI run history가 비어 있음 | 비어 있다는 사실만으로는 원인을 알 수 없음 | 원인을 단정하지 않습니다. |
 
 ## 정리
 
@@ -4977,12 +5105,16 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 ## 성공 기준
 
-로컬 과제는 처음의 두 실패를 재현하고, 권한을 넓히지 않은 수정으로 5개 테스트가 통과하는 이유를 설명합니다.
-주체별 허용/금지 작업표와 세 네트워크 경로, 거절 사례 한 개, 감사·회수 담당자를 작성했습니다. **설계 예시 / 읽기 관찰 / 실제 허용·거절 시험**을 따로 표시하고, 실제 시험은 양쪽 증거가 있을 때만 완료로 기록합니다.
+- 로컬 과제에서 처음의 두 실패를 재현하고, 권한을 넓히지 않은 수정으로 5개 테스트가 통과하는 이유를 설명합니다.
+- 주체별 허용/금지 작업표, 세 네트워크 경로, 거절 사례 한 개, 감사·회수 담당자를 작성했습니다.
+- **설계 예시 / 읽기 관찰 / 실제 허용·거절 시험**을 따로 표시했고, 실제 시험은 양쪽 증거가 있을 때만 완료로 기록합니다.
 
 ## 막혔을 때
 
-403을 무조건 RBAC 문제로 판단하지 않습니다. endpoint DNS, public network 차단, VNet 경로와 identity를 분리합니다. 기능 미지원은 권한을 넓힌다고 해결되지 않습니다.
+| 증상 | 먼저 확인할 것 |
+| --- | --- |
+| 403 | RBAC 문제로 단정하지 않습니다. endpoint DNS, public network 차단, VNet 경로와 identity를 분리합니다. |
+| 기능 미지원 | 권한을 넓힌다고 해결되지 않습니다. |
 
 ## 정리
 
@@ -5016,7 +5148,7 @@ Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가
 
 > **학습 순서: 배포·복구 기능 선택** — L01의 환경·소스로 CI 실패/수정과 릴리스·복구를 설계합니다. L12는 선택형 실제 Hosted 배포 분기에서만 필요합니다. 게시에는 지원 protocol·서버 도구·조직 권한과 별도 승인이 필요하며 기본 완주 조건은 아닙니다.
 
-> **이 모듈에서 만드는 것:** CI 결과, 에이전트 릴리스 명세, 롤백 판단표, 모델·비용 점검표. 실제 배포 없이도 작성할 수 있으며 실행 증거와 설계를 구분합니다.
+> **완성할 결과:** CI 결과, 에이전트 릴리스 명세, 롤백 판단표, 모델·비용 점검표. 실제 배포 없이도 작성할 수 있으며 실행 증거와 설계를 구분합니다.
 
 <div class="lab-brief" markdown="1">
 
@@ -5152,7 +5284,13 @@ def choose_version(previous: str, candidate: str, checks: dict) -> str:
 
 **결과 설명하기:** 실패한 세 테스트가 어떤 잘못된 승격을 막았는지 적고, `이전 버전 / 후보 / 실패 근거 / 유지할 버전` 표를 완성합니다. 이 함수에는 실제 배포·상태 이관이 없으므로 원격 롤백 완료라고 쓰지 않습니다.
 
-**선택: GitHub에서 같은 실패→수정 보기.** 승인된 개인 실습 저장소의 새 브랜치에서만 진행합니다. 복사된 `workflow.yml`을 `.github/workflows/contoso-practice.yml`로 두고 `practice/delivery` 코드·테스트를 함께 관리합니다. 초기 결함 상태로 Actions의 **Contoso local delivery practice → Run workflow**를 실행하면 실패하고, `exercise.py`만 고친 커밋으로 다시 실행하면 통과해야 합니다. 템플릿은 수동 실행·읽기 권한·Python 검사만 사용하며 Microsoft Azure 로그인·secret·배포 단계가 없습니다. 이 저장소의 기존 `validate.yml`을 대체하거나 `acknowledge_cost`를 켜지 않습니다.
+**선택: GitHub에서 같은 실패→수정 보기.** 승인된 개인 실습 저장소의 **새 브랜치**에서만 진행합니다.
+
+1. 복사된 `workflow.yml`을 `.github/workflows/contoso-practice.yml`로 두고 `practice/delivery` 코드·테스트를 함께 관리합니다.
+2. 초기 결함 상태로 Actions의 **Contoso local delivery practice → Run workflow**를 실행합니다. 실패해야 합니다.
+3. `exercise.py`만 고친 커밋으로 다시 실행합니다. 통과해야 합니다.
+
+템플릿은 수동 실행·읽기 권한·Python 검사만 사용하며 Microsoft Azure 로그인·secret·배포 단계가 없습니다. 이 저장소의 기존 `validate.yml`을 대체하거나 `acknowledge_cost`를 켜지 않습니다.
 
 </div>
 
@@ -5251,13 +5389,18 @@ private 프로젝트는 일반 포털 게시 경로가 지원되지 않을 수 �
 
 ## 성공 기준
 
-로컬 실패 3건을 재현하고 함수만 고쳐 5개 테스트를 통과시켰으며, GitHub 경로를 선택했다면 서로 다른 커밋의 실패·성공 실행을 구분합니다.
-**CI 판독표, 릴리스 명세, 실패 시 롤백 결정, 모델/비용 재확인 담당자**가 있습니다. 로컬 통과·설계 완료·Microsoft Azure 미실행을 구분하고, 같은 후보의 품질 근거가 없으면 승격 보류라고 판단할 수 있습니다.
-게시를 선택했다면 agent 실행 버전과 앱 Publish version, 대상 사용자·호출 결과를 구분해 남깁니다. 게시 성공만으로 업무 출시 승인이나 전체 권한 검증 완료를 주장하지 않습니다.
+- 로컬 실패 3건을 재현하고 함수만 고쳐 5개 테스트를 통과시켰습니다. GitHub 경로를 선택했다면 서로 다른 커밋의 실패·성공 실행을 구분했습니다.
+- **CI 판독표, 릴리스 명세, 실패 시 롤백 결정, 모델/비용 재확인 담당자**가 있습니다.
+- 로컬 통과·설계 완료·Microsoft Azure 미실행을 구분하고, 같은 후보의 품질 근거가 없으면 승격 보류라고 판단할 수 있습니다.
+- 게시를 선택했다면 agent 실행 버전과 앱 Publish version, 대상 사용자·호출 결과를 구분해 남겼습니다. 게시 성공만으로 업무 출시 승인이나 전체 권한 검증 완료를 주장하지 않습니다.
 
 ## 막혔을 때
 
-`azure`가 skipped라면 먼저 opt-in 조건을 읽습니다. 기본 push에서 건너뛴 것은 오류가 아닙니다. workflow 성공인데 응답이 틀렸다면 어떤 검사가 실제로 실행됐는지 확인합니다. 배포/롤백 오류는 agent version·protocol·runtime identity·모델/연결을 순서대로 대조하며 무조건 재배포하지 않습니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| `azure`가 skipped | opt-in 조건 | 기본 push에서 건너뛴 것은 오류가 아닙니다. |
+| workflow는 성공인데 응답이 틀림 | 어떤 검사가 실제로 실행됐는지 | workflow 성공만으로 응답이 맞다고 판단하지 않습니다. |
+| 배포/롤백 오류 | agent version·protocol·runtime identity·모델/연결을 순서대로 대조 | 무조건 재배포하지 않습니다. |
 
 ## 정리
 
@@ -5315,7 +5458,7 @@ private 프로젝트는 일반 포털 게시 경로가 지원되지 않을 수 �
 
 **어떻게 사용하나요?** 자신이 한 실습의 행만 따라갑니다. 실행 상태·공유 여부·담당자를 확인하고 승인된 대상만 삭제합니다. 비용은 반영 지연을 고려해 다시 확인합니다.
 
-**어디서 실행하나요?** 로컬만 했다면 PC의 서버를 끕니다. Microsoft Azure 자원을 만들었다면 포털과 소유 기록을 대조합니다. [세션 중지 코드](../scripts/stop_sessions.py)는 심화용이며 `--live` 없이도 동작합니다.
+**어디서 실행하나요?** 로컬만 했다면 같은 Codespace의 서버를 끕니다(내 PC 대안을 썼다면 그 PC). Microsoft Azure 자원을 만들었다면 포털과 소유 기록을 대조합니다. [세션 중지 코드](../scripts/stop_sessions.py)는 심화용이며 `--live` 없이도 동작합니다.
 
 ## 준비
 
@@ -5484,21 +5627,24 @@ for resource in ordered:
 
 ## 성공 기준
 
-생성 자원마다 **상태(삭제 / 공유 유지 / 보존)**와 **담당자·다음 확인 시각**을 함께 기록합니다. 보존한다면 기한도 적습니다. routine·지속 평가·voice session의 무의도 실행이 남아 있지 않은지 확인합니다.
+- 생성 자원마다 **상태(삭제 / 공유 유지 / 보존)**와 **담당자·다음 확인 시각**을 함께 기록했습니다. 보존한다면 기한도 적었습니다.
+- routine·지속 평가·voice session의 무의도 실행이 남아 있지 않은지 확인했습니다. L07 서버를 켰다면 해당 터미널에서 종료한 것도 확인했습니다.
+- Microsoft Azure 자원을 만들지 않았다면 **“로컬 실습만 수행 / Microsoft Azure 생성 없음”**으로 적었습니다.
+
+기록은 자원마다 한 줄씩 아래처럼 남깁니다.
 
 | 자원 이름 | 상태와 확인 근거 | 담당자 | 보존 기한·다음 비용 확인 |
 | --- | --- | --- | --- |
 | 내가 만든 자원별로 기록 | 실제 확인한 값. 조회하지 못했으면 미확인 | 직접 지정 | 직접 지정 |
 
-Microsoft Azure 자원을 만들지 않았다면 **“로컬 실습만 수행 / Microsoft Azure 생성 없음”**으로 적습니다. L07 서버를 켰다면 해당 터미널에서 종료한 것도 확인합니다.
-
-삭제 금지 환경은 “명시적 삭제 승인까지 보존”으로 기록합니다.
-Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있습니다.
-다음 확인은 검증 종료 후 24시간 이내를 권장하며, 확인 담당자 없이 “비용 0”이라고 결론내리지 않습니다.
+삭제 금지 환경은 “명시적 삭제 승인까지 보존”으로 기록합니다. Search Basic·로그·저장소는 요청이 없어도 비용이 남을 수 있습니다. 다음 확인은 검증 종료 후 24시간 이내를 권장하며, 확인 담당자 없이 “비용 0”이라고 결론내리지 않습니다.
 
 ## 막혔을 때
 
-삭제 오류를 숨기지 마세요. 자원 ID, 오류 코드, 담당자를 기록하고 남은 비용 가능성을 알립니다. timeout으로 서버에서 생성 여부가 불분명한 경우 receipt뿐 아니라 포털의 실습 이름과 생성 시간도 확인합니다.
+| 증상 | 먼저 확인할 것 | 다음 행동 |
+| --- | --- | --- |
+| 삭제 오류 | 자원 ID·오류 코드·담당자 | 오류를 숨기지 말고 기록하고, 남은 비용 가능성을 알립니다. |
+| timeout 뒤 서버에서 생성 여부가 불분명 | receipt와 포털의 실습 이름·생성 시간 | 둘을 함께 대조합니다. |
 
 ## 정리
 
