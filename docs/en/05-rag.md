@@ -43,7 +43,7 @@ You cannot evaluate RAG quality if you do not know where the correct answers are
 ### 2. Connect File search
 
 1. In **Build → Agents**, open **your agent name recorded in L04**. Do not create another agent.
-2. Open the built-in file-search connection under **Tools/Knowledge → File search**. If unavailable, verify project support and choose the SDK path below. L07's Cloud Toolbox extension is not a prerequisite.
+2. Open the built-in file-search connection under **Tools/Knowledge → File search**. If unavailable, verify project support, including the region (File search is not offered in Italy North or Brazil South), and choose the SDK path below where the tool is supported. L07's Cloud Toolbox extension is not a prerequisite.
 3. Create your lab's vector store and upload **only the three Markdown files** from `data/en/policies/`. Do not upload the entire ZIP or `data/` folder.
 4. Confirm indexing is **Completed** for all three files. Upload completion is not search readiness. **Save** the connection and record the agent version and store name.
 5. Choose **New chat**, then submit each of the three questions below once. Keep this separate from L04's conversation without knowledge.
@@ -94,11 +94,11 @@ python samples/workshop.py rag --live
 | Order and command | Details and options | Result, cost, or change |
 | --- | --- | --- |
 | 1. `rag` | Displays the synthetic policies to use and the RAG execution plan. Without `--live`, nothing is uploaded. | Reviews the plan locally only. |
-| 2. `rag --live` | Performs file upload → vector store attachment → up to 180 seconds of indexing wait → new agent creation → a question. | Model, File search, and file-storage costs may apply. Compare answer citations with the file/store IDs in the receipt. This command does not reuse portal-created objects. |
+| 2. `rag --live` | Performs file upload → vector store attachment → up to 180 seconds of indexing wait per file → new agent creation → a question. | Model, File search, and file-storage costs may apply. Compare answer citations with the file/store IDs in the receipt. This command does not reuse portal-created objects. |
 
 </div>
 
-The executable uploads files, attaches the store, waits up to 180 seconds for indexing, creates an agent, and asks **one default price-limit question**, not all three questions above. If indexing does not finish, it stops rather than claiming completion. Use the receipt to inspect remaining files and their status.
+The executable uploads files, attaches the store, waits up to 180 seconds per file for indexing (up to 540 seconds for three), creates an agent, and asks **one default price-limit question**, not all three questions above. If indexing does not finish, it stops rather than claiming completion. Use the receipt to inspect remaining files and their status.
 
 To finish the three-question check, find the new agent name/version in the receipt and open it under **Build → Agents**. Verify the additional request budget before sending step 3's questions. If Chat is unavailable, record **default-question retrieval/citations checked / three-question comparison not run**. Do not repeatedly run `rag --live` for each question and recreate resources.
 

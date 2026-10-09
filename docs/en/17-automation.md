@@ -29,12 +29,12 @@ Creating a schedule object is separate from a successful business result.
 
 You first need a Prompt Agent that runs on the server. Use L05's File search agent
 for this routine. L13/L14 Agent Framework roles execute in local code and are not remote routine targets. Scheduling an agent with local client-side functions does not execute those local functions.
-Distinguish the GA status of the Routines service from the Beta status of the azd extension, and check current conditions such as CMK limitations.
+Distinguish the GA status of the Routines service from the Beta status of the azd extension, and check current conditions such as CMK limitations. Routines are unavailable in UK West, Switzerland West, Japan West, UAE North, and Norway East; if **Routines** is not visible in Microsoft Foundry, record this lab as not performed ([official article](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines)).
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
+azd version
+azd extension list
+azd ai routine --help
 ```
 
 <div class="command-explanation" markdown="1">
@@ -43,7 +43,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `azd version` | Checks the current azd version. The preceding `AZURE_DEV_USER_AGENT=...` is an environment variable identifying this command process. | Prints a local version. It does not mean the skill is installed, a user is signed in, or permissions have been granted. |
+| 1. `azd version` | Checks the current azd version. | Prints a local version. It does not mean the skill is installed, a user is signed in, or permissions have been granted. |
 | 2. `azd extension list` | Lists installed extensions and their versions. | Reads the list only; it does not automatically install or upgrade anything. |
 | 3. `azd ai routine --help` | Reads the actual subcommands and options available in the installed extension. | Shows help; no schedule creation or inference. |
 
@@ -69,8 +69,8 @@ Follow **one manual execution → one timer execution → verify both disabled**
 
 ```bash
 python samples/routine_lab.py create --agent ACTUAL_AGENT_NAME --receipt results/routine-en-manual.json
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py create --agent ACTUAL_AGENT_NAME --receipt results/routine-en-manual.json --live
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispatch --receipt results/routine-en-manual.json --live
+python samples/routine_lab.py create --agent ACTUAL_AGENT_NAME --receipt results/routine-en-manual.json --live
+python samples/routine_lab.py dispatch --receipt results/routine-en-manual.json --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -99,7 +99,7 @@ Using the path below with a new receipt creates a **one-time timer** for 2 minut
 Do not substitute manual dispatch for successful scheduled execution.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py scheduled-test --agent ACTUAL_AGENT_NAME --receipt results/routine-en-scheduled.json --delay-seconds 120 --wait-seconds 360 --live
+python samples/routine_lab.py scheduled-test --agent ACTUAL_AGENT_NAME --receipt results/routine-en-scheduled.json --delay-seconds 120 --wait-seconds 360 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -140,8 +140,8 @@ Open the `Evidence:` original beside its receipt and connect **same agent → af
 **Read the screen:** Under **Agents → Routines**, first find your schedule name and target agent. The UI may label the stopped state **Paused**; the value to verify in the CLI/API is `enabled=false`. Connect **Last run** to your trace/response from the previous step and inspect the business output.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py status --receipt results/routine-en-scheduled.json --live
+python samples/routine_lab.py stop --receipt results/routine-en-scheduled.json --live
+python samples/routine_lab.py status --receipt results/routine-en-scheduled.json --live
 ```
 
 <div class="command-explanation" markdown="1">

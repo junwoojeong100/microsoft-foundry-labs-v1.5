@@ -16,6 +16,7 @@ Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, A
 | JSON / JSONL | Named data values / one JSON record per line | Commands to execute in a terminal |
 | `true` / `false` / `null` | True / false / no value; `order_submitted=false` means no order was submitted | Treating null as success, zero cost, or no problem |
 | Receipt | A record of resource IDs and the lab's ownership scope | A payment receipt or deletion approval |
+| Sample receipt | The fictional purchase receipt (`data/en/receipt.html`) used as input in the optional L03 Vision exercise | The ownership Receipt or a real payment document |
 | RBAC / Scope | Role-based permissions / the boundary where they apply | Full access obtained by signing in |
 | Microsoft Foundry resource | A parent Microsoft Azure resource grouping resources related to security, management, and billing | A single agent |
 | Project | A workspace for agents, connections, data, and related work | A Classic hub |

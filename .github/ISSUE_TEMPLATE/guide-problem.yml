@@ -1,0 +1,73 @@
+name: Guide problem or suggestion
+description: Report an error, a step that did not work, or an improvement for the Microsoft Foundry lab guide
+title: "[Guide] "
+labels: ["guide-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the guide. **Do not paste `.env`, keys, tokens, subscription or tenant IDs, or personal data.** Describe the problem with the items below.
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      options:
+        - L00 Start here
+        - L01 Environment (Project, RBAC)
+        - L02 Model deployment
+        - L03 Responses API
+        - L04 Prompt Agent
+        - L05 File search (RAG)
+        - L06 Function calling
+        - L07 MCP and OpenAPI
+        - L08 Evaluation
+        - L09 Safety
+        - L10 Tracing
+        - L11 to L18 Optional labs
+        - L19 Wrap-up and cost
+        - Appendix A to E
+        - Whole guide or site
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Guide language
+      options:
+        - Korean
+        - English
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where you ran it
+      options:
+        - GitHub Codespaces
+        - My own PC (Windows)
+        - My own PC (macOS)
+        - My own PC (Linux)
+        - Only reading the guide
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The step or command, the first error line, the status or error code, and the time with its time zone.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: textarea
+    id: checked
+    attributes:
+      label: What you already checked
+      description: The troubleshooting rows you tried, and anything you changed just before.
+  - type: input
+    id: version
+    attributes:
+      label: Guide version
+      description: The commit or the date shown where you downloaded the guide, if you know it.

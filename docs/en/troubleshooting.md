@@ -14,6 +14,8 @@
 | Packages disappear in a new terminal | Use [L01's new-terminal check](#l01-new-terminal), including the English profile. Do not reinstall packages into a different Python |
 | `read-result` reports a file, format, or language error | Check L06's `Responses:` path, the `-responses.jsonl` ending, and English profile. Ownership receipts and L08 JSON use different formats; do not fix this with another paid call |
 | No project in the portal | Compare your L01 account, tenant, receipt, and creation state; do not duplicate the environment or erase records |
+| L01 `create` stops halfway or is interrupted | Fix the first error line (policy, permission, region, timeout) and **run the same command again**. An attempt that created nothing is kept automatically as `results/azure-environment.failed-<time>.json` (never deleted) |
+| `.env:N: unknown setting` / `FOUNDRY_LAB_LANGUAGE` error | Select the language in the terminal with `export FOUNDRY_LAB_LANGUAGE=en` and keep only `FOUNDRY_…` settings in `.env`. Save the four settings with `python scripts/azure_environment.py env --write` and check with `python samples/workshop.py doctor` |
 
 ## A 60-second diagnostic sequence
 
@@ -23,7 +25,8 @@
 | --- | --- |
 | `PLAN ONLY` / `plan_only=true` | Normal plan output, not live Microsoft Azure execution. Continue with the stated live command only after approval conditions are ready |
 | L06 stock/quantity errors | Expected rejection for the specified failure inputs; record the error kind and continue |
-| L07 `Approval required` | Expected unapproved-local-call rejection; compare it with the exact one-call approval command |
+| L07 `Approval required` | Expected unapproved-local-call rejection (a one-line `ERROR: Approval required: …`, exit code 2); compare it with the exact one-call approval command |
+| An L08 command leaves `…failed-<time>.json` and stops | A record from before any model or agent request. Fix the cause (sign-in, deployment name, `.env`) and run the same command again. Never overwrite or resample an original once requests started |
 | Two initial L17 / three initial L18 test failures | Deliberate exercise defects; repair only `exercise.py` and rerun the same tests |
 | Server does not return to an input prompt | Normal while waiting; check health/readiness in the second terminal, not the server window |
 | Windows MCP JSON parsing error | Use L07's **Windows PowerShell block**; a JSON format error is not an approval rejection |
@@ -95,7 +98,7 @@ Items already checked:
 Paid resources that may still remain:
 ```
 
-Redact internal endpoints and tenant/subscription IDs as appropriate for the audience as well. Do not attach secrets, tokens, or real user data.
+Redact internal endpoints and tenant/subscription IDs as appropriate for the audience as well. Do not attach secrets, tokens, or real user data. To report a problem with the guide itself or suggest an improvement, fill in only the items above in a [GitHub issue](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/issues/new/choose).
 
 ## When the screen differs from the documentation
 

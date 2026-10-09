@@ -27,7 +27,7 @@ Do not judge memory success merely from a natural-language answer that happens t
 
 ## Prerequisites
 
-Memory is in **Preview** and requires a supported region, chat/embedding deployments, and project roles.
+Memory is in **Preview** and requires a [supported region](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory) (checked 2026-10-09: East US 2 is listed, East US is not), chat/embedding deployments, and project roles.
 Current VNet integration limitations mean you must not change a private environment's security settings just to run the lab.
 Prepare the core Python SDK environment and `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME` in the English checkout's `.env`, with `FOUNDRY_LAB_LANGUAGE=en` selected.
 

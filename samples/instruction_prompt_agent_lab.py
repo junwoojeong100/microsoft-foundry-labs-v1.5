@@ -13,6 +13,8 @@ from azure.ai.projects.models import PromptAgentDefinition
 from cloud import project_client
 from evidence import Budget, digest, redacted, serializable
 from grounding import answer_format
+from lab_cli import run
+from original_files import Attempt, open_original, retryable_original
 from instruction_lab import (
     MAX_CALLS_PER_LANGUAGE,
     MAX_OUTPUT_TOKENS,
@@ -114,6 +116,13 @@ def _create_versions(project, agent_name: str, prompts: dict[str, str], schema: 
 
 
 def compare(output: Path, *, max_seconds: int = MAX_SECONDS_PER_LANGUAGE) -> dict:
+    # A failure before the first Azure change (no sign-in, wrong deployment name) keeps its record under
+    # a .failed-<time> name, so the same command can be run again after the cause is fixed.
+    with retryable_original(output) as attempt:
+        return _compare(output, max_seconds, attempt)
+
+
+def _compare(output: Path, max_seconds: int, attempt: Attempt) -> dict:
     from azure.core.exceptions import AzureError
     from openai import OpenAIError
 
@@ -124,7 +133,7 @@ def compare(output: Path, *, max_seconds: int = MAX_SECONDS_PER_LANGUAGE) -> dic
     if not output.resolve().is_relative_to(RESULTS.resolve()):
         raise ValueError("Keep Prompt Agent comparison originals inside results/.")
     output.parent.mkdir(parents=True, exist_ok=True)
-    descriptor = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    descriptor = open_original(output, attempt)
 
     caseset = cases()
     sources = {row["id"]: row for row in policy_chunks()}
@@ -197,6 +206,7 @@ def compare(output: Path, *, max_seconds: int = MAX_SECONDS_PER_LANGUAGE) -> dic
                     model_identity=serializable(target),
                 )
                 agent_name = PROMPT_AGENT_NAMES[LANGUAGE] + "-" + uuid4().hex[:8]
+                attempt.side_effects = True
                 versions = _create_versions(project, agent_name, prompts, schema, report, persist, model=model)
                 report["prompt_agent_versions"] = {
                     "agent_name": agent_name,
@@ -324,4 +334,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

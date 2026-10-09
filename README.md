@@ -27,7 +27,7 @@ Collapsed **implementation references and optional extensions** are not required
 
 ### Default environment: GitHub Codespaces
 
-With a browser and GitHub account, open **repository → Code → Codespaces → New with options**. Review the lab branch, payer, allowance, and machine before creating it. Tool and package preparation and the readiness checks are grouped in [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-codespaces).
+With a browser and GitHub account, open **repository → Code → Codespaces → New with options**. Review the default branch (`main`), payer, allowance, and machine before creating it. Tool and package preparation and the readiness checks are grouped in [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-codespaces).
 
 Use **Linux/Bash commands** in Codespaces even from a Windows PC. Microsoft Azure sign-in and resource creation are separate steps. At [L19](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l12), check Microsoft Azure resources and the Codespace **separately**. Stopping a Codespace can leave storage charges and Microsoft Azure resource charges.
 
@@ -59,7 +59,7 @@ The kit pins **`gpt-6-sol / 2026-09-22`**; L01 creates deployment `contoso-chat`
 | Markdown | [English](downloads/GUIDE.en.md) · [한국어](downloads/GUIDE.ko.md) |
 | Complete kit | [Bilingual ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
 | Narrated walkthroughs | [Chapter player](downloads/replay/index.html) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4) |
-| Synthetic receipt | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
+| Sample receipt (optional L03 image input) | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
 
 For a file-by-file code reference, see [English](samples/README.md) or [한국어](samples/README.ko.md).
 
@@ -98,7 +98,7 @@ npm run guide:browser
 python scripts/package_guide.py
 ```
 
-The same checked-in sources produce both HTML/Markdown editions and one ZIP. Keep local reports under private `results/documentation/`; do not package them.
+The same checked-in sources produce both HTML/Markdown editions and one ZIP. The validation workflow fails when regenerated HTML/Markdown differ from the committed files, and `python scripts/package_guide.py --check` fails when the committed ZIP differs from the sources. The ZIP is built to be reproducible (fixed timestamps, sorted entries), and the existing ZIP is replaced only after every check passed. Keep local reports under private `results/documentation/`; do not package them.
 Local checks are not Microsoft Azure execution or measured model improvement.
 
 Learner-facing numbers come from `number` in `content/chapters.json`. Existing IDs and source filenames remain stable identifiers for links, progress, and historical records, so they can differ from display numbers. The former `#l11` link opens L06's integration review; historical validation numbers and originals remain unchanged.
@@ -113,8 +113,11 @@ Pages serves the **root of the `main` branch** (`/`). A push to `main` automatic
 Merging into `main` still requires approval and now also publishes the site. Regenerate and review HTML/Markdown/ZIP before merging; Pages does not run the guide generators.
 The existing validation workflow and Pages deployment run independently: **Pages does not wait for validation to finish**.
 Keep `.nojekyll` and do not force-push. Branch deletion, repository visibility changes, and Microsoft Azure operations require explicit approval.
-Use `python scripts/check_pages.py` after deployment to compare the public HTML/assets with the merged sources.
+Use `python scripts/check_pages.py` after deployment to compare the public HTML, assets, and ZIP with the merged sources. `python scripts/check_links.py` reports official pages that changed after the recorded source-review date (`--fail-on-changed` turns that into a failure).
+To shorten Codespaces startup for learners, you can configure a prebuild for `main` under the repository's **Settings → Codespaces** (optional; it uses quota).
 
 </details>
 
 This is not an official Microsoft curriculum. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
+
+The repository's code and documentation are released under the [MIT License](LICENSE); Microsoft product names, the icon, and portal screenshots are excluded. Report guide problems or suggestions as an [issue](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/issues/new/choose); never paste `.env`, keys, or personal data.

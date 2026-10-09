@@ -10,6 +10,7 @@ from uuid import uuid4
 
 from cloud import project_client
 from evidence import Budget, Evidence
+from lab_cli import run
 from workshop import LANGUAGE, RESULTS, config_values, save_json
 
 STATE = RESULTS / "memory.json"
@@ -140,4 +141,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

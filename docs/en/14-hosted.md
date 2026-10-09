@@ -75,14 +75,14 @@ Use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-l
 
 <a id="l12-azd"></a>
 
-**If azd is missing in Codespaces,** use the approved **Linux installation path** in the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd), then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
+**Codespaces provides azd 1.34.0 and also tries to install the `azure.ai.agents` extension.** Use the commands below to check the version, extension, and sign-in, and install only what is missing. Follow the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) only where azd is absent (for example the PC alternative), then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
 
 azd and Microsoft Azure CLI have separate authentication. Check versions/extensions and sign-in first. Use the Bash commands below unchanged in Codespaces.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
+azd version
+azd extension list
+azd auth login --check-status
 ```
 
 <div class="command-explanation" markdown="1">
@@ -100,8 +100,8 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
 Run only the missing prerequisite below. Do not reinstall a compatible existing environment.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension install azure.ai.agents --version 1.0.0-beta.10
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login
+azd extension install azure.ai.agents --version 1.0.0-beta.10
+azd auth login
 ```
 
 <div class="command-explanation" markdown="1">
@@ -142,8 +142,8 @@ python scripts/build_hosted.py
 
 ### 2. Run and invoke locally
 
-In the server terminal, run the following bundled helper. It passes only approved, non-secret values
-from the L01/L11 `.env` and `results/search.json` to the child process.
+In the server terminal, run the following bundled helper. It adds the non-secret settings
+from the L01/L11 `.env` and `results/search.json` to your current shell environment and passes both to the child process. Other variables you exported are inherited too, so keep tokens and keys out of shell environment variables.
 
 ```bash
 python scripts/run_hosted_local.py
@@ -155,7 +155,7 @@ python scripts/run_hosted_local.py
 
 | # / Command | What it does and options | Result / cost or changes |
 | --- | --- | --- |
-| 1. `run_hosted_local.py` | Starts the default Invocations server on loopback port 8088 and passes safe environment settings to the child process. | Keep the server terminal open. Even when execution is local, real requests can use Microsoft Azure models and search. Stop it with Ctrl+C when finished. |
+| 1. `run_hosted_local.py` | Starts the default Invocations server on loopback port 8088 and passes the `.env` project settings plus your current shell environment to the child process. | Keep the server terminal open. Even when execution is local, real requests can use Microsoft Azure models and search. Stop it with Ctrl+C when finished. |
 
 </div>
 
@@ -222,8 +222,8 @@ Bind your L01 receipt and L11 Search settings to azd. Verify deployment/runtime-
 
 ```bash
 python scripts/configure_hosted.py
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing --no-prompt
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai agent show contoso-purchasing --output json
+azd deploy contoso-purchasing --no-prompt
+azd ai agent show contoso-purchasing --output json
 python scripts/runtime_roles.py --agent contoso-purchasing --live
 ```
 

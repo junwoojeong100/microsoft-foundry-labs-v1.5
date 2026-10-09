@@ -70,7 +70,7 @@
 
 | 명령 파일 | 용도 |
 | --- | --- |
-| `scripts/azure_environment.py` | L01에서 참여자가 직접 전용 환경·모델·역할·로그를 만들고 L11에서 Search를 추가합니다. 생성·변경에는 `--live`와 해당 권한·비용 범위가 필요합니다. |
+| `scripts/azure_environment.py` | L01에서 참여자가 직접 전용 환경·모델·역할·로그를 만들고 L11에서 Search를 추가합니다. 생성·변경에는 `--live`와 해당 권한·비용 범위가 필요합니다. `env`는 소유 기록의 project endpoint·배포 이름을 `.env`에 저장하며(`--write`) Microsoft Azure를 호출하지 않습니다. |
 | `scripts/build_hosted.py`, `run_hosted_local.py`, `configure_hosted.py`, `runtime_roles.py` | Hosted Agent의 빌드·로컬 실행·구성·권한 설정입니다. 단순 Python 문법 실습이 아닙니다. |
 | `scripts/stop_sessions.py`, `operations_status.py`, `cost_status.py` | 기록된 세션 중지 또는 소유 환경의 상태·비용을 확인합니다. L19 안내를 따릅니다. |
 | `scripts/build_guide.py`, `check_guide.py`, `package_guide.py` | 가이드 원본의 생성·검사·패키징입니다. L18의 문서 자동화 참고이며 AI agent 배포나 Microsoft Foundry 실행을 대신하지 않습니다. |
@@ -87,7 +87,9 @@
 | [evaluation_data.py](evaluation_data.py) | 평가 데이터 버전과 split을 다룹니다. 개발 데이터 읽기가 잠긴 holdout 자료를 열지 않도록 합니다. |
 | [grounding.py](grounding.py) | 실제 검색된 자료에 근거해 인용을 선택·검사합니다. 추측한 출처를 만들지 않습니다. |
 | [hosted_runtime.py](hosted_runtime.py) | 로컬·Hosted 호출이 공유하는 한 번의 제한된 구매 에이전트 처리 흐름입니다. |
+| [lab_cli.py](lab_cli.py) | 실습 진입점을 실행하고, 예상된 학습자 오류를 트레이스백 대신 `ERROR:` 한 줄(종료 코드 2)로 보여 줍니다. 트레이스백이 필요하면 `FOUNDRY_LAB_DEBUG=1`을 설정합니다. |
 | [lab_profile.py](lab_profile.py) | `FOUNDRY_LAB_LANGUAGE`에 따라 한국어 또는 영어 합성 자료를 선택해 두 프로필이 섞이지 않게 합니다. |
+| [original_files.py](original_files.py) | 한 번만 만드는 결과 원본을 보호합니다. Microsoft Azure를 바꾸기 전에 실패한 실행은 기록을 `…failed-<시각>.json`으로 보관해 같은 명령을 다시 실행할 수 있게 합니다. |
 | [request_contract.py](request_contract.py) | 도구 초안의 입력이 사용자의 명시 요청에 근거하는지 검사하고 임의로 만들어진 수량을 거부합니다. |
 | [inventory.openapi.json](inventory.openapi.json) | L07 로컬 재고 API의 OpenAPI 계약입니다. 서버 주소는 `127.0.0.1`이며 Microsoft Foundry에서 직접 접근할 수 없습니다. |
 

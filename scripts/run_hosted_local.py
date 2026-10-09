@@ -1,4 +1,4 @@
-"""Run the generated loopback Hosted server using only explicitly allowed nonsecret settings."""
+"""Run the generated loopback Hosted server. It inherits your shell environment and adds the nonsecret project settings from .env."""
 
 import argparse
 import os
@@ -9,6 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from search_lab import configuration
+from lab_cli import run
 from workshop import config_values, read_config
 
 
@@ -37,4 +38,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

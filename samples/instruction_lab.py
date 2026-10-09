@@ -12,7 +12,9 @@ import time
 from cloud import project_client
 from evidence import Budget, digest, redacted, serializable
 from grounding import answer_format, parse_answer
+from lab_cli import run
 from model_capacity import Management, inspect_deployments, load_scope, require_ready, requirements
+from original_files import Attempt, open_original, retryable_original
 from search_lab import policy_chunks
 from workshop import DATA, LANGUAGE, RESULTS, ROOT, config_values, ensure_response
 
@@ -192,6 +194,13 @@ def verify_profile(endpoint: str, model: str, *, roles: tuple[str, ...] = ("chat
 
 
 def compare(output: Path, *, reasoning_effort: str | None = "low", max_seconds: int = MAX_SECONDS_PER_LANGUAGE) -> dict:
+    # A failure before the first model request (no sign-in, wrong deployment name) keeps its record under
+    # a .failed-<time> name, so the same command can be run again after the cause is fixed.
+    with retryable_original(output) as attempt:
+        return _compare(output, reasoning_effort, max_seconds, attempt)
+
+
+def _compare(output: Path, reasoning_effort: str | None, max_seconds: int, attempt: Attempt) -> dict:
     from azure.core.exceptions import AzureError
     from openai import OpenAIError
 
@@ -207,7 +216,7 @@ def compare(output: Path, *, reasoning_effort: str | None = "low", max_seconds: 
     if not output.resolve().is_relative_to(RESULTS.resolve()):
         raise ValueError("Keep raw comparison originals inside results/.")
     output.parent.mkdir(parents=True, exist_ok=True)
-    descriptor = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    descriptor = open_original(output, attempt)
     report = {
         "schema": "contoso-instruction-comparison",
         "language": LANGUAGE,
@@ -278,6 +287,7 @@ def compare(output: Path, *, reasoning_effort: str | None = "low", max_seconds: 
                         if remaining <= 0:
                             raise TimeoutError("Per-language response-collection budget exhausted.")
                         started = time.monotonic()
+                        attempt.side_effects = True
                         response = client.responses.create(
                             model=model,
                             instructions=prompts[version],
@@ -381,4 +391,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

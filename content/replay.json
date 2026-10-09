@@ -1,6 +1,6 @@
 {
   "title": {"ko": "Contoso 구매 에이전트 · 전체 실습 요약", "en": "Contoso purchasing assistant · complete lab walkthrough"},
-  "notice": {"ko": "내레이션·명령·도식으로 보는 실습 요약 · 실시간 포털 녹화가 아닌 설명용 영상입니다.", "en": "Narrated lab summary with commands and diagrams; not a live portal recording."},
+  "notice": {"ko": "내레이션·명령·도식으로 보는 실습 요약 · 실시간 포털 녹화가 아닌 설명용 영상입니다. L01의 준비 장면은 내 PC 경로이며 기본 환경은 GitHub Codespaces이므로 현재 L01을 따르세요.", "en": "Narrated lab summary with commands and diagrams; not a live portal recording. The L01 preparation scene shows the PC route; Codespaces is the default environment, so follow the current L01."},
   "chapters": [
     {
       "id": "l00",

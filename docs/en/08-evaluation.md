@@ -125,7 +125,7 @@ python samples/instruction_evaluation.py --input results/instruction-prompt-agen
 
 </div>
 
-Keep Korean and English input/output paths distinct. Across both languages, collection is bounded to 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count.
+Keep Korean and English input/output paths distinct. Each run is limited to 24 responses and 600 seconds; across both languages the total is at most 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count. If the collection or evaluation command stopped **before any model, agent, or evaluator request** (not signed in, wrong deployment name, a `.env` error), its record is kept as `…failed-<time>.json` and you can run the same command again.
 
 When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request.
 
@@ -193,6 +193,8 @@ Record **the request / both actual answers / relevant policy sections / the judg
 ### 4. Distinguish scores from completed execution
 
 Native completeness, relevance, and groundedness use **1–5 ordinal** scores. Relevance and groundedness use built-in evaluators; completeness uses the same custom rubric for both instructions. The binary summary of scores at least four is not the five-point scale itself.
+
+Note: Microsoft Learn's current agent-evaluation article (checked 2026-10-09) presents generated rubric evaluators (weighted dimensions, score normalized to 0–1) as the recommended primary measure and requires `azure-ai-projects` 2.8.0 or later. This lab keeps its pinned SDK (2.7.0) and the fixed 1–5 completeness evaluator, so do not compare the two scales.
 
 The local checklist checks forty criteria across twelve questions using **mechanical text-and-citation matching**. It can miss paraphrases and is not a semantic evaluator or a business safety/access gate.
 

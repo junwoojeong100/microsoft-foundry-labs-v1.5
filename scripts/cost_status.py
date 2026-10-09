@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 from evidence import Evidence
 from lab_profile import validation_for
+from lab_cli import run
 from workshop import RESULTS, save_json
 from azure_environment import az, owned
 
@@ -46,4 +47,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

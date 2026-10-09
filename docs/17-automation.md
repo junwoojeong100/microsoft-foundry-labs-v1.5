@@ -29,12 +29,12 @@
 
 서버에서 실행되는 Prompt Agent가 먼저 필요합니다. L05의 File search agent를 사용하세요.
 L13·L14의 Agent Framework 역할은 로컬 코드에서 실행되므로 예약 대상이 아닙니다. 로컬 client-side 함수 agent를 예약해도 로컬 함수는 실행되지 않습니다.
-서비스 Routines의 GA와 azd 확장의 Beta 상태를 구분하고, CMK 제한 등 현재 조건을 확인합니다.
+서비스 Routines의 GA와 azd 확장의 Beta 상태를 구분하고, CMK 제한 등 현재 조건을 확인합니다. Routines는 UK West·Switzerland West·Japan West·UAE North·Norway East에서 사용할 수 없으며, Microsoft Foundry 포털에 **Routines**가 보이지 않으면 이 실습은 미실행으로 기록합니다([공식 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines)).
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
+azd version
+azd extension list
+azd ai routine --help
 ```
 
 <div class="command-explanation" markdown="1">
@@ -43,7 +43,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai routine --help
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `azd version` | 현재 azd 버전을 확인합니다. 앞의 `AZURE_DEV_USER_AGENT=...`는 이 명령 프로세스의 식별용 환경 변수입니다. | 로컬 버전 출력. skill 설치·로그인·권한 부여를 뜻하지 않습니다. |
+| 1. `azd version` | 현재 azd 버전을 확인합니다. | 로컬 버전 출력. skill 설치·로그인·권한 부여를 뜻하지 않습니다. |
 | 2. `azd extension list` | 설치된 확장과 버전을 나열합니다. | 목록 조회만 하며 자동 설치/업그레이드하지 않습니다. |
 | 3. `azd ai routine --help` | 설치된 확장의 실제 하위 명령과 옵션을 읽습니다. | 도움말 확인이며 예약 생성·추론은 하지 않습니다. |
 
@@ -69,8 +69,8 @@ CLI 확장/전역 설정을 자동 업그레이드하거나 다른 환경의 리
 
 ```bash
 python samples/routine_lab.py create --agent 실제-agent-name --receipt results/routine-v2-manual.json
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py create --agent 실제-agent-name --receipt results/routine-v2-manual.json --live
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispatch --receipt results/routine-v2-manual.json --live
+python samples/routine_lab.py create --agent 실제-agent-name --receipt results/routine-v2-manual.json --live
+python samples/routine_lab.py dispatch --receipt results/routine-v2-manual.json --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -99,7 +99,7 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py dispa
 수동 dispatch를 예약 성공으로 대신 표시하지 않습니다.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py scheduled-test --agent 실제-agent-name --receipt results/routine-v2-scheduled.json --delay-seconds 120 --wait-seconds 360 --live
+python samples/routine_lab.py scheduled-test --agent 실제-agent-name --receipt results/routine-v2-scheduled.json --delay-seconds 120 --wait-seconds 360 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -140,8 +140,8 @@ trace를 읽을 수 없다면 **실행 미확인**으로 종료하며 성공이�
 **화면 따라 읽기:** **Agents → Routines**에서 자기 예약 이름과 대상 agent를 먼저 찾습니다. UI의 중지 표시는 **Paused**, CLI/API에서 확인할 값은 `enabled=false`입니다. **Last run**을 앞 단계의 trace/response와 연결해 업무 출력도 확인합니다.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py stop --receipt results/routine-v2-scheduled.json --live
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill python samples/routine_lab.py status --receipt results/routine-v2-scheduled.json --live
+python samples/routine_lab.py stop --receipt results/routine-v2-scheduled.json --live
+python samples/routine_lab.py status --receipt results/routine-v2-scheduled.json --live
 ```
 
 <div class="command-explanation" markdown="1">

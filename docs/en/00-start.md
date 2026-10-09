@@ -171,7 +171,7 @@ Replace the core environment's `python` with `.\.venv\Scripts\python.exe`: for e
 <details markdown="1">
 <summary>For advanced commands: environment variables, continued lines, and azd</summary>
 
-A `KEY=value` prefix passes an environment variable to **that command only** in Codespaces Bash. If you chose PowerShell on your PC, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in Bash; do not paste it unchanged into PowerShell. Combine the command into one line instead. `AZURE_DEV_USER_AGENT=microsoft_foundry_skill` only identifies the authoring tool; learners do not need to install a Copilot skill.
+A `KEY=value` prefix passes an environment variable to **that command only** in Codespaces Bash. If you chose PowerShell on your PC, set `$env:KEY = "value"` for the current session, run the command portion, and restore the previous value when finished. A trailing `\` continues a line in Bash; do not paste it unchanged into PowerShell. Combine the command into one line instead.
 
 </details>
 

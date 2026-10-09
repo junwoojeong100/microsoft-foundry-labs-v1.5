@@ -172,7 +172,7 @@ python samples/first_response.py --query "회사 규정이 없는데 노트북 �
 | Streaming | 첫 출력 시간과 최종 완료 시간을 구분 |
 | Structured outputs | JSON parse·schema·타입 검사를 모두 확인 |
 | Embeddings | 검색용 벡터이지 답변 생성이 아님 |
-| Vision | 지원 모델의 합성 영수증 입력을 원본 가격·수량과 비교 |
+| Vision | 지원 모델에 [샘플 영수증](../data/receipt.html)을 이미지·PDF로 입력(브라우저 인쇄 → 저장)하고, 읽은 문서 번호·품목·수량·합계를 `data/receipt.expected.json`(KB-01 2개 × 89,000원 = 178,000원, 승인 대기)과 비교 |
 
 모델별 API·도구 지원이 다르므로 새 옵션을 추가하기 전에 모델 카드와 공식 SDK 예제를 확인합니다.
 

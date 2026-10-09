@@ -1,18 +1,19 @@
 """Bind azd locally to the owned project; never provisions or prints credentials."""
 
-import json
 from pathlib import Path
 import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
+from azure_environment import load_ledger
+from lab_cli import run
 from workshop import LANGUAGE, config_values, read_config
 from search_lab import configuration
 
 
 def main():
-    state = json.loads((ROOT / "results/azure-environment.json").read_text())
+    state = load_ledger()
     endpoint, model = read_config()
     if endpoint != state["project_endpoint"]:
         raise ValueError("Local endpoint differs from the owned environment; binding refused.")
@@ -42,4 +43,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

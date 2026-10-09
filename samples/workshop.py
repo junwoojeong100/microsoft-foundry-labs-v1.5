@@ -25,6 +25,7 @@ ENDPOINT_KEY = "FOUNDRY_PROJECT_ENDPOINT"
 MODEL_KEY = "FOUNDRY_MODEL_DEPLOYMENT_NAME"
 MAX_TOOL_CALLS = 8
 MAX_ROUNDS = 5
+RUN_BUDGET = {"max_requests": 60, "max_tokens": 150_000, "max_seconds": 900}
 
 
 class ToolInputError(ValueError):
@@ -55,45 +56,129 @@ def save_json(path: Path, value: Any) -> None:
     temporary.replace(path)
 
 
+ALLOWED_ENV_KEYS = frozenset({
+    ENDPOINT_KEY, MODEL_KEY, "FOUNDRY_SEARCH_ENDPOINT", "FOUNDRY_SEARCH_INDEX",
+    "FOUNDRY_KNOWLEDGE_BASE", "FOUNDRY_EMBEDDING_DEPLOYMENT_NAME",
+    "FOUNDRY_JUDGE_DEPLOYMENT_NAME", "FOUNDRY_AUTH_MODE", "FOUNDRY_MANAGED_IDENTITY_CLIENT_ID",
+    "FOUNDRY_EMBEDDING_ENDPOINT",
+})
+
+
+def env_pair(line: str) -> tuple[str, str] | None:
+    """Parse one `.env` line; None for blank, comment, or non-assignment lines.
+
+    Accepts a leading `export `, quoted values, and a trailing ` # comment`.
+    """
+    text = line.strip()
+    if not text or text.startswith("#"):
+        return None
+    if text.startswith("export "):
+        text = text[len("export "):].lstrip()
+    if "=" not in text:
+        return None
+    key, value = text.split("=", 1)
+    value = value.strip()
+    if value[:1] in ("'", '"') and value.find(value[0], 1) > 0:
+        value = value[1:value.find(value[0], 1)]
+    else:
+        value = re.split(r"\s+#", value, maxsplit=1)[0].strip().strip("'\"")
+    return key.strip(), value
+
+
 def config_values(path: Path = ROOT / ".env") -> dict[str, str]:
     values: dict[str, str] = {}
-    allowed = {
-        ENDPOINT_KEY, MODEL_KEY, "FOUNDRY_SEARCH_ENDPOINT", "FOUNDRY_SEARCH_INDEX",
-        "FOUNDRY_KNOWLEDGE_BASE", "FOUNDRY_EMBEDDING_DEPLOYMENT_NAME",
-        "FOUNDRY_JUDGE_DEPLOYMENT_NAME", "FOUNDRY_AUTH_MODE", "FOUNDRY_MANAGED_IDENTITY_CLIENT_ID",
-        "FOUNDRY_EMBEDDING_ENDPOINT",
-    }
     if path.exists():
-        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            line = line.strip()
-            if not line or line.startswith("#"):
+        for number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
+            if not line.strip() or line.strip().startswith("#"):
                 continue
-            if "=" not in line:
+            pair = env_pair(line)
+            if pair is None:
                 raise ValueError(f".env:{number}: expected KEY=value")
-            key, value = line.split("=", 1)
-            if key.strip() not in allowed:
-                raise ValueError(f".env:{number}: unknown setting; credentials are not allowed")
-            values[key.strip()] = value.strip().strip("'\"")
-    return {key: os.environ.get(key, values.get(key, "")) for key in allowed}
+            key, value = pair
+            if key == "FOUNDRY_LAB_LANGUAGE":
+                raise ValueError(
+                    f".env:{number}: FOUNDRY_LAB_LANGUAGE is a shell setting, not a .env setting. "
+                    "Run `export FOUNDRY_LAB_LANGUAGE=en` in each English terminal and delete this line."
+                )
+            if key not in ALLOWED_ENV_KEYS:
+                raise ValueError(
+                    f".env:{number}: unknown setting {key!r}. Allowed settings: {', '.join(sorted(ALLOWED_ENV_KEYS))}. "
+                    "Credentials are never stored in .env."
+                )
+            values[key] = value
+    return {key: os.environ.get(key, values.get(key, "")) for key in ALLOWED_ENV_KEYS}
 
 
-def read_config(path: Path = ROOT / ".env") -> tuple[str, str]:
-    values = config_values(path)
-    endpoint = values[ENDPOINT_KEY].rstrip("/")
-    model = values[MODEL_KEY]
+def validate_endpoint(endpoint: str) -> str:
+    endpoint = endpoint.rstrip("/")
     parsed = urlparse(endpoint)
+    if "YOUR-" in endpoint.upper() or "ACTUAL-RESOURCE" in endpoint.upper() or "실제-" in endpoint:
+        raise ValueError(
+            "The project endpoint in .env is still the example text. Run `python scripts/azure_environment.py env --write` "
+            "or copy project_endpoint from results/azure-environment.json."
+        )
+    if "/openai" in parsed.path:
+        raise ValueError("Use the project endpoint (https://<resource>.services.ai.azure.com/api/projects/<name>), not a model /openai/v1 endpoint.")
     if (
         parsed.scheme != "https"
         or not parsed.hostname
         or not parsed.hostname.endswith(".services.ai.azure.com")
         or not re.fullmatch(r"/api/projects/[A-Za-z0-9._-]+", parsed.path)
         or parsed.username or parsed.password or parsed.query or parsed.fragment or parsed.port
-        or "YOUR-" in endpoint.upper()
     ):
-        raise ValueError("Set a public-cloud Foundry project endpoint in .env; do not use a model /openai/v1 endpoint.")
+        raise ValueError(
+            "Set a public-cloud Foundry project endpoint in .env (https://<resource>.services.ai.azure.com/api/projects/<name>); "
+            "do not use a model /openai/v1 endpoint."
+        )
+    return endpoint
+
+
+def read_config(path: Path = ROOT / ".env") -> tuple[str, str]:
+    values = config_values(path)
+    endpoint = validate_endpoint(values[ENDPOINT_KEY])
+    model = values[MODEL_KEY]
     if not model or "YOUR-" in model.upper() or not re.fullmatch(r"[A-Za-z0-9._-]+", model):
         raise ValueError("Set the actual model deployment name in .env.")
     return endpoint, model
+
+
+def env_report(path: Path = ROOT / ".env", ledger: Path = RESULTS / "azure-environment.json") -> list[str]:
+    """Offline `.env` check for `doctor`. Lines starting with PROBLEM mean a fix is needed."""
+    if not path.exists():
+        return [".env: not configured yet; L01 step 5 fills it in."]
+    try:
+        values = config_values(path)
+    except ValueError as error:
+        return [f"PROBLEM {error}"]
+    lines: list[str] = []
+    endpoint = values[ENDPOINT_KEY]
+    if not endpoint or "YOUR-" in endpoint.upper():
+        lines.append("project endpoint: not set yet (expected until L01 step 5)")
+    else:
+        try:
+            validate_endpoint(endpoint)
+            lines.append("project endpoint: format OK")
+        except ValueError as error:
+            lines.append(f"PROBLEM project endpoint: {error}")
+    model = values[MODEL_KEY]
+    if model and re.fullmatch(r"[A-Za-z0-9._-]+", model) and "YOUR-" not in model.upper():
+        lines.append(f"chat deployment name: {model}")
+    else:
+        lines.append("PROBLEM chat deployment name: set FOUNDRY_MODEL_DEPLOYMENT_NAME to your deployment name (contoso-chat).")
+    if ledger.exists():
+        try:
+            recorded = json.loads(ledger.read_text(encoding="utf-8"))
+        except ValueError:
+            return [*lines, "PROBLEM results/azure-environment.json is not valid JSON."]
+        project = recorded.get("project_endpoint")
+        chat = (recorded.get("model_deployments") or {}).get("chat")
+        if project and endpoint and project.rstrip("/") != endpoint.rstrip("/"):
+            lines.append("PROBLEM .env endpoint differs from results/azure-environment.json; run `python scripts/azure_environment.py env --write`.")
+        elif chat and model and chat != model:
+            lines.append("PROBLEM .env chat deployment differs from results/azure-environment.json; run `python scripts/azure_environment.py env --write`.")
+        elif project and endpoint:
+            lines.append("matches results/azure-environment.json")
+    return lines
 
 
 def inventory() -> dict[str, dict[str, Any]]:
@@ -541,7 +626,7 @@ def run_live(args: argparse.Namespace) -> None:
             raise ValueError("--confirm must equal the run_id in the receipt.")
     receipt = None if args.command in {"model", "cleanup"} else Receipt(endpoint, args.command)
     evidence = Evidence(args.command)
-    budget = Budget(max_requests=60, max_tokens=150_000, max_seconds=900)
+    budget = Budget(**RUN_BUDGET)
     try:
         with (
             AzureCliCredential(process_timeout=30) as credential,
@@ -660,12 +745,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "doctor":
         print(f"Python {sys.version.split()[0]} | Offline inspection only")
         print(f"Local .env: {'present (not printed)' if (ROOT / '.env').exists() else 'not configured'}")
+        checks = env_report()
+        for line in checks:
+            print(f".env check: {line}")
         for package in ("azure-ai-projects", "azure-identity", "openai"):
             try:
                 print(f"{package}: {importlib.metadata.version(package)}")
             except importlib.metadata.PackageNotFoundError:
                 print(f"{package}: not installed (needed only for --live)")
-        return 0
+        return 1 if any(line.startswith("PROBLEM") for line in checks) else 0
     if args.command == "validate-data":
         print(f"Validated {len(validate_data())} cases: dev=10, holdout=10; scenario overlap=0; inventory=3.")
         return 0
@@ -689,6 +777,13 @@ def main(argv: list[str] | None = None) -> int:
             if args.command != "model":
                 print("Creates an isolated agent/conversations and, for retrieval, uploads the three synthetic policy files.")
                 print("Created IDs are saved in results/. Cleanup is explicit, not automatic.")
+                print(
+                    f"Limits per run: at most {RUN_BUDGET['max_requests']} requests, {RUN_BUDGET['max_tokens']:,} tokens "
+                    f"and {RUN_BUDGET['max_seconds']} seconds; no automatic retries."
+                    + (f" At most {MAX_ROUNDS} model rounds and {MAX_TOOL_CALLS} function calls." if args.command == "capstone" else "")
+                )
+            else:
+                print("Limits per run: one model request with at most 2,048 output tokens; no automatic retries.")
         return 0
     if not 0 <= args.case_delay <= 60:
         raise ValueError("--case-delay must be 0..60 seconds.")

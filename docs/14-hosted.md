@@ -75,14 +75,14 @@ L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, �
 
 <a id="l12-azd"></a>
 
-**Codespaces에 azd가 없다면** [공식 Microsoft Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)의 승인된 **Linux 설치 경로**를 따르고 새 터미널을 엽니다. Microsoft Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다. PC 대안을 선택한 경우에만 해당 OS 안내를 따릅니다.
+**Codespaces에는 azd 1.34.0이 준비되어 있고, `azure.ai.agents` 확장도 함께 설치를 시도합니다.** 아래 명령으로 버전·확장·인증을 확인하고 없는 것만 설치합니다. azd가 없는 환경(내 PC 대안 등)에서만 [공식 Microsoft Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)를 따르고 새 터미널을 엽니다. Microsoft Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다. PC 대안을 선택한 경우에만 해당 OS 안내를 따릅니다.
 
 azd는 Microsoft Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. Codespaces에서는 아래 Bash 명령을 그대로 사용합니다.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd version
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension list
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
+azd version
+azd extension list
+azd auth login --check-status
 ```
 
 <div class="command-explanation" markdown="1">
@@ -100,8 +100,8 @@ AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login --check-status
 확장이나 인증이 없는 경우에만 필요한 줄을 실행합니다. 이미 호환되는 환경은 재설치하지 않습니다.
 
 ```bash
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd extension install azure.ai.agents --version 1.0.0-beta.10
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd auth login
+azd extension install azure.ai.agents --version 1.0.0-beta.10
+azd auth login
 ```
 
 <div class="command-explanation" markdown="1">
@@ -143,7 +143,7 @@ python scripts/build_hosted.py
 ### 2. 로컬에서 실행하고 호출하기
 
 서버 터미널에서 다음 동봉 helper를 실행합니다. L01/L11의 `.env`와 `results/search.json`에서
-허용된 비밀 없는 값만 자식 프로세스로 전달합니다.
+비밀이 아닌 설정값을 현재 셸 환경에 더해 자식 프로세스로 전달합니다. 셸에 내보낸 다른 환경 변수도 그대로 상속되므로 토큰·키는 셸 환경 변수에 두지 않습니다.
 
 ```bash
 python scripts/run_hosted_local.py
@@ -155,7 +155,7 @@ python scripts/run_hosted_local.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `run_hosted_local.py` | 기본 Invocations 서버를 loopback 8088 포트에서 시작하고 안전한 환경 설정을 자식 프로세스에 전달합니다. | 서버 터미널을 켜 둡니다. 로컬 실행 위치라도 실제 요청은 Microsoft Azure 모델·검색을 사용할 수 있습니다. 끝나면 Ctrl+C로 중지합니다. |
+| 1. `run_hosted_local.py` | 기본 Invocations 서버를 loopback 8088 포트에서 시작하고 `.env`의 프로젝트 설정과 현재 셸 환경을 자식 프로세스에 전달합니다. | 서버 터미널을 켜 둡니다. 로컬 실행 위치라도 실제 요청은 Microsoft Azure 모델·검색을 사용할 수 있습니다. 끝나면 Ctrl+C로 중지합니다. |
 
 </div>
 
@@ -181,7 +181,7 @@ python samples/hosted_client.py invoke --local --live
 
 **로컬 서버도 실제 Microsoft Azure 모델·검색을 사용하므로 호출에는 비용이 발생합니다.**
 기본 bind는 loopback이며 인증 없는 개발 서버를 외부에 노출하지 않습니다.
-한 요청은 **도구 실행 최대 2라운드 → 답변 1회 → 출처 선택 1회**이며 최대 4회 모델 요청입니다. 도구/답변은 각각 최대 2,048토큰, 출처 선택은 512토큰입니다. 전체 서버 예산은 요청 최대 12회·300초·도구 기록 최대 8회이며 SDK 자동 재시도는 0회입니다.
+한 요청은 **도구 실행 최대 2라운드 → 답변 1회 → 출처 선택 1회**이며 최대 4회 모델 요청입니다. 도구/답변은 각각 최대 2,048토큰, 출처 선택은 512토큰입니다. 전체 서버 예산은 요청 최대 12회·300초·도구 기록 최대 8회이며 SDK 자동 재시도는 0회입니다. 로컬·원격 HTTP client 대기 시간은 **310초**이며, 더 오래 기다린다고 요청이 더 허용되거나 성공이 증명되지는 않습니다.
 
 <details class="optional-path" markdown="1">
 <summary>구현 참고: 서버가 검색·도구·근거 답변을 나누는 방식</summary>
@@ -220,8 +220,8 @@ L01의 자신의 소유 기록과 L11의 Search 설정을 azd에 연결합니다
 
 ```bash
 python scripts/configure_hosted.py
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd deploy contoso-purchasing --no-prompt
-AZURE_DEV_USER_AGENT=microsoft_foundry_skill azd ai agent show contoso-purchasing --output json
+azd deploy contoso-purchasing --no-prompt
+azd ai agent show contoso-purchasing --output json
 python scripts/runtime_roles.py --agent contoso-purchasing --live
 ```
 

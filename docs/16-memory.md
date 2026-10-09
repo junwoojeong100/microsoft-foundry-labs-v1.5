@@ -27,7 +27,7 @@
 
 ## 준비
 
-Memory는 **Preview**이며 지원 지역, chat·embedding 배포, 프로젝트 역할이 필요합니다.
+Memory는 **Preview**이며 [지원 지역](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory)(2026-10-09 확인: East US 2는 목록에 있고 East US는 없음), chat·embedding 배포, 프로젝트 역할이 필요합니다.
 현재 VNet 통합 제한이 있으므로 private 환경의 보안 설정을 바꾸어 실습하지 않습니다.
 Python 기본 SDK 환경과 `.env`의 `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME`을 준비합니다.
 

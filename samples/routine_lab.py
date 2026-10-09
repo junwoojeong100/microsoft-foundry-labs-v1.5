@@ -13,6 +13,7 @@ import time
 from uuid import uuid4
 
 from evidence import Evidence
+from lab_cli import run
 from workshop import LANGUAGE, RESULTS, read_config
 
 STATE = RESULTS / "routine.json"
@@ -333,4 +334,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run(main)

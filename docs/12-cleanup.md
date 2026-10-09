@@ -63,7 +63,7 @@ python scripts/operations_status.py
 
 | 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `stop_sessions.py` | 기록된 Hosted client 세션에 실제 stop을 보내고 같은 ID를 다시 조회합니다. 이 스크립트에는 `--live` 안전 스위치가 없습니다. | 세션 compute 상태를 변경합니다. agent/RG/receipt 삭제는 하지 않으며 미확인 중지는 오류입니다. |
+| 1. `stop_sessions.py` | 기록된 Hosted client 세션에 실제 stop을 보내고 같은 ID를 다시 조회합니다. 이 스크립트에는 `--live` 안전 스위치가 없습니다. | 세션 compute 상태를 변경합니다. agent/RG/receipt 삭제는 하지 않으며 미확인 중지는 오류입니다. 한 건이 실패해도 기록된 나머지 세션을 모두 시도한 뒤 실패 목록을 오류로 알립니다. |
 | 2. `routine_lab.py stop --receipt ... --live` | L16의 정확한 예약 파일을 지정해 disable합니다. 수동/예약용 경로를 구분합니다. | 실제 상태 변경. routine/RG 삭제 없음. 사용한 다른 파일이면 그 경로로 바꿉니다. |
 | 3. `operations_status.py` | 소유 환경의 세션·예약·평가 schedule 등 현재 작업을 조회합니다. | `--live` 없이 실제 Microsoft Azure를 읽습니다. 남은 작업/조회 실패는 미확인·오류로 알립니다. |
 
@@ -110,7 +110,7 @@ cleanup은 기록된 conversation → 실습 전용 agent → vector store → f
 | 게시된 채널·Bot·앱 | 사용자 접근 회수와 자원 정리를 각각 확인 |
 | Fine-tuned deployment·model | 배포 삭제와 학습된 모델 삭제를 구분 |
 
-vector store의 만료만으로 원본 파일이 정리된다고 생각하지 않습니다. 에이전트·프로젝트·연결된 Microsoft Azure 자원은 서로 수명주기가 다를 수 있습니다.
+vector store의 만료만으로 원본 파일이 정리된다고 생각하지 않습니다. 반대로 업로드한 file 객체를 삭제하면 그 파일을 쓰는 모든 vector store·agent·conversation에서 제거되므로, 자기 소유 기록의 file ID만 삭제합니다. 에이전트·프로젝트·연결된 Microsoft Azure 자원은 서로 수명주기가 다를 수 있습니다.
 
 ### 4. 마지막 비용·데이터 확인하기
 
