@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from cloud import Rest, project_client
 from evidence import Budget, Evidence
-from lab_cli import run
+from lab_cli import run as run_cli
 from workshop import DATA, LANGUAGE, RESULTS, ensure_response, save_json
 
 STATE = RESULTS / "a2a.json"
@@ -147,4 +147,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    run(main)
+    run_cli(main)

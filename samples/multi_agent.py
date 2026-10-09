@@ -13,7 +13,7 @@ from typing import Protocol
 
 from evidence import Budget, Evidence, digest
 from model_capacity import INPUT_BUDGET, MIN_START_INTERVAL, STARTS_PER_MINUTE, check_ready, estimate_tokens
-from lab_cli import run
+from lab_cli import run as run_cli
 from workshop import DATA, LANGUAGE, RESULTS, read_config
 
 MAX_SECONDS = 180
@@ -367,4 +367,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    run(main)
+    run_cli(main)

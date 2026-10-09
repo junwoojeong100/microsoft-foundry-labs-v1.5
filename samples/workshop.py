@@ -112,12 +112,13 @@ def config_values(path: Path = ROOT / ".env") -> dict[str, str]:
 def validate_endpoint(endpoint: str) -> str:
     endpoint = endpoint.rstrip("/")
     parsed = urlparse(endpoint)
-    if "YOUR-" in endpoint.upper() or "ACTUAL-RESOURCE" in endpoint.upper() or "실제-" in endpoint:
+    first_label = (parsed.hostname or "").split(".")[0]
+    if "YOUR-" in endpoint.upper() or first_label == "actual-resource" or "실제-" in endpoint:
         raise ValueError(
             "The project endpoint in .env is still the example text. Run `python scripts/azure_environment.py env --write` "
             "or copy project_endpoint from results/azure-environment.json."
         )
-    if "/openai" in parsed.path:
+    if parsed.path.split("/")[1:2] == ["openai"]:
         raise ValueError("Use the project endpoint (https://<resource>.services.ai.azure.com/api/projects/<name>), not a model /openai/v1 endpoint.")
     if (
         parsed.scheme != "https"

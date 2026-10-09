@@ -18,6 +18,7 @@ from urllib.error import HTTPError, URLError
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
 sys.path.insert(0, str(ROOT / "scripts"))
+import ast
 import azure_environment as environment
 import build_guide
 import check_links
@@ -352,6 +353,12 @@ class EnvFileTests(unittest.TestCase):
             with self.subTest(endpoint=endpoint), self.assertRaisesRegex(ValueError, expected):
                 workshop.validate_endpoint(endpoint)
 
+    def test_valid_endpoints_that_contain_placeholder_looking_words_are_accepted(self):
+        for endpoint in ("https://r.services.ai.azure.com/api/projects/openai-demo",
+                         "https://factual-resource-1.services.ai.azure.com/api/projects/contoso-workshop"):
+            with self.subTest(endpoint=endpoint):
+                self.assertEqual(workshop.validate_endpoint(endpoint + "/"), endpoint)
+
     def report(self, text: str | None, ledger: dict | None = None) -> list[str]:
         with tempfile.TemporaryDirectory() as directory:
             path, record = Path(directory) / ".env", Path(directory) / "ledger.json"
@@ -462,6 +469,33 @@ class RetryableOriginalTests(unittest.TestCase):
                     prompt_lab.compare(output)
             self.assertTrue(output.exists())
             self.assertEqual(list(results.glob("*.failed-*.json")), [])
+
+
+class EntryPointWiringTests(unittest.TestCase):
+    def test_no_entry_point_shadows_the_imported_lab_runner(self):
+        checked = 0
+        for path in sorted([*(ROOT / "samples").glob("*.py"), *(ROOT / "scripts").glob("*.py")]):
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            bound = {alias.asname or alias.name for node in tree.body if isinstance(node, ast.ImportFrom)
+                     and node.module == "lab_cli" for alias in node.names if alias.name == "run"}
+            if not bound:
+                continue
+            checked += 1
+            defined = {node.name for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
+            defined |= {target.id for node in tree.body if isinstance(node, ast.Assign)
+                        for target in node.targets if isinstance(target, ast.Name)}
+            with self.subTest(script=path.name):
+                self.assertFalse(bound & defined, f"{path.name} defines a top-level name that replaces the imported runner")
+        self.assertGreaterEqual(checked, 14)
+
+    def test_entry_points_that_once_collided_start_and_print_usage(self):
+        import subprocess
+        for script in ("a2a_lab.py", "memory_lab.py", "routine_lab.py", "multi_agent.py"):
+            with self.subTest(script=script):
+                result = subprocess.run([sys.executable, str(ROOT / "samples" / script), "--help"],
+                                        capture_output=True, text=True, timeout=120)
+                self.assertEqual(result.returncode, 0, result.stderr[-400:])
+                self.assertIn("usage:", result.stdout)
 
 
 class CliWrapperTests(unittest.TestCase):
