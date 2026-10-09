@@ -4,10 +4,11 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import textwrap
 import unittest
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -139,6 +140,65 @@ class RepositoryLayoutTests(unittest.TestCase):
         links = re.findall(r"\]\((https://github\.com/[^)]+/\.github/workflows/[^)]+)\)", delivery)
         self.assertEqual(len(links), 2)
         self.assertTrue(all("/blob/main/.github/workflows/" in link for link in links))
+
+
+class MaintainerOnlyAssetTests(unittest.TestCase):
+    """The Microsoft Azure live-validation lineage stays in the repository but never reaches the learner kit."""
+
+    PATHS = tuple(json.loads((ROOT / "content/maintainer-only.json").read_text(encoding="utf-8"))["paths"])
+
+    @classmethod
+    def listed(cls, name):
+        return any(name == path or name.startswith(path + "/") for path in cls.PATHS)
+
+    def test_assets_are_all_in_the_repository_or_all_absent_from_the_kit(self):
+        missing = [path for path in self.PATHS if not (ROOT / path).exists()]
+        self.assertIn(len(missing), (0, len(self.PATHS)), f"Partly present; missing: {missing}")
+
+    def test_kit_files_leave_out_the_assets_but_keep_the_shared_evaluation_code(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import package_guide
+        kit = {path.relative_to(ROOT).as_posix() for path in package_guide.collect_files(ROOT / "results/documentation")}
+        self.assertEqual([name for name in sorted(kit) if self.listed(name)], [])
+        for shared in (
+            "samples/evaluation_lab.py", "samples/evaluation_data.py", "data/evaluation/cases.jsonl",
+            "data/evaluation/instruction-comparison.json", ".github/workflows/azure-validation.yml",
+            "content/maintainer-only.json",
+        ):
+            self.assertIn(shared, kit)
+
+    def test_committed_zip_contains_no_maintainer_only_assets(self):
+        release = json.loads((ROOT / "content/release.json").read_text())
+        published = ROOT / release["archive"]
+        if not published.is_file():
+            self.skipTest("The learner kit does not contain its own ZIP.")
+        with zipfile.ZipFile(published) as archive:
+            names = [name.split("/", 1)[1] for name in archive.namelist() if "/" in name]
+        self.assertEqual([name for name in names if self.listed(name)], [])
+
+    def test_package_verification_rejects_a_maintainer_only_entry(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import package_guide
+        with tempfile.TemporaryDirectory() as folder:
+            target = Path(folder) / "kit.zip"
+            with zipfile.ZipFile(target, "w") as archive:
+                archive.writestr(f"{package_guide.NAME}/{self.PATHS[0]}/rubric.json", "{}")
+            with self.assertRaisesRegex(ValueError, "Maintainer-only asset in package"):
+                package_guide.verify_archive(target, {})
+
+    def test_learner_facing_text_never_links_to_maintainer_only_assets(self):
+        pages = [ROOT / "README.md", ROOT / "README.ko.md", ROOT / "samples/README.md", ROOT / "samples/README.ko.md",
+                 *(ROOT / "docs").rglob("*.md")]
+        broken = []
+        for page in pages:
+            for address in re.findall(r"\]\(([^)\s]+)\)", page.read_text(encoding="utf-8")):
+                parsed = urlparse(address)
+                if parsed.scheme or parsed.netloc or not parsed.path:
+                    continue
+                target = (page.parent / unquote(parsed.path)).resolve()
+                if target.is_relative_to(ROOT) and self.listed(target.relative_to(ROOT).as_posix()):
+                    broken.append(f"{page.relative_to(ROOT)} -> {address}")
+        self.assertEqual(broken, [])
 
 
 if __name__ == "__main__":

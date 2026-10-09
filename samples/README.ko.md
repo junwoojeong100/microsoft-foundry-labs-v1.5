@@ -14,9 +14,8 @@
 | 파일 | 역할 | 안내서에서의 위치·경계 |
 | --- | --- | --- |
 | [a2a_lab.py](a2a_lab.py) | 원격 에이전트에 A2A 위임을 수행합니다. | L14의 선택 확장입니다. `multi_agent.py`의 한 프로세스 내 오케스트레이션과는 다른 실습입니다. |
-| [evaluation_lab.py](evaluation_lab.py) | 고정 평가 데이터의 준비·보정·Microsoft Foundry 평가를 다룹니다. | 평가 확장 스크립트입니다. 데이터 split과 각 명령의 `--live` 조건을 확인하세요. |
 | [first_response.py](first_response.py) | Responses API 요청 한 번을 짧은 코드로 보여 줍니다. | L03의 첫 코드 실습입니다. 기본은 계획만 출력하고 `--live`에서만 한 번 호출합니다. |
-| [hosted_client.py](hosted_client.py) | 로컬 또는 배포된 Hosted Agent를 호출·평가하고 실행 근거를 보존합니다. | L12. `--local`이어도 에이전트가 실제 Microsoft Azure 서비스를 호출할 수 있으므로 `--live`가 필요합니다. 세션을 삭제하지 않습니다. |
+| [hosted_client.py](hosted_client.py) | 로컬 또는 배포된 Hosted Agent를 호출·평가하고 실행 근거를 보존합니다. | L12. `--local`이어도 에이전트가 실제 Microsoft Azure 서비스를 호출할 수 있으므로 `--live`가 필요합니다. 세션을 삭제하지 않습니다. 실습은 `invoke`만 사용하며, `evaluate`는 ZIP에 없는 유지관리자용 검증 평가 세트를 실행합니다. |
 | [instruction_evaluation.py](instruction_evaluation.py) | 이미 수집한 v1/v2 답변을 Microsoft Foundry에서 한 번 평가합니다. | L08의 선택 경로입니다. 대상 에이전트를 다시 호출하지 않습니다. |
 | [instruction_lab.py](instruction_lab.py) | 개발용 데이터로 제한된 v1/v2 지침 비교를 수집합니다. | 선택 비교 스크립트입니다. 재시도나 holdout 사용을 하지 않습니다. |
 | [instruction_prompt_agent_lab.py](instruction_prompt_agent_lab.py) | 버전을 고정한 Prompt Agent로 v1/v2 답변을 수집합니다. | L08의 선택 경로입니다. `--live`는 에이전트 버전을 만들고 모델 호출을 수행할 수 있습니다. |
@@ -26,7 +25,7 @@
 | [model_capacity.py](model_capacity.py) | 학습자 수·역할 기준 모델 처리량을 계획하고 용량을 확인·변경·시험합니다. | L02/L13의 선택 경로입니다. Microsoft Azure 용량 변경·시험에는 명시적 `--live`와 소유 범위 확인이 필요합니다. |
 | [multi_agent.py](multi_agent.py) | Agent Framework의 순차·동시·그룹 채팅·핸드오프 흐름을 실행합니다. | L13–L14. 계획 출력은 기본이며 실제 모델 실행에는 `--live`가 필요합니다. 원격 A2A 실습은 아닙니다. |
 | [mcp_server.py](mcp_server.py) | 재고 조회와 구매 초안 계산을 제공하는 로컬 stdio MCP 서버입니다. | L07. 합성 데이터만 쓰며 외부 업무 작업을 수행하지 않습니다. |
-| [optimizer_lab.py](optimizer_lab.py) | 개발 데이터에 한정해 Microsoft Foundry Agent Optimizer 작업을 시작·관찰합니다. | 선택 확장입니다. 후보를 자동 적용하거나 배포하지 않습니다. |
+| [optimizer_lab.py](optimizer_lab.py) | 개발 데이터에 한정해 Microsoft Foundry Agent Optimizer 작업을 시작·관찰합니다. | 선택 확장입니다. 후보를 자동 적용하거나 배포하지 않습니다. 기본 평가 세트는 ZIP에 없는 유지보수 전용이며 어떤 실습도 사용하지 않습니다. |
 | [prepare_practice.py](prepare_practice.py) | 의도적으로 결함이 있는 로컬 연습 문제를 새 학습자 폴더로 복사합니다. | L17/L18 설계 연습 보조 도구입니다. Microsoft Azure 작업은 수행하지 않습니다. |
 | [prepare_tuning.py](prepare_tuning.py) | 작은 합성 SFT 형식 연습 데이터를 만듭니다. | 선택 참고 도구입니다. 학습 작업을 제출하거나 모델을 변경하지 않습니다. |
 | [routine_lab.py](routine_lab.py) | 제한된 범위의 Routine 생성·실행·상태 확인·중지를 연습합니다. | L16. 중지 절차를 따르며 Routine이나 리소스 그룹을 삭제하지 않습니다. |
@@ -85,6 +84,7 @@
 | [cloud.py](cloud.py) | 선택형 라이브 실습이 공유하는 Microsoft Azure 연결·요청 전송 코드입니다. |
 | [evidence.py](evidence.py) | 실행 근거를 제한된 범위로 기록하고 민감값을 가리며 요청·시간 예산을 적용합니다. |
 | [evaluation_data.py](evaluation_data.py) | 평가 데이터 버전과 split을 다룹니다. 개발 데이터 읽기가 잠긴 holdout 자료를 열지 않도록 합니다. |
+| [evaluation_lab.py](evaluation_lab.py) | L08의 `instruction_evaluation.py`가 가져다 쓰는 Native 평가 보조 함수입니다. `prepare`·`calibrate`·`run --suite` 명령은 유지보수용 Microsoft Azure 라이브 검증 세트를 위한 것이며 실습 단계가 아닙니다. |
 | [grounding.py](grounding.py) | 실제 검색된 자료에 근거해 인용을 선택·검사합니다. 추측한 출처를 만들지 않습니다. |
 | [hosted_runtime.py](hosted_runtime.py) | 로컬·Hosted 호출이 공유하는 한 번의 제한된 구매 에이전트 처리 흐름입니다. |
 | [lab_cli.py](lab_cli.py) | 실습 진입점을 실행하고, 예상된 학습자 오류를 트레이스백 대신 `ERROR:` 한 줄(종료 코드 2)로 보여 줍니다. 트레이스백이 필요하면 `FOUNDRY_LAB_DEBUG=1`을 설정합니다. |
@@ -92,6 +92,10 @@
 | [original_files.py](original_files.py) | 한 번만 만드는 결과 원본을 보호합니다. Microsoft Azure를 바꾸기 전에 실패한 실행은 기록을 `…failed-<시각>.json`으로 보관해 같은 명령을 다시 실행할 수 있게 합니다. |
 | [request_contract.py](request_contract.py) | 도구 초안의 입력이 사용자의 명시 요청에 근거하는지 검사하고 임의로 만들어진 수량을 거부합니다. |
 | [inventory.openapi.json](inventory.openapi.json) | L07 로컬 재고 API의 OpenAPI 계약입니다. 서버 주소는 `127.0.0.1`이며 Microsoft Foundry에서 직접 접근할 수 없습니다. |
+
+## 유지보수 전용 검증 자료
+
+Microsoft Azure 라이브 검증 이력은 유지보수를 위해 저장소에 남아 있지만 **실습 ZIP에는 포함되지 않으며** 어떤 실습도 사용하지 않습니다. 평가 세트 v2–v5(`data/evaluation/v2`·`v3`, `data/en/evaluation/v2`–`v5`), 이를 만들고 실행하는 `scripts/prepare_eval_v*.py`·`ci_live.py`·`share_evidence.py`, 그리고 이들이 필요한 테스트가 해당합니다. 목록은 `content/maintainer-only.json` 한 곳에서 관리합니다. 실습의 평가 입력은 `data/evaluation/cases.jsonl`(L01의 구조 검사)과 `data/evaluation/instruction-comparison.json`(L08)입니다.
 
 ## 관련 파일 위치
 

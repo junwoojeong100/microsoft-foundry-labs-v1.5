@@ -102,6 +102,12 @@ python scripts/package_guide.py
 같은 체크인 소스로 두 언어의 HTML/Markdown과 ZIP을 만듭니다. 자동 검사는 다시 생성한 HTML/Markdown이 체크인된 파일과 다르면, 그리고 `python scripts/package_guide.py --check`가 체크인된 ZIP이 소스와 다르면 실패합니다. ZIP은 같은 소스에서 같은 항목을 만들도록(고정 시각·정렬) 구성되며, 모든 검사를 통과한 뒤에만 기존 ZIP을 교체합니다. 로컬 검사 기록은 비공개 `results/documentation/`에 두고 패키지에 넣지 않습니다.
 이를 Microsoft Azure 실행이나 모델 점수 향상 증거로 기록하지 않습니다.
 
+### 유지보수 전용 검증 자료
+
+Microsoft Azure 라이브 검증 이력은 저장소에 남아 있지만 ZIP으로는 **학습자에게 전달하지 않습니다**: 평가 세트 v2–v5(`data/evaluation/v2`·`v3`, `data/en/evaluation/v2`–`v5`), 이를 만들고 실행하는 `scripts/prepare_eval_v*.py`·`ci_live.py`·`share_evidence.py`, 그리고 이들이 필요한 테스트입니다. 어떤 실습도 이 세트를 쓰지 않습니다. L01은 기존 20건의 구조만 검사하고 L08은 12문항 `instruction-comparison.json`을 사용합니다.
+목록은 `content/maintainer-only.json` 한 곳에서 관리합니다. `package_guide.py`는 이 경로를 ZIP에서 빼고 섞여 들어가면 실패하며, 이 자료가 필요한 테스트는 자료가 없는 키트에서 건너뛰고, 학습자용 링크가 이 경로를 가리키지 않는지도 테스트합니다. 경로를 추가할 때는 패키징 코드가 아니라 이 목록을 고치고, 학습자용 본문에서 링크하지 않습니다. 동결된 입력과 해시는 수정하지 않으며 새 실험으로 시작합니다.
+Codespaces는 `main` 전체를 열기 때문에 이 파일들이 그대로 보입니다.
+
 ### 요약영상 다시 만들기
 
 FFmpeg·시스템 음성과 선언된 Playwright가 설치된 macOS에서 `python scripts/build_replay.py`로 다시 만듭니다. 내레이션과 장면 원본은 `content/replay.json`입니다.

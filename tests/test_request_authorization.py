@@ -15,6 +15,7 @@ from business_checks import check_business_evidence
 from evidence import Budget
 from search_lab import policy_chunks
 from workshop import ToolInputError
+from maintainer_only import requires_maintainer_assets
 
 
 class RequestAuthorizationTests(unittest.TestCase):
@@ -66,6 +67,7 @@ class RequestAuthorizationTests(unittest.TestCase):
                 self.assertEqual(permissions["stock_skus"], [])
                 self.assertEqual(permissions["draft_arguments"], [])
 
+    @requires_maintainer_assets
     def test_all_exposed_english_cases_retain_their_tool_contracts(self):
         for split in ("dev", "holdout"):
             path = ROOT / f"data/en/evaluation/v3/{split}.jsonl"
@@ -158,6 +160,7 @@ class RequestAuthorizationTests(unittest.TestCase):
                     "CONTOSO-PROC-2026-09-s3", "CONTOSO-PROC-2026-09-s4", "CONTOSO-SEC-2026-09-s4",
                 ])
 
+    @requires_maintainer_assets
     def test_exposed_fx_and_access_failures_no_longer_require_unrelated_execution_citations(self):
         cases = [json.loads(line) for line in (ROOT / "data/en/evaluation/v4/dev.jsonl").read_text().splitlines()]
         for case in cases:
