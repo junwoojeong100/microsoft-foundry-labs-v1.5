@@ -1,0 +1,20 @@
+{
+  "schema": "contoso-maintainer-only-v1",
+  "summary": "Azure live-validation lineage for maintainers: evaluation suites v2-v5, the scripts that author and run them, and the tests that need them. They stay in the repository and are left out of the learner ZIP.",
+  "paths": [
+    "data/evaluation/v2",
+    "data/evaluation/v3",
+    "data/en/evaluation/v2",
+    "data/en/evaluation/v3",
+    "data/en/evaluation/v4",
+    "data/en/evaluation/v5",
+    "scripts/ci_live.py",
+    "scripts/prepare_eval_v2.py",
+    "scripts/prepare_eval_v3.py",
+    "scripts/prepare_eval_v4.py",
+    "scripts/prepare_eval_v5.py",
+    "scripts/share_evidence.py",
+    "tests/test_quality_revision.py",
+    "tests/test_v5_experiment.py"
+  ]
+}

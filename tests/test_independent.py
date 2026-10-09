@@ -21,6 +21,7 @@ import trace_lab
 import workshop
 from evaluation_data import DEFAULT_SUITE, load_cases
 from check_independence import check
+from maintainer_only import requires_maintainer_assets
 
 
 class ContosoTests(unittest.TestCase):
@@ -176,6 +177,7 @@ class EvaluationContractTests(unittest.TestCase):
         self.assertFalse(report["human_review_completed"])
         self.assertFalse(report["business_gate_passed"])
 
+    @requires_maintainer_assets
     def test_optimizer_uses_only_dev_and_no_promotion(self):
         request = optimizer_lab.payload("contoso", "1", "judge", "optimizer")["inputs"]
         self.assertNotIn("validation_dataset", request)

@@ -16,6 +16,7 @@ from workshop import ToolInputError
 from hosted_runtime import execute_turn
 from search_lab import policy_chunks
 from evaluation_lab import audit_items
+from maintainer_only import requires_maintainer_assets
 
 
 class GroundingTests(unittest.TestCase):
@@ -92,6 +93,7 @@ class GroundingTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "citation"):
             execute_turn(client, search, "unit", {"query": "규정"}, Obj(append=Mock()), Budget())
 
+    @requires_maintainer_assets
     def test_v2_human_review_optional_numeric_policy_unchanged(self):
         rubric = policy()
         self.assertFalse(rubric["human_review"]["required"])
@@ -119,6 +121,7 @@ class GroundingTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             attribute_answer(raw, '{"citation_ids":["invented"]}', self.sources)
 
+    @requires_maintainer_assets
     def test_automatic_gate_needs_no_human_label_but_cannot_hide_missing_evidence(self):
         cases = load_cases("automated-v2", "dev")
         rows = [{
@@ -136,6 +139,7 @@ class GroundingTests(unittest.TestCase):
         self.assertFalse(report["business_gate_passed"])
         self.assertEqual(report["evidence_integrity_failures"], [cases[0]["id"]])
 
+    @requires_maintainer_assets
     def test_dev_loader_does_not_read_holdout(self):
         original = Path.read_text
 
@@ -146,6 +150,7 @@ class GroundingTests(unittest.TestCase):
         with patch.object(Path, "read_text", guard):
             self.assertEqual(len(load_cases("automated-v2", "dev")), 20)
 
+    @requires_maintainer_assets
     def test_missing_native_rows_cannot_turn_a_partial_split_into_a_pass(self):
         cases = load_cases("automated-v2", "dev")
         rows = [{
@@ -156,6 +161,7 @@ class GroundingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "incomplete"):
             audit_items(rows, suite="automated-v2", split="dev", automatic_checks=checks)
 
+    @requires_maintainer_assets
     def test_suite_fingerprint_uses_seal_without_opening_holdout(self):
         original = Path.read_bytes
 

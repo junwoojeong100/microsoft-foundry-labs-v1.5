@@ -103,6 +103,12 @@ Local checks are not Microsoft Azure execution or measured model improvement.
 
 Learner-facing numbers come from `number` in `content/chapters.json`. Existing IDs and source filenames remain stable identifiers for links, progress, and historical records, so they can differ from display numbers. The former `#l11` link opens L06's integration review; historical validation numbers and originals remain unchanged.
 
+### Maintainer-only validation assets
+
+The Microsoft Azure live-validation lineage stays in the repository but is **not delivered to learners** in the ZIP: evaluation suites v2–v5 (`data/evaluation/v2`, `v3`; `data/en/evaluation/v2`–`v5`), their authoring and CI scripts (`scripts/prepare_eval_v*.py`, `ci_live.py`, `share_evidence.py`), and the tests that need them. No lab uses these sets: L01 only checks the structure of the 20 legacy cases and L08 uses the 12-question `instruction-comparison.json`.
+`content/maintainer-only.json` is the single list. `package_guide.py` leaves its paths out of the ZIP and fails if one slips in, tests that need the assets skip when they are absent (as in the kit), and a test keeps learner-facing links away from them. To add a path, edit that list rather than the packaging code, and do not link it from learner-facing text. Do not edit frozen inputs or their hashes; start a new experiment instead.
+Codespaces opens the whole `main` branch, so these files are still visible there.
+
 ### Rebuild the walkthroughs
 
 Rebuild locally on macOS with installed FFmpeg, system voices, and the declared Playwright dependency: `python scripts/build_replay.py`. Narration and scenes come from `content/replay.json`.

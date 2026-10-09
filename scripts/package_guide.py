@@ -1,4 +1,4 @@
-"""Create a portable kit without virtualenvs, generated cloud results, or credentials."""
+"""Create a portable kit without virtualenvs, generated cloud results, credentials, or maintainer-only validation assets."""
 
 import argparse
 from datetime import datetime, timezone
@@ -17,6 +17,13 @@ from build_guide import load_portal_captures
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = json.loads((ROOT / "content/release.json").read_text())
 NAME = RELEASE["artifact"]
+# Listed in content/maintainer-only.json: kept in the repository, never shipped to learners.
+MAINTAINER_ONLY = tuple(json.loads((ROOT / "content/maintainer-only.json").read_text(encoding="utf-8"))["paths"])
+
+
+def is_maintainer_only(path):
+    name = Path(path).as_posix()
+    return any(name == listed or name.startswith(listed + "/") for listed in MAINTAINER_ONLY)
 
 
 def check_package_path(path):
@@ -51,6 +58,7 @@ def collect_files(report_dir: Path) -> list[Path]:
             path for path in directory.rglob("*")
             if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".tmp"}
             and path.name not in IGNORED_NAMES and path != report_dir / "package.json"
+            and not is_maintainer_only(path.relative_to(ROOT))
         )
     for path in files:
         check_package_path(path.relative_to(ROOT))
@@ -106,6 +114,8 @@ def verify_archive(target: Path, all_captures: dict) -> tuple[list[str], set[str
         names = archive.namelist()
         for name in names:
             check_package_path(name)
+            if is_maintainer_only(name.removeprefix(f"{NAME}/")):
+                raise ValueError(f"Maintainer-only asset in package: {name}")
         essentials = [
             edition[key] for edition in RELEASE["languages"].values()
             for key in ("readme", "html", "markdown", "receipt_html")

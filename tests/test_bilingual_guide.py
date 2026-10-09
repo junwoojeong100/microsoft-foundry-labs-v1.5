@@ -15,6 +15,7 @@ import build_guide
 import check_pages
 import package_guide
 from check_guide import CONCEPT_LABELS, GuideParser, LAB_HEADINGS, command_coverage
+from maintainer_only import requires_maintainer_assets
 
 
 def executable_blocks(text):
@@ -281,6 +282,7 @@ class BilingualGuideTests(unittest.TestCase):
                 self.assertEqual(len(unapproved), 1 if chapter["id"] == "l07" else 0)
 
 
+    @requires_maintainer_assets
     def test_business_and_quality_gates_are_unchanged_without_opening_the_holdout(self):
         profile = json.loads((ROOT / "data/en/profile-manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(profile["business_contract"], {

@@ -14,9 +14,8 @@
 | File | Purpose | Guide location and boundary |
 | --- | --- | --- |
 | [a2a_lab.py](a2a_lab.py) | Delegates a task to a remote agent through A2A. | Optional L14 extension. This differs from the in-process orchestration in `multi_agent.py`. |
-| [evaluation_lab.py](evaluation_lab.py) | Prepares, calibrates, and runs fixed evaluation data in Microsoft Foundry. | Evaluation extension. Check the data split and each command's `--live` requirement. |
 | [first_response.py](first_response.py) | Shows one Responses API request in a short, focused script. | L03's first coding exercise. It prints a plan by default and makes one call only with `--live`. |
-| [hosted_client.py](hosted_client.py) | Invokes or evaluates a local or deployed Hosted Agent and preserves execution evidence. | L12. The agent can call real Microsoft Azure services even with `--local`, so `--live` is required. It does not delete sessions. |
+| [hosted_client.py](hosted_client.py) | Invokes or evaluates a local or deployed Hosted Agent and preserves execution evidence. | L12. The agent can call real Microsoft Azure services even with `--local`, so `--live` is required. It does not delete sessions. Labs use `invoke`; `evaluate` runs the maintainer-only validation suites, which are not in the ZIP. |
 | [instruction_evaluation.py](instruction_evaluation.py) | Evaluates already-collected v1/v2 answers once in Microsoft Foundry. | Optional L08 path. It does not invoke the target agent again. |
 | [instruction_lab.py](instruction_lab.py) | Collects a bounded v1/v2 instruction comparison on development data. | Optional comparison script. It does not retry or use the holdout split. |
 | [instruction_prompt_agent_lab.py](instruction_prompt_agent_lab.py) | Collects v1/v2 answers through version-pinned Prompt Agents. | Optional L08 path. `--live` can create agent versions and make model calls. |
@@ -26,7 +25,7 @@
 | [model_capacity.py](model_capacity.py) | Plans throughput by learner count and role, then checks, changes, or tests capacity. | Optional L02/L13 path. Microsoft Azure capacity changes and tests require explicit `--live` and ownership-scope checks. |
 | [multi_agent.py](multi_agent.py) | Runs Agent Framework sequential, concurrent, group-chat, and handoff patterns. | L13–L14. It prints a plan by default; actual model execution requires `--live`. This is not remote A2A. |
 | [mcp_server.py](mcp_server.py) | Local stdio MCP server for synthetic inventory lookup and purchase-draft calculation. | L07. It uses synthetic data and performs no external business action. |
-| [optimizer_lab.py](optimizer_lab.py) | Starts and monitors a bounded Microsoft Foundry Agent Optimizer job on development data. | Optional extension. It does not automatically apply or deploy a candidate. |
+| [optimizer_lab.py](optimizer_lab.py) | Starts and monitors a bounded Microsoft Foundry Agent Optimizer job on development data. | Optional extension. It does not automatically apply or deploy a candidate. Its default evaluation suite is maintainer-only and not in the ZIP; no lab uses that suite. |
 | [prepare_practice.py](prepare_practice.py) | Copies an intentionally flawed local exercise into a new learner folder. | L17/L18 design-exercise helper. It performs no Microsoft Azure operations. |
 | [prepare_tuning.py](prepare_tuning.py) | Generates a small synthetic SFT-format exercise dataset. | Optional reference tool. It does not submit a training job or change a model. |
 | [routine_lab.py](routine_lab.py) | Exercises bounded Routine creation, dispatch, status checks, and stopping. | L16. Follow the stop procedure; the script does not delete a Routine or resource group. |
@@ -85,6 +84,7 @@ These files are usually imported by the lab scripts rather than run directly.
 | [cloud.py](cloud.py) | Shared Microsoft Azure connection and request-transport code for optional live labs. |
 | [evidence.py](evidence.py) | Records bounded execution evidence, redacts sensitive values, and enforces request/time budgets. |
 | [evaluation_data.py](evaluation_data.py) | Handles evaluation-data versions and splits; development-data loading does not open sealed holdout data. |
+| [evaluation_lab.py](evaluation_lab.py) | Native-evaluation helpers that L08's `instruction_evaluation.py` imports. Its `prepare`, `calibrate`, and `run --suite` commands drive the maintainers' Microsoft Azure live-validation suites; they are not a lab step. |
 | [grounding.py](grounding.py) | Selects and validates citations against actually retrieved sources; it does not invent references. |
 | [hosted_runtime.py](hosted_runtime.py) | One bounded purchasing-assistant turn shared by local and Hosted invocations. |
 | [lab_cli.py](lab_cli.py) | Runs a lab entry point and shows an expected learner error as one `ERROR:` line (exit code 2) instead of a traceback; set `FOUNDRY_LAB_DEBUG=1` to see the traceback. |
@@ -92,6 +92,10 @@ These files are usually imported by the lab scripts rather than run directly.
 | [original_files.py](original_files.py) | Keeps one-shot result originals safe: a run that failed before any Azure change keeps its record as `…failed-<time>.json` so the same command can be run again. |
 | [request_contract.py](request_contract.py) | Checks that draft-tool arguments are grounded in the user's explicit request and rejects invented quantities. |
 | [inventory.openapi.json](inventory.openapi.json) | OpenAPI contract for the L07 local inventory API. Its server is `127.0.0.1` and cannot be reached directly from Microsoft Foundry. |
+
+## Maintainer-only validation assets
+
+The Microsoft Azure live-validation lineage stays in the repository for maintainers, but it is **not shipped in the workshop ZIP** and no lab uses it: evaluation suites v2–v5 (`data/evaluation/v2`, `v3`; `data/en/evaluation/v2`–`v5`), their authoring and CI scripts (`scripts/prepare_eval_v*.py`, `ci_live.py`, `share_evidence.py`), and the tests that need them. `content/maintainer-only.json` is the single list. The labs' evaluation inputs are `data/evaluation/cases.jsonl` (L01's structure check) and `data/evaluation/instruction-comparison.json` (L08).
 
 ## Where related files live
 

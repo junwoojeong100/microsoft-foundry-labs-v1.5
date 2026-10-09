@@ -15,6 +15,7 @@ import azure_environment
 import lab_profile
 import request_contract
 from workshop import ToolInputError
+from maintainer_only import requires_maintainer_assets
 
 
 class EnglishProfileTests(unittest.TestCase):
@@ -100,6 +101,7 @@ class EnglishProfileTests(unittest.TestCase):
                     with self.assertRaises(ToolInputError):
                         request_contract.validate_draft_request(query, {"sku": "NB-14", "quantity": 1})
 
+    @requires_maintainer_assets
     def test_real_english_profile_uses_english_data_and_the_unchanged_gate(self):
         script = r"""
 import json, re, sys
