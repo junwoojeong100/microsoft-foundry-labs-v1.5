@@ -218,12 +218,6 @@ The labs use the agents and result files separated in the [three-target table](#
 | Knowledge vs. tools vs. memory | Knowledge supplies company evidence. Tools provide capabilities. Memory retains authorized context across sessions, within the user's scope |
 | GA vs. Preview | A GA portal does not mean that Memory, Voice, and every operational feature are also GA |
 
-### 4. Check results and mark progress
-
-Check each module's **Success criteria** before marking progress. Browser progress is local to this device, not proof of service execution. Save actual results in your English folder's `results/` and [progress/completion checklist](#instructor), without personal information or tokens.
-
-Web progress counts **only the selected path**: 11 core modules plus wrap-up, eight advanced modules plus wrap-up, or six including wrap-up in the 90-minute tour. Use **Explain a term / I'm stuck**, then **Return to the lab** to resume at the original section and reading position. On a phone, find these links under **Menu**.
-
 ## Success criteria
 
 - You can distinguish a model-only call from an agent that uses tools.
