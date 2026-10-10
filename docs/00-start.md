@@ -76,12 +76,12 @@
 
 | 필요한 것 | 맡는 구성 요소 | 이 가이드에서 하는 일 |
 | --- | --- | --- |
-| 생각하고 문장을 생성 | Microsoft Foundry Models | 같은 질문으로 모델을 비교 |
-| 목표·대화·도구 사용 | Microsoft Foundry Agent Service | 구매·정책 에이전트 제작 |
-| 회사 문서의 근거 | File search / AI Search / Microsoft Foundry IQ | 문서에서 답을 찾고 인용 |
+| 생각하고 문장을 생성 | Foundry Models | 같은 질문으로 모델을 비교 |
+| 목표·대화·도구 사용 | Foundry Agent Service | 구매·정책 에이전트 제작 |
+| 회사 문서의 근거 | File search / Azure AI Search / Foundry IQ | 문서에서 답을 찾고 인용 |
 | 실제 시스템과 연결 | Functions / MCP / OpenAPI / Toolbox | 재고 조회와 구매 초안 |
 | 맞는지 판단 | Evaluations / Red teaming | 정답·도구·거절·승인 경계 검사 |
-| 실행 경로와 운영 | Tracing / Monitoring / Control Plane | 실패 원인·비용·권한 확인 |
+| 실행 경로와 운영 | Tracing / Monitoring / Foundry Control Plane | 실패 원인·비용·권한 확인 |
 
 </details>
 

@@ -33,7 +33,7 @@
 | Role-assignment permission | `Microsoft.Authorization/roleAssignments/write` at the target scope; `Contributor` alone cannot grant roles |
 | Quota-read permission | `Cognitive Services Usages Reader` or equivalent subscription permission |
 | Region and budget | Supported models, permitted processing scope, spend limit, stop criteria, and retention deadline |
-| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Microsoft Azure CLI, Microsoft Azure Developer CLI (azd), and core/MCP packages |
+| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Azure CLI, Azure Developer CLI (azd), and core/MCP packages |
 
 Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Microsoft Azure access but **do not complete the live Microsoft Foundry path**.
 
@@ -71,7 +71,7 @@ If you do not yet have Microsoft Azure access, stop after **step 1** and continu
     - This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope.
     - [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges.
 3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`.
-    - The repository configuration prepares Python 3.13, Microsoft Azure CLI, Microsoft Azure Developer CLI (azd), Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
+    - The repository configuration prepares Python 3.13, Azure CLI, Azure Developer CLI (azd), Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
     - It does not sign into Microsoft Azure, create resources, or grant roles.
 4. Open **Terminal → New Terminal** in the lab root containing `samples`, `data`, and `requirements.txt`. **This is Linux/Bash even on a Windows PC**, so do not substitute PowerShell commands. Select the English data profile before the checks:
 
@@ -122,12 +122,12 @@ On another day, restart **the same Codespace** from [Your Codespaces](https://gi
 
 **Already installed? Do not repeat installation.** Check versions for your OS, then select the [English profile](#l01-language), [prepare files and the virtual environment](#l01-local), and [select Python](#l01-interpreter). For a first installation, follow **only your OS's sections** below. Without Microsoft Azure access, complete PC/local preparation and leave step 2 onward pending.
 
-Prepare Python, Microsoft Azure CLI, and VS Code through organization-approved paths. **Check existing tools first and install only what is missing.** Prefer your organization's software portal, approved installers, and package sources. Follow the official download steps below only when permitted. If installation or downloads are blocked, obtain an approved distribution path; do not bypass security warnings, certificate validation, or execution policies.
+Prepare Python, Azure CLI, and VS Code through organization-approved paths. **Check existing tools first and install only what is missing.** Prefer your organization's software portal, approved installers, and package sources. Follow the official download steps below only when permitted. If installation or downloads are blocked, obtain an approved distribution path; do not bypass security warnings, certificate validation, or execution policies.
 
 | Tool | Its role in this lab | Ready when |
 | --- | --- | --- |
 | Python 3.13 | Runs actual Python code and the Microsoft Foundry SDK on your PC. | The version check prints `Python 3.13.x`. |
-| Microsoft Azure CLI | Signs into Microsoft Azure and creates or inspects lab resources. | `az version` prints an `azure-cli` version. This kit's baseline is 2.86.0. |
+| Azure CLI | Signs into Microsoft Azure and creates or inspects lab resources. | `az version` prints an `azure-cli` version. This kit's baseline is 2.86.0. |
 | VS Code | Displays and edits code and opens a PC terminal. | You can open the lab folder and a Python file. Prepare the Python extension below. |
 
 <a id="l01-python"></a>
@@ -208,12 +208,10 @@ Having only 3.12, 3.14, or another version does not complete this step. Keep oth
 
 <a id="l01-azure-cli"></a>
 
-<a id="l01-install-and-check-azure-cli"></a>
-
-#### Install and check Microsoft Azure CLI
+#### Install and check Azure CLI
 
 <details class="setup-detail" markdown="1">
-<summary>Only if az is missing: Microsoft Azure CLI installation by OS</summary>
+<summary>Only if az is missing: Azure CLI installation by OS</summary>
 
 **Windows**
 
@@ -237,7 +235,7 @@ brew install azure-cli
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `brew install azure-cli` | Installs Homebrew's Microsoft Azure CLI package and required dependencies. | Download and PC changes; separate from preparing the lab's Python 3.13; no Microsoft Azure request. |
+| 1. `brew install azure-cli` | Installs Homebrew's Azure CLI package and required dependencies. | Download and PC changes; separate from preparing the lab's Python 3.13; no Microsoft Azure request. |
 
 </div>
 
@@ -255,7 +253,7 @@ sudo apt install azure-cli
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `apt install azure-cli` | Installs Microsoft Azure CLI from the configured, approved source. | Download and PC changes; no Microsoft Azure sign-in or resource creation. |
+| 1. `apt install azure-cli` | Installs Azure CLI from the configured, approved source. | Download and PC changes; no Microsoft Azure sign-in or resource creation. |
 
 </div>
 
@@ -273,7 +271,7 @@ az version
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `az version` | Prints local Microsoft Azure CLI and installed extension versions. | Not a sign-in, permission, or Microsoft Azure connectivity check; no model call or resource creation. |
+| 1. `az version` | Prints local Azure CLI and installed extension versions. | Not a sign-in, permission, or Microsoft Azure connectivity check; no model call or resource creation. |
 
 </div>
 
@@ -705,7 +703,7 @@ python scripts/azure_environment.py roles --live
 
 | Creation code | What to inspect in the portal |
 | --- | --- |
-| RG creation in `create` | Unique Microsoft Azure Resource groups name and ownership tags |
+| RG creation in `create` | Unique Microsoft Azure resource group name and ownership tags |
 | Microsoft Foundry account/project in `foundation` | Project name, parent resource, and region |
 | Bicep model deployments | Model ID/version and deployment names such as `contoso-chat` |
 | Scoped assignments in `roles` | Caller/managed identity and scope in the resource's IAM |

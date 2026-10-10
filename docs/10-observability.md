@@ -31,9 +31,9 @@ L01에서 만든 Application Insights 연결·로그 읽기 권한과 자신의 
 <details class="optional-path" markdown="1">
 <summary>연결이 아직 없다면: 내 프로젝트의 로그 설정 보완</summary>
 
-소유 기록의 `monitoring`과 포털 연결을 먼저 확인합니다. 없다면 **L01 5단계**의 `monitoring` 계획·실행으로 자신의 RG에 Log Analytics·App Insights·프로젝트 연결을 만듭니다. 이미 있는 자원을 다시 생성하지 않습니다. 30일 보존·일일 수집 제한은 총 과금의 강제 차단이 아닙니다.
+소유 기록의 `monitoring`과 포털 연결을 먼저 확인합니다. 없다면 **L01 5단계**의 `monitoring` 계획·실행으로 자신의 RG에 Log Analytics·Application Insights·프로젝트 연결을 만듭니다. 이미 있는 자원을 다시 생성하지 않습니다. 30일 보존·일일 수집 제한은 총 과금의 강제 차단이 아닙니다.
 
-포털 **Agents → Traces → Connect** 또는 **Manage → Project details → Connected resources**에서 자신의 App Insights 연결을 확인합니다. 기존 연결이 있으면 교체하지 않습니다. 로그는 **연결 이후 실행**부터 수집되며 이전 호출을 소급해서 만든 것이 아닙니다.
+포털 **Agents → Traces → Connect** 또는 **Manage → Project details → Connected resources**에서 자신의 Application Insights 연결을 확인합니다. 기존 연결이 있으면 교체하지 않습니다. 로그는 **연결 이후 실행**부터 수집되며 이전 호출을 소급해서 만든 것이 아닙니다.
 
 </details>
 
@@ -41,7 +41,7 @@ L01에서 만든 Application Insights 연결·로그 읽기 권한과 자신의 
 
 ### 1. 로그 수집 연결부터 확인하기
 
-자기 에이전트의 **Traces**를 엽니다. **Connect**만 보이면 위 연결과 현재 프로젝트를 대조합니다. 403이면 자신의 App Insights/Log Analytics **IAM → View my access**에서 로그 읽기 권한을 확인하고 필요한 최소 범위의 역할을 설정합니다. 권한이 없으면 조회를 보류하고 실제 trace는 미확인으로 기록합니다.
+자기 에이전트의 **Traces**를 엽니다. **Connect**만 보이면 위 연결과 현재 프로젝트를 대조합니다. 403이면 자신의 Application Insights/Log Analytics **IAM → View my access**에서 로그 읽기 권한을 확인하고 필요한 최소 범위의 역할을 설정합니다. 권한이 없으면 조회를 보류하고 실제 trace는 미확인으로 기록합니다.
 
 Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 시작하는 경로입니다. 자체 클라이언트 함수 내부 로직까지 모두 자동으로 추적되는 것은 아닙니다.
 
@@ -93,9 +93,9 @@ trace에서 다음을 찾습니다.
 **포털에서 같은 실행의 작업·시간을 읽었다면 CLI는 건너뜁니다.** 아래는 SDK 응답 파일이 있을 때 같은 로그를 조회하는 대체 경로이지 추가 필수 과제가 아닙니다.
 
 <details class="optional-path" markdown="1">
-<summary>선택: SDK 응답 파일로 App Insights 로그 조회하기</summary>
+<summary>선택: SDK 응답 파일로 Application Insights 로그 조회하기</summary>
 
-동봉 CLI는 실제 응답 파일의 response/trace ID로 App Insights를 조회합니다.
+동봉 CLI는 실제 응답 파일의 response/trace ID로 Application Insights를 조회합니다.
 
 ```bash
 python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name
@@ -191,7 +191,7 @@ Monitoring dashboard와 continuous evaluation은 Preview 범위를 확인한 뒤
 | 증상 | 먼저 볼 것 | 다음 행동 |
 | --- | --- | --- |
 | JSONL을 열지 못함 / 실제 ID 없음 | `Responses:` 경로와 파일의 한 행 | L05/L06 출력 파일을 선택. 예시 ID나 L08 비교 JSON으로 대체하지 않음 |
-| 403 | 프로젝트 역할과 별개인 로그 읽기 권한 | 내 App Insights/Log Analytics IAM에서 최소 역할·scope 확인. 권한이 없으면 조회 보류 |
+| 403 | 프로젝트 역할과 별개인 로그 읽기 권한 | 내 Application Insights/Log Analytics IAM에서 최소 역할·scope 확인. 권한이 없으면 조회 보류 |
 | 0행 / 일부만 연결 | 프로젝트 연결, 실행 시각, 24시간 범위, 수집 지연 | 새 모델 요청 없이 범위와 ID를 먼저 대조. 여전히 없으면 상관관계 미확인 |
 | 부모만 있고 함수·내용 없음 | instrumentation과 민감 내용 읽기 권한 | 기본 JSONL과 관찰 범위를 함께 기록. 원문 수집을 무조건 켜지 않음 |
 

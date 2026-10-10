@@ -78,12 +78,12 @@ Keep your names and paths in the [progress record](#instructor). Do not reuse sc
 
 | What you need | Responsible component | What you will do in this guide |
 | --- | --- | --- |
-| Reasoning and text generation | Microsoft Foundry Models | Compare models using the same questions |
-| Goals, conversations, and tool use | Microsoft Foundry Agent Service | Build a purchasing and policy assistant |
-| Evidence from company documents | File search / AI Search / Microsoft Foundry IQ | Find answers in documents and cite them |
+| Reasoning and text generation | Foundry Models | Compare models using the same questions |
+| Goals, conversations, and tool use | Foundry Agent Service | Build a purchasing and policy assistant |
+| Evidence from company documents | File search / Azure AI Search / Foundry IQ | Find answers in documents and cite them |
 | Connections to real systems | Functions / MCP / OpenAPI / Toolbox | Check inventory and prepare purchase drafts |
 | A way to judge correctness | Evaluations / Red teaming | Test answers, tool use, refusals, and approval boundaries |
-| Execution paths and operations | Tracing / Monitoring / Control Plane | Inspect failures, costs, and permissions |
+| Execution paths and operations | Tracing / Monitoring / Foundry Control Plane | Inspect failures, costs, and permissions |
 
 </details>
 

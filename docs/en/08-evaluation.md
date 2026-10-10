@@ -22,7 +22,7 @@
 
 **How do you use it?** Read fixed inputs and verify the request budget. Collect your originals once, evaluate them, and preserve ties/regressions.
 
-**Where do you run it?** Read the [questions](../../data/en/evaluation/instruction-comparison.json) and [v1](../../data/en/prompts/agent-v1.txt)/[v2](../../data/en/prompts/agent-v2.txt), then use the [collector](../../samples/instruction_prompt_agent_lab.py) and [evaluator](../../samples/instruction_evaluation.py). Inspect results in Microsoft Foundry Evaluations.
+**Where do you run it?** Read the [questions](../../data/en/evaluation/instruction-comparison.json) and [v1](../../data/en/prompts/agent-v1.txt)/[v2](../../data/en/prompts/agent-v2.txt), then use the [collector](../../samples/instruction_prompt_agent_lab.py) and [evaluator](../../samples/instruction_evaluation.py). Inspect results under **Evaluations** in the Foundry portal.
 
 ## Prerequisites
 

@@ -12,7 +12,7 @@
 
 ## Objectives
 
-**Seeing a Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the Microsoft Foundry AI Gateway experience include Preview capabilities.
+**Seeing a Foundry Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the AI gateway in Foundry Agent Service experience include Preview capabilities.
 
 ## Concepts and lab map
 
@@ -90,12 +90,12 @@ A cache does not replace authentication or authorization. This example rechecks 
 
 </details>
 
-**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Microsoft Azure RBAC, network, or document ACL verification.**
+**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Azure RBAC, network, or document ACL verification.**
 
 </div>
 
 <details class="implementation-detail" markdown="1">
-<summary>Implementation reference: the cache repair versus Microsoft Azure RBAC — read only</summary>
+<summary>Implementation reference: the cache repair versus Azure RBAC — read only</summary>
 
 <a id="l21-local-code-and-the-azure-portal-boundary"></a>
 
@@ -117,7 +117,7 @@ def read_document(user, document_id, grants, cache):
 | --- | --- |
 | `prepare_practice.py governance` | Copies the flawed example to a new `practice/governance` folder |
 | Edit `exercise.py` + run `test_exercise.py` | Checks B and revoked A against local cache/fake grants |
-| Microsoft Azure portal/RBAC | Not changed or validated in this exercise |
+| Azure portal/Azure RBAC | Not changed or validated in this exercise |
 | `infra/main.bicep`, `runtime_roles.py` | Design references only; not applied to Microsoft Azure |
 
 L01 prepared your actual Microsoft Azure roles; this module studies **application cache/document authorization**. These are different checks. Actual ACL tests require permitted identities, separate synthetic restricted documents, and access logs; local passes do not substitute.
@@ -137,7 +137,7 @@ L01 prepared your actual Microsoft Azure roles; this module studies **applicatio
 
 Do not assume L12's direct Search caller and L07's connection caller are identical. Read **connection authentication in Manage → that identity's role assignment/scope → target service**. A role listing shows potential permission, not a successful call. Actual testing requires a separately approved read request.
 
-### 3. Inspect the fleet in Control Plane
+### 3. Inspect the fleet in Foundry Control Plane
 
 Under **Operate → Assets**, find the agents/models/tools your permissions allow you to see. Check how resources from other projects appear. **Manage** covers quota, details, gateways, and similar settings for the currently selected project/resource; **Operate** takes a fleet-wide view.
 
@@ -198,7 +198,7 @@ The last row is an **ACL design exercise**. The current shared Contoso index can
 
 ### 6. Check policies, encryption, and information protection
 
-Use Microsoft Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
+Use Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
 
 Defender, Purview, and Entra integrations may each require product-specific configuration, permissions, and licenses. Do not present the existence of a dashboard as organizational compliance certification. Include diagnostic logs, content provenance, and how users are informed of AI use in operational documentation.
 

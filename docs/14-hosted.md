@@ -37,7 +37,7 @@ L11의 Search/index와 모델, Python **3.13**, azd **1.34.0**,
 | 지금 상태 | 진행할 단계 | 완료로 기록할 범위 |
 | --- | --- | --- |
 | Microsoft Azure 실행 승인 없음 | 전용 환경 준비 → 1단계 패키지 생성 | 패키징만. 서버 업무 호출·원격 배포는 미실행 |
-| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | Codespaces 안의 서버가 실제 모델·검색을 호출. Microsoft Azure Hosted 배포 성공은 아님 |
+| 프로젝트·Search와 호출 승인 있음 | 1 → 2단계 | Codespaces 안의 서버가 실제 모델·검색을 호출. Hosted Agent 배포 성공은 아님 |
 | 배포·역할 변경까지 별도 승인 있음 | 1 → 2 → 3 → 4 → 5단계 | 정확한 원격 버전의 응답과 세션 중지까지 확인 |
 
 먼저 같은 실습 폴더에 **L01의 `.env`·`results/azure-environment.json`과 L11의 `results/search.json`**이 있는지 확인합니다. 프로젝트 주소·언어·Search 대상이 서로 다르면 중단합니다. 다른 사람의 기록이나 화면의 버전 숫자를 복사하지 않습니다.
@@ -75,9 +75,9 @@ L01과 같은 방식으로 `py -3.13`을 사용해 `.venv-live`를 만들고, �
 
 <a id="l12-azd"></a>
 
-**Codespaces에는 azd 1.34.0이 준비되어 있고, `azure.ai.agents` 확장도 함께 설치를 시도합니다.** 아래 명령으로 버전·확장·인증을 확인하고 없는 것만 설치합니다. azd가 없는 환경(내 PC 대안 등)에서만 [공식 Microsoft Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)를 따르고 새 터미널을 엽니다. Microsoft Azure CLI의 `az`와 Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다. PC 대안을 선택한 경우에만 해당 OS 안내를 따릅니다.
+**Codespaces에는 azd 1.34.0이 준비되어 있고, `azure.ai.agents` 확장도 함께 설치를 시도합니다.** 아래 명령으로 버전·확장·인증을 확인하고 없는 것만 설치합니다. azd가 없는 환경(내 PC 대안 등)에서만 [공식 Azure Developer CLI 설치 안내](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)를 따르고 새 터미널을 엽니다. Azure CLI의 `az`와 Azure Developer CLI의 `azd`는 다른 도구입니다. azd 준비 때문에 Copilot skill이나 Hosted 배포를 할 필요는 없습니다. PC 대안을 선택한 경우에만 해당 OS 안내를 따릅니다.
 
-azd는 Microsoft Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. Codespaces에서는 아래 Bash 명령을 그대로 사용합니다.
+azd는 Azure CLI와 인증 세션이 별도입니다. 설치된 버전·확장·인증을 먼저 확인합니다. Codespaces에서는 아래 Bash 명령을 그대로 사용합니다.
 
 ```bash
 azd version
@@ -93,7 +93,7 @@ azd auth login --check-status
 | --- | --- | --- |
 | 1. `azd version` | 설치된 CLI 버전을 확인합니다. | 로컬 확인. 자동 업데이트하지 않습니다. |
 | 2. `azd extension list` | agent 확장과 실제 버전을 확인합니다. | 목록 조회. skill 설치는 필요 없습니다. |
-| 3. `auth login --check-status` | azd 사용자 인증 상태를 확인합니다. | 배포·모델 호출 없음. Microsoft Azure CLI 로그인과 별도입니다. |
+| 3. `auth login --check-status` | azd 사용자 인증 상태를 확인합니다. | 배포·모델 호출 없음. Azure CLI 로그인과 별도입니다. |
 
 </div>
 
@@ -175,7 +175,7 @@ python samples/hosted_client.py invoke --local --live
 | --- | --- | --- |
 | 1. `curl --fail .../readiness` | 로컬 서버의 준비 endpoint를 읽습니다. `--fail`은 HTTP 오류를 실패로 처리합니다. | 서버 연결 확인이며 구매 질문·모델 호출은 아닙니다. |
 | 2. `invoke --local` | 호출 대상을 로컬로 선택하지만 `--live`가 없어 계획만 출력합니다. | 서버 업무 요청·Microsoft Azure 추론 없음. `--local`만으로 실제 호출을 허용하지 않습니다. |
-| 3. `invoke --local --live` | 로컬 서버에 합성 구매 요청을 실제 보냅니다. `--live`는 서버 뒤의 모델·Search 호출 비용을 허용한다는 의미입니다. | 응답 JSONL과 함수·인용·계약 검사를 확인합니다. 로컬 결과를 Microsoft Azure Hosted 배포 성공으로 표시하지 않습니다. |
+| 3. `invoke --local --live` | 로컬 서버에 합성 구매 요청을 실제 보냅니다. `--live`는 서버 뒤의 모델·Search 호출 비용을 허용한다는 의미입니다. | 응답 JSONL과 함수·인용·계약 검사를 확인합니다. 로컬 결과를 Hosted Agent 배포 성공으로 표시하지 않습니다. |
 
 </div>
 

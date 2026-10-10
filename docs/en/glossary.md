@@ -1,6 +1,6 @@
 > **Models reason, agents pursue goals, tools provide actual capabilities, and the operations layer verifies and controls that behavior.**
 
-Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, API identifiers, and actual menu/role names such as `New Foundry`, `Foundry User`, and `Azure AI User` retain their literal spelling so you can match the screen.
+Use **Microsoft Azure** and **Microsoft Foundry** for the platforms, and the official Microsoft Learn names for individual services and features (for example Azure AI Search, Foundry IQ, Foundry Agent Service, and Azure CLI). Commands, API identifiers, and actual menu/role names such as `New Foundry`, `Foundry User`, and `Azure AI User` retain their literal spelling so you can match the screen.
 
 ## Getting started and PC setup
 
@@ -48,7 +48,7 @@ Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, A
 | Citation | A connection to actual evidence supporting a claim | A model-written filename alone proving the claim |
 | Embedding | Meaning represented as a numeric vector | A natural-language reference answer |
 | Hybrid search | Using keyword and vector search together | Multi-agent orchestration |
-| Microsoft Foundry IQ | An enterprise knowledge retrieval layer across multiple sources | A new name for Fabric/Work IQ |
+| Foundry IQ | An enterprise knowledge retrieval layer across multiple sources | A new name for Fabric/Work IQ |
 
 ## Evaluation, operations, and advanced topics
 
@@ -63,7 +63,7 @@ Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, A
 | Groundedness | The degree to which supplied evidence supports an answer | Truthfulness about every fact in the world |
 | Trace / Span | The full execution path / an individual operation within it | Permission to store unlimited raw content |
 | Guardrail | A set of risk detection and response rules | Business-system authentication or approval |
-| Control Plane | A fleet-wide management, observation, and policy interface | The runtime itself |
+| Foundry Control Plane | A fleet-wide management, observation, and policy interface | The runtime itself |
 | AI Gateway | A layer applying request policies, routing, and limits | Automatic resolution of every security problem |
 | GA / Preview | Support status and usage conditions | Availability in every region |
 | Quota / Capacity | Allowed usage / actually available capacity | A billing cap |
@@ -77,13 +77,13 @@ Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, A
 | --- | --- | --- |
 | One summary | A model call | An agent if recurring work emerges |
 | Answers from 3 files | File search | Search if you need index control |
-| Enterprise knowledge from multiple sources | Consider Microsoft Foundry IQ | ACLs, freshness, and observability |
+| Enterprise knowledge from multiple sources | Consider Foundry IQ | ACLs, freshness, and observability |
 | One API call | A function/OpenAPI | Toolbox for reuse |
 | Custom execution code | Hosted Agent | CI/CD, scale, and operations |
 | A simple periodic invocation | Routine | A framework for complex branching |
 | A speech-based experience | Consider a Voice Agent | Voice quality, sessions, and tools |
 | Quality checks before deployment | Evaluation with a fixed dataset | Sampled evaluation in production |
-| Control of AI assets across teams | RBAC, policies, and Control Plane | Gateway and security/information-protection integrations |
+| Control of AI assets across teams | RBAC, policies, and Foundry Control Plane | Gateway and security/information-protection integrations |
 
 ## Status labels in this guide
 

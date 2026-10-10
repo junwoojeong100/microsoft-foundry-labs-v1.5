@@ -192,9 +192,9 @@ response = client.responses.create(
 다음 실습을 위해 지식 연결을 유지합니다. SDK store의 **마지막 활동 후 1일** 만료는 업로드 파일까지 삭제하지 않습니다. L19에서 남은 자원을 확인하고 승인된 대상만 삭제하거나 보존 기한을 기록합니다.
 
 <details markdown="1">
-<summary>File search와 Microsoft Foundry IQ는 언제 나누나요?</summary>
+<summary>File search와 Foundry IQ는 언제 나누나요?</summary>
 
-파일 몇 개로 빠르게 검증하려면 File search. 직접 인덱스·hybrid 검색·필터를 제어하려면 Microsoft Azure AI Search. 여러 지식 소스와 agentic retrieval을 공유하려면 Microsoft Foundry IQ를 검토합니다. 어느 경로도 연결만으로 사용자별 문서 권한이 자동 완성되지는 않습니다.
+파일 몇 개로 빠르게 검증하려면 File search. 직접 인덱스·hybrid 검색·필터를 제어하려면 Azure AI Search. 여러 지식 소스와 agentic retrieval을 공유하려면 Foundry IQ를 검토합니다. 어느 경로도 연결만으로 사용자별 문서 권한이 자동 완성되지는 않습니다.
 
 </details>
 

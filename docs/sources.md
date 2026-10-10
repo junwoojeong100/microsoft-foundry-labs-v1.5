@@ -10,11 +10,11 @@
 | 항목 | 처리 |
 | --- | --- |
 | 새 포털 GA | 개별 기능의 GA와 구분 |
-| 포털 Workflows 종료 예정 | 2026-12-01, 새 구현은 MAF 검토 |
-| Microsoft Foundry IQ | 일부 API GA, 포털 경험 Preview |
+| 포털 Workflows 종료 예정 | 2026-12-01, 새 구현은 Microsoft Agent Framework 검토 |
+| Foundry IQ | 일부 API GA, 포털 경험 Preview |
 | Memory·Voice·Agent guardrails | 해당 API의 Preview·접근 조건 구분 |
-| Agent Optimizer | Limited preview, 선택 실습 |
-| Content Understanding | 2025-11-01 GA와 2026-06-01-preview 구분 |
+| Agent optimizer | Limited preview, 선택 실습 |
+| Azure Content Understanding in Foundry Tools | 2025-11-01 GA와 2026-06-01-preview 구분 |
 | SDK | 설치 가능한 기본·advanced 조합 분리 |
 
 ## 공식 문서 목록

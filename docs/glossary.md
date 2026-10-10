@@ -1,6 +1,6 @@
 > **모델은 생각하고, agent는 목표를 수행하고, 도구는 실제 기능을 제공하며, 운영 계층은 그 행동을 확인·통제합니다.**
 
-제품명은 **Microsoft Azure**, **Microsoft Foundry**로 씁니다. 명령·API 식별자와 `New Foundry`, `Foundry User`, `Azure AI User` 같은 실제 메뉴·역할 이름은 화면과 대조할 수 있도록 원래 표기를 유지합니다.
+플랫폼은 **Microsoft Azure**, **Microsoft Foundry**로 쓰고, 개별 서비스·기능은 Microsoft Learn의 공식 명칭(예: Azure AI Search, Foundry IQ, Foundry Agent Service, Azure CLI)을 그대로 씁니다. 명령·API 식별자와 `New Foundry`, `Foundry User`, `Azure AI User` 같은 실제 메뉴·역할 이름은 화면과 대조할 수 있도록 원래 표기를 유지합니다.
 
 ## 시작·PC 준비
 
@@ -47,7 +47,7 @@
 | Citation | 답변의 주장을 뒷받침하는 실제 근거 연결 | 모델이 적은 파일 이름만으로 근거 확인 완료 |
 | Embedding | 의미를 수치 벡터로 표현 | 자연어 정답 |
 | Hybrid search | keyword와 vector를 함께 사용 | multi-agent |
-| Microsoft Foundry IQ | 여러 소스의 기업 지식 검색 계층 | Fabric/Work IQ의 새 이름 |
+| Foundry IQ | 여러 소스의 기업 지식 검색 계층 | Fabric/Work IQ의 새 이름 |
 
 ## 평가·운영·심화
 
@@ -62,7 +62,7 @@
 | Groundedness | 제공 근거에 답이 뒷받침되는 정도 | 세계의 모든 사실에 대한 진실성 |
 | Trace / Span | 실행 전체 경로 / 개별 작업 구간 | 원문을 무제한 저장할 허가 |
 | Guardrail | 위험 탐지와 대응 규칙 묶음 | 업무 시스템의 인증·승인 |
-| Control Plane | fleet 관점의 관리·관찰·정책 인터페이스 | runtime 자체 |
+| Foundry Control Plane | fleet 관점의 관리·관찰·정책 인터페이스 | runtime 자체 |
 | AI Gateway | 요청의 정책·라우팅·한도를 적용하는 계층 | 모든 보안 문제의 자동 해결 |
 | GA / Preview | 지원 상태와 사용 조건 | 모든 지역의 가용성 |
 | Quota / Capacity | 사용 허용량 / 실제 제공 용량 | 청구 상한 |
@@ -76,13 +76,13 @@
 | --- | --- | --- |
 | 요약 한 번 | 모델 호출 | 반복 업무가 생기면 agent |
 | 파일 3개 답변 | File search | index 제어 필요 시 Search |
-| 여러 소스의 기업 지식 | Microsoft Foundry IQ 검토 | ACL·freshness·관측 |
+| 여러 소스의 기업 지식 | Foundry IQ 검토 | ACL·freshness·관측 |
 | API 하나 호출 | 함수/OpenAPI | 재사용 시 Toolbox |
 | 사용자 지정 실행 코드 | Hosted Agent | CI/CD·scale·운영 |
 | 단순 주기적 호출 | Routine | 복잡한 분기면 framework |
 | 발화 기반 경험 | Voice Agent 검토 | 음성 품질·세션·도구 |
 | 배포 전 품질 확인 | 고정 데이터 평가 | 운영 sampled evaluation |
-| 팀별 AI 자산 통제 | RBAC·정책·Control Plane | gateway·보안/정보보호 연계 |
+| 팀별 AI 자산 통제 | RBAC·정책·Foundry Control Plane | gateway·보안/정보보호 연계 |
 
 ## 이 가이드의 상태 표기
 

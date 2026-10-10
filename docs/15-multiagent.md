@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 로컬에서 Agent Framework orchestration을 실행하고 승인된 Microsoft Foundry 모델을 호출합니다. Hosted 배포는 하지 않습니다.
+**진행 방식:** 로컬에서 Microsoft Agent Framework orchestration을 실행하고 승인된 Microsoft Foundry 모델을 호출합니다. Hosted 배포는 하지 않습니다.
 
 **먼저 할 일:** 별도 심화 환경을 준비하고 L02의 TPM/RPM 확인을 마친 뒤 실행할 패턴 하나의 계획을 읽습니다.
 

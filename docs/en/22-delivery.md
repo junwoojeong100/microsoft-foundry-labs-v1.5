@@ -192,7 +192,7 @@ The default exercise stops at identifying what to restore. Actual switching and 
 | --- | --- |
 | Agent and validated numeric version | Your project → Build → Agents → target Details. L05's File search Prompt Agent can provide policy guidance only |
 | Server-side tools and supported protocol | L06's local functions cannot handle remote users. L12's default Invocations deployment does not by itself verify the Teams `activity` path |
-| Publishing and resource-creation access | Actual project publish permission plus Bot Service `botServices/write` and `channels/write`; do not assume one role name grants everything |
+| Publishing and resource-creation access | Actual project publish permission plus Azure Bot Service `botServices/write` and `channels/write`; do not assume one role name grants everything |
 | User and data-processing approval | Agree on test users, audience, metadata/responses flowing to M365/Teams, and costs with the organization owner |
 | Recovery target | Previously approved version and configuration; without one, hold production release rather than invent an approval |
 
@@ -200,7 +200,7 @@ The default exercise stops at identifying what to restore. Actual switching and 
 <summary>Portal steps only after separate change approval and all prerequisites above</summary>
 
 1. Open the owned agent's **Details → Agent configuration → Active version → Edit** and select the validated **specific version**. Do not default to `Always use latest`, which can expose newly created versions automatically. Record the prior version/endpoint and the new selection.
-2. Open **Publish → Teams and Microsoft Copilot**. Confirm the scope of the Bot Service being created or reused, then enter Name, Publish version, descriptions, and Developer. Keep secrets out of display metadata.
+2. Open **Publish → Teams and Microsoft Copilot**. Confirm the scope of the Azure Bot Service being created or reused, then enter Name, Publish version, descriptions, and Developer. Keep secrets out of display metadata.
 3. Select **Next: Publish options → Direct publish → Just you**. Final **Publish** is the separately permitted change. **People in your organization** requires additional organizational permissions/deployment approval; do not expand scope for the lab.
 4. Send **one policy request from your account**, with zero retries. Run a separate negative-access test only if a permitted existing test identity is available. Do not create accounts or arbitrarily change credentials/access. If that test is not run, record it not performed.
 5. Inspect policy citations and the actual invoked version. If the candidate is wrong, stop promotion and restore the previously approved version **only after separate recovery approval**. An unchanged endpoint name does not establish successful recovery.

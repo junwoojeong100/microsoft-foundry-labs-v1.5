@@ -133,7 +133,7 @@
 
 #### 포털 모델 배포와 Group chat/Handoff 코드
 
-L14에는 Microsoft Foundry Portal에서 설정하는 Group chat/Handoff 편집기가 없습니다. 포털은 모델 배포를 제공하고, 실제 참여자 선택·메시지 전달·종료 조건은 아래 Agent Framework 코드가 정합니다.
+L14에는 Microsoft Foundry 포털에서 설정하는 Group chat/Handoff 편집기가 없습니다. 포털은 모델 배포를 제공하고, 실제 참여자 선택·메시지 전달·종료 조건은 아래 Agent Framework 코드가 정합니다.
 
 ```python
 from agent_framework.orchestrations import GroupChatBuilder, HandoffBuilder

@@ -105,7 +105,7 @@ Cleanup processes recorded conversations → lab-only agent → vector store →
 | File search | Check vector stores and original uploaded files separately |
 | Toolbox, connections, and memory | Check usage, then delete only lab objects |
 | Hosted runtime and sessions | Check execution state and cost items |
-| AI Search, Storage, and logs | The responsible owner cleans up after reviewing sharing and retention policy |
+| Azure AI Search, Storage, and logs | The responsible owner cleans up after reviewing sharing and retention policy |
 | Model deployments, PTU, and GPU | Distinguish usage, reservation, and idle costs; check separate contracts and reservations |
 | Published channels, Bots, and apps | Verify user-access revocation separately from resource cleanup |
 | Fine-tuned deployments and models | Distinguish deployment deletion from deletion of a trained model |
@@ -132,7 +132,7 @@ python scripts/cost_status.py
 
 </div>
 
-Allow for Cost Management delay and set a **next-day recheck time**. Review your own dedicated environment; separately record responsibility if handing over retained resources. Turning off alerts does not stop billing.
+Allow for Microsoft Cost Management delay and set a **next-day recheck time**. Review your own dedicated environment; separately record responsibility if handing over retained resources. Turning off alerts does not stop billing.
 
 Retain only the minimum results needed for learning, and remove real PII, tokens, and connection secrets. Delete a resource group **only after its owner confirms it is a dedicated lab group**, and after reviewing the scope in the Microsoft Azure portal. This guide does not provide a broad `az group delete` command.
 
@@ -182,7 +182,7 @@ for resource in ordered:
 | --- | --- |
 | Actual ID/state for each agent/conversation/vector store/file | `kind`, `id`, and `cleanup_status` in `receipt["resources"]` |
 | Retained model deployments, Search, or Storage | If outside the workshop receipt, record a separate owner and retention date |
-| Delayed Cost Management updates | Record the query time and next reviewer; an empty row is not proof of zero cost |
+| Delayed Microsoft Cost Management updates | Record the query time and next reviewer; an empty row is not proof of zero cost |
 | Scope immediately before Delete | Confirm `--receipt` is in the owned folder and `--confirm` exactly matches `run_id` |
 
 This excerpt shows target verification/deletion calls in `cleanup()`. The function also persists per-item status and treats only NotFound as `already_absent`; other errors remain failures. Execution requires `cleanup --live` and exact `--confirm`. Inspect portal-created resources/models separately.

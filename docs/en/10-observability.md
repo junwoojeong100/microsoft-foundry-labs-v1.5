@@ -31,7 +31,7 @@ Use the Application Insights connection/read access you prepared in L01 and your
 <details class="optional-path" markdown="1">
 <summary>If not connected yet: finish your project's telemetry setup</summary>
 
-Inspect receipt `monitoring` and the portal connection first. If absent, follow **L01 step 5** to plan/create Log Analytics, App Insights, and the connection in your owned group. Do not recreate existing resources. Thirty-day retention and daily ingestion limits are not hard total-spend caps.
+Inspect receipt `monitoring` and the portal connection first. If absent, follow **L01 step 5** to plan/create Log Analytics, Application Insights, and the connection in your owned group. Do not recreate existing resources. Thirty-day retention and daily ingestion limits are not hard total-spend caps.
 
 Inspect your own connection under **Agents → Traces → Connect** or **Manage → Project details → Connected resources**, without replacing an existing binding. Telemetry is collected **after connection**, not retroactively for earlier requests.
 
@@ -41,7 +41,7 @@ Inspect your own connection under **Agents → Traces → Connect** or **Manage 
 
 ### 1. Check the log-collection connection
 
-Open your agent's **Traces**. If only **Connect** appears, compare the connection and current project. For 403, inspect **IAM → View my access** on your App Insights/Log Analytics resources and assign the required minimum scoped roles if permitted. Otherwise block the query and record actual tracing unverified.
+Open your agent's **Traces**. If only **Connect** appears, compare the connection and current project. For 403, inspect **IAM → View my access** on your Application Insights/Log Analytics resources and assign the required minimum scoped roles if permitted. Otherwise block the query and record actual tracing unverified.
 
 Server-side tracing for Prompt/Hosted agents can begin after connection without code changes. It does not automatically trace every detail inside your client-side functions.
 
@@ -93,9 +93,9 @@ Observed children total 3,650ms, leaving 350ms. **Do not call the remaining 350m
 **Skip the CLI if you have read the same run's operations and durations in the portal.** It is an alternative for learners with an SDK response file, not an additional required task.
 
 <details class="optional-path" markdown="1">
-<summary>Optional: query App Insights using an SDK response file</summary>
+<summary>Optional: query Application Insights using an SDK response file</summary>
 
-The bundled CLI queries App Insights using response/trace IDs from an actual response file.
+The bundled CLI queries Application Insights using response/trace IDs from an actual response file.
 
 ```bash
 python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME
@@ -191,7 +191,7 @@ User thumbs-up/down feedback is a useful signal, not a ground-truth label. Follo
 | Symptom | Inspect first | Next action |
 | --- | --- | --- |
 | Cannot open JSONL / no actual IDs | The `Responses:` path and one file row | Select the L05/L06 output, not example IDs or L08 comparison JSON |
-| 403 | Log-read access is separate from project roles | Check minimum roles/scope in your App Insights/Log Analytics IAM; block the query without permission |
+| 403 | Log-read access is separate from project roles | Check minimum roles/scope in your Application Insights/Log Analytics IAM; block the query without permission |
 | Zero rows / partial correlation | Project connection, run time, 24-hour window, collection delay | Compare scope/IDs before any new model request. If still absent, leave correlation unverified |
 | Parent exists but function/content is absent | Instrumentation and sensitive-content read permissions | Record JSONL evidence and observation limits; do not indiscriminately enable content recording |
 
