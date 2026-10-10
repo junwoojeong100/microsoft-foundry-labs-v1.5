@@ -58,16 +58,45 @@ class GuideAuthoringTests(unittest.TestCase):
             texts[readme] = (ROOT / readme).read_text()
             labels = build_guide.read_json("reader-labels.json")[language]
             texts["labels"] = json.dumps(labels, ensure_ascii=False)
+            official = sorted(
+                json.loads((ROOT / "content/product-names.json").read_text(encoding="utf-8"))["official"],
+                key=len, reverse=True,
+            )
             for name, text in texts.items():
                 rendered = build_guide.markdown.markdown(text, extensions=["fenced_code", "tables", "md_in_html"])
                 rendered = re.sub(r"<(?:pre|code)\b[^>]*>.*?</(?:pre|code)>", "", rendered, flags=re.S)
                 plain = unescape(re.sub(r"<[^>]+>", " ", rendered))
-                for literal in ("Microsoft Azure", "Microsoft Foundry", "MICROSOFT AZURE",
+                for literal in (*official, "Microsoft Azure", "Microsoft Foundry", "MICROSOFT AZURE",
                                 "Azure AI User", "Foundry User", "New Foundry", "Azure OpenAI endpoint"):
                     plain = plain.replace(literal, "")
                 with self.subTest(language=language, source=name):
                     self.assertNotRegex(plain, r"(?<![A-Za-z0-9_-])(?:Azure|Foundry|AZURE|FOUNDRY)(?![A-Za-z0-9_-])")
                     self.assertNotIn("Microsoft Microsoft", text)
+
+    def test_service_names_follow_the_official_microsoft_spelling(self):
+        names = json.loads((ROOT / "content/product-names.json").read_text(encoding="utf-8"))
+        official = sorted([*names["official"], *names["incomplete"].values()], key=len, reverse=True)
+        for language in ("ko", "en"):
+            chapters, _, capabilities = build_guide.load_content(language)
+            texts = {chapter["file"]: (ROOT / chapter["file"]).read_text()
+                     for chapter in chapters if "file" in chapter}
+            texts[build_guide.RELEASE["languages"][language]["readme"]] = (
+                ROOT / build_guide.RELEASE["languages"][language]["readme"]).read_text()
+            texts["samples/README"] = (ROOT / ("samples/README.ko.md" if language == "ko" else "samples/README.md")).read_text()
+            texts["chapters"] = json.dumps(
+                [{key: chapter.get(key, "") for key in ("title", "summary", "status")} for chapter in chapters],
+                ensure_ascii=False,
+            )
+            texts["capabilities"] = json.dumps(capabilities, ensure_ascii=False)
+            for name, text in texts.items():
+                plain = re.sub(r"`[^`\n]*`", " ", re.sub(r"```.*?```", " ", text, flags=re.S))
+                with self.subTest(language=language, source=name):
+                    for inexact, exact in names["inexact"].items():
+                        self.assertNotIn(inexact, plain, f"Write {exact!r}, not {inexact!r}.")
+                    for exact in official:
+                        plain = plain.replace(exact, " ")
+                    for short, exact in names["incomplete"].items():
+                        self.assertNotIn(short, plain, f"Write {exact!r}, not {short!r}.")
 
     def test_codespaces_route_prepares_tools_without_automatic_live_actions(self):
         config = json.loads((ROOT / ".devcontainer/devcontainer.json").read_text())

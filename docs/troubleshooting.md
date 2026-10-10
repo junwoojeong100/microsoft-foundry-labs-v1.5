@@ -60,7 +60,7 @@
 | Toolbox 403 | developer·agent identity·user 위임 구분 | 실제 호출 주체에 최소 권한 | creator 권한이 자동 상속된다고 판단 |
 | 평가 `Partial` | evaluator 필수 필드·judge quota·tool runtime | 실패 evaluator를 확인하고 재실행 | 완료된 일부만으로 평균 산출 |
 | Gate에서 `null` 오류 | 누락된 결과·평가자 오류·해당 기준 | 실제 원본과 요구 필드를 확인하고 미확인은 미확인으로 유지 | `true` 일괄 입력·기준 완화 |
-| trace 없음 | App Insights 연결·권한·시간·수집 지연 | 기존 response ID와 조회 범위를 먼저 대조 | 반복 모델 호출·빈 화면=오류 없음 |
+| trace 없음 | Application Insights 연결·권한·시간·수집 지연 | 기존 response ID와 조회 범위를 먼저 대조 | 반복 모델 호출·빈 화면=오류 없음 |
 | memory가 안 보임 | scope·새 conversation·업데이트 지연 | item/retrieval을 직접 확인 | 출력 형식만으로 기억 여부 판정 |
 | Teams 게시 후 응답 없음 | active version·Bot route·도구 실행 위치 | 게시와 실제 호출을 따로 테스트 | 앱 목록 표시를 최종 성공으로 판단 |
 | 비용이 계속 증가 | routine·voice·지속 평가·Search/PTU/runtime | 활성·유휴·고정 비용 분리 | 브라우저 닫기만 하기 |

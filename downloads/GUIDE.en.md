@@ -21,15 +21,15 @@
 - [08. Compare and evaluate your answers (Evaluation)](#l08)
 - [09. Reject missing facts and false approval (Safety / Guardrails)](#l09)
 - [10. Follow an answer's execution path (Tracing)](#l10)
-- [11. AI Search, Microsoft Foundry IQ, and permission-aware retrieval](#l13)
+- [11. Azure AI Search, Foundry IQ, and permission-aware retrieval](#l13)
 - [12. Hosted agents and developer tools](#l14)
-- [13. Agent Framework: sequential and concurrent execution](#l15)
-- [14. Agent Framework: group chat and handoff](#l15-collaboration)
+- [13. Microsoft Agent Framework: sequential and concurrent execution](#l15)
+- [14. Microsoft Agent Framework: group chat and handoff](#l15-collaboration)
 - [15. Memory: remembering and forgetting](#l16)
 - [16. Routines, long-running agents, and Autopilot](#l17)
-- [17. Enterprise security, Control Plane, and gateways](#l21)
+- [17. Enterprise security, Foundry Control Plane, and AI gateways](#l21)
 - [18. CI/CD: quality gates, publishing, and rollback](#l22)
-- [19. Finish the lab and check costs (Cost Management)](#l12)
+- [19. Finish the lab and check costs (Microsoft Cost Management)](#l12)
 - [A. Troubleshooting by symptom](#troubleshooting)
 - [B. Your progress and completion checklist](#instructor)
 - [C. Glossary and decision guide](#glossary)
@@ -124,12 +124,12 @@ Keep your names and paths in the [progress record](#instructor). Do not reuse sc
 
 | What you need | Responsible component | What you will do in this guide |
 | --- | --- | --- |
-| Reasoning and text generation | Microsoft Foundry Models | Compare models using the same questions |
-| Goals, conversations, and tool use | Microsoft Foundry Agent Service | Build a purchasing and policy assistant |
-| Evidence from company documents | File search / AI Search / Microsoft Foundry IQ | Find answers in documents and cite them |
+| Reasoning and text generation | Foundry Models | Compare models using the same questions |
+| Goals, conversations, and tool use | Foundry Agent Service | Build a purchasing and policy assistant |
+| Evidence from company documents | File search / Azure AI Search / Foundry IQ | Find answers in documents and cite them |
 | Connections to real systems | Functions / MCP / OpenAPI / Toolbox | Check inventory and prepare purchase drafts |
 | A way to judge correctness | Evaluations / Red teaming | Test answers, tool use, refusals, and approval boundaries |
-| Execution paths and operations | Tracing / Monitoring / Control Plane | Inspect failures, costs, and permissions |
+| Execution paths and operations | Tracing / Monitoring / Foundry Control Plane | Inspect failures, costs, and permissions |
 
 </details>
 
@@ -343,7 +343,7 @@ Core capabilities are hands-on. Additional permissions, licenses, and Preview ac
 | Role-assignment permission | `Microsoft.Authorization/roleAssignments/write` at the target scope; `Contributor` alone cannot grant roles |
 | Quota-read permission | `Cognitive Services Usages Reader` or equivalent subscription permission |
 | Region and budget | Supported models, permitted processing scope, spend limit, stop criteria, and retention deadline |
-| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Microsoft Azure CLI, Microsoft Azure Developer CLI (azd), and core/MCP packages |
+| Default environment | Browser, GitHub account, repository access, and approved Codespaces usage/cost scope. Repository configuration prepares Python 3.13, Azure CLI, Azure Developer CLI (azd), and core/MCP packages |
 
 Verify permissions even in your own subscription. In an organizational subscription, secure the required scoped permissions and cost approval before proceeding. If an action is not permitted, leave it blocked; do not disable security or broaden subscription-wide access. Local exercises work without Microsoft Azure access but **do not complete the live Microsoft Foundry path**.
 
@@ -381,7 +381,7 @@ If you do not yet have Microsoft Azure access, stop after **step 1** and continu
     - This Region locates the development environment, not your subsequent Microsoft Azure resources or model-processing scope.
     - [GitHub usage and costs](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces) are separate from Microsoft Azure charges.
 3. Even after browser VS Code opens, **wait for post-create setup to finish** and display `Lab tools ready.`.
-    - The repository configuration prepares Python 3.13, Microsoft Azure CLI, Microsoft Azure Developer CLI (azd), Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
+    - The repository configuration prepares Python 3.13, Azure CLI, Azure Developer CLI (azd), Bicep, the Python extension, `.venv`, and core/MCP packages, and copies the `.env` template only if absent.
     - It does not sign into Microsoft Azure, create resources, or grant roles.
 4. Open **Terminal → New Terminal** in the lab root containing `samples`, `data`, and `requirements.txt`. **This is Linux/Bash even on a Windows PC**, so do not substitute PowerShell commands. Select the English data profile before the checks:
 
@@ -432,12 +432,12 @@ On another day, restart **the same Codespace** from [Your Codespaces](https://gi
 
 **Already installed? Do not repeat installation.** Check versions for your OS, then select the [English profile](#l01-language), [prepare files and the virtual environment](#l01-local), and [select Python](#l01-interpreter). For a first installation, follow **only your OS's sections** below. Without Microsoft Azure access, complete PC/local preparation and leave step 2 onward pending.
 
-Prepare Python, Microsoft Azure CLI, and VS Code through organization-approved paths. **Check existing tools first and install only what is missing.** Prefer your organization's software portal, approved installers, and package sources. Follow the official download steps below only when permitted. If installation or downloads are blocked, obtain an approved distribution path; do not bypass security warnings, certificate validation, or execution policies.
+Prepare Python, Azure CLI, and VS Code through organization-approved paths. **Check existing tools first and install only what is missing.** Prefer your organization's software portal, approved installers, and package sources. Follow the official download steps below only when permitted. If installation or downloads are blocked, obtain an approved distribution path; do not bypass security warnings, certificate validation, or execution policies.
 
 | Tool | Its role in this lab | Ready when |
 | --- | --- | --- |
 | Python 3.13 | Runs actual Python code and the Microsoft Foundry SDK on your PC. | The version check prints `Python 3.13.x`. |
-| Microsoft Azure CLI | Signs into Microsoft Azure and creates or inspects lab resources. | `az version` prints an `azure-cli` version. This kit's baseline is 2.86.0. |
+| Azure CLI | Signs into Microsoft Azure and creates or inspects lab resources. | `az version` prints an `azure-cli` version. This kit's baseline is 2.86.0. |
 | VS Code | Displays and edits code and opens a PC terminal. | You can open the lab folder and a Python file. Prepare the Python extension below. |
 
 <a id="l01-python"></a>
@@ -518,12 +518,10 @@ Having only 3.12, 3.14, or another version does not complete this step. Keep oth
 
 <a id="l01-azure-cli"></a>
 
-<a id="l01-install-and-check-azure-cli"></a>
-
-#### Install and check Microsoft Azure CLI
+#### Install and check Azure CLI
 
 <details class="setup-detail" markdown="1">
-<summary>Only if az is missing: Microsoft Azure CLI installation by OS</summary>
+<summary>Only if az is missing: Azure CLI installation by OS</summary>
 
 **Windows**
 
@@ -547,7 +545,7 @@ brew install azure-cli
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `brew install azure-cli` | Installs Homebrew's Microsoft Azure CLI package and required dependencies. | Download and PC changes; separate from preparing the lab's Python 3.13; no Microsoft Azure request. |
+| 1. `brew install azure-cli` | Installs Homebrew's Azure CLI package and required dependencies. | Download and PC changes; separate from preparing the lab's Python 3.13; no Microsoft Azure request. |
 
 </div>
 
@@ -565,7 +563,7 @@ sudo apt install azure-cli
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `apt install azure-cli` | Installs Microsoft Azure CLI from the configured, approved source. | Download and PC changes; no Microsoft Azure sign-in or resource creation. |
+| 1. `apt install azure-cli` | Installs Azure CLI from the configured, approved source. | Download and PC changes; no Microsoft Azure sign-in or resource creation. |
 
 </div>
 
@@ -583,7 +581,7 @@ az version
 
 | Order and command | What it does | Result, cost, or change |
 | --- | --- | --- |
-| 1. `az version` | Prints local Microsoft Azure CLI and installed extension versions. | Not a sign-in, permission, or Microsoft Azure connectivity check; no model call or resource creation. |
+| 1. `az version` | Prints local Azure CLI and installed extension versions. | Not a sign-in, permission, or Microsoft Azure connectivity check; no model call or resource creation. |
 
 </div>
 
@@ -1015,7 +1013,7 @@ python scripts/azure_environment.py roles --live
 
 | Creation code | What to inspect in the portal |
 | --- | --- |
-| RG creation in `create` | Unique Microsoft Azure Resource groups name and ownership tags |
+| RG creation in `create` | Unique Microsoft Azure resource group name and ownership tags |
 | Microsoft Foundry account/project in `foundation` | Project name, parent resource, and region |
 | Bicep model deployments | Model ID/version and deployment names such as `contoso-chat` |
 | Scoped assignments in `roles` | Caller/managed identity and scope in the resource's IAM |
@@ -2066,9 +2064,9 @@ Do not start by uploading the documents again. Check these first:
 Retain the knowledge connection for later labs. SDK store expiration **one day after last activity** does not delete uploaded files. In L19, inspect remaining resources and delete only approved targets or record retention deadlines.
 
 <details markdown="1">
-<summary>When should you choose File search or Microsoft Foundry IQ?</summary>
+<summary>When should you choose File search or Foundry IQ?</summary>
 
-Use File search for quick validation with a few files. Use Microsoft Azure AI Search when you need direct control over indexes, hybrid retrieval, and filters. Consider Microsoft Foundry IQ for sharing multiple knowledge sources and agentic retrieval. None of these paths automatically implements per-user document permissions just by connecting a source.
+Use File search for quick validation with a few files. Use Azure AI Search when you need direct control over indexes, hybrid retrieval, and filters. Consider Foundry IQ for sharing multiple knowledge sources and agentic retrieval. None of these paths automatically implements per-user document permissions just by connecting a source.
 
 </details>
 
@@ -2681,7 +2679,7 @@ server.run(transport="stdio")
 | --- | --- |
 | HTTP server in terminal one | `Handler.do_GET()` in `inventory_api.py` handles `/inventory/<sku>`. It listens only on `127.0.0.1`, so the Microsoft Foundry portal cannot call it directly. |
 | MCP call in terminal two | `mcp_server.py` exposes stdio tools; `toolbox_lab.py --local` starts it as a child process and sends `tools/list` / `tools/call`. |
-| Optional Microsoft Foundry Cloud Toolbox | `toolbox_lab.py create` registers `MCPToolboxTool` / `OpenApiToolboxTool` and managed identity settings. Inspect the same Toolbox/version in the portal. |
+| Optional Foundry Toolbox | `toolbox_lab.py create` registers `MCPToolboxTool` / `OpenApiToolboxTool` and managed identity settings. Inspect the same Toolbox/version in the portal. |
 | One-time tool approval | `--approve-tool` is enforced by the bundled client for the exact tool name and arguments. It is not business approval or permission to order. |
 
 The local HTTP/MCP code runs on your computer, not inside a portal button. Portal integration uses an approved cloud Toolbox/OpenAPI connection, not a tunnel to the local server.
@@ -2762,7 +2760,7 @@ Retain Toolbox/Skill versions with their ownership receipt, and delete them only
 
 **How do you use it?** Read fixed inputs and verify the request budget. Collect your originals once, evaluate them, and preserve ties/regressions.
 
-**Where do you run it?** Read the [questions](../data/en/evaluation/instruction-comparison.json) and [v1](../data/en/prompts/agent-v1.txt)/[v2](../data/en/prompts/agent-v2.txt), then use the [collector](../samples/instruction_prompt_agent_lab.py) and [evaluator](../samples/instruction_evaluation.py). Inspect results in Microsoft Foundry Evaluations.
+**Where do you run it?** Read the [questions](../data/en/evaluation/instruction-comparison.json) and [v1](../data/en/prompts/agent-v1.txt)/[v2](../data/en/prompts/agent-v2.txt), then use the [collector](../samples/instruction_prompt_agent_lab.py) and [evaluator](../samples/instruction_evaluation.py). Inspect results under **Evaluations** in the Foundry portal.
 
 ## Prerequisites
 
@@ -3197,7 +3195,7 @@ Use the Application Insights connection/read access you prepared in L01 and your
 <details class="optional-path" markdown="1">
 <summary>If not connected yet: finish your project's telemetry setup</summary>
 
-Inspect receipt `monitoring` and the portal connection first. If absent, follow **L01 step 5** to plan/create Log Analytics, App Insights, and the connection in your owned group. Do not recreate existing resources. Thirty-day retention and daily ingestion limits are not hard total-spend caps.
+Inspect receipt `monitoring` and the portal connection first. If absent, follow **L01 step 5** to plan/create Log Analytics, Application Insights, and the connection in your owned group. Do not recreate existing resources. Thirty-day retention and daily ingestion limits are not hard total-spend caps.
 
 Inspect your own connection under **Agents → Traces → Connect** or **Manage → Project details → Connected resources**, without replacing an existing binding. Telemetry is collected **after connection**, not retroactively for earlier requests.
 
@@ -3207,7 +3205,7 @@ Inspect your own connection under **Agents → Traces → Connect** or **Manage 
 
 ### 1. Check the log-collection connection
 
-Open your agent's **Traces**. If only **Connect** appears, compare the connection and current project. For 403, inspect **IAM → View my access** on your App Insights/Log Analytics resources and assign the required minimum scoped roles if permitted. Otherwise block the query and record actual tracing unverified.
+Open your agent's **Traces**. If only **Connect** appears, compare the connection and current project. For 403, inspect **IAM → View my access** on your Application Insights/Log Analytics resources and assign the required minimum scoped roles if permitted. Otherwise block the query and record actual tracing unverified.
 
 Server-side tracing for Prompt/Hosted agents can begin after connection without code changes. It does not automatically trace every detail inside your client-side functions.
 
@@ -3259,9 +3257,9 @@ Observed children total 3,650ms, leaving 350ms. **Do not call the remaining 350m
 **Skip the CLI if you have read the same run's operations and durations in the portal.** It is an alternative for learners with an SDK response file, not an additional required task.
 
 <details class="optional-path" markdown="1">
-<summary>Optional: query App Insights using an SDK response file</summary>
+<summary>Optional: query Application Insights using an SDK response file</summary>
 
-The bundled CLI queries App Insights using response/trace IDs from an actual response file.
+The bundled CLI queries Application Insights using response/trace IDs from an actual response file.
 
 ```bash
 python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME
@@ -3357,7 +3355,7 @@ User thumbs-up/down feedback is a useful signal, not a ground-truth label. Follo
 | Symptom | Inspect first | Next action |
 | --- | --- | --- |
 | Cannot open JSONL / no actual IDs | The `Responses:` path and one file row | Select the L05/L06 output, not example IDs or L08 comparison JSON |
-| 403 | Log-read access is separate from project roles | Check minimum roles/scope in your App Insights/Log Analytics IAM; block the query without permission |
+| 403 | Log-read access is separate from project roles | Check minimum roles/scope in your Application Insights/Log Analytics IAM; block the query without permission |
 | Zero rows / partial correlation | Project connection, run time, 24-hour window, collection delay | Compare scope/IDs before any new model request. If still absent, leave correlation unverified |
 | Parent exists but function/content is absent | Instrumentation and sensitive-content read permissions | Record JSONL evidence and observation limits; do not indiscriminately enable content recording |
 
@@ -3384,13 +3382,13 @@ Record only the trace IDs needed for diagnosis and minimal evidence. Set log ret
 
 <a id="l13"></a>
 
-# 11. AI Search, Microsoft Foundry IQ, and permission-aware retrieval
+# 11. Azure AI Search, Foundry IQ, and permission-aware retrieval
 
 **Advanced course · IQ partially GA / portal Preview** · about 45 min
 
 > **Learning order: Independent elective** — An L01 project and model. This module prepares Search, embeddings, and an index, which also provide the foundation for L12.
 
-> **What you will build:** Load the bundled Contoso policies into Search and compare the actual evidence returned by keyword, hybrid, and Microsoft Foundry IQ searches.
+> **What you will build:** Load the bundled Contoso policies into Azure AI Search and compare the actual evidence returned by keyword, hybrid, and Foundry IQ searches.
 
 <div class="lab-brief" markdown="1">
 
@@ -3410,7 +3408,7 @@ Do not extend this claim to Preview query planning, answer synthesis, or user AC
 
 ## Concepts and lab map
 
-**What you will try:** Compare keyword, hybrid, and Microsoft Foundry IQ retrieval for the same policy question.
+**What you will try:** Compare keyword, hybrid, and Foundry IQ retrieval for the same policy question.
 
 **What is it, and why does it matter?** An index organizes searchable documents. Keyword matches words, vector matches similar meaning, and hybrid combines both. Semantic ranking reranks candidates. IQ provides a common retrieval path across connected knowledge sources.
 
@@ -3602,7 +3600,7 @@ hits = validate_hits(raw["value"])
 | Search index fields and semantic configuration | `index_schema(name)` and the index PUT in `initialize()` |
 | Search Explorer query, result count, and selected fields | `search`, `top`, and `select` payload values |
 | Hybrid path | `embeddings([query])`, then `vectorQueries` |
-| Microsoft Foundry IQ Knowledge base retrieval | `/knowledgebases/{kb}/retrieve` and `references/sourceData` |
+| Foundry IQ knowledge base retrieval | `/knowledgebases/{kb}/retrieve` and `references/sourceData` |
 | Whether returned evidence is valid | `validate_hits()` compares real policy chunk IDs and hashes |
 
 L11's `corpus` inspects local synthetic input. Only `initialize/query --live` accesses or changes remote resources. Confirm that the portal Knowledge connection and the code's index/knowledge-base name refer to the same owned record.
@@ -3694,7 +3692,7 @@ Verify Hosted capabilities/regions. Use L01's scoped creation/role-assignment pe
 | Current state | Steps to follow | What completion means |
 | --- | --- | --- |
 | No Microsoft Azure execution approval | Prepare the dedicated environment → step 1 packaging | Packaging only; server business calls and deployment not performed |
-| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a server inside Codespaces, not successful Microsoft Azure Hosted deployment |
+| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a server inside Codespaces, not a successful Hosted Agent deployment |
 | Deployment and role changes separately approved | Steps 1 → 2 → 3 → 4 → 5 | Inspect the exact remote version's answer and stopped session |
 
 First locate **L01's `.env` and `results/azure-environment.json`, plus L11's `results/search.json`**, in this same lab folder. Stop if project address, language, or Search target differs. Never copy another learner's receipt or a screenshot's version number.
@@ -3732,9 +3730,9 @@ Use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-l
 
 <a id="l12-azd"></a>
 
-**Codespaces provides azd 1.34.0 and also tries to install the `azure.ai.agents` extension.** Use the commands below to check the version, extension, and sign-in, and install only what is missing. Follow the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) only where azd is absent (for example the PC alternative), then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
+**Codespaces provides azd 1.34.0 and also tries to install the `azure.ai.agents` extension.** Use the commands below to check the version, extension, and sign-in, and install only what is missing. Follow the [official Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) only where azd is absent (for example the PC alternative), then open a new terminal. Azure CLI's `az` and Azure Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
 
-azd and Microsoft Azure CLI have separate authentication. Check versions/extensions and sign-in first. Use the Bash commands below unchanged in Codespaces.
+azd and Azure CLI have separate authentication. Check versions/extensions and sign-in first. Use the Bash commands below unchanged in Codespaces.
 
 ```bash
 azd version
@@ -3750,7 +3748,7 @@ azd auth login --check-status
 | --- | --- | --- |
 | 1. `azd version` | Checks the installed CLI version. | Local inspection, no automatic upgrade. |
 | 2. `azd extension list` | Checks the agent extension/version. | Listing only; no Copilot skill is required. |
-| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Microsoft Azure CLI sign-in. |
+| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Azure CLI sign-in. |
 
 </div>
 
@@ -3832,7 +3830,7 @@ python samples/hosted_client.py invoke --local --live
 | --- | --- | --- |
 | 1. `curl --fail .../readiness` | Reads the local server's readiness endpoint. `--fail` treats HTTP errors as failures. | Checks server connectivity; it is not a purchasing question or model call. |
 | 2. `invoke --local` | Selects the local target but prints only a plan because `--live` is absent. | No business request to the server or Microsoft Azure inference. `--local` alone does not authorize a real invocation. |
-| 3. `invoke --local --live` | Sends a real synthetic purchasing request to the local server. `--live` authorizes the cost of the model/Search calls behind the server. | Inspect the response JSONL and the function, citation, and contract checks. Do not label local results as a successful Microsoft Azure Hosted deployment. |
+| 3. `invoke --local --live` | Sends a real synthetic purchasing request to the local server. `--live` authorizes the cost of the model/Search calls behind the server. | Inspect the response JSONL and the function, citation, and contract checks. Do not label local results as a successful Hosted Agent deployment. |
 
 </div>
 
@@ -4023,7 +4021,7 @@ not to the code directory. Do not include it in the package.
 
 <a id="l15"></a>
 
-# 13. Agent Framework: sequential and concurrent execution
+# 13. Microsoft Agent Framework: sequential and concurrent execution
 
 **Advanced course · Check each SDK and pattern** · about 40 min
 
@@ -4033,7 +4031,7 @@ not to the code directory. Do not include it in the package.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Run Agent Framework orchestration locally against an approved Microsoft Foundry model. No Hosted deployment is performed.
+**Format:** Run Microsoft Agent Framework orchestration locally against an approved Microsoft Foundry model. No Hosted deployment is performed.
 
 **Start here:** Prepare the separate advanced environment, finish L02's TPM/RPM check, and read the plan for one selected pattern.
 
@@ -4299,7 +4297,7 @@ This module performs local orchestration and model calls only. Hosted sessions a
 
 <a id="l15-collaboration"></a>
 
-# 14. Agent Framework: group chat and handoff
+# 14. Microsoft Agent Framework: group chat and handoff
 
 **Advanced course · Check each SDK and pattern** · about 35 min
 
@@ -4718,7 +4716,7 @@ This compares **scope-specific retrieval**. The same API caller selects both sco
 
 | Symptom | Check first | Next action |
 | --- | --- | --- |
-| The API call fails | Model/embedding support, store settings, user scopes, and Preview API access | Preserve the original error. Do not substitute a local dictionary and label it Microsoft Azure Memory success. |
+| The API call fails | Model/embedding support, store settings, user scopes, and Preview API access | Preserve the original error. Do not substitute a local dictionary and label it Memory in Foundry Agent Service success. |
 | Creation failed but `memory.json` exists | Your portal and the original error | Reconcile whether the remote object exists. Do not erase the receipt or edit unverified ownership. |
 | An item disappears after one hour | The one-hour TTL | TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record. |
 
@@ -4803,7 +4801,7 @@ azd ai routine --help
 </div>
 
 Use the core SDK environment. If azd or Routine support is missing, follow only [L12's azd setup section](#l12-azd) for installation/authentication, then install `azure.ai.routines` using `azd extension install azure.ai.routines` when needed. Inspect the installed `azd ai routine --help`; do not force-update it. Hosted deployment itself is unnecessary.
-Query only the English project and App Insights in this checkout's `results/azure-environment.json`.
+Query only the English project and Application Insights in this checkout's `results/azure-environment.json`.
 Do not automatically upgrade CLI extensions/global settings or use resources from another environment.
 
 ### Choose your starting path
@@ -4811,7 +4809,7 @@ Do not automatically upgrade CLI extensions/global settings or use resources fro
 | Required value | Where to get it | Relationship to verify |
 | --- | --- | --- |
 | `ACTUAL_AGENT_NAME` | Your L05 project → Build → Agents name, or that SDK run's owned receipt | File search runs server-side; do not substitute L06's local-function agent |
-| Project/App Insights | Your own L01 `results/azure-environment.json` and telemetry connection | Matches `.env` and allows reading action traces |
+| Project/Application Insights | Your own L01 `results/azure-environment.json` and telemetry connection | Matches `.env` and allows reading action traces |
 | Two `--receipt` paths | The **distinct new manual/scheduled files** below | Never overwrite previous or other-language records |
 
 Follow **one manual execution → one timer execution → verify both disabled**. Without Microsoft Azure approval, read only the first `create` plan. Resolve log access and response-collection prerequisites before scheduling. Do not reschedule merely because an execution's trace is absent.
@@ -4879,7 +4877,7 @@ states that azd does not support history queries. The checked extension decodes 
 instead of the service's `data`/`next_link`, so it can print
 `{"value":null,"next_page_token":""}` even when an execution exists.
 Routine creation, inspection, and stopping still use azd; the script does not work around this with Routine REST/SDK calls.
-Execution evidence is obtained separately through bounded KQL against the owned App Insights resource.
+Execution evidence is obtained separately through bounded KQL against the owned Application Insights resource.
 If the trace cannot be read, end with **execution unverified** rather than assuming success or non-execution.
 
 </details>
@@ -4964,7 +4962,7 @@ created = azd(
 | Trigger time | `triggers.default.at` and `state["trigger_at"]` |
 | Target agent/input | `action.agent_name` / `action.input` |
 | Enabled / Paused | `enabled` from `azd show`; `stop_verified(...)` disables it |
-| Last run | Separate App Insights trace and response ID; a receipt alone does not prove execution |
+| Last run | Separate Application Insights trace and response ID; a receipt alone does not prove execution |
 
 `fire_at` is the UTC trigger time; `manifest_path` is a new JSON file in `results/`. Python invokes azd, not portal UI automation. Compare the portal target/time/Paused state with code inputs; live actions require matching receipt, `--live`, and approval.
 
@@ -5012,7 +5010,7 @@ If it targets Hosted, stop the agent session compute separately as well.
 
 <a id="l21"></a>
 
-# 17. Enterprise security, Control Plane, and gateways
+# 17. Enterprise security, Foundry Control Plane, and AI gateways
 
 **Advanced course · Mixed GA / Preview** · about 45 min
 
@@ -5032,7 +5030,7 @@ If it targets Hosted, stop the agent session compute separately as well.
 
 ## Objectives
 
-**Seeing a Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the Microsoft Foundry AI Gateway experience include Preview capabilities.
+**Seeing a Foundry Control Plane screen is not the same as policies actually being enforced.** Operate's Overview/Assets/Compliance and the AI gateway in Foundry Agent Service experience include Preview capabilities.
 
 ## Concepts and lab map
 
@@ -5110,12 +5108,12 @@ A cache does not replace authentication or authorization. This example rechecks 
 
 </details>
 
-**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Microsoft Azure RBAC, network, or document ACL verification.**
+**Explain the result:** Record before/after behavior for `A's first read / B's read of the same document / A after revocation / public policy`. Then identify which layer in the identity table below must enforce the check. **A local test pass is not Azure RBAC, network, or document ACL verification.**
 
 </div>
 
 <details class="implementation-detail" markdown="1">
-<summary>Implementation reference: the cache repair versus Microsoft Azure RBAC — read only</summary>
+<summary>Implementation reference: the cache repair versus Azure RBAC — read only</summary>
 
 <a id="l21-local-code-and-the-azure-portal-boundary"></a>
 
@@ -5137,7 +5135,7 @@ def read_document(user, document_id, grants, cache):
 | --- | --- |
 | `prepare_practice.py governance` | Copies the flawed example to a new `practice/governance` folder |
 | Edit `exercise.py` + run `test_exercise.py` | Checks B and revoked A against local cache/fake grants |
-| Microsoft Azure portal/RBAC | Not changed or validated in this exercise |
+| Azure portal/Azure RBAC | Not changed or validated in this exercise |
 | `infra/main.bicep`, `runtime_roles.py` | Design references only; not applied to Microsoft Azure |
 
 L01 prepared your actual Microsoft Azure roles; this module studies **application cache/document authorization**. These are different checks. Actual ACL tests require permitted identities, separate synthetic restricted documents, and access logs; local passes do not substitute.
@@ -5157,7 +5155,7 @@ L01 prepared your actual Microsoft Azure roles; this module studies **applicatio
 
 Do not assume L12's direct Search caller and L07's connection caller are identical. Read **connection authentication in Manage → that identity's role assignment/scope → target service**. A role listing shows potential permission, not a successful call. Actual testing requires a separately approved read request.
 
-### 3. Inspect the fleet in Control Plane
+### 3. Inspect the fleet in Foundry Control Plane
 
 Under **Operate → Assets**, find the agents/models/tools your permissions allow you to see. Check how resources from other projects appear. **Manage** covers quota, details, gateways, and similar settings for the currently selected project/resource; **Operate** takes a fleet-wide view.
 
@@ -5218,7 +5216,7 @@ The last row is an **ACL design exercise**. The current shared Contoso index can
 
 ### 6. Check policies, encryption, and information protection
 
-Use Microsoft Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
+Use Azure Policy to review allowed models, deployment types, and network conditions. CMK protects data at rest for supported resources; it does not mean runtime leak prevention or support for every feature.
 
 Defender, Purview, and Entra integrations may each require product-specific configuration, permissions, and licenses. Do not present the existence of a dashboard as organizational compliance certification. Include diagnostic logs, content provenance, and how users are informed of AI use in operational documentation.
 
@@ -5461,7 +5459,7 @@ The default exercise stops at identifying what to restore. Actual switching and 
 | --- | --- |
 | Agent and validated numeric version | Your project → Build → Agents → target Details. L05's File search Prompt Agent can provide policy guidance only |
 | Server-side tools and supported protocol | L06's local functions cannot handle remote users. L12's default Invocations deployment does not by itself verify the Teams `activity` path |
-| Publishing and resource-creation access | Actual project publish permission plus Bot Service `botServices/write` and `channels/write`; do not assume one role name grants everything |
+| Publishing and resource-creation access | Actual project publish permission plus Azure Bot Service `botServices/write` and `channels/write`; do not assume one role name grants everything |
 | User and data-processing approval | Agree on test users, audience, metadata/responses flowing to M365/Teams, and costs with the organization owner |
 | Recovery target | Previously approved version and configuration; without one, hold production release rather than invent an approval |
 
@@ -5469,7 +5467,7 @@ The default exercise stops at identifying what to restore. Actual switching and 
 <summary>Portal steps only after separate change approval and all prerequisites above</summary>
 
 1. Open the owned agent's **Details → Agent configuration → Active version → Edit** and select the validated **specific version**. Do not default to `Always use latest`, which can expose newly created versions automatically. Record the prior version/endpoint and the new selection.
-2. Open **Publish → Teams and Microsoft Copilot**. Confirm the scope of the Bot Service being created or reused, then enter Name, Publish version, descriptions, and Developer. Keep secrets out of display metadata.
+2. Open **Publish → Teams and Microsoft Copilot**. Confirm the scope of the Azure Bot Service being created or reused, then enter Name, Publish version, descriptions, and Developer. Keep secrets out of display metadata.
 3. Select **Next: Publish options → Direct publish → Just you**. Final **Publish** is the separately permitted change. **People in your organization** requires additional organizational permissions/deployment approval; do not expand scope for the lab.
 4. Send **one policy request from your account**, with zero retries. Run a separate negative-access test only if a permitted existing test identity is available. Do not create accounts or arbitrarily change credentials/access. If that test is not run, record it not performed.
 5. Inspect policy citations and the actual invoked version. If the candidate is wrong, stop promotion and restore the previously approved version **only after separate recovery approval**. An unchanged endpoint name does not establish successful recovery.
@@ -5549,7 +5547,7 @@ Exclude private settings, raw responses, and receipts from the kit. Keep your CI
 
 <a id="l12"></a>
 
-# 19. Finish the lab and check costs (Cost Management)
+# 19. Finish the lab and check costs (Microsoft Cost Management)
 
 **Shared wrap-up · Required wrap-up** · about 10 min
 
@@ -5660,7 +5658,7 @@ Cleanup processes recorded conversations → lab-only agent → vector store →
 | File search | Check vector stores and original uploaded files separately |
 | Toolbox, connections, and memory | Check usage, then delete only lab objects |
 | Hosted runtime and sessions | Check execution state and cost items |
-| AI Search, Storage, and logs | The responsible owner cleans up after reviewing sharing and retention policy |
+| Azure AI Search, Storage, and logs | The responsible owner cleans up after reviewing sharing and retention policy |
 | Model deployments, PTU, and GPU | Distinguish usage, reservation, and idle costs; check separate contracts and reservations |
 | Published channels, Bots, and apps | Verify user-access revocation separately from resource cleanup |
 | Fine-tuned deployments and models | Distinguish deployment deletion from deletion of a trained model |
@@ -5687,7 +5685,7 @@ python scripts/cost_status.py
 
 </div>
 
-Allow for Cost Management delay and set a **next-day recheck time**. Review your own dedicated environment; separately record responsibility if handing over retained resources. Turning off alerts does not stop billing.
+Allow for Microsoft Cost Management delay and set a **next-day recheck time**. Review your own dedicated environment; separately record responsibility if handing over retained resources. Turning off alerts does not stop billing.
 
 Retain only the minimum results needed for learning, and remove real PII, tokens, and connection secrets. Delete a resource group **only after its owner confirms it is a dedicated lab group**, and after reviewing the scope in the Microsoft Azure portal. This guide does not provide a broad `az group delete` command.
 
@@ -5737,7 +5735,7 @@ for resource in ordered:
 | --- | --- |
 | Actual ID/state for each agent/conversation/vector store/file | `kind`, `id`, and `cleanup_status` in `receipt["resources"]` |
 | Retained model deployments, Search, or Storage | If outside the workshop receipt, record a separate owner and retention date |
-| Delayed Cost Management updates | Record the query time and next reviewer; an empty row is not proof of zero cost |
+| Delayed Microsoft Cost Management updates | Record the query time and next reviewer; an empty row is not proof of zero cost |
 | Scope immediately before Delete | Confirm `--receipt` is in the owned folder and `--confirm` exactly matches `run_id` |
 
 This excerpt shows target verification/deletion calls in `cleanup()`. The function also persists per-item status and treats only NotFound as `already_absent`; other errors remain failures. Execution requires `cleanup --live` and exact `--confirm`. Inspect portal-created resources/models separately.
@@ -5863,7 +5861,7 @@ Inspect your own bilingual comparison files, keeping each language's results sep
 | OpenAPI MCP argument validation fails | The inspected tool's `inputSchema` | Keep `api-version` at the top level and put `search`, `top`, and `select` inside `body`, as in L07 | Flatten the body fields or substitute the Microsoft Learn `query` schema |
 | Evaluation is `Partial` | Required evaluator fields, judge quota, and tool runtime | Identify and rerun the failed evaluator | Average only the completed subset |
 | Missing/`null` result at the automated gate | Missing required results or evaluator errors | Inspect original results and required fields; keep unknown values unresolved | Fill values with `true` or lower the criteria |
-| No trace | App Insights connection, permissions, time range, and ingestion delay | Compare the existing response ID and query scope first | Repeated model calls or treating an empty screen as proof of no errors |
+| No trace | Application Insights connection, permissions, time range, and ingestion delay | Compare the existing response ID and query scope first | Repeated model calls or treating an empty screen as proof of no errors |
 | Request correlation is complete but model spans are partial | Span types, instrumentation, and query filters | Record request-correlation and model-span counts separately, then inspect missing spans | Treat the two counts as equivalent or invent missing spans |
 | Memory is not visible | Scope, new conversation, and update delay | Inspect the item/retrieval directly | Judge memory solely from output formatting |
 | No response after publishing to Teams | Active version, Bot route, and tool execution location | Test publishing and actual invocation separately | Treat an app listing as final success |
@@ -6030,7 +6028,7 @@ L13/L14/L17/L18 follow **Try it → Change one thing → Explain the result**. E
 | Agent claims a lookup/order succeeded | Requires actual tool evidence; real ordering is not connected |
 | `completed` | Execution finished, not answer/quality certification |
 | Only some evaluation rows succeed | Do not omit errors/missing rows to produce a passing average |
-| Local access/release tests pass | Not actual Microsoft Azure RBAC/deployment/rollback verification |
+| Local access/release tests pass | Not actual Azure RBAC/deployment/rollback verification |
 | Memory A/B searches | Lab-scope comparison, not a complete authenticated-user access test |
 | One successful evaluation | Not generalization, production release, or independent holdout validation |
 
@@ -6052,7 +6050,7 @@ Do not rewrite criteria, baseline v1, or failed originals after observing result
 
 > **Models reason, agents pursue goals, tools provide actual capabilities, and the operations layer verifies and controls that behavior.**
 
-Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, API identifiers, and actual menu/role names such as `New Foundry`, `Foundry User`, and `Azure AI User` retain their literal spelling so you can match the screen.
+Use **Microsoft Azure** and **Microsoft Foundry** for the platforms, and the official Microsoft Learn names for individual services and features (for example Azure AI Search, Foundry IQ, Foundry Agent Service, and Azure CLI). Commands, API identifiers, and actual menu/role names such as `New Foundry`, `Foundry User`, and `Azure AI User` retain their literal spelling so you can match the screen.
 
 ## Getting started and PC setup
 
@@ -6100,7 +6098,7 @@ Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, A
 | Citation | A connection to actual evidence supporting a claim | A model-written filename alone proving the claim |
 | Embedding | Meaning represented as a numeric vector | A natural-language reference answer |
 | Hybrid search | Using keyword and vector search together | Multi-agent orchestration |
-| Microsoft Foundry IQ | An enterprise knowledge retrieval layer across multiple sources | A new name for Fabric/Work IQ |
+| Foundry IQ | An enterprise knowledge retrieval layer across multiple sources | A new name for Fabric/Work IQ |
 
 ## Evaluation, operations, and advanced topics
 
@@ -6115,7 +6113,7 @@ Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, A
 | Groundedness | The degree to which supplied evidence supports an answer | Truthfulness about every fact in the world |
 | Trace / Span | The full execution path / an individual operation within it | Permission to store unlimited raw content |
 | Guardrail | A set of risk detection and response rules | Business-system authentication or approval |
-| Control Plane | A fleet-wide management, observation, and policy interface | The runtime itself |
+| Foundry Control Plane | A fleet-wide management, observation, and policy interface | The runtime itself |
 | AI Gateway | A layer applying request policies, routing, and limits | Automatic resolution of every security problem |
 | GA / Preview | Support status and usage conditions | Availability in every region |
 | Quota / Capacity | Allowed usage / actually available capacity | A billing cap |
@@ -6129,13 +6127,13 @@ Use the product names **Microsoft Azure** and **Microsoft Foundry**. Commands, A
 | --- | --- | --- |
 | One summary | A model call | An agent if recurring work emerges |
 | Answers from 3 files | File search | Search if you need index control |
-| Enterprise knowledge from multiple sources | Consider Microsoft Foundry IQ | ACLs, freshness, and observability |
+| Enterprise knowledge from multiple sources | Consider Foundry IQ | ACLs, freshness, and observability |
 | One API call | A function/OpenAPI | Toolbox for reuse |
 | Custom execution code | Hosted Agent | CI/CD, scale, and operations |
 | A simple periodic invocation | Routine | A framework for complex branching |
 | A speech-based experience | Consider a Voice Agent | Voice quality, sessions, and tools |
 | Quality checks before deployment | Evaluation with a fixed dataset | Sampled evaluation in production |
-| Control of AI assets across teams | RBAC, policies, and Control Plane | Gateway and security/information-protection integrations |
+| Control of AI assets across teams | RBAC, policies, and Foundry Control Plane | Gateway and security/information-protection integrations |
 
 ## Status labels in this guide
 
@@ -6177,11 +6175,11 @@ There are **68 capability mappings** across 20 modules.
 | Developer surfaces | New Foundry portal / Discover, Build, Operate, Manage | [L00](#l00) | Direct lab | GA / some Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Developer surfaces | Model, Agent, and Image playgrounds / Video playground | [L02](#l02) | Conditional lab | GA / Video Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Developer surfaces | Hands-on Python SDK / .NET, JavaScript, and Java references | [L03](#l03) | Direct lab | Check each language and feature | [Official documentation](https://learn.microsoft.com/azure/foundry/quickstarts/get-started-code) |
-| Developer surfaces | Microsoft Azure Developer CLI / Microsoft Foundry Dev Pack / templates | [L12](#l14) | Conditional lab | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
-| Developer surfaces | VS Code Toolkit / Agent inspector / local tracing | [L12](#l14) | Conditional lab | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code) |
-| Developer surfaces | Microsoft Foundry Agent Canvas | [L12](#l14) | Reference | Check current availability and access | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) |
-| Developer surfaces | Microsoft Foundry Skill / coding agent / Microsoft Foundry MCP Server | [L12](#l14) | Reference | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
-| Models | Multi-provider model catalog / Microsoft Azure direct, partner, and community models | [L02](#l02) | Direct lab | Check each model | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure) |
+| Developer surfaces | Azure Developer CLI / Foundry DevPack / templates | [L12](#l14) | Conditional lab | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
+| Developer surfaces | Microsoft Foundry Toolkit for Visual Studio Code / Agent Inspector / local tracing | [L12](#l14) | Conditional lab | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code) |
+| Developer surfaces | Foundry Agent Canvas | [L12](#l14) | Reference | Check current availability and access | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) |
+| Developer surfaces | Microsoft Foundry Skill / coding agent / Foundry MCP Server | [L12](#l14) | Reference | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
+| Models | Multi-provider Foundry Models catalog / models sold by Azure, partner, and community models | [L02](#l02) | Direct lab | Check each model | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure) |
 | Models | Model comparison / benchmarks / leaderboards | [L02](#l02) | Direct lab | Leaderboards Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Models | Model deployment / endpoints / management APIs | [L02](#l02) | Direct lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) |
 | Models | Standard, Global, and Data Zone / processing location | [L02](#l02) | Direct lab | Check each model and region | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types) |
@@ -6201,9 +6199,9 @@ There are **68 capability mappings** across 20 modules.
 | Agents | Human-in-the-loop / distinguish handoff from business approval | [L14](#l15-collaboration) | Reference | Microsoft Foundry long-running HITL Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) |
 | Agents | Routines / timer, schedule, and event triggers / reminders | [L16](#l17) | Conditional lab | Routines GA / check details | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/routines) |
 | Agents | Long-running agents / state, recovery, reconnect, steering | [L16](#l17) | Design | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/long-running-agent-resilience) |
-| Agents | Agent identity / Entra Agent ID | [L17](#l21) | Design | Check each configuration and operation | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-identity) |
-| Agents | Autopilot / Agent 365 / blueprints and agent users | [L16](#l17) | Design | Check access and licensing | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/autopilot-overview) |
-| Agents | Stable endpoints / active versions / publishing to Teams and Copilot | [L18](#l22) | Conditional lab | GA / check publishing requirements | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/publish-copilot) |
+| Agents | Agent identity / Microsoft Entra Agent ID | [L17](#l21) | Design | Check each configuration and operation | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/agent-identity) |
+| Agents | Autopilot / Microsoft Agent 365 / blueprints and agent users | [L16](#l17) | Design | Check access and licensing | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/autopilot-overview) |
+| Agents | Stable endpoints / active versions / publishing to Microsoft Teams and Microsoft Copilot | [L18](#l22) | Conditional lab | GA / check publishing requirements | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/publish-copilot) |
 | Tools | Function calling / structured arguments / client-side execution | [L06](#l06) | Direct lab | GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/function-calling) |
 | Tools | File search / vector stores / file uploads | [L05](#l05) | Direct lab | GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/file-search) |
 | Tools | MCP / project connections / approvals and allowed tools | [L07](#l07) | Conditional lab | Check authentication and connection type | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/model-context-protocol) |
@@ -6211,9 +6209,9 @@ There are **68 capability mappings** across 20 modules.
 | Tools | Toolbox / shared endpoints / versions and central management | [L07](#l07) | Conditional lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
 | Tools | Tool search / large-scale tool discovery | [L07](#l07) | Reference | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
 | Tools | Create skills, pin versions, and read MCP resources / private catalog reference | [L07](#l07) | Conditional lab | Skills Preview / check details | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/toolbox-overview) |
-| Tools | Microsoft Azure Functions / connector-based actions | [L07](#l07) | Design | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
+| Tools | Azure Functions / connector-based actions | [L07](#l07) | Design | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference#tools) |
 | Knowledge | RAG / chunking / embeddings / keyword, vector, hybrid, and semantic retrieval | [L11](#l13) | Conditional lab | Check each feature | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/retrieval-augmented-generation) |
-| Knowledge | Microsoft Foundry IQ / knowledge bases and knowledge sources | [L11](#l13) | Conditional lab | Partially GA / portal Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
+| Knowledge | Foundry IQ / knowledge bases and knowledge sources | [L11](#l13) | Conditional lab | Partially GA / portal Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
 | Knowledge | Hands-on IQ minimal/extractive retrieval / query planning and answer synthesis reference | [L11](#l13) | Conditional lab | GA / Preview varies by API scope | [Official documentation](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-migrate) |
 | Knowledge | Document ACLs and user tokens / permission-aware retrieval | [L11](#l13) | Design | Separate from Search RBAC for shared policies; executable ACL code not included | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/foundry-iq-connect) |
 | Knowledge | Freshness / indexers / incremental updates / source deletion | [L11](#l13) | Design | Check each feature and API | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq) |
@@ -6224,7 +6222,7 @@ There are **68 capability mappings** across 20 modules.
 | Evaluation and optimization | Fixed synthetic dev comparison / distinguish holdouts and human review | [L08](#l08) | Direct lab | GA / Preview varies by feature / holdout execution is not a core task | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/evaluation-dataset-schema) |
 | Evaluation and optimization | Trace-to-dataset / cluster analysis / feedback | [L10](#l10) | Design | Some Preview features | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/observability) |
 | Observability and operations | Server-side tracing / replay / conversations and responses | [L10](#l10) | Direct lab | Prompt and Hosted GA | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/trace-agent-setup) |
-| Observability and operations | Client OpenTelemetry / App Insights / diagnostic logging | [L10](#l10) | Conditional lab | Check each integration path | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/trace-agent-setup) |
+| Observability and operations | Client OpenTelemetry / Application Insights / diagnostic logging | [L10](#l10) | Conditional lab | Check each integration path | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/trace-agent-setup) |
 | Observability and operations | Monitoring / continuous and scheduled evaluation / alerts | [L10](#l10) | Conditional lab | Check Preview scope | [Official documentation](https://learn.microsoft.com/azure/foundry/observability/how-to/how-to-monitor-agents-dashboard) |
 | Observability and operations | Model deployment monitoring / tokens, latency, errors, costs | [L18](#l22) | Design | Check each feature | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/observability) |
 | Observability and operations | End-user feedback / Notification Center | [L10](#l10) | Design | Check each feature | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
@@ -6233,12 +6231,12 @@ There are **68 capability mappings** across 20 modules.
 | Safety | Custom categories and blocklists / guided and third-party guardrails | [L09](#l09) | Reference | Check each control and experience | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
 | Safety | AI red teaming / adversarial evaluation | [L09](#l09) | Conditional lab | Based on the GA table / check details | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/ai-red-teaming-agent) |
 | Safety | Responsible AI / transparency / content provenance and copyright conditions | [L17](#l21) | Design | Check each policy and service | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
-| Enterprise management | Control Plane / fleet inventory, Overview, Assets, Compliance | [L17](#l21) | Conditional lab | Key Operate panes are Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/control-plane/overview) |
+| Enterprise management | Foundry Control Plane / fleet inventory, Overview, Assets, Compliance | [L17](#l21) | Conditional lab | Key Operate panes are Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/control-plane/overview) |
 | Enterprise management | Register external agents / cross-platform observability | [L17](#l21) | Design | Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
-| Enterprise management | AI Gateway / APIM / token and rate limits, routing, caching | [L17](#l21) | Design | Microsoft Foundry experience Preview / check configuration | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/ai-gateway) |
-| Enterprise management | RBAC / Agent Consumer / keyless access, managed identities, scopes | [L01](#l01) | Direct lab | Check each role and operation | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/rbac-foundry) |
+| Enterprise management | AI gateway / Azure API Management / token and rate limits, routing, caching | [L17](#l21) | Design | Microsoft Foundry experience Preview / check configuration | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/ai-gateway) |
+| Enterprise management | Azure RBAC / Foundry Agent Consumer / keyless access, managed identities, scopes | [L01](#l01) | Direct lab | Check each role and operation | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/rbac-foundry) |
 | Enterprise management | VNets, private endpoints, DNS, egress, and network security | [L17](#l21) | Design | Support and limitations vary by feature | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/configure-private-link) |
-| Enterprise management | CMK / Microsoft Azure Policy / Entra, Defender, and Purview integration | [L17](#l21) | Design | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/customer-managed-keys) |
+| Enterprise management | CMK / Azure Policy / Microsoft Entra, Microsoft Defender, and Microsoft Purview integration | [L17](#l21) | Design | Check each component | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/customer-managed-keys) |
 | Enterprise management | Quota / capacity / regions / cost management and cleanup | [L19](#l12) | Direct lab | Service-specific requirements | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/planning) |
 | Enterprise management | Hands-on local CI / OIDC, agent release, and rollback design | [L18](#l22) | Direct lab | Default source checks/design / live deployment requires L14 and separate approval | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/set-up-cicd-hosted-agent) |
 | Enterprise management | High availability / disaster recovery / RTO and RPO | [L18](#l22) | Design | Check each service and deployment | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/high-availability-resiliency) |
@@ -6269,11 +6267,11 @@ Compare code with official examples for your installed SDK version. A GA portal 
 | Topic | Treatment |
 | --- | --- |
 | New portal GA | Separate from individual feature GA |
-| Scheduled portal Workflows retirement | 2026-12-01; consider MAF for new implementations |
-| Microsoft Foundry IQ | Some APIs GA, portal experience Preview |
+| Scheduled portal Workflows retirement | 2026-12-01; consider Microsoft Agent Framework for new implementations |
+| Foundry IQ | Some APIs GA, portal experience Preview |
 | Memory, Voice, Agent guardrails | Keep API-specific Preview/access conditions explicit |
-| Agent Optimizer | Limited preview, optional exercise |
-| Content Understanding | Distinguish 2025-11-01 GA and 2026-06-01-preview |
+| Agent optimizer | Limited preview, optional exercise |
+| Azure Content Understanding in Foundry Tools | Distinguish 2025-11-01 GA and 2026-06-01-preview |
 | SDKs | Separate installable core and advanced combinations |
 
 ## Official document list

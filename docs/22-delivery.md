@@ -192,7 +192,7 @@ L06의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290�
 | --- | --- |
 | 게시할 agent와 검증한 숫자 version | 자신의 프로젝트 → Build → Agents → 대상 Details. L05의 File search Prompt Agent는 정책 안내 범위로 사용 가능 |
 | 서버에서 실행되는 도구·지원 protocol | L06의 로컬 함수는 원격 사용자 요청을 처리하지 않음. L12의 기본 Invocations 배포만으로 Teams의 `activity` 경로까지 검증됐다고 가정하지 않음 |
-| 게시와 자원 생성 권한 | 프로젝트의 실제 publish permission과 Bot Service `botServices/write`, `channels/write`. 단일 역할 이름으로 모두 충족한다고 가정하지 않음 |
+| 게시와 자원 생성 권한 | 프로젝트의 실제 publish permission과 Azure Bot Service `botServices/write`, `channels/write`. 단일 역할 이름으로 모두 충족한다고 가정하지 않음 |
 | 사용자·데이터 처리 승인 | 시험 사용자·게시 범위·M365/Teams로 흐르는 metadata와 응답·비용을 조직 담당자와 확인 |
 | 복구 대상 | 이전 승인 버전과 설정. 없으면 임의 버전을 승인된 것으로 만들지 말고 운영 출시 보류 |
 
@@ -200,7 +200,7 @@ L06의 기본 구매 과제라면 **재고 8개·단가 145만 원·총액 290�
 <summary>실제 변경 승인과 위 조건이 모두 있는 경우에만: 포털 단계</summary>
 
 1. 자신의 agent **Details → Agent configuration → Active version → Edit**에서 검증한 **특정 버전**을 선택합니다. `Always use latest`는 새 버전이 자동 노출될 수 있으므로 교육용 기본 선택으로 쓰지 않습니다. 변경 전 버전·endpoint와 변경 후 선택값을 기록합니다.
-2. **Publish → Teams and Microsoft Copilot**을 엽니다. 생성되거나 재사용될 Bot Service의 범위를 확인하고, Name·Publish version·설명·Developer를 작성합니다. 표시 정보에는 비밀을 넣지 않습니다.
+2. **Publish → Teams and Microsoft Copilot**을 엽니다. 생성되거나 재사용될 Azure Bot Service의 범위를 확인하고, Name·Publish version·설명·Developer를 작성합니다. 표시 정보에는 비밀을 넣지 않습니다.
 3. **Next: Publish options → Direct publish → Just you**를 선택합니다. 최종 **Publish**는 별도 허용된 실제 게시입니다. **People in your organization**은 추가 조직 권한·배포 승인이 필요한 범위이며 실습을 위해 확대하지 않습니다.
 4. 내 계정으로 **정책 질문 1건**, 재시도 0회로 결과를 확인합니다. 다른 사용자에 대한 접근 시험은 허용된 기존 테스트 identity가 있을 때만 별도 1건 수행합니다. 새 계정을 만들거나 계정 정보·권한을 임의로 바꾸지 않습니다. 부정 접근 시험을 하지 않았다면 미실행으로 기록합니다.
 5. 응답의 정책 인용·실제 실행 버전을 확인합니다. 잘못된 후보라면 승격을 멈추고, **별도 복구 승인 후** 이전 승인 버전으로 전환합니다. endpoint 이름이 같다는 이유로 복구 성공을 판정하지 않습니다.
@@ -232,7 +232,7 @@ private 프로젝트는 일반 포털 게시 경로가 지원되지 않을 수 �
 | --- | --- |
 | `choose_version(previous, candidate, checks)` | 로컬 fixture에서 이전 버전 유지/후보 선택만 반환 |
 | `test_exercise.py` | 완료·quality·critical failures·missing rows 조합을 로컬에서 확인 |
-| Microsoft Foundry Portal의 version/Publish | 정확한 숫자 agent version을 선택·게시하는 별도 승인 운영 작업 |
+| Microsoft Foundry 포털의 version/Publish | 정확한 숫자 agent version을 선택·게시하는 별도 승인 운영 작업 |
 | `azure-validation.yml` | 별도 manual 승인 경로. 로컬 fixture 테스트가 Microsoft Azure workflow를 실행하지 않음 |
 
 따라서 로컬 테스트 통과와 Portal의 실제 Publish는 서로 다른 결과 기록입니다. 기본 과제는 첫 두 줄만 실행하고, 실제 버전 전환·게시를 완료한 것으로 쓰지 않습니다.

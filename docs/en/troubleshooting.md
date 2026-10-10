@@ -69,7 +69,7 @@ Inspect your own bilingual comparison files, keeping each language's results sep
 | OpenAPI MCP argument validation fails | The inspected tool's `inputSchema` | Keep `api-version` at the top level and put `search`, `top`, and `select` inside `body`, as in L07 | Flatten the body fields or substitute the Microsoft Learn `query` schema |
 | Evaluation is `Partial` | Required evaluator fields, judge quota, and tool runtime | Identify and rerun the failed evaluator | Average only the completed subset |
 | Missing/`null` result at the automated gate | Missing required results or evaluator errors | Inspect original results and required fields; keep unknown values unresolved | Fill values with `true` or lower the criteria |
-| No trace | App Insights connection, permissions, time range, and ingestion delay | Compare the existing response ID and query scope first | Repeated model calls or treating an empty screen as proof of no errors |
+| No trace | Application Insights connection, permissions, time range, and ingestion delay | Compare the existing response ID and query scope first | Repeated model calls or treating an empty screen as proof of no errors |
 | Request correlation is complete but model spans are partial | Span types, instrumentation, and query filters | Record request-correlation and model-span counts separately, then inspect missing spans | Treat the two counts as equivalent or invent missing spans |
 | Memory is not visible | Scope, new conversation, and update delay | Inspect the item/retrieval directly | Judge memory solely from output formatting |
 | No response after publishing to Teams | Active version, Bot route, and tool execution location | Test publishing and actual invocation separately | Treat an app listing as final success |

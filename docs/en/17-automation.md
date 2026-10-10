@@ -50,7 +50,7 @@ azd ai routine --help
 </div>
 
 Use the core SDK environment. If azd or Routine support is missing, follow only [L12's azd setup section](#l12-azd) for installation/authentication, then install `azure.ai.routines` using `azd extension install azure.ai.routines` when needed. Inspect the installed `azd ai routine --help`; do not force-update it. Hosted deployment itself is unnecessary.
-Query only the English project and App Insights in this checkout's `results/azure-environment.json`.
+Query only the English project and Application Insights in this checkout's `results/azure-environment.json`.
 Do not automatically upgrade CLI extensions/global settings or use resources from another environment.
 
 ### Choose your starting path
@@ -58,7 +58,7 @@ Do not automatically upgrade CLI extensions/global settings or use resources fro
 | Required value | Where to get it | Relationship to verify |
 | --- | --- | --- |
 | `ACTUAL_AGENT_NAME` | Your L05 project → Build → Agents name, or that SDK run's owned receipt | File search runs server-side; do not substitute L06's local-function agent |
-| Project/App Insights | Your own L01 `results/azure-environment.json` and telemetry connection | Matches `.env` and allows reading action traces |
+| Project/Application Insights | Your own L01 `results/azure-environment.json` and telemetry connection | Matches `.env` and allows reading action traces |
 | Two `--receipt` paths | The **distinct new manual/scheduled files** below | Never overwrite previous or other-language records |
 
 Follow **one manual execution → one timer execution → verify both disabled**. Without Microsoft Azure approval, read only the first `create` plan. Resolve log access and response-collection prerequisites before scheduling. Do not reschedule merely because an execution's trace is absent.
@@ -126,7 +126,7 @@ states that azd does not support history queries. The checked extension decodes 
 instead of the service's `data`/`next_link`, so it can print
 `{"value":null,"next_page_token":""}` even when an execution exists.
 Routine creation, inspection, and stopping still use azd; the script does not work around this with Routine REST/SDK calls.
-Execution evidence is obtained separately through bounded KQL against the owned App Insights resource.
+Execution evidence is obtained separately through bounded KQL against the owned Application Insights resource.
 If the trace cannot be read, end with **execution unverified** rather than assuming success or non-execution.
 
 </details>
@@ -211,7 +211,7 @@ created = azd(
 | Trigger time | `triggers.default.at` and `state["trigger_at"]` |
 | Target agent/input | `action.agent_name` / `action.input` |
 | Enabled / Paused | `enabled` from `azd show`; `stop_verified(...)` disables it |
-| Last run | Separate App Insights trace and response ID; a receipt alone does not prove execution |
+| Last run | Separate Application Insights trace and response ID; a receipt alone does not prove execution |
 
 `fire_at` is the UTC trigger time; `manifest_path` is a new JSON file in `results/`. Python invokes azd, not portal UI automation. Compare the portal target/time/Paused state with code inputs; live actions require matching receipt, `--live`, and approval.
 

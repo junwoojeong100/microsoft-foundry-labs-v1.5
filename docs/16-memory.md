@@ -187,7 +187,7 @@ result = store.search_memories(
 
 | 증상 | 먼저 확인할 것 | 다음 행동 |
 | --- | --- | --- |
-| API 호출이 실패 | 모델/embedding 지원, store 설정, 사용자 scope, API Preview 접근 | 원본 오류를 보존합니다. 로컬 dict로 대체한 것을 Microsoft Azure Memory 성공으로 표시하지 않습니다. |
+| API 호출이 실패 | 모델/embedding 지원, store 설정, 사용자 scope, API Preview 접근 | 원본 오류를 보존합니다. 로컬 dict로 대체한 것을 Memory in Foundry Agent Service 성공으로 표시하지 않습니다. |
 | `memory.json`이 있는데 생성이 실패 | 자신의 포털과 원본 오류 | 원격 생성 여부를 대조합니다. 기록을 지워 반복하거나 미확인 소유 정보를 수정하지 않습니다. |
 | item이 1시간 뒤 사라짐 | 1시간 TTL | TTL로 사라진 것은 승인된 삭제 실행 증거가 아닙니다. 새 실습은 별도 소유 기록으로 준비합니다. |
 

@@ -20,16 +20,16 @@
 | [instruction_lab.py](instruction_lab.py) | 개발용 데이터로 제한된 v1/v2 지침 비교를 수집합니다. | 선택 비교 스크립트입니다. 재시도나 holdout 사용을 하지 않습니다. |
 | [instruction_prompt_agent_lab.py](instruction_prompt_agent_lab.py) | 버전을 고정한 Prompt Agent로 v1/v2 답변을 수집합니다. | L08의 선택 경로입니다. `--live`는 에이전트 버전을 만들고 모델 호출을 수행할 수 있습니다. |
 | [inventory_api.py](inventory_api.py) | 합성 재고를 읽는 로컬 HTTP 서버입니다. 초안 생성 endpoint는 없습니다. | L07. loopback 전용이며 클라우드에 노출하거나 터널링하지 않습니다. |
-| [local_lab.py](local_lab.py) | Microsoft Foundry Local 기기 실습을 검사하거나 실행합니다. | 기본은 검사만 합니다. `--local`은 실제 로컬 기기 작업을, `--allow-download`는 모델·실행 공급자 다운로드를 허용합니다. Microsoft Azure 호출은 하지 않습니다. |
+| [local_lab.py](local_lab.py) | Foundry Local 기기 실습을 검사하거나 실행합니다. | 기본은 검사만 합니다. `--local`은 실제 로컬 기기 작업을, `--allow-download`는 모델·실행 공급자 다운로드를 허용합니다. Microsoft Azure 호출은 하지 않습니다. |
 | [memory_lab.py](memory_lab.py) | 합성 선호 정보의 저장·조회·검증·항목 삭제를 보여 줍니다. | L15의 선택 실습입니다. 항목 삭제는 Memory 저장소나 리소스 그룹을 삭제하지 않습니다. |
 | [model_capacity.py](model_capacity.py) | 학습자 수·역할 기준 모델 처리량을 계획하고 용량을 확인·변경·시험합니다. | L02/L13의 선택 경로입니다. Microsoft Azure 용량 변경·시험에는 명시적 `--live`와 소유 범위 확인이 필요합니다. |
-| [multi_agent.py](multi_agent.py) | Agent Framework의 순차·동시·그룹 채팅·핸드오프 흐름을 실행합니다. | L13–L14. 계획 출력은 기본이며 실제 모델 실행에는 `--live`가 필요합니다. 원격 A2A 실습은 아닙니다. |
+| [multi_agent.py](multi_agent.py) | Microsoft Agent Framework의 순차·동시·그룹 채팅·핸드오프 흐름을 실행합니다. | L13–L14. 계획 출력은 기본이며 실제 모델 실행에는 `--live`가 필요합니다. 원격 A2A 실습은 아닙니다. |
 | [mcp_server.py](mcp_server.py) | 재고 조회와 구매 초안 계산을 제공하는 로컬 stdio MCP 서버입니다. | L07. 합성 데이터만 쓰며 외부 업무 작업을 수행하지 않습니다. |
-| [optimizer_lab.py](optimizer_lab.py) | 개발 데이터에 한정해 Microsoft Foundry Agent Optimizer 작업을 시작·관찰합니다. | 선택 확장입니다. 후보를 자동 적용하거나 배포하지 않습니다. 기본 평가 세트는 ZIP에 없는 유지보수 전용이며 어떤 실습도 사용하지 않습니다. |
+| [optimizer_lab.py](optimizer_lab.py) | 개발 데이터에 한정해 Foundry의 agent optimizer 작업을 시작·관찰합니다. | 선택 확장입니다. 후보를 자동 적용하거나 배포하지 않습니다. 기본 평가 세트는 ZIP에 없는 유지보수 전용이며 어떤 실습도 사용하지 않습니다. |
 | [prepare_practice.py](prepare_practice.py) | 의도적으로 결함이 있는 로컬 연습 문제를 새 학습자 폴더로 복사합니다. | L17/L18 설계 연습 보조 도구입니다. Microsoft Azure 작업은 수행하지 않습니다. |
 | [prepare_tuning.py](prepare_tuning.py) | 작은 합성 SFT 형식 연습 데이터를 만듭니다. | 선택 참고 도구입니다. 학습 작업을 제출하거나 모델을 변경하지 않습니다. |
 | [routine_lab.py](routine_lab.py) | 제한된 범위의 Routine 생성·실행·상태 확인·중지를 연습합니다. | L16. 중지 절차를 따르며 Routine이나 리소스 그룹을 삭제하지 않습니다. |
-| [search_lab.py](search_lab.py) | 합성 정책 말뭉치와 Search/Microsoft Foundry IQ 검색 경로를 다룹니다. | L11. `corpus`는 로컬 확인이며 인덱스 초기화·검색의 Microsoft Azure 실행에는 명시적 `--live`가 필요합니다. |
+| [search_lab.py](search_lab.py) | 합성 정책 말뭉치와 Azure AI Search/Foundry IQ 검색 경로를 다룹니다. | L11. `corpus`는 로컬 확인이며 인덱스 초기화·검색의 Microsoft Azure 실행에는 명시적 `--live`가 필요합니다. |
 | [toolbox_lab.py](toolbox_lab.py) | MCP, OpenAPI, Toolbox, Skill 도구의 설정·검사·호출을 연습합니다. | L07 및 선택 확장. `--approve-tool`은 해당 호출 한 건의 도구 이름을 지정합니다. |
 | [trace_lab.py](trace_lab.py) | 보존된 응답 ID와 Application Insights trace를 연결해 조회합니다. | L10의 선택 경로입니다. 없는 trace를 성공으로 추정하지 않습니다. |
 | [workshop.py](workshop.py) | 로컬 함수, 모델 호출, 에이전트, File search, 통합 실습을 묶은 실행기입니다. | L02–L06의 완성형·참고 구현입니다. 처음에는 작은 `first_response.py`부터 따라가세요. |
@@ -56,7 +56,7 @@
 | L02/L13 `model_capacity.py` | 학습자 수·역할 → 처리량 계획 → 계획 출력; 라이브 하위명령은 용량 확인·변경·시험 | `plan --learners 1`과 다른 인원 수를 비교합니다. `apply`는 리소스 변경입니다. |
 | L07 `inventory_api.py` + `toolbox_lab.py` | 로컬 HTTP/MCP 서버 → 승인한 도구 호출 → 합성 재고·초안 결과 | `--local` 호출은 한 도구만 골라 `--approve-tool`로 확인합니다. |
 | L08 `instruction_prompt_agent_lab.py` → `instruction_evaluation.py` | 고정 질문·v1/v2 → 저장된 답변 파일 → 그 파일을 그대로 Microsoft Foundry에서 평가 | 응답 JSON과 평가 JSON을 구분합니다. 평가는 대상 agent를 다시 호출하지 않습니다. |
-| L10 `trace_lab.py` | 저장 응답 파일의 ID + App Insights 식별자 → trace 상관 조회 → 보고서 | 실행 전 로컬 입력 파일을 확인합니다. 원격 조회는 `--live`가 필요합니다. |
+| L10 `trace_lab.py` | 저장 응답 파일의 ID + Application Insights 식별자 → trace 상관 조회 → 보고서 | 실행 전 로컬 입력 파일을 확인합니다. 원격 조회는 `--live`가 필요합니다. |
 | L11 `search_lab.py` | 합성 정책 말뭉치 → 인덱스 설정·검색 모드 → 검색 결과와 근거 | `corpus`는 로컬입니다. 인덱스 생성·질의는 `--live` 경계를 확인합니다. |
 | L12 `hosted_client.py` | 질문·agent 버전 → 로컬/배포 Hosted Agent → 보존된 실행 근거 | `--local`이어도 실제 Microsoft Azure 호출일 수 있어 `--live` 조건을 확인합니다. |
 | L13/L14 `multi_agent.py` | `--mode` → 로컬 SDK의 단계별 전달/위임 → Evidence 결과 | 실제 입력·출력을 비교합니다. `a2a_lab.py`의 원격 위임은 별도 참고이며 이 두 장의 실행 범위가 아닙니다. |

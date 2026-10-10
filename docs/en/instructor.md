@@ -113,7 +113,7 @@ L13/L14/L17/L18 follow **Try it → Change one thing → Explain the result**. E
 | Agent claims a lookup/order succeeded | Requires actual tool evidence; real ordering is not connected |
 | `completed` | Execution finished, not answer/quality certification |
 | Only some evaluation rows succeed | Do not omit errors/missing rows to produce a passing average |
-| Local access/release tests pass | Not actual Microsoft Azure RBAC/deployment/rollback verification |
+| Local access/release tests pass | Not actual Azure RBAC/deployment/rollback verification |
 | Memory A/B searches | Lab-scope comparison, not a complete authenticated-user access test |
 | One successful evaluation | Not generalization, production release, or independent holdout validation |
 

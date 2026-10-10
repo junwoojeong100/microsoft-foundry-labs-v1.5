@@ -187,7 +187,7 @@ This compares **scope-specific retrieval**. The same API caller selects both sco
 
 | Symptom | Check first | Next action |
 | --- | --- | --- |
-| The API call fails | Model/embedding support, store settings, user scopes, and Preview API access | Preserve the original error. Do not substitute a local dictionary and label it Microsoft Azure Memory success. |
+| The API call fails | Model/embedding support, store settings, user scopes, and Preview API access | Preserve the original error. Do not substitute a local dictionary and label it Memory in Foundry Agent Service success. |
 | Creation failed but `memory.json` exists | Your portal and the original error | Reconcile whether the remote object exists. Do not erase the receipt or edit unverified ownership. |
 | An item disappears after one hour | The one-hour TTL | TTL expiry is not evidence of an approved deletion; a new exercise needs its own ownership record. |
 

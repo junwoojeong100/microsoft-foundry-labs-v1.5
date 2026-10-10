@@ -12,7 +12,7 @@
 
 ## 목표
 
-**Control Plane의 화면이 보이는 것과 정책이 실제로 강제되는 것은 다릅니다.** Operate의 Overview/Assets/Compliance와 Microsoft Foundry AI Gateway 경험에는 Preview 범위가 있습니다.
+**Foundry Control Plane의 화면이 보이는 것과 정책이 실제로 강제되는 것은 다릅니다.** Operate의 Overview/Assets/Compliance와 AI gateway in Foundry Agent Service 경험에는 Preview 범위가 있습니다.
 
 ## 개념과 실습 지도
 
@@ -90,12 +90,12 @@ def read_document(user: str, document_id: str, grants: dict[str, set[str]], cach
 
 </details>
 
-**결과 설명하기:** `A 첫 읽기 / B의 같은 문서 읽기 / A 권한 회수 후 읽기 / 공용 정책 읽기`의 수정 전·후를 적습니다. 이어 아래 identity 표의 어느 계층이 이 검사를 집행해야 하는지 표시합니다. **로컬 테스트 통과를 Microsoft Azure RBAC·네트워크·문서 ACL 검증으로 기록하지 않습니다.**
+**결과 설명하기:** `A 첫 읽기 / B의 같은 문서 읽기 / A 권한 회수 후 읽기 / 공용 정책 읽기`의 수정 전·후를 적습니다. 이어 아래 identity 표의 어느 계층이 이 검사를 집행해야 하는지 표시합니다. **로컬 테스트 통과를 Azure RBAC·네트워크·문서 ACL 검증으로 기록하지 않습니다.**
 
 </div>
 
 <details class="implementation-detail" markdown="1">
-<summary>구현 참고: 고칠 캐시 코드와 Microsoft Azure RBAC의 차이 — 읽기용</summary>
+<summary>구현 참고: 고칠 캐시 코드와 Azure RBAC의 차이 — 읽기용</summary>
 
 <a id="l21-로컬-코드와-azure-포털-경계"></a>
 
@@ -117,7 +117,7 @@ def read_document(user, document_id, grants, cache):
 | --- | --- |
 | `prepare_practice.py governance` | 결함 예제를 새 `practice/governance` 폴더로 복사 |
 | `exercise.py` 수정 + `test_exercise.py` | 로컬 캐시/가짜 grant에서 B와 회수 후 A가 거절되는지 확인 |
-| Microsoft Azure Portal / RBAC | 이 테스트에서는 변경하거나 검증하지 않음 |
+| Azure portal / Azure RBAC | 이 테스트에서는 변경하거나 검증하지 않음 |
 | `infra/main.bicep`, `runtime_roles.py` | 설계 참고 자료. Microsoft Azure에 적용하지 않음 |
 
 L01에서는 자신의 실제 역할을 준비했고 여기서는 **애플리케이션의 캐시/문서 권한 검사**를 학습합니다. 둘은 다른 검사입니다. 실제 ACL 시험에는 허용된 테스트 identity·별도 합성 제한 문서·접근 로그가 필요하며 로컬 통과로 대신하지 않습니다.
@@ -137,7 +137,7 @@ L01에서는 자신의 실제 역할을 준비했고 여기서는 **애플리케
 
 L12의 직접 Search 호출과 L07 연결의 호출 주체는 같다고 가정하지 않습니다. **Manage의 연결 인증 방식 → 해당 identity의 role assignment와 scope → 대상 서비스** 순으로 읽습니다. 권한 목록은 허용 가능성을 보여 줄 뿐 호출 성공 증거가 아니며, 실제 검사는 별도 승인된 읽기 요청으로 확인합니다.
 
-### 3. Control Plane에서 fleet 확인하기
+### 3. Foundry Control Plane에서 fleet 확인하기
 
 **Operate → Assets**에서 자신이 만든 agent/model/tool을 찾습니다. **Manage**는 현재 프로젝트/리소스 설정, **Operate**는 자산·운영 상태 관점입니다. 여러 프로젝트의 자산이 보이더라도 권한 범위 밖의 데이터를 실습 자료로 쓰지 않습니다.
 
@@ -198,7 +198,7 @@ private Search/Storage 등에는 각각 필요한 private endpoint를 준비합�
 
 ### 6. 정책·암호화·정보 보호 확인하기
 
-Microsoft Azure Policy로 허용 모델·배포 유형·네트워크 조건을 검토합니다. CMK는 지원 자원의 저장 데이터 보호이고 runtime의 유출 방지나 모든 기능 지원을 의미하지 않습니다.
+Azure Policy로 허용 모델·배포 유형·네트워크 조건을 검토합니다. CMK는 지원 자원의 저장 데이터 보호이고 runtime의 유출 방지나 모든 기능 지원을 의미하지 않습니다.
 
 Defender·Purview·Entra 통합은 각 제품의 구성·권한·라이선스가 필요할 수 있습니다. 대시보드 존재를 조직 compliance 인증으로 제시하지 않습니다. 진단 로그와 content provenance, 사용자에게 AI 사용을 알리는 방식도 운영 문서에 포함합니다.
 

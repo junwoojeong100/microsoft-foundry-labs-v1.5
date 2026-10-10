@@ -2,7 +2,7 @@
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Run Agent Framework orchestration locally against an approved Microsoft Foundry model. No Hosted deployment is performed.
+**Format:** Run Microsoft Agent Framework orchestration locally against an approved Microsoft Foundry model. No Hosted deployment is performed.
 
 **Start here:** Prepare the separate advanced environment, finish L02's TPM/RPM check, and read the plan for one selected pattern.
 

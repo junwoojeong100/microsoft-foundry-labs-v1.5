@@ -37,7 +37,7 @@ Verify Hosted capabilities/regions. Use L01's scoped creation/role-assignment pe
 | Current state | Steps to follow | What completion means |
 | --- | --- | --- |
 | No Microsoft Azure execution approval | Prepare the dedicated environment → step 1 packaging | Packaging only; server business calls and deployment not performed |
-| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a server inside Codespaces, not successful Microsoft Azure Hosted deployment |
+| Project, Search, and invocation approval ready | Steps 1 → 2 | Actual model/retrieval calls from a server inside Codespaces, not a successful Hosted Agent deployment |
 | Deployment and role changes separately approved | Steps 1 → 2 → 3 → 4 → 5 | Inspect the exact remote version's answer and stopped session |
 
 First locate **L01's `.env` and `results/azure-environment.json`, plus L11's `results/search.json`**, in this same lab folder. Stop if project address, language, or Search target differs. Never copy another learner's receipt or a screenshot's version number.
@@ -75,9 +75,9 @@ Use L01's `py -3.13` approach to create `.venv-live`, then execute with `.venv-l
 
 <a id="l12-azd"></a>
 
-**Codespaces provides azd 1.34.0 and also tries to install the `azure.ai.agents` extension.** Use the commands below to check the version, extension, and sign-in, and install only what is missing. Follow the [official Microsoft Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) only where azd is absent (for example the PC alternative), then open a new terminal. Microsoft Azure CLI's `az` and Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
+**Codespaces provides azd 1.34.0 and also tries to install the `azure.ai.agents` extension.** Use the commands below to check the version, extension, and sign-in, and install only what is missing. Follow the [official Azure Developer CLI installation guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) only where azd is absent (for example the PC alternative), then open a new terminal. Azure CLI's `az` and Azure Developer CLI's `azd` are different tools. Preparing azd does not require a Copilot skill or a Hosted deployment. Use another OS's instructions only for the PC alternative.
 
-azd and Microsoft Azure CLI have separate authentication. Check versions/extensions and sign-in first. Use the Bash commands below unchanged in Codespaces.
+azd and Azure CLI have separate authentication. Check versions/extensions and sign-in first. Use the Bash commands below unchanged in Codespaces.
 
 ```bash
 azd version
@@ -93,7 +93,7 @@ azd auth login --check-status
 | --- | --- | --- |
 | 1. `azd version` | Checks the installed CLI version. | Local inspection, no automatic upgrade. |
 | 2. `azd extension list` | Checks the agent extension/version. | Listing only; no Copilot skill is required. |
-| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Microsoft Azure CLI sign-in. |
+| 3. `auth login --check-status` | Checks azd user sign-in. | No deployment/model call; separate from Azure CLI sign-in. |
 
 </div>
 
@@ -175,7 +175,7 @@ python samples/hosted_client.py invoke --local --live
 | --- | --- | --- |
 | 1. `curl --fail .../readiness` | Reads the local server's readiness endpoint. `--fail` treats HTTP errors as failures. | Checks server connectivity; it is not a purchasing question or model call. |
 | 2. `invoke --local` | Selects the local target but prints only a plan because `--live` is absent. | No business request to the server or Microsoft Azure inference. `--local` alone does not authorize a real invocation. |
-| 3. `invoke --local --live` | Sends a real synthetic purchasing request to the local server. `--live` authorizes the cost of the model/Search calls behind the server. | Inspect the response JSONL and the function, citation, and contract checks. Do not label local results as a successful Microsoft Azure Hosted deployment. |
+| 3. `invoke --local --live` | Sends a real synthetic purchasing request to the local server. `--live` authorizes the cost of the model/Search calls behind the server. | Inspect the response JSONL and the function, citation, and contract checks. Do not label local results as a successful Hosted Agent deployment. |
 
 </div>
 

@@ -33,7 +33,7 @@
 | 역할 부여 권한 | 대상 범위의 `Microsoft.Authorization/roleAssignments/write`. `Contributor`만으로는 역할을 부여할 수 없음 |
 | quota 조회 권한 | 구독의 `Cognitive Services Usages Reader` 등 모델 사용량 조회 권한 |
 | 지역·예산 | 모델 지원 지역, 허용된 처리 범위, 지출 한도·중단 기준·보존 기한 |
-| 기본 실행 환경 | 브라우저·GitHub 계정·저장소 접근·Codespaces 사용 허용과 비용 범위. Python 3.13·Microsoft Azure CLI·Microsoft Azure Developer CLI(azd)·기본/MCP 패키지는 저장소 설정으로 준비 |
+| 기본 실행 환경 | 브라우저·GitHub 계정·저장소 접근·Codespaces 사용 허용과 비용 범위. Python 3.13·Azure CLI·Azure Developer CLI(azd)·기본/MCP 패키지는 저장소 설정으로 준비 |
 
 자신의 구독이라도 실제 권한을 먼저 확인합니다. 조직 구독에서는 필요한 범위의 권한·비용 승인을 확보한 뒤 진행합니다. 권한이 없으면 해당 작업을 보류하며, 오류를 우회하려고 보안을 끄거나 구독 전체 권한을 확대하지 않습니다. 계정·권한 없이도 로컬 연습은 가능하지만 **Microsoft Foundry 실행 완료와는 별도**입니다.
 
@@ -71,7 +71,7 @@ Microsoft Azure 조건이 아직 없다면 **1단계까지만** 진행하고 [L0
     - 이 Region은 개발 환경의 위치입니다. 이후 Microsoft Azure의 리전·모델 처리 범위를 정하지 않습니다.
     - [GitHub 사용량·비용](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)은 Microsoft Azure 비용과 별도입니다.
 3. 브라우저의 VS Code가 열려도 **post-create 설치가 끝날 때까지 기다립니다.** 터미널에 `Lab tools ready.`가 보여야 합니다.
-    - 저장소 설정이 Python 3.13·Microsoft Azure CLI·Microsoft Azure Developer CLI(azd)·Bicep·Python 확장·`.venv`·기본/MCP 패키지를 준비하고, `.env`가 없을 때만 템플릿을 복사합니다.
+    - 저장소 설정이 Python 3.13·Azure CLI·Azure Developer CLI(azd)·Bicep·Python 확장·`.venv`·기본/MCP 패키지를 준비하고, `.env`가 없을 때만 템플릿을 복사합니다.
     - Microsoft Azure 로그인·자원 생성·역할 부여는 하지 않습니다.
 4. **Terminal → New Terminal**을 열고 `samples`·`data`·`requirements.txt`가 보이는 실습 루트에서 아래를 실행합니다. **PC가 Windows여도 이 터미널은 Linux/Bash**이므로 PowerShell 명령으로 바꾸지 않습니다.
 
@@ -120,12 +120,12 @@ python samples/workshop.py validate-data
 
 **이미 설치했다면 설치 설명을 다시 따라 하지 않습니다.** 자기 OS의 버전 확인 → [실습 파일·가상환경](#l01-local) → [Python 선택](#l01-interpreter) 순으로 갑니다. 처음이라면 아래에서 **자기 OS의 절만** 따라 설치합니다. Microsoft Azure 계정이 없다면 PC·로컬 검사까지 진행하고 2단계 이후는 보류합니다.
 
-조직이 허용한 경로로 Python, Microsoft Azure CLI, VS Code를 준비합니다. **설치되어 있으면 아래 확인부터 하고, 필요한 도구만 설치합니다.** 조직의 소프트웨어 배포 포털·승인된 설치 파일·패키지 저장소를 우선 사용합니다. 아래 공식 다운로드 절차도 조직이 허용한 경우에만 따릅니다. 설치나 다운로드가 차단되면 승인된 배포 경로를 확보하고 진행하며, 보안 경고·인증서 검증·실행 정책을 우회하지 않습니다.
+조직이 허용한 경로로 Python, Azure CLI, VS Code를 준비합니다. **설치되어 있으면 아래 확인부터 하고, 필요한 도구만 설치합니다.** 조직의 소프트웨어 배포 포털·승인된 설치 파일·패키지 저장소를 우선 사용합니다. 아래 공식 다운로드 절차도 조직이 허용한 경우에만 따릅니다. 설치나 다운로드가 차단되면 승인된 배포 경로를 확보하고 진행하며, 보안 경고·인증서 검증·실행 정책을 우회하지 않습니다.
 
 | 도구 | 이 실습에서 하는 일 | 준비 완료 기준 |
 | --- | --- | --- |
 | Python 3.13 | PC에서 실제 Python 코드와 Microsoft Foundry SDK를 실행합니다. | 버전 확인에 `Python 3.13.x`가 출력됩니다. |
-| Microsoft Azure CLI | Microsoft Azure 로그인과 실습 자원 생성·조회를 수행합니다. | `az version`에 `azure-cli` 버전이 출력됩니다. 이 키트 기준은 2.86.0입니다. |
+| Azure CLI | Microsoft Azure 로그인과 실습 자원 생성·조회를 수행합니다. | `az version`에 `azure-cli` 버전이 출력됩니다. 이 키트 기준은 2.86.0입니다. |
 | VS Code | 코드를 읽고 수정하고 PC 터미널을 엽니다. | 실습 폴더와 Python 파일을 열 수 있습니다. Python 확장은 아래에서 준비합니다. |
 
 <a id="l01-python"></a>
@@ -206,12 +206,10 @@ python3.13 --version
 
 <a id="l01-azure-cli"></a>
 
-<a id="l01-azure-cli-설치확인"></a>
-
-#### Microsoft Azure CLI 설치·확인
+#### Azure CLI 설치·확인
 
 <details class="setup-detail" markdown="1">
-<summary>az 명령이 없을 때만: OS별 Microsoft Azure CLI 설치 방법</summary>
+<summary>az 명령이 없을 때만: OS별 Azure CLI 설치 방법</summary>
 
 **Windows**
 
@@ -235,7 +233,7 @@ brew install azure-cli
 
 | 순서·명령 | 하는 일 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `brew install azure-cli` | Homebrew에서 제공하는 Microsoft Azure CLI와 필요한 의존성을 설치합니다. | 다운로드·PC 변경. 실습용 Python 3.13 준비와는 별도이며 Microsoft Azure 요청 없음. |
+| 1. `brew install azure-cli` | Homebrew에서 제공하는 Azure CLI와 필요한 의존성을 설치합니다. | 다운로드·PC 변경. 실습용 Python 3.13 준비와는 별도이며 Microsoft Azure 요청 없음. |
 
 </div>
 
@@ -253,7 +251,7 @@ sudo apt install azure-cli
 
 | 순서·명령 | 하는 일 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `apt install azure-cli` | 설정된 승인 저장소에서 Microsoft Azure CLI를 설치합니다. | 다운로드·PC 변경. Microsoft Azure 로그인·자원 생성 없음. |
+| 1. `apt install azure-cli` | 설정된 승인 저장소에서 Azure CLI를 설치합니다. | 다운로드·PC 변경. Microsoft Azure 로그인·자원 생성 없음. |
 
 </div>
 
@@ -271,7 +269,7 @@ az version
 
 | 순서·명령 | 하는 일 | 결과·비용/변경 |
 | --- | --- | --- |
-| 1. `az version` | 로컬 Microsoft Azure CLI와 설치된 확장 버전을 출력합니다. | 로그인·권한·Microsoft Azure 연결 확인은 아닙니다. 모델 호출·자원 생성 없음. |
+| 1. `az version` | 로컬 Azure CLI와 설치된 확장 버전을 출력합니다. | 로그인·권한·Microsoft Azure 연결 확인은 아닙니다. 모델 호출·자원 생성 없음. |
 
 </div>
 
@@ -661,7 +659,7 @@ python scripts/azure_environment.py roles --live
 
 | 생성 코드 | 포털에서 확인할 결과 |
 | --- | --- |
-| `create`의 RG 생성 | Microsoft Azure Resource groups의 고유 이름·소유 태그 |
+| `create`의 RG 생성 | Microsoft Azure resource group의 고유 이름·소유 태그 |
 | `foundation`의 Microsoft Foundry account/project | Microsoft Foundry 프로젝트 이름·부모 리소스·지역 |
 | Bicep의 모델 deployments | Model ID·version과 배포 이름 `contoso-chat` 등 |
 | `roles`의 scope별 role assignment | 대상 자원의 IAM에서 사용자/관리 ID와 범위 |

@@ -105,7 +105,7 @@ cleanup은 기록된 conversation → 실습 전용 agent → vector store → f
 | File search | vector store와 원본 uploaded file 각각 확인 |
 | Toolbox·connections·memory | 사용 여부 확인 후 실습용 객체만 삭제 |
 | Hosted runtime·세션 | 실행 상태와 비용 항목 확인 |
-| AI Search·Storage·로그 | 공유 여부·보존 정책 확인 후 담당자가 정리 |
+| Azure AI Search·Storage·로그 | 공유 여부·보존 정책 확인 후 담당자가 정리 |
 | 모델 배포·PTU·GPU | 사용량/예약/유휴 비용 구분; 별도 계약·예약 확인 |
 | 게시된 채널·Bot·앱 | 사용자 접근 회수와 자원 정리를 각각 확인 |
 | Fine-tuned deployment·model | 배포 삭제와 학습된 모델 삭제를 구분 |
@@ -132,7 +132,7 @@ python scripts/cost_status.py
 
 </div>
 
-Cost Management의 지연 반영을 고려해 **다음 날 다시 확인할 시각**을 정합니다. 본인 전용 환경은 자신이 확인하고, 보존을 넘긴 자원만 책임 주체를 따로 기록합니다. 예산 알림을 꺼도 과금은 멈추지 않습니다.
+Microsoft Cost Management의 지연 반영을 고려해 **다음 날 다시 확인할 시각**을 정합니다. 본인 전용 환경은 자신이 확인하고, 보존을 넘긴 자원만 책임 주체를 따로 기록합니다. 예산 알림을 꺼도 과금은 멈추지 않습니다.
 
 결과 기록은 학습에 필요한 최소 범위만 남기고 실제 PII·토큰·연결 비밀을 제거합니다. 그룹 삭제는 **전용 실습 그룹임을 소유자가 확인한 경우에만** Microsoft Azure 포털에서 범위를 검토한 뒤 수행합니다. 이 가이드는 광범위한 `az group delete` 명령을 제공하지 않습니다.
 
@@ -178,11 +178,11 @@ for resource in ordered:
         client.files.delete(file_id=resource_id)
 ```
 
-| Microsoft Azure Portal에서 확인 | receipt/code에서 확인 |
+| Microsoft Azure 포털에서 확인 | receipt/code에서 확인 |
 | --- | --- |
 | 각 agent/conversation/vector store/file의 실제 ID와 상태 | `receipt["resources"]`의 `kind`, `id`, `cleanup_status` |
 | 모델 배포·Search·Storage처럼 보존될 항목 | workshop receipt 대상이 아니면 별도로 담당자·보존 기한 기록 |
-| Cost Management의 지연 반영 | 조회 시각과 다음 확인 담당자; 빈 행은 0원 증거가 아님 |
+| Microsoft Cost Management의 지연 반영 | 조회 시각과 다음 확인 담당자; 빈 행은 0원 증거가 아님 |
 | Delete 직전 선택 범위 | `--receipt`가 소유 폴더 안이고 `--confirm`이 정확한 `run_id`인지 |
 
 위는 `cleanup()`의 대상 확인·삭제 호출 발췌입니다. 실제 함수는 삭제 상태를 매 항목 저장하고, NotFound만 `already_absent`로 처리합니다. 그 외 오류를 성공으로 숨기지 않습니다. 실행은 `cleanup --live`와 exact `--confirm` 뒤에만 하며 포털 자원·모델은 별도로 대조합니다.
