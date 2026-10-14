@@ -42,8 +42,6 @@ L01의 `results/azure-environment.json`, `.env`, 생성한 프로젝트·모델�
 | L08 평가 | `gpt-4.1` / `2025-04-14` | `contoso-judge` |
 | L11 검색·L15 Memory | `text-embedding-3-large` / `1` | `contoso-embedding` |
 
-**변경 안내(2026-10-15):** 임베딩 모델을 `text-embedding-3-small`에서 `text-embedding-3-large`로 바꿨습니다. 이전 판 L01로 만든 환경에는 같은 배포 이름 `contoso-embedding`으로 small이 남아 있을 수 있습니다. 표와 다르면 소유 기록과 포털의 실제 값을 그대로 사용하고, 표의 모델로 검증했다고 기록하지 않습니다.
-
 ![Microsoft Foundry의 실제 Discover → Models 화면. 검색창, Available in my project 필터, 지원 기능·배포 유형 필터와 모델 카드가 보인다.](../assets/portal/02-model-catalog.png)
 
 **화면 따라 읽기:** **Discover → Models**는 후보와 모델 카드를 찾는 곳이고 **Build → Models → Deployments**는 실제 배포를 확인하는 곳입니다. 카드가 보인다고 quota·capacity가 확보된 것은 아닙니다. Responses API·함수 호출·File search 지원과 현재 가격·종료 정책을 확인합니다.
