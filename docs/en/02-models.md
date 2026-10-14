@@ -40,7 +40,9 @@ Use L01's `results/azure-environment.json`, `.env`, project, and model deploymen
 | --- | --- | --- |
 | Answers/agents | `gpt-6-sol` / `2026-09-22` | `contoso-chat` |
 | L08 evaluation | `gpt-4.1` / `2025-04-14` | `contoso-judge` |
-| L11 retrieval/L15 Memory | `text-embedding-3-small` / `1` | `contoso-embedding` |
+| L11 retrieval/L15 Memory | `text-embedding-3-large` / `1` | `contoso-embedding` |
+
+**Change notice (2026-10-15):** The embedding model changed from `text-embedding-3-small` to `text-embedding-3-large`. An environment created with an earlier edition of L01 may still have small deployed under the same name, `contoso-embedding`. If yours differs from the table, use the actual values in your receipt and the portal, and do not record it as validated with the table's model.
 
 ![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](../../assets/portal/en/02-model-catalog.png)
 

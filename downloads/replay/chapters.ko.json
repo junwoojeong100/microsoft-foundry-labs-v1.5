@@ -2,7 +2,7 @@
   {
     "id": "l00",
     "number": "00",
-    "title": "Azure·Foundry 처음 시작하기",
+    "title": "Microsoft Azure·Microsoft Foundry 처음 시작하기",
     "start": 0.0,
     "end": 38.267
   },
@@ -18,125 +18,125 @@
     "number": "02",
     "title": "내 모델 배포 연결하기 (Model Deployment)",
     "start": 80.0,
-    "end": 118.7
+    "end": 118.667
   },
   {
     "id": "l03",
     "number": "03",
     "title": "코드로 첫 답변 받기 (Responses API)",
-    "start": 118.7,
-    "end": 152.5
+    "start": 118.667,
+    "end": 152.467
   },
   {
     "id": "l04",
     "number": "04",
     "title": "역할을 정한 에이전트 만들기 (Prompt Agent)",
-    "start": 152.5,
-    "end": 187.339
+    "start": 152.467,
+    "end": 187.306
   },
   {
     "id": "l05",
     "number": "05",
     "title": "회사 문서로 답하기 (File search·RAG)",
-    "start": 187.339,
-    "end": 223.506
+    "start": 187.306,
+    "end": 223.472
   },
   {
     "id": "l06",
     "number": "06",
     "title": "재고 조회와 구매 초안 만들기 (Function Calling·Capstone)",
-    "start": 223.506,
-    "end": 265.85
+    "start": 223.472,
+    "end": 265.816
   },
   {
     "id": "l07",
     "number": "07",
     "title": "외부 기능 연결: MCP·OpenAPI",
-    "start": 265.85,
-    "end": 301.193
+    "start": 265.816,
+    "end": 301.159
   },
   {
     "id": "l08",
     "number": "08",
     "title": "내 답변을 비교하고 평가하기 (Evaluation)",
-    "start": 301.193,
-    "end": 342.127
+    "start": 301.159,
+    "end": 342.093
   },
   {
     "id": "l09",
     "number": "09",
     "title": "없는 정보·허위 승인 막기 (Safety·Guardrails)",
-    "start": 342.127,
-    "end": 379.635
+    "start": 342.093,
+    "end": 379.601
   },
   {
     "id": "l10",
     "number": "10",
     "title": "답변의 실행 과정 살펴보기 (Tracing)",
-    "start": 379.635,
-    "end": 414.982
+    "start": 379.601,
+    "end": 414.948
   },
   {
     "id": "l13",
     "number": "11",
-    "title": "AI Search·Foundry IQ·권한 검색",
-    "start": 414.982,
-    "end": 455.956
+    "title": "Azure AI Search·Foundry IQ·권한 검색",
+    "start": 414.948,
+    "end": 455.922
   },
   {
     "id": "l14",
     "number": "12",
     "title": "Hosted Agent와 개발 도구",
-    "start": 455.956,
-    "end": 496.656
+    "start": 455.922,
+    "end": 496.622
   },
   {
     "id": "l15",
     "number": "13",
-    "title": "Agent Framework: 순차·동시 실행",
-    "start": 496.656,
-    "end": 539.205
+    "title": "Microsoft Agent Framework: 순차·동시 실행",
+    "start": 496.622,
+    "end": 539.171
   },
   {
     "id": "l15-collaboration",
     "number": "14",
-    "title": "Agent Framework: 그룹 채팅·핸드오프",
-    "start": 539.205,
-    "end": 581.871
+    "title": "Microsoft Agent Framework: 그룹 채팅·핸드오프",
+    "start": 539.171,
+    "end": 581.838
   },
   {
     "id": "l16",
     "number": "15",
     "title": "Memory: 기억과 삭제",
-    "start": 581.871,
-    "end": 617.278
+    "start": 581.838,
+    "end": 617.245
   },
   {
     "id": "l17",
     "number": "16",
     "title": "Routines·장기 실행·Autopilot",
-    "start": 617.278,
-    "end": 656.494
+    "start": 617.245,
+    "end": 656.461
   },
   {
     "id": "l21",
     "number": "17",
-    "title": "기업 보안·Control Plane·Gateway",
-    "start": 656.494,
-    "end": 694.328
+    "title": "기업 보안·Foundry Control Plane·AI gateway",
+    "start": 656.461,
+    "end": 694.294
   },
   {
     "id": "l22",
     "number": "18",
     "title": "CI/CD: 품질 게이트·게시·롤백",
-    "start": 694.328,
-    "end": 737.595
+    "start": 694.294,
+    "end": 737.561
   },
   {
     "id": "l12",
     "number": "19",
-    "title": "실습 종료와 남은 비용 확인 (Cost Management)",
-    "start": 737.595,
-    "end": 777.328
+    "title": "실습 종료와 남은 비용 확인 (Microsoft Cost Management)",
+    "start": 737.561,
+    "end": 777.295
   }
 ]
