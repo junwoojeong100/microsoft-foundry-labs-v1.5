@@ -112,8 +112,8 @@ class BilingualGuideTests(unittest.TestCase):
 
     def test_release_metadata_pins_each_language_without_changing_artifact_identity(self):
         release = build_guide.RELEASE
-        self.assertEqual(release["edition"], "2026-09-30")
-        self.assertEqual(release["artifact"], "Contoso-Foundry-Hands-on-2026-09-30")
+        self.assertEqual(release["edition"], "2026-10-15")
+        self.assertEqual(release["artifact"], "Contoso-Foundry-Hands-on-2026-10-15")
         self.assertEqual(release["default_language"], "en")
         self.assertEqual(release["pages_branch"], "main")
         expected = {

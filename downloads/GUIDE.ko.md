@@ -1,6 +1,6 @@
 # Microsoft Foundry 실습 가이드 — 직접 만들며 이해하기
 
-> 2026-09-30 Contoso 독립형 실행 가이드 · 한국어 · 20개 모듈. [웹 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) — 웹에서 검색·진도·학습 경로를 사용하세요.
+> 2026-10-15 Contoso 독립형 실행 가이드 · 한국어 · 20개 모듈. [웹 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) — 웹에서 검색·진도·학습 경로를 사용하세요.
 
 [English](GUIDE.en.md) | [한국어](GUIDE.ko.md)
 
