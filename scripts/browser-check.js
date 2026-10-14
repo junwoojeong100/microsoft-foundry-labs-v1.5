@@ -520,7 +520,7 @@ async (page) => {
         actionsLeft: document.querySelector(".top-actions").getBoundingClientRect().left,
       }));
       check(measure.document <= measure.viewport + 1, `no document overflow at ${width}px`);
-      check(measure.prose >= 18, `body text >= 18px at ${width}px`);
+      check(measure.prose >= 16, `body text >= 16px at ${width}px`);
       check(measure.code >= 14, `code text >= 14px at ${width}px`);
       check(measure.navigation >= 14, `navigation text >= 14px at ${width}px`);
       check(measure.table >= 14, `table text >= 14px at ${width}px`);

@@ -42,8 +42,6 @@ Use L01's `results/azure-environment.json`, `.env`, project, and model deploymen
 | L08 evaluation | `gpt-4.1` / `2025-04-14` | `contoso-judge` |
 | L11 retrieval/L15 Memory | `text-embedding-3-large` / `1` | `contoso-embedding` |
 
-**Change notice (2026-10-15):** The embedding model changed from `text-embedding-3-small` to `text-embedding-3-large`. An environment created with an earlier edition of L01 may still have small deployed under the same name, `contoso-embedding`. If yours differs from the table, use the actual values in your receipt and the portal, and do not record it as validated with the table's model.
-
 ![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](../../assets/portal/en/02-model-catalog.png)
 
 **Reading the screen:** **Discover → Models** shows candidates/cards; **Build → Models → Deployments** shows your actual deployments. A visible card does not establish quota/capacity. Verify Responses API, function calling, File search, current pricing, and retirement conditions.
