@@ -1,10 +1,10 @@
 {
-  "edition": "2026-09-30",
-  "artifact": "Contoso-Foundry-Hands-on-2026-09-30",
+  "edition": "2026-10-15",
+  "artifact": "Contoso-Foundry-Hands-on-2026-10-15",
   "default_language": "en",
   "site_url": "https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/",
   "pages_branch": "main",
-  "archive": "downloads/Contoso-Foundry-Hands-on-2026-09-30.zip",
+  "archive": "downloads/Contoso-Foundry-Hands-on-2026-10-15.zip",
   "languages": {
     "en": {
       "label": "English",

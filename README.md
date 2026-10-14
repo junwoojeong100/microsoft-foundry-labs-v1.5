@@ -34,7 +34,7 @@ Use **Linux/Bash commands** in Codespaces even from a Windows PC. Microsoft Azur
 <details>
 <summary>Only if you need another environment: use your PC</summary>
 
-If Codespaces is unavailable or not permitted, extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) and expand [L01's PC setup](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-pc). Windows/macOS/Linux installation, virtual-environment setup, and alternative sign-in instructions are grouped there. Do not mix `.env` or ownership records between environments.
+If Codespaces is unavailable or not permitted, extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-10-15.zip) and expand [L01's PC setup](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-pc). Windows/macOS/Linux installation, virtual-environment setup, and alternative sign-in instructions are grouped there. Do not mix `.env` or ownership records between environments.
 
 </details>
 
@@ -57,7 +57,7 @@ The kit pins **`gpt-6-sol / 2026-09-22`**; L01 creates deployment `contoso-chat`
 | English web guide | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
 | Korean web guide | [GitHub Pages · 한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
 | Markdown | [English](downloads/GUIDE.en.md) · [한국어](downloads/GUIDE.ko.md) |
-| Complete kit | [Bilingual ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
+| Complete kit | [Bilingual ZIP](downloads/Contoso-Foundry-Hands-on-2026-10-15.zip) |
 | Narrated walkthroughs | [Chapter player](downloads/replay/index.html) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4) |
 | Sample receipt (optional L03 image input) | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
 

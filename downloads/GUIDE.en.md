@@ -1,6 +1,6 @@
 # Microsoft Foundry Lab Guide — Learn by building
 
-> 2026-09-30 Contoso independent lab guide · English · 20 modules. [Web guide](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html) — Open the web edition for search, progress tracking, and learning paths.
+> 2026-10-15 Contoso independent lab guide · English · 20 modules. [Web guide](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html) — Open the web edition for search, progress tracking, and learning paths.
 
 [English](GUIDE.en.md) | [한국어](GUIDE.ko.md)
 

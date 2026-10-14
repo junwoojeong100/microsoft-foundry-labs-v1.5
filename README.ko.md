@@ -34,7 +34,7 @@ Codespaces에서는 Windows PC를 쓰더라도 **Linux/Bash 명령**을 사용�
 <details>
 <summary>다른 환경이 필요할 때만: 내 PC에서 실습하기</summary>
 
-Codespaces가 허용되지 않거나 사용할 수 없을 때만 [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip)을 풀고 [L01의 내 PC 준비](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01-pc)를 펼칩니다. Windows/macOS/Linux 도구 설치·가상환경·로그인 대안은 해당 절에 모아 두었습니다. 두 환경의 `.env`·소유 기록을 섞지 않습니다.
+Codespaces가 허용되지 않거나 사용할 수 없을 때만 [실습 ZIP](downloads/Contoso-Foundry-Hands-on-2026-10-15.zip)을 풀고 [L01의 내 PC 준비](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html#l01-pc)를 펼칩니다. Windows/macOS/Linux 도구 설치·가상환경·로그인 대안은 해당 절에 모아 두었습니다. 두 환경의 `.env`·소유 기록을 섞지 않습니다.
 
 </details>
 
@@ -57,7 +57,7 @@ L08은 같은 질문 12개의 v1/v2 원문을 한 번 수집(`samples/instructio
 | 한국어 웹 | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
 | 영어 웹 | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
 | Markdown | [한국어](downloads/GUIDE.ko.md) · [English](downloads/GUIDE.en.md) |
-| 전체 실습 패키지 | [두 언어 ZIP](downloads/Contoso-Foundry-Hands-on-2026-09-30.zip) |
+| 전체 실습 패키지 | [두 언어 ZIP](downloads/Contoso-Foundry-Hands-on-2026-10-15.zip) |
 | 내레이션 요약영상 | [장별 재생 페이지](downloads/replay/index.html) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4) |
 | 샘플 영수증(L03 선택 · 이미지 입력용) | [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) |
 
