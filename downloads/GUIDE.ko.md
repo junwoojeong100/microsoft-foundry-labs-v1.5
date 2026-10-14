@@ -910,7 +910,7 @@ python scripts/azure_environment.py create --subscription 실제-구독-ID --loc
 
 아래 `foundation`은 [main.bicep](../infra/main.bicep)로 **Microsoft Foundry 리소스·프로젝트·chat/judge/embedding 배포 3개**를 만듭니다. chat은 기본 실습, judge는 L08 평가, embedding은 선택 L11/L15용입니다. 모델 호출은 아직 보내지 않습니다.
 
-이 키트의 모델 구성은 `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, `text-embedding-3-small / 1`로 고정되어 있습니다. 자신의 지역·구독에서 지원되는지 확인하세요. 지원되지 않으면 해당 조건을 기록하고 중단합니다. 다른 모델로 바꿔 같은 검증이라고 기록하지 않습니다.
+이 키트의 모델 구성은 `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, `text-embedding-3-large / 1`로 고정되어 있습니다. 자신의 지역·구독에서 지원되는지 확인하세요. 지원되지 않으면 해당 조건을 기록하고 중단합니다. 다른 모델로 바꿔 같은 검증이라고 기록하지 않습니다.
 
 ```bash
 python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
@@ -929,7 +929,7 @@ python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
 **실제 배포:** 모델·처리 범위·처리량 계획이 승인된 범위와 맞을 때 실행합니다.
 
 ```bash
-python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
+python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-large --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -1173,7 +1173,9 @@ L01의 `results/azure-environment.json`, `.env`, 생성한 프로젝트·모델�
 | --- | --- | --- |
 | 답변·에이전트 | `gpt-6-sol` / `2026-09-22` | `contoso-chat` |
 | L08 평가 | `gpt-4.1` / `2025-04-14` | `contoso-judge` |
-| L11 검색·L15 Memory | `text-embedding-3-small` / `1` | `contoso-embedding` |
+| L11 검색·L15 Memory | `text-embedding-3-large` / `1` | `contoso-embedding` |
+
+**변경 안내(2026-10-15):** 임베딩 모델을 `text-embedding-3-small`에서 `text-embedding-3-large`로 바꿨습니다. 이전 판 L01로 만든 환경에는 같은 배포 이름 `contoso-embedding`으로 small이 남아 있을 수 있습니다. 표와 다르면 소유 기록과 포털의 실제 값을 그대로 사용하고, 표의 모델로 검증했다고 기록하지 않습니다.
 
 ![Microsoft Foundry의 실제 Discover → Models 화면. 검색창, Available in my project 필터, 지원 기능·배포 유형 필터와 모델 카드가 보인다.](../assets/portal/02-model-catalog.png)
 
@@ -3467,6 +3469,7 @@ python samples/search_lab.py initialize --live
 
 - **재개:** 기존 소유 index의 schema를 확인하고 남은 단계를 이어가려면 `initialize --resume --live`를 사용합니다. `--resume`은 같은 receipt와 일치하는 index의 부분 작업만 잇는 옵션입니다. 새로운 실험이나 schema 변경을 기존 성공처럼 덮어쓰는 옵션이 아닙니다.
 - **embedding 호출:** **리소스 OpenAI endpoint**의 `/openai/v1/embeddings`로 호출합니다. project OpenAI endpoint에서 Responses가 된다고 embeddings도 지원된다고 가정하지 않습니다.
+- **embedding 차원:** `text-embedding-3-large`는 기본 3,072차원을 반환합니다. 이 실습은 요청에 `dimensions: 1536`을 지정해 index의 `content_vector`(1,536차원)와 맞추며, 차원이 다르면 샘플이 업로드 전에 중단합니다. embedding 모델을 바꾸면 기존 index의 벡터와는 비교할 수 없으므로 같은 모델로 만든 벡터만 사용합니다.
 - **필요한 역할:** embedding 호출자는 부모 리소스의 Cognitive Services OpenAI User 역할이 추가로 필요합니다.
 
 검색은 `2024-07-01`, IQ는 `2026-04-01` 계약을 사용합니다.

@@ -2,7 +2,7 @@
   {
     "id": "l00",
     "number": "00",
-    "title": "Start with Azure and Foundry",
+    "title": "Start with Microsoft Azure and Microsoft Foundry",
     "start": 0.0,
     "end": 35.048
   },
@@ -18,125 +18,125 @@
     "number": "02",
     "title": "Connect your model deployment (Model Deployment)",
     "start": 71.281,
-    "end": 109.485
+    "end": 109.448
   },
   {
     "id": "l03",
     "number": "03",
     "title": "Get your first answer from code (Responses API)",
-    "start": 109.485,
-    "end": 142.421
+    "start": 109.448,
+    "end": 142.384
   },
   {
     "id": "l04",
     "number": "04",
     "title": "Create an agent with a clear role (Prompt Agent)",
-    "start": 142.421,
-    "end": 177.002
+    "start": 142.384,
+    "end": 176.965
   },
   {
     "id": "l05",
     "number": "05",
     "title": "Answer from company documents (File search / RAG)",
-    "start": 177.002,
-    "end": 213.415
+    "start": 176.965,
+    "end": 213.378
   },
   {
     "id": "l06",
     "number": "06",
     "title": "Check stock and prepare a draft (Function Calling / Capstone)",
-    "start": 213.415,
-    "end": 256.519
+    "start": 213.378,
+    "end": 256.482
   },
   {
     "id": "l07",
     "number": "07",
     "title": "Connect tools with MCP and OpenAPI",
-    "start": 256.519,
-    "end": 291.056
+    "start": 256.482,
+    "end": 291.019
   },
   {
     "id": "l08",
     "number": "08",
     "title": "Compare and evaluate your answers (Evaluation)",
-    "start": 291.056,
-    "end": 329.823
+    "start": 291.019,
+    "end": 329.786
   },
   {
     "id": "l09",
     "number": "09",
     "title": "Reject missing facts and false approval (Safety / Guardrails)",
-    "start": 329.823,
-    "end": 363.69
+    "start": 329.786,
+    "end": 363.652
   },
   {
     "id": "l10",
     "number": "10",
     "title": "Follow an answer's execution path (Tracing)",
-    "start": 363.69,
-    "end": 396.996
+    "start": 363.652,
+    "end": 396.958
   },
   {
     "id": "l13",
     "number": "11",
-    "title": "AI Search, Foundry IQ, and permission-aware retrieval",
-    "start": 396.996,
-    "end": 432.834
+    "title": "Azure AI Search, Foundry IQ, and permission-aware retrieval",
+    "start": 396.958,
+    "end": 432.796
   },
   {
     "id": "l14",
     "number": "12",
     "title": "Hosted agents and developer tools",
-    "start": 432.834,
-    "end": 468.946
+    "start": 432.796,
+    "end": 468.908
   },
   {
     "id": "l15",
     "number": "13",
-    "title": "Agent Framework: sequential and concurrent execution",
-    "start": 468.946,
-    "end": 510.692
+    "title": "Microsoft Agent Framework: sequential and concurrent execution",
+    "start": 468.908,
+    "end": 510.654
   },
   {
     "id": "l15-collaboration",
     "number": "14",
-    "title": "Agent Framework: group chat and handoff",
-    "start": 510.692,
-    "end": 550.808
+    "title": "Microsoft Agent Framework: group chat and handoff",
+    "start": 510.654,
+    "end": 550.77
   },
   {
     "id": "l16",
     "number": "15",
     "title": "Memory: remembering and forgetting",
-    "start": 550.808,
-    "end": 585.578
+    "start": 550.77,
+    "end": 585.54
   },
   {
     "id": "l17",
     "number": "16",
     "title": "Routines, long-running agents, and Autopilot",
-    "start": 585.578,
-    "end": 622.88
+    "start": 585.54,
+    "end": 622.842
   },
   {
     "id": "l21",
     "number": "17",
-    "title": "Enterprise security, Control Plane, and gateways",
-    "start": 622.88,
-    "end": 658.218
+    "title": "Enterprise security, Foundry Control Plane, and AI gateways",
+    "start": 622.842,
+    "end": 658.18
   },
   {
     "id": "l22",
     "number": "18",
     "title": "CI/CD: quality gates, publishing, and rollback",
-    "start": 658.218,
-    "end": 698.961
+    "start": 658.18,
+    "end": 698.923
   },
   {
     "id": "l12",
     "number": "19",
-    "title": "Finish the lab and check costs (Cost Management)",
-    "start": 698.961,
-    "end": 735.538
+    "title": "Finish the lab and check costs (Microsoft Cost Management)",
+    "start": 698.923,
+    "end": 735.5
   }
 ]

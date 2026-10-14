@@ -649,7 +649,7 @@ python scripts/azure_environment.py create --subscription actual-subscription-id
 
 `foundation` uses [main.bicep](../../infra/main.bicep) to create **a Microsoft Foundry resource/project and three chat/judge/embedding deployments**. Chat supports the core labs, judge supports L08, and embedding supports optional L11/L15. It sends no inference request.
 
-This kit pins `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, and `text-embedding-3-small / 1`. Verify availability in your subscription/region. If unavailable, record the limitation and stop; do not silently substitute a model and claim equivalent validation.
+This kit pins `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, and `text-embedding-3-large / 1`. Verify availability in your subscription/region. If unavailable, record the limitation and stop; do not silently substitute a model and claim equivalent validation.
 
 ```bash
 python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
@@ -668,7 +668,7 @@ python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
 **Deploy for real:** Continue only when the model, processing scope, and capacity plan match your approved scope.
 
 ```bash
-python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
+python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-large --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
 ```
 
 <div class="command-explanation" markdown="1">

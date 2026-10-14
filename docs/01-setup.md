@@ -605,7 +605,7 @@ python scripts/azure_environment.py create --subscription 실제-구독-ID --loc
 
 아래 `foundation`은 [main.bicep](../infra/main.bicep)로 **Microsoft Foundry 리소스·프로젝트·chat/judge/embedding 배포 3개**를 만듭니다. chat은 기본 실습, judge는 L08 평가, embedding은 선택 L11/L15용입니다. 모델 호출은 아직 보내지 않습니다.
 
-이 키트의 모델 구성은 `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, `text-embedding-3-small / 1`로 고정되어 있습니다. 자신의 지역·구독에서 지원되는지 확인하세요. 지원되지 않으면 해당 조건을 기록하고 중단합니다. 다른 모델로 바꿔 같은 검증이라고 기록하지 않습니다.
+이 키트의 모델 구성은 `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, `text-embedding-3-large / 1`로 고정되어 있습니다. 자신의 지역·구독에서 지원되는지 확인하세요. 지원되지 않으면 해당 조건을 기록하고 중단합니다. 다른 모델로 바꿔 같은 검증이라고 기록하지 않습니다.
 
 ```bash
 python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
@@ -624,7 +624,7 @@ python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
 **실제 배포:** 모델·처리 범위·처리량 계획이 승인된 범위와 맞을 때 실행합니다.
 
 ```bash
-python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
+python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-large --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
 ```
 
 <div class="command-explanation" markdown="1">

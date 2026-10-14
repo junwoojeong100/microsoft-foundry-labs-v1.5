@@ -959,7 +959,7 @@ python scripts/azure_environment.py create --subscription actual-subscription-id
 
 `foundation` uses [main.bicep](../infra/main.bicep) to create **a Microsoft Foundry resource/project and three chat/judge/embedding deployments**. Chat supports the core labs, judge supports L08, and embedding supports optional L11/L15. It sends no inference request.
 
-This kit pins `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, and `text-embedding-3-small / 1`. Verify availability in your subscription/region. If unavailable, record the limitation and stop; do not silently substitute a model and claim equivalent validation.
+This kit pins `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, and `text-embedding-3-large / 1`. Verify availability in your subscription/region. If unavailable, record the limitation and stop; do not silently substitute a model and claim equivalent validation.
 
 ```bash
 python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
@@ -978,7 +978,7 @@ python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
 **Deploy for real:** Continue only when the model, processing scope, and capacity plan match your approved scope.
 
 ```bash
-python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-small --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
+python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-large --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
 ```
 
 <div class="command-explanation" markdown="1">
@@ -1222,7 +1222,9 @@ Use L01's `results/azure-environment.json`, `.env`, project, and model deploymen
 | --- | --- | --- |
 | Answers/agents | `gpt-6-sol` / `2026-09-22` | `contoso-chat` |
 | L08 evaluation | `gpt-4.1` / `2025-04-14` | `contoso-judge` |
-| L11 retrieval/L15 Memory | `text-embedding-3-small` / `1` | `contoso-embedding` |
+| L11 retrieval/L15 Memory | `text-embedding-3-large` / `1` | `contoso-embedding` |
+
+**Change notice (2026-10-15):** The embedding model changed from `text-embedding-3-small` to `text-embedding-3-large`. An environment created with an earlier edition of L01 may still have small deployed under the same name, `contoso-embedding`. If yours differs from the table, use the actual values in your receipt and the portal, and do not record it as validated with the table's model.
 
 ![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](../assets/portal/en/02-model-catalog.png)
 
@@ -3518,6 +3520,7 @@ An existing receipt is not overwritten. After a partial failure, inspect the `cr
 
 - **Resume:** To check the schema of an existing index you own and continue the remaining steps, use `initialize --resume --live`. `--resume` continues only partial work on the matching index recorded in the same receipt. It is not an option for overwriting a new experiment or schema change as though it were an existing success.
 - **Embedding calls:** Use `/openai/v1/embeddings` on the **resource's OpenAI endpoint**. Do not assume that an endpoint supporting Responses on the project also supports embeddings.
+- **Embedding dimensions:** `text-embedding-3-large` returns 3,072 dimensions by default. This lab requests `dimensions: 1536` to match the index's `content_vector` field (1,536 dimensions), and the sample stops before upload if the sizes differ. Vectors from different embedding models are not comparable, so use only vectors created with the same model.
 - **Required role:** The embedding caller additionally needs the Cognitive Services OpenAI User role on the parent resource.
 
 Search uses the `2024-07-01` contract; IQ uses `2026-04-01`.
