@@ -4,7 +4,6 @@ import io
 import json
 import os
 from pathlib import Path
-import re
 import shutil
 import subprocess
 import sys
@@ -214,15 +213,8 @@ class PracticeWalkthroughTests(unittest.TestCase):
     chapters = {"governance": "21-governance.md", "delivery": "22-delivery.md"}
     counts = {"governance": (5, 2), "delivery": (5, 3)}
 
-    def test_documented_repairs_fix_real_copied_exercises_in_both_languages(self):
-        for lab, chapter in self.chapters.items():
-            solutions = []
-            for directory in ("docs", "docs/en"):
-                text = (ROOT / directory / chapter).read_text()
-                match = re.search(rf"<!-- solution:{lab} -->\s*```python\n(.*?)\n```", text, re.S)
-                self.assertIsNotNone(match, (directory, lab))
-                solutions.append(match[1])
-            self.assertEqual(*solutions, "The same local contract applies in both languages.")
+    def test_maintainer_copy_preserves_intentional_failures_and_original_tests(self):
+        for lab in self.chapters:
             with self.subTest(lab=lab), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 shutil.copytree(ROOT / "data/exercises" / lab, root / "data/exercises" / lab)
@@ -234,11 +226,11 @@ class PracticeWalkthroughTests(unittest.TestCase):
                 self.assertEqual(before.returncode, 1, before.stdout + before.stderr)
                 self.assertIn(f"Ran {cases} tests", before.stderr)
                 self.assertIn(f"failures={failures}", before.stderr)
-                tests_before = (destination / "test_exercise.py").read_bytes()
-                (destination / "exercise.py").write_text(solutions[0] + "\n")
-                after = subprocess.run(command, cwd=root, env=environment, capture_output=True, text=True, timeout=30)
-                self.assertEqual(after.returncode, 0, after.stdout + after.stderr)
-                self.assertEqual((destination / "test_exercise.py").read_bytes(), tests_before)
+                for filename in ("exercise.py", "test_exercise.py"):
+                    self.assertEqual(
+                        (destination / filename).read_bytes(),
+                        (ROOT / "data/exercises" / lab / filename).read_bytes(),
+                    )
                 with self.assertRaises(FileExistsError):
                     prepare_practice.prepare(lab, Path("practice") / lab, root=root)
                 with self.assertRaises(ValueError):
@@ -263,25 +255,26 @@ class PracticeWalkthroughTests(unittest.TestCase):
                     for label in labels:
                         self.assertIn("**" + label, text)
 
-    def test_two_orchestration_lessons_preserve_four_builders_and_capacity_preflight(self):
+    def test_manual_comparisons_do_not_claim_framework_execution(self):
         for directory in ("docs", "docs/en"):
             first = (ROOT / directory / "15-multiagent.md").read_text()
             second = (ROOT / directory / "15-collaboration.md").read_text()
             text = first + second
             with self.subTest(directory=directory):
-                for builder in ("SequentialBuilder", "ConcurrentBuilder", "GroupChatBuilder", "HandoffBuilder"):
-                    self.assertIn(builder, text)
-                for mode in multi_agent.ORCHESTRATIONS:
-                    self.assertIn(f"--mode {mode} --live", text)
-                self.assertIn("model_capacity.py check --roles chat --live", text)
-                self.assertIn("2,048", text)
-                self.assertIn("100,000", text)
-                for mode in ("group-chat", "handoff"):
-                    self.assertNotIn(f"--mode {mode} --live", first)
-                    self.assertIn(f"--mode {mode} --live", second)
-                for mode in ("sequential", "concurrent"):
-                    self.assertIn(f"--mode {mode} --live", first)
-                    self.assertNotIn(f"--mode {mode} --live", second)
+                for builder in ("SequentialBuilder", "ConcurrentBuilder"):
+                    self.assertIn(builder, first)
+                    self.assertNotIn(builder, second)
+                for builder in ("GroupChatBuilder", "HandoffBuilder"):
+                    self.assertIn(builder, second)
+                    self.assertNotIn(builder, first)
+                self.assertIn("contoso-chat", first)
+                self.assertIn("agent-v2-with-context.txt", first)
+                self.assertIn("contoso-router", second)
+                self.assertIn("manual" if directory.endswith("en") else "수동", text)
+                self.assertNotIn("--live", text)
+                self.assertNotIn("```python", text)
+                self.assertIn("2026-12-01", first)
+                self.assertIn("2026-12-01", second)
 
     def test_cu_configuration_uses_supported_types_and_preserves_expected_fields(self):
         for data in ("data", "data/en"):

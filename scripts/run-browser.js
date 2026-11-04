@@ -6,11 +6,13 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { createHash } = require("node:crypto");
 const { parseArgs } = require("node:util");
+const { pathToFileURL } = require("node:url");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "..");
 const types = {
   ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png",
   ".json": "application/json", ".css": "text/css", ".js": "text/javascript",
+  ".mp4": "video/mp4", ".vtt": "text/vtt; charset=utf-8", ".zip": "application/zip",
   ...Object.fromEntries([".py", ".md", ".txt", ".yaml", ".yml", ".bicep", ".csv", ".jsonl", ".example"].map(
     extension => [extension, "text/plain; charset=utf-8"]
   )),
@@ -39,7 +41,27 @@ async function main() {
       const file = path.resolve(root, "." + (pathname === "/" ? "/index.html" : pathname));
       if (!file.startsWith(root + path.sep)) { response.writeHead(403).end(); return; }
       const data = await fs.readFile(file);
-      response.writeHead(200, { "Content-Type": types[path.extname(file)] || "application/octet-stream" });
+      const headers = {
+        "Content-Type": types[path.extname(file)] || "application/octet-stream",
+        "Accept-Ranges": "bytes",
+      };
+      if (request.headers.range) {
+        const range = /^bytes=(\d+)-(\d*)$/.exec(request.headers.range);
+        const start = range ? Number(range[1]) : NaN;
+        const end = range?.[2] ? Math.min(Number(range[2]), data.length - 1) : data.length - 1;
+        if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end)
+            || start < 0 || start >= data.length || end < start) {
+          response.writeHead(416, { "Content-Range": `bytes */${data.length}` }).end();
+          return;
+        }
+        response.writeHead(206, {
+          ...headers, "Content-Range": `bytes ${start}-${end}/${data.length}`,
+          "Content-Length": end - start + 1,
+        });
+        response.end(data.subarray(start, end + 1));
+        return;
+      }
+      response.writeHead(200, { ...headers, "Content-Length": data.length });
       response.end(data);
     } catch (error) {
       console.error("Guide asset request failed:", error.code || error.name);
@@ -52,6 +74,7 @@ async function main() {
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
     page.contosoGuideOrigin = `http://127.0.0.1:${server.address().port}${sitePath}`;
+    page.contosoGuideRecordingFile = pathToFileURL(path.join(root, release.portal_recordings)).href;
     const privateResponse = await fetch(`${page.contosoGuideOrigin}/.env`);
     if (privateResponse.status !== 403) throw new Error("Private environment files must never be served.");
     const filename = "browser-check.js";

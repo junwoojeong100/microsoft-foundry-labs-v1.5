@@ -2,93 +2,67 @@
 
 **English** | [한국어](README.ko.md)
 
-**[Open the online guide — index.html](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)** · **[한국어 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)**
+**[index.html · online guide](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)** · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)
 
-Build a synthetic Contoso purchasing assistant through **20 labs and five reference sections (25 articles)**. Both languages share the same implementation and use their own data and instructions.
+**Twenty step-by-step Azure portal/Foundry portal modules and five references.** Learners need no CLI, Python, SDK, Codespaces, or development skill installation. Use synthetic Contoso policies and purchasing scenarios only.
 
-## First time here?
+## Start here
 
-**The core path is L00–L10 → L19.** The core labs take about 4 hours 45 minutes and the wrap-up 10 minutes, excluding installation, approval, and provisioning waits. Advanced L11–L18 are optional.
+1. Use [L00](docs/en/00-start.md) to bound resources, requests, and costs. The core path is **L00–L10 → L19**, about **4 hours 45 minutes** plus ten-minute wrap-up, excluding approval/provisioning waits.
+2. Follow [L01](docs/en/01-setup.md), sign in in a new window, and create a dedicated group/account/project/logging. In L02 inspect exact model version, SKU, TPM, and processing location before deployment.
+3. Follow **Prerequisites → one table row → observed screen/value → failure action**. Verify before proceeding.
 
-1. Read [L00: the basics](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l00-first-steps) to see what you will build.
-2. Follow [L01: prepare GitHub Codespaces](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-codespaces). No PC installation or ZIP download is required. Before creating Microsoft Azure resources, confirm your subscription, permissions, and cost approval.
-3. In each module, follow **Prerequisites → Steps → Success criteria → Cleanup**. Check the success criteria, save **Keep**, then go to **Next** at the bottom of the page.
-
-| What you need while learning | How to use the guide |
+| Need | Use |
 | --- | --- |
-| Preparation or resuming | Check Codespaces readiness in L01. On another day, open the same Codespace and expand **Return in a new terminal** only. |
-| Commands, questions, or settings | Check the **terminal / portal Chat / .env / expected output** label first. Inspect the plan, pause, then copy the actual execution command separately. |
-| A term or an error | Open **Explain a term / I'm stuck**, then **Return to the lab** to resume at the same reading position. |
-| Completion and records | Check success criteria against actual results. Browser progress is a learning marker, not proof of Microsoft Azure execution. |
+| Policies/instructions/evaluation input | Extract the [small portal-input ZIP](downloads/Contoso-Portal-Inputs.zip) and use `en/`: three policies, v1/v2 Instructions, fixed twelve-row JSONL and review CSV, manual checklist. |
+| Practice screens | Azure portal for resources/costs; Foundry portal for models, agents, files, evaluations, traces. Buttons/fields identify every input destination. |
+| Actual footage | [Live portal recordings and coverage](downloads/portal/index.html). Missing video stages are not successful executions. |
+| Read without installation/sign-in | Choose **Read without executing**, or use offline HTML/Markdown. Reading is not Microsoft Azure execution. |
 
-Collapsed **implementation references and optional extensions** are not required for the core path. A separate capstone, Teams publishing, Hosted, and Optimizer are not core requirements either. The core course uses a portal policy agent, an integrated SDK agent, and an instruction-evaluation agent **separately**; see [L00's three-target table](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l00-agent-map) for how they relate.
+The core targets are a portal policy agent and **two tool-free v1/v2 evaluation Prompt Agents**. L06 does not pretend the portal executes unimplemented inventory/persistence/approval functions. L07's read-only MCP requires supported UI and permissions.
 
-**Not ready for Microsoft Azure?** Select **Without Microsoft Azure** in the web contents. Follow only the stated local, reading, and design steps, separately from live completion. When choosing an elective, check its prerequisites first.
+L08 is a new portal experiment, separate from historical SDK collections. Keep identical synthetic context/model, twelve fixed questions, and only v1/v2 Instructions different. Evaluate actual generated answers, not invented responses. Preserve **quality ≥90%, zero safety/access failures**, errors, and missing rows. There is no holdout or production-generalization claim.
 
-### Default environment: GitHub Codespaces
+Read advanced L11–L18 prerequisites first. Additional Search needs separate resources/cost approval; Hosted is inspection. L13–L14 compare **human manual role transfers**, not concurrency/handoff execution. Inspect Memory's creation form/runtime warning and cancel; conditional recall with an approved existing store is not CRUD/isolation validation. Routines cancel before submission; governance/release decisions are read-only.
 
-With a browser and GitHub account, open **repository → Code → Codespaces → New with options**. Review the default branch (`main`), payer, allowance, and machine before creating it. Tool and package preparation and the readiness checks are grouped in [L01](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-codespaces).
+**This actual execution:** Created the owned group, Microsoft Foundry account/project, logging, two manual model deployments plus an observed automatic embedding dependency, and three policy files. Recorded eleven direct Chat sends and two twelve-row Korean evaluations. Both generated twelve answers, but **one v2 Relevance row returned APIConnectionError**: native comparison incomplete, release held. Read the [identifier-redacted actual answers/error](downloads/portal/evaluation-summary.json) with the video's twenty-module coverage. Historical examples and local checks are not new Microsoft Azure successes.
 
-Use **Linux/Bash commands** in Codespaces even from a Windows PC. Microsoft Azure sign-in and resource creation are separate steps. At [L19](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l12), check Microsoft Azure resources and the Codespace **separately**. Stopping a Codespace can leave storage charges and Microsoft Azure resource charges.
-
-<details>
-<summary>Only if you need another environment: use your PC</summary>
-
-If Codespaces is unavailable or not permitted, extract the [workshop ZIP](downloads/Contoso-Foundry-Hands-on-2026-10-15.zip) and expand [L01's PC setup](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.html#l01-pc). Windows/macOS/Linux installation, virtual-environment setup, and alternative sign-in instructions are grouped there. Do not mix `.env` or ownership records between environments.
-
-</details>
-
-<details>
-<summary>Instructions (v1·v2) and model conditions</summary>
-
-**The learning path is initial v1 → evaluate → analyze and improve → reevaluate v2.** Compare `agent-v1.txt` (the role-and-goal baseline) and `agent-v2.txt` (procedural instructions, the Prompt and Hosted default) under the same conditions.
-V2 explicitly separates public and restricted questions, covers every requested part, matches evidence to individual claims, preserves unknown facts, and respects actual tool permissions/results.
-
-L08 collects twelve matched v1/v2 question pairs once (`samples/instruction_prompt_agent_lab.py`) and evaluates those originals in Microsoft Foundry (`samples/instruction_evaluation.py`). Both require explicit `--live`, so verify the cost scope before running them, and keep both files in your `results/`. Reading only is recorded as evaluation not performed.
-
-The kit pins **`gpt-6-sol / 2026-09-22`**; L01 creates deployment `contoso-chat`. Verify model/region availability in your own subscription. No holdout, Hosted redeployment, or Optimizer is required, and actual score improvement is not guaranteed.
-
-</details>
-
-## Read or download
+## Materials
 
 | Format | Location |
 | --- | --- |
-| English web guide | [GitHub Pages](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) |
-| Korean web guide | [GitHub Pages · 한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
+| Web | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html) |
 | Markdown | [English](downloads/GUIDE.en.md) · [한국어](downloads/GUIDE.ko.md) |
-| Complete kit | [Bilingual ZIP](downloads/Contoso-Foundry-Hands-on-2026-10-15.zip) |
-| Narrated walkthroughs | [Chapter player](downloads/replay/index.html) · [English MP4](downloads/replay/Contoso-Foundry-Replay.en.mp4) · [한국어 MP4](downloads/replay/Contoso-Foundry-Replay.ko.mp4) |
-| Sample receipt (optional L03 image input) | [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html) |
+| Browser-uploadable input | [Small input ZIP](downloads/Contoso-Portal-Inputs.zip) |
+| Complete offline kit | [Bilingual HTML/Markdown/images/materials ZIP](downloads/Contoso-Foundry-Hands-on-2026-10-15.zip) |
+| Actual screen recording | [Video, captions, executed/blocked coverage](downloads/portal/index.html) |
+| Optional document-analysis example | [English receipt](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/en/receipt.html) · [한국어 영수증](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/data/receipt.html); not a required upload |
+| Historical reconstructions | [Legacy walkthrough](downloads/replay/index.html): command/diagram/narration reconstruction, **not actual portal footage**. Do not follow it as the current workflow. |
 
-For a file-by-file code reference, see [English](samples/README.md) or [한국어](samples/README.ko.md).
+Preserve the complete kit's directory structure and open `index.html`. Upload only the three `en/policies/` Markdown files or L08's `evaluation-12.jsonl`, not the entire kit. CSV is a human-readable sidecar. Never publish login screens, keys, email, people lists, or raw logs.
 
-Codespaces already contains the files. Download/extract the ZIP only for offline materials, preserve its structure, and open `index.html` or `index.ko.html`. Open Markdown inside the kit's `downloads/` folder to resolve its images and source links. Reading requires no sign-in.
+The online site serves `main`. Working-branch revisions remain local HTML/Markdown/ZIP until an explicitly approved main update.
 
-Work through **what to inspect → a decision grounded in values → the next action on failure**. Later modules provide interpretation examples for traces, orchestration, access, and releases, plus worked Contoso designs. Examples are not Microsoft Azure results; record design completion separately from actual execution. L18's default CI/release-design path does not require Hosted deployment.
+## Costs and safety
 
-The walkthroughs include narration, subtitles, and all 20 module chapters, but they are instructional reconstructions using commands and diagrams, not live portal recordings. They include the PC preparation route. Codespaces is now the default; follow the current L01 text for startup and configuration order.
+Canonical target: **`gpt-6-sol / 2026-09-22`**, deployment `contoso-chat`; judge **`gpt-4.1 / 2025-04-14`**, `contoso-judge`. Verify actual subscription/version/region availability. Record absence as blocked; never silently substitute another model.
 
-## Working safely
+Use dedicated scope, private ownership records, and explicit resource/request limits. Request bounds are not a monetary ceiling; budget alerts are not spending enforcement. No real orders, payments, or business approval. Access expansion, schedules, publishing, and deletion require separate approval.
 
-Use only synthetic Contoso data. These tools never place real orders, take payments, or grant business approval.
-Keep private `.env`, `.azure/`, credentials, and raw personal execution files out of Git and the kit.
-Select `FOUNDRY_LAB_LANGUAGE=en` in the separate English environment; Korean remains the default. Do not mix environments or ownership receipts.
-New Microsoft Azure calls, access changes, and resource deletion require explicit scope and approval.
+**Closing the browser does not stop resources/schedules.** Retain resources without deletion approval; logging, files, Search, or compute charges may continue. Hand off inventory, retention, and next cost review in [L19](docs/en/12-cleanup.md).
 
-## For repository maintainers
+## Repository maintainers
 
-If you are only learning, you can stop reading here.
+Learners do not need the development commands below.
 
 <details>
-<summary>Regenerating sources and walkthroughs, and GitHub Pages</summary>
+<summary>Sources, generation, validation, and GitHub Pages</summary>
 
-### Edit and regenerate
+Edit `docs/`, `docs/en/`, `content/`, not generated HTML/Markdown. Display numbers come from `number`; preserve canonical IDs, filenames, former `#l11` links, the Korean twenty-module reader, and bilingual structure.
 
-Edit `docs/`, `docs/en/`, `content/`, and the shared sources; never hand-edit generated readers.
-Keep learner-facing text and captions focused on actions, results to check, and prerequisites. Preserve capture records in `content/portal-screenshots*.json` and source-review dates/notes in `content/sources*.json` rather than repeating them in the reader. Do not change original screenshots, hashes, or historical validation records.
-The `microsoft-foundry` skill is development guidance, not a learner, runtime, or documentation-build dependency.
-With the declared Python/Node dependencies installed:
+The `microsoft-foundry` skill is **development guidance**, not a learner/runtime/build dependency. Developers read it for Foundry-related changes; document builds do not download/run it.
+
+With existing declared Python/Node dependencies:
 
 ```bash
 python scripts/build_guide.py
@@ -96,34 +70,21 @@ FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -q
 python scripts/check_guide.py
 npm run guide:browser
 python scripts/package_guide.py
+python scripts/package_guide.py --check
 ```
 
-The same checked-in sources produce both HTML/Markdown editions and one ZIP. The validation workflow fails when regenerated HTML/Markdown differ from the committed files, and `python scripts/package_guide.py --check` fails when the committed ZIP differs from the sources. The ZIP is built to be reproducible (fixed timestamps, sorted entries), and the existing ZIP is replaced only after every check passed. Keep local reports under private `results/documentation/`; do not package them.
-Local checks are not Microsoft Azure execution or measured model improvement.
+The builder creates portal inputs, both HTML/Markdown editions, and a reviewed-footage index that checks asset hashes and twenty-module coverage. It does not record new footage or call Microsoft Azure. ZIP entries use fixed timestamps/sorting and replace the old archive only after link/integrity/private-data/maintainer exclusions pass. Keep local reports under private `results/documentation/`; they are not Microsoft Azure evidence.
 
-Learner-facing numbers come from `number` in `content/chapters.json`. Existing IDs and source filenames remain stable identifiers for links, progress, and historical records, so they can differ from display numbers. The former `#l11` link opens L06's integration review; historical validation numbers and originals remain unchanged.
+Preserve screenshot originals/hashes/provenance and historical `validation/` evidence. New actual footage has separate provenance and executed/not-run coverage. Never package raw footage with authentication, identities, keys, subscriptions, or people lists.
 
-### Maintainer-only validation assets
+Maintainer-only evaluation v2–v5, authoring/live-CI scripts, and dependent tests stay out of the kit through `content/maintainer-only.json`. Never alter frozen data/gates/history to pass a run. Portal input uses twelve questions from `instruction-comparison.json`. Existing SDK/Hosted samples and [code reference](samples/README.md) are developer references, not learner prerequisites.
 
-The Microsoft Azure live-validation lineage stays in the repository but is **not delivered to learners** in the ZIP: evaluation suites v2–v5 (`data/evaluation/v2`, `v3`; `data/en/evaluation/v2`–`v5`), their authoring and CI scripts (`scripts/prepare_eval_v*.py`, `ci_live.py`, `share_evidence.py`), and the tests that need them. No lab uses these sets: L01 only checks the structure of the 20 legacy cases and L08 uses the 12-question `instruction-comparison.json`.
-`content/maintainer-only.json` is the single list. `package_guide.py` leaves its paths out of the ZIP and fails if one slips in, tests that need the assets skip when they are absent (as in the kit), and a test keeps learner-facing links away from them. To add a path, edit that list rather than the packaging code, and do not link it from learner-facing text. Do not edit frozen inputs or their hashes; start a new experiment instead.
-Codespaces opens the whole `main` branch, so these files are still visible there.
+Legacy reconstructions rebuild on macOS with FFmpeg, voices, and declared Playwright via `python scripts/build_replay.py`. Never reclassify `content/replay.json` scenes as real footage.
 
-### Rebuild the walkthroughs
+Pages serves the **root of the `main` branch** (`/`). Merging into `main` requires explicit approval; a push automatically publishes checked-in HTML/downloads. Pages does not wait for validation to finish or run generators. Keep `.nojekyll`; no force-push, unapproved merge, or visibility changes.
 
-Rebuild locally on macOS with installed FFmpeg, system voices, and the declared Playwright dependency: `python scripts/build_replay.py`. Narration and scenes come from `content/replay.json`.
-
-### GitHub Pages
-
-Pages serves the **root of the `main` branch** (`/`). A push to `main` automatically publishes the checked-in HTML and download files; no separate publishing branch is needed.
-Merging into `main` still requires approval and now also publishes the site. Regenerate and review HTML/Markdown/ZIP before merging; Pages does not run the guide generators.
-The existing validation workflow and Pages deployment run independently: **Pages does not wait for validation to finish**.
-Keep `.nojekyll` and do not force-push. Branch deletion, repository visibility changes, and Microsoft Azure operations require explicit approval.
-Use `python scripts/check_pages.py` after deployment to compare the public HTML, assets, and ZIP with the merged sources. `python scripts/check_links.py` reports official pages that changed after the recorded source-review date (`--fail-on-changed` turns that into a failure).
-To shorten Codespaces startup for learners, you can configure a prebuild for `main` under the repository's **Settings → Codespaces** (optional; it uses quota).
+After approved publication, use `python scripts/check_pages.py` to compare public assets/ZIP with sources. `python scripts/check_links.py` detects official-document changes after recorded review dates. This portal revision does not rewrite those dates or historical live results.
 
 </details>
 
-This is not an official Microsoft curriculum. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
-
-The repository's code and documentation are released under the [MIT License](LICENSE); Microsoft product names, the icon, and portal screenshots are excluded. Report guide problems or suggestions as an [issue](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/issues/new/choose); never paste `.env`, keys, or personal data.
+Not an official Microsoft curriculum. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) and [MIT License](LICENSE); Microsoft names/icons/screens retain their applicable rights. Never attach credentials or personal data to [guide issues](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/issues/new/choose).

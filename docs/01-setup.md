@@ -1,811 +1,254 @@
-> **완성할 결과:** 내가 만든 실습 전용 리소스 그룹·Microsoft Foundry 프로젝트·모델 배포·로그 연결과, 실행할 Python 환경.
+## 목표
+
+Azure portal에서 **내 전용 리소스 그룹**, Microsoft Foundry에서 **새 Microsoft Foundry resource와 project**를 만듭니다. 실제 호출 전에 권한과 로그 연결을 확인합니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 실행 환경 준비 → 로그인·권한 확인 → 전용 환경 생성 → 설정·로그 연결.
+**진행 방식:** 포털 직접 생성. 승인된 구독·지역에서 환경 1개만 만듭니다.
 
-**먼저 할 일:** Microsoft Azure 구독·권한·예산을 확인한 뒤 [GitHub Codespaces](#l01-codespaces)를 열고 준비된 터미널에서 시작합니다.
+**먼저 할 일:** L00에서 비용·소유 범위를 확인하고 이름의 `<내접미사>`를 날짜+짧은 임의 문자열로 정합니다. 예: `261104-a7b2`.
 
-**확인할 결과:** `results/azure-environment.json`의 내 프로젝트와 포털의 자원이 일치합니다. 첫 모델 요청은 L03에서 보냅니다.
+**확인할 결과:** 자원 그룹·Microsoft Foundry resource·project가 같은 허용 범위에 있고 개인 소유 기록에 남았습니다.
 
 </div>
-
-## 목표
-
-**실습 참여자가 필요한 환경을 직접 만듭니다.** 이후 장은 이 프로젝트와 소유 기록을 이어 사용합니다. 생성·조회·역할 부여 각각에 필요한 권한을 확인하고, 없는 권한은 확보하기 전까지 해당 작업을 보류합니다.
 
 ## 개념과 실습 지도
 
-**경험할 기능:** Codespaces의 Python 환경을 확인하고 Microsoft Foundry 프로젝트·모델·권한·로그를 준비합니다.
+**경험할 기능:** Resource group, Microsoft Foundry project, IAM 읽기, Application Insights 연결.
 
-**무엇이며 왜 중요한가요?** 구독은 비용 범위, 리소스 그룹(RG)은 자원 묶음, 프로젝트는 에이전트 작업 공간입니다. 로그인은 신원, RBAC는 허용 작업, quota는 사용 가능한 용량입니다.
+**무엇이며 왜 중요한가요?** 리소스 그룹은 Microsoft Azure 자원을 묶는 관리 범위, project는 에이전트·데이터·연결의 작업 공간입니다. 로그인했다고 생성·호출·권한 부여가 모두 가능한 것은 아닙니다.
 
-**어떻게 사용하나요?** 전용 환경을 만들고 포털의 실제 이름·주소를 `.env`와 소유 기록(`results/azure-environment.json`)에 대조합니다. 주소를 안다고 권한이 생기지는 않습니다.
+**어떻게 사용하나요?** 생성 폼의 자동 기본값을 그대로 누르지 않고 구독·자원 그룹·지역·이름을 매번 확인합니다.
 
-**어디서 실행하나요?** 기본은 브라우저 VS Code의 **Codespaces 터미널**입니다. Microsoft Azure·Microsoft Foundry 포털에서 결과를 확인합니다. [환경 생성 코드](../scripts/azure_environment.py)와 [Bicep](../infra/main.bicep)이 실제 생성 범위를 정의합니다.
+**어디서 실행하나요?** Azure portal과 Foundry portal. 설치·코드·환경 파일은 사용하지 않습니다.
 
 ## 준비
 
-| 준비할 것 | 확인할 내용 |
+허용 구독, 비용 담당자, 지역(예: `North Central US`), 요청 상한을 준비합니다. 아래 이름은 **내 접미사로 바꿉니다**. 기존 교육·운영 자원을 이름만 보고 재사용하지 않습니다.
+
+| 기록할 항목 | 내 입력 예 |
 | --- | --- |
-| Microsoft Azure 계정·사용 가능한 구독 | 자신의 계정으로 로그인할 수 있고 구독이 Enabled인지 |
-| 생성 권한 | 리소스 그룹 생성과 그 안의 Microsoft Foundry·로그 자원 배포 권한 |
-| 역할 부여 권한 | 대상 범위의 `Microsoft.Authorization/roleAssignments/write`. `Contributor`만으로는 역할을 부여할 수 없음 |
-| quota 조회 권한 | 구독의 `Cognitive Services Usages Reader` 등 모델 사용량 조회 권한 |
-| 지역·예산 | 모델 지원 지역, 허용된 처리 범위, 지출 한도·중단 기준·보존 기한 |
-| 기본 실행 환경 | 브라우저·GitHub 계정·저장소 접근·Codespaces 사용 허용과 비용 범위. Python 3.13·Azure CLI·Azure Developer CLI(azd)·기본/MCP 패키지는 저장소 설정으로 준비 |
-
-자신의 구독이라도 실제 권한을 먼저 확인합니다. 조직 구독에서는 필요한 범위의 권한·비용 승인을 확보한 뒤 진행합니다. 권한이 없으면 해당 작업을 보류하며, 오류를 우회하려고 보안을 끄거나 구독 전체 권한을 확대하지 않습니다. 계정·권한 없이도 로컬 연습은 가능하지만 **Microsoft Foundry 실행 완료와는 별도**입니다.
-
-## 실행
-
-**아래 5단계를 순서대로 진행합니다.** 각 단계의 결과가 맞을 때만 다음으로 이동합니다. 이미 준비한 단계는 같은 환경의 기록을 대조하며, 다시 생성하지 않습니다.
-
-| 단계 | 할 일 | 다음으로 가기 전 확인 |
-| --- | --- | --- |
-| [1. Codespaces 준비](#l01-codespaces) | 준비된 터미널에서 도구·데이터 검사 | Python 3.13·내 `.venv`·로컬 검사 통과 |
-| [2. 로그인·범위 확인](#l01-sign-in) | 내 계정·구독·권한·지역·비용 확인 | 승인된 작업 범위와 예산 |
-| [3. 전용 리소스 그룹](#l01-resource-group) | 생성 계획 확인 후 승인된 범위만 실행 | `results/azure-environment.json`의 내 RG |
-| [4. 프로젝트·모델·역할](#l01-4-foundry-프로젝트모델필요한-역할-만들기) | 배포 계획 확인 → 실제 생성 → 필요한 역할 | 내 프로젝트·세 모델·사용 권한 |
-| [5. 로그·설정](#l01-settings) | 로그 연결과 `.env` 저장 | 포털·`.env`·소유 기록이 같은 환경 |
-
-Microsoft Azure 조건이 아직 없다면 **1단계까지만** 진행하고 [L06 로컬 함수](#l06)로 갑니다. 새 터미널이나 다음 날 재개할 때는 [실행기 확인](#l01-new-terminal)부터 합니다.
-
-<a id="l01-1-pc와-실습-파일-준비하기"></a>
-
-### 1. GitHub Codespaces에서 시작하기
-
-**이 가이드의 기본 환경은 GitHub Codespaces입니다.** 내 PC에 Python·CLI·VS Code·Docker를 설치하지 않고 브라우저에서 실습합니다. Codespaces는 원격 Linux 개발 환경이며 Microsoft Foundry 프로젝트 자체는 아닙니다. 사용할 수 없는 경우에만 아래 **내 PC 대안**을 펼칩니다.
-
-<section class="codespaces-path" markdown="1">
-
-<a id="l01-codespaces"></a>
-
-#### Codespaces 생성 → 준비 확인 → 같은 실습 계속하기
-
-**필요한 것:** GitHub 계정·이 저장소의 읽기 권한·조직의 Codespaces 사용 허용과 비용 범위입니다. Microsoft Azure 구독·권한은 실제 클라우드 실습을 할 때 별도로 필요합니다. 회사의 private endpoint/VNet에 Codespaces가 자동 연결되는 것은 아닙니다. 허용된 네트워크 경로가 없다면 로컬 연습까지만 진행하며 보안 설정을 바꾸지 않습니다.
-
-1. [현재 실습 저장소](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5)를 열고 기본 브랜치 `main`을 선택합니다(`.devcontainer/devcontainer.json`이 들어 있습니다). **Code → Codespaces → … → New with options**를 엽니다. ZIP을 다시 받거나 `git clone`을 할 필요는 없습니다.
-2. **비용 부담 주체·허용량·Region·Machine type**을 확인한 뒤 **Create codespace**를 선택합니다. 무료라고 가정하지 말고 확인합니다.
-    - 기본 실습은 작은 2-core 구성을 출발점으로 삼을 수 있으며, 조직이 허용한 구성을 선택합니다.
-    - 이 Region은 개발 환경의 위치입니다. 이후 Microsoft Azure의 리전·모델 처리 범위를 정하지 않습니다.
-    - [GitHub 사용량·비용](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces)은 Microsoft Azure 비용과 별도입니다.
-3. 브라우저의 VS Code가 열려도 **post-create 설치가 끝날 때까지 기다립니다.** 터미널에 `Lab tools ready.`가 보여야 합니다.
-    - 저장소 설정이 Python 3.13·Azure CLI·Azure Developer CLI(azd)·Bicep·Python 확장·`.venv`·기본/MCP 패키지를 준비하고, `.env`가 없을 때만 템플릿을 복사합니다.
-    - Microsoft Azure 로그인·자원 생성·역할 부여는 하지 않습니다.
-4. **Terminal → New Terminal**을 열고 `samples`·`data`·`requirements.txt`가 보이는 실습 루트에서 아래를 실행합니다. **PC가 Windows여도 이 터미널은 Linux/Bash**이므로 PowerShell 명령으로 바꾸지 않습니다.
-
-```bash
-python --version
-python -c "import sys; print(sys.executable)"
-az version
-python samples/workshop.py doctor
-python samples/workshop.py validate-data
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — Codespaces 준비 확인**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `python --version` | 선택된 Python 버전을 확인합니다. | `Python 3.13.x`. Microsoft Azure 요청 없음. |
-| 2. `python -c` | 실제 실행기 경로를 읽습니다. | 이 실습 폴더의 `.venv/bin/python`이어야 합니다. |
-| 3. `az version` | 준비된 CLI 버전을 읽습니다. | `azure-cli` 2.86.0 기준. 로그인 검사가 아닙니다. |
-| 4. `doctor` | SDK 설치와 `.env` 형식을 오프라인으로 점검합니다. | 기본 SDK가 설치되어 있어야 합니다. 이 시점의 `.env`는 예시 값이라 `project endpoint: not set yet`이 정상입니다. endpoint 연결 검사는 아닙니다. |
-| 5. `validate-data` | 동봉 합성 데이터의 구조를 검사합니다. | 20건·dev 10·holdout 10·재고 3건. 모델 평가가 아닙니다. |
-
-</div>
-
-**다음:** 위 결과가 맞으면 **[2. 로그인·구독·권한·비용 확인](#l01-sign-in)**으로 갑니다. 아래 접힌 대안·재개 안내는 지금 수행할 단계가 아닙니다. Microsoft Azure 준비가 없다면 [L06 로컬 함수](#l06)로 이동합니다. `.env`의 프로젝트 값은 자원을 만든 뒤 이 장의 5단계에서 채웁니다.
-
-| 막힌 곳 | 다음 행동 |
-| --- | --- |
-| Codespaces 메뉴 없음·생성 거절 | 저장소 접근·조직 허용·GitHub 사용량을 확인합니다. 허용되지 않으면 [내 PC 대안](#l01-pc)을 펼칩니다. |
-| `Lab tools ready.`가 안 나옴·패키지 설치 실패 | 생성 로그의 첫 오류와 승인된 패키지 접근을 확인합니다. 해결한 뒤 같은 터미널에서 `bash .devcontainer/post-create.sh`를 재실행할 수 있습니다. 기존 `.env`·소유 기록은 보존합니다. |
-| 실행기 경로가 다름 | 새 터미널을 열거나 `source .venv/bin/activate` 후 재확인합니다. Microsoft Azure 환경을 다시 만들지 않습니다. |
-
-다음 날에는 [내 Codespaces](https://github.com/codespaces)에서 **같은 Codespace를 다시 시작**합니다. `.env`·`results/`는 같은 환경의 기록이며 새 Codespace에 자동 이전된다고 가정하지 않습니다. 언어별로 다른 Codespace를 사용하고 결과·인증 정보를 Git에 올리지 않습니다. **[L19에서 Codespace도 중지](#l12-codespaces)**해야 하며 브라우저 탭을 닫는 것만으로 중지되지 않습니다. azd는 이미 준비되어 있고, 심화용 `.venv-live`·`.venv-advanced`는 해당 장을 선택할 때만 준비합니다.
-
-[공식 생성 안내](https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository) · [개발 컨테이너 구성](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
-
-</section>
-
-<details class="environment-option pc-setup" markdown="1">
-<summary>다른 환경이 필요할 때만: 내 PC에서 준비하기 (Windows/macOS/Linux)</summary>
-
-<a id="l01-pc"></a>
-
-**Codespaces에서는 이 절을 실행하지 않습니다.** PC에서 진행하는 경우에만 실습 ZIP을 풀고 아래 도구·가상환경을 준비합니다. 준비가 끝나면 같은 2단계로 합류하며, 두 환경의 `.env`·소유 기록을 섞지 않습니다.
-
-**이미 설치했다면 설치 설명을 다시 따라 하지 않습니다.** 자기 OS의 버전 확인 → [실습 파일·가상환경](#l01-local) → [Python 선택](#l01-interpreter) 순으로 갑니다. 처음이라면 아래에서 **자기 OS의 절만** 따라 설치합니다. Microsoft Azure 계정이 없다면 PC·로컬 검사까지 진행하고 2단계 이후는 보류합니다.
-
-조직이 허용한 경로로 Python, Azure CLI, VS Code를 준비합니다. **설치되어 있으면 아래 확인부터 하고, 필요한 도구만 설치합니다.** 조직의 소프트웨어 배포 포털·승인된 설치 파일·패키지 저장소를 우선 사용합니다. 아래 공식 다운로드 절차도 조직이 허용한 경우에만 따릅니다. 설치나 다운로드가 차단되면 승인된 배포 경로를 확보하고 진행하며, 보안 경고·인증서 검증·실행 정책을 우회하지 않습니다.
-
-| 도구 | 이 실습에서 하는 일 | 준비 완료 기준 |
-| --- | --- | --- |
-| Python 3.13 | PC에서 실제 Python 코드와 Microsoft Foundry SDK를 실행합니다. | 버전 확인에 `Python 3.13.x`가 출력됩니다. |
-| Azure CLI | Microsoft Azure 로그인과 실습 자원 생성·조회를 수행합니다. | `az version`에 `azure-cli` 버전이 출력됩니다. 이 키트 기준은 2.86.0입니다. |
-| VS Code | 코드를 읽고 수정하고 PC 터미널을 엽니다. | 실습 폴더와 Python 파일을 열 수 있습니다. Python 확장은 아래에서 준비합니다. |
-
-<a id="l01-python"></a>
-
-#### Python 3.13 설치·확인
-
-**Windows**
-
-<details class="setup-detail" markdown="1">
-<summary>Python 3.13이 없을 때만: Windows 설치 방법</summary>
-
-1. [Python 다운로드](https://www.python.org/downloads/windows/)에서 **3.13.x 릴리스**를 선택하고 PC에 맞는 설치 파일을 받습니다. 기본 화면의 최신 버전이 3.13이라는 뜻은 아닙니다. `embeddable package`가 아닌 일반 설치 파일을 사용합니다.
-2. 승인된 설치 파일을 실행합니다. 일반 설치 파일에서는 **Add python.exe to PATH**를 선택하고, `pip`와 Python launcher (`py`)를 포함해 설치합니다. 설치 화면의 **Install Now** 또는 조직이 정한 설치 옵션을 따릅니다.
-3. 설치 후 열려 있던 터미널을 닫고 새 **PowerShell**을 엽니다. 다음 명령으로 3.13을 직접 선택합니다.
-
-</details>
-
-```powershell
-py -3.13 --version
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — Windows**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `py -3.13 --version` | 설치된 Python 3.13의 버전을 출력합니다. | 로컬 확인. 설치·로그인·Microsoft Azure 요청 없음. |
-
-</div>
-
-<details class="setup-detail" markdown="1">
-<summary>Python 3.13이 없을 때만: macOS/Linux 설치 방법</summary>
-
-**macOS**
-
-1. [Python 다운로드](https://www.python.org/downloads/macos/)에서 설치 파일이 제공되는 **3.13.x 릴리스**를 선택합니다. **macOS 64-bit universal2 installer** (`.pkg`)는 Apple Silicon·Intel Mac용입니다.
-2. 승인된 `.pkg`를 열고 설치 화면의 버전·설치 위치를 확인해 진행합니다. macOS가 기본 제공하는 Python을 삭제하거나 교체하지 않습니다.
-3. python.org 배포판은 **응용 프로그램 → Python 3.13 → Install Certificates.command**로 기본 인증서 설정을 마칩니다. 조직이 별도 인증서·프록시 설정을 요구하면 승인된 설정을 따르며, 인증서 검증을 끄지 않습니다.
-
-**Linux — Ubuntu/Debian 예시**
-
-조직이 허용한 패키지 저장소에서 `python3.13`과 `python3.13-venv`를 제공하는 경우에만 다음을 실행합니다. 배포판에 따라 패키지 제공 여부가 다릅니다. 제공하지 않으면 임의의 외부 저장소를 추가하지 말고 승인된 Python 3.13 배포본을 준비합니다.
-
-```bash
-sudo apt install python3.13 python3.13-venv
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — Ubuntu/Debian**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `apt install ...` | Python 3.13과 가상환경 생성 지원을 설치합니다. | 승인된 저장소의 패키지 다운로드·PC 변경. Microsoft Azure 요청 없음. |
-
-</div>
-
-</details>
-
-macOS/Linux에서는 새 터미널에서 다음을 확인합니다.
-
-```bash
-python3.13 --version
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — macOS/Linux**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `python3.13 --version` | 실행할 Python 3.13의 버전을 출력합니다. | `Python 3.13.x`의 `x`는 실제 패치 번호입니다. Microsoft Azure 요청 없음. |
-
-</div>
-
-3.12·3.14 등 다른 버전만 보이면 준비 완료가 아닙니다. 다른 프로그램의 Python은 그대로 두고, 이 실습에 사용할 3.13을 별도로 준비합니다.
-
-<a id="l01-azure-cli"></a>
-
-#### Azure CLI 설치·확인
-
-<details class="setup-detail" markdown="1">
-<summary>az 명령이 없을 때만: OS별 Azure CLI 설치 방법</summary>
-
-**Windows**
-
-1. [공식 Windows 설치 안내](https://learn.microsoft.com/cli/azure/install-azure-cli-windows)의 **Microsoft Installer (MSI)** 절을 엽니다. 일반적인 x64 PC는 64-bit MSI를 사용하며, 다른 아키텍처는 공식 지원 범위와 조직 배포본을 확인합니다.
-2. 키트 기준 2.86.0이 필요하면 같은 안내의 **Specific version** 절 또는 [공식 2.86.0 x64 MSI](https://azcliprod.blob.core.windows.net/msi/azure-cli-2.86.0-x64.msi)를 사용합니다. 승인된 MSI를 실행하고 설치를 마칩니다. PC 변경 승인이 필요하면 조직의 승인 절차를 따릅니다.
-3. 설치 후 PowerShell과 VS Code를 완전히 닫았다가 다시 엽니다.
-
-**macOS**
-
-조직이 허용한 [Homebrew](https://docs.brew.sh/Installation)가 **이미 준비된 경우**, [공식 macOS 설치 안내](https://learn.microsoft.com/cli/azure/install-azure-cli-macos)에 따라 다음을 실행합니다. Homebrew가 없거나 허용되지 않으면 먼저 승인된 설치 경로를 확보합니다.
-
-Homebrew부터 필요한 경우에는 조직 소프트웨어 포털의 승인 배포본을 사용합니다. 공식 다운로드가 허용된 Apple Silicon Mac에서는 위 Homebrew 설치 안내에 연결된 공식 릴리스의 `.pkg`를 받아 설치할 수도 있습니다. OS·CPU 지원 조건과 설치 후 PATH 설정을 확인하고 새 터미널의 `brew --version`이 정상 출력되는지 확인한 뒤 아래로 진행합니다.
-
-```bash
-brew install azure-cli
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — macOS**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `brew install azure-cli` | Homebrew에서 제공하는 Azure CLI와 필요한 의존성을 설치합니다. | 다운로드·PC 변경. 실습용 Python 3.13 준비와는 별도이며 Microsoft Azure 요청 없음. |
-
-</div>
-
-**Linux — Ubuntu/Debian 예시**
-
-[공식 Linux 설치 안내](https://learn.microsoft.com/cli/azure/install-azure-cli-linux?pivots=apt)에서 지원 배포판을 확인합니다. Microsoft 패키지 저장소 또는 조직 미러가 **이미 승인·설정되어 있고** `azure-cli`를 제공할 때 다음을 실행합니다. 저장소가 없으면 먼저 승인된 저장소 설정을 완료하며, 내려받은 스크립트를 무조건 실행하지 않습니다.
-
-```bash
-sudo apt install azure-cli
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — Ubuntu/Debian**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `apt install azure-cli` | 설정된 승인 저장소에서 Azure CLI를 설치합니다. | 다운로드·PC 변경. Microsoft Azure 로그인·자원 생성 없음. |
-
-</div>
-
-</details>
-
-**모든 OS에서 확인:** 새 PC 터미널에서 다음을 실행합니다. PowerShell에서도 같은 명령입니다.
-
-```bash
-az version
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `az version` | 로컬 Azure CLI와 설치된 확장 버전을 출력합니다. | 로그인·권한·Microsoft Azure 연결 확인은 아닙니다. 모델 호출·자원 생성 없음. |
-
-</div>
-
-결과의 `azure-cli` 값을 기록합니다. 최신 MSI·Homebrew·apt는 키트 기준 2.86.0과 다른 버전을 제공할 수 있습니다. 다른 승인 버전을 사용하면 이후 명령의 동작을 확인하며, 임의로 업그레이드·다운그레이드하지 않습니다. **Microsoft Azure 로그인은 아래 2단계에서 합니다.**
-
-<a id="l01-vscode"></a>
-
-#### VS Code 설치·실습 폴더 열기
-
-<details class="setup-detail" markdown="1">
-<summary>VS Code가 없을 때만: OS별 설치 방법</summary>
-
-**Windows:** [VS Code 다운로드](https://code.visualstudio.com/download)에서 PC에 맞는 **User Installer**를 받아 승인된 설치 옵션으로 설치합니다. 조직 배포본이 있으면 그것을 사용합니다. 시작 메뉴에서 **Visual Studio Code**를 엽니다.
-
-**macOS:** 같은 다운로드 화면에서 Apple Silicon·Intel에 맞는 배포본 또는 Universal을 받습니다. 배포본의 `.dmg` 또는 `.zip`을 열고 **Visual Studio Code.app → 응용 프로그램(Applications)**으로 옮긴 뒤 실행합니다.
-
-**Linux:** 다운로드 화면에서 배포판에 맞는 `.deb` 또는 `.rpm`을 선택하고, 승인된 소프트웨어 설치 프로그램으로 설치합니다. 패키지 저장소 추가를 요청하면 조직이 허용한 설정만 적용합니다.
-
-</details>
-
-VS Code 창이 열리면 **도움말 → 정보**(macOS는 **Code → About Visual Studio Code**)에서 설치 버전을 확인합니다. `code` 터미널 명령이 없어도 다음 폴더 열기로 진행할 수 있습니다.
-
-ZIP을 풀고 **VS Code → 파일 → 폴더 열기**로 `samples`·`data`·`requirements.txt`가 함께 있는 폴더를 엽니다. **터미널 → 새 터미널**을 선택합니다. 여기서 터미널은 내 PC의 셸이며, 브라우저 주소창·Cloud Shell·Python `>>>` 입력창이 아닙니다. `>>>`가 보이면 `exit()`로 나옵니다.
-
-왼쪽 **확장(Extensions)**에서 `Python`을 검색하고 게시자가 **Microsoft**, 확장 ID가 **`ms-python.python`**인 항목을 확인합니다. 이미 있으면 다시 설치하지 않으며, 없으면 조직이 허용한 확장 배포 경로로 설치합니다. 이 확장은 Python 실행기 자체를 설치하지 않습니다. 확장 설치가 허용되지 않아도 아래 PC 터미널 명령으로 실습할 수 있습니다.
-
-**준비가 막혔을 때**
-
-| 증상 | 확인·조치 |
-| --- | --- |
-| `py`·`python3.13`을 찾을 수 없음 | 새 터미널에서 다시 확인하고 승인된 설치 경로·launcher·PATH 설정을 점검합니다. Windows의 `python`이 Store를 여는 경우에는 위 `py -3.13`으로 확인합니다. |
-| `az`를 찾을 수 없음 | 설치 완료 후 VS Code까지 다시 열고 승인된 CLI 설치 경로가 PATH에 있는지 확인합니다. |
-| 다운로드·인증서·프록시 오류 | 조직이 허용한 저장소·프록시·인증서 설정을 확인합니다. SSL 검증 해제나 보안 정책 변경으로 넘기지 않습니다. |
-| 확장을 설치할 수 없음 | 승인된 확장 배포본을 사용하거나 터미널 실습 경로로 진행합니다. |
-
-<a id="l01-local"></a>
-
-#### 실습 파일 검사·가상환경 만들기
-
-먼저 표준 라이브러리만 사용하는 두 검사를 실행합니다. Windows에서는 `python3.13` 대신 `py -3.13`을 사용합니다.
-
-```bash
-python3.13 samples/workshop.py doctor
-python3.13 samples/workshop.py validate-data
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `doctor` | Python·SDK 설치 상태와 `.env` 존재 여부를 출력합니다. | 로컬 검사. CLI 로그인이나 Microsoft Azure 연결을 검사하지 않습니다. |
-| 2. `validate-data` | 합성 데이터 형식·시나리오 분리·재고를 검사합니다. | 데이터 구조 확인이며 모델 품질 평가는 아닙니다. |
-
-</div>
-
-```output
-Validated 20 cases: dev=10, holdout=10; scenario overlap=0; inventory=3.
-```
-
-`doctor`의 `not installed (needed only for --live)`는 아래 설치 단계가 남았다는 뜻입니다. 여기의 20건은 기존 dev/holdout 자료이고, L08의 고정 12문항 비교와는 다릅니다.
-
-아래 가상환경 생성·설치는 처음 한 번만 합니다. 이 폴더에 준비된 `.venv`가 이미 있으면 [새 터미널에서 재개](#l01-new-terminal)로 이동합니다.
-
-macOS/Linux:
-
-```bash
-python3.13 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-cp -n .env.example .env
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — macOS/Linux**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `venv .venv` | 이 폴더 전용 Python 환경을 만듭니다. | 로컬 폴더 생성. |
-| 2. `source .../activate` | 현재 터미널의 Python을 선택합니다. | 새 터미널에서는 다시 선택합니다. |
-| 3. `pip install -r ...` | 선언된 SDK 의존성을 설치합니다. | 패키지 다운로드·로컬 설치. Microsoft Azure 요청 없음. |
-| 4. `cp -n ...` | 없는 경우에만 설정 템플릿을 복사합니다. | 기존 `.env`를 보존합니다. |
-
-</div>
-
-Windows PowerShell에서는 위 블록 **대신** 실행합니다.
-
-```powershell
-py -3.13 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-if (-not (Test-Path .env)) { Copy-Item .env.example .env }
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — Windows**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `py -3.13 -m venv` | Python 3.13으로 가상환경을 만듭니다. | 로컬 폴더 생성. |
-| 2. `.venv\Scripts\python.exe -m pip ...` | 해당 환경에 SDK를 설치합니다. | 활성화나 실행 정책 변경이 필요 없습니다. |
-| 3. `if ... Copy-Item` | `.env`가 없을 때만 복사합니다. | 기존 설정을 덮어쓰지 않습니다. |
-
-</div>
-
-이후 `python`은 이 가상환경의 Python입니다. Windows는 `.\.venv\Scripts\python.exe`로 바꿉니다. 한국어 데이터가 기본값이며, 영어 실습은 별도 폴더에서 해당 언어의 L01을 따릅니다.
-
-<a id="l01-interpreter"></a>
-
-#### VS Code에서 실습용 Python 선택하기
-
-Python 확장을 준비한 경우, 위에서 만든 `.venv`를 편집기의 실행·디버깅에도 사용합니다.
-
-1. `samples/first_response.py`를 열어 Python 파일을 표시합니다.
-2. **Ctrl+Shift+P**(macOS **Cmd+Shift+P**)로 명령 팔레트를 열고 **Python: Select Interpreter**를 선택합니다.
-3. 이 실습 폴더의 **Python 3.13 (`.venv`)**를 선택합니다. 목록에 없으면 **Enter interpreter path**로 macOS/Linux는 `.venv/bin/python`, Windows는 `.venv\Scripts\python.exe`를 직접 선택합니다.
-4. 창 아래 상태 표시줄에서 선택한 환경을 확인합니다. 편집기의 선택이 기존 터미널의 실행기를 바꿨다고 가정하지 말고, 아래 경로 검사도 수행합니다. Windows 터미널 명령은 계속 `.\.venv\Scripts\python.exe`를 사용합니다.
-
-</details>
-
-<details class="resume-setup" markdown="1">
-<summary>중단 후 재개하거나 새 터미널을 열었을 때만: Python 환경 다시 확인</summary>
-
-<a id="l01-new-terminal"></a>
-
-#### 새 터미널이나 다음 날 다시 시작하기
-
-같은 Codespace의 VS Code에서 **같은 실습 폴더 → 터미널 → 새 터미널**을 엽니다. 가상환경을 다시 만들거나 패키지를 재설치하지 않습니다. L07의 두 터미널에서도 아래 Bash 명령으로 준비 상태를 확인할 수 있습니다.
-
-**Codespaces 터미널**
-
-```bash
-source .venv/bin/activate
-python -c "import sys; print('Python', sys.version.split()[0]); print(sys.executable)"
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `source .venv/bin/activate` | 이 터미널에서 기본 실습의 Python을 선택합니다. | 로컬 셸만 변경합니다. |
-| 2. `python -c` | 현재 실행기의 **버전과 경로**를 출력합니다. | `Python 3.13.x`와 이 폴더의 `.venv/bin/python`이 함께 맞아야 합니다. Microsoft Azure 요청 없음. |
-
-</div>
-
-<details class="environment-option" markdown="1">
-<summary>내 PC에서 재개할 때만: macOS/Linux 또는 Windows PowerShell</summary>
-
-macOS/Linux는 위 Bash 블록을 사용합니다. Windows PowerShell은 **대신** 다음을 실행합니다.
-
-```powershell
-.\.venv\Scripts\python.exe -c "import sys; print('Python', sys.version.split()[0]); print(sys.executable)"
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — Windows**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `.venv\Scripts\python.exe -c` | 가상환경의 실행기를 직접 선택하고 **버전과 경로**를 출력합니다. | `Python 3.13.x`와 이 폴더의 `.venv\Scripts\python.exe`가 함께 맞아야 합니다. 활성화·실행 정책 변경·Microsoft Azure 요청 없음. |
-
-</div>
-
-이후 기본 명령의 `python`도 Windows에서는 `.\.venv\Scripts\python.exe`로 바꿉니다. 경로가 없으면 현재 폴더를 확인하고, 실제로 가상환경을 만들지 않은 경우에만 위 생성 단계로 돌아갑니다.
-
-</details>
-
-**기존 `.venv`가 3.12·3.14 등이라면 재사용하지 않습니다.** 기존 환경을 삭제하거나 덮어쓰지 말고, Python 3.13으로 `.venv-core313` 같은 새 이름의 환경을 준비합니다. 선택한 경우 이 가이드의 `.venv` 경로를 그 이름으로 일관되게 바꾸고 VS Code에서도 같은 실행기를 선택합니다. 가상환경 변경 때문에 기존 Microsoft Azure 환경이나 소유 기록을 다시 만들지는 않습니다.
-
-</details>
+| 리소스 그룹 | `rg-contoso-portal-<내접미사>` |
+| Microsoft Foundry resource | `ai-contoso-portal-<내접미사>` |
+| Project | `contoso-portal-workshop` |
+| 소유 태그 | `validationRun=portal-<내접미사>` |
+| 로그 자원 | 같은 전용 그룹의 Application Insights·Log Analytics workspace |
+
+네트워크 정책상 private 구성이 필요하면 생성 전 담당자에게 요청합니다. 기본 public access 화면을 보고 조직 승인이 있다고 간주하지 않습니다.
 
 <a id="l01-sign-in"></a>
 
-### 2. 로그인·구독·권한·비용 확인하기
+## 실행
 
-**Codespaces 터미널에서 로그인합니다.** 포털 로그인이나 GitHub 로그인만으로 CLI에 로그인된 것은 아닙니다. 아래 [device-code 로그인](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively#sign-in-with-a-browser)을 사용합니다.
+### 1. Azure portal: 전용 그룹 만들기
 
-```bash
-az login --use-device-code
-```
+<div class="screen-step" markdown="1">
 
-<div class="command-explanation" markdown="1">
+**Basics: 내 이름과 승인 지역부터 입력**
 
-**명령 해설**
+![새 리소스 그룹의 Resource group name과 Region 입력칸.](../assets/portal/steps/rg-basics.png)
 
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `az login --use-device-code` | Codespaces의 CLI 인증을 시작합니다. | 터미널이 안내한 Microsoft 로그인 페이지에서 **자신이 방금 발급한 코드**를 직접 입력하고 MFA를 완료합니다. 코드·토큰·비밀번호를 공유하지 않습니다. 자원 생성 없음. |
+**1 이름:** `rg-contoso-portal-<내접미사>`를 입력합니다. **2 지역:** 승인된 지역을 고릅니다. 구독은 가려진 예시가 아니라 내 개인 기록과 대조합니다.
+
+[자막 영상 01 · 00:10](../downloads/portal/index.html?clip=01-environment&t=10&lang=ko#01-environment)
 
 </div>
 
-조직 정책이 device-code 로그인을 막으면 허용된 실행·인증 경로를 확인합니다. MFA·Conditional Access를 끄거나 장기 secret으로 우회하지 않습니다.
+<div class="screen-step" markdown="1">
 
-<details class="environment-option" markdown="1">
-<summary>내 PC를 선택했을 때만: 로컬 브라우저로 로그인</summary>
+**Tags: 이름만 쓰고 넘어가지 않기**
 
-PC 터미널에서는 다음 명령을 대신 사용할 수 있습니다. 로그인 경로를 둘 다 실행할 필요는 없습니다.
+![Tags 탭에서 validationRun Name과 아직 비어 있는 Value.](../assets/portal/steps/rg-tags.png)
 
-```bash
-az login
-```
+**1 Name:** `validationRun`. **2 Value:** `portal-<내접미사>`. 화면은 Value 입력 전입니다. 두 칸을 모두 채운 뒤 Review로 갑니다.
 
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `az login` | 내 PC의 CLI 인증을 시작합니다. | 비밀번호·MFA는 인증 화면에 직접 입력합니다. 자원 생성 없음. |
+[자막 영상 01 · 00:39](../downloads/portal/index.html?clip=01-environment&t=39&lang=ko#01-environment)
 
 </div>
 
-</details>
-
-**로그인 후 구독 확인:** 아래를 한 줄씩 실행합니다. 목록에서 사용할 구독 ID를 찾은 뒤 자리표시자를 바꿉니다.
-
-```bash
-az account list --query "[].{subscription:name,id:id,tenant:tenantId,state:state}" -o table
-az account set --subscription "실제-구독-ID"
-az account show --query "{subscription:name,id:id,tenant:tenantId,state:state}" -o table
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `az account list` | 내 계정으로 접근 가능한 구독·테넌트·상태를 나열합니다. | 사용할 Enabled 구독의 ID를 찾습니다. 모델 호출·자원 생성 없음. |
-| 2. `az account set` | `실제-구독-ID`를 자신의 값으로 바꿔 기본 대상을 선택합니다. | 로컬 CLI 대상 변경. 권한을 부여하지 않습니다. |
-| 3. `az account show` | **선택 후** 현재 대상의 구독·테넌트·상태를 다시 읽습니다. | 선택한 ID와 Enabled 상태가 맞아야 생성 단계로 갑니다. |
-
-</div>
-
-Microsoft Azure 포털의 **구독 → Access control (IAM) → View my access**에서 위 준비표의 권한을 확인합니다. 생성 권한과 역할 부여 권한을 구분하세요. 이후 역할은 자신의 실습 프로젝트·리소스에만 부여합니다.
-
-화면에 예전 이름 **Azure AI User**가 보일 수 있습니다. 현재 **Foundry User**와 역할 ID·핵심 권한이 같은 이름 변경이며, 새 역할을 중복 부여할 이유는 아닙니다.
-
-예산에는 **금액·사용할 서비스·중단 시점·보존 기한**을 적습니다. 예산 알림, TPM/RPM, 로그 수집 제한은 총 과금을 강제로 차단하는 장치가 아닙니다. 한도를 넘으면 새 요청·예약을 중지하고 [L19](#l12)에서 남은 자원을 확인합니다.
-
-<details markdown="1">
-<summary>예산을 정하기 전에: 기본 코스 비용 규모 — 모델 요청 최대 42건, 모듈별 상한 보기</summary>
-
-이 표는 **문서가 안내하거나 코드가 막는, 1회 실행의 최대 요청 수**입니다. 가격은 바뀌므로 금액은 적지 않았습니다. 요청 수 × (입력 크기 + 출력 토큰 상한)으로 토큰 상한을 구해 [Microsoft Azure 가격 계산기](https://azure.microsoft.com/pricing/calculator/)에 내 모델·SKU로 넣고, '남는 것'은 보존하는 기간만큼 더합니다.
-
-| 모듈 | 과금될 수 있는 실행 | 모델 요청 상한 | 이후에도 남는 것 (L19에서 확인) |
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
 | --- | --- | --- | --- |
-| L01 | `create`·`foundation`·`roles`·`monitoring --live` | 0건 | 리소스 그룹·프로젝트·모델 배포 3개·로그 |
-| L02 | 선택 `model_capacity.py test --live` | 5건(chat 3·judge 1·embedding 1, 코드 상한) | 배포 3개 |
-| L03 | `first_response.py --live` | 1건, 선택 +1건(출력 512토큰, 코드 상한) | 없음 |
-| L04 | 포털 Send, 선택 `workshop.py agent --live` | 포털 5건, SDK 1건 | agent 버전 |
-| L05 | 포털 Send, 선택 `workshop.py rag --live` | 포털 3건, SDK 1건 + 파일 업로드 3개 | vector store·파일 3개·agent |
-| L06 | `workshop.py capstone --live` | 5라운드·함수 호출 8회 이내(코드 상한) | agent·conversation·vector store·파일 |
-| L07 | 로컬 실습(핵심은 Microsoft Azure 호출 없음) | 0건 | 없음 |
-| L08 | `instruction_prompt_agent_lab.py --live` → `instruction_evaluation.py --live` | 24건(언어별, 코드 상한) + 평가 실행 1회 | Prompt Agent·evaluator·eval run |
-| L09 | 포털 Send | 3건 | 없음 |
-| L10 | 선택 `trace_lab.py --live` | 로그 조회 1회, 모델 0건 | L01의 로그(보존 30일·하루 1 GB 상한, 지출 상한 아님) |
-| L19 | `cost_status.py`·`operations_status.py`·`stop_sessions.py`(`--live` 없이 Microsoft Azure를 읽음) | 0건 | — |
+| 1 | [Azure portal](https://portal.azure.com/) 위 검색에서 `Resource groups`를 열고 `Create`를 누릅니다. | `Create a resource group → Basics`입니다. | 로그인 조직·생성 권한을 확인합니다. |
+| 2 | `Subscription`에서 허용 구독을 직접 고릅니다. | L00의 구독과 같습니다. | 동명이면 구독 상세 ID를 개인 기록과 대조합니다. |
+| 3 | `Resource group name`에 내 그룹 이름을 입력합니다. | 기존 그룹과 다른 이름입니다. | 충돌하면 새 접미사를 정하고 기록 전체를 맞춥니다. |
+| 4 | `Region`에서 승인된 지역을 고릅니다. | 지역 표시가 내 기록과 같습니다. | 모델 지원을 위해 지역을 바꾸려면 먼저 승인받습니다. |
+| 5 | `Next: Tags`에서 위 소유 태그를 한 행 추가합니다. | Name과 Value가 모두 입력됐습니다. | 태그를 생성 권한이나 금액 한도로 해석하지 않습니다. |
+| 6 | `Review + create`를 눌러 구독·그룹·지역·태그를 읽습니다. | 검증 완료 후 `Create`가 활성화됩니다. | 정책 오류면 내용을 보존하고 담당자에게 전달합니다. |
+| 7 | `Create`를 **한 번** 누릅니다. | Notifications에 `Resource group created`가 나옵니다. | 실패·대기 중이면 중복 생성하지 않습니다. |
+| 8 | 알림의 `Go to resource group`을 누릅니다. | Overview의 이름·구독·지역·Tags가 맞습니다. | 목록이 오래된 경우 Refresh 후 같은 그룹을 찾습니다. |
 
-기본 경로 합계(L03 1 + L04 5 + L05 3 + L06 5 + L08 24 + L09 3 + 선택 L10 1)는 **최대 42건**이며 L08의 평가 실행이 따로 있습니다. 심화(L11–L18)의 상한은 각 장의 **실행** 표에 있고, Search·Hosted 세션·Memory·Routines는 만든 뒤 남는 비용을 L19에서 확인합니다. quota·TPM·예산 알림·로그 한도는 지출을 막지 않으므로, 정한 한도는 `--cost-authorization`에 적습니다.
+<div class="screen-step" markdown="1">
 
-</details>
+**Review: 범위를 읽고 한 번만 Create**
 
-<a id="l01-resource-group"></a>
+![리소스 그룹 Review 화면의 이름과 Create 버튼.](../assets/portal/steps/rg-review.png)
 
-### 3. 내 실습 전용 리소스 그룹 만들기
+**1 검토:** 내 그룹 이름·지역·태그를 대조합니다. **2 Create:** 맞을 때 한 번만 누릅니다. 대기 중이면 재제출하지 않습니다.
 
-기본 경로는 동봉 코드로 **새 전용 환경**을 만들고 포털에서 확인하는 방식입니다. 기존 공용 환경에 손대지 않으며, 자동 생성한 이름과 소유 태그를 `results/azure-environment.json`에 기록합니다. 이 기록은 이후 평가·검색·배포의 대상 확인에 필요합니다.
-
-먼저 계획만 읽습니다. 이 명령에는 바꿀 값이 없습니다.
-
-```bash
-python scripts/azure_environment.py create
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — 먼저 계획만 읽습니다.**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `create` | 만들 리소스 그룹의 이름 형식·태그·기록 위치와 실행에 필요한 옵션을 출력합니다. | `PLAN ONLY`와 계획 JSON. 로그인·권한 검증이나 Microsoft Azure 요청 없음. |
+[자막 영상 01 · 00:47](../downloads/portal/index.html?clip=01-environment&t=47&lang=ko#01-environment)
 
 </div>
 
-<a id="l01-regions"></a>
+<div class="screen-step" markdown="1">
 
-**지역은 만들기 전에 고릅니다.** 리소스 그룹·프로젝트의 지역은 나중에 바꿀 수 없고, 바꾸려면 새 환경을 만들어야 합니다. 기본 코스는 모델 배포(`foundation`)가 가능한 지역이면 되지만, 선택 실습에는 지역 제한이 있습니다(공식 문서 기준, 2026-10-09 확인).
+**생성 후: Overview에서 소유 범위 다시 확인**
 
-| 선택 실습 | 지역 조건 | 근거 |
-| --- | --- | --- |
-| L05 File search | Italy North·Brazil South에서는 제공되지 않음 | [도구별 지역](https://learn.microsoft.com/azure/foundry/agents/concepts/limits-quotas-regions) |
-| L12 Hosted Agent | 공식 지원 지역에서만 사용 | [지원 지역 목록](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) |
-| L15 Memory | 공식 지원 지역에서만 사용(East US는 목록에 없음) | [지원 지역 목록](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory) |
-| L16 Routines | UK West·Switzerland West·Japan West·UAE North·Norway East에서는 사용할 수 없음 | [Routines 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/use-routines) |
+![실제로 생성된 전용 그룹의 Overview와 IAM 및 Tags 메뉴.](../assets/portal/steps/rg-created.png)
 
-선택 실습까지 하려면 위 문서와 [Microsoft Foundry 지역 지원](https://learn.microsoft.com/azure/foundry/reference/region-support)을 확인해 지역을 고르세요. 목록은 바뀔 수 있습니다. 지원되지 않는 지역을 골랐다면 그 선택 실습만 미실행으로 기록하고 기본 코스는 계속합니다.
+**1 IAM:** 뒤의 권한 읽기 단계에서 사용합니다. **2 Tags:** 내 `validationRun`을 확인합니다. 그림의 그룹 이름을 내 소유 자원으로 간주하지 않습니다.
 
-**실제 생성:** 계획이 맞고 해당 구독·지역·비용 범위를 승인받았다면, 아래 세 자리표시자를 자신의 값으로 바꿔 다음 한 줄을 실행합니다.
-
-| 자리표시자 | 넣을 값 | 확인할 곳 |
-| --- | --- | --- |
-| `실제-구독-ID` | 사용할 구독의 ID | 위 `az account show`의 `id`. 표시 이름이나 tenant ID가 아님 |
-| `허용-리전` | 승인받은 Microsoft Azure 지역 **코드** | 예: `eastus`. `East US` 같은 포털 표시 이름이 아닌 지역 **코드**(소문자·숫자)만 허용. 예시 지역의 모델·기능 가용성을 보장하지 않으며 선택 실습에는 [지역 제한](#l01-regions)이 있음 |
-| `"승인된 금액·사용 범위·보존 기한"` | 자신이 승인받은 금액·서비스 범위·종료/보존 기한 | 2단계의 실제 비용 승인 기록. 이 문자열을 입력한다고 승인이나 권한이 생기지 않음 |
-
-```bash
-python scripts/azure_environment.py create --subscription 실제-구독-ID --location 허용-리전 --cost-authorization "승인된 금액·사용 범위·보존 기한" --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `create ... --live` | 구독·지역·비용 범위를 기록하고 고유 RG를 만듭니다. | 실제 Microsoft Azure 생성. 기존 RG나 소유 기록을 덮어쓰지 않습니다. |
+[자막 영상 01 · 01:04](../downloads/portal/index.html?clip=01-environment&t=64&lang=ko#01-environment)
 
 </div>
 
-**중간에 실패했다면 같은 명령을 다시 실행합니다.** 정책 거부·권한 부족·시간 초과나 Ctrl+C로 멈춰도 마찬가지입니다. 리소스 그룹이 만들어지지 않았다면 이전 시도의 기록이 `results/azure-environment.failed-<시각>.json`으로 **보관**되고(삭제하지 않음) 새로 시작합니다. 만들어졌고 이번 실행의 소유임이 확인되면 이어서 사용합니다. 먼저 오류 첫 줄의 원인(권한·정책·지역)을 해결하세요.
+### 2. Microsoft Foundry: project 만들기
 
-**여기서 멈춰 확인:** `results/azure-environment.json`의 `resource_group`·`location`을 Microsoft Azure 포털 **Resource groups**의 이름·지역·소유 태그와 대조합니다. 일치해야 4단계로 갑니다. `.env`나 소유 기록을 공유·커밋하지 않습니다. 완료된 기록은 `create`가 덮어쓰지 않으므로 직접 지우지 않습니다. 같은 명령에서 `ledger already exists`가 보이면 이미 만든 환경이니 4단계로 갑니다.
+<div class="screen-step" markdown="1">
 
-<a id="l01-4-foundry-프로젝트모델필요한-역할-만들기"></a>
+**Advanced options: 자동 그룹 대신 방금 만든 그룹**
 
-### 4. Microsoft Foundry 프로젝트·모델·필요한 역할 만들기
+![Foundry 프로젝트 생성 창의 Advanced options, Resource group, Region.](../assets/portal/steps/project-create.png)
 
-아래 `foundation`은 [main.bicep](../infra/main.bicep)로 **Microsoft Foundry 리소스·프로젝트·chat/judge/embedding 배포 3개**를 만듭니다. chat은 기본 실습, judge는 L08 평가, embedding은 선택 L11/L15용입니다. 모델 호출은 아직 보내지 않습니다.
+**1 펼치기:** resource·구독까지 읽습니다. **2 그룹:** 내 기존 전용 그룹을 선택합니다. **3 지역:** 승인 지역을 확인합니다. 기본 public access도 조직 승인과 대조한 뒤 생성합니다.
 
-이 키트의 모델 구성은 `gpt-6-sol / 2026-09-22`, `gpt-4.1 / 2025-04-14`, `text-embedding-3-large / 1`로 고정되어 있습니다. 자신의 지역·구독에서 지원되는지 확인하세요. 지원되지 않으면 해당 조건을 기록하고 중단합니다. 다른 모델로 바꿔 같은 검증이라고 기록하지 않습니다.
-
-```bash
-python scripts/azure_environment.py foundation --learners 1 --max-capacity 100
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `foundation` | 1인 기준 권장 TPM/RPM과 capacity 산정 계획을 표시합니다. | 로컬 계산. 지역 가용성·quota 검증은 아직 하지 않습니다. |
+[자막 영상 01 · 01:20.5](../downloads/portal/index.html?clip=01-environment&t=80.5&lang=ko#01-environment)
 
 </div>
 
-**실제 배포:** 모델·처리 범위·처리량 계획이 승인된 범위와 맞을 때 실행합니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | [Microsoft Foundry](https://ai.azure.com/)를 새 창으로 열고 같은 조직으로 로그인합니다. | 계정의 Directory가 L00과 같습니다. | 로그인·MFA 화면은 녹화하지 않습니다. |
+| 2 | `Create new project`를 누릅니다. 처음 화면에서는 `Create new`일 수 있습니다. | 프로젝트 생성 창입니다. | `New Foundry` 전환이 기존 프로젝트 선택만 요구하면 취소 후 홈의 Create new를 사용합니다. |
+| 3 | 자원 유형을 묻는 경우 `Microsoft Foundry resource (Recommended) → Next`를 선택합니다. | `Create a project`가 열립니다. | `AI hub resource`를 선택하지 않습니다. |
+| 4 | `Project`에 `contoso-portal-workshop`을 입력하고 `Advanced options`를 펼칩니다. | 구독·그룹·Microsoft Foundry resource·지역을 직접 볼 수 있습니다. | 자동 생성 이름으로 바로 Create를 누르지 않습니다. |
+| 5 | `Subscription`을 고르고 `Resource group`에서 방금 만든 **기존 전용 그룹**을 선택합니다. | `(new) rg-...` 기본값이 아닌 내 그룹입니다. | 목록에 없으면 구독·새로 고침을 확인합니다. |
+| 6 | `Microsoft Foundry resource`에 `ai-contoso-portal-<내접미사>`를 입력합니다. | 계정 이름 검증이 통과합니다. | 전역 이름 충돌이면 승인 범위 내 새 이름으로 기록을 맞춥니다. |
+| 7 | `Region`과 public/private network 조건을 확인합니다. | 승인한 처리·접근 조건입니다. | 필요한 보안 설정은 `Configure in Azure Portal`에서 담당자와 준비합니다. 우회하지 않습니다. |
+| 8 | 모든 값을 다시 읽고 `Create`를 한 번 누릅니다. | `Setting up Microsoft Foundry for you` 후 프로젝트가 열립니다. | 수 분 대기는 정상입니다. 알림·오류를 보고 중복 제출하지 않습니다. |
+| 9 | 필요한 경우 `New Foundry`를 켜고 **내 새 프로젝트**를 선택해 `Let's go`를 누릅니다. | Agents·Models가 있는 내 새 프로젝트입니다. 메뉴 그룹 이름은 L00의 화면을 참고합니다. | 지원 지역·권한이 없으면 차단으로 기록합니다. |
+| 10 | `Manage → Project details`에서 프로젝트와 상위 resource를 확인합니다. | 전용 그룹·지역·이름이 기록과 맞습니다. | endpoint나 키를 복사해 공개하지 않습니다. |
 
-```bash
-python scripts/azure_environment.py foundation --chat-model gpt-6-sol --chat-version 2026-09-22 --judge-model gpt-4.1 --judge-version 2025-04-14 --embedding-model text-embedding-3-large --embedding-version 1 --model-sku GlobalStandard --learners 1 --max-capacity 100 --live
-```
+### 3. 기존 권한 읽기
 
-<div class="command-explanation" markdown="1">
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | Azure portal의 내 Microsoft Foundry resource에서 `Access control (IAM) → View my access`를 엽니다. | 생성·모델 배포·agent/파일·호출 작업에 필요한 기존 권한을 확인합니다. | `Contributor`만으로 모든 데이터 작업·권한 부여가 된다고 가정하지 않습니다. |
+| 2 | 역할 설명과 scope를 읽고 필요한 작업을 개인 기록에 적습니다. | 관리-plane·데이터-plane·로그 읽기를 구분했습니다. | 추가 role assignment는 담당자에게 정확한 대상·scope·작업으로 요청합니다. 직접 확대하지 않습니다. |
 
-**명령 해설**
+`Foundry User`/`Azure AI User` 등 역할 이름만으로 지원 작업을 추정하지 말고 공식 RBAC 문서에서 실제 작업과 scope를 확인합니다. 역할 부여에는 별도의 `roleAssignments/write`가 필요합니다. Trace 읽기에는 `Log Analytics Reader`, 보호된 로그에는 추가 `Privileged Monitoring Data Reader`가 필요할 수 있습니다. 실습을 위해 Owner를 부여하지 않습니다.
 
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `foundation ... --live` | 실제 카탈로그·quota를 확인하고 전용 RG에 프로젝트·모델을 배포합니다. | 실제 생성. 배포당 capacity 상한 100이며 비용 금액 상한이 아닙니다. 모델별 단위로 환산하고 실제 한도를 재조회합니다. |
+### 4. Azure portal: 전용 로그 자원 만들기
 
-</div>
+이미 **내 소유 기록과 일치하는** 두 로그 자원이 있으면 생성하지 않고 5절로 갑니다. 새로 만들 때는 workspace를 먼저 만들어 자동 생성·공유 workspace 연결을 피합니다. 로그 수집·보관에도 요금이 생길 수 있습니다.
 
-**여기서 멈춰 확인:** 명령이 오류 없이 끝났고 소유 기록의 `operations`에 `step=foundation`, `status=Succeeded`가 함께 있는지 확인합니다. 부분 실패·시간 초과라면 역할 부여로 넘어가지 말고 아래 복구 안내를 읽습니다.
+<div class="screen-step" markdown="1">
 
-**역할 부여:** 배포가 완료됐고 대상 프로젝트·부모 리소스의 역할 부여 권한이 있을 때만 실행합니다.
+**Workspace Review: 전용 그룹과 요금제를 읽기**
 
-```bash
-python scripts/azure_environment.py roles --live
-```
+![Log Analytics workspace Review의 Resource group, Pricing, Create.](../assets/portal/steps/workspace-review.png)
 
-<div class="command-explanation" markdown="1">
+**1 그룹:** 내 전용 그룹인지 확인합니다. **2 Pricing:** 승인한 사용량 기반 조건인지 읽습니다. **3 Create:** 이름·지역·태그까지 맞을 때 한 번만 제출합니다.
 
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `roles --live` | 현재 사용자와 프로젝트 관리 ID에 소유 프로젝트·부모 리소스의 필요한 데이터 역할을 부여합니다. | 실제 접근 권한 변경. `roleAssignments/write`가 필요하며 구독 전체 역할을 생성하지 않습니다. |
-
-</div>
-
-**포털 확인:** [Microsoft Foundry](https://ai.azure.com)의 **New Foundry**에서 자신의 프로젝트를 열고 **Manage → Project details**의 Name·Parent resource·Location을 소유 기록과 대조합니다. **Build → Models → Deployments**에 `contoso-chat`, `contoso-judge`, `contoso-embedding`이 준비됐는지 확인합니다. 포털에서 같은 프로젝트나 모델을 다시 만들지 않습니다.
-
-| 생성 코드 | 포털에서 확인할 결과 |
-| --- | --- |
-| `create`의 RG 생성 | Microsoft Azure resource group의 고유 이름·소유 태그 |
-| `foundation`의 Microsoft Foundry account/project | Microsoft Foundry 프로젝트 이름·부모 리소스·지역 |
-| Bicep의 모델 deployments | Model ID·version과 배포 이름 `contoso-chat` 등 |
-| `roles`의 scope별 role assignment | 대상 자원의 IAM에서 사용자/관리 ID와 범위 |
-
-부분 실패는 원본 오류와 deployment operation을 보존합니다. 같은 소유 자원의 부분 배포를 재개할 때만 `foundation --resume --live`를 **동일 모델·SKU 인수와 함께** 사용합니다. 새 환경으로 바꾸거나 기록을 덮어쓰는 옵션이 아닙니다.
-
-<a id="l01-settings"></a>
-
-### 5. 로그 연결과 로컬 설정 완성하기
-
-#### 5-1. 로그 연결하기
-
-L04 이후 실행을 L10에서 다시 보기 위해 **첫 agent 호출 전에** 로그를 연결합니다.
-
-```bash
-python scripts/azure_environment.py monitoring
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `monitoring` | 로그 자원·프로젝트 연결 계획을 표시합니다. | Microsoft Azure 요청 없음. |
+[자막 영상 01 · 01:51](../downloads/portal/index.html?clip=01-environment&t=111&lang=ko#01-environment)
 
 </div>
 
-**실제 연결:** 기존 연결이 없고 로그 수집·보관 비용까지 승인된 범위라면 실행합니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | Azure portal 위 검색에 `Log Analytics workspaces`를 입력하고 Services의 같은 항목을 엽니다. | workspace 목록입니다. | 동명의 개별 자원 대신 서비스 목록을 엽니다. |
+| 2 | `Create`를 누르고 허용 구독을 고릅니다. | `Create Log Analytics workspace → Basics`입니다. | 다른 구독이면 제출하지 않습니다. |
+| 3 | Resource group에서 **기존 전용 그룹**을 선택합니다. | 1절에서 만든 그룹입니다. | `(new)`나 공유 그룹을 선택하지 않습니다. |
+| 4 | Name에 `law-contoso-portal-<내접미사>`, Region에 승인 지역을 고릅니다. | 이름과 지역이 소유 기록과 같습니다. | 이름 충돌이면 제출 전 기록을 맞춥니다. |
+| 5 | `Next: Tags`에서 같은 `validationRun` 태그를 한 행 추가합니다. | Name·Value 모두 입력됐습니다. | 빈 추가 행은 입력한 태그가 아닙니다. |
+| 6 | `Review + Create`에서 구독·그룹·지역·가격 유형을 읽습니다. | 승인한 사용량 기반 요금제이며 약정/장기 보존을 추가하지 않았습니다. | 비용 조건을 모르면 보류합니다. |
+| 7 | `Create`를 한 번 누르고 완료 화면을 기다립니다. | `Your deployment is complete`이며 만든 workspace를 열 수 있습니다. | 실패·진행 중에는 재제출하지 않습니다. |
 
-```bash
-python scripts/azure_environment.py monitoring --live
-```
+<div class="screen-step" markdown="1">
 
-<div class="command-explanation" markdown="1">
+**아직 진행 중이면 기다리기**
 
-**명령 해설**
+![Workspace 배포는 in progress이고 개별 자원 행은 Created인 실제 중간 화면.](../assets/portal/steps/workspace-progress.png)
 
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `monitoring --live` | 소유 RG에 Log Analytics·Application Insights와 프로젝트 연결을 만듭니다. | 로그 수집·보관 비용 가능. 기록된 기존 연결을 덮어쓰지 않습니다. |
+**1 전체 상태:** 아직 `Deployment is in progress`입니다. **2 세부 행:** `Created` 한 줄만으로 전체 완료라 하지 않습니다. 완료를 확인할 때까지 기다리고 새 Create를 누르지 않습니다.
 
-</div>
-
-**Agents → Traces** 또는 **Manage → Project details → Connected resources**에서 연결을 확인합니다. 로그 조회에는 대상 Application Insights/Log Analytics의 읽기 권한이 필요합니다. 필요할 경우 자신의 자원 IAM에서 `Log Analytics Reader` 등 필요한 최소 역할을 설정합니다. 보호된 테이블에는 추가 권한이 필요할 수 있습니다.
-
-모델·에이전트 SDK 호출은 Entra 인증을 사용합니다. 동봉 로그 연결은 [observability.bicep](../infra/observability.bicep)이 Microsoft Azure 내부의 연결 문자열을 참조하며 화면·출력에 비밀을 노출하지 않습니다. Entra 기반 로그 수집을 설정했다고 주장하지 않습니다.
-
-![프로젝트 설정 예시. Manage → Project details에서 프로젝트·상위 리소스·리전과 Connected resources를 확인한다.](../assets/portal/13-project-settings.png)
-
-#### 5-2. `.env`에 프로젝트 값 저장하기
-
-프로젝트 endpoint와 배포 이름은 소유 기록에 이미 있습니다. 손으로 옮겨 적지 말고 아래 명령이 `.env`에 저장하게 합니다. 먼저 바뀔 내용만 확인합니다.
-
-```bash
-python scripts/azure_environment.py env
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — 먼저 바뀔 내용만 확인합니다.**
-
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `env` | 소유 기록의 project endpoint와 배포 이름 세 개를 현재 `.env`와 비교합니다. | 설정마다 `added`·`updated`·`unchanged`가 표시됩니다. 파일 변경과 Microsoft Azure 요청이 없습니다. |
+[자막 영상 01 · 02:13.5](../downloads/portal/index.html?clip=01-environment&t=133.5&lang=ko#01-environment)
 
 </div>
 
-표시된 값이 내 환경이 맞으면 저장하고 바로 점검합니다.
+<div class="screen-step" markdown="1">
 
-```bash
-python scripts/azure_environment.py env --write
-python samples/workshop.py doctor
-```
+**Application Insights: 기존 workspace를 직접 선택**
 
-<div class="command-explanation" markdown="1">
+![Application Insights Basics의 전용 그룹과 Log Analytics Workspace 선택기.](../assets/portal/steps/insights-workspace.png)
 
-**명령 해설**
+**1 그룹:** 같은 전용 그룹입니다. **2 선택기:** Workspace를 펼칩니다. **3 대상:** 방금 만든 내 `law-contoso-portal-<내접미사>`를 고릅니다. 자동 `(new)` workspace는 선택하지 않습니다.
 
-| 순서·명령 | 하는 일 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `env --write` | 위 네 설정만 `.env`에 저장합니다. 주석·Search 설정 등 다른 줄은 그대로 둡니다. | 로컬 파일 변경(새로 만들면 나만 읽고 쓸 수 있는 권한). Microsoft Azure 요청이 없습니다. |
-| 2. `doctor` | `.env`의 형식과 소유 기록과의 일치를 오프라인으로 점검합니다. | `.env check: matches results/azure-environment.json`이 보여야 합니다. `PROBLEM`이 있으면 안내대로 고칩니다. endpoint 연결 검사는 아닙니다. |
+[자막 영상 01 · 02:29](../downloads/portal/index.html?clip=01-environment&t=149&lang=ko#01-environment)
 
 </div>
 
-직접 편집하려면 VS Code에서 `.env`를 열어 값을 저장합니다. 아래는 **파일 설정**이며 터미널 명령이 아닙니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 위 검색에서 Services의 `Application Insights`를 열고 `Create`를 누릅니다. | `Create Application Insights → Basics`입니다. | workspace 생성 화면과 혼동하지 않습니다. |
+| 2 | 같은 구독·기존 전용 그룹을 선택합니다. | 새 그룹/공유 그룹이 아닙니다. | 자동 기본값을 다시 확인합니다. |
+| 3 | Name에 `appi-contoso-portal-<내접미사>`, Region에 같은 승인 지역을 입력합니다. | 이름·지역이 기록과 맞습니다. | 새 지역으로 임의 변경하지 않습니다. |
+| 4 | Workspace를 펼쳐 **방금 만든 `law-contoso-portal-<내접미사>`**를 선택합니다. | `(new)` 자동 workspace가 아니라 기존 내 workspace입니다. | 목록이 비면 구독·지역·생성 완료를 확인합니다. |
+| 5 | `Next: Tags`에서 같은 소유 태그를 추가합니다. | OTLP 등 추가 기능·장기 보존은 임의로 켜지 않았습니다. | 필요한 기능은 별도로 승인받습니다. |
+| 6 | `Review + create`에서 workspace까지 대조하고 `Create`를 한 번 누릅니다. | 검증을 통과한 정확한 두 자원 연결입니다. | workspace가 다르면 제출 전 고칩니다. |
+| 7 | `Your deployment is complete` 후 자원을 열고 workspace 연결을 확인합니다. | Application Insights와 workspace가 모두 전용 그룹에 있습니다. | 연결 생성 성공을 실제 Trace 수집 성공으로 쓰지 않습니다. |
 
-```env
-FOUNDRY_PROJECT_ENDPOINT=https://실제-리소스.services.ai.azure.com/api/projects/실제-프로젝트
-FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat
-FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge
-FOUNDRY_EMBEDDING_DEPLOYMENT_NAME=contoso-embedding
-```
+<div class="screen-step" markdown="1">
 
-`FOUNDRY_PROJECT_ENDPOINT`는 소유 기록의 `project_endpoint` 또는 포털 Home의 **Project endpoint**에서 가져옵니다. `/openai/v1`을 덧붙이지 않습니다. 실제 배포 이름은 소유 기록의 `model_deployments`와 대조합니다. `.env`와 가상환경 `.venv`는 다른 파일/폴더이며, API key를 넣지 않습니다.
+**Insights 완료: 자원 생성과 Trace 수집은 별개**
 
-**저장 전 확인:** 기존 `.env`의 같은 이름 항목을 **수정**합니다. 예시 블록을 끝에 중복 추가하지 않습니다. `실제-리소스`·`실제-프로젝트`를 자신의 값으로 바꾸고 파일 이름이 `.env.txt`가 아닌 **`.env`**인지 확인합니다. L11을 선택하기 전까지 Search 설정은 비워 둡니다. 셸에 같은 이름의 환경 변수가 있으면 `.env`보다 우선하므로 이전 실습 값이 남아 있지 않은지도 확인합니다.
+![Application Insights의 Your deployment is complete와 Go to resource.](../assets/portal/steps/insights-complete.png)
 
-<details class="implementation-detail" markdown="1">
-<summary>구현 참고: 프로젝트에 연결하는 Python — 실행하지 않아도 다음 장으로 진행할 수 있습니다</summary>
+**1 완료 표시:** 이번 배포의 완료입니다. **2 Go to resource:** workspace 연결을 다시 읽습니다. 실제 Trace 수집은 아래 연결 후 L10에서 확인합니다.
 
-다음 연결 코드는 이미 만든 프로젝트를 **사용**합니다. 자원 생성이나 역할 부여 코드는 아닙니다.
+[자막 영상 01 · 02:46](../downloads/portal/index.html?clip=01-environment&t=166&lang=ko#01-environment)
 
-```python
-from azure.ai.projects import AIProjectClient
-from azure.identity import AzureCliCredential
+</div>
 
-with (
-    AzureCliCredential(process_timeout=30) as credential,
-    AIProjectClient(endpoint=project_endpoint, credential=credential, retry_total=0) as project,
-    project.get_openai_client(max_retries=0, timeout=60.0) as client,
-):
-    print("Client configured; no model request sent.")
-```
+### 5. Microsoft Foundry: 키 없이 로그 연결
 
-</details>
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `Manage → Project details → Connected resources`를 엽니다. | 내 프로젝트의 연결 목록입니다. | Manage의 기본 Users 화면은 연결 목록이 아닙니다. |
+| 2 | `Add connection`에서 `Application Insights` 카드를 누르고 `Continue`를 누릅니다. | 인증 방식·자원 선택 폼입니다. | 카드의 라디오가 안 눌리면 카드 제목을 누릅니다. |
+| 3 | `Auth Type`을 `Project Managed Identity`로 선택합니다. | 기본 `API Key`가 아닙니다. | 키를 복사하거나 인증 제한을 해제하지 않습니다. |
+| 4 | 자원 선택기에서 내 `appi-contoso-portal-<내접미사>`를 선택합니다. | 같은 구독·전용 그룹의 정확한 대상입니다. | 목록이 비면 4절의 생성 결과를 확인합니다. 공유 자원으로 대체하지 않습니다. |
+| 5 | 범위를 확인하고 `Connect`를 한 번 누릅니다. | 연결 목록에 대상과 `Project Managed Identity`가 표시됩니다. | 오류 원문을 남기고 임의 권한 확대 없이 보류합니다. |
+| 6 | 연결을 다시 열어 대상·인증 방식·보존 조건을 기록합니다. | 연결 저장 성공과 실제 수집 검증을 분리했습니다. | 수집은 L10에서 새 요청의 Trace로 확인합니다. 과거 요청에 소급 적용하지 않습니다. |
+
+<a id="l01-pc"></a>
+<a id="l01-codespaces"></a>
+<a id="l01-python"></a>
+<a id="l01-azure-cli"></a>
+<a id="l01-vscode"></a>
+<a id="l01-local"></a>
+<a id="l01-interpreter"></a>
+<a id="l01-new-terminal"></a>
+
+### 다른 날 다시 시작
+
+두 포털에 로그인 → 내 전용 그룹 확인 → 프로젝트 선택 → 모델 배포 상태 확인 순으로 재개합니다. **새 환경을 다시 만들지 않습니다.** 이전 설치 경로의 책갈피도 이 포털 재개 절로 연결됩니다.
 
 ## 성공 기준
 
-- 내 전용 리소스 그룹·프로젝트·세 모델 배포·로그 연결을 만들고, 역할·지역·예산을 확인했습니다.
-- 로컬 데이터 검사(`validate-data`)가 통과했습니다.
-- 포털·`.env`·`results/azure-environment.json`이 같은 환경을 가리킵니다.
-- 계획 출력이나 client 생성만으로는 모델 호출 성공이라고 기록하지 않았습니다. 첫 요청은 L03에서 보내며, [L02](#l02)에서 내가 만든 배포를 확인합니다.
+그룹 생성 성공, Microsoft Foundry resource와 project의 존재·정확한 scope를 확인했습니다. 로그 연결은 성공/차단을 구분했습니다. 개인 기록에 자원 ID·태그·시각·담당자·보존/재확인 날짜가 있으며 비밀은 없습니다.
 
 ## 막혔을 때
 
-| 증상 | 먼저 확인할 것 | 다음 행동 |
-| --- | --- | --- |
-| 401 | CLI 로그인 상태 | [2단계](#l01-sign-in)의 `az login --use-device-code`와 `az account show`를 다시 확인합니다. |
-| 403 | 작업별 권한(생성·역할 부여·조회)과 네트워크 경로 | 부족한 권한만 확보하고 해당 작업을 보류합니다. 권한을 넓히거나 보안을 끄지 않습니다. |
-| 배포 실패 | 모델·지역·quota·capacity | 지원되지 않으면 그 조건을 기록하고 중단합니다. 다른 모델로 바꿔 같은 검증이라고 기록하지 않습니다. |
-| Private endpoint 환경 | 승인된 VPN/VNet 경로 | 그 경로에서 접근합니다. public access를 임의로 켜지 않습니다. |
-| 설치 실패 | 현재 Python과 허용된 패키지 저장소 | [실행기 확인](#l01-new-terminal)으로 Python 경로·버전을 다시 확인합니다. |
-| `create`가 중간에 실패(정책·권한·시간 초과) | 오류 첫 줄과 `results/` 안의 기록 파일 | 원인을 해결하고 **같은 `create` 명령을 다시 실행**합니다. 만들어지지 않은 시도는 `…failed-<시각>.json`으로 자동 보관됩니다. |
-| `.env:N: unknown setting` 또는 `FOUNDRY_LAB_LANGUAGE` 오류 | `.env`에 `FOUNDRY_…` 설정 외의 줄이 있는지 | 언어는 `.env`가 아니라 터미널의 `export FOUNDRY_LAB_LANGUAGE=en`으로 정합니다. `python scripts/azure_environment.py env --write`로 네 설정을 다시 저장합니다. |
-| `doctor`의 `PROBLEM .env endpoint differs…` | `.env`와 `results/azure-environment.json`의 endpoint | `python scripts/azure_environment.py env --write`로 소유 기록의 값을 다시 저장합니다. |
+403이면 실패 작업·대상 scope·오류 ID를 남깁니다. 지역 제한·정책 거부를 다른 구독·공개 네트워크로 우회하지 않습니다. 생성 중 화면이 닫혔다면 Azure portal에서 **같은 전용 그룹**의 자원·Deployments·Activity log를 먼저 확인합니다.
 
 ## 정리
 
-아직 자원을 삭제하지 않습니다. 소유 기록과 보존 기한을 유지하고 L19에서 반복 실행·남은 비용을 확인합니다. 이 장은 환경 생성이며 답변 품질 검증이 아닙니다.
+자원은 계속 유지합니다. 그룹 자체보다 모델 사용·파일 저장·로그·검색 자원의 요금이 중요합니다. 새 그룹을 만들었다고 예산 상한이 자동 설정되는 것은 아닙니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** `results/azure-environment.json`, 내 `.env`, `.venv` 경로와 권한·예산·보존 기한. 이후 장에서 같은 환경을 사용합니다.
+**이 장에서 남길 것:** 전용 그룹·Microsoft Foundry resource·project의 소유 기록, 기존 권한 확인, 로그 연결 결과, 남길 기간.
 
-**다음:** 환경을 만들었다면 [L02 배포 확인](#l02). Microsoft Azure 조건이 아직 없다면 [L06 로컬 함수](#l06)까지만 연습하고 실제 환경 생성은 미실행으로 기록합니다.
+**다음:** [L02 내 모델 배포 만들기](#l02).
 
 </div>

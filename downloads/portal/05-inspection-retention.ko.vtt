@@ -1,0 +1,49 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:45.000
+Tools → Add → Custom → Model Context Protocol (MCP). 공식 Learn endpoint·Unauthenticated로 Connect 한 번: discovery만 하며 질문은 보내지 않습니다.
+
+2
+00:00:45.000 --> 00:01:29.000
+도구 이름을 열면 allowed_tools 텍스트와 Never auto-approve가 보입니다. microsoft_docs_search를 점검한 뒤 Apply·agent Save 없이 취소했습니다.
+
+3
+00:01:29.000 --> 00:01:41.000
+다시 연 policy는 저장된 version 4·File search만 유지합니다. 프로젝트의 learn-docs 연결은 남았으나 MCP 호출은 0회입니다.
+
+4
+00:01:41.000 --> 00:01:52.000
+Knowledge (Foundry IQ)의 Knowledge bases·Indexes와 기존 Search 연결 조건을 읽습니다. Search·index·knowledge base는 만들지 않습니다.
+
+5
+00:01:52.000 --> 00:02:05.000
+Memory stores (0)의 Setup incomplete: 개인 Contributor와 프로젝트 managed identity의 Foundry User는 다릅니다. Resolve·역할 부여는 누르지 않습니다.
+
+6
+00:02:05.000 --> 00:02:13.000
+Create memory store의 모델·Advanced settings를 관찰하고 Create 전에 취소합니다. store·쓰기·회상·격리·TTL 만료는 실행하지 않았습니다.
+
+7
+00:02:13.000 --> 00:02:25.000
+Agents → New agent → Code an agent의 설명을 읽고 Cancel합니다. SDK 설치·Hosted runtime·container 배포는 없습니다.
+
+8
+00:02:25.000 --> 00:02:45.000
+Agents → Routines → Create routine. 합성 읽기 전용 prompt와 대상만 점검합니다. Create & start는 임시 저장이 아니라 활성화입니다.
+
+9
+00:02:45.000 --> 00:03:03.000
+Authorization에는 agent-based와 creator/user-based가 모두 있습니다. 기본값을 유지하고 One-time의 Asia/Seoul을 읽은 뒤 취소: routine·dispatch 0개입니다.
+
+10
+00:03:03.000 --> 00:03:18.000
+최종 모델 3개는 수동 2개와 관찰된 자동 embedding입니다. 자동 생성 원인은 Activity log로 별도 입증하지 않았습니다. 모두 보존합니다.
+
+11
+00:03:18.000 --> 00:03:34.000
+해제된 기본 Web search toolbox 3개도 삭제하지 않았습니다. native 오류 때문에 출시는 보류했고 Publish·pipeline·rollback은 실행하지 않았습니다.
+
+12
+00:03:34.000 --> 00:03:53.000
+최종 Tools 목록의 learn-docs 연결과 잔여 자원을 인계합니다. 창 닫기는 삭제·중지가 아니며 로그·파일·모델 사용 비용이 남을 수 있습니다.

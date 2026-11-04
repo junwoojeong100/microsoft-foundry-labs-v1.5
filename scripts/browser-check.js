@@ -17,6 +17,7 @@ async (page) => {
   };
   check(["127.0.0.1", "localhost", "[::1]"].includes(new URL(origin).hostname), "browser checks use a local origin");
   check(/^[\w.-]+\.json$/.test(edition.portal_manifest), "capture manifest is a local content filename");
+  check(/^[\w.-]+\.json$/.test(page.contosoGuideRelease.portal_step_manifest), "numbered-screen manifest is a local content filename");
   const localOnly = async route => {
     if (new URL(route.request().url()).origin !== new URL(origin).origin) {
       remoteRequests.push(route.request().url());
@@ -73,49 +74,48 @@ async (page) => {
     check(JSON.stringify(await page.locator('.chapter-link:not([data-track="reference"]) .nav-number').allTextContents()) === JSON.stringify(expectedNumbers),
       "full navigation displays the same continuous order as the reader");
     check(await page.locator('.chapter[data-track="advanced"] .learning-badge').count() === advancedCount, "all advanced modules show execution dependency labels");
-    check(await page.locator('#l14 .learning-badge').innerText() === (english ? "Prerequisites required" : "선행 실습 필요"), "Hosted prerequisite is explicit");
-    check(await page.locator('#l16 .learning-badge').innerText() === (english ? "Independent elective" : "독립 선택"), "Memory is marked independently selectable");
-    check(await page.locator('#l17 .learning-badge').innerText() === (english ? "Separate feature paths" : "기능별 분기"), "Prompt Routine and Hosted long-running paths are distinguished");
+    const learningPaths = await page.evaluate(async english => {
+      const response = await fetch(`content/learning-paths${english ? ".en" : ""}.json`);
+      if (!response.ok) throw new Error("Missing learning-path prerequisites.");
+      return response.json();
+    }, english);
+    for (const [id, prerequisite] of Object.entries(learningPaths)) {
+      check(await page.locator(`#${id} .learning-badge`).innerText() === prerequisite.label,
+        `${id} displays its current portal execution boundary`);
+    }
     check(await page.locator(".nav-learning").count() === advancedCount, "advanced navigation exposes dependency labels");
     check(await page.locator("[data-complete]").count() === labIds.length, "all active labs are trackable");
     check(await page.locator(".lab-brief").count() === labIds.length, "all active modules have beginner start cards");
     check(await page.locator(".lab-handoff").count() === labIds.length, "all active modules identify saved results and the next step");
-    check(await page.locator('.chapter:not([data-track="reference"]) code.language-python').evaluateAll(nodes =>
-      nodes.every(node => node.closest("details"))
-    ), "Python excerpts are expandable reading references, not visible execution commands");
-    check(await page.locator(".implementation-detail code.language-bash, .implementation-detail code.language-powershell").count() === 0,
-      "implementation references never hide the required shell commands");
+    check(await page.locator('.chapter:not([data-track="reference"]) pre code:not(.language-prompt)').count() === 0,
+      "learner modules contain portal questions, never executable code or environment files");
     check(await page.locator("pre code.language-prompt").count() === edition.prompt_blocks,
       `all ${edition.prompt_blocks} portal question blocks identify their input destination`);
     check(await page.locator("pre code.language-env").count() === edition.settings_blocks, "settings blocks are distinguished from terminal commands");
     check(await page.locator(".practice-block").count() === practiceIds.length, "four advanced modules expose a try-change-explain exercise");
     check(await page.locator('#l01 .operator-only').count() === 0,
       "participant provisioning is not hidden behind a separate persona");
-    check(await page.locator('#l01 pre code').evaluateAll(nodes =>
-      ["create", "foundation", "roles", "monitoring"].every(step =>
-        nodes.some(node => !node.closest("details") && node.textContent.split("\n").some(line =>
-          line.includes(`scripts/azure_environment.py ${step}`) && line.includes("--live")
-        ))
-      )
-    ), "participant setup visibly covers owned resource creation, models, scoped roles, and telemetry");
+    const setupText = await page.locator("#l01").innerText();
+    check(["Resource groups", "Advanced options", "Log Analytics workspaces",
+      "Application Insights", "Project Managed Identity", "View my access"].every(term => setupText.includes(term)),
+      "portal setup names resource creation, existing-access inspection, and keyless logging actions");
     check(await page.locator('#l01 #l01-python, #l01 #l01-azure-cli, #l01 #l01-vscode, #l01 #l01-interpreter').count() === 4,
-      "participant setup exposes separate Python, Azure CLI, VS Code, and interpreter-selection instructions");
-    check(await page.locator('#l01 pre code').evaluateAll(nodes =>
-      ["python --version", "az version", "python samples/workshop.py doctor",
-        "python samples/workshop.py validate-data", "az login --use-device-code"].every(command =>
-        nodes.some(node => !node.closest("details") && node.textContent.split("\n").some(line => line.trim() === command))
-      )
-    ), "Codespaces readiness and device-code authentication are visible without expanding alternatives");
-    check(await page.locator('#l01 code.language-powershell, #l07 code.language-powershell').evaluateAll(nodes =>
-      nodes.length > 0 && nodes.every(node => node.closest("details.environment-option"))
-    ), "Windows command alternatives are contained in expandable environment options");
+      "old installation bookmarks remain resolvable without retaining installation instructions");
+    check(!/az login|pip install|python -m venv|scripts\/azure_environment\.py/.test(setupText),
+      "learner setup does not require a terminal, SDK, or device-code command");
     check(await page.locator('.chapter:not([data-track="reference"]) .prose h2').filter({hasText: english ? "Concepts and lab map" : "개념과 실습 지도"}).count() === labIds.length, "all active labs explain feature, purpose, method and execution surface");
     check(await page.locator(".command-explanation").count() === edition.shell_blocks, `all ${edition.shell_blocks} shell blocks have visible command explanations`);
     check(await page.locator(".command-explanation tbody tr").count() === edition.commands, `all ${edition.commands} logical CLI commands have individual explanation rows`);
-    const captures = await page.evaluate(async ({english, edition}) => {
+    const captures = await page.evaluate(async ({english, edition, stepManifest}) => {
       const response = await fetch(`content/${edition.portal_manifest}`);
       if (!response.ok) throw new Error(`Missing capture manifest: ${edition.portal_manifest}`);
       const manifest = await response.json();
+      const stepResponse = await fetch(`content/${stepManifest}`);
+      if (!stepResponse.ok) throw new Error("Missing numbered-screen provenance.");
+      const steps = await stepResponse.json();
+      const sourceResponse = await fetch("content/portal-recordings.json");
+      if (!sourceResponse.ok) throw new Error("Missing source recording provenance.");
+      const recordings = await sourceResponse.json();
       const directory = english ? "assets/portal/en/" : "assets/portal/";
       const allCaptures = [...manifest.captures, ...(manifest.archived_captures || [])];
       if (new Set(allCaptures.map(item => item.path)).size !== allCaptures.length) {
@@ -124,13 +124,19 @@ async (page) => {
       if (!allCaptures.every(item =>
         item.path.startsWith(directory) && /^\d{2}-[a-z0-9-]+\.png$/.test(item.path.slice(directory.length))
       )) throw new Error("Portal captures must use this language's local image directory.");
-      const hashes = await Promise.all(allCaptures.map(async item => {
+      if (!steps.frames.every(item => item.path === `assets/portal/steps/${item.id}.png`
+          && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.id))) {
+        throw new Error("Numbered screens must use their reviewed local PNG paths.");
+      }
+      const hashes = await Promise.all([...allCaptures, ...steps.frames].map(async item => {
         const response = await fetch(item.path);
         if (!response.ok) throw new Error(`Missing portal capture: ${item.path}`);
         const hash = await crypto.subtle.digest("SHA-256", await response.arrayBuffer());
         return [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, "0")).join("") === item.sha256;
       }));
       const images = [...document.querySelectorAll('img[src^="assets/portal/"]')];
+      const historical = images.filter(image => !image.getAttribute("src").startsWith("assets/portal/steps/"));
+      const numbered = images.filter(image => image.getAttribute("src").startsWith("assets/portal/steps/"));
       const deferred = images.every(image =>
         image.loading === "lazy" && image.decoding === "async" && image.width > 0 && image.height > 0 &&
         image.getAttribute("width") && image.getAttribute("height")
@@ -140,7 +146,35 @@ async (page) => {
       return {
         deferred,
         declared: manifest.captures.map(item => item.path).sort(),
-        rendered: [...new Set(images.map(image => image.getAttribute("src")))].sort(),
+        rendered: [...new Set(historical.map(image => image.getAttribute("src")))].sort(),
+        framesDeclared: steps.frames.map(item => item.path).sort(),
+        framesRendered: [...new Set(numbered.map(image => image.getAttribute("src")))].sort(),
+        timedFrames: [steps.frames[0], ...steps.frames.filter(frame => [130.4, 180.9].includes(frame.seconds))],
+        reviewedFrames: steps.capture_method === "ffmpeg-video-frame" && steps.synthetic_ui === false
+          && steps.execution_language === "ko" && steps.privacy_review.status === "passed"
+          && steps.privacy_review.images === steps.frames.length && steps.privacy_review.flags === 0
+          && steps.privacy_review.ocr === "passed" && steps.privacy_review.visual === "passed"
+          && steps.frames.every(frame => recordings.clips.some(clip =>
+            clip.id === frame.clip && clip.sha256.mp4 === frame.source_sha256)),
+        nativeSizes: numbered.every(image => {
+          const frame = steps.frames.find(item => item.path === image.getAttribute("src"));
+          return frame && image.naturalWidth === frame.crop_xywh[2] + frame.padding_ltrb[0] + frame.padding_ltrb[2]
+            && image.naturalHeight === frame.crop_xywh[3] + frame.padding_ltrb[1] + frame.padding_ltrb[3];
+        }),
+        visualModules: [...document.querySelectorAll('article.chapter:not([data-track="reference"])')].map(chapter => ({
+          id: chapter.id, cards: chapter.querySelectorAll(".screen-step").length,
+          complete: [...chapter.querySelectorAll(".screen-step")].every(card => {
+            const image = card.querySelector("img");
+            const frame = steps.frames.find(item => item.path === image?.getAttribute("src"));
+            const link = card.querySelector('a[href^="downloads/portal/index.html?"]');
+            if (!frame || !link || !image.alt || !card.querySelector("p strong")) return false;
+            const address = new URL(link.href);
+            return address.searchParams.get("clip") === frame.clip
+              && Number(address.searchParams.get("t")) === frame.seconds
+              && address.searchParams.get("lang") === edition.language && address.hash === `#${frame.clip}`
+              && image.closest("a.screen-image")?.getAttribute("href") === frame.path;
+          }),
+        })),
         genuine: manifest.capture_method === "playwright-mcp-headless" && manifest.synthetic_ui === false,
         scoped: manifest.scope?.repository_id === 1396573688 &&
           manifest.scope?.project === (english ? "contoso-workshop-en" : "contoso-workshop") &&
@@ -151,16 +185,38 @@ async (page) => {
         ),
         hashesMatch: hashes.every(Boolean),
         loaded: images.every(image => image.complete && image.naturalWidth > 0),
-        captioned: images.every(image =>
-          image.closest(".portal-capture")?.querySelector(".capture-note")?.textContent ===
-          (english ? "Portal screen example" : "포털 화면 예시")
-        ),
+        captioned: numbered.every(image =>
+          image.closest(".recorded-capture")?.querySelector(".capture-note")?.textContent ===
+          (english ? "Actual Korean-run frame · numbered guidance added" : "실제 한국어 실행 녹화 · 번호는 안내 주석")),
       };
-    }, {english, edition});
-    check(captures.declared.length === edition.portal_screenshots && JSON.stringify(captures.declared) === JSON.stringify(captures.rendered), "language-specific portal capture manifest matches the rendered guide");
-    check(captures.genuine && captures.scoped && captures.provenance && captures.hashesMatch, "active and archived portal captures retain genuine scoped provenance and original hashes");
+    }, {english, edition, stepManifest: page.contosoGuideRelease.portal_step_manifest});
+    check(captures.declared.length === edition.portal_screenshots && captures.rendered.length === 0
+      && await page.locator(".historical-screen").count() === 0,
+    "historical captures remain preserved without old-screen references in the learner guide");
+    check(captures.genuine && captures.scoped && captures.provenance && captures.hashesMatch, "preserved portal captures and current frames retain genuine scoped provenance and original hashes");
     check(captures.loaded && captures.captioned, "all offline portal images load with concise screen-example captions");
     check(captures.deferred, "portal screenshots load lazily and reserve their size, so the first page does not download every image");
+    check(captures.framesDeclared.length > 0
+      && JSON.stringify(captures.framesDeclared) === JSON.stringify(captures.framesRendered),
+    "every reviewed numbered screen appears in this language edition");
+    check(captures.reviewedFrames && captures.nativeSizes, "numbered screens keep reviewed source-video hashes and native crop dimensions");
+    check(JSON.stringify(captures.visualModules.map(module => module.id)) === JSON.stringify(labIds)
+      && captures.visualModules.every(module => module.cards >= 2 && module.complete),
+    "all twenty modules provide contextual numbered images and exact language/timestamp video links");
+    await page.goto(`${entry}#l04`);
+    const fullSize = page.locator("#l04 a.screen-image").first();
+    await fullSize.focus();
+    check(await fullSize.evaluate(node => node === document.activeElement), "full-size screen links are keyboard focusable");
+    const [enlarged] = await Promise.all([page.waitForEvent("popup"), fullSize.press("Enter")]);
+    try {
+      await enlarged.waitForLoadState("load");
+      check(enlarged.url() === new URL(await fullSize.getAttribute("href"), entry).href
+        && await enlarged.locator("img").evaluate(image => image.complete && image.naturalWidth > 0),
+      "Enter opens the original full-size local image");
+    } finally {
+      await enlarged.close();
+    }
+    await page.goto(`${entry}#l00`);
     check(await page.locator('.provenance-note, a[href^="content/portal-screenshots"]').count() === 0,
       "capture audits stay in maintenance records rather than learner navigation");
     check(await page.locator('a[href^="validation/"], a[href^="results/"]').count() === 0, "execution records remain outside the guide");
@@ -172,7 +228,8 @@ async (page) => {
         check((await response.text()).includes(`<html lang="${edition.language}">`), "synthetic receipt matches the reader language");
       }
     }
-    for (const path of [edition.readme, edition.markdown, page.contosoGuideRelease.archive]) {
+    for (const path of [edition.readme, edition.markdown, page.contosoGuideRelease.archive,
+      page.contosoGuideRelease.portal_inputs, page.contosoGuideRelease.portal_recordings]) {
       const response = await page.request.get(`${origin}/${path}`);
       check(response.ok(), `download is available: ${path}`);
     }
@@ -218,61 +275,44 @@ async (page) => {
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "first-time readers stay in L00");
     check(await page.evaluate(() => document.activeElement.id) === "l00-first-steps", "first-step navigation moves keyboard focus");
     check(await page.locator(`.hero a[href="${page.contosoGuideRelease.archive}"]`).count() === 1, "lab ZIP is available at the entry point");
-    check(await page.locator('.hero a[href="#l01"]').innerText().then(text => text.includes("Codespaces")),
-      "the entry point identifies Codespaces as the default setup");
+    check(await page.locator('.hero a[href="#l01"]').innerText().then(text => /portal|포털/.test(text)),
+      "the entry point identifies portal setup as the default path");
     const environmentOptions = page.locator(".hero .environment-options");
     check(await environmentOptions.evaluate(node => !node.open)
-      && await environmentOptions.locator('a[href="#l01-pc"]').isHidden(),
-      "PC setup and offline downloads are collapsed at the entry point");
+      && await environmentOptions.locator('a[href="downloads/Contoso-Portal-Inputs.zip"]').isHidden(),
+      "input files and videos remain available in the collapsed download choices");
     await environmentOptions.locator("summary").click();
     check(await environmentOptions.locator(`a[href="${page.contosoGuideRelease.archive}"]`).isVisible(),
       "offline files remain available when the alternative is expanded");
-    await environmentOptions.locator('a[href="#l01-pc"]').click();
-    await page.waitForFunction(() => document.activeElement.id === "l01-pc");
-    check(await page.locator("#l01 .pc-setup").evaluate(node => node.open),
-      "the PC alternative link opens the matching setup panel");
-    await page.locator("#l01 .pc-setup").evaluate(node => { node.open = false; });
+    check(await environmentOptions.locator('a[href="downloads/portal/index.html"]').isVisible(),
+      "actual portal recordings are linked separately from reconstructed replays");
+    await environmentOptions.locator("summary").click();
     await page.goto(`${entry}#l01`);
-    check(await page.locator("#l01 .codespaces-path").isVisible()
-      && await page.locator("#l01 .codespaces-path").evaluate(node => !node.closest("details")),
-      "Codespaces preparation is visible on ordinary L01 entry");
-    check(await page.locator("#l01 .environment-option pre:visible, #l01 .resume-setup pre:visible").count() === 0,
-      "PC installation and resumption commands do not distract from first-time Codespaces setup");
-    await page.goto(`${entry}#l01-codespaces`);
-    await page.waitForFunction(() => document.activeElement.id === "l01-codespaces");
-    check(await page.locator("#l01 .codespaces-path code.language-bash").isVisible(),
-      "Codespaces deep links reach the primary preparation commands");
-    check(await page.locator('#l01 .codespaces-path a[href="#l01-sign-in"]').isVisible(),
-      "Codespaces setup leads to shared authentication rather than repeating PC installation");
-    await page.locator('#l01 .codespaces-path a[href="#l01-sign-in"]').click();
+    check(await page.locator("#l01 pre, #l01 .setup-detail, #l01 .pc-setup").count() === 0,
+      "portal provisioning does not hide a second local-installation path");
+    for (const id of ["l01-pc", "l01-codespaces", "l01-python", "l01-azure-cli",
+      "l01-vscode", "l01-interpreter", "l01-new-terminal"]) {
+      await page.goto(`${entry}#${id}`);
+      await page.waitForFunction(id => document.activeElement.id === id, id);
+      check(await page.locator(".chapter.active").getAttribute("id") === "l01",
+        `compatibility bookmark ${id} returns to portal resumption`);
+    }
+    await page.goto(`${entry}#l01-sign-in`);
     await page.waitForFunction(() => document.activeElement.id === "l01-sign-in");
-    check(await page.locator("#l01").innerText().then(text => text.includes("az login --use-device-code")),
-      "remote terminal authentication is explicit");
-    await page.goto(`${entry}#l01-python`);
-    await page.waitForFunction(() => document.activeElement.id === "l01-python");
-    check(await page.locator("#l01 .pc-setup").evaluate(node => node.open),
-      "existing Python setup bookmarks expand the new outer PC panel");
-    await page.locator("#l01 .pc-setup").evaluate(node => { node.open = false; });
-    await page.goto(`${entry}#l01-new-terminal`);
-    await page.waitForFunction(() => document.activeElement.id === "l01-new-terminal");
-    check(await page.locator("#l01 .resume-setup").evaluate(node => node.open),
-      "resumption links expand their conditional instructions");
-    check(await page.locator("#l01 .resume-setup code.language-powershell").isHidden(),
-      "resuming Codespaces does not expose Windows substitutions");
-    await page.locator("#l01 .resume-setup").evaluate(node => { node.open = false; });
+    check(await page.locator('#l01 a[href="https://portal.azure.com/"]').count() > 0
+      && await page.locator('#l01 a[href="https://ai.azure.com/"]').count() > 0,
+      "authentication uses the two named portals without opening external links during local validation");
     await page.goto(`${entry}#l07`);
-    check(await page.locator("#l07 .environment-option pre:visible").count() === 0,
-      "L07 hides redundant installation and alternate Windows commands");
-    check(await page.locator("#l07 pre:visible code").first().textContent().then(text =>
-      text.trim() === "python samples/inventory_api.py"
-    ), "the prepared Codespaces path starts L07 with the server, not another dependency install");
+    check(await page.locator("#l07").innerText().then(text =>
+      text.includes("https://learn.microsoft.com/api/mcp") && !text.includes("python samples/inventory_api.py")
+    ), "MCP practice names a real remote read-only tool rather than requiring a local server");
     await page.goto(`${entry}#l12-codespaces`);
     await page.waitForFunction(() => document.activeElement.id === "l12-codespaces");
     check(await page.locator(".chapter.active").getAttribute("id") === "l12",
-      "Codespaces stop guidance remains within shared wrap-up, not an extra module");
+      "old environment-stop bookmarks resolve within shared cost/retention wrap-up");
     await page.goto(`${entry}#l08`);
     check(await page.locator("#l08 .recorded-answer").count() === 0, "author execution answers are not embedded in the guide");
-    check(await page.locator("#l08 .optional-path pre:visible").count() === 0, "new paid evaluation commands are separate from default reading");
+    check(await page.locator("#l08 pre").count() === 0, "evaluation uses file upload and field mapping, not copied CLI collection");
     const dataPrefix = english ? "data/en" : "data";
     for (const version of ["v1", "v2"]) {
       check(await page.locator(`#l08 a[href="${dataPrefix}/prompts/agent-${version}.txt"]`).count() === 1,
@@ -281,35 +321,28 @@ async (page) => {
     check(await page.locator("#l08").innerText().then(text => text.includes("compound-request-no-tools")),
       "the default reading path identifies the fixed question without inventing a score");
 
-    for (const id of ["l02", "l04", "l05", "l22"]) {
-      await page.goto(`${entry}#${id}`);
-      check(await page.locator(`#${id} .optional-path pre:visible`).count() === 0, `${id} extra paid paths are collapsed, not presented as required work`);
-    }
     await page.goto(`${entry}#l03`);
-    const implementation = page.locator("#l03 .implementation-detail");
-    check(await implementation.locator("code.language-python").isHidden(), "first-response Python internals are collapsed on the main path");
-    check(await page.locator("#l03 code.language-bash").first().isVisible(), "first-response execution commands remain visible");
-    await implementation.locator("summary").click();
-    check(await implementation.locator("code.language-python").isVisible(), "learners can expand the real SDK implementation");
-    await implementation.locator("summary").click();
+    check(await page.locator("#l03 pre code.language-prompt").isVisible()
+      && await page.locator("#l03 .implementation-detail").count() === 0,
+      "the first response is a visible portal question without an SDK execution detour");
     await page.goto(`${entry}#l08`);
-    check(await page.locator("#l08 code.language-bash").evaluateAll(nodes =>
-      nodes.every(node => !(node.textContent.includes("instruction_prompt_agent_lab.py --live")
-        && node.textContent.includes("instruction_evaluation.py --input")))
-    ), "collection and native evaluation cannot be copied together as one command block");
+    check(await page.locator("#l08").innerText().then(text =>
+      ["evaluation-12.jsonl", "{{item.query}}", "ground_truth", "Partial/Failed", "12"].every(term => text.includes(term))
+    ), "evaluation maps questions separately from judge-only context and preserves failed rows");
     await page.goto(`${entry}#l11`);
     await page.locator("#l06.active").waitFor({state: "visible"});
     check(await page.locator(".chapter.active").getAttribute("id") === "l06", "old capstone bookmarks open the integrated L06 review");
-    check(await page.locator("#l06 pre code.language-bash").allTextContents().then(blocks =>
-      blocks.some(text => text.includes("read-result")) && blocks.filter(text => text.includes("capstone --live")).length === 1
-    ), "integration review reuses one collection and the local saved-result reader");
+    check(await page.locator("#l06").innerText().then(text =>
+      text.includes("draft_requires_human_approval") && text.includes("order_submitted=false")
+      && !text.includes("capstone --live")
+    ), "integrated review retains the draft contract without claiming a backend execution");
 
     await page.goto(`${entry}#l07`);
-    const hiddenHeading = await page.locator("#l07 .optional-path h3[id]").first().getAttribute("id");
-    await page.goto(`${entry}#${encodeURIComponent(hiddenHeading)}`);
-    await page.waitForFunction(id => document.activeElement.id === id, hiddenHeading);
-    check(await page.locator("#l07 .optional-path").evaluate(node => node.open), "deep links open the containing optional section");
-    check(await page.evaluate(() => document.activeElement.id) === hiddenHeading, "deep-linked optional heading receives keyboard focus");
+    const portalHeading = await page.locator("#l07 .prose h2[id]").first().getAttribute("id");
+    await page.goto(`${entry}#${encodeURIComponent(portalHeading)}`);
+    await page.waitForFunction(id => document.activeElement.id === id, portalHeading);
+    check(await page.locator(".chapter.active").getAttribute("id") === "l07", "deep-linked portal headings select their containing module");
+    check(await page.evaluate(() => document.activeElement.id) === portalHeading, "deep-linked portal heading receives keyboard focus");
 
     const search = page.locator("#guide-search");
     await search.fill("Foundry IQ");
@@ -403,7 +436,8 @@ async (page) => {
     await page.locator("#l21.active").waitFor({state: "visible"});
     check(await page.locator(".chapter.active").getAttribute("id") === "l21", "path switching retains a current lab that belongs to both paths");
     check(await page.locator("#path-scope").isVisible(), "without-Azure scope warning persists beyond a transient toast");
-    check(await page.locator('.chapter-link[data-chapter="l07"]').isVisible(), "without-Azure path includes the local MCP exercise");
+    check(await page.locator(".chapter-link:visible").count() === chapters.length,
+      "the read-only path includes all modules without claiming Azure execution");
     await page.locator("#learning-path").selectOption("reference");
     await page.locator("#troubleshooting.active").waitFor({state: "visible"});
     check(await page.locator(".progress-card").isHidden(), "reference material does not display a misleading completion target");
@@ -430,36 +464,19 @@ async (page) => {
       });
     });
     const expectedCode = await page.locator("#l06 pre code").first().textContent();
-    check(await page.locator("#l06 .code-label").first().innerText() ===
-      (english ? "Terminal · Bash" : "터미널 명령 · Bash"),
-      "code labels identify the destination and shell syntax");
+    check(await page.locator("#l06 .code-label").first().innerText().then(text =>
+      text.includes("Chat") && !/Bash|Terminal|터미널/.test(text)),
+      "input labels identify portal Chat rather than a shell");
     await page.locator("#l06 .copy-button").first().click();
     check(await page.evaluate(() => window.__workshopCopiedText) === expectedCode, "copy includes code only, not labels");
     await page.goto(`${entry}#l01`);
-    const settings = page.locator("#l01 pre").filter({has: page.locator("code.language-env")});
-    await settings.locator(".copy-button").click();
-    check(await page.evaluate(() => window.__workshopCopiedText) === await settings.locator("code").textContent(), "settings copy keeps the exact file content");
-    check((await page.locator("#toast").innerText()).includes(".env"), "settings copy directs the learner to the file, not the terminal");
-    const setupDetails = page.locator("#l01 .setup-detail");
-    check(await setupDetails.count() === 4 && await setupDetails.evaluateAll(nodes => nodes.every(node => !node.open)),
-      "first-time installation is available on demand rather than repeated on the prepared path");
-    const pcSetup = page.locator("#l01 .pc-setup");
-    check(await pcSetup.evaluate(node => !node.open), "PC preparation stays collapsed on the default path");
-    const setupPosition = () => page.locator("#l01-sign-in").evaluate(node => node.getBoundingClientRect().top + window.scrollY);
-    const compactSetupPosition = await setupPosition();
-    await pcSetup.locator("summary").first().click();
-    await setupDetails.evaluateAll(nodes => nodes.forEach(node => { node.open = true; }));
-    check(compactSetupPosition < await setupPosition() * .75,
-      "collapsing PC alternatives removes at least a quarter of scrolling before shared sign-in");
-    check(await setupDetails.locator("code.language-bash").evaluateAll(nodes => nodes.every(node => node.getClientRects().length)),
-      "expanding installation retains the original OS-specific commands");
-    await setupDetails.evaluateAll(nodes => nodes.forEach(node => { node.open = false; }));
-    await pcSetup.locator("summary").first().click();
+    check(await page.locator("#l01 .copy-button").count() === 0,
+      "resource creation cannot be mistaken for an environment-file or terminal copy action");
     await page.goto(`${entry}#l03`);
-    const firstResponsePlan = page.locator("#l03 pre").filter({has: page.locator("code.language-bash")}).first();
-    await firstResponsePlan.locator(".copy-button").click();
-    check(await page.evaluate(() => window.__workshopCopiedText.trim()) === "python samples/first_response.py",
-      "copying the first-response plan cannot also copy the paid execution");
+    const firstQuestion = page.locator("#l03 pre").filter({has: page.locator("code.language-prompt")}).first();
+    await firstQuestion.locator(".copy-button").click();
+    check(await page.evaluate(() => window.__workshopCopiedText) === await firstQuestion.locator("code").textContent(),
+      "copying a question preserves its exact text without sending a paid request");
     await page.goto(`${entry}#l04`);
     const question = page.locator("#l04 pre").filter({has: page.locator("code.language-prompt")}).first();
     await question.locator(".copy-button").click();
@@ -513,7 +530,7 @@ async (page) => {
         viewport: innerWidth,
         document: document.documentElement.scrollWidth,
         prose: parseFloat(getComputedStyle(document.querySelector(".chapter.active .prose")).fontSize),
-        code: parseFloat(getComputedStyle(document.querySelector(".chapter.active pre code")).fontSize),
+        code: parseFloat(getComputedStyle(document.querySelector(".chapter.active code")).fontSize),
         navigation: parseFloat(getComputedStyle(document.querySelector(".chapter-link")).fontSize),
         table: parseFloat(getComputedStyle(document.querySelector(".chapter.active td")).fontSize),
         brandRight: document.querySelector(".brand").getBoundingClientRect().right,
@@ -554,8 +571,8 @@ async (page) => {
             briefWidth: chapter.querySelector(".lab-brief").getBoundingClientRect().width,
             handoffWidth: chapter.querySelector(".lab-handoff").getBoundingClientRect().width,
             proseWidth: chapter.querySelector(".prose").getBoundingClientRect().width,
-            walkthroughsFit: [...chapter.querySelectorAll(".command-explanation .table-wrap")].every(node =>
-              !node.getClientRects().length || node.scrollWidth <= node.clientWidth + 1
+            walkthroughsFit: [...chapter.querySelectorAll(".table-wrap")].every(node =>
+              node.getBoundingClientRect().width <= chapter.querySelector(".prose").getBoundingClientRect().width + 1
             ),
             labelsFit: [...chapter.querySelectorAll(".code-label")].every(label => {
               if (!label.getClientRects().length) return true;
@@ -569,7 +586,7 @@ async (page) => {
           check(layout.document <= layout.viewport + 1 && layout.tables > 0, `${id} decision tables fit the reader at ${width}px`);
           check(layout.briefWidth > 0 && layout.briefWidth <= layout.proseWidth + 1, `${id} beginner card fits at ${width}px`);
           check(layout.handoffWidth > 0 && layout.handoffWidth <= layout.proseWidth + 1, `${id} result handoff fits at ${width}px`);
-          check(layout.walkthroughsFit, `${id} command explanations need no horizontal scrolling at ${width}px`);
+          check(layout.walkthroughsFit, `${id} portal action tables stay within the reading surface at ${width}px`);
           check(layout.labelsFit, `${id} input labels do not overlap copy controls or code at ${width}px`);
           if (practiceIds.includes(id)) {
             check(await page.locator(`#${id} .practice-block`).isVisible(), `${id} concrete practice remains readable at ${width}px`);
@@ -619,6 +636,108 @@ async (page) => {
     check(await page.locator("#coverage tbody tr").count() === 72, "68 coverage rows plus 4 depth definitions");
     await page.goto(`${entry}#%E0%A4%A`);
     check(await page.locator(".chapter.active").getAttribute("id") === "l00", "malformed hash has a safe fallback");
+
+    await page.goto(`${origin}/${page.contosoGuideRelease.portal_recordings}`);
+    check(await page.locator("#portal-coverage tbody tr").count() === labIds.length,
+      "actual recordings disclose coverage and non-execution for every module");
+    const recordings = await page.evaluate(async () => {
+      const response = await fetch("../../content/portal-recordings.json");
+      if (!response.ok) throw new Error("Missing actual recording provenance.");
+      return response.json();
+    });
+    const verifyRecordings = async (mediaPage, surface) => {
+      check(recordings.clips.length > 0 && await mediaPage.locator("video").count() === recordings.clips.length,
+        `${surface}: all declared actual portal recordings are available separately from replays`);
+      for (const [index, clip] of recordings.clips.entries()) {
+        const recording = mediaPage.locator("video").nth(index);
+        check(await recording.locator("source").getAttribute("src") === `${clip.id}.mp4`,
+          `${surface}: ${clip.id} uses its declared local media`);
+        await recording.evaluate(video => {
+          video.muted = true;
+          video.preload = "metadata";
+          video.load();
+          [...video.textTracks].forEach(track => { track.mode = "hidden"; });
+        });
+        await mediaPage.waitForFunction(index => {
+          const video = document.querySelectorAll("video")[index];
+          return video.readyState >= 1 && (location.protocol === "file:"
+            || [...video.querySelectorAll("track")].every(track => track.readyState === 2));
+        }, index);
+        check(await recording.evaluate((video, clip) =>
+          Number.isFinite(video.duration) && Math.abs(video.duration - clip.seconds) < .15
+          && video.textTracks.length === 2
+          && [...video.textTracks].map(track => track.language).sort().join(",") === "en,ko"
+          && [...video.textTracks].every(track => track.cues.length === clip.edits.length
+            && [...track.cues].every((cue, index) =>
+              cue.text === clip.edits[index].caption[track.language]
+              && Math.abs(cue.startTime - clip.edits[index].start_seconds) < .001
+              && Math.abs(cue.endTime - clip.edits[index].end_seconds) < .001)), clip),
+        `${surface}: ${clip.id} decodes with matching duration and complete Korean/English captions`);
+        await recording.evaluate(video => video.play());
+        await mediaPage.waitForFunction(index => document.querySelectorAll("video")[index].currentTime > .1, index);
+        await recording.evaluate(video => video.pause());
+      }
+    };
+    await verifyRecordings(page, "HTTP");
+    if (english) {
+      const verifySceneLinks = async (mediaPage, base, surface) => {
+        check(captures.timedFrames.length === 3, `${surface}: scene tests include both fractional inspection frames`);
+        for (const frame of captures.timedFrames) {
+          for (const language of ["ko", "en"]) {
+            const address = new URL(base);
+            address.search = new URLSearchParams({clip: frame.clip, t: frame.seconds, lang: language}).toString();
+            address.hash = frame.clip;
+            await mediaPage.goto(address.href);
+            await mediaPage.waitForFunction(({clip, seconds, language}) => {
+              const video = [...document.querySelectorAll("video")].find(item => item.dataset.recording === clip);
+              return document.getElementById("recording-link-status").dataset.state === "ready"
+                && video.readyState >= 2 && !video.seeking && Math.abs(video.currentTime - seconds) < .15
+                && [...video.textTracks].some(track =>
+                  track.language === language && track.mode === "showing" && track.cues?.length > 0);
+            }, {clip: frame.clip, seconds: frame.seconds, language});
+            check(await mediaPage.locator("video").evaluateAll((videos, clip) =>
+              videos.every(video => video.paused && !video.autoplay && video.playbackRate === 1
+                && (video.dataset.recording === clip || video.readyState === 0))
+              && [...videos.find(video => video.dataset.recording === clip).textTracks]
+                .filter(track => track.mode === "showing").length === 1, frame.clip),
+            `${surface}: ${frame.clip} seeks to ${frame.seconds}s with ${language} captions, without autoplay or loading other clips`);
+          }
+        }
+        const clip = recordings.clips[0];
+        for (const query of [
+          `clip=missing&t=0&lang=en`, `clip=${clip.id}&t=-1&lang=en`,
+          `clip=${clip.id}&t=NaN&lang=en`, `clip=${clip.id}&t=${clip.seconds}&lang=en`,
+          `clip=${clip.id}&t=&lang=en`, `clip=${clip.id}&t=0&lang=fr`,
+          `clip=${clip.id}&t=0`, `clip=${clip.id}&t=0&lang=en&t=1`,
+        ]) {
+          await mediaPage.goto(`${base}?${query}`);
+          check(await mediaPage.locator("#recording-link-status").getAttribute("data-state") === "error"
+            && await mediaPage.locator("#recording-link-status").isVisible()
+            && await mediaPage.locator("video").evaluateAll(videos => videos.every(video => video.readyState === 0 && video.paused)),
+          `${surface}: invalid scene link reports an explicit warning without loading media: ${query}`);
+        }
+      };
+      await verifySceneLinks(page, `${origin}/${page.contosoGuideRelease.portal_recordings}`, "HTTP");
+      const offlineContext = await page.context().browser().newContext();
+      const offline = await offlineContext.newPage();
+      offline.on("pageerror", onError);
+      offline.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
+      await offline.route("**/*", async route => {
+        if (new URL(route.request().url()).protocol !== "file:") {
+          remoteRequests.push(route.request().url());
+          await route.abort("blockedbyclient");
+        } else {
+          await route.continue();
+        }
+      });
+      try {
+        await offline.goto(page.contosoGuideRecordingFile);
+        await verifyRecordings(offline, "Offline file");
+        await verifySceneLinks(offline, page.contosoGuideRecordingFile, "Offline file");
+      } finally {
+        await offlineContext.close();
+      }
+    }
 
     const context = await page.context().browser().newContext({javaScriptEnabled: false});
     try {

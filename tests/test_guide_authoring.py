@@ -4,7 +4,6 @@ from html.parser import HTMLParser
 import json
 from pathlib import Path
 import re
-import shlex
 import sys
 import tempfile
 import unittest
@@ -13,7 +12,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_guide
-from check_guide import BRIEF_LABELS, HANDOFF_LABELS, LAB_HEADINGS, command_coverage
+from check_guide import BRIEF_LABELS, HANDOFF_LABELS, LAB_HEADINGS, command_coverage, portal_coverage
 
 
 def explanation(rows):
@@ -98,7 +97,7 @@ class GuideAuthoringTests(unittest.TestCase):
                     for short, exact in names["incomplete"].items():
                         self.assertNotIn(short, plain, f"Write {exact!r}, not {short!r}.")
 
-    def test_codespaces_route_prepares_tools_without_automatic_live_actions(self):
+    def test_maintainer_codespaces_is_not_a_learner_installation_requirement(self):
         config = json.loads((ROOT / ".devcontainer/devcontainer.json").read_text())
         self.assertEqual(config["features"]["ghcr.io/devcontainers/features/azure-cli:1"]["version"],
                          build_guide.RELEASE["azure_cli"])
@@ -107,46 +106,44 @@ class GuideAuthoringTests(unittest.TestCase):
         self.assertNotIn("forwardPorts", config)
         for directory in ("docs", "docs/en"):
             setup = (ROOT / directory / "01-setup.md").read_text()
-            cleanup = (ROOT / directory / "12-cleanup.md").read_text()
-            route_match = re.search(r'<section class="codespaces-path" markdown="1">(.*?)</section>', setup, re.S)
             with self.subTest(directory=directory):
-                self.assertIsNotNone(route_match, "Codespaces must be the primary, uncollapsed setup path.")
-                route = route_match[1]
-                self.assertIn('id="l01-codespaces"', route)
-                self.assertIn("#l01-sign-in", route)
+                self.assertIn('id="l01-codespaces"', setup)
                 self.assertIn('id="l01-sign-in"', setup)
-                self.assertIn("az login --use-device-code", setup)
-                self.assertIn("#l12-codespaces", route)
-                self.assertIn('id="l12-codespaces"', cleanup)
-                for command in re.findall(r"^```bash\n(.*?)^```[^\S\n]*$", route, re.M | re.S):
-                    self.assertNotIn("--live", command)
-                    self.assertNotIn("az login", command)
-                self.assertIn('<details class="environment-option pc-setup" markdown="1">', setup)
-                self.assertIn('<details class="resume-setup" markdown="1">', setup)
+                self.assertIn("https://portal.azure.com/", setup)
+                self.assertIn("https://ai.azure.com/", setup)
+                self.assertNotIn('class="codespaces-path"', setup)
+                self.assertNotRegex(setup, r"az login|pip install|python -m venv")
 
-    def test_primary_commands_separate_plans_from_live_execution(self):
-        for directory in ("docs", "docs/en"):
-            for filename in ("01-setup.md", "02-models.md", "03-responses.md", "06-actions.md", "10-observability.md"):
-                text = (ROOT / directory / filename).read_text()
-                for block in re.findall(r"^```bash\n(.*?)^```[^\S\n]*$", text, re.M | re.S):
-                    commands = [
-                        shlex.split(line) for line in block.replace("\\\n", " ").splitlines()
-                        if line.strip() and not line.lstrip().startswith("#")
-                    ]
-                    with self.subTest(directory=directory, filename=filename, block=block):
-                        if any("--live" in command for command in commands):
-                            self.assertTrue(all("--live" in command for command in commands),
-                                            "A copy action must not combine a plan with live execution.")
-                        if any("scripts/azure_environment.py" in command and "roles" in command for command in commands):
-                            self.assertEqual(len(commands), 1, "Check deployment before granting roles.")
+    def test_portal_guard_rejects_executable_blocks_and_unfenced_commands(self):
+        steps = (
+            "## Steps\n| Step | Click or enter | Expected screen or value | If it fails |\n"
+            "| --- | --- | --- | --- |\n| 1 | Open. | Visible. | Stop. |\n"
+        )
+        self.assertEqual(portal_coverage(steps, "fixture", "en"), {"tables": 1, "steps": 1})
+        for kind in ("bash", "powershell", "python", "env", "javascript", "yaml"):
+            with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, "executable code"):
+                portal_coverage(steps + f"\n```{kind}\nnot portal input\n```\n", "fixture", "en")
+        for command in ("python samples/a.py", "az login", "azd deploy", "pip install sdk", "curl https://example.invalid"):
+            with self.subTest(command=command), self.assertRaisesRegex(ValueError, "terminal commands"):
+                portal_coverage(steps + "\n" + command, "fixture", "en")
 
-    def test_first_response_visible_steps_have_no_gap_for_optional_code(self):
-        for directory in ("docs", "docs/en"):
-            text = (ROOT / directory / "03-responses.md").read_text()
-            visible = re.sub(r"<details\b.*?</details>", "", text, flags=re.S)
-            numbers = [int(number) for number in re.findall(r"^### (\d+)\.", visible, re.M)]
-            with self.subTest(directory=directory):
-                self.assertEqual(numbers, [1, 2, 3])
+    def test_portal_guard_rejects_missing_outcomes_failure_guidance_and_order_gaps(self):
+        header = "## Steps\n| Step | Click or enter | Expected screen or value | If it fails |\n| --- | --- | --- | --- |\n"
+        for rows in (
+            "", "| 2 | Open. | Visible. | Stop. |\n",
+            "| 1 | Open. | Visible. | Stop. |\n| 1 | Select. | Selected. | Stop. |\n",
+            "| 1 | Open. | | Stop. |\n", "| 1 | Open. | Visible. | |\n",
+            "| 1 | Open. | Visible. |\n",
+        ):
+            with self.subTest(rows=rows), self.assertRaises(ValueError):
+                portal_coverage(header + rows, "fixture", "en")
+        with self.assertRaisesRegex(ValueError, "ordered click/input"):
+            portal_coverage("## Steps\nRead the docs.", "fixture", "en")
+        self.assertEqual(portal_coverage(
+            header + "| 1 | Open. | Visible. | Stop. |\n\n"
+            + header.removeprefix("## Steps\n") + "| 1 | Select. | Selected. | Stop. |\n",
+            "fixture", "en",
+        ), {"tables": 2, "steps": 2})
 
     def test_all_modules_end_with_saved_results_and_resolvable_next_steps(self):
         for language in ("ko", "en"):
@@ -167,7 +164,7 @@ class GuideAuthoringTests(unittest.TestCase):
     def test_python_references_are_expandable_without_hiding_execution_commands(self):
         for language in ("ko", "en"):
             chapters, sources, capabilities = build_guide.load_content(language)
-            captures = {item["path"]: item for item in build_guide.load_portal_captures(language)}
+            captures = {item["path"]: item for item in build_guide.load_guide_captures(language)}
             ui = build_guide.read_json("reader-labels.json")[language]
             for chapter in chapters:
                 if chapter["track"] == "reference":
@@ -184,44 +181,40 @@ class GuideAuthoringTests(unittest.TestCase):
                     self.assertFalse(parser.hidden_commands)
                     self.assertFalse(parser.details)
 
-    def test_reentry_selects_python_without_recreating_or_reinstalling_it(self):
+    def test_reentry_reuses_owned_resources_without_recreating_or_reinstalling_them(self):
         for directory in ("docs", "docs/en"):
             text = (ROOT / directory / "01-setup.md").read_text()
-            reentry = text.split('<a id="l01-new-terminal"></a>', 1)[1].split("\n### 2.", 1)[0]
+            reentry = text.split('<a id="l01-new-terminal"></a>', 1)[1]
             with self.subTest(directory=directory):
-                self.assertIn("source .venv/bin/activate", reentry)
-                self.assertIn(r'.\.venv\Scripts\python.exe -c', reentry)
-                self.assertIn("sys.version.split()[0]", reentry)
-                self.assertIn("Python 3.13.x", reentry)
-                self.assertIn(".venv-core313", reentry)
+                self.assertIn("portal" if directory.endswith("en") else "포털", reentry)
+                self.assertIn("Do not recreate" if directory.endswith("en") else "다시 만들지 않습니다", reentry)
                 self.assertNotIn("-m venv", reentry)
                 self.assertNotIn("pip install", reentry)
-                if directory == "docs/en":
-                    self.assertIn("export FOUNDRY_LAB_LANGUAGE=en", reentry)
-                    self.assertIn('$env:FOUNDRY_LAB_LANGUAGE = "en"', reentry)
 
-    def test_collection_checkpoint_precedes_a_separate_native_evaluation_block(self):
+    def test_evaluation_maps_agent_input_before_submission_and_preserves_failed_rows(self):
         for directory in ("docs", "docs/en"):
             text = (ROOT / directory / "08-evaluation.md").read_text()
-            blocks = re.findall(r"^```bash\n(.*?)^```[^\S\n]*$", text, re.M | re.S)
-            collection = next(block for block in blocks if "instruction_prompt_agent_lab.py --live" in block)
-            evaluation = next(block for block in blocks if "instruction_evaluation.py --input" in block)
             with self.subTest(directory=directory):
-                self.assertNotEqual(collection, evaluation)
-                between = text[text.index(collection) + len(collection):text.index(evaluation)]
-                for field in ("status", "completed", "target_calls", "24", "rows", "response_id", "raw_answer"):
-                    self.assertIn(field, between)
+                self.assertLess(text.index("{{item.query}}"), text.index("`Submit`"))
+                for field in ("ground_truth", "context", "case_id", "Partial/Failed", "12", "judge", "evaluation-12.jsonl"):
+                    self.assertIn(field, text)
+                self.assertNotIn("instruction_prompt_agent_lab.py --live", text)
+                self.assertNotIn("instruction_evaluation.py --input", text)
 
-    def test_local_corpus_precedes_billable_search_and_cli_setup_has_its_own_link(self):
+    def test_extra_search_resources_and_routine_dispatch_are_not_default_actions(self):
         for directory in ("docs", "docs/en"):
             search = (ROOT / directory / "13-iq.md").read_text()
             hosted = (ROOT / directory / "14-hosted.md").read_text()
             routine = (ROOT / directory / "17-automation.md").read_text()
             with self.subTest(directory=directory):
-                self.assertLess(search.index("python samples/search_lab.py corpus"), search.index("python scripts/azure_environment.py search --live"))
+                self.assertIn("approved" if directory.endswith("en") else "승인", search)
+                self.assertIn("3072", search)
+                self.assertIn("1536", search)
                 self.assertIn('<a id="l12-azd"></a>', hosted)
-                self.assertIn("https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd", hosted)
-                self.assertIn("#l12-azd", routine)
+                self.assertNotIn("azd deploy", hosted)
+                self.assertIn("Create & start", routine)
+                self.assertRegex(routine, r"(?i)browser|브라우저")
+                self.assertIn("Cancel", routine)
 
     def test_concept_introductions_remain_compact_in_both_languages(self):
         for language in ("ko", "en"):
@@ -239,7 +232,7 @@ class GuideAuthoringTests(unittest.TestCase):
                     else:
                         self.assertLessEqual(len(plain.split()), 150, "Keep the opening definition/method short.")
 
-    def test_block_destinations_and_local_reentry_are_explicit(self):
+    def test_blocks_target_portal_chat_and_do_not_create_environment_files(self):
         labels = build_guide.read_json("reader-labels.json")
         for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)
@@ -252,35 +245,35 @@ class GuideAuthoringTests(unittest.TestCase):
             directory = ROOT / "docs" / ("en" if language == "en" else "")
             with self.subTest(language=language):
                 self.assertLessEqual(kinds, set(labels[language]["js"]["code_labels"]))
-                self.assertLessEqual({"prompt", "env", "output"}, kinds)
+                self.assertEqual(kinds, {"prompt"})
                 self.assertNotEqual(
                     labels[language]["js"]["code_labels"]["prompt"],
                     labels[language]["js"]["code_labels"]["instructions"],
                 )
                 self.assertIn('id="l01-new-terminal"', (directory / "01-setup.md").read_text())
-                self.assertIn("#l01-new-terminal", (directory / "07-toolbox.md").read_text())
-                self.assertIn("workshop.py read-result --input", (directory / "06-actions.md").read_text())
+                self.assertIn("https://learn.microsoft.com/api/mcp", (directory / "07-toolbox.md").read_text())
+                self.assertNotIn("workshop.py read-result --input", (directory / "06-actions.md").read_text())
                 self.assertNotIn("workshop.py capstone --live", (directory / "11-capstone.md").read_text())
 
     def test_advanced_labs_explain_starting_paths_and_inputs_in_both_languages(self):
-        for language, heading in (("ko", "### 먼저 경로 정하기"), ("en", "### Choose your starting path")):
+        for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)
             for chapter in chapters:
                 if chapter["track"] != "advanced":
                     continue
                 text = (ROOT / chapter["file"]).read_text()
                 with self.subTest(language=language, chapter=chapter["id"]):
-                    self.assertIn(heading, text)
-                    self.assertLess(text.index(heading), text.index("## " + LAB_HEADINGS[language][3]))
-                    self.assertTrue("results/" in text or "practice/" in text)
+                    prerequisites = "## " + LAB_HEADINGS[language][2]
+                    self.assertLess(text.index(prerequisites), text.index("## " + LAB_HEADINGS[language][3]))
+                    self.assertIn("**" + BRIEF_LABELS[language][1], text[:text.index(prerequisites)])
+                    self.assertIn("portal" if language == "en" else "포털", text.lower())
 
-    def test_advanced_result_reading_identifies_real_output_fields(self):
+    def test_advanced_result_reading_identifies_visible_fields_not_sdk_evidence(self):
         fields = {
-            "13-iq.md": ("FOUNDRY_EMBEDDING_ENDPOINT", "knowledge_source", "CONTOSO-PROC-2026-09-s3", "CONTOSO-EXP-2026-09-s1"),
-            "14-hosted.md": ("results/search.json", "results/azure-environment.json", "/readiness", "order_submitted=false"),
-            "15-collaboration.md": ("paths.group-chat.stages", "paths.handoff.stages", "handoff_calls", "final_messages"),
-            "16-memory.md": ("memory_created", "memory_search", "scope_label=scope_a", "scope_label=scope_b", "memory_id"),
-            "17-automation.md": ("trigger_at", "marker", "enabled=false", ".dispatch.json"),
+            "13-iq.md": ("Search explorer", "Indexers", "3072", "1536"),
+            "16-memory.md": ("scope", "TTL", "Setup incomplete", "Foundry User",
+                             "Default time-to-live (seconds)", "Cancel", "CRUD"),
+            "17-automation.md": ("Create & start", "Recurring", "One-time", "Identity", "Cancel"),
         }
         for directory in ("docs", "docs/en"):
             for filename, expected in fields.items():
@@ -311,10 +304,10 @@ class GuideAuthoringTests(unittest.TestCase):
             with self.subTest(language=language):
                 self.assertNotIn("validation/current", text)
                 self.assertNotIn("instruction-reading-example", text)
-                self.assertIn("results/azure-environment.json", text)
+                self.assertIn("evaluation-12.csv", text)
                 self.assertIn("compound-request-no-tools", text)
-                self.assertIn("instruction_prompt_agent_lab.py --live", text)
-                self.assertIn("instruction_evaluation.py --input", text)
+                self.assertIn("contoso-compare-v1", text)
+                self.assertIn("contoso-compare-v2", text)
                 self.assertIn("90%", text)
                 self.assertIn("safety/access", text)
 
@@ -337,7 +330,7 @@ class GuideAuthoringTests(unittest.TestCase):
             "Playwright MCP", "Headless Chromium", 'class="provenance-note"',
             "portal-screenshots", "가이드 밖", "outside the guide", "outside this guide",
             "outside the reader", "제작자의", "author's execution",
-            "과거 검증", "공개 검증", "이번 지침 수정", "This instruction update",
+            "이번 지침 수정", "This instruction update",
             "10/10 request trace IDs, only 7", "six bounded reconciliation sweeps",
         )
         labels = build_guide.read_json("reader-labels.json")
@@ -358,30 +351,17 @@ class GuideAuthoringTests(unittest.TestCase):
             self.assertNotIn("검증 보고서", text)
             self.assertNotIn("validation report", text)
 
-    def test_screen_examples_keep_learner_context_and_completion_criteria(self):
-        expected = {
-            "ko": {
-                "00-start.md": ("권한, 지역, 업데이트", "성공 기준", "자신의 프로젝트"),
-                "03-responses.md": ("모델 응답 예시", "출력 한도 설정 예시"),
-                "04-agent.md": ("구성 예시", "L04에서는 지시문만"),
-                "13-iq.md": ("Search 연결 설정 예시", "Entra"),
-                "16-memory.md": ("Memory store 설정 예시", "사용자별 검색", "승인된 삭제"),
-            },
-            "en": {
-                "00-start.md": ("permissions, region, and updates", "Success criteria", "your own project"),
-                "03-responses.md": ("Model response example", "Output-limit setting example"),
-                "04-agent.md": ("configuration example", "Save only the instructions in L04"),
-                "13-iq.md": ("Knowledge-list example", "Project Managed Identity"),
-                "16-memory.md": ("Stored-item example", "user-specific searches", "approved deletion"),
-            },
-        }
-        for language, files in expected.items():
-            directory = ROOT / "docs" / ("en" if language == "en" else "")
-            for filename, markers in files.items():
-                text = (directory / filename).read_text()
-                with self.subTest(language=language, source=filename):
-                    for marker in markers:
-                        self.assertIn(marker, text)
+    def test_learner_sources_have_no_historical_screen_blocks_or_images(self):
+        for language in ("ko", "en"):
+            chapters, _, _ = build_guide.load_content(language)
+            for chapter in chapters:
+                if "file" not in chapter:
+                    continue
+                text = (ROOT / chapter["file"]).read_text()
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    self.assertNotIn("historical-screen", text)
+                    for path in re.findall(r"!\[[^\]]*\]\(([^)]*assets/portal/[^)]*)\)", text):
+                        self.assertIn("assets/portal/steps/", path)
 
     def test_official_links_render_without_internal_review_notes(self):
         for language in ("ko", "en"):
@@ -396,7 +376,7 @@ class GuideAuthoringTests(unittest.TestCase):
                 for source in sources["sources"]:
                     self.assertIn(f"[{source['title']}]({source['url']})", text)
 
-    def test_all_active_labs_have_concepts_and_per_command_explanations(self):
+    def test_all_active_labs_have_concepts_and_ordered_portal_actions(self):
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
         labs = [chapter for chapter in chapters if chapter["track"] != "reference"]
         self.assertEqual(len(labs), 20)
@@ -408,6 +388,7 @@ class GuideAuthoringTests(unittest.TestCase):
                 for label in ("경험할 기능", "무엇이며 왜 중요한가요?", "어떻게 사용하나요?", "어디서 실행하나요?"):
                     self.assertIn("**" + label, text)
                 coverage = command_coverage(text, chapter["file"])
+                self.assertGreater(portal_coverage(text, chapter["file"])["steps"], 0)
                 for key in total:
                     total[key] += coverage[key]
                 for source in re.findall(r"\b(?:samples|scripts)/[\w.-]+\.py\b", text):
@@ -418,32 +399,21 @@ class GuideAuthoringTests(unittest.TestCase):
     def test_search_walkthrough_changes_mode_not_question(self):
         for directory in ("docs", "docs/en"):
             text = (ROOT / directory / "13-iq.md").read_text()
-            commands = [
-                shlex.split(line) for line in text.splitlines()
-                if line.startswith("python samples/search_lab.py query ")
-            ]
             with self.subTest(directory=directory):
-                self.assertEqual(len(commands), 3)
-                self.assertEqual({c[c.index("--mode") + 1] for c in commands}, {"keyword", "hybrid", "iq"})
-                self.assertEqual(len({c[c.index("--query") + 1] for c in commands}), 1)
-                self.assertTrue(all("--live" in command for command in commands))
+                questions = re.findall(r"^```prompt\n(.*?)^```", text, re.M | re.S)
+                self.assertEqual(len(questions), 1)
+                self.assertIn("Search explorer", text)
+                self.assertIn("keyword/vector/hybrid", text)
+                self.assertNotIn("search_lab.py query", text)
 
-    def test_trace_timing_example_uses_intervals_without_double_counting(self):
+    def test_tracing_uses_the_same_actual_request_and_does_not_invent_missing_spans(self):
         for directory in ("docs", "docs/en"):
             text = (ROOT / directory / "10-observability.md").read_text()
-            rows = re.findall(r"^\|[^|]+\|\s*([\d,]+)[~–]([\d,]+)\s*\|\s*([\d,]+)ms\s*\|", text, re.M)
             with self.subTest(directory=directory):
-                self.assertEqual(len(rows), 4)
-                intervals = [tuple(int(value.replace(",", "")) for value in row) for row in rows]
-                for start, end, duration in intervals:
-                    self.assertEqual(end - start, duration)
-                parent = intervals[0][2]
-                children = sum(row[2] for row in intervals[1:])
-                self.assertIn(f"{children:,}ms", text)
-                self.assertIn(f"{parent - children}ms", text)
-                self.assertLessEqual(children, parent)
-                for previous, following in zip(intervals[1:], intervals[2:]):
-                    self.assertLessEqual(previous[1], following[0])
+                for marker in ("Traces", "span", "Application Insights", "Refresh", "403"):
+                    self.assertIn(marker, text)
+                self.assertIn("Do not invent" if directory.endswith("en") else "없는 span", text)
+                self.assertNotRegex(text, r"^\|[^|]+\|\s*[\d,]+[~–][\d,]+\s*\|\s*[\d,]+ms\s*\|")
 
     def test_comments_and_continuations_do_not_inflate_command_count(self):
         text = (

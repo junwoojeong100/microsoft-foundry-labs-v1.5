@@ -11,7 +11,7 @@ import re
 from urllib.parse import unquote, urlparse
 import xml.etree.ElementTree as ET
 
-from build_guide import RELEASE, load_content, load_portal_captures
+from build_guide import RELEASE, load_content, load_guide_captures, load_portal_captures
 
 ROOT = Path(__file__).resolve().parents[1]
 LAB_HEADINGS = {
@@ -61,8 +61,45 @@ def command_coverage(text: str, source: str, language: str = "ko") -> dict:
     return {"blocks": blocks, "commands": commands}
 
 
+def portal_coverage(text: str, source: str, language: str = "ko") -> dict:
+    allowed = {"prompt", "instructions", "json", "output", "text"}
+    for block in re.finditer(r"^```([^\n]*)\n(.*?)^```[^\S\n]*(?:\n|$)", text, re.M | re.S):
+        if block[1].strip() not in allowed:
+            raise ValueError(f"{source}: portal-only labs cannot require executable code or environment files")
+    if re.search(r"^\s*(?:python(?:3(?:\.\d+)?)?|azd?|pip3?|npm|npx|curl|pwsh|sudo)\s+", text, re.M):
+        raise ValueError(f"{source}: portal-only labs cannot require terminal commands")
+    heading = LAB_HEADINGS[language][3]
+    section = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+    if not section:
+        raise ValueError(f"{source}: missing portal Steps section")
+    expected = {
+        "ko": ["단계", "클릭·입력", "확인할 화면·값", "실패하면"],
+        "en": ["Step", "Click or enter", "Expected screen or value", "If it fails"],
+    }[language]
+    tables = steps = 0
+    for block in re.findall(r"(?:^\|[^\n]*\|[^\S\n]*(?:\n|$))+", section[1], re.M):
+        rows = [[cell.strip() for cell in line.strip().strip("|").split("|")] for line in block.splitlines()]
+        if not rows or rows[0][0] != expected[0]:
+            continue
+        if (
+            rows[0] != expected or len(rows) < 3 or len(rows[1]) != 4
+            or any(not re.fullmatch(r":?-{3,}:?", cell) for cell in rows[1])
+        ):
+            raise ValueError(f"{source}: portal steps need action, expected result and failure guidance columns")
+        actions = rows[2:]
+        if any(len(row) != 4 or any(not cell for cell in row) for row in actions):
+            raise ValueError(f"{source}: every portal step needs nonempty action, result and failure guidance")
+        if [row[0] for row in actions] != [str(index) for index in range(1, len(actions) + 1)]:
+            raise ValueError(f"{source}: portal steps must be individually ordered from 1 without gaps")
+        tables += 1
+        steps += len(actions)
+    if not tables:
+        raise ValueError(f"{source}: portal-only labs need an ordered click/input walkthrough")
+    return {"tables": tables, "steps": steps}
+
+
 def check_portal_captures(parser, language) -> int:
-    captures = load_portal_captures(language)
+    captures = load_guide_captures(language)
     paths = {item["path"] for item in captures}
     used = {image["src"] for image in parser.images if image["src"].startswith("assets/portal/")}
     if paths != used:
@@ -113,7 +150,7 @@ def check_language(language) -> dict:
     if len(ids) != len(chapters) or len(source_ids) != len(sources):
         raise ValueError("Duplicate chapter or source IDs.")
     labs = [chapter for chapter in chapters if chapter["track"] != "reference"]
-    shell_blocks = shell_commands = 0
+    shell_blocks = shell_commands = portal_tables = portal_steps = 0
     core_minutes = sum(c["minutes"] for c in labs if c["track"] == "core")
     duration = (
         f"{core_minutes // 60}시간 {core_minutes % 60}분" if language == "ko"
@@ -165,6 +202,9 @@ def check_language(language) -> dict:
             coverage = command_coverage(text, chapter["file"], language)
             shell_blocks += coverage["blocks"]
             shell_commands += coverage["commands"]
+            portal = portal_coverage(text, chapter["file"], language)
+            portal_tables += portal["tables"]
+            portal_steps += portal["steps"]
     if shell_blocks != edition["shell_blocks"] or shell_commands != edition["commands"]:
         raise ValueError(
             f"{language}: expected {edition['shell_blocks']} shell blocks / {edition['commands']} commands; "
@@ -240,7 +280,7 @@ def check_language(language) -> dict:
             raise ValueError("Markdown book missing an anchor.")
     result = {
         "checked_at": datetime.now(timezone.utc).isoformat(),
-        "scope": "Offline guide structure, command coverage and screenshot provenance; no Azure execution.",
+        "scope": "Offline guide structure, portal-only action coverage and screenshot provenance; no Azure execution.",
         "guide_sha256": hashlib.sha256(html.encode("utf-8")).hexdigest(),
         "language": language, "html": edition["html"], "markdown": edition["markdown"],
         "pages": len(chapters), "labs": len(labs),
@@ -254,7 +294,14 @@ def check_language(language) -> dict:
         "modules_with_beginner_start_cards": len(labs),
         "modules_with_guided_experiments": len(PRACTICE_LABS),
         "explained_shell_blocks": shell_blocks, "explained_commands": shell_commands,
+        "portal_action_tables": portal_tables, "portal_action_steps": portal_steps,
         "portal_screenshots": portal_captures,
+        "historical_portal_screenshots": 0,
+        "preserved_portal_screenshots": len(load_portal_captures(language, include_archived=True)),
+        "recorded_step_images": portal_captures,
+        "recorded_step_placements": sum(
+            image["src"].startswith("assets/portal/steps/") for image in parser.images
+        ),
         "portal_manifest": edition["portal_manifest"],
         "portal_capture_paths": sorted({
             image["src"] for image in parser.images if image["src"].startswith("assets/portal/")
@@ -275,8 +322,8 @@ def check() -> dict:
         language: {Path(path).name for path in result["portal_capture_paths"]}
         for language, result in languages.items()
     }
-    if capture_names["en"] != capture_names["ko"] | {"18-resource-group.png"}:
-        raise ValueError("English captures must cover the active Korean screens plus the English resource group.")
+    if capture_names["en"] != capture_names["ko"]:
+        raise ValueError("Both editions must use the same reviewed recording frames.")
     result = {
         "scope": "Offline bilingual documentation checks only; no Azure execution.",
         "default_language": RELEASE["default_language"],

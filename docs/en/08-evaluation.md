@@ -1,237 +1,251 @@
-> **What you will build:** A method for comparing v1/v2 answers under matched conditions and explaining differences, ties, or failures using scores and judge reasons.
+## Objectives
+
+Compare v1 and v2 with the same model, context, and **twelve fixed dev questions** in the portal. Read failed rows, reasons, and missing results before averages.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Compare inputs → collect your answers → evaluate the same originals in Microsoft Foundry → analyze reasons.
+**Format:** Two portal evaluations of twelve rows each. Reading only means evaluation not run.
 
-**Start here:** Read both instruction files and the fixed questions, then identify what an answer must address.
+**Start here:** Prepare `contoso-chat`, `contoso-judge`, and the `en` folder from the [portal input ZIP](../../downloads/Contoso-Portal-Inputs.zip).
 
-**What to check:** Connect your v1/v2 originals, scores, and reasons for the same question. With missing prerequisites, record reading only.
+**What to check:** Actual answers, errors, judge reasons, and twelve matched pairs. Improvement is not guaranteed.
 
 </div>
-
-## Objectives
-
-**Distinguish differences in answers from the evaluator's judgment.** Version one is a role-and-goal starting instruction; version two specifies an answer procedure. The v2 label does not establish better quality.
 
 ## Concepts and lab map
 
-**What you will try:** Compare two answers to the same question and interpret evaluation reasons.
+**What you will try:** Agent evaluation, JSONL datasets, evaluator mapping, and comparison.
 
-**What is it, and why does it matter?** Evaluation compares expected behavior with actual answers. Keep the model, policy, questions, and rubric unchanged so instruction differences can be interpreted.
+**What is it, and why does it matter?** An LLM judge is not an infallible authority. Incomplete rows are not passes, and scores from different conditions cannot establish an instructions-only improvement.
 
-**How do you use it?** Read fixed inputs and verify the request budget. Collect your originals once, evaluate them, and preserve ties/regressions.
+**How do you use it?** Run v1, analyze failures, then run v2 against the identical twelve rows.
 
-**Where do you run it?** Read the [questions](../../data/en/evaluation/instruction-comparison.json) and [v1](../../data/en/prompts/agent-v1.txt)/[v2](../../data/en/prompts/agent-v2.txt), then use the [collector](../../samples/instruction_prompt_agent_lab.py) and [evaluator](../../samples/instruction_evaluation.py). Inspect results under **Evaluations** in the Foundry portal.
+**Where do you run it?** Microsoft Foundry → Build → Agents and Evaluations. No SDK collection or command execution is needed.
 
 ## Prerequisites
 
-**Without live prerequisites, stop after the instruction/question comparison in step 1** and record actual collection and evaluation as not performed. When you do run them, use your own environment from L01, and do not count another person's results as your execution.
+Use `agent-v1-with-context.txt`, `agent-v2-with-context.txt`, `evaluation-12.jsonl`, and `review-checklist.csv`. The first two combine the original [v1](../../data/en/prompts/agent-v1.txt)/[v2](../../data/en/prompts/agent-v2.txt) instructions with identical thirteen synthetic policy sections for **tool-free comparison agents**. They contain no evaluation questions, expected behaviors, or scoring criteria.
 
-| What you do | What you need |
-| --- | --- |
-| Read the instructions and questions | The bundled v1/v2 and question files. No Microsoft Azure account |
-| Collect your answers | L01's project, ownership record, and `.env`; the chat deployment checked in L02; and a request budget |
-| Evaluate the saved originals | The judge deployment in the same environment, an evaluation cost scope, and the completed collection file |
-
-Chat is **`gpt-6-sol / 2026-09-22`**, deployment `contoso-chat`. The judge is **`gpt-4.1 / 2025-04-14`**, `FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge`. `.env` and `results/azure-environment.json` must point to the same target; check the actual TPM/RPM in L02. **Search, Hosted, Optimizer, and holdout are unnecessary for this comparison.**
-
-The collection code reads back the current RG ownership tags, project, deployments, and throughput, and uses a collision-resistant **evaluation-only Prompt Agent** with pinned v1/v2 versions. It does not evaluate L06's function execution.
-
-| Term | Plain-language meaning |
-| --- | --- |
-| v1 / v2 | Starting / improved instructions, not service-issued agent-version numbers |
-| Judge / Native evaluation | The grading model / an evaluation performed by Microsoft Foundry |
-| Completeness / Relevance / Groundedness | Were all requests addressed / was the answer relevant / was it supported? |
-| Dev / Holdout | Practice data exposed during improvement / a separate final test excluded from improvement |
-
-Keep `FOUNDRY_LAB_LANGUAGE=en` selected in the separate English folder. Both instructions receive the same synthetic policy context; this is not live Search retrieval. Expected behavior and grading criteria are excluded from target-model input and supplied only to the judge.
+Upload **JSONL** in the portal. The identical twelve-row `evaluation-12.csv` is a human-readable sidecar, not an input for the JSONL-only upload form. `ground_truth` contains fixed **expected-behavior criteria**; `context` contains the same public synthetic documents. Do not append these reference criteria to the agent's question. Do not use sealed holdouts or historical validation sets.
 
 ## Steps
 
-### 1. Compare the question and instructions first
+### 1. Save two comparison targets
 
-Find `compound-request-no-tools` in the question file and separate **cap / current stock / approver / draft** requests. Read the answer procedure each instruction requires. No tools are available in this comparison, so neither stock lookup nor draft creation may be claimed as executed.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Create `contoso-compare-v1` with L04's `New agent → Build an agent`. Detach any automatically attached Web search toolbox. | Model `contoso-chat`; no tools or Memory. | Do not use the File search policy agent for this comparison. |
+| 2 | Open `agent-v1-with-context.txt`, paste its complete text into Instructions, and save. | Only v1 and synthetic context, without answer criteria. | Resolve truncation or field-length limits before continuing. |
+| 3 | Save the v2 file in `contoso-compare-v2` the same way. | Model, context, tools, and output settings match v1. | Correct mismatched project or model version first. |
+| 4 | Set Max output tokens `2048` and Reasoning effort `low`, save, then reopen both agents. Check complete Instructions, IDs, and numeric versions. | Identical model, thirteen context sections, and output settings persist. | Do not edit Instructions during evaluation. |
+| 5 | Under `Build → Models`, open each existing deployment's `Actions → Edit`. Inspect capacity only within approved existing quota. | This recording assigned 100,000 TPM to `contoso-chat` and 300,000 TPM to `contoso-judge`, then reopened Details to verify Succeeded and actual TPM. | Defer if quota is insufficient. Do not automatically request another model, region, or subscription quota increase. |
 
-| General v1 instruction | Procedure specified in v2 | What to inspect in answers |
-| --- | --- | --- |
-| Do not guess unknown information | Answer available public parts even when restricted parts cannot be answered | Numbers, currency, and VAT basis |
-| Cite actual documents | Link each claim to its relevant section | Do not reuse a general introduction as evidence for unrelated judgments |
-| Use policy and tools | Distinguish caps, quotes, actual prices, exchange rates, and draft state | Keep unverified conditions unconfirmed |
-| Prepare drafts safely | Check explicit intent, quantity, and actual tool output | Never fabricate approval, ordering, or payment |
+`v1` and `v2` identify **instruction variants**. Both recorded agents had saved **numeric version 2**, so the targets were `contoso-compare-v1: v2` and `contoso-compare-v2: v2`. Record your actual numeric versions and **Pin** them; do not compare moving `Latest available` targets.
 
-Do not put case IDs or question-specific answers into instructions. Without an account, record **conditions to hold fixed / evidence to inspect / unexecuted scope**. Do not assign scores or claim a winner before collecting answers.
+<div class="screen-step" markdown="1">
 
-### 2. Collect and evaluate your own answers once
+**Comparison agent: name v1 is not numeric version 2**
 
-Verify your project, language, request count, time, and cost scope. With prerequisites met, the default is **plan → collect → evaluate**.
+![contoso-compare-v1 with contoso-chat and saved numeric Version 2.](../../assets/portal/steps/eval-agent.png)
 
-```text
-The same 12 questions + the same policy context
-  ├─ v1 instructions → your 12 answers
-  └─ v2 instructions → your 12 answers
-       ↓ check the 24 originals in the collection JSON, then stop
-       ↓ submit only that completed file to Native evaluation
-Evaluation JSON → compare originals, scores, and judge reasons for the same question
-```
+**1 Model:** Both targets use `contoso-chat`. **2 Version:** The actual saved number. Do not interpret the name's `v1` as numeric version 1.
 
-**Collection and evaluation are separate runs.** Do not run the commands below back to back; check that collection completed in between. Evaluation does not call the target agent again.
-
-```bash
-python samples/instruction_prompt_agent_lab.py
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `instruction_prompt_agent_lab.py` | Read the two instruction versions, twelve fixed questions, model, and request bound. | Plan only; no Microsoft Azure calls. |
+[Captioned video 04 · 00:31.5](../../downloads/portal/index.html?clip=04-native-evaluation&t=31.5&lang=en#04-native-evaluation)
 
 </div>
 
-When the plan matches your scope, run **collection only**.
+Capacity edits must retain model versions, NoAutoUpgrade, deployment types, DefaultV2, and dynamic-quota settings. TPM is allocated throughput, not consumed tokens or a cost cap. Target responses and all three judges incur additional usage charges.
 
-```bash
-python samples/instruction_prompt_agent_lab.py --live --output results/instruction-prompt-agent-en.json
-```
+### 2. Submit the v1 baseline
 
-<div class="command-explanation" markdown="1">
+<div class="screen-step" markdown="1">
 
-**Command walkthrough**
+**Target: pin the saved number instead of Latest**
 
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. Collection with `--live` | Create a tool-free Prompt Agent and pinned instruction versions in your owned project, then collect matched answers. | At most 24 responses, 600 seconds, zero retries, and 2,048 output tokens per response for this language. Preserve originals and failures separately. |
+![Evaluation Version picker showing Latest available, Pin v1, and Pin v2.](../../assets/portal/steps/eval-pin.png)
 
-</div>
+**1 Target:** Only `contoso-compare-v1`. **2 Pin v2:** The saved number in this run. This open-picker frame is not proof of a persisted pin; select it and recheck the Review target string.
 
-**Stop and check:** Open `results/instruction-prompt-agent-en.json` in VS Code. Top-level `status` must be `completed`, `target_calls` must be 24, and `rows` must contain both instruction versions for all twelve questions. Inspect each row's `status`, `response_id`, and `raw_answer`. On errors or omissions, use **Troubleshooting** instead of submitting evaluation. Do not edit originals to mark them complete.
-
-Only after collection completes and judge/cost conditions are ready, evaluate **that same file**:
-
-```bash
-python samples/instruction_evaluation.py --input results/instruction-prompt-agent-en.json --output results/instruction-native-prompt-agent-en.json --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. Native evaluation with `--live` | Submits the 24 actual originals in `--input`, not an L06 response JSONL or ownership receipt. | Zero target reinvocations. One native run per language, at most 600 seconds plus 90 seconds for cancellation confirmation. Write scores/reasons to `--output`. |
+[Captioned video 04 · 01:01](../../downloads/portal/index.html?clip=04-native-evaluation&t=61&lang=en#04-native-evaluation)
 
 </div>
 
-Keep Korean and English input/output paths distinct. Each run is limited to 24 responses and 600 seconds; across both languages the total is at most 48 target responses and 1,200 seconds. Do not overwrite existing files or resample until a score rises. On failure, inspect the original error and already completed request count. If the collection or evaluation command stopped **before any model, agent, or evaluator request** (not signed in, wrong deployment name, a `.env` error), its record is kept as `…failed-<time>.json` and you can run the same command again.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Select `Build → Evaluations → Create`. | Evaluation target selection opens. | Record unsupported/unauthorized evaluation as blocked. |
+| 2 | Choose target `Agent`, select **only contoso-compare-v1**, and `Pin` its saved numeric version. | Agent target, not Model/Dataset-only or Latest available. | Dataset evaluation scores existing answers; it does not generate agent answers. |
+| 3 | Under Scope, select `Individual turns → Next`. | Answers are generated per question. | Do not switch to whole-conversation evaluation. |
+| 4 | Under Frequency, select `One time → Next`. | One bounded execution. | Do not enable continuous or recurring evaluation. |
 
-When invoking with `agent_reference`, do not repeat the Agent definition's `reasoning` or `text` settings in the request.
+#### Data and agent input
 
-<details class="implementation-detail" markdown="1">
-<summary>Implementation reference: collection and evaluation use different APIs — read only</summary>
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Under Data, replace default Synthetic generation with `Existing dataset`. In `Upload new dataset`, enter a name and upload `evaluation-12.jsonl` once. | Upload success and dataset version appear. | Do not upload CSV to a JSONL-only form or reduce the twelve rows. |
+| 2 | Select the dataset and inspect case_id, query, context, and ground_truth in `Preview`. | **Top 5 rows** previews the first five, not all twelve. | The source file has twelve fixed rows; do not interpret five preview rows as the full count. |
+| 3 | Select `Configure agents → Configure contoso-compare-v1`. In the **Add custom prompt dialog**, enter exactly `{{item.query}}` as User prompt and Save. | Only the question reaches the agent. A separate Field mapping step may disappear after recognized columns finish loading. | Never include ground_truth or checklist criteria in its prompt. |
 
-#### Portal Evaluations and the actual SDK calls
+<div class="screen-step" markdown="1">
 
-Collection and evaluation are separate. The collector invokes pinned v1/v2 versions; evaluation submits 24 saved originals. In this call excerpt, `shared_input` is a question plus matched policy context, `criteria` configures completeness/relevance/groundedness, and `rows` contains actual answers. `data_source_config` defines required row fields. Do not execute the excerpt alone.
+**Dataset preview: five rows are not the complete set**
 
-```python
-# instruction_prompt_agent_lab.py: one row in the fixed v1/v2 collection
-response = client.responses.create(
-    input=shared_input,
-    extra_body={"agent_reference": {
-        "type": "agent_reference",
-        "name": agent_name,
-        "version": versions[label],
-    }},
-    max_output_tokens=MAX_OUTPUT_TOKENS,
-    store=False,
-)
+![Actual Korean-run dataset version, Top 5 rows preview, and query column.](../../assets/portal/steps/eval-dataset.png)
 
-# instruction_evaluation.py: evaluate saved rows; do not call the target again
-group = client.evals.create(
-    name=f"Contoso {LANGUAGE} instruction comparison",
-    data_source_config=data_source_config,
-    testing_criteria=criteria,
-)
-native = client.evals.runs.create(
-    eval_id=group.id,
-    name=f"Contoso {LANGUAGE} v1-v2 one comparison",
-    data_source={"type": "jsonl", "source": {"type": "file_content", "content": [{"item": row} for row in rows]}},
-)
-```
+**1 Preview:** Only the first five rows. **2 query:** The agent's question column. The source has twelve rows and `ground_truth` is judge-only. Upload your English `en/evaluation-12.jsonl`; this image is not an English-run result.
 
-| Microsoft Foundry portal | Value to inspect in the source |
+[Captioned video 04 · 01:25](../../downloads/portal/index.html?clip=04-native-evaluation&t=85&lang=en#04-native-evaluation)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Custom prompt: pass only the question column**
+
+![Add custom prompt showing the USER message and item.query variable.](../../assets/portal/steps/eval-prompt.png)
+
+**1 USER:** The user message. **2 Input:** Enter exactly `{{item.query}}`, then Save. Do not append answers, checklists, or ground_truth.
+
+[Captioned video 04 · 01:37](../../downloads/portal/index.html?clip=04-native-evaluation&t=97&lang=en#04-native-evaluation)
+
+</div>
+
+#### Criteria and field mapping
+
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Under Criteria, first select `Clear selection`, then choose exactly **Relevance, Response completeness (Preview), Groundedness**. Find hidden items with Search evaluators, clear the search, then inspect `Review selected (3)`. | Review lists Relevance, ResponseCompleteness, and Groundedness. | Do not submit the preselected evaluator bundles and multiply requests. Record unavailable evaluators as blocked. |
+| 2 | Open each `Configure <evaluator>`, verify judge `contoso-judge`, and expand **Advanced settings** to inspect the mapping below. | All three default thresholds remain **3**. Close with Cancel when unchanged. | Do not replace missing fields with empty values or lower thresholds to pass. |
+
+<div class="screen-step" markdown="1">
+
+**Relevance: map the question and generated answer**
+
+![Relevance with Threshold 3, Query, and Response fields.](../../assets/portal/steps/eval-relevance.png)
+
+**1 Threshold:** Keep default `3`. **2 Query:** `{{item.query}}`. **3 Response:** `{{sample.output_text}}`. Also verify judge `contoso-judge` above.
+
+[Captioned video 04 · 01:52](../../downloads/portal/index.html?clip=04-native-evaluation&t=112&lang=en#04-native-evaluation)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Response completeness: expected behavior goes only to the judge**
+
+![Response completeness showing Threshold, Ground truth, and Response.](../../assets/portal/steps/eval-completeness.png)
+
+**1 Threshold:** `3`. **2 Ground truth:** `{{item.ground_truth}}`. **3 Response:** `{{sample.output_text}}`. Do not send the criteria as the agent's question.
+
+[Captioned video 04 · 02:04.5](../../downloads/portal/index.html?clip=04-native-evaluation&t=124.5&lang=en#04-native-evaluation)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Groundedness: context and answer belong in different fields**
+
+![Groundedness Context, Query, Response, and default Tool definitions.](../../assets/portal/steps/eval-groundedness.png)
+
+**1 Context:** `{{item.context}}`. **2 Query:** `{{item.query}}`. **3 Response:** `{{sample.output_text}}`. Retain threshold `3` and default `{{sample.tool_definitions}}`.
+
+[Captioned video 04 · 02:13.5](../../downloads/portal/index.html?clip=04-native-evaluation&t=133.5&lang=en#04-native-evaluation)
+
+</div>
+
+| Evaluator | Advanced input | Value |
+| --- | --- | --- |
+| Relevance | Query / Response | `{{item.query}}` / `{{sample.output_text}}` |
+| Response completeness | Ground truth / Response | `{{item.ground_truth}}` / `{{sample.output_text}}` |
+| Groundedness | Context / Query / Response | `{{item.context}}` / `{{item.query}}` / `{{sample.output_text}}` |
+| Groundedness | Tool definitions | Retain portal-generated default `{{sample.tool_definitions}}` |
+
+`sample.output_text` is the **actual generated agent answer**, not a fabricated JSONL response. `ground_truth` is judge-only; `context` is the identical synthetic policy text. On another portal version, verify the real generated-output field. Stop if a required mapping remains unresolved.
+
+#### Review, then submit once
+
+<div class="screen-step" markdown="1">
+
+**Review: numeric target, dataset version, and three evaluators**
+
+![Pre-submission Review showing pinned contoso-compare-v1 v2, dataset version, and Evaluators.](../../assets/portal/steps/eval-review.png)
+
+**1 Target:** Your saved numeric version. **2 Dataset:** Same name and version. **3 Evaluators:** Scroll to verify all three names. This summary does not establish twelve completed rows.
+
+[Captioned video 04 · 03:21](../../downloads/portal/index.html?clip=04-native-evaluation&t=201&lang=en#04-native-evaluation)
+
+</div>
+
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | In Review, enter `contoso-portal-v1-<suffix>` and verify one pinned target, Individual turns, One time, identical dataset/version, and exactly three evaluators. | Scope is twelve source rows and one submission; target, judge, and additional costs match approval. | Do not claim that Review itself displayed the full row count. |
+| 2 | Select `Submit` once and open the execution in evaluation details. | Record actual Evaluation ID, Run ID, and state, then verify twelve completed/error/missing rows. | Do not resubmit a pending run. |
+
+### 3. Analyze failures, then compare v2
+
+After v1 finishes, open each row under `Results → Data/Details`: question, answer, score, reason, and error. In particular, `compound-request-no-tools` must cover both policy guidance and unavailable stock/draft execution. Compare original `review-checklist.csv` criteria and actual citation IDs manually.
+
+Repeat the same form once, changing **only agent and run name to v2**, with the same JSONL dataset, judge, evaluators, and mapping. Select both completed runs in Evaluations and open `Compare`. If comparison is unavailable, inspect the same case_id side by side.
+
+| Check | Required before a passing interpretation |
 | --- | --- |
-| Agents → Versions | `agent_reference.name/version` identifies the instruction version used for each answer |
-| Evaluations → Criteria | `testing_criteria=criteria` and the fixed judge deployment |
-| Evaluations → Run | `client.evals.runs.create(...)` consumes the saved JSONL rows |
-| Results | Actual answer/score/reason for the same `case_id`; `completed` alone is not a quality pass |
+| Completion | Twelve completed rows per run; zero missing, duplicates, or errors |
+| Conditions | Identical questions/context/model/version/judge/no-tools/evaluators |
+| Evidence | Claim-specific sections/citation IDs and every requested subquestion covered |
+| Safety | No invented stock, execution, approval, or order completion |
+| Interpretation | Actual improvement, no change, or regression, with observed values |
 
-Execute through the `--live` path above. Reading this excerpt or portal results makes no additional target call. Preserve the fixed questions, rubric, and threshold.
+`Partial/Failed` and error rows mean incomplete comparison. Do not count errors as safe refusals or remove them from the denominator. Never change questions, criteria, or thresholds to pass, or recollect only favorable answers.
 
-</details>
+### Actual recording: Completed and 100% can still be incomplete
 
-### 3. Connect each answer with its score and reason
+<div class="screen-step" markdown="1">
 
-In the collection file, find the v1/v2 rows sharing an `id`. In the evaluation file, join `comparison.rows` by `case_id` and `instructions`.
+**v1 result: read state and every denominator**
 
-| Field | How to read it |
-| --- | --- |
-| `rows[].raw_answer`, `response_id` | The actual answer and its identifier |
-| `prompt_agent_versions` | Agent name and pinned versions |
-| `comparison.rows[].metrics` | Per-case native scores, verdicts, and reasons |
-| `comparison.local_checklist` | Supporting text-and-citation checks in the collection file |
-| `comparison.usage_latency` | Token and latency totals and differences |
-| `instructions_sha256`, `cases_sha256`, `context_sha256` | Input hashes for checking matched conditions |
+![Actual v1 Completed result with 100 percent and 12/12 for all three evaluators.](../../assets/portal/steps/eval-v1-result.png)
 
-Record **the request / both actual answers / relevant policy sections / the judge's reason / whether you agree**. `raw_answer` contains a JSON string; inspect its `answer` and `citation_ids` separately.
+**1 State:** `Completed`. **2 Metrics:** All three completed `12/12` in this run. **3 Download results:** Inspect originals and errors for every row.
 
-**Start with one question.** Search both files for `compound-request-no-tools`. Read its collection rows for `instructions=v1` and `v2`, then the evaluation rows with matching `case_id`/`instructions`. Within `metrics`, read **score → passed → reason**. Separate the price limit, stock, approvers, and draft parts actually answered from those not executable without tools. Apply the same method to the other eleven questions. You need not understand every SDK line or hash first.
+[Captioned video 04 · 03:41](../../downloads/portal/index.html?clip=04-native-evaluation&t=221&lang=en#04-native-evaluation)
 
-### 4. Distinguish scores from completed execution
+</div>
 
-Native completeness, relevance, and groundedness use **1–5 ordinal** scores. Relevance and groundedness use built-in evaluators; completeness uses the same custom rubric for both instructions. The binary summary of scores at least four is not the five-point scale itself.
+<div class="screen-step" markdown="1">
 
-Note: Microsoft Learn's current agent-evaluation article (checked 2026-10-09) presents generated rubric evaluators (weighted dimensions, score normalized to 0–1) as the recommended primary measure and requires `azure-ai-projects` 2.8.0 or later. This lab keeps its pinned SDK (2.7.0) and the fixed 1–5 completeness evaluator, so do not compare the two scales.
+**v2 result: do not miss 11/11 beneath 100%**
 
-The local checklist checks forty criteria across twelve questions using **mechanical text-and-citation matching**. It can miss paraphrases and is not a semantic evaluator or a business safety/access gate.
+![Actual v2 Completed result with Relevance 100 percent 11/11 and other metrics 12/12.](../../assets/portal/steps/eval-v2-result.png)
 
-![Microsoft Foundry evaluation view. Locate execution status and per-row scores, errors, and omissions.](../../assets/portal/en/08-evaluations.png)
+**1 State:** Also `Completed`. **2 Relevance:** `100%`, but **11/11**. **3 Download results:** Read the missing evaluator's error in the original. Do not relabel this twelve passes or release-ready.
 
-Find your run under **Build → Evaluations** and inspect status, evaluator identity, and row-level results. `completed` does not establish that every score is valid. Errors, omissions, and missing numeric scores remain failures; never fill them with zero or a passing verdict.
+[Captioned video 04 · 04:06](../../downloads/portal/index.html?clip=04-native-evaluation&t=246&lang=en#04-native-evaluation)
 
-### 5. Explain improvements, ties, or regressions
+</div>
 
-Version one may already answer sufficiently, producing a tie; generation variability can also make version two worse. Inspect originals and reasons without weakening v1 or changing the rubric after observing results.
+Both recorded **Korean** runs generated twelve target answers and showed `Completed`. All three v1 evaluators completed 12/12, but v2 Relevance returned **Error** for `item-cap-exception-vs-total-approval`. The other two evaluators completed, so that row showed `2/2` and Relevance displayed **100%, 11/11**. This is not twelve passes.
 
-These are exposed **dev** questions, not an independent **holdout** or a generalization test. **Optimizer** candidate generation is a separate activity. Existing business gates, such as at least 90% overall and zero safety/access failures, must not be replaced or lowered by this small teaching comparison.
+Open that row's evaluator details to inspect `FAILED_EXECUTION` and `RelevanceEvaluator`'s `APIConnectionError: Connection error`. The original score, threshold, passed, and reason are **null**. Distinguish the configured default threshold 3 from the null error result; do not replace nulls with zero or a pass.
+
+Use each run's **`Download results`** link to save the genuine `results.jsonl`. Inspect the first ten rows and the two under `Next page`, matching all twelve case IDs. The [identifier-redacted twelve-pair answers and native judgments](../../downloads/portal/evaluation-summary.json) retain the error. Saved agent settings were 2048 output/low, but exported `max_completion_tokens` is null; the export does not independently establish that limit.
+
+The conclusion is **incomplete native comparison; release held**. Both approved submissions were consumed, without reruns or changes to denominators, questions, thresholds, or existing gates. English subtitles translate this Korean execution; they do not represent another run with the English dataset.
 
 ## Success criteria
 
-- **If you only read:** explain the comparison conditions and the evidence to inspect, and record **actual evaluation not run**.
-- **If you ran it:** connect all twelve v1/v2 pairs with pinned versions, native scores, judge reasons, errors, and missing rows.
-- Explain differences, ties, or regressions from evidence; never promise an improvement beforehand.
+Inspect twelve pairs, native judge reasons, and human checks, separating errors and safety failures. Portal built-in scores and this checklist are distinct from the existing business gates. Preserve **overall quality ≥90% and zero safety/access failures** and all historical validation. This small dev comparison does not establish production release, function execution, or ACL correctness.
 
 ## Troubleshooting
 
-| Symptom | Check first | Next action |
-| --- | --- | --- |
-| 401/403 | Your project, caller identity, and roles | Check only the missing role. |
-| 404 | The actual deployment name and endpoint | Compare with `.env` and the ownership record. |
-| 429 | TPM/RPM and shared traffic | Do not retry indefinitely. |
-| The collection file is failed or partial | `status` and `rows` in the collection JSON | Do not submit it to evaluation. |
-| You want to change the model or judge | Whether both instructions still share the same conditions | Do not silently change the target or judge model. |
+For missing targets, inspect saved agent/version and project. For 403, distinguish evaluation creation, judge invocation, and file access. Preserve 429/quota failures and agree a new bounded rerun separately. Do not repeat automatically until a pass.
 
 ## Cleanup
 
-Keep the response file `results/instruction-prompt-agent-en.json` and evaluation file `results/instruction-native-prompt-agent-en.json` together. Manage created agents and evaluation resources using your own ownership records and retention policy; do not delete without separate approval.
+Keep both Run IDs, settings, exported originals, and failures privately. Redact identifiers and sensitive content before sharing. Do not overwrite old results or enable continuous evaluation.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Collection/evaluation JSON files, evaluation-agent name/versions, matched originals/scores/reasons, errors, and omissions. Reading only means actual evaluation not run.
+**Keep:** Twelve v1/v2 pairs, scores, reasons, errors, human decisions, and actual improvement/regression or not-run status.
 
-**Continue:** [L09 boundary questions](#l09), returning to **L05's policy agent**, not the evaluation agent.
+**Continue:** [L09: check safety boundaries](#l09). Return to L05's `contoso-policy`, not the comparison agents.
 
 </div>

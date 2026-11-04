@@ -29,7 +29,7 @@ class LearningPathTests(unittest.TestCase):
         self.assertEqual(list(paths), ["l13", "l14", "l15", "l15-collaboration", "l16", "l17", "l21", "l22"])
         english = json.loads((ROOT / "content/learning-paths.en.json").read_text())
         self.assertEqual(list(english), list(paths))
-        self.assertEqual(paths["l14"]["mode"], "sequence")
+        self.assertEqual(paths["l14"]["mode"], "independent")
         self.assertEqual(paths["l22"]["mode"], "sequence")
         self.assertEqual(paths["l17"]["mode"], "mixed")
         self.assertTrue(all(value["requires"] for value in paths.values()))
@@ -91,13 +91,15 @@ class LearningPathTests(unittest.TestCase):
                 self.assertIn(marker, instructor)
                 self.assertNotIn(stale, instructor)
                 self.assertIn("12", instructor)
-                self.assertIn("samples/instruction_prompt_agent_lab.py", evaluation)
+                self.assertIn("evaluation-12.csv", evaluation)
+                self.assertIn("evaluation-12.jsonl", evaluation)
+                self.assertIn("{{item.query}}", evaluation)
 
-    def test_delivery_default_is_local_with_explicit_optional_hosted_prerequisite(self):
+    def test_delivery_is_portal_inspection_without_a_hosted_execution_prerequisite(self):
         paths = json.loads((ROOT / "content/learning-paths.json").read_text())
         english = json.loads((ROOT / "content/learning-paths.en.json").read_text())
-        self.assertIn("L12는 선택형", paths["l22"]["requires"])
-        self.assertIn("L12 is needed only", english["l22"]["requires"])
+        self.assertIn("Hosted는 필요 없습니다", paths["l22"]["requires"])
+        self.assertIn("No Hosted prerequisite", english["l22"]["requires"])
         for directory in ("docs", "docs/en"):
             text = (ROOT / directory / "22-delivery.md").read_text()
             with self.subTest(directory=directory):
@@ -131,9 +133,9 @@ class LearningPathTests(unittest.TestCase):
             delivery = (ROOT / directory / "22-delivery.md").read_text()
             with self.subTest(directory=directory):
                 self.assertIn('<a id="l11"></a>', actions)
-                for field in ("tool_calls", "citations", "response_id", "required_approvals", "order_submitted=false"):
+                for field in ("draft_requires_human_approval", "order_submitted=false"):
                     self.assertIn(field, actions)
-                self.assertEqual(actions.count("python samples/workshop.py capstone --live"), 1)
+                self.assertNotIn("python samples/workshop.py capstone --live", actions)
                 self.assertNotIn("workshop.py capstone --live", delivery)
                 self.assertIn("Active version", delivery)
                 self.assertIn("Publish version", delivery)

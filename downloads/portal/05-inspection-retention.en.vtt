@@ -1,0 +1,49 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:45.000
+Tools → Add → Custom → Model Context Protocol (MCP). One Connect to the official Learn endpoint with Unauthenticated: discovery only, no question.
+
+2
+00:00:45.000 --> 00:01:29.000
+Open the tool name to inspect allowed_tools and Never auto-approve. Inspected microsoft_docs_search, then canceled without Apply or agent Save.
+
+3
+00:01:29.000 --> 00:01:41.000
+Reopened policy remains saved version 4 with File search only. Project learn-docs is retained, with zero MCP tool invocations.
+
+4
+00:01:41.000 --> 00:01:52.000
+Inspect Knowledge bases / Indexes and Search prerequisites in Knowledge (Foundry IQ). No Search service, index, or knowledge base is created.
+
+5
+00:01:52.000 --> 00:02:05.000
+Memory stores (0), Setup incomplete: personal Contributor is not project managed-identity Foundry User. No Resolve or role assignment.
+
+6
+00:02:05.000 --> 00:02:13.000
+Inspect models / Advanced settings in Create memory store, then cancel before Create. No store, write, recall, isolation, or TTL-expiry test.
+
+7
+00:02:13.000 --> 00:02:25.000
+Agents → New agent → Code an agent: inspect and Cancel. No SDK installation, Hosted runtime, or container deployment.
+
+8
+00:02:25.000 --> 00:02:45.000
+Agents → Routines → Create routine. Inspect a synthetic read-only prompt and target. Create & start activates, rather than saving a disabled draft.
+
+9
+00:02:45.000 --> 00:03:03.000
+Authorization exposes agent-based and creator/user-based choices. Keep default, inspect One-time / Asia/Seoul, then cancel: zero routines or dispatches.
+
+10
+00:03:03.000 --> 00:03:18.000
+Final inventory has two manual models plus an observed automatic embedding dependency. Its cause was not independently attributed by Activity log. All retained.
+
+11
+00:03:18.000 --> 00:03:34.000
+Three detached default Web search toolboxes are also retained. Native error holds release; no Publish, pipeline, or rollback.
+
+12
+00:03:34.000 --> 00:03:53.000
+Hand off the retained learn-docs connection and resources. Closing windows is not deletion/shutdown; logging, files, and model usage can incur costs.

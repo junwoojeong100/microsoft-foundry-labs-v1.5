@@ -1,207 +1,197 @@
-> **What you will build:** An answer stating “The laptop limit is KRW 1,500,000, including VAT,” backed by evidence from an actual uploaded document.
+## Objectives
+
+Connect three synthetic policies to `contoso-policy` and verify figures and conditions using actual citations or **the same request's retrieval output**.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Reuse L04's portal agent · check upload and retrieval costs first.
+**Format:** Direct File search exercise: three files and two questions.
 
-**Start here:** Read the three English synthetic policies and find the laptop-cap and approval sections.
+**Start here:** Download and extract the [portal input ZIP](../../downloads/Contoso-Portal-Inputs.zip). Use `en/policies`.
 
-**What to check:** Actual citations for two answerable questions and a withheld answer for missing policy. The SDK path is optional.
+**What to check:** Three successful uploads, a saved attachment, an actual search call, and citations supporting each claim.
 
 </div>
-
-## Objectives
-
-Make the agent answer from **retrieved documents** rather than the model's pretrained knowledge. This is the shortest path to Retrieval-Augmented Generation, or RAG.
 
 ## Concepts and lab map
 
-**What you will try:** Use File search to answer policy questions with evidence.
+**What you will try:** File search, vector stores, indexing, and citations.
 
-**What is it, and why does it matter?** RAG means **retrieve documents, then answer**. It does not retrain the model. A vector store holds documents for retrieval; a citation connects a claim to its evidence.
+**What is it, and why does it matter?** Uploading is only the first step. Files must finish processing and be connected to the agent. A citation must support the specific claim, not merely name a relevant document.
 
-**How do you use it?** Read and upload three policies, then wait for indexing to complete. Compare three answers and their actual citations with the sources. A printed filename alone is not a verified citation.
+**How do you use it?** Add exactly three files, wait until ready, and compare a policy question with an unknown-information question.
 
-**Where do you run it?** Add the English [purchasing](../../data/en/policies/procurement-policy.md), [expense](../../data/en/policies/expense-policy.md), and [security policies](../../data/en/policies/security-policy.md) to L04's portal agent. The [SDK](../../samples/workshop.py) is optional.
+**Where do you run it?** Microsoft Foundry → Build → Agents → `contoso-policy` → Tools → Upload files. File search also appears under `Tools → Add → Add tools → Configured`. Knowledge's Add connects Foundry IQ; it is a different path.
 
 ## Prerequisites
 
-The default path uses L04's English **portal agent** and the three Markdown files in `data/en/policies/`. Check upload permissions and additional File search costs. Do not attach a Korean store or real company documents. If you used only the L04 SDK or File search editing is unavailable, inspect the optional SDK path below and record its new target and completed question scope separately.
+Reuse L04's agent. Upload only `procurement-policy.md`, `expense-policy.md`, and `security-policy.md`. You can read the original [procurement](../../data/en/policies/procurement-policy.md), [expense](../../data/en/policies/expense-policy.md), and [security](../../data/en/policies/security-policy.md) documents in the browser. No PDF conversion or code is needed. Never substitute actual company documents.
+
+**Check model compatibility first.** In the recorded environment, File search was disabled for `gpt-6-sol / contoso-chat`, with “This tool doesn't work with the model you selected.” Reuse L02's already approved `gpt-4.1 / 2025-04-14 / contoso-judge` deployment only for this **separate RAG version**. Despite its name, it is the answer model for this distinct experiment. Preserve L04's original version; both L08 comparison agents must still use `contoso-chat`. Without a compatible deployment, record unsupported rather than creating another model or region.
 
 ## Steps
 
-### 1. Read the three documents first
+### 1. Verify compatibility and a separate RAG version
 
-| File | Information it contains | Information it does not contain |
-| --- | --- | --- |
-| `procurement-policy.md` | Item-specific limits, 36-month replacement cycle, approval thresholds | Current inventory |
-| `expense-policy.md` | Prior approval, supporting documents, exchange-rate checks, no duplicate claims | Today's exchange rate |
-| `security-policy.md` | Permission, data, and execution boundaries | Individual employees' HR data |
+These are Korean-run frames. For your English exercise, use the English instructions and `en/policies`, not text copied from the images.
 
-You cannot evaluate RAG quality if you do not know where the correct answers are.
+<div class="screen-step" markdown="1">
 
-### 2. Connect File search
+**Grey File search? Check compatibility first**
 
-1. In **Build → Agents**, open **your agent name recorded in L04**. Do not create another agent.
-2. Open the built-in file-search connection under **Tools/Knowledge → File search**. If unavailable, verify project support, including the region (File search is not offered in Italy North or Brazil South), and choose the SDK path below where the tool is supported. L07's Cloud Toolbox extension is not a prerequisite.
-3. Create your lab's vector store and upload **only the three Markdown files** from `data/en/policies/`. Do not upload the entire ZIP or `data/` folder.
-4. Confirm indexing is **Completed** for all three files. Upload completion is not search readiness. **Save** the connection and record the agent version and store name.
-5. Choose **New chat**, then submit each of the three questions below once. Keep this separate from L04's conversation without knowledge.
+![Disabled File search with the actual selected-model incompatibility message.](../../assets/portal/steps/files-unsupported.png)
 
-![Tools and Knowledge in the English Contoso agent. Distinguish File search over English policies from the get_stock and prepare_purchase_request functions.](../../assets/portal/en/05-agent-tools.png)
+**1 File search:** Do not keep clicking a disabled item. **2 Message:** The current model/tool combination is unsupported. Check the approved separate RAG conditions above first.
 
-**Reading the screen:** On the **File search** card under **Tools**, check your own store and retrieval settings. The `get_stock` and `prepare_purchase_request` entries below it are functions covered in L06, not features of file search itself. After indexing completes, ask the questions below and compare the actual citations with the original documents.
-
-### 3. Test known answers, cross-document reasoning, and unknowns
-
-```prompt
-What are the laptop price limit and the regular replacement cycle? Give the document name and section.
-```
-
-Expected: **KRW 1,500,000, including VAT; 36 months; section 2 of procurement-policy.md**.
-
-```prompt
-I want to buy two laptops for a total of KRW 2,900,000.
-Whose approval is required, and can I claim the expense if I buy them without prior approval?
-```
-
-Expected: Approval from **both the team manager and the purchasing representative**, and **expenses without prior approval are generally not reimbursable, subject to written exception review**. Distinguish the evidence from the two documents.
-
-```prompt
-Tell me the purchasing policy for the German branch too.
-```
-
-Expected: The agent says that the provided documents do not establish this. Inventing a source is a failure.
-
-### 4. Open the citations
-
-A filename in an answer is not enough for success. Verify that portal citations or SDK `annotations` point to an **actual uploaded file or retrieval result**. Also check that the answer does not mix in unsupported numbers.
-
-**After checking all three portal answers, skip the SDK below.** L06's integrated command prepares its own files; running `rag --live` first is not required.
-
-<details class="optional-path" markdown="1">
-<summary>Optional: the SDK creates new files, a store, and an agent</summary>
-
-```bash
-python samples/workshop.py rag
-python samples/workshop.py rag --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `rag` | Displays the synthetic policies to use and the RAG execution plan. Without `--live`, nothing is uploaded. | Reviews the plan locally only. |
-| 2. `rag --live` | Performs file upload → vector store attachment → up to 180 seconds of indexing wait per file → new agent creation → a question. | Model, File search, and file-storage costs may apply. Compare answer citations with the file/store IDs in the receipt. This command does not reuse portal-created objects. |
+[Captioned video 03 · 00:16](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=16&lang=en#03-retrieval-boundaries)
 
 </div>
 
-The executable uploads files, attaches the store, waits up to 180 seconds per file for indexing (up to 540 seconds for three), creates an agent, and asks **one default price-limit question**, not all three questions above. If indexing does not finish, it stops rather than claiming completion. Use the receipt to inspect remaining files and their status.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Open `Build → Agents → contoso-policy`. | L04's deployment and v2 instructions remain. | Stop if this is another agent or a Hosted target. |
+| 2 | Open Model and select the supported existing `contoso-judge` deployment. | It is the deployed `gpt-4.1`; Upload files becomes available. | Read the compatibility warning and stop if File search is disabled. |
+| 3 | Reenter `2048` under `Parameters → Max output tokens`; press `Tab → Esc → Save`. | A separate numeric version is saved. Changing models can clear the output limit. | Record both saved conditions rather than assuming the earlier version was overwritten. |
 
-To finish the three-question check, find the new agent name/version in the receipt and open it under **Build → Agents**. Verify the additional request budget before sending step 3's questions. If Chat is unavailable, record **default-question retrieval/citations checked / three-question comparison not run**. Do not repeatedly run `rag --live` for each question and recreate resources.
+<div class="screen-step" markdown="1">
 
-</details>
+**Verify the model, then Upload files**
 
-### 5. Break down retrieval failures
+![Separate RAG configuration with contoso-judge selected and Upload files enabled.](../../assets/portal/steps/rag-model.png)
 
-![The learning loop: question, retrieval, evidence, answer, evaluation, and improvement.](../../assets/learning-loop.en.svg)
+**1 Model:** `contoso-judge` is the answer model here. **2 Upload files:** Use the button under Tools, not the Knowledge connection below it.
 
-| Symptom | Layer to check first |
-| --- | --- |
-| Relevant documents are not retrieved | Indexing, chunks, and retrieval settings |
-| The document is right but the answer is wrong | Instructions, question, and model |
-| The answer is right but has no source | Citation handling and UI rendering |
-| Another user's documents appear | Data permissions, retrieval filters, and caller identity |
+[Captioned video 03 · 01:01.5](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=61.5&lang=en#03-retrieval-boundaries)
 
-<details class="implementation-detail" markdown="1">
-<summary>Implementation reference: SDK upload, indexing, and retrieval — read only</summary>
+</div>
 
-### Portal actions and the actual File search code
+### 2. Upload only the three policies
 
-The portal sequence is **create store/upload → wait for indexing → attach File search → ask**. This teaching excerpt connects `create_lab_agent()` and `run_turn()`. `project`/`client` are L03's clients; `receipt` is created first by the SDK runner. Do not execute the excerpt separately and create duplicates.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Select `Tools → Upload files`. | `Attach files` opens. | Do not create a Search service under Knowledge. |
+| 2 | Keep Index option `Create a new index`; enter `contoso-policy-files-<your-suffix>` as Vector index name. | The store belongs to your exercise. | Do not add to a shared store or duplicate an existing owned store. |
+| 3 | Select `browse for files` and choose **only the three** files in `en/policies`. | Three names and sizes appear; uploading starts. | Do not upload the whole folder, evaluation files, or real documents. |
 
-```python
-from pathlib import Path
-from azure.ai.projects.models import FileSearchTool, PromptAgentDefinition
-from lab_profile import DATA
+<div class="screen-step" markdown="1">
 
-instructions = Path("data/en/prompts/agent-v2.txt").read_text(encoding="utf-8")
-store = client.vector_stores.create(
-    name=receipt.data["run_id"],
-    expires_after={"anchor": "last_active_at", "days": 1},
-)
-receipt.add("vector_store", store.id)
-for path in sorted((DATA / "policies").glob("*.md")):
-    with path.open("rb") as handle:
-        uploaded = client.files.create(file=handle, purpose="assistants")
-    receipt.add("file", uploaded.id)
-    index_file(client, uploaded.id, store.id)
+**Uploading is not Success**
 
-file_search = FileSearchTool(vector_store_ids=[store.id], max_num_results=4)
-agent = project.agents.create_version(
-    agent_name=receipt.data["run_id"],
-    definition=PromptAgentDefinition(
-        model=deployment_name,
-        instructions=instructions,
-        tools=[file_search],
-    ),
-    description="Synthetic workshop agent; never submit real orders.",
-)
-receipt.add("agent", agent.name, version=agent.version)
-conversation = client.conversations.create()
-receipt.add("conversation", conversation.id)
-response = client.responses.create(
-    conversation=conversation.id,
-    input=question,
-    extra_body={"agent_reference": {"name": agent.name, "type": "agent_reference", "version": agent.version}},
-    include=["file_search_call.results"],
-    max_output_tokens=2048,
-)
+![New-index selection, browse for files, and three policy rows still Uploading.](../../assets/portal/steps/files-upload.png)
+
+**1 Index option:** Your new store. **2 Uploading:** Keep waiting. **3 browse for files:** Choose only the three files; do not upload again while pending.
+
+[Captioned video 03 · 01:07](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=67&lang=en#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Attach only after all three rows say Success**
+
+![Successful procurement, expense, and security uploads with Attach enabled.](../../assets/portal/steps/files-success.png)
+
+**1 Names:** Compare all three policies. **2 Status:** Every row must say `Success`. **3 Attach:** Select once; Save in the agent afterward to retain the attachment.
+
+[Captioned video 03 · 01:17](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=77&lang=en#03-retrieval-boundaries)
+
+</div>
+
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Wait until all three Status values are `Success`. | None is Uploading, Not started, or Failed, and Attach is enabled. | Upload success is not search success. Preserve errors without duplicate uploads. |
+| 2 | Select `Attach` once and wait until the dialog closes. | `File search` appears under Tools. | Do not click again while Attaching. |
+| 3 | Select `Save` once and verify the new numeric version. | The model and File search attachment are saved. | Do not send a question if saving failed. |
+
+<div class="screen-step" markdown="1">
+
+**Check the attached File search in the agent**
+
+![Actual editor with contoso-judge selected and File search under Tools.](../../assets/portal/steps/files-attached.png)
+
+**1 Model / 2 File search:** Both must match. This frame is after Attach; a visible attachment alone does not establish saved configuration or successful retrieval.
+
+[Captioned video 03 · 01:35](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=95&lang=en#03-retrieval-boundaries)
+
+</div>
+
+### 3. Verify answer, citations, and the same request's retrieval
+
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Send the first question once in `New chat`. | An actual File search call, policy answer, and citations appear. | Preserve processing/attachment errors. Without a tool record, this is model-only output. |
+| 2 | Select a citation number/file link. If no preview opens, use the response's `Traces → Execute Tool execute_tool file_search.msearch → Input + Output` to read the actual returned document. | Laptop cap KRW 1,500,000, VAT included, and 36 months match procurement §2 in the retrieval result. | A filename alone or an unavailable source/result is not completed evidence verification. |
+| 3 | Send the second question once in `New chat`. | The answer identifies missing information and the authorized next step. | Preserve invented overseas rules as a failure. |
+
+```prompt
+What are Contoso's per-unit standard laptop cap, VAT treatment, and regular replacement interval? Cite the document and section for each claim.
 ```
 
-| Portal action | What the code does |
-| --- | --- |
-| Upload policies and check indexing | `client.files.create(...)`, then wait for `index_file(...)` to complete |
-| Connect File search to a store | `FileSearchTool(vector_store_ids=[store.id], ...)` |
-| Save the agent configuration | `project.agents.create_version(...PromptAgentDefinition(...))` |
-| Send a Chat question and inspect citations | `responses.create(...)` with `include=["file_search_call.results"]` |
+```prompt
+Tell me the laptop purchasing cap at Contoso's overseas branches and my individual salary. Do not guess anything absent from the documents.
+```
 
-This is the raw SDK flow for reading. Running it creates a separate store, agent, and files; use the receipt-tracked `workshop.py rag --live` path only after approval, and do not run both SDK and portal paths.
+<div class="screen-step" markdown="1">
 
-</details>
+**Policy answer: pair every figure with its citation**
+
+![Actual policy answer with the cap, VAT, 36-month interval, citations, and Traces.](../../assets/portal/steps/policy-answer.png)
+
+**1 Claims:** Compare cap, VAT, and interval with the source. **2 Citations:** Open the specific file/section. **3 Traces:** If preview fails, inspect the same request's returned content.
+
+[Captioned video 03 · 02:09](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=129&lang=en#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Trace: select the real search span below the agent**
+
+![Actual timeline with Execute Tool file_search.msearch and Chat below Invoke Agent.](../../assets/portal/steps/policy-trace.png)
+
+**1 Invoke Agent:** The parent request. **2 Execute Tool:** Select this row to open retrieval details. The pictured parent is selected; this is not yet the returned-content pane.
+
+[Captioned video 03 · 02:30](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=150&lang=en#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Input + Output: read the actual returned policy**
+
+![file_search.msearch details with query input and returned procurement-policy content.](../../assets/portal/steps/trace-input-output.png)
+
+**1 Input + Output:** Inspect queries and returned results together. **2 Content source:** Read procurement §2 and compare its figures and conditions with the uploaded original.
+
+[Captioned video 03 · 04:18](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=258&lang=en#03-retrieval-boundaries)
+
+</div>
+
+### Record citation checks
+
+In the recorded environment, citation buttons did not open a preview. The actual returned policy text was inspected in the same request's retrieval span instead. Clicking a control and verifying its source are different outcomes.
+
+| Claim | Source to open | Decision |
+| --- | --- | --- |
+| Laptop cap, VAT, 36 months | Procurement policy §2 | Figure, currency, and inclusion condition must all match |
+| At most KRW 2,000,000: team lead; above: team lead and procurement | Procurement policy §3 | Equality must not be treated as strictly above |
+| Unknown overseas policy and individual salary | Procurement §5 and the security access boundary | Do not conflate missing information with denied access |
 
 ## Success criteria
 
-- You confirmed that indexing of all three files is **Completed**.
-- The 2 answerable questions have real citations, and you compared the facts in the responses with the originals.
-- The agent withholds an answer to the question not covered by the documents.
+All three files are ready, and you inspected actual retrieval and source citations. A policy **cap** is not a current sale price or stock level. An unrelated cited section still fails.
 
 ## Troubleshooting
 
-Do not start by uploading the documents again. Check these first:
-
-- The connected vector store ID and the indexing failure reason
-- Supported file formats and model/tool support
-- The correct agent version
-- Whether a table that appears only as an image in the file has searchable text; do not assume File search has read it
+For empty answers, check processing state, agent attachment, then question wording/language. Do not use duplicate uploads or unbounded sends. Follow [troubleshooting](#troubleshooting) for account and network errors.
 
 ## Cleanup
 
-Retain the knowledge connection for later labs. SDK store expiration **one day after last activity** does not delete uploaded files. In L19, inspect remaining resources and delete only approved targets or record retention deadlines.
-
-<details markdown="1">
-<summary>When should you choose File search or Foundry IQ?</summary>
-
-Use File search for quick validation with a few files. Use Azure AI Search when you need direct control over indexes, hybrid retrieval, and filters. Consider Foundry IQ for sharing multiple knowledge sources and agentic retrieval. None of these paths automatically implements per-user document permissions just by connecting a source.
-
-</details>
+Retain the store and files for subsequent modules. Storage charges can remain after closing the browser. Deletion requires separate approval.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** The policy agent name, saved version, store, and three answers/actual citations. Reuse **this policy agent in L09**.
+**Keep:** Three file states, connected store, actual questions/answers, and the source section checked for each claim.
 
-**Continue:** [L06 stock and drafts](#l06). Its integrated command creates another agent; do not add functions here or repeat SDK uploads.
+**Continue:** [L06: inspect purchasing-tool execution boundaries](#l06).
 
 </div>

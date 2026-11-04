@@ -663,7 +663,9 @@ class DeferredImageTests(unittest.TestCase):
             text = (ROOT / html).read_text(encoding="utf-8")
             figures = text.count("<figure")
             self.assertGreater(figures, 10)
-            self.assertEqual(len(re.findall(r'<figure[^>]*><img [^>]*loading="lazy" decoding="async"', text)), figures)
+            self.assertEqual(len(re.findall(
+                r'<figure[^>]*>(?:<a\b[^>]*>)?<img [^>]*loading="lazy" decoding="async"', text,
+            )), figures)
 
 
 class PackagingTests(unittest.TestCase):
@@ -706,7 +708,7 @@ class PackagingTests(unittest.TestCase):
             published.write_bytes(b"previous verified kit")
             with patch.dict(package_guide.RELEASE, {"archive": "downloads/kit.zip"}), \
                     patch.object(package_guide, "collect_files", return_value=[]), \
-                    patch.object(package_guide, "load_portal_captures", return_value=[]), \
+                    patch.object(package_guide, "load_guide_captures", return_value=[]), \
                     patch.object(package_guide, "write_archive", side_effect=lambda target, files: target.write_bytes(b"partial")), \
                     patch.object(package_guide, "verify_archive", side_effect=ValueError("verification failed")), \
                     patch.object(sys, "argv", ["package_guide.py"]):

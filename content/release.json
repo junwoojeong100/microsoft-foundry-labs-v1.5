@@ -5,6 +5,11 @@
   "site_url": "https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/",
   "pages_branch": "main",
   "archive": "downloads/Contoso-Foundry-Hands-on-2026-10-15.zip",
+  "learner_workflow": "portal-only",
+  "portal_revision": "2026-11-04",
+  "portal_inputs": "downloads/Contoso-Portal-Inputs.zip",
+  "portal_recordings": "downloads/portal/index.html",
+  "portal_step_manifest": "portal-steps.json",
   "languages": {
     "en": {
       "label": "English",
@@ -13,10 +18,10 @@
       "readme": "README.md",
       "portal_manifest": "portal-screenshots.en.json",
       "portal_screenshots": 16,
-      "shell_blocks": 85,
-      "commands": 151,
-      "prompt_blocks": 11,
-      "settings_blocks": 2,
+      "shell_blocks": 0,
+      "commands": 0,
+      "prompt_blocks": 17,
+      "settings_blocks": 0,
       "receipt_html": "data/en/receipt.html"
     },
     "ko": {
@@ -26,10 +31,10 @@
       "readme": "README.ko.md",
       "portal_manifest": "portal-screenshots.json",
       "portal_screenshots": 15,
-      "shell_blocks": 83,
-      "commands": 146,
-      "prompt_blocks": 11,
-      "settings_blocks": 2,
+      "shell_blocks": 0,
+      "commands": 0,
+      "prompt_blocks": 17,
+      "settings_blocks": 0,
       "receipt_html": "data/receipt.html"
     }
   },

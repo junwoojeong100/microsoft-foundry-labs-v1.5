@@ -1,259 +1,159 @@
-> **완성할 결과:** 같은 Contoso 구매 질문을 순차·동시 실행으로 처리하고, 앞사람의 답을 전달하는 방식과 독립 분담의 차이를 설명합니다.
+## 목표
+
+두 역할의 검토를 포털 Chat에서 직접 비교합니다. **사람이 복사·전달하는 수동 실험**이며 SDK의 순차·동시 orchestration 실행은 아닙니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 로컬에서 Microsoft Agent Framework orchestration을 실행하고 승인된 Microsoft Foundry 모델을 호출합니다. Hosted 배포는 하지 않습니다.
+**진행 방식:** 역할별 Prompt Agent의 수동 비교, 기본 4회·선택 변경 포함 최대 6회 전송.
 
-**먼저 할 일:** 별도 심화 환경을 준비하고 L02의 TPM/RPM 확인을 마친 뒤 실행할 패턴 하나의 계획을 읽습니다.
+**먼저 할 일:** 같은 모델·합성 문맥·질문을 쓰는 두 검토 역할을 준비합니다.
 
-**확인할 결과:** 실제 참여 역할·전달 순서·모델 호출 수·답변·토큰·시간을 비교합니다. 에이전트의 답변은 업무 승인이 아닙니다.
+**확인할 결과:** 독립 입력과 앞 답변을 전달한 입력의 실제 차이, 호출 수, 결과와 한계.
 
 </div>
-
-## 목표
-
-**같은 역할도 연결 방식에 따라 다르게 동작함을 경험합니다.** 여러 에이전트를 쓰는 것이 항상 더 빠르거나 정확하다는 뜻은 아닙니다.
-이 모듈은 `agent_framework.orchestrations`의 공식 Builder를 사용합니다. Microsoft Foundry 포털 Workflows와는 다른 코드 기반 실행이며, 포털 Workflows는 **2026-12-01 종료 예정**입니다.
 
 ## 개념과 실습 지도
 
-**경험할 기능:** `SequentialBuilder`와 `ConcurrentBuilder`로 순차·동시 실행을 비교합니다.
+**경험할 기능:** 순차 전달과 독립 분담의 차이를 관찰하는 Chat 비교.
 
-**무엇이며 왜 중요한가요?** 오케스트레이션은 누가 다음에 작업할지와 어떤 대화·결과를 전달할지 정합니다. 순차는 연결, 병렬은 분담, 그룹 채팅은 반복 검토, 핸드오프는 담당자 전환에 적합합니다.
+**무엇이며 왜 중요한가요?** 앞 답을 넘기면 검토가 연결되지만 오류도 전파될 수 있습니다. 독립 검토는 입력을 분리합니다. 사람이 창 두 개를 연다고 런타임 병렬 실행이 되는 것은 아닙니다.
 
-**어떻게 사용하나요?** 같은 정책·질문에서 `--mode`만 바꾸고 역할 순서와 실제 출력을 비교합니다. 검토 후 수정·담당자 전환은 [L14](#l15-collaboration)에서 별도로 진행합니다.
+**어떻게 사용하나요?** 같은 질문을 두 역할에 따로 보낸 뒤, 첫 답을 명시적으로 복사해 두 번째 역할의 검토와 비교합니다.
 
-**어디서 실행하나요?** [multi_agent.py](../samples/multi_agent.py)를 별도 Python 환경에서 실행합니다. 모델만 Microsoft Azure에 있으며, 원격 A2A나 실제 업무 승인 실습은 아닙니다.
+**어디서 실행하나요?** Microsoft Foundry → Build → Agents → 각 역할의 Chat. framework·개발 환경은 사용하지 않습니다.
 
 ## 준비
 
-L01에서 내가 만든 프로젝트·모델·`.env`·`results/azure-environment.json`을 사용합니다. 프로젝트·언어·배포 이름이 다르면 진행하지 않습니다.
-L13·L14는 **chat 배포만** 사용합니다. 한 명 기준 최소 권장값은 **100,000 TPM / 60 RPM**이며, 산정 가정과 설정 방법은 [L02](#l02-capacity)에 있습니다.
+두 역할은 같은 `contoso-chat`, 도구·Memory 없음, L08의 [공통 Instructions 전체](../downloads/portal-inputs/ko/agent-v2-with-context.txt)를 사용합니다. 아래 이름과 역할 문장만 다르게 합니다.
 
-심화 SDK는 `requirements-advanced.txt`로 분리합니다. `agent-framework-foundry==1.13.1`은 `azure-ai-projects<2.7.0`을 요구하므로 기본 코스의 SDK 환경과 섞지 않습니다. `agent-framework-orchestrations==1.2.0`도 함께 설치합니다.
-
-### 먼저 경로 정하기
-
-| 지금 상태 | 진행할 단계 | 남길 결과 |
-| --- | --- | --- |
-| Microsoft Azure 승인 없음 | 1단계 환경 준비 → 3단계 계획 읽기 | 역할·최대 호출 수 설명. 실제 응답은 미실행 |
-| 모델·소유 기록·비용 승인 있음 | 1 → 2 → 3 → 4 → 5 | 같은 질문의 순차·동시 응답과 비교표 |
-
-L01·L02의 `.env`와 자신의 소유 기록을 재사용하며 Hosted·Search는 필요하지 않습니다. **L06과 달리 실제 재고 함수는 호출하지 않고, 정책과 질문을 SDK agent 역할별로 검토하는 실습**입니다.
+| Name | 공통 Instructions 맨 앞에 덧붙일 문장 |
+| --- | --- |
+| `contoso-policy-review` | 정책 근거와 미확인 정보를 검토한다. |
+| `contoso-budget-review` | 금액·상한·승인 경계를 검토한다. |
 
 ## 실행
 
-### 1. 별도 SDK 환경 준비하기
+사진은 기존 Prompt Agent 녹화의 **조작 위치 예시**입니다. 두 검토 역할의 생성·비교 결과는 촬영하지 않았습니다. 화면 속 기본 이름·답변 대신 위 역할명과 내 실제 결과를 사용합니다.
 
-```bash
-python3.13 -m venv .venv-advanced
-.venv-advanced/bin/python -m pip install -r requirements-advanced.txt
-.venv-advanced/bin/python -m pip check
-```
+### 1. 두 역할을 만들고 같은 조건으로 저장
 
-<div class="command-explanation" markdown="1">
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `Build → Agents → New agent`에서 Prompt 생성 폼을 열고 위 역할명 하나를 입력합니다. `Text`로 생성하고 다른 역할도 같은 방식으로 준비합니다. | 서로 다른 Name의 Prompt Agent 두 개입니다. | 기존 대상을 덮어쓰거나 Copilot harness·Voice·Code agent로 바꾸지 않습니다. |
+| 2 | 두 대상 모두 `contoso-chat`을 고르고 공통 Instructions 전체 앞에 각 역할 문장만 붙입니다. | 문맥은 동일하고 역할 문장만 다릅니다. | 한쪽에 정책 문맥이 빠졌으면 비교를 시작하지 않습니다. |
+| 3 | L04처럼 자동 도구를 분리하고 Memory 없이 L08과 같은 출력 설정을 저장합니다. | 두 대상의 실제 저장 version과 같은 설정을 기록했습니다. | `Save` 전후 버전을 혼동하거나 `Publish`하지 않습니다. |
 
-**명령 해설**
+<div class="screen-step" markdown="1">
 
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `python3.13 -m venv` | 기본 SDK와 별도의 심화 환경을 만듭니다. | 로컬 환경 생성. 기존 환경을 덮어쓰지 않습니다. |
-| 2. `pip install -r requirements-advanced.txt` | Microsoft Foundry 연동과 네 가지 orchestration Builder의 호환 조합을 설치합니다. | 패키지 다운로드만 수행하며 Microsoft Azure를 호출하지 않습니다. |
-| 3. `pip check` | 같은 심화 환경의 의존성을 확인합니다. | 충돌하면 실행 전에 해결합니다. |
+**생성 폼: 자동 이름을 내 역할명으로 교체**
 
-</div>
+![Prompt Agent 생성 폼의 Agent name, Text 모드와 생성 버튼 위치.](../assets/portal/steps/agent-create-form.png)
 
-기존 심화 환경이 다른 Python 버전이면 새 폴더에 환경을 만듭니다.
+**1 Agent name:** 위 표의 역할명으로 바꿉니다. 사진의 자동 이름을 복사하지 않습니다. **2 Text:** 두 역할 모두 같은 모드입니다. **3 생성:** 각각 한 번 생성한 뒤 설정합니다. 사진은 비교 agent 준비 당시의 폼이며 검토 역할의 생성 증거는 아닙니다.
 
-<details class="environment-option" markdown="1">
-<summary>내 PC의 Windows PowerShell에서 진행할 때만</summary>
-
-환경 생성에는 `py -3.13`, 이후 실행에는 `.venv-advanced\Scripts\python.exe`를 사용합니다. Codespaces에서는 위 Bash 명령을 그대로 사용합니다.
-
-</details>
-
-### 2. 모델 처리량 확인하기
-
-```bash
-.venv-advanced/bin/python samples/model_capacity.py plan --roles chat
-.venv-advanced/bin/python samples/model_capacity.py check --roles chat --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `model_capacity.py plan --roles chat` | 한 명이 한 실습을 진행하는 조건의 chat TPM/RPM 계획을 봅니다. | 로컬 계산이며 Microsoft Azure 호출은 없습니다. |
-| 2. `check --roles chat --live` | 소유 RG와 실제 배포의 `rateLimits`를 조회합니다. | 읽기 전용입니다. 최소치 미달이면 실패하며 모델 호출은 하지 않습니다. |
+[자막 영상 04 · 00:01.5](../downloads/portal/index.html?clip=04-native-evaluation&t=1.5&lang=ko#04-native-evaluation)
 
 </div>
 
-미달이면 자신의 변경 권한·quota·비용 범위를 확인하고 L02의 `apply`로 보정합니다. 이미 충분한 배포는 줄이지 않습니다. live 명령도 실제 한도를 재확인하므로 오래된 결과만 믿고 호출하지 않습니다.
+<div class="screen-step" markdown="1">
 
-### 3. 순차와 동시 실행의 계획 읽기
+**탐색 예시: 역할별 모델과 Instructions를 넣는 위치**
 
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode concurrent
-```
+![기본 정책 agent의 Model과 Instructions 위치를 재사용한 탐색 예시.](../assets/portal/steps/agent-instructions.png)
 
-<div class="command-explanation" markdown="1">
+**1 모델:** 두 역할에서 같게 맞춥니다. **2 Instructions:** 준비 절의 공통 문맥과 각 역할 지시를 넣습니다. 그림은 **기본 agent 녹화의 재사용**이며 두 역할 생성·비교의 실제 결과가 아닙니다.
 
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `multi_agent.py --mode concurrent` | 선택한 패턴의 역할과 호출 상한을 읽습니다. 아래 다른 mode도 같은 방식으로 계획을 볼 수 있습니다. | `--live`가 없으면 SDK 초기화·Microsoft Azure 요청·실행 기록 생성이 없습니다. |
+[자막 영상 02 · 02:04.5](../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=ko#02-model-agent)
 
 </div>
 
-| mode | 실제 Builder | 흐름 | 모델 호출 상한 |
-| --- | --- | --- | ---: |
-| `sequential` | `SequentialBuilder` | 작성자 → 검토자 | 2 |
-| `concurrent` | `ConcurrentBuilder` | 정책·금액·위험 검토를 병렬 수행 → 결과 모음 | 3 |
+<div class="screen-step" markdown="1">
 
-이 장은 위 두 패턴만 진행합니다. **GroupChatBuilder·HandoffBuilder는 L14**에서 같은 환경을 이어 사용하므로 지금 실행할 필요가 없습니다.
+**저장 후: 내 역할의 version을 각각 적기**
 
-모든 패턴은 **180초, 응답당 최대 2,048토큰, 재시도 0회**입니다. 같은 배포에 여러 터미널을 동시에 실행하지 않습니다.
-한 실행 안에서는 요청 시작을 최소 1초 간격·분당 최대 6회로 제한합니다. 다음 패턴은 **이전 실행을 시작한 뒤 1분 이상 지난 후** 진행하세요. 다른 학습자와 배포를 공유하면 L02에서 동시 학습자 수를 반영합니다.
+![Prompt Agent 상단의 Version, Save와 Publish 위치를 보여 주는 설정 예시.](../assets/portal/steps/agent-version-bar.png)
 
-### 4. 패턴을 하나씩 실행하고 결과 읽기
+**1 Version / 2 Save:** 내 역할의 실제 저장 숫자를 확인합니다. 사진의 기본 agent `2`를 그대로 적지 않습니다. **3 Publish:** 이번 수동 비교에는 필요하지 않습니다.
 
-각 명령은 새 모델 호출입니다. 하나를 실행하고 결과를 읽은 뒤 다음 패턴으로 넘어갑니다. 이 장의 두 패턴은 합계 **최대 5회**, L14의 두 패턴까지 선택하면 합계 **최대 12회** 호출입니다.
-
-**순차:** 검토자의 입력에 작성자의 실제 초안이 전달되는지 확인합니다.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode sequential --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `--mode sequential --live` | 같은 정책·대화를 작성자와 검토자에게 순서대로 전달합니다. | 최대 2회 모델 호출. 실제 중간·최종 답을 보존합니다. |
+[자막 영상 02 · 02:04.5](../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=ko#02-model-agent)
 
 </div>
-
-**병렬:** 세 역할은 서로의 답을 먼저 읽지 않습니다. 합쳐진 결과가 자동 합의나 하나의 검증된 정답은 아닙니다.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode concurrent --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `--mode concurrent --live` | 정책·금액·위험 담당자가 같은 질문을 독립적으로 처리합니다. | 최대 3회 호출. 시작 간격은 지키되 진행 중인 작업은 겹칠 수 있습니다. |
-
-</div>
-
-두 명령이 출력한 **`Evidence:` 파일을 편집기로 각각 엽니다.** 순차 결과에서는 `paths.sequential.stages`의 작성자 답과 검토자 입력을 연결합니다. 동시 결과에서는 `paths.concurrent.stages`의 세 역할이 서로의 답을 기다리지 않았는지 `input_authors`와 입력 원문으로 확인합니다. 구현은 `samples/multi_agent.py`의 `build_workflow`에 있습니다.
-
-### 5. 전달·종료·비용을 비교하기
 
 <div class="practice-block" markdown="1">
 
-**직접 해보기:** 반환된 `paths`와 `Evidence:` 파일에서 다음 항목을 찾습니다. 예시값이 아니라 자신의 결과를 적습니다.
+### 2. 독립 검토: 같은 질문만 각각 입력
 
-| 항목 | 확인할 내용 |
-| --- | --- |
-| `paths.<mode>.stages` | 실제 호출별 역할·답·응답 ID·토큰 |
-| `input_authors`, `input_sha256` | 어떤 대화가 전달됐는지 확인할 단서 |
-| `model_call_completed` 이벤트의 `payload.input` | 실제 입력 메시지와 지침. 순차에서는 작성자의 답이 검토자에게 전달됨 |
-| `elapsed_seconds`, `total_tokens` | 실행 시간·호출 합계. 사용량 `null`은 0이 아닙니다. |
-| `final_messages`, `workflow_state` | 동시 실행의 최종 결과 모음과 종료 상태 |
+**직접 해보기:** 아래 질문을 두 역할의 **새 Chat에 각각 1회** 보냅니다. 두 번째 역할에는 첫 번째 답을 아직 전달하지 않습니다.
 
-**한 가지 바꾸기:** 추가 호출을 승인받았다면 같은 mode에서 `--case boundary`만 추가합니다. 정확히 200만 원과 200만 1원의 승인 경계를 비교합니다. 모델·정책·역할 지침은 함께 바꾸지 않습니다.
+```prompt
+수동 검토용 합성 자료입니다. NB-14 2개, 제공 단가 1,450,000원, 제공 총액 2,900,000원입니다. 실제 재고 조회·초안 저장 결과가 아닙니다. 가격 상한과 필요한 승인을 검토하고, 미확인 정보와 실행하지 않은 것을 구분해주세요.
+```
 
-**결과 설명하기:** `선택한 패턴 / 전달 순서 / 빠진 내용 / 종료 조건 / 추가 토큰·시간 / 이 패턴을 사용할 이유`를 적습니다. 금액·승인·미실행 주장을 정책과 대조하며, 에이전트 수가 많다는 이유로 품질 향상을 가정하지 않습니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 정책 검토 agent의 새 Chat에 공통 질문을 보냅니다. | 정책 §2·§3과 미확인 실행을 구분합니다. | 원문과 실제 인용 ID를 보존합니다. |
+| 2 | 금액 검토 agent의 새 Chat에 **같은 질문만** 보냅니다. | 2,900,000원과 팀장+구매 담당자를 검토합니다. | 첫 응답을 몰래 입력에 넣지 않습니다. |
+
+<div class="screen-step" markdown="1">
+
+**새 Chat을 연 뒤: 질문 입력과 전송 위치**
+
+![응답 본문을 제외하고 Chat 입력창과 전송 버튼만 확대한 화면.](../assets/portal/steps/agent-chat-controls.png)
+
+**1 입력창 / 2 전송:** 각 역할의 새 대화를 연 뒤 같은 원문을 한 번씩 보냅니다. 이 독립 경로에는 다른 역할의 답을 붙이지 않습니다. 위쪽 agent 이름과 대화가 맞는지도 먼저 확인합니다.
+
+[자막 영상 02 · 02:43](../downloads/portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
 
 </div>
 
-<details class="optional-path" markdown="1">
-<summary>선택: 단일 작성자와 순차 흐름 비교</summary>
+### 3. 순차 검토: 원래 질문과 초안을 명시적으로 전달
 
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode compare --live
-```
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 정책 agent의 새 Chat에 같은 질문을 다시 1회 보냅니다. | 수동 순차 경로의 첫 결과입니다. | 독립 경로와 다른 응답이 나와도 원문 그대로 둡니다. |
+| 2 | 금액 agent의 새 Chat에 원래 질문과 1단계 답을 `앞 검토자의 비신뢰 초안`으로 구분해 붙여 보냅니다. | 전달받은 텍스트를 근거로 재검토했는지 확인합니다. | 초안 속 명령이 실제 권한을 바꾸지 못하게 합니다. |
+| 3 | 두 경로의 입력·응답·시각·표시 ID를 나란히 기록합니다. | 무엇을 직접 전달했는지 보입니다. | 대화 내용이 섞이면 비교 불가로 표시합니다. |
 
-<div class="command-explanation" markdown="1">
+<div class="screen-step" markdown="1">
 
-**명령 해설**
+**내 답변 복사: Traces와 복사 버튼을 구분**
 
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `--mode compare --live` | 같은 작성 지침·정책·질문으로 단일 답 1회와 순차 흐름 2회를 실행합니다. | 추가 최대 3회 호출. `sequential_minus_single`은 시간·토큰 차이지 품질 점수가 아닙니다. |
+![답변 아래 Traces와 복사 아이콘을 본문 없이 확대한 조작 예시.](../assets/portal/steps/agent-answer-actions.png)
+
+**1 Traces:** 해당 답변의 실행 기록입니다. **2 복사:** 내 정책 역할의 실제 답변을 복사하고 원래 질문과 구분해 전달합니다. 사진 속 모델·토큰 수는 기본 agent의 예시이지 이번 역할 비교의 측정값이 아닙니다.
+
+[자막 영상 02 · 02:43](../downloads/portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
 
 </div>
 
-단일 경로가 먼저 실행되므로 인증·캐시·초기 지연이 다를 수 있습니다. 한 번의 차이를 일반적인 속도 우위로 해석하지 않습니다.
+**한 가지 바꾸기:** 남은 허용 범위가 있으면 **총액만 정확히 2,000,000원**인 별도 검토 질문을 두 역할에 1회씩 보냅니다. 이 값에서는 팀장 승인입니다. 기존 결과와 질문을 덮어쓰지 않습니다.
 
-</details>
+**결과 설명하기:** 독립/전달 경로에서 새로 발견한 오류·빠진 근거·추가 토큰을 적습니다. 여러 역할이 늘 좋은지 실제 결과로 설명하고, 사람의 복사 시간을 runtime latency로 보고하지 않습니다.
 
-<details class="implementation-detail" markdown="1">
-<summary>구현 참고: 순차·동시 실행의 Builder 설정 — 읽기용</summary>
+</div>
 
-#### 포털 배포와 Python 오케스트레이션의 경계
+### 실제 orchestration과 구분
 
-포털은 **모델 배포**를 제공하지만 L13의 순차·동시 workflow 그래프를 설정하지 않습니다. 그 순서는 Python Agent Framework 코드가 만듭니다.
+`SequentialBuilder`와 `ConcurrentBuilder`는 Microsoft Agent Framework의 코드 기반 실행 경로입니다. 이 장은 이를 실행하지 않습니다. 포털 Workflows와 in-portal execution은 **2026-12-01 종료 예정**이므로 새 학습 경로를 그 디자이너에 의존시키지 않습니다.
 
-```python
-from agent_framework.orchestrations import SequentialBuilder, ConcurrentBuilder
-
-sequential = SequentialBuilder(
-    participants=[drafter, reviewer],
-    intermediate_output_from=[drafter],
-).build()
-
-concurrent = ConcurrentBuilder(
-    participants=[policy_agent, budget_agent, risk],
-    intermediate_output_from=[policy_agent, budget_agent, risk],
-).build()
-```
-
-| Microsoft Foundry/코드 위치 | 무엇을 조작하나요? |
-| --- | --- |
-| Portal → Models → Deployments | Python client가 호출할 모델 배포를 선택 |
-| `build_role(...)` | 각 SDK agent의 instructions·모델 호출 역할을 정의 |
-| `SequentialBuilder` | 작성자 출력을 검토자 입력으로 전달 |
-| `ConcurrentBuilder` | 독립 역할을 동시에 실행하고 stage별 결과 수집 |
-| `.venv-advanced`의 `multi_agent.py` | orchestration을 로컬에서 만들고, 승인 시 모델 요청만 Microsoft Foundry에 전송 |
-
-위 `drafter`·`reviewer`·`policy_agent`·`budget_agent`·`risk`는 `build_role()`로 instructions와 모델 client를 지정한 SDK agent입니다. `multi_agent.py`는 선택한 mode의 Builder 하나만 실행합니다. 이 설정은 포털에서 만든 workflow가 아니라 로컬 코드이며 `Evidence:`의 실제 입력·stage·출력으로 확인합니다.
-
-</details>
+실제 동시 실행 검증에는 같은 run의 동시 구간·전달 데이터·실패 취소·호출 상한 기록이 필요합니다. 이 수동 실험에는 그 증거가 없습니다.
 
 ## 성공 기준
 
-- 순차의 실제 초안 전달과 동시 실행의 세 독립 결과를 구분합니다.
-- 선택해 실행한 패턴의 응답·시간·토큰을 설명할 수 있습니다.
-- 검토자가 동의한 것을 사람 승인이나 자동 품질 합격으로 기록하지 않았습니다.
-- 계획만 읽었다면 모델 실행은 **미실행**입니다.
+같은 질문의 독립 검토와 명시적 복사 전달을 실제 원문으로 비교했습니다. 도구 없음·수동 전달·업무 승인 아님을 표시했습니다. 결과를 SDK 순차/병렬 성공으로 합산하지 않았습니다.
 
 ## 막혔을 때
 
-| 증상 | 먼저 확인할 것 | 다음 행동 |
-| --- | --- | --- |
-| `agent_framework_orchestrations` import 오류 | 심화 환경의 설치 경로 | 기본 환경과 섞지 않습니다. |
-| TPM/RPM 미달 | L02의 처리량 | L02로 돌아갑니다. |
-| 429 | 기존 오류·한도·다른 사용자의 동시 사용 | 새 호출을 반복하지 않습니다. |
-| 입력 예산 초과·응답 잘림 | 대화 길이와 실제 응답 | 실패입니다. 결과를 꾸미거나 상한을 무작정 늘리지 않습니다. |
+새 Chat이 아닌 기존 문맥이 끼었으면 그 비교는 무효로 남깁니다. 비용 상한에 도달하면 남은 비교를 미실행으로 둡니다. 429가 나면 요청을 멈추며 quota를 임의 확장하지 않습니다.
 
 ## 정리
 
-이 모듈은 로컬 오케스트레이션과 모델 호출만 수행합니다. 다른 장에서 만든 Hosted 세션·예약은 별도이며 L19에서 정리합니다. 자신의 실행 결과는 `results/`에 보관하고 사용자·인증 정보를 공유하지 않습니다.
+두 역할은 다음 장에서 재사용할 수 있습니다. 자동 반복·대화 무한 루프·원격 A2A 연결은 만들지 않았습니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** 순차·동시의 `Evidence:` 파일과 역할별 입력/답·호출 수·토큰·시간 비교. 계획만 읽었다면 실제 모델 실행은 미실행입니다.
+**이 장에서 남길 것:** 두 경로의 실제 입력/응답, 전달한 텍스트, 호출 수, 차이와 실제 orchestration 미실행.
 
-**다음:** [L14 그룹 채팅·핸드오프](#l15-collaboration)는 **같은 `.venv-advanced`**를 사용합니다. 이 심화만 선택했다면 [L19](#l12)로 갑니다.
+**다음:** [L14 검토·담당자 전환 수동 비교](#l15-collaboration).
 
 </div>

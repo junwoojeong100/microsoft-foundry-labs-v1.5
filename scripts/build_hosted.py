@@ -41,7 +41,7 @@ def build() -> dict:
         *sorted((DATA / "policies").glob("*.md")),
         DATA / "inventory.csv",
         *[DATA / f"prompts/agent-v{version}.txt" for version in (1, 2)],
-        *[ROOT / "samples" / name for name in ("lab_profile.py", "workshop.py", "evidence.py", "cloud.py", "search_lab.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
+        *[ROOT / "samples" / name for name in ("lab_profile.py", "workshop.py", "evidence.py", "cloud.py", "search_lab.py", "policy_documents.py", "grounding.py", "request_contract.py", "hosted_runtime.py")],
         ROOT / "requirements-hosted.txt", ROOT / "THIRD_PARTY_NOTICES",
     ]
     TARGET.mkdir(parents=True, exist_ok=True)

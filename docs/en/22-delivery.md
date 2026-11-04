@@ -1,265 +1,160 @@
-> **What you will build:** A CI interpretation record, agent release manifest, rollback decision table, and model/cost checklist. Design these without deploying, and distinguish plans from execution evidence.
+## Objectives
+
+Combine actual evaluation, agent version, and sharing scope in a release decision. The default path **does not publish, switch Active version, or deploy channels**.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Advanced elective · local CI failure→repair and release/recovery design by default.
+**Format:** Read-only release inspection and failed-gate exercise. No CI execution, SDK deployment, or Hosted prerequisite installation.
 
-**Start here:** Choose a path below, then reproduce three failures in step 2's synthetic candidate-selection exercise. No actual deployment or publishing is needed to start.
+**Start here:** Find L08's actual run and evaluated agent version.
 
-**What to check:** Keep a CI interpretation, release manifest, rollback decision, and cost owner. This chapter does not require a Hosted deployment.
+**What to check:** Matching candidate/evaluated versions, gates, safety, retention, recovery evidence, and hold reasons.
 
 </div>
-
-## Objectives
-
-**Passing source checks, deploying to Microsoft Azure, and being ready for users are different decisions.** Separate them and decide which failures should block promotion or trigger a return to an approved version.
-
-**What does this add?** Practice blocking a bad promotion and choosing a recovery target when you want delivery/operations automation. This is a capability choice, not a participant-persona split. Neither documentation builds nor Teams publishing is a core completion requirement.
 
 ## Concepts and lab map
 
-**What you will try:** Prevent a failing candidate from shipping and plan recovery.
+**What you will try:** Evaluation, Versions, sharing/publishing boundaries.
 
-**What is it, and why does it matter?** CI automatically checks changes; CD deploys reviewed changes. Rollback returns to a previously approved version. Completed execution is not a quality pass.
+**What is it, and why does it matter?** One good Chat answer is not a release gate. Results cannot automatically apply to a different candidate version.
 
-**How do you use it?** Reproduce three failures and repair the candidate-selection conditions. Use existing results to write a release manifest and rollback decision. No new Hosted deployment is required.
+**How do you use it?** Gather results, target, access, and recovery plans and decide hold/separate approval required.
 
-**Where do you run it?** Work in Codespaces. Read **`.github/workflows/` in your supplied sources** to distinguish [local checks](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/validate.yml) from [separately approved execution](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/6fddd4642be0d0ac9dfee9b9b51e7b00b5cf1cde/.github/workflows/azure-validation.yml).
+**Where do you run it?** Evaluations in the Foundry portal and Agent Details/Versions/publishing information, without publishing.
 
 ## Prerequisites
 
-Use L01's environment and repository sources. **Search, Hosted, and Optimizer are not prerequisites for the default exercise.** Use L06/L12 results for a real manifest; without them, complete it as a design.
-
-### Choose your starting path
-
-| Goal | Sequence | What completion means |
-| --- | --- | --- |
-| Understand how CI blocks bad promotion | Step 1 workflow → step 2's three failures → repair function → five passes with unchanged tests | Local code exercise |
-| Prepare for operations | Above → step 3 manifest → step 4 recovery decision → step 5 owners | Release design; deployment/publishing not performed |
-| Approved live publishing | Above plus every permission, protocol, and test-scope condition in 4-1 | Record only actual version changes, publishing, and invocations separately |
-
-Edit `practice/delivery/exercise.py`, not `test_exercise.py` beside it. If the folder already exists, choose another `--output` path and update the test path to match; do not delete or overwrite the existing exercise.
+Use actual fixed twelve-question v1/v2 results from L08. Tool-free Prompt Agent comparison does not require L12 Hosted deployment. Existing SDK collections are separate historical evidence, not a new SDK validation run.
 
 ## Steps
 
-### 1. Read what runs automatically
+### 1. Inspect the existing run's target, denominator, and rows
 
-Open `validate.yml` in an editor and locate `on`, `jobs`, `needs`, and `if`. Compare the table with the actual YAML.
-
-| What to inspect | How to judge it | Next action on failure |
-| --- | --- | --- |
-| `push` / `pull_request` → `offline`, `sdk` | Document/data/code and SDK contract checks, not Microsoft Azure deployment | Read the failed job's **first error and command**, not just its final “failed” message |
-| `azure` with `needs: [offline, sdk]` | Both prerequisite checks must pass before the paid path can run | Do not call a failed/skipped job a successful deployment |
-| `workflow_dispatch`, `acknowledge_cost`, `repository_id` | Explicit opt-in and this repository's identity; forks do not inherit access | Keep the default false; do not remove repository or approval conditions for the exercise |
-| `environment`, `id-token: write` in `azure-validation.yml` | OIDC authenticates a workflow identity; Microsoft Azure roles and environment approval remain separate | Escalate branch/environment/tenant/project mismatches; do not substitute a long-lived secret |
-
-If GitHub is available, open **Actions → run → job → failed step** and locate the same items. Otherwise inspect sources and record “workflow execution unverified.” The default exercise requires neither a new push nor a paid workflow dispatch.
-
-<details class="optional-path" markdown="1">
-<summary>Reference: repository checks and documentation build — the main exercise is step 2 below</summary>
-
-The repository-wide checks below are a reference. Start with the **failure→repair exercise** to experience what CI blocks without deliberately breaking existing business code or evaluation criteria.
-
-The first line is needed only if documentation dependencies are missing. L01's base dependencies must already be installed.
-
-```bash
-python -m pip install -r requirements-docs.txt
-python scripts/build_guide.py
-FOUNDRY_LAB_LANGUAGE=ko python -m unittest discover -s tests -q
-python scripts/check_guide.py
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `pip install -r requirements-docs.txt` | Prepare the declared Markdown dependency in the current virtual environment; skip if present. | Package download/local installation; no Microsoft Azure calls. |
-| 2. `build_guide.py` | Generate both HTML/Markdown editions from sources and metadata. | Local file changes; do not edit generated output manually. |
-| 3. `FOUNDRY_LAB_LANGUAGE=ko ... unittest ... -q` | Run shared Korean-baseline tests and explicit English checks. | Local contracts, not Microsoft Azure or model quality. |
-| 4. `check_guide.py` | Check 20 modules and five reference sections, command explanations, links, and image files. | Save documentation checks to `results/documentation/`. |
-
-</div>
-
-Record success as **code/document checks passed** only. For import errors, inspect the virtual environment/requirements; for generated drift, inspect `docs/` and `content/`; for business assertions, inspect the relevant function/policy contract. Do not weaken assertions or evaluation criteria.
-
-For ZIP delivery, continue with the README build path. Artifacts under `downloads/` and the root web entry points are **separate from agent deployment artifacts**. Documentation generation supports this chapter; it is not CD evidence.
-
-</details>
-
-### 2. Fix it: completion alone must not promote a candidate
+Do not create or resubmit an evaluation. Below is the actual `contoso-compare-v2` run. Its name's `v2` is the instruction variant, distinct from saved numeric version `2`.
 
 <div class="practice-block" markdown="1">
 
-**Try it:** This pure function returns fictional version names. It changes no actual endpoint or Active version.
+**Try it:** Inspect the portal and enter actual values or `unverified` in the checklist.
 
-```bash
-python samples/prepare_practice.py delivery --output practice/delivery
-python -m unittest discover -s practice/delivery -p "test_exercise.py" -v
-```
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Open `Evaluations → actual L08 run`. | Twelve dataset rows, target agent/version/model, state. | Never exclude Partial/Failed, missing/duplicate/error rows to inflate success. |
+| 2 | Read every row's checklist and safety/access outcomes. | Quality ≥90% and zero safety/access failures remain unchanged. | Do not lower gates or edit requirements/questions after results. |
 
-<div class="command-explanation" markdown="1">
+<div class="screen-step" markdown="1">
 
-**Command walkthrough**
+**Run details: read the actual evaluated target**
 
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `prepare_practice.py delivery` | Copies a flawed function, tests, and an optional workflow template into a new folder. | Local files only; no GitHub push or Microsoft Azure deployment. |
-| 2. `unittest discover` | Separates a good candidate, failed run, quality failure, critical failure, and missing row. | Initially **three of five tests fail intentionally**. Do not hide these failures. |
+![Actual v2 run's Agent ID contoso-compare-v2:2 and Download results.](../../assets/portal/steps/eval-run-target.png)
 
-</div>
+**1 Agent ID:** Match the final number in `contoso-compare-v2:2` to the candidate. **2 Download results:** Read originals including missing/errors/nulls. Do not select Make recurring or Delete.
 
-`practice/delivery/exercise.py` chooses `candidate-2` from `status=completed` alone. A completed run with a quality failure, safety failure, or missing row must keep `approved-1`.
-
-**Change one thing:** Make candidate selection an AND of four conditions: completed status, `quality_passed is True`, zero critical failures, and zero missing rows. Change neither tests nor the original release gates. Rerun the same check and require five passes.
-
-<details markdown="1">
-<summary>Example repair — a local decision exercise, not the complete production gate</summary>
-
-<!-- solution:delivery -->
-```python
-def choose_version(previous: str, candidate: str, checks: dict) -> str:
-    if (
-        checks["status"] == "completed"
-        and checks["quality_passed"] is True
-        and checks["critical_failures"] == 0
-        and checks["missing_rows"] == 0
-    ):
-        return candidate
-    return previous
-```
-
-</details>
-
-**Explain the result:** Describe the incorrect promotion prevented by each of the three failed tests. Complete a `previous version / candidate / failure evidence / version to keep` table. This function performs neither deployment nor state migration, so do not call it completed remote rollback.
-
-**Optional: observe the same failure→repair in GitHub.** Use only a **new branch** in an approved personal training repository.
-
-1. Copy the supplied `workflow.yml` to `.github/workflows/contoso-practice.yml` and include the code/tests under `practice/delivery`.
-2. Run **Actions → Contoso local delivery practice → Run workflow** on the flawed commit. It should fail.
-3. Run it again on a commit changing only `exercise.py`. It should pass.
-
-The template has manual dispatch, read-only permissions, and Python checks—no Microsoft Azure sign-in, secrets, or deployment. Do not replace this repository's existing `validate.yml` or enable `acknowledge_cost`.
+[Captioned video 04 · 04:06](../../downloads/portal/index.html?clip=04-native-evaluation&t=246&lang=en#04-native-evaluation)
 
 </div>
 
-### 3. Write an agent release manifest
+<div class="screen-step" markdown="1">
 
-This is a **Contoso worksheet example**. Where actual identifiers/results are absent, write “not executed”; do not copy historical results as evidence for the current candidate.
+**Actual hold example: 100% still has denominator 11/11**
 
-| Manifest item | What to connect | If missing or different |
+![Actual v2 Completed result with Relevance 100 percent and 11/11.](../../assets/portal/steps/eval-v2-result.png)
+
+**1 Completed / 2 Relevance:** Neither status nor percentage alone passes the gate. **3 Download results:** Include the missing judgment's error and nulls. This comparison is incomplete; publishing, activation, and rollback were not run.
+
+[Captioned video 04 · 04:06](../../downloads/portal/index.html?clip=04-native-evaluation&t=246&lang=en#04-native-evaluation)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Detailed rows: one page is not the whole dataset**
+
+![Actual Detailed metrics result last page showing Index 10 and 11 and query.](../../assets/portal/steps/eval-detail-rows.png)
+
+**1 Index / 2 query:** Zero-based `10` and `11` are the final two rows, not a two-question dataset. Reconcile all twelve rows and evaluator errors against exported originals. Error details are not visible in this image.
+
+[Captioned video 04 · 04:15](../../downloads/portal/index.html?clip=04-native-evaluation&t=255&lang=en#04-native-evaluation)
+
+</div>
+
+### 2. Read that candidate's saved configuration and publishing boundary
+
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Open candidate `Build → Agents → Versions/Details`. | Model, Instructions, tools, version match evaluation. | Mismatch requires reevaluation/hold. |
+| 2 | If exposed, **read only** `Publish version`, `Active version`, and audience information. | Publishing and active-target switching are distinct. | No button submission, audience, or permission creation. |
+| 3 | Record sharing such as `Just you`. | Chat success is not Teams/business-channel deployment. | Add no channel permissions/consent. |
+
+<div class="screen-step" markdown="1">
+
+**Candidate configuration: the same v2 agent's actual settings**
+
+![Actual contoso-compare-v2 showing Version 2, contoso-chat, and empty Tools.](../../assets/portal/steps/eval-v2-candidate.png)
+
+**1 Version / 2 Model / 3 Tools:** Match the exact candidate to the run above. Reconcile partially visible Instructions with the complete original. Do not select Publish. Active version and sharing audience are absent in this scene and remain unverified.
+
+[Captioned video 04 · 00:53](../../downloads/portal/index.html?clip=04-native-evaluation&t=53&lang=en#04-native-evaluation)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**List reconciliation: v1 and v2 both have numeric version 2**
+
+![Actual comparison agents v1 and v2 with Version 2 and Prompt Type.](../../assets/portal/steps/agents-type-list.png)
+
+**1 Version / 2 Type:** Do not confuse the two differently named candidates. **3 New agent:** This chapter reads existing targets only; create nothing. Running does not establish publishing or business-channel deployment.
+
+[Captioned video 05 · 02:23](../../downloads/portal/index.html?clip=05-inspection-retention&t=143&lang=en#05-inspection-retention)
+
+</div>
+
+### 3. Gather evidence and decide hold
+
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Connect L10 traces, L17 boundaries, and L19 cost/retention. | Only actually available evidence is included. | Do not mark untested CRUD, ACL, HITL, or ordering complete. |
+| 2 | Apply the hypothetical failure condition below. | Unmet gates hold release. | Average quality cannot offset a safety failure. |
+
+| Check | Required evidence | Current result |
 | --- | --- | --- |
-| Sources | Your commit, changed files, actual v2 instruction hash | Hold promotion if the evaluated sources cannot be distinguished from the candidate |
-| Execution target | Language/project, model ID/version/deployment name | A different model version is a different candidate even under the same deployment name |
-| Agent | Name, service-issued numeric version, Prompt/Hosted kind and protocol | Instruction v2 does not imply service version 2 |
-| Data/tools | Policy/schema/dependency hashes and connection targets | Do not hide retrieval/function changes inside an instruction change |
-| Evidence | Same-target response/trace, actual tool results, applied evaluation and failures/missing rows | L08's 12 tool-free questions do not approve an integrated business release |
-| Recovery | Previous approved version/configuration bundle, owner, data compatibility | Hold deployment without a viable target and compatible state |
+| Pinned target | Exact evaluated/candidate version, model, tools | Actual value/unverified |
+| Quality/safety | Quality ≥90%, zero safety/access failures, preserved missing/errors | Actual value/unverified |
+| Evaluation limits | Fixed twelve questions, **no holdout**, behavioral requirements/manual review | Learning comparison, not production release evidence |
+| Execution | Separate evidence for tools, citations, persisted draft, human approval | Actual operations only |
+| Costs/resources | Dedicated scope, request limits, retained resources, retention owner | Actual value/unverified |
+| Recovery | Actual prior version, restore target, RTO/RPO, owner | Distinguish plan from performed restore test |
 
-For L06's purchasing task, connect **stock 8, unit price KRW 1,450,000, total KRW 2,900,000, two approval roles, and not ordered** to actual tool/evidence records. For L12 Hosted, also compare the package/runtime contract, response, tools, and citations for the same version.
+**Change one thing:** Apply the **hypothetical decision condition** “one safety/access failure.” Do not edit actual runs. Even 100% average quality does not permit publication.
 
-**Why publishing/version management belongs in CI/CD:** Deployment creates a runnable version; promotion selects a validated version for users; publishing exposes it through a channel such as Teams. Rollback restores the previously approved selection.
+**Explain the result:** Saving `Publish version`, switching `Active version`, and the caller's actually used version differ. Reading versions does not validate deployment, rollback, or RTO/RPO.
 
-| Easily confused value | What is versioned? | Where to inspect |
-| --- | --- | --- |
-| `agent-v2.txt` | Repository instructions | Actual file and hash |
-| Service-issued numeric agent version | Runnable agent definition/code | Agent Details / L12's `show` |
-| **Active version** | Execution version served by the stable endpoint | Details → Agent configuration |
-| **Publish version** (for example, `1.0.0`) | Teams/M365 app-package metadata | Publishing dialog / app `manifest.json` |
+</div>
 
-Similar numbers do not make these the same thing. Changing only the active version preserves the stable endpoint URL; updating the app's display metadata is a separate operation.
+### Delivery outside this path
 
-### 4. Rehearse a rollback decision
+GitHub Actions, OIDC, and CI/CD are references. No workflow execution, role grants, merges, or publishing here. Preserve existing `repository_id`, `acknowledge_cost`, ownership receipts, and request bounds.
 
-**Synthetic teaching scenario:** An approved version exists, and a candidate describes a purchase draft as “order completed.” This is not an actual deployment record.
+The reviewed [local validation workflow](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/8fb85c0eb837ceac30a634d9017ef3e3bcca081e/.github/workflows/validate.yml) and [Microsoft Azure validation workflow](https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5/blob/8fb85c0eb837ceac30a634d9017ef3e3bcca081e/.github/workflows/azure-validation.yml) are **read-only references**. Reading them is not execution or deployment evidence.
 
-| Step | Decision/action | Evidence to inspect |
-| --- | --- | --- |
-| Detect | Block promotion; stop expansion if a limited trial is underway | Failed input/response, candidate version, actual tool record |
-| Isolate | If the function says not ordered but the answer says otherwise, inspect synthesis/instructions first | Difference between function JSON and final answer |
-| Prepare recovery | Select the previous approved agent version with its model/connections/settings | Version availability and current data/schema compatibility |
-| Approved recovery | Restore the Active version below or the Hosted consumer's **version binding** | Actual invoked version, not just an unchanged endpoint name |
-| Verify recovery | Within separate approval, repeat the same purchase question and check evidence/tools/not-ordered state | New response/trace and results; old success logs are insufficient |
-
-The default exercise stops at identifying what to restore. Actual switching and reinvocation require separate approval. An incompatible data migration is not undone by restoring the agent version alone. Preserve failed originals and earlier versions.
-
-### 4-1. Optional: approved version selection and Teams publishing
-
-**The default assignment ends with the design above.** Unless every condition below is ready, do not publish; record “design complete / publishing not performed.”
-
-| Requirement | Where to find the value or condition |
-| --- | --- |
-| Agent and validated numeric version | Your project → Build → Agents → target Details. L05's File search Prompt Agent can provide policy guidance only |
-| Server-side tools and supported protocol | L06's local functions cannot handle remote users. L12's default Invocations deployment does not by itself verify the Teams `activity` path |
-| Publishing and resource-creation access | Actual project publish permission plus Azure Bot Service `botServices/write` and `channels/write`; do not assume one role name grants everything |
-| User and data-processing approval | Agree on test users, audience, metadata/responses flowing to M365/Teams, and costs with the organization owner |
-| Recovery target | Previously approved version and configuration; without one, hold production release rather than invent an approval |
-
-<details class="optional-path" markdown="1">
-<summary>Portal steps only after separate change approval and all prerequisites above</summary>
-
-1. Open the owned agent's **Details → Agent configuration → Active version → Edit** and select the validated **specific version**. Do not default to `Always use latest`, which can expose newly created versions automatically. Record the prior version/endpoint and the new selection.
-2. Open **Publish → Teams and Microsoft Copilot**. Confirm the scope of the Azure Bot Service being created or reused, then enter Name, Publish version, descriptions, and Developer. Keep secrets out of display metadata.
-3. Select **Next: Publish options → Direct publish → Just you**. Final **Publish** is the separately permitted change. **People in your organization** requires additional organizational permissions/deployment approval; do not expand scope for the lab.
-4. Send **one policy request from your account**, with zero retries. Run a separate negative-access test only if a permitted existing test identity is available. Do not create accounts or arbitrarily change credentials/access. If that test is not run, record it not performed.
-5. Inspect policy citations and the actual invoked version. If the candidate is wrong, stop promotion and restore the previously approved version **only after separate recovery approval**. An unchanged endpoint name does not establish successful recovery.
-
-Publishing L05's policy agent does not make it an inventory or purchase-draft assistant. Publishing the full purchasing assistant requires separately prepared server-side business tools and a supported protocol.
-
-Private projects may not support the standard portal publishing path. Check official private-network conditions instead of enabling public access. For an invisible app, inspect your audience/organizational policy; for no response, inspect channel, authentication, active version, and server tools.
-
-</details>
-
-### 5. Respond to model lifecycle and costs
-
-![Operate monitoring. Distinguish requests, errors, and usage from actual quality judgments.](../../assets/portal/en/07-monitor.png)
-
-| Signal/observation | Judgment | Next action |
-| --- | --- | --- |
-| L02 deployment's version, automatic-update policy, retirement date | The same deployment name can conceal changed behavior conditions | Assign an owner and a pre-retirement comparison date; record existing version/context/criteria |
-| Replacement model candidate | Responses, tools, output schema, region, and processing location must fit | Separately approve a same-dev-input comparison; never reuse a sealed holdout arbitrarily or relax gates |
-| 429 or increased latency | Separate quota/concurrency/token volume from an outage | Reduce calls and plan bounded recovery; no fallback to unapproved models/regions |
-| Costs rise without requests | Inspect Search/storage/logs/Hosted sessions separately | Use L19's per-resource stop/retention owners and next-check time; empty billing rows are not zero cost |
-
-Record **RTO (target service recovery time)** and **RPO (acceptable data-loss interval)** in the recovery design. For example, “restore read-only policy guidance within 30 minutes; allow no loss of approval records” is an **example requirement**, not a measured guarantee or a capability of this kit. Without an owner, recovery path, and rehearsal results, do not claim it was achieved.
-
-#### Local promotion code versus portal Publish
-
-`practice/delivery/exercise.py`'s `choose_version()` is a **local candidate-selection function**. As in the repair example above, it returns the candidate only when all four checks pass. It does not change a Microsoft Foundry agent version or publish anything.
-
-| What the exercise inspects | What actually happens |
-| --- | --- |
-| `choose_version(previous, candidate, checks)` | Returns either the prior version or candidate in a local fixture |
-| `test_exercise.py` | Checks local combinations of completion, quality, critical failures, and missing rows |
-| Agent version/Publish in the Microsoft Foundry portal | Separate approved operations to select and publish an exact numeric agent version |
-| `azure-validation.yml` | A separate manual approval path; local fixture tests do not run the Microsoft Azure workflow |
-
-A passing local test and an actual portal Publish are different records. The core exercise runs only the first two rows and does not claim that a real version change or Publish was completed.
+Teams/Microsoft 365 channels can require separate permissions/consent, `botServices/write`, `channels/write`, and actual path verification. Chat success does not establish those deployments.
 
 ## Success criteria
 
-- You reproduced the three local failures, repaired only the function, and obtained five passes. If you use GitHub, you distinguished failed/passing runs from their different commits.
-- You retained a **CI interpretation record, release manifest, failure/rollback decision, and model/cost follow-up owner**.
-- You distinguished local pass, design complete, and Microsoft Azure not executed, and you hold promotion without quality evidence for the same candidate.
-- If you chose publishing, you separately recorded the runnable agent version, app Publish version, audience, and invocation results. Publishing success alone is neither business-release approval nor a complete authorization assessment.
+Verify target/candidate versions and hold on unknowns, mismatches, or safety failures. Fixed questions/manual review are not production or historical SDK gates.
 
 ## Troubleshooting
 
-| Symptom | Check first | Next action |
-| --- | --- | --- |
-| `azure` is skipped | Its opt-in condition | Skipping on an ordinary push is not an error. |
-| A workflow is green but the answer is wrong | What actually ran | Do not treat a green workflow as proof the answer is right. |
-| A deployment/rollback failure | Agent version, protocol, runtime identity, and model/connections, in that order | Do not blindly redeploy. |
+Without exposed version identity, target pinning is unverified. Without an actual run, produce no release score. Never copy old passes or lower gates.
 
 ## Cleanup
 
-Exclude private settings, raw responses, and receipts from the kit. Keep your CI interpretation, release manifest, and recovery decision together. Actual paid runs, access changes, and Microsoft Azure deletion each require separate approval. Check remaining resources and costs in L19.
+Finish read-only. Publishing, activation, rollback, and recovery tests need separate scope/permission/cost approval. No GitHub release, Pages publication, or main merge is included.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Repaired `practice/delivery/exercise.py`, five test results, CI interpretation, release manifest, recovery target, and cost owner. Record actual publishing separately.
+**Keep:** Actual version/run links, gates/unknowns/recovery plan, and publishing/activation/rollback not run.
 
-**Continue:** **[L19 shared wrap-up](#l12)**. A local exercise pass does not stop resources or settle costs.
+**Continue:** [L19: costs, retention, and approved cleanup](#l12).
 
 </div>

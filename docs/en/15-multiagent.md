@@ -1,259 +1,159 @@
-> **What you will build:** Run one Contoso purchasing question sequentially and concurrently, then explain passing a prior answer versus dividing independent work.
+## Objectives
+
+Compare two review roles in portal Chat. This is a **human copy-and-transfer experiment**, not SDK sequential or concurrent orchestration.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Run Microsoft Agent Framework orchestration locally against an approved Microsoft Foundry model. No Hosted deployment is performed.
+**Format:** Manual role comparison: four baseline sends, at most six including the optional change.
 
-**Start here:** Prepare the separate advanced environment, finish L02's TPM/RPM check, and read the plan for one selected pattern.
+**Start here:** Prepare two review agents with identical model, synthetic context, and question.
 
-**What to check:** Compare actual roles, message flow, model-call counts, answers, tokens, and time. An agent's answer is not business approval.
+**What to check:** Actual differences between independent input and transferred prior output, with call counts and limitations.
 
 </div>
-
-## Objectives
-
-**Experience how the same roles behave under different coordination patterns.** More agents do not automatically make an answer faster or more accurate.
-This module uses the official Builders in `agent_framework.orchestrations`. It is separate from the Microsoft Foundry portal Workflows feature, scheduled to retire on **2026-12-01**.
 
 ## Concepts and lab map
 
-**What you will try:** Sequential and concurrent execution with `SequentialBuilder` and `ConcurrentBuilder`.
+**What you will try:** Chat experiments illustrating sequential transfer versus independent review.
 
-**What is it, and why does it matter?** Orchestration chooses who acts next and which conversation/results are passed along. Sequential chains work, concurrent divides work, group chat refines work, and handoff changes the responsible agent.
+**What is it, and why does it matter?** Passing an earlier answer links reviews but can propagate errors. Independent review separates inputs. Two browser windows do not establish runtime concurrency.
 
-**How do you use it?** Change only `--mode` under the same policy and question. Compare role order and actual outputs. Revision after review and specialist delegation have their own [L14 exercise](#l15-collaboration).
+**How do you use it?** Send an identical question independently, then explicitly copy the first answer into a second-role review.
 
-**Where do you run it?** Run [multi_agent.py](../../samples/multi_agent.py) in a separate Python environment. Only the model is in Microsoft Azure; this is not a remote A2A or business-approval exercise.
+**Where do you run it?** Microsoft Foundry → Build → Agents → role Chat, without a framework/development environment.
 
 ## Prerequisites
 
-Use the project/model, `.env`, and `results/azure-environment.json` you created in L01. Stop if the project, language, or deployment differs.
-L13/L14 use **only the chat deployment**. The per-learner starting minimum is **100,000 TPM / 60 RPM**; see [L02](#l02-capacity) for sizing assumptions and configuration.
+Both roles use `contoso-chat`, no tools/Memory, and L08's [complete common Instructions](../../downloads/portal-inputs/en/agent-v2-with-context.txt). Change only the name and role prefix below.
 
-Keep the advanced SDK in `requirements-advanced.txt` separate. `agent-framework-foundry==1.13.1` requires `azure-ai-projects<2.7.0`, unlike the core environment. Install `agent-framework-orchestrations==1.2.0` with it.
-
-### Choose your starting path
-
-| Current state | Steps to follow | What to retain |
-| --- | --- | --- |
-| No Microsoft Azure approval | Step 1 environment → step 3 plan | Explain roles and call limits; model execution remains not performed |
-| Model, ownership receipt, and cost approval ready | 1 → 2 → 3 → 4 → 5 | Sequential/concurrent answers to one question and a comparison |
-
-Reuse L01/L02's `.env` and your receipt; Hosted/Search are unnecessary. **Unlike L06, these SDK roles review policy/questions without a stock function.** Keep the English profile selected.
+| Name | Prefix before the common Instructions |
+| --- | --- |
+| `contoso-policy-review` | Review policy evidence and unknowns. |
+| `contoso-budget-review` | Review totals, caps, and approval boundaries. |
 
 ## Steps
 
-### 1. Prepare the separate SDK environment
+Images are **control-location examples** from existing Prompt Agent footage. Creation and comparison of these review roles were not recorded. Use the role names above and your actual results, not pictured default names or answers.
 
-```bash
-python3.13 -m venv .venv-advanced
-.venv-advanced/bin/python -m pip install -r requirements-advanced.txt
-.venv-advanced/bin/python -m pip check
-```
+### 1. Create and save both roles under matching conditions
 
-<div class="command-explanation" markdown="1">
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Open the Prompt creation form from `Build → Agents → New agent`, enter one role name above, and create in `Text` mode. Repeat for the other role. | Two distinct named Prompt Agents. | Do not overwrite existing targets or choose Copilot harness, Voice, or Code agent. |
+| 2 | Select `contoso-chat` for both and prepend only the role-specific sentence to the complete common Instructions. | Identical context, different role prefixes. | Do not compare if one target lacks policy context. |
+| 3 | Detach automatic tools as in L04; save without Memory using L08's matching output settings. | Record actual saved versions and matching settings. | Do not confuse pre/post-Save versions or Publish. |
 
-**Command walkthrough**
+<div class="screen-step" markdown="1">
 
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `python3.13 -m venv` | Create the advanced environment separately from the core SDK. | Local environment creation; do not overwrite an existing environment. |
-| 2. `pip install -r requirements-advanced.txt` | Install compatible Microsoft Foundry integration and orchestration Builders. | Package downloads only; no Microsoft Azure request. |
-| 3. `pip check` | Check dependencies in that same environment. | Resolve conflicts before executing. |
+**Creation form: replace the generated name**
 
-</div>
+![Prompt Agent creation form showing Agent name, Text mode, and creation button.](../../assets/portal/steps/agent-create-form.png)
 
-If an existing advanced environment uses another Python version, create a new environment folder.
+**1 Agent name:** Use the role name in the table, not the pictured generated name. **2 Text:** Match both roles. **3 Create:** Create each once, then configure it. This form was recorded while preparing a comparison agent, not these review roles.
 
-<details class="environment-option" markdown="1">
-<summary>Only when using Windows PowerShell on your PC</summary>
-
-Create the environment with `py -3.13`, then use `.venv-advanced\Scripts\python.exe`. In Codespaces, use the Bash commands above unchanged.
-
-</details>
-
-### 2. Check model throughput
-
-```bash
-.venv-advanced/bin/python samples/model_capacity.py plan --roles chat
-.venv-advanced/bin/python samples/model_capacity.py check --roles chat --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `model_capacity.py plan --roles chat` | Read the chat TPM/RPM plan for one learner running one lab. | Local calculation; no Microsoft Azure request. |
-| 2. `check --roles chat --live` | Read the owned resource group and deployment's actual `rateLimits`. | Read-only. Below-minimum capacity fails without a model call. |
+[Captioned video 04 · 00:01.5](../../downloads/portal/index.html?clip=04-native-evaluation&t=1.5&lang=en#04-native-evaluation)
 
 </div>
 
-If insufficient, verify your update permissions/quota/cost scope, then use L02's `apply`. Sufficient capacity is not reduced. Live execution rechecks actual limits rather than trusting an old file.
+<div class="screen-step" markdown="1">
 
-### 3. Read the sequential and concurrent plans
+**Navigation example: where to set each role's model and Instructions**
 
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode concurrent
-```
+![Reused baseline policy-agent Model and Instructions locations.](../../assets/portal/steps/agent-instructions.png)
 
-<div class="command-explanation" markdown="1">
+**1 Model:** Match across roles. **2 Instructions:** Use the shared context and role prefix from Prerequisites. This is **reused baseline footage**, not evidence that these two review roles were created or compared.
 
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `multi_agent.py --mode concurrent` | Read the selected pattern's roles and call limit. Use the other modes below to inspect their plans. | Without `--live`, no SDK initialization, Microsoft Azure request, or execution evidence is created. |
+[Captioned video 02 · 02:04.5](../../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
 
 </div>
 
-| Mode | Actual Builder | Flow | Maximum model calls |
-| --- | --- | --- | ---: |
-| `sequential` | `SequentialBuilder` | Drafter → reviewer | 2 |
-| `concurrent` | `ConcurrentBuilder` | Policy, budget, and risk work independently → collected outputs | 3 |
+<div class="screen-step" markdown="1">
 
-This module covers those two patterns only. **GroupChatBuilder and HandoffBuilder belong to L14**, which reuses the same environment; do not run them yet.
+**After saving: record each role's actual version**
 
-Every pattern is bounded to **180 seconds, 2,048 output tokens per response, and zero retries**. Do not run multiple terminals against the same deployment.
-Within one execution, request starts are spaced by at least one second and capped at six per minute. Start the next pattern **at least one minute after the previous execution began**. Size shared deployments for all simultaneous learners in L02.
+![Prompt Agent Version, Save, and Publish control locations.](../../assets/portal/steps/agent-version-bar.png)
 
-### 4. Run one pattern at a time
+**1 Version / 2 Save:** Read your role's saved number; do not copy this baseline agent's `2`. **3 Publish:** Not required for this manual comparison.
 
-Each command makes new model calls. Read its outputs before choosing the next pattern. These two patterns total **at most five calls**, or **12 calls** if you also choose both L14 patterns.
-
-**Sequential:** Confirm that the reviewer's input contains the drafter's actual answer.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode sequential --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--mode sequential --live` | Pass the same policy and conversation through the drafter and reviewer in order. | At most two model calls; preserve actual intermediate and final answers. |
+[Captioned video 02 · 02:04.5](../../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
 
 </div>
-
-**Concurrent:** The three roles do not first read one another's answers. Collecting outputs is not automatic consensus or a verified single answer.
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode concurrent --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--mode concurrent --live` | Policy, budget, and risk independently handle the same question. | At most three calls. Starts are paced, while in-flight work can overlap. |
-
-</div>
-
-Open each command's **`Evidence:` file in an editor**. Under `paths.sequential.stages`, connect the drafter's answer to the reviewer's actual input. Under `paths.concurrent.stages`, use `input_authors` and the original inputs to check that the three roles did not wait for one another's answers. The implementation is `build_workflow` in `samples/multi_agent.py`.
-
-### 5. Compare message flow, termination, and cost
 
 <div class="practice-block" markdown="1">
 
-**Try it:** Find these fields under `paths` and in the `Evidence:` file. Record your actual values, not example numbers.
+### 2. Independent review: send only the same question
 
-| Field | What to inspect |
-| --- | --- |
-| `paths.<mode>.stages` | Actual per-call roles, answers, response IDs, and tokens |
-| `input_authors`, `input_sha256` | Clues linking the conversation passed to the next role |
-| `payload.input` in `model_call_completed` events | Actual messages and instructions; sequential passes the draft to the reviewer |
-| `elapsed_seconds`, `total_tokens` | Elapsed time and token sum; `null` usage is not zero |
-| `final_messages`, `workflow_state` | Collected concurrent results and termination state |
+**Try it:** Send this question once to **a new Chat in each role**. Do not yet transfer the first answer to the second.
 
-**Change one thing:** With approval for additional calls, add only `--case boundary` to the same mode. Compare approval rules for exactly KRW 2,000,000 and KRW 2,000,001. Keep model, policy, and role instructions fixed.
+```prompt
+Synthetic manual-review data: two NB-14 units, supplied unit price KRW 1,450,000, supplied total KRW 2,900,000. These are not inventory-lookup or persisted-draft results. Review the price cap and required approvals, separating unknown facts and unexecuted actions.
+```
 
-**Explain the result:** Record `pattern / message order / omissions / termination / extra tokens and time / reason to use this pattern`. Compare amounts, approvals, and unperformed-action claims with the policy. More agents alone do not establish better quality.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Send the common question to a new policy-review Chat. | Procurement §2/§3 and unverified execution are distinguished. | Preserve actual text and citation IDs. |
+| 2 | Send **only the identical question** to a new budget-review Chat. | KRW 2,900,000 and team lead plus procurement are reviewed. | Do not silently include the first answer. |
+
+<div class="screen-step" markdown="1">
+
+**After opening a new Chat: input and Send**
+
+![Enlarged Chat input and Send controls with response bodies excluded.](../../assets/portal/steps/agent-chat-controls.png)
+
+**1 Input / 2 Send:** Open a new conversation in each role, then send the identical original once. Do not include another role's answer in this independent path. Check the agent name and conversation first.
+
+[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
 
 </div>
 
-<details class="optional-path" markdown="1">
-<summary>Optional: compare one drafter with the sequential workflow</summary>
+### 3. Sequential review: explicitly transfer the question and draft
 
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode compare --live
-```
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Send the same question once again to a new policy Chat. | This is the first result of the manual sequential path. | Preserve differences from the independent answer. |
+| 2 | In a new budget Chat, send the original question plus step 1's answer labeled `untrusted earlier reviewer draft`. | Inspect how the supplied draft was reviewed. | Draft instructions must not grant authority. |
+| 3 | Compare actual inputs, outputs, times, and visible IDs. | Exactly what was manually transferred is clear. | Mixed conversation context makes the comparison invalid. |
 
-<div class="command-explanation" markdown="1">
+<div class="screen-step" markdown="1">
 
-**Command walkthrough**
+**Copy your answer: distinguish Traces from Copy**
 
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--mode compare --live` | Use the same drafting instruction, policy, and question for one direct answer and two sequential calls. | At most three additional calls. `sequential_minus_single` measures time/tokens, not quality. |
+![Control-location example of Traces and Copy beneath an answer, excluding its body.](../../assets/portal/steps/agent-answer-actions.png)
+
+**1 Traces:** That answer's execution records. **2 Copy:** Copy your policy role's actual answer and label it separately from the original question. Pictured model/token values belong to the baseline agent, not this role comparison.
+
+[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
 
 </div>
 
-The single path runs first, so authentication, caching, and startup latency can differ. One timing difference does not establish general performance superiority.
+**Change one thing:** If scope remains, change only the supplied total to **exactly KRW 2,000,000** and ask each role once. Team-lead approval applies at equality. Do not overwrite the original questions/results.
 
-</details>
+**Explain the result:** Record newly found errors, missing evidence, and additional token usage. Explain whether extra roles helped. Human copying time is not runtime latency.
 
-<details class="implementation-detail" markdown="1">
-<summary>Implementation reference: sequential and concurrent Builder settings — read only</summary>
+</div>
 
-#### Portal deployment versus Python orchestration
+### Distinguish real orchestration
 
-The portal supplies the **model deployment**, but it does not configure L13's sequential/concurrent workflow graph. Python Agent Framework code constructs that order:
+`SequentialBuilder` and `ConcurrentBuilder` are code-based Microsoft Agent Framework paths, not executed here. Portal Workflows and in-portal execution retire on **2026-12-01**; this guide does not depend on that designer.
 
-```python
-from agent_framework.orchestrations import SequentialBuilder, ConcurrentBuilder
-
-sequential = SequentialBuilder(
-    participants=[drafter, reviewer],
-    intermediate_output_from=[drafter],
-).build()
-
-concurrent = ConcurrentBuilder(
-    participants=[policy_agent, budget_agent, risk],
-    intermediate_output_from=[policy_agent, budget_agent, risk],
-).build()
-```
-
-| Microsoft Foundry/code location | What it controls |
-| --- | --- |
-| Portal → Models → Deployments | Model deployment called by the Python client |
-| `build_role(...)` | Each SDK agent's instructions and role |
-| `SequentialBuilder` | Sends the drafter's output to the reviewer |
-| `ConcurrentBuilder` | Runs independent roles together and collects per-stage output |
-| `multi_agent.py` in `.venv-advanced` | Builds orchestration locally; only approved model requests go to Microsoft Foundry |
-
-`drafter`, `reviewer`, `policy_agent`, `budget_agent`, and `risk` are SDK agents configured by `build_role()` with instructions/model client. `multi_agent.py` executes only the selected Builder. This is local code, not a portal workflow; verify actual inputs/stages/output in `Evidence:`.
-
-</details>
+Real concurrency verification needs overlapping spans, transferred data, failure/cancellation, and bounded calls in one run. This manual experiment provides none of that runtime evidence.
 
 ## Success criteria
 
-- You can distinguish actual draft propagation in sequential execution from the three independent concurrent results.
-- You can explain the responses, elapsed time, and tokens for the patterns you ran.
-- You did not treat a reviewer's agreement as human approval or an automatic quality pass.
-- If you only read plans, model execution remains **not performed**.
+Compare actual independent and explicitly transferred inputs/answers. Mark no tools, manual transfer, and no business approval. Do not count this as successful SDK sequential/concurrent execution.
 
 ## Troubleshooting
 
-| Symptom | Check first | Next action |
-| --- | --- | --- |
-| `agent_framework_orchestrations` import error | The advanced environment's installation path | Do not mix it with the core environment. |
-| TPM/RPM is insufficient | L02 throughput | Return to L02. |
-| 429 | The earlier error, limits, and other simultaneous users | Do not keep sending requests. |
-| Oversized input or truncated response | Context length and actual output | It is a failure. Do not fabricate results or blindly increase limits. |
+If existing conversation context leaked in, mark the comparison invalid. Stop at request/cost bounds and leave remaining comparisons not run. Stop sending on 429 rather than expanding quota automatically.
 
 ## Cleanup
 
-This module performs local orchestration and model calls only. Hosted sessions and schedules created in other labs are separate; handle those in L19. Keep your own results under `results/` and do not share user or authentication information.
+Reuse the two roles next. No automated loop or remote A2A connection was created.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Sequential/concurrent `Evidence:` files and role inputs/answers, call counts, token totals, and timing comparisons. Plan-only means model execution not run.
+**Keep:** Actual inputs/answers for both paths, transferred text, calls, differences, and real orchestration not run.
 
-**Continue:** [L14 group chat/handoff](#l15-collaboration) reuses **the same `.venv-advanced`**. If this was your only elective, go to [L19](#l12).
+**Continue:** [L14: manually compare review and routing](#l15-collaboration).
 
 </div>

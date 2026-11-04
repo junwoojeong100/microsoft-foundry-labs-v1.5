@@ -1,208 +1,159 @@
-> **완성할 결과:** “왜 틀렸는지 / 왜 느린지 / 얼마나 썼는지”를 한 번의 실행 증거로 설명합니다.
+## 목표
+
+내가 보낸 한 요청을 Traces에서 찾아 질문·검색·응답·지연·오류를 연결합니다. 관련 없는 성공 로그로 실패를 덮지 않습니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** L01에서 연결한 로그로 내 agent 실행을 조회하고 해석합니다.
+**진행 방식:** 포털 직접 관찰. 연결 후 요청이 없다면 합성 질문 1회만 추가합니다.
 
-**먼저 할 일:** L05/L06의 응답 ID·시간·에이전트 버전으로 Traces에서 같은 실행을 찾습니다.
+**먼저 할 일:** L01에서 Application Insights를 연결했는지, L05/L09의 전송 시각·agent/version·표시 ID가 있는지 확인합니다.
 
-**확인할 결과:** 관찰한 작업·시간·다음 조치를 적습니다. 로그 접근이 없으면 아래 합성 예제로 연습하고 실제 추적은 미확인으로 남깁니다.
+**확인할 결과:** 같은 요청의 실제 trace/span 또는 로그 지연·권한·연결 문제의 구체적 기록.
 
 </div>
-
-## 목표
-
-**Evaluation은 좋았는지, Trace는 무슨 일이 있었는지, Monitoring은 시간이 지나며 어떻게 변하는지**를 보여줍니다.
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 이미 실행한 질문 하나의 작업 순서와 소요 시간을 읽습니다.
+**경험할 기능:** Server-side tracing, trace/span, Application Insights, Monitor.
 
-**무엇이며 왜 중요한가요?** Trace는 한 요청의 실행 기록, span은 검색·모델·도구 같은 개별 작업입니다. 전체 시간만 보지 않고 어느 작업이 오래 걸렸는지 찾습니다. 로그가 없으면 “오류 없음”이 아니라 “미확인”입니다.
+**무엇이며 왜 중요한가요?** Trace는 요청의 실행 경로, span은 검색·모델 같은 구간입니다. 대시보드 평균만으로 특정 답변의 근거·함수 성공을 알 수 없습니다.
 
-**어떻게 사용하나요?** L05·L06의 응답 ID·시간·버전으로 같은 실행을 찾습니다. 작업별 시간과 상태를 읽고 다음에 확인할 원인을 하나 고릅니다.
+**어떻게 사용하나요?** 요청 시각·agent·ID로 범위를 좁히고 같은 실행의 부모/자식 span을 읽습니다.
 
-**어디서 실행하나요?** 기본은 포털의 **Traces**, [trace_lab.py](../samples/trace_lab.py)는 선택 조회입니다. 로그 접근이 없으면 아래 합성 시간표로 읽는 법만 연습합니다.
+**어디서 실행하나요?** Microsoft Foundry → Agents → 대상 → Traces, 필요하면 Azure portal → 연결된 Application Insights.
 
 ## 준비
 
-L01에서 만든 Application Insights 연결·로그 읽기 권한과 자신의 L04–L06 결과를 사용합니다. Application Insights는 Microsoft Azure의 로그 수집·조회 서비스이며 수집·보존에도 비용이 있습니다.
-
-<details class="optional-path" markdown="1">
-<summary>연결이 아직 없다면: 내 프로젝트의 로그 설정 보완</summary>
-
-소유 기록의 `monitoring`과 포털 연결을 먼저 확인합니다. 없다면 **L01 5단계**의 `monitoring` 계획·실행으로 자신의 RG에 Log Analytics·Application Insights·프로젝트 연결을 만듭니다. 이미 있는 자원을 다시 생성하지 않습니다. 30일 보존·일일 수집 제한은 총 과금의 강제 차단이 아닙니다.
-
-포털 **Agents → Traces → Connect** 또는 **Manage → Project details → Connected resources**에서 자신의 Application Insights 연결을 확인합니다. 기존 연결이 있으면 교체하지 않습니다. 로그는 **연결 이후 실행**부터 수집되며 이전 호출을 소급해서 만든 것이 아닙니다.
-
-</details>
+로그는 **연결 후** 실행에 적용됩니다. 서버 tracing은 포털 연결로 활성화할 수 있지만 로컬 앱의 함수까지 자동 계측하지 않습니다. Trace가 보여도 원문 무제한 저장·공개 승인이 생기지 않습니다.
 
 ## 실행
 
-### 1. 로그 수집 연결부터 확인하기
+### 1. 요청 시각·대상·기간 맞추기
 
-자기 에이전트의 **Traces**를 엽니다. **Connect**만 보이면 위 연결과 현재 프로젝트를 대조합니다. 403이면 자신의 Application Insights/Log Analytics **IAM → View my access**에서 로그 읽기 권한을 확인하고 필요한 최소 범위의 역할을 설정합니다. 권한이 없으면 조회를 보류하고 실제 trace는 미확인으로 기록합니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `Build → Agents → contoso-policy → Traces`를 엽니다. | 선택한 agent/version의 trace 화면입니다. | 다른 프로젝트·동일 이름의 agent를 확인합니다. |
+| 2 | `Connect`가 보이면 L01의 Application Insights 연결을 확인합니다. | 전용 로그 자원에 연결되었습니다. | 연결할 권한·비용 승인이 없으면 차단으로 기록합니다. |
+| 3 | 시간 필터를 마지막 요청 전후로 좁힙니다. | L05/L09의 시각이 범위에 포함됩니다. | 브라우저 로컬 시각과 UTC를 구분합니다. |
+| 4 | 필요한 경우 아래 질문을 **연결 후 1회**만 보냅니다. | 새 전송 시각과 응답을 기록했습니다. | 이미 연결 후 요청이 있으면 추가 호출하지 않습니다. |
+| 5 | 수 분 수집 지연을 기다리고 `Refresh`를 누릅니다. | 해당 시각·agent·conversation/response의 행이 나타납니다. | 빈 화면 때문에 Chat을 계속 보내지 않습니다. |
 
-Prompt/Hosted agent의 server-side tracing은 연결 후 코드 변경 없이 시작하는 경로입니다. 자체 클라이언트 함수 내부 로직까지 모두 자동으로 추적되는 것은 아닙니다.
-
-### 2. 자기 실행 하나를 찾아 연결하기
-
-연결 이후 수집된 L05/L06 실행이 있으면 먼저 그 결과를 사용합니다. 없다면 승인된 합성 질문 한 번만 실행하고 response ID·시간을 기록합니다. 목록이 비어 있다는 이유로 질문을 반복 전송하지 않습니다.
-
-| 필요한 값 | 어디서 가져오나요? | 바르게 연결됐는지 확인 |
-| --- | --- | --- |
-| 응답 JSONL | L05/L06 SDK 마지막 `Responses:`에 출력된 `results/contoso-lab-…-responses.jsonl` | L06의 `read-result`로 기록 ID·응답 ID·에이전트·버전을 읽기. 원본에서는 `id`, `response_id`, `agent_name`, `configuration.agent_version` |
-| agent 이름·버전 | 그 행의 값 또는 포털에서 직접 실행한 agent의 설정 | L08 평가 전용 agent나 L12 Hosted 이름으로 바꾸지 않음 |
-| Application Insights 앱 ID | 내가 만든 환경의 `results/azure-environment.json` → `monitoring.appId.value` 또는 해당 자원의 Overview | `monitoring.appInsightsId.value`가 프로젝트 연결과 같은 자원인지 대조. 키/connection string을 복사하지 않음 |
-
-포털만 사용했다면 그 response ID로 **포털 경로만** 진행해도 됩니다. 존재하지 않는 JSONL을 만들거나 L08의 JSON 비교 파일을 아래 JSONL 입력으로 넘기지 않습니다. 동봉 CLI는 최근 24시간만 조회하므로 오래된 결과는 포털의 승인된 보존 범위에서 읽거나 미확인으로 남깁니다.
-
-![실행 기록 목록 예시. Prompt Agent의 Traces에서 ID 검색, 버전·상태·기간 필터와 실행 시간·토큰·예상 비용 열을 확인한다.](../assets/portal/06-traces.png)
-
-**화면 따라 읽기:** **Build → Agents → 자신의 agent → Traces**에서 **Date range**와 **Version**을 먼저 맞춥니다. 검색창에는 자신의 trace/conversation/response ID를 넣고, 행을 열어 개별 작업을 확인합니다. **Completed**는 실행 완료 상태이지 답변 정답 여부가 아닙니다.
-
-trace에서 다음을 찾습니다.
-
-| 증거 | 기록 |
-| --- | --- |
-| agent/model 실행 | 이름·버전·시작 시각·전체 시간 |
-| 검색 호출 | 실제 반환 문서·빈 결과 여부. 본문을 볼 권한이 없으면 미관찰 |
-| 함수/MCP 호출 | 도구 이름·인수·오류. 로컬 함수 내부 span이 없으면 JSONL의 `tool_calls`로 별도 확인 |
-| model usage | input/output token, 가능한 비용 지표. 없으면 0이 아니라 미수집 |
-| conversation/response | 사용자 요청과 실행의 연결. 같은 trace의 `operation_Id`, 부모 `operation_ParentId`와 자식 `id` |
-
-### 3. 세 가지 실패를 구분하기
-
-**잘못된 정책 답변:** 올바른 문서가 검색됐는가 → 검색되지 않았다면 retrieval 문제 → 검색됐다면 지시·모델·답변 합성 문제.
-
-**느린 답변:** 전체 지연을 모델, 검색, 도구, 네트워크/대기 단계로 나눕니다. 도구가 느린데 모델을 바꾸는 처방을 하지 않습니다.
-
-**함수는 성공했는데 답변이 실패:** 도구 출력이 같은 conversation/call ID에 반영됐는지, final output이 완료됐는지 봅니다.
-
-**시간을 읽는 예시 — 설명용 합성이며 실제 Microsoft Azure trace가 아닙니다.** 아래 자식 작업은 겹치지 않고 순차 실행됐다고 가정합니다.
-
-| 작업 | 시작~종료(ms) | 관찰 시간 | 판단 |
-| --- | ---: | ---: | --- |
-| 전체 요청 | 0~4,000 | 4,000ms | 부모 span; 아래 시간을 다시 더하지 않음 |
-| 정책 검색 | 100~800 | 700ms | 근거 절이 맞는지도 별도로 확인 |
-| 모델 응답 | 900~3,800 | 2,900ms | 가장 큰 관찰 구간; 출력 길이·토큰부터 조사 |
-| 재고 도구 | 3,800~3,850 | 50ms | 이 예시에서는 주된 병목이 아님 |
-
-관찰된 자식 합계는 3,650ms, 나머지는 350ms입니다. **350ms를 증거 없이 네트워크 지연이라고 단정하지 않습니다.** 병렬 span은 겹치므로 단순 합산도 불가능합니다. 실제 실행에서 모델이 길면 입력·출력 토큰과 반복 호출을, 검색이 길면 반환량·검색 단계를 먼저 봅니다. 정상 실행이라면 오류를 만들어내지 말고 가장 오래 걸린 관찰 구간과 미수집 구간을 구분해 설명하세요.
-
-**포털에서 같은 실행의 작업·시간을 읽었다면 CLI는 건너뜁니다.** 아래는 SDK 응답 파일이 있을 때 같은 로그를 조회하는 대체 경로이지 추가 필수 과제가 아닙니다.
-
-<details class="optional-path" markdown="1">
-<summary>선택: SDK 응답 파일로 Application Insights 로그 조회하기</summary>
-
-동봉 CLI는 실제 응답 파일의 response/trace ID로 Application Insights를 조회합니다.
-
-```bash
-python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name
+```prompt
+Contoso 노트북 구매 상한과 200만원을 초과하는 주문의 승인자를 정책 문서 근거로 알려줘. 재고나 주문 실행은 하지 마.
 ```
 
-<div class="command-explanation" markdown="1">
+<div class="screen-step" markdown="1">
 
-**명령 해설**
+**먼저 기간: 기본 Last Day를 그대로 믿지 않기**
 
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `trace_lab.py` | `--input`은 실제 응답 JSONL, `--app-id`는 해당 Application Insights의 앱 ID, `--agent`는 조회할 agent 이름입니다. 파일에서 식별자를 읽고 KQL 계획을 출력합니다. | Microsoft Azure 조회 없음. 시간 범위와 ID 조건이 자신의 실행만 가리키는지 확인합니다. |
+![Traces의 Date range와 Last Day 기간 선택을 확대한 화면.](../assets/portal/steps/trace-filters.png)
+
+**1 Date range:** 전송 시각이 포함되도록 맞춥니다. **2 Last Day:** 기본 빠른 범위일 뿐입니다. 로그가 비면 시간대·연결 이후 요청·수집 지연부터 확인하며 새 질문을 반복하지 않습니다.
+
+[자막 영상 03 · 04:06](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=246&lang=ko#03-retrieval-boundaries)
 
 </div>
 
-**조회 전 확인:** 계획의 응답 ID·agent 이름이 내 실행과 같고 로그 읽기 권한이 있을 때, 동일한 세 값을 아래 명령에 넣습니다.
+<div class="screen-step" markdown="1">
 
-```bash
-python samples/trace_lab.py --input results/실제-responses.jsonl --app-id 실제-AppInsights-app-ID --agent 실제-agent-name --live
-```
+**Traces 목록: 시각과 agent version으로 같은 요청 찾기**
 
-<div class="command-explanation" markdown="1">
+![실제 정책 agent Traces 목록의 Traces 탭, Created at, Agent version 열.](../assets/portal/steps/trace-list.png)
 
-**명령 해설**
+**1 Traces:** 대상 agent 안의 탭입니다. **2 Created at:** 전송 시각과 맞춥니다. **3 Agent version:** 저장된 실제 숫자와 대조한 뒤 해당 행을 엽니다.
 
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. 같은 명령에 `--live` | 확인한 KQL로 실제 로그를 읽습니다. 최근 24시간·최대 200행으로 제한되며 새 모델 추론을 실행하지 않습니다. | Microsoft Azure 읽기 요청과 조회 결과 기록. 0행이면 상관관계 미확인이며 임의 ID로 채우지 않습니다. 로그 서비스의 이용 조건은 별도입니다. |
+[자막 영상 03 · 04:06](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=246&lang=ko#03-retrieval-boundaries)
 
 </div>
 
-먼저 KQL을 출력해 범위를 검토합니다. 최근 24시간, 최대 200행이며 token/본문 전체를 조회하지 않습니다.
-`app-id`는 계측 키나 connection string이 아닙니다. 조회 결과 0행은 **상관관계 미확인**으로 실패하며,
-request ID를 trace ID로 바꾸어 채우지 않습니다. L12의 Hosted 결과를 선택했을 때만 `contract.sha256`과 version도 대조합니다. 기본 Prompt Agent JSONL에는 그 Hosted 계약을 요구하지 않습니다.
+### 2. 같은 trace의 부모·자식 span 열기
 
-출력의 `input_rows`와 `correlated_rows`가 같고 `missing_case_ids`가 비어 있으면 **입력과 로그의 연결**이 확인된 것입니다. `model_response_spans_observed`와 `request_trace_ids_observed`는 관찰 계층이 다릅니다. 이 CLI는 연결을 검사하지, 병목이나 답변 정답을 자동 판정하지 않습니다. 출력된 `Evidence:` 파일의 조회 행과 포털 상세를 읽어 위 표를 자신의 값으로 작성하세요.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 같은 ID/시각의 trace를 선택하고 span 목록을 펼칩니다. | 실제 RAG 요청에는 `Invoke Agent` 아래 `Execute Tool file_search.msearch`와 `Chat gpt-4.1-2025-04-14`가 보였습니다. | 실제로 없는 span이나 업무 함수 실행을 있다고 가정하지 않습니다. |
+| 2 | `Execute Tool`을 선택하고 **Input + Output**에서 queries와 반환 정책 본문을 읽습니다. | 이번에는 `procurement-policy.md` 실제 본문을 확인했습니다. 인용 preview는 열리지 않았으므로 이 trace와 업로드 원본을 대조했습니다. | 입력 질문이나 tool 이름만으로 검색 결과를 확인했다고 쓰지 않습니다. |
 
-</details>
+<div class="screen-step" markdown="1">
 
-<details class="implementation-detail" markdown="1">
-<summary>구현 참고: 응답 ID로 로그를 찾는 Python·KQL 흐름 — 읽기용</summary>
+**Span 목록: 호출 전체 → 검색 → 생성 순서**
 
-#### 포털 Traces와 실제 상관 조회 코드
+![같은 요청의 Invoke Agent 부모 구간과 검색·Chat 자식 구간.](../assets/portal/steps/trace-span-tree.png)
 
-포털에서는 **Traces**에서 agent·version·기간과 자신의 response ID를 선택합니다. 동봉 Python은 같은 ID를 JSONL에서 읽고 KQL을 만든 뒤 Application Insights에 한 번 읽기 요청을 보냅니다.
+**1 부모 요청 / 2 검색 / 3 모델 생성:** 검색 구간을 선택하면 오른쪽 상세가 바뀝니다. 가린 식별자를 추정하지 말고 내 비공개 ID·시각으로 연결합니다. 이 그림에는 재고·주문 함수 span이 없습니다.
 
-```python
-rows = load_jsonl(args.input)
-query = query_for(rows, args.agent)
+[자막 영상 03 · 04:18](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=258&lang=ko#03-retrieval-boundaries)
 
-result = rest.request(
-    "POST",
-    f"/v1/apps/{args.app_id}/query",
-    {"query": query, "timespan": "P1D"},
-)
-report = correlation_report(rows, result)
-```
+</div>
 
-| 포털에서 보는 값 | 코드가 사용하는 값 |
-| --- | --- |
-| Traces의 agent 필터 | `args.agent` |
-| 요청 상세의 response/trace ID | `rows`의 `response_id` / `trace_id`, KQL의 `responseIds` / `traceIds` |
-| Application Insights 앱 선택 | `args.app_id` (app ID이며 connection string이 아님) |
-| 시간 범위 | `timespan="P1D"` 및 최근 24시간 KQL |
-| 연결된 행 수 | `correlation_report()`의 `correlated_rows`와 `missing_case_ids` |
+<div class="screen-step" markdown="1">
 
-코드 경로는 **로그 읽기만** 하고 모델을 호출하지 않습니다. 0행이나 빠진 ID는 미관찰/실패로 남기며 포털 화면에서 보인 값으로 채우지 않습니다.
+**검색 span 상세: 이름이 아니라 실제 Input과 Output**
 
-</details>
+![실제 file_search.msearch의 Input + Output와 반환 구매 정책 본문.](../assets/portal/steps/trace-input-output.png)
 
-### 4. 선택: 클라이언트 추적 추가하기
+**1 Input + Output:** 검색어와 결과를 나란히 읽습니다. **2 Content source:** 실제 본문을 응답의 주장과 맞춥니다. ID 영역은 공개본에서 가렸으므로 내 요청 ID는 개인 기록으로 연결합니다.
 
-자체 함수나 외부 애플리케이션 내부까지 보려면 OpenTelemetry와 사용하는 프레임워크의 instrumentation을 추가합니다. VS Code Toolkit의 로컬 OTLP tracing을 활용하면 클라우드 로그 없이 개발 중 실행을 볼 수 있습니다.
+[자막 영상 03 · 04:18](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=258&lang=ko#03-retrieval-boundaries)
 
-민감한 입력·출력의 원문 수집은 기본값으로 켜지 않습니다. trace/span ID로 연결하고, 필요한 업무 지표만 최소 수집하세요. server-side와 client-side trace를 중복으로 내보내지 않는지도 확인합니다.
+</div>
 
-### 5. 조건부: 모니터링과 지속 평가
+### 실행 하나를 읽는 표
 
-Monitoring dashboard와 continuous evaluation은 Preview 범위를 확인한 뒤 비운영 환경에서 사용합니다. 작은 샘플링 비율, 적은 evaluator, 별도 judge quota부터 시작합니다.
+| 관찰 | 판단 | 다음 행동 |
+| --- | --- | --- |
+| 검색 span에서 403 | 근거 검색이 권한 때문에 실패했을 가능성 | 연결·실행 identity·데이터 권한 점검. 모델 지식으로 대체 성공 처리 금지 |
+| 모델 span이 길고 검색은 짧음 | 생성 구간 지연 후보 | 입력/출력 길이·모델·quota 점검. 동일 요청을 무제한 재전송하지 않음 |
+| 함수 span이 없음 | 이 trace에는 함수 실행 증거 없음 | L06의 미실행 표시 유지 |
+| 응답은 있지만 trace가 없음 | 연결·수집·읽기 권한 문제 가능 | 시각·로그 연결·보존·읽기 권한을 점검 |
 
-예: 하루 1,000회 요청에서 5%를 평가하면 먼저 50건이 평가 대상이 됩니다. evaluator 수, 재시도, 여러 turn이 비용에 추가 영향을 줍니다. **샘플링 비율만으로 전체 비용을 계산하지 않습니다.**
+### 3. Monitor의 기간을 맞추고 집계 읽기
 
-사용자 thumbs-up/down은 유용한 신호지만 정답 라벨이 아닙니다. 실패 trace → 익명화·검토 → 평가 데이터 → prompt 수정 → 재평가로 연결합니다. traces-to-dataset·cluster analysis 등은 Preview 상태를 확인합니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 대상 agent의 `Monitor → Overview/Tools`에서 같은 시간 범위를 봅니다. | 집계와 개별 trace를 구분합니다. 자동 평가·red teaming의 Configure는 누르지 않습니다. | 빈 집계·수집 지연을 0원·오류 없음으로 처리하지 않습니다. |
+
+<div class="screen-step" markdown="1">
+
+**Monitor 기간: trace의 날짜와 다시 대조**
+
+![Monitor의 날짜 범위와 Open in Azure Monitor 링크.](../assets/portal/steps/monitor-period.png)
+
+**1 날짜 범위:** trace와 같은 관찰 기간으로 맞춥니다. **2 `Open in Azure Monitor`:** 별도 로그 화면의 진입점입니다. 녹화에서는 직접 로그 query를 실행하지 않았습니다.
+
+[자막 영상 03 · 04:33](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=273&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Monitor: 기간·agent의 부분 집계 읽기**
+
+![정책 agent Monitor Overview의 Estimated cost와 Total token usage.](../assets/portal/steps/monitor-overview.png)
+
+**1 Estimated cost / 2 Total token usage:** 선택된 agent·기간의 값입니다. 모델 Chat·이후 평가·저장소·로그까지 포함한 전체 청구액이나 0원 증거가 아닙니다. Configure로 새 자동 작업을 만들지 않습니다.
+
+[자막 영상 03 · 04:33](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=273&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+이번 평가 전 관찰에는 정책 agent 요청 10개·File search 호출 2개와 약 19K tokens·$0.04 추정이 표시됐습니다. 이는 해당 agent·표시 기간의 부분 집계이며 첫 모델 Chat·이후 비교 평가·파일·로그 보존 등의 **전체 Microsoft Azure 청구액이 아닙니다**. 직접 `Azure Logs` query나 client-side 함수 계측은 하지 않았습니다.
 
 ## 성공 기준
 
-- 자기 실행 하나의 **response/trace ID, 버전, 관찰된 작업·시간, 판단, 다음 조치**를 연결했습니다.
-- 예시만 읽었다면 **설계 완료 / 실제 trace 미확인**으로 구분했습니다.
-- trace가 없는 상태를 “오류 없음”으로 기록하지 않았습니다.
+한 응답과 같은 trace를 식별하고 실제 나타난 구간·상태·지연·원인을 적었습니다. 빈 trace는 추적 성공으로 표시하지 않았습니다. 피드백·trace→dataset·연속 평가·알림 생성은 이 장에서 실행하지 않습니다.
 
 ## 막혔을 때
 
-| 증상 | 먼저 볼 것 | 다음 행동 |
-| --- | --- | --- |
-| JSONL을 열지 못함 / 실제 ID 없음 | `Responses:` 경로와 파일의 한 행 | L05/L06 출력 파일을 선택. 예시 ID나 L08 비교 JSON으로 대체하지 않음 |
-| 403 | 프로젝트 역할과 별개인 로그 읽기 권한 | 내 Application Insights/Log Analytics IAM에서 최소 역할·scope 확인. 권한이 없으면 조회 보류 |
-| 0행 / 일부만 연결 | 프로젝트 연결, 실행 시각, 24시간 범위, 수집 지연 | 새 모델 요청 없이 범위와 ID를 먼저 대조. 여전히 없으면 상관관계 미확인 |
-| 부모만 있고 함수·내용 없음 | instrumentation과 민감 내용 읽기 권한 | 기본 JSONL과 관찰 범위를 함께 기록. 원문 수집을 무조건 켜지 않음 |
+`Log Analytics Reader`가 필요할 수 있고 보호된 테이블은 추가 `Privileged Monitoring Data Reader`가 필요합니다. Contributor라고 무조건 로그를 읽을 수 있는 것은 아닙니다. IAM을 확대하지 말고 요청 작업과 scope를 담당자에게 전달합니다.
 
 ## 정리
 
-진단할 trace ID와 최소 증거만 기록합니다. 로그의 보존 기간·원문 포함 여부·접근자를 정하고 불필요한 지속 평가를 중지합니다.
+계정·테넌트·구독 ID와 원문을 공개하지 않습니다. 로그 연결·보존·저장 비용은 남습니다. 캡처는 합성 질문과 필요한 최소 구간만 남깁니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** 한 실행의 응답/trace ID·버전·작업별 시간·판단·다음 조치. 조회하지 못한 로그는 미확인으로 남깁니다.
+**이 장에서 남길 것:** 응답↔trace 식별, 실제 span·시각·상태·실패 원인 또는 관찰 차단 사유.
 
-**다음:** 기본만 진행했다면 **[L19 공통 마무리](#l12)**로 갑니다. 추가 기능을 배우려면 [심화 선택표](#instructor)에서 선행 조건을 확인합니다.
+**다음:** 기본 코스는 [L19 공통 마무리](#l12). 심화는 [L11 Search·Foundry IQ](#l13)부터 선택합니다.
 
 </div>

@@ -188,6 +188,14 @@ main { padding: 38px 48px 48px; min-width: 0; max-width: 1220px; margin: 0 auto;
 .prose figcaption > span { display: block; margin-bottom: 6px; }
 .prose figcaption a { display: inline-block; padding: 4px 0; }
 .capture-note { font-size: 13px; }
+.screen-step { margin: 24px 0; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-soft); }
+.screen-step > p:first-child { margin-top: 0; color: var(--heading); }
+.screen-step > p:last-child { margin-bottom: 0; }
+.screen-step figure { margin: 14px 0; }
+.screen-step .screen-image { display: block; cursor: zoom-in; }
+.screen-step .screen-image img { width: auto; max-width: 100%; margin: 0 auto 8px; border-radius: 6px; }
+.screen-step .screen-image:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.screen-step figcaption { font-size: 12px; }
 .command-explanation { border-left: 3px solid var(--accent); padding-left: 16px; margin: 16px 0 28px; }
 .command-explanation > p:first-child { font-size: 15px; margin-bottom: 8px; }
 .command-explanation .table-wrap { margin-top: 8px; }

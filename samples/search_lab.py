@@ -12,6 +12,7 @@ from uuid import uuid4
 
 from cloud import Rest, azure_url, project_client
 from evidence import Budget, Evidence
+from policy_documents import policy_chunks as document_chunks
 from workshop import DATA, LANGUAGE, RESULTS, config_values, save_json
 
 SEARCH_API = "2024-07-01"
@@ -20,24 +21,7 @@ STATE = RESULTS / "search.json"
 
 
 def policy_chunks() -> list[dict[str, str]]:
-    chunks = []
-    for path in sorted((DATA / "policies").glob("*.md")):
-        text = path.read_text(encoding="utf-8")
-        label = "Document ID" if LANGUAGE == "en" else "문서 ID"
-        document_id = re.search(rf"^{label}: (CONTOSO-[A-Z]+-\d{{4}}-\d{{2}})$", text, re.M)
-        if document_id is None:
-            raise ValueError(f"Missing canonical Contoso document ID: {path.name}")
-        title = text.splitlines()[0].removeprefix("# ")
-        for section, body in re.findall(r"^## (\d+)\. ([\s\S]*?)(?=^## |\Z)", text, re.M):
-            content = title + "\n" + f"## {section}. " + body.strip()
-            chunks.append({
-                "id": document_id[1] + "-s" + section, "document_id": document_id[1],
-                "title": title, "section": section, "filename": path.name, "content": content,
-                "content_sha256": hashlib.sha256(content.encode()).hexdigest(),
-            })
-    if len(chunks) != 13 or len({item["id"] for item in chunks}) != len(chunks):
-        raise ValueError("Expected 13 unique policy sections from the three Contoso source documents.")
-    return chunks
+    return document_chunks(DATA, LANGUAGE)
 
 
 def index_schema(name: str) -> dict[str, Any]:

@@ -1,228 +1,119 @@
-> **What you will build:** A verified record of your model deployments' names, versions, processing scopes, and request limits.
+## Objectives
+
+Deploy catalog models and distinguish **model ID, version, deployment name, deployment type, and TPM**. Prepare at most one answer deployment and one evaluation judge.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Inspect the deployments you created in L01 using the portal and ownership record; do not redeploy them.
+**Format:** Direct portal deployment, without PTU, training, or additional modality deployments.
 
-**Start here:** Distinguish Model ID, Version, and Deployment Name for your `contoso-chat` deployment.
+**Start here:** Verify L01's project and approved model, region, processing geography, and costs.
 
-**What to check:** The deployment is ready and actual TPM/RPM meets the plan. Get the first answer in L03.
+**What to check:** Actual deployment state, version, and limits for `contoso-chat` and, if evaluating, `contoso-judge`.
 
 </div>
-
-## Objectives
-
-**Model ID, model version, and deployment name are different.** This kit pins chat to `gpt-6-sol / 2026-09-22`; L01 names its deployment `contoso-chat`. Availability must be verified in your actual subscription/region during provisioning.
 
 ## Concepts and lab map
 
-**What you will try:** Check your model settings, supported features, and throughput.
+**What you will try:** Model catalog, base-model deployment, quota, and versions.
 
-**What is it, and why does it matter?** Model ID identifies a product, version identifies its release, and deployment name is what code calls. `model="contoso-chat"` uses an existing deployment; it does not create one.
+**What is it, and why does it matter?** The model name identifies a product; a deployment name identifies your callable deployment. Global, Data Zone, and regional types have different processing boundaries. TPM is not a spending cap.
 
-**How do you use it?** Compare portal readiness with the ownership record and save the same name in `.env`. Inspect insufficient capacity before changing it within your scope.
+**How do you use it?** Open the exact model/version, inspect customized settings, and submit once.
 
-**Where do you run it?** Use Models in the Microsoft Foundry portal and [model_capacity.py](../../samples/model_capacity.py) in your terminal. Listing models/limits is not inference.
+**Where do you run it?** Microsoft Foundry → Build → Models → Deploy → Deploy a base model.
 
 ## Prerequisites
 
-Use L01's `results/azure-environment.json`, `.env`, project, and model deployments. Resolve an incomplete L01 deployment first; do not substitute another environment or model.
+| Purpose | Model ID | Baseline version | Your deployment name |
+| --- | --- | --- | --- |
+| Answers | `gpt-6-sol` | `2026-09-22` | `contoso-chat` |
+| L08 judge | `gpt-4.1` | `2025-04-14` | `contoso-judge` |
+
+If unavailable, stop and record **baseline model unavailable**. A substitute cannot establish baseline validation. Label any separately approved substitute experiment with its actual model, version, region, and limitations.
 
 ## Steps
 
-### 1. Inspect the models you deployed
+### 1. Deploy the answer model
 
-1. Open **Build → Models → Deployments → contoso-chat**.
-2. Compare Model ID, Version, deployment type, and ready state with the table and receipt `model_configuration`.
-3. Inspect `contoso-judge` and `contoso-embedding` too. If absent, investigate L01's deployment rather than creating duplicate names in the portal.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Verify the project and open `Build → Models`. | You see your project's deployments. | Distinguish the shared catalog from your deployment list. |
+| 2 | Select `Deploy → Deploy a base model`. | Catalog's Models page opens. Check `Available in my project`. | No separate dialog is not a failure; inspect the current page and filter. |
+| 3 | Search `gpt-6-sol` and select the **exact card**. | Provider and model ID match. | Do not substitute similarly named or recommended models. |
+| 4 | On the model details page select `Deploy → Custom settings`. | The `Deploy gpt-6-sol` form opens; do not select quick `Default settings`. | Distinguish viewing a card from submitting a deployment. |
+| 5 | Enter deployment name `contoso-chat`. | It does not duplicate another deployment. | Reuse your existing deployment if its conditions match. |
+| 6 | Expand `Model version settings` and check `2026-09-22` and the upgrade policy. | If approved, select `Opt out of automatic model version upgrades` for a fixed comparison and record a review date before retirement. | Do not submit a missing version. Opting out does not guarantee permanent support. |
+| 7 | Choose an approved consumption-based type such as `Global Standard/GlobalStandard`. | Processing geography is approved, this is not PTU, Priority stays off, and default guardrails remain. | Stop if permitted processing and supported deployment types do not match. |
+| 8 | Set the allowed minimum suitable for individual practice and record the exact TPM. | It meets model/SKU minimum/increment and remaining quota. | Stop on insufficient quota; do not silently switch region/account. |
+| 9 | Recheck costs/settings and select `Deploy` once. | Status becomes `Succeeded/Ready`. | Preserve deployment name and error code if Failed. |
+| 10 | Reopen details and inspect version, type, TPM, and update policy. | Actual values match the plan. | Record a changed version as different conditions even if its name is unchanged. |
 
-| Purpose | Model ID / version | Name created in L01 |
-| --- | --- | --- |
-| Answers/agents | `gpt-6-sol` / `2026-09-22` | `contoso-chat` |
-| L08 evaluation | `gpt-4.1` / `2025-04-14` | `contoso-judge` |
-| L11 retrieval/L15 Memory | `text-embedding-3-large` / `1` | `contoso-embedding` |
+<div class="screen-step" markdown="1">
 
-![Discover → Models in the English Contoso project, with search, Available in my project, feature/deployment filters, and model cards.](../../assets/portal/en/02-model-catalog.png)
+**Before submission: check the upgrade policy**
 
-**Reading the screen:** **Discover → Models** shows candidates/cards; **Build → Models → Deployments** shows your actual deployments. A visible card does not establish quota/capacity. Verify Responses API, function calling, File search, current pricing, and retirement conditions.
+![Open model-upgrade policy picker and Deploy button.](../../assets/portal/steps/model-deploy.png)
 
-### 2. Read processing scope and cost conditions
+Check **1 version**; select **2 Opt out of automatic model version upgrades** only for an approved fixed comparison. **3 Deploy:** Submit once after checking cost, type, and TPM.
 
-L01's `GlobalStandard` is a usage-based example. Project location, model availability, and inference-processing scope can differ. Confirm the type meets your organizational policy.
-
-| Type | What to verify |
-| --- | --- |
-| Standard | Microsoft Azure geography processing scope and availability |
-| Global Standard | Processing across supported worldwide regions is permitted |
-| Data Zone Standard | The designated zone; APAC does not mean Korea alone |
-| Provisioned / PTU | Reserved capacity/cost; not created for the core course |
-
-Distinguish storage location from inference processing. Additional model/type comparisons require their own cost, permissions, and matched-input conditions and must be recorded as separate experiments.
-
-### 3. Connect the portal deployment name to code
-
-L01 sets `.env` to `FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat`. Pass the **actual deployment name**, not the catalog Model ID, in API `model`.
-
-| Portal value | Python use |
-| --- | --- |
-| Home → Project endpoint | `AIProjectClient(endpoint=project_endpoint, ...)` |
-| Deployments → Name | `responses.create(model=deployment_name, ...)` |
-| Model ID / Version | Deployment/receipt configuration; not separately chosen on every inference request |
-
-This is the **request excerpt** expanded in L03. `client` is the project client from L01/L03; `question` is a synthetic input. This makes a billable inference request, not a deployment:
-
-<details class="implementation-detail" markdown="1">
-<summary>Implementation reference: the deployment name in a Python request — read only</summary>
-
-```python
-response = client.responses.create(
-    model=deployment_name,
-    input=question,
-    max_output_tokens=512,
-    store=False,
-)
-```
-
-</details>
-
-Do not execute the excerpt in this settings step. Verify portal Name, receipt `model_deployments.chat`, and `.env` all identify `contoso-chat`.
-
-<a id="l02-capacity"></a>
-
-### 4. Compare TPM/RPM plans with actual limits
-
-**TPM is tokens per minute; RPM is requests per minute.** Input and maximum-output reservation affect throughput estimates, not just billed tokens. Neither is a monetary spending cap.
-
-| Purpose | Per-learner recommended TPM / RPM | Planning assumption |
-| --- | --- | --- |
-| chat | 100,000 / 60 | `(8,192 + 2,048) × 6 starts/minute × 1.5 headroom`, rounded to 10,000 |
-| judge | 100,000 / 60 | Same starting budget; evaluation concurrency/context may need more |
-| embedding | 10,000 / 6 | `8,192 × 1 start/minute × 1.2 headroom`, rounded to 1,000 |
-
-The calculation is explicit below. **It is not a service minimum or a no-429 guarantee.**
-
-<details class="implementation-detail" markdown="1">
-<summary>Implementation reference: the recommended TPM calculation — use the plan command below</summary>
-
-```python
-from math import ceil
-
-learners = 1
-chat_tpm = ceil((8192 + 2048) * 6 * 1.5 * learners / 10000) * 10000
-embedding_tpm = ceil(8192 * 1 * 1.2 * learners / 1000) * 1000
-print(chat_tpm, embedding_tpm)
-```
-
-</details>
-
-L01's foundation converts the plan using the catalog's model-specific capacity units, increments, and quota. It does not apply `capacity=100` uniformly.
-
-For the portal form comparison, **Deploy → Custom settings** on a model card exposes region, deployment type, and TPM fields corresponding to the code's region, SKU, and throughput plan. Do not submit another deployment after L01.
-
-```bash
-python samples/model_capacity.py plan --learners 1
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | What it does | Result, cost, or change |
-| --- | --- | --- |
-| 1. `plan --learners 1` | Calculates request budgets and recommended limits. | Local only; use actual simultaneous learner count for shared deployments. |
+[Captioned video 02 · 00:28](../../downloads/portal/index.html?clip=02-model-agent&t=28&lang=en#02-model-agent)
 
 </div>
 
-**After reading the plan, query the actual limits.** This command does not send a model question or change the deployment.
+<div class="screen-step" markdown="1">
 
-```bash
-python samples/model_capacity.py check --learners 1 --live
-```
+**Deployment form: read name, version, and TPM separately**
 
-<div class="command-explanation" markdown="1">
+![contoso-chat deployment name, model version, TPM, and deployment-in-progress indicator.](../../assets/portal/steps/model-version.png)
 
-**Command walkthrough**
+**1 Name:** `contoso-chat`. **2 Version:** `2026-09-22`. **3 TPM:** Record your approved value. This frame is already `Deploying...`; its capacity may differ from the later evaluation adjustment. Do not click again; reopen Details after completion.
 
-| Order and command | What it does | Result, cost, or change |
-| --- | --- | --- |
-| 1. `check ... --live` | Reads your RG, model/version, SKU, and actual `rateLimits`. | Read-only; insufficient limits fail without a model test. |
+[Captioned video 02 · 00:33](../../downloads/portal/index.html?clip=02-model-agent&t=33&lang=en#02-model-agent)
 
 </div>
 
-Compare `tpm`, `rpm`, `minimum_tpm`, `minimum_rpm`, and `ready` for each `deployments.<purpose>`. Unknown limits do not establish readiness.
+### 2. Prepare the judge
 
-<details class="optional-path" markdown="1">
-<summary>Only if capacity is insufficient: adjust your deployment</summary>
+If choosing L08's paid evaluation, repeat once for `gpt-4.1 / 2025-04-14 / contoso-judge`. Do not confuse target and judge models. Check both quotas before evaluation. If insufficient, **defer evaluation rather than reducing rows or relaxing scores**.
 
-Verify the exact receipt `run_id`, update permissions, and cost scope. Do not reduce sufficient allocations.
+If this model's `Global Standard` shows `Unsupported region`, inspect support for **regional `Standard` in the same approved region** in the deployment-type picker. Select it only if its cost and processing location are approved, and record the actual SKU. Do not work around the restriction by creating another project or region. If L05's File search is incompatible with the baseline answer model, reuse this deployment for an explicitly separate tool experiment; do not change L08's answer model.
 
-```bash
-python samples/model_capacity.py apply --learners 1 --max-capacity 100 --confirm OWN_RUN_ID --live
-```
+Twelve-row evaluation includes context, outputs, and judge requests. Single-user Chat and a class running concurrent evaluations need different TPM. Inspect the model's actual token/request units with the owner. Configured TPM is not consumed tokens or money.
 
-<div class="command-explanation" markdown="1">
+<div class="screen-step" markdown="1">
 
-**Command walkthrough**
+**Judge: the SKU may differ from the answer deployment**
 
-| Order and command | What it does | Result, cost, or change |
-| --- | --- | --- |
-| 1. `apply ... --confirm ... --live` | Checks required units/quota, changes only insufficient capacity, and reads it back. | Actual Microsoft Azure change; retains model/version/protection settings and creates no PTU. |
+![contoso-judge deployment form showing Standard and version 2025-04-14.](../../assets/portal/steps/judge-standard.png)
 
-</div>
+**1 Type:** This recording uses regional `Standard` in the same approved region. **2 Version:** `2025-04-14`. The upgrade picker is still open; verify the final policy and capacity in saved Details.
 
-Exceeding the ceiling or missing quota stops before changes. Do not alter models/regions just to make the check pass.
-
-</details>
-
-<details class="optional-path" markdown="1">
-<summary>Optional: multi-model connectivity check, not a duplicate of L03</summary>
-
-The first core inference request is in L03. Choose this separate test only when up to three chat requests, one judge request, and one embedding request are needed.
-
-```bash
-python samples/model_capacity.py test --learners 1 --confirm OWN_RUN_ID --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | What it does | Result, cost, or change |
-| --- | --- | --- |
-| 1. `test ... --confirm ... --live` | Rechecks limits, then sends at most five requests. | At most 180 seconds, zero retries, and 2,048 output tokens per generative request; connectivity, not quality certification. |
+[Captioned video 03 · 00:37](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=37&lang=en#03-retrieval-boundaries)
 
 </div>
 
-Embedding uses the parent resource's `/openai/v1/embeddings`; project Responses support is not embedding support.
+### 3. Compare catalog information without invoking
 
-</details>
+Open comparison/benchmark information under `Discover → Models` and read supported tools, output formats, and modalities. Rankings are not quality scores for your purchasing task. Do not deploy or invoke Router, Batch, Flex, Priority, prompt caching, video, audio, or embeddings here.
 
-### 5. Optional extension: Model router
-
-Model router is a separate deployment that selects a model per request. Inspect allowed models, region, fallback, and prices, then compare **the same dev questions**. Do not expose an independent holdout during improvement or assume a router is cheaper/better. Batch, PTU, and fine-tuning have separate conditions/costs outside the core path.
+L11 embeddings require separately approved additional scope. The default 3072 dimensions of `text-embedding-3-large` are not automatically compatible with a 1536-dimensional index. Do not silently submit another embedding deployment beyond the two manually deployed models. The portal may provision dependencies automatically: reinspect Models after agent/file creation and include every actual deployment in the resource and cost inventory.
 
 ## Success criteria
 
-- You can identify your provider, Model ID, version, Name, region/type, and actual TPM/RPM.
-- The deployment name agrees across the portal, `.env`, and ownership record.
-- The deployment is ready before L03.
+Record whether the exact baseline model/version deployed and its actual limits. Separate unavailable and failed states from success. No PTU, extra manual model deployments, or paid modalities were requested. Disclose automatic dependencies separately rather than claiming that only two deployments exist.
 
 ## Troubleshooting
 
-| Symptom | Check first | Next action |
-| --- | --- | --- |
-| A model is missing or the limit query fails | Region, type, quota, and access | If you could not read the numbers, do not mark the deployment ready. |
-| Quota is available but deployment fails | The model's capacity unit and increment | A particular capacity can fail despite available quota. Read the query result and adjust within your own scope. |
-| 429 | Current TPM/RPM | Do not retry indefinitely. |
+Distinguish `InsufficientQuota`, `SkuNotAvailable`, and policy errors. Inspect the failed deployment before creating duplicates. A `429` may involve request rate, context size, or shared usage; raising limits is not always the solution.
 
 ## Cleanup
 
-Reuse L01's three deployments in subsequent modules. Record names, costs, and retention deadlines for additional comparison deployments and inspect them in L19.
+Keep deployment names and policies privately. Distinguish token consumption from other resource costs. Quota, Budget alerts, and TPM do not guarantee automatic monetary shutdown.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Actual chat/judge/embedding deployment names, model versions, TPM/RPM, and ready states. The portal, `.env`, and receipt must match.
+**Keep:** Each deployment's model ID/version/name/type/TPM/state/geography and any unavailability reason.
 
-**Continue:** [L03 first answer](#l03), using the ready deployment without redeploying it.
+**Continue:** [L03: receive a first playground response](#l03).
 
 </div>

@@ -1,120 +1,62 @@
-> **Working rule:** Use the environment you created and your own results. Preparation → execution → evidence-based judgment → cleanup matters more than matching screenshots.
+> **Working rule:** One click → inspect the actual screen → proceed. Separate execution, settings inspection, manual comparison, and not run.
 
 ## Starting checklist
 
-The guide follows one participant's end-to-end workflow. Microsoft Azure permissions, organizational approval, and feature availability remain action prerequisites; do not assume somebody else completed them.
-
-| Item | Evidence |
+| Check | Evidence |
 | --- | --- |
-| Local files/Python | Lab-root folder, `.venv` path, synthetic-data check |
-| Subscription/region/budget | Signed-in account, allowed creation/request scope, stop criteria |
-| L01 provisioning | Your RG/project, three deployments, and telemetry connection |
-| Target consistency | Portal, `.env`, and `results/azure-environment.json` identify the same project |
-| Effective access | Actual successful/denied requests and errors, not role names alone |
-| Records/cleanup | Created-resource list, your output files, retention and next cost-check times |
+| Sign-in | New window, permitted tenant/subscription/account; exclude authentication from recordings |
+| Ownership | Dedicated group/account/project and private ownership record |
+| Costs/requests | Resource/two-model/Chat/evaluation limits; separate approval for additions |
+| Input | Language-specific three policies, v1/v2 Instructions, twelve-row upload JSONL, review CSV, checklist |
+| Access | Separate user, runtime, data, and log-read permissions |
+| Recording | No login, email, keys, people lists, subscriptions; reviewed exports only |
 
-Setup uses unique names and ownership tags. Do not copy another participant's receipt or invent a replacement. Block unpermitted operations and distinguish local/design work from execution.
+## Core course
 
-## Core course and electives
-
-Follow **L00 → L01 → … → L10 → L19**. If choosing advanced modules, take them after L10 and finish with L19.
-
-| Stage | What you create or verify |
-| --- | --- |
-| L01–L02 | Dedicated environment, telemetry, and models; actual invocation names/limits |
-| L03 | One model answer, without knowledge/tools |
-| L04–L05 | Instructions and then retrieval on the same portal agent |
-| L06 | Policy, inventory, draft, and approval boundaries of a separate integrated SDK agent |
-| L07 | Local HTTP/OpenAPI/MCP exchange; optional Cloud Toolbox after L11 |
-| L08 | Fixed 12-question v1/v2 originals/evaluation for a separate tool-free Prompt Agent |
-| L09 | Harmless boundary responses versus actual function blocking |
-| L10 | Your L04–L06 response/trace IDs, operations, and durations |
-| L19 | Stop your schedules/sessions; verify retention/approved deletion and remaining costs |
-
-**Keep targets distinct.** L05's portal agent, L06's integrated SDK agent, and L08's evaluation-only agent are different. L08 scores do not replace L06 tool-quality checks or per-user document ACL validation.
-
-| Elective | Prerequisite and result |
-| --- | --- |
-| L11 | L01 models/receipt → your Search service/index/KB → three retrieval comparisons |
-| L12 | L11 → Hosted package/local call/deployment/exact-version invocation |
-| L13–L14 | Same project/chat model, separate `.venv-advanced`; local SDK orchestration, no L12 required |
-| L15 | Chat/embedding and supported Memory → store item, compare scopes, approved item deletion |
-| L16 | L05's server-executable agent and L01 telemetry → manual/scheduled execution and stop checks |
-| L17 | Local access/cache repair and control design, separate from actual RBAC/network testing |
-| L18 | Local promotion-gate repair and release/recovery design; live publishing has separate prerequisites |
-
-Choose electives by **capability to learn**, not participant persona. Mark unsupported operations not performed.
-
-## Time planning
-
-Core L00–L10 displays **285 minutes (4 hours 45 minutes)**; L19 adds ten, totaling 295. The eight electives display **335 minutes (5 hours 35 minutes)**. All modules total **630 minutes (10 hours 30 minutes)**.
-
-These estimate direct work. Add initial installation, permissions/cost approval, quota, Microsoft Azure creation/indexing/deployment waits, and breaks. They do not guarantee every elective's service operations fit within the displayed duration.
-
-### 90-minute summary path
-
-First **complete your own L01/L02 provisioning and readiness checks**. Ninety minutes does not include starting from no resources.
-
-| Time | Step | Evidence |
+| Module | Perform | Do not claim |
 | --- | --- | --- |
-| 0–5 minutes | Revisit L00 | Model, knowledge, and tools |
-| 5–15 minutes | Review L01 state | Your project/models/telemetry |
-| 15–35 minutes | L04 agent | No invented facts/tool success |
-| 35–60 minutes | L05 File search | Actual citations versus originals |
-| 60–80 minutes | Shortened L08 | Compare one pair from your outputs; otherwise read inputs/rubric only |
-| 80–90 minutes | L19 cleanup | Resource states, costs, and next check |
+| L00–L02 | Bound scope; create owned environment/logging/exact deployments | Silent model/version substitution |
+| L03 | One synthetic Model playground send | Direct SDK/API execution |
+| L04–L05 | Same Prompt Agent, Instructions, three-file upload, actual citations | Upload alone establishes retrieval |
+| L06 | Inspect citations and unknown inventory/persistence/approval | Unimplemented function execution |
+| L07 | Conditional approved read-only Learn MCP | Local HTTP/purchasing OpenAPI execution |
+| L08 | Two tool-free Prompt Agents, twelve fixed questions, new portal v1/v2 evaluation | Historical SDK rerun, holdout, generalization |
+| L09 | Three harmless boundary questions/settings | Backend function rejection or completed red-team |
+| L10 | Actual traces for requests **after** logging connection | Empty traces or saved settings prove ingestion |
+| L19 | Inventory, cost, retention handoff | Browser close stops billing |
 
-Reading/partial execution on this short path is not full core-course completion.
+## Advanced choices
 
-## Your progress record
+| Module | Scope/prerequisites |
+| --- | --- |
+| L11 | Knowledge inspection; import/search only with separately approved Search/Storage/embedding/data access |
+| L12 | Prompt/Hosted kind/details; no code/container deployment |
+| L13 | Identical model/context; manual independent/copy-transfer review, four baseline/max six sends |
+| L14 | Three draft/review/revision and two routing/manual-transfer sends; no automated handoff/A2A/approval |
+| L15 | Memory settings; approved existing store/UI/writes allow max four synthetic recall sends; CRUD/isolation unverified |
+| L16 | Inspect Routines form and cancel; zero default creations/dispatches |
+| L17 | Read owned access/connections and review cache/ACL decisions; no escalation/live attack test |
+| L18 | Actual runs/candidate version/gates/recovery plan; no CI/publication/activation/rollback |
 
-Keep this table privately, separate from browser progress. Unknown values remain unverified.
+## Time plan
 
-| Module/target | Live / local / design / not performed | ID/file | Judgment and evidence | Next action |
+Core L00–L10: **285 minutes (4 hours 45 minutes)**; L19: ten minutes. Advanced: **335 minutes (5 hours 35 minutes)**; total display: **630 minutes (10 hours 30 minutes)**. Approval, quota, login, provisioning, indexing, and evaluation waits are additional. Never solve unsupported tasks through repeated creation, raised limits, or lower gates.
+
+The ninety-minute path requires **your existing L01/L02 environment**: review L00 → L04 → L05 → read one L08 pair → L19. It is not complete evaluation/core execution.
+
+## Private progress record
+
+| Target | Executed/observed/manual/blocked | Actual screen/time/visible ID | Decision | Next action |
 | --- | --- | --- | --- | --- |
-| Provisioning | Record | Your receipt/portal names | Target agreement/readiness | Resolve pending creation/access |
-| Model/agent | Record | Response ID/name/version | Actual text/state/unknown handling | Inspect input/instructions/model |
-| Retrieval/tools | Record | Citations/arguments/output | Actual sources/amount/not-ordered | Inspect retrieval/function/inputs |
-| Evaluation | Record | Your originals/evaluation JSON/case ID | Scores/reasons/errors/omissions | Analyze using fixed criteria |
-| Traces | Record | Response/trace ID | Operations/durations/unobserved layers | Check query scope/collection |
-| Cleanup | Record | Actual resource state | Stopped/retained/approved deletion | Recheck costs within 24 hours |
+| Environment | Record | Owned names/state | Matching scope | Record missing setup |
+| Models/agents | Record | Version/question/original | Actual answer/error | No automatic resend |
+| File search/MCP | Record | Actual tool/citation/source | Whether invoked | Preserve unknowns |
+| v1/v2 | Record | Twelve rows/run/target/errors | Scores plus row checklist | Preserve missing/errors |
+| Traces | Record | Same request/time/response/trace | Actual operation/duration | Identify unobserved layers |
+| Wrap-up | Record | Resource state/retention/costs | Retain/approved cleanup | Next cost review |
 
-### Distinguish result files by name and purpose
+Portal usage does not automatically produce SDK result JSON. Keep personal screens/subscriptions/raw footage private. [Recorded coverage](../../downloads/portal/index.html) is separate from browser learning progress.
 
-Open the **exact printed path** in VS Code's file explorer. Use **Ctrl+F** (macOS **Cmd+F**) to find the named field; expand JSON's `{}`/`[]` without editing originals.
+## Before finishing
 
-| Record | Purpose | Reused in |
-| --- | --- | --- |
-| `results/azure-environment.json` | L01 resource/deployment ownership | L02, L08, electives, and L19 |
-| `Resource receipt:` file `contoso-lab-….json` | Resource IDs created by the L04/L05/L06 SDK | Exact cleanup scope in L19 |
-| `Responses:` file `contoso-lab-…-responses.jsonl` | Questions, answers, actual functions/citations | L06 `read-result`, L10 tracing |
-| `instruction-prompt-agent-en.json` | L08's 24 collected originals | Native evaluation `--input` |
-| `instruction-native-prompt-agent-en.json` | L08 scores, reasons, and errors | Comparison with the same question's originals |
-| Printed `Evidence:` file | Events/errors for that execution | That module's evidence; not a substitute input of another format |
-
-Portal-only execution does not automatically create these SDK files. Record agent names/versions, questions, IDs, and citations privately. Do not type the example filename's `…` literally.
-
-## Read code, portal controls, and results in order
-
-1. **Locate the input destination.** Terminal, portal Chat, `.env`, Python excerpts, and sample outputs differ.
-2. **Understand the request/change.** Find client, inputs, API, and result in the code; match portal settings. The portal does not run your PC's functions.
-3. **Run one command, then pause.** Distinguish plans from requests and verify the next step's prerequisite.
-4. **Judge using evidence.** Read originals, actual tool output, citations, errors, and IDs rather than relying on claims.
-5. **Manage resources.** Closing the browser or resetting progress does not stop schedules, resources, or costs.
-
-L13/L14/L17/L18 follow **Try it → Change one thing → Explain the result**. Edit only `practice/` copies of `exercise.py`; preserve tests, source fixtures, and evaluation gates.
-
-## Check boundaries before completion
-
-| Observation | Correct interpretation |
-| --- | --- |
-| Plan output/client initialization | Not an actual successful Microsoft Azure request |
-| File upload | Separate from indexing completion |
-| Agent claims a lookup/order succeeded | Requires actual tool evidence; real ordering is not connected |
-| `completed` | Execution finished, not answer/quality certification |
-| Only some evaluation rows succeed | Do not omit errors/missing rows to produce a passing average |
-| Local access/release tests pass | Not actual Azure RBAC/deployment/rollback verification |
-| Memory A/B searches | Lab-scope comparison, not a complete authenticated-user access test |
-| One successful evaluation | Not generalization, production release, or independent holdout validation |
-
-Do not rewrite criteria, baseline v1, or failed originals after observing results. Finish with **per-resource state, retention deadline, and next cost-check time**.
+Preserve quality ≥90% and zero safety/access failures. UI averages/`Completed` are not full requirements passes. Keep missing, duplicate, error, and unsupported outcomes. Twelve fixed questions are not a holdout and do not validate functions, ACLs, Memory CRUD, SDK orchestration, business approval, or publishing.
