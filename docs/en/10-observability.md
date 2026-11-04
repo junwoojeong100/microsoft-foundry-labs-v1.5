@@ -1,208 +1,159 @@
-> **What you will build:** An evidence-based explanation of “Why was it wrong?”, “Why was it slow?”, and “How much did it use?” for a single run.
+## Objectives
+
+Find one of your requests in Traces and connect input, retrieval, response, latency, and errors. Never substitute an unrelated successful trace for a failed request.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Query and interpret your own agent execution using L01's telemetry connection.
+**Format:** Direct portal inspection, with one synthetic request only if none exists after logging connection.
 
-**Start here:** Find the same L05/L06 execution in Traces using its response ID, time, and agent version.
+**Start here:** Verify L01's Application Insights connection and L05/L09's send time, agent/version, and visible identifiers.
 
-**What to check:** Record observed operations, durations, and next actions. Without log access, use the synthetic example and leave actual tracing unverified.
+**What to check:** The same request's actual trace/spans, or a specific collection, permission, or connection blocker.
 
 </div>
-
-## Objectives
-
-**Evaluation shows whether it was good, Trace shows what happened, and Monitoring shows how behavior changes over time.**
 
 ## Concepts and lab map
 
-**What you will try:** Read the operations and durations for one question you already ran.
+**What you will try:** Server-side tracing, spans, Application Insights, and monitoring.
 
-**What is it, and why does it matter?** A trace records one request; a span is an operation such as retrieval, a model call, or a tool call. Find the slow operation rather than judging only the total time. No logs means unverified, not error-free.
+**What is it, and why does it matter?** A trace represents a request path; spans represent operations such as retrieval and generation. Dashboard averages cannot prove a particular answer's evidence or function success.
 
-**How do you use it?** Find an L05 or L06 execution by response ID, time, and version. Read its operation durations and status, then choose one cause to investigate.
+**How do you use it?** Narrow by time, agent, and ID, then inspect parent/child spans from the same execution.
 
-**Where do you run it?** Use portal **Traces**; [trace_lab.py](../../samples/trace_lab.py) is an optional query path. Without log access, practice interpreting the synthetic timing table below.
+**Where do you run it?** Microsoft Foundry → Agents → target → Traces, and optionally the connected Application Insights in Azure portal.
 
 ## Prerequisites
 
-Use the Application Insights connection/read access you prepared in L01 and your L04–L06 results. Application Insights collects/queries Microsoft Azure execution logs; ingestion and retention have costs.
-
-<details class="optional-path" markdown="1">
-<summary>If not connected yet: finish your project's telemetry setup</summary>
-
-Inspect receipt `monitoring` and the portal connection first. If absent, follow **L01 step 5** to plan/create Log Analytics, Application Insights, and the connection in your owned group. Do not recreate existing resources. Thirty-day retention and daily ingestion limits are not hard total-spend caps.
-
-Inspect your own connection under **Agents → Traces → Connect** or **Manage → Project details → Connected resources**, without replacing an existing binding. Telemetry is collected **after connection**, not retroactively for earlier requests.
-
-</details>
+Logging applies to requests **after connection**. Portal-connected server tracing does not automatically instrument local client functions. Trace access is not permission to retain or disclose all original content.
 
 ## Steps
 
-### 1. Check the log-collection connection
+### 1. Match the request, target, and time range
 
-Open your agent's **Traces**. If only **Connect** appears, compare the connection and current project. For 403, inspect **IAM → View my access** on your Application Insights/Log Analytics resources and assign the required minimum scoped roles if permitted. Otherwise block the query and record actual tracing unverified.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Open `Build → Agents → contoso-policy → Traces`. | The intended agent/version is selected. | Check project and duplicate names. |
+| 2 | If `Connect` appears, verify L01's Application Insights connection. | The dedicated log resource is connected. | Record blocked if access or cost approval is missing. |
+| 3 | Narrow the time filter around the last request. | L05/L09's send time is included. | Distinguish local time from UTC. |
+| 4 | Only if needed, send the question below **once after connection**. | Record its new time and response. | Reuse an existing post-connection request when available. |
+| 5 | Allow a few minutes for ingestion, then select `Refresh`. | A matching time/agent/conversation or response row appears. | Do not repeatedly send Chat because the list is empty. |
 
-Server-side tracing for Prompt/Hosted agents can begin after connection without code changes. It does not automatically trace every detail inside your client-side functions.
-
-### 2. Find and correlate one of your runs
-
-First reuse an L05/L06 run collected after tracing was connected. If none exists, send one approved synthetic question and record its response ID/time. Do not repeatedly resend questions because the list is empty.
-
-| Required value | Where to obtain it | Check the binding |
-| --- | --- | --- |
-| Response JSONL | The `results/contoso-lab-…-responses.jsonl` path printed after `Responses:` by the L05/L06 SDK | Use L06's `read-result` for record/response IDs and agent/version. The source fields are `id`, `response_id`, `agent_name`, and `configuration.agent_version` |
-| Agent name/version | That row, or the configuration of the agent you invoked in the portal | Do not substitute the L08 evaluation agent or L12 Hosted name |
-| Application Insights app ID | Your `results/azure-environment.json` → `monitoring.appId.value`, or that resource's Overview | Match `monitoring.appInsightsId.value` with the actual project connection. Do not copy keys/connection strings. |
-
-With portal-only results, completing the **portal path** using the response ID is sufficient. Do not fabricate a JSONL file or pass L08's comparison JSON to this JSONL input. The CLI reads only the last 24 hours; read older evidence within the portal's approved retention scope or leave correlation unverified.
-
-![Execution-list example. Locate ID search, version/status/date filters, durations, tokens, and estimated costs in Prompt Agent Traces.](../../assets/portal/en/06-traces.png)
-
-**Reading the screen:** In **Build → Agents → your agent → Traces**, first set **Date range** and **Version**. Search using your own run's trace/conversation/response ID, then open a row to inspect individual operations. **Completed** means execution finished, not that the answer was correct.
-
-Find the following in the trace.
-
-| Evidence | What to record |
-| --- | --- |
-| Agent/model execution | Name, version, start time, and total duration |
-| Retrieval call | Actual returned documents and empty results; mark content unobserved if access is unavailable |
-| Function/MCP call | Name, arguments, and errors; inspect JSONL `tool_calls` separately if local-function spans are absent |
-| Model usage | Input/output tokens and available cost indicators; absent means uncollected, not zero |
-| Conversation/response | Request-to-execution link; shared `operation_Id`, parent `operation_ParentId`, and child `id` |
-
-### 3. Distinguish three types of failure
-
-**Incorrect policy answer:** Was the correct document retrieved? If not, investigate retrieval. If it was, investigate instructions, the model, or answer synthesis.
-
-**Slow answer:** Break total latency into model, retrieval, tool, and network/wait stages. Do not prescribe a model change when the tool is slow.
-
-**The function succeeded but the answer failed:** Check whether the tool output was returned to the same conversation/call ID and whether the final output completed.
-
-**Timing example — synthetic teaching data, not a Microsoft Azure trace.** Assume these child operations run sequentially without overlap.
-
-| Operation | Start–end (ms) | Observed duration | Judgment |
-| --- | ---: | ---: | --- |
-| Whole request | 0–4,000 | 4,000ms | Parent span; do not add child durations to it again |
-| Policy retrieval | 100–800 | 700ms | Also check whether the evidence sections are correct |
-| Model response | 900–3,800 | 2,900ms | Largest observed interval; inspect output length/tokens first |
-| Inventory tool | 3,800–3,850 | 50ms | Not the primary bottleneck in this example |
-
-Observed children total 3,650ms, leaving 350ms. **Do not call the remaining 350ms network latency without evidence.** Parallel spans overlap and cannot simply be summed. If the model dominates, inspect token counts and repeated calls; if retrieval dominates, inspect returned volume and retrieval stages. For a successful request, explain the longest observed interval and missing intervals rather than inventing an error.
-
-**Skip the CLI if you have read the same run's operations and durations in the portal.** It is an alternative for learners with an SDK response file, not an additional required task.
-
-<details class="optional-path" markdown="1">
-<summary>Optional: query Application Insights using an SDK response file</summary>
-
-The bundled CLI queries Application Insights using response/trace IDs from an actual response file.
-
-```bash
-python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME
+```prompt
+Use the policy documents to give Contoso's laptop cap and approvers for an order strictly above KRW 2,000,000. Do not look up inventory or execute an order.
 ```
 
-<div class="command-explanation" markdown="1">
+<div class="screen-step" markdown="1">
 
-**Command walkthrough**
+**Time first: do not assume Last Day includes your request**
 
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `trace_lab.py` | `--input` is the actual English response JSONL, `--app-id` is the Application Insights application ID, and `--agent` is the agent name to query. Replace the placeholders with values from your owned English environment. Reads identifiers from the file and prints a KQL plan. | No Microsoft Azure query. Check that the time window and ID conditions refer only to your run. |
+![Enlarged Traces Date range and Last Day controls.](../../assets/portal/steps/trace-filters.png)
+
+**1 Date range:** Include the send time. **2 Last Day:** Only a quick default range. For an empty list, check timezone, post-connection requests, and ingestion delay before sending anything again.
+
+[Captioned video 03 · 04:06](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=246&lang=en#03-retrieval-boundaries)
 
 </div>
 
-**Before querying:** Verify that the plan's response IDs and agent name match your run and that you have log-read access. Use the same three values in the following command.
+<div class="screen-step" markdown="1">
 
-```bash
-python samples/trace_lab.py --input results/actual-responses.jsonl --app-id ACTUAL_APP_INSIGHTS_APP_ID --agent ACTUAL_AGENT_NAME --live
-```
+**Trace list: find the same time and agent version**
 
-<div class="command-explanation" markdown="1">
+![Actual policy-agent Traces tab with Created at and Agent version columns.](../../assets/portal/steps/trace-list.png)
 
-**Command walkthrough**
+**1 Traces:** The tab inside your target agent. **2 Created at:** Match the send time. **3 Agent version:** Compare the saved number before opening that row.
 
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. The same command with `--live` | Reads actual logs using the reviewed KQL. Limited to the last 24 hours and at most 200 rows; does not run new model inference. | Sends a Microsoft Azure read request and records query results. Zero rows means correlation is unverified; do not fill in arbitrary IDs. Log-service usage terms apply separately. |
+[Captioned video 03 · 04:06](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=246&lang=en#03-retrieval-boundaries)
 
 </div>
 
-Print the KQL first and review its scope. It covers the last 24 hours, returns at most 200 rows, and does not retrieve raw tokens or full message bodies.
-`app-id` is not an instrumentation key or connection string. Zero returned rows fail as **unverified correlation**;
-do not relabel a request ID as a trace ID. Compare `contract.sha256` and version only when using L12 Hosted results; do not require that Hosted contract in the basic Prompt Agent JSONL.
+### 2. Open parent and child spans from that trace
 
-Equal `input_rows` and `correlated_rows`, with empty `missing_case_ids`, establish **input-to-log correlation**. `model_response_spans_observed` and `request_trace_ids_observed` measure different observation layers. This CLI checks correlation, not bottlenecks or answer correctness. Read the query rows in the printed `Evidence:` file and the portal details, then fill the table with your own values.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Open the matching trace and expand its spans. | The actual RAG request showed `Execute Tool file_search.msearch` and `Chat gpt-4.1-2025-04-14` beneath `Invoke Agent`. | Do not invent business-function spans. |
+| 2 | Select `Execute Tool`; read queries and returned policy text in **Input + Output**. | Actual `procurement-policy.md` text was verified. Citation preview did not open, so this trace was compared with the uploaded original. | Tool names or input questions alone do not establish returned evidence. |
 
-</details>
+<div class="screen-step" markdown="1">
 
-<details class="implementation-detail" markdown="1">
-<summary>Implementation reference: finding logs through response IDs and KQL — read only</summary>
+**Span tree: whole request, retrieval, then generation**
 
-#### Portal Traces and the actual correlation query
+![The same request's Invoke Agent parent and retrieval and Chat child spans.](../../assets/portal/steps/trace-span-tree.png)
 
-In the portal, use **Traces** to select your agent/version, time range, and response ID. The Python path reads the same IDs from JSONL, builds KQL, then sends one read query to Application Insights.
+**1 Parent / 2 Retrieval / 3 Generation:** Selecting retrieval changes the right-hand details. Match your private IDs and time; do not infer masked identifiers. This image contains no inventory or ordering-function span.
 
-```python
-rows = load_jsonl(args.input)
-query = query_for(rows, args.agent)
+[Captioned video 03 · 04:18](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=258&lang=en#03-retrieval-boundaries)
 
-result = rest.request(
-    "POST",
-    f"/v1/apps/{args.app_id}/query",
-    {"query": query, "timespan": "P1D"},
-)
-report = correlation_report(rows, result)
-```
+</div>
 
-| Portal value | Code input/use |
-| --- | --- |
-| Agent filter in Traces | `args.agent` |
-| Response/trace IDs in request details | `response_id` / `trace_id` in `rows`, used as `responseIds` / `traceIds` in KQL |
-| Selected Application Insights app | `args.app_id` (app ID, not a connection string) |
-| Time range | `timespan="P1D"` and KQL restricted to the last 24 hours |
-| Correlated rows | `correlation_report()` fields `correlated_rows` and `missing_case_ids` |
+<div class="screen-step" markdown="1">
 
-The code path **only reads telemetry** and does not call a model. Zero rows or missing IDs remain unobserved/failures; do not fill them from what appears on a portal screen.
+**Search span: actual Input and Output, not just a name**
 
-</details>
+![Actual file_search.msearch Input + Output and returned procurement policy content.](../../assets/portal/steps/trace-input-output.png)
 
-### 4. Optional: Add client-side tracing
+**1 Input + Output:** Inspect queries and results together. **2 Content source:** Compare the returned text with the answer's claims. Public identifiers are masked; match your own request using private records.
 
-To see inside your own functions or external applications, add OpenTelemetry and your framework's instrumentation. VS Code Toolkit's local OTLP tracing can show development executions without cloud logs.
+[Captioned video 03 · 04:18](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=258&lang=en#03-retrieval-boundaries)
 
-Do not enable raw collection of sensitive inputs/outputs by default. Correlate using trace/span IDs and collect only the minimum business metrics needed. Also check that you are not exporting server-side and client-side traces twice.
+</div>
 
-### 5. Conditional: Monitoring and continuous evaluation
+### Interpret one execution
 
-Use the Monitoring dashboard and continuous evaluation in nonproduction after checking their Preview scope. Start with a small sampling rate, a few evaluators, and separate judge quota.
+| Observation | Interpretation | Next action |
+| --- | --- | --- |
+| Retrieval span returns 403 | Retrieval may have failed authorization | Inspect connection, runtime identity, and data access; do not call a model-only fallback successful retrieval |
+| Model span is slow, retrieval short | Generation is a latency candidate | Inspect input/output length, model, quota; no unbounded resends |
+| No function span | This trace has no function-execution evidence | Preserve L06's not-run status |
+| Response exists, trace absent | Connection, ingestion, or read-access issue possible | Inspect time, connection, retention, and permissions |
 
-For example, sampling 5% of 1,000 requests per day initially selects 50 for evaluation. Evaluator count, retries, and multiple turns further affect cost. **Do not calculate total cost from the sampling rate alone.**
+### 3. Match Monitor's period before reading aggregates
 
-User thumbs-up/down feedback is a useful signal, not a ground-truth label. Follow the loop: failed trace → anonymization and review → evaluation data → prompt revision → reevaluation. Check the Preview status of traces-to-dataset, cluster analysis, and related capabilities.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Inspect the same period in the agent's `Monitor → Overview/Tools`. | Separate aggregates from individual traces. Do not select automatic-evaluation/red-teaming Configure. | Empty/delayed metrics do not mean zero charges or no errors. |
+
+<div class="screen-step" markdown="1">
+
+**Monitor period: reconcile the trace date again**
+
+![Monitor date range and Open in Azure Monitor link.](../../assets/portal/steps/monitor-period.png)
+
+**1 Date range:** Use the same observation period as the trace. **2 `Open in Azure Monitor`:** An entry to separate log inspection; no direct log query was executed in the recording.
+
+[Captioned video 03 · 04:33](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=273&lang=en#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Monitor: read a partial agent-and-period aggregate**
+
+![Policy-agent Monitor Overview showing Estimated cost and Total token usage.](../../assets/portal/steps/monitor-overview.png)
+
+**1 Estimated cost / 2 Total token usage:** Values for the selected agent and period, not total billing for model Chat, later evaluations, storage, and logs, or proof of zero charges. Do not create automatic jobs with Configure.
+
+[Captioned video 03 · 04:33](../../downloads/portal/index.html?clip=03-retrieval-boundaries&t=273&lang=en#03-retrieval-boundaries)
+
+</div>
+
+The pre-evaluation observation showed ten policy-agent requests, two File search calls, and about 19K tokens / $0.04 estimated cost. This is a partial aggregate for that agent and period, **not total Microsoft Azure billing** for the first model Chat, subsequent evaluations, files, logging, or retention. No direct `Azure Logs` query or client-function instrumentation was performed.
 
 ## Success criteria
 
-- You linked one of your runs' **response/trace IDs, version, observed operations/durations, judgment, and next action**.
-- If you only read the example, you recorded **design complete / actual trace unverified**.
-- You did not treat missing traces as “no errors.”
+Identify one response and its matching trace, recording actual spans, states, timings, and causes. Do not mark an empty trace successful. Feedback collection, trace-to-dataset creation, continuous evaluation, and alerts are not executed here.
 
 ## Troubleshooting
 
-| Symptom | Inspect first | Next action |
-| --- | --- | --- |
-| Cannot open JSONL / no actual IDs | The `Responses:` path and one file row | Select the L05/L06 output, not example IDs or L08 comparison JSON |
-| 403 | Log-read access is separate from project roles | Check minimum roles/scope in your Application Insights/Log Analytics IAM; block the query without permission |
-| Zero rows / partial correlation | Project connection, run time, 24-hour window, collection delay | Compare scope/IDs before any new model request. If still absent, leave correlation unverified |
-| Parent exists but function/content is absent | Instrumentation and sensitive-content read permissions | Record JSONL evidence and observation limits; do not indiscriminately enable content recording |
+Logs may require `Log Analytics Reader`, and protected tables additional `Privileged Monitoring Data Reader`. Contributor does not automatically grant all log access. Ask the owner for the exact operation and scope rather than expanding IAM.
 
 ## Cleanup
 
-Record only the trace IDs needed for diagnosis and minimal evidence. Set log retention, decide whether raw content is included and who can access it, and stop unnecessary continuous evaluation.
+Do not publish account, tenant, subscription identifiers, or raw personal content. Logging and retention costs remain. Capture only synthetic questions and the minimum necessary trace region.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** One run's response/trace IDs, version, task durations, interpretation, and next action. Logs you could not query remain unverified.
+**Keep:** Response-to-trace link, actual span/time/status/cause, or the specific inspection blocker.
 
-**Continue:** Core-only learners go directly to **[L19 shared wrap-up](#l12)**. For further features, check prerequisites in the [elective selection table](#instructor).
+**Continue:** Core learners go to [L19 shared wrap-up](#l12). For electives, start at [L11 Search and Foundry IQ](#l13).
 
 </div>

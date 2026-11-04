@@ -1,205 +1,149 @@
-> **완성할 결과:** 실제 Memory item을 저장·검색하고, 사용자 격리 및 승인된 item 삭제 후 부재를 확인합니다.
+## 목표
+
+대화 문맥과 서버 Memory를 구분합니다. 실제 `Memory stores`·생성 폼·runtime 권한 경고를 관찰하고 **Create 없이 취소**합니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 심화 · Memory Preview와 두 종류의 모델 지원이 필요합니다.
+**진행 방식:** 기본은 관찰. 이번 녹화는 store 0개·Memory 쓰기/회상 0회입니다. 별도 승인된 기존 연결의 조건부 Chat 비교도 CRUD·격리·삭제 검증은 아닙니다.
 
-**먼저 할 일:** 가상 사용자 A의 표 형식 선호 한 항목만 저장할 계획과 사용자 범위를 확인합니다.
+**먼저 할 일:** `Build → Memory`의 `Memory stores (0)`와 `Setup incomplete`를 읽습니다.
 
-**확인할 결과:** 같은 항목이 A에게만 검색되는지 확인합니다. 삭제는 승인받은 항목 하나에 한하며 수행하지 않았다면 미실행으로 적습니다.
+**확인할 결과:** 확인 가능한 설정, 새 대화의 실제 결과, 포털에서 입증하지 못한 항목.
 
 </div>
-
-## 목표
-
-**Conversation은 대화 기록, Memory는 대화 사이 맥락, IQ는 조직 지식**입니다.
-표 형식으로 답했다는 자연어만 보고 기억 성공을 판정하지 않습니다.
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 가상 사용자 A의 답변 형식 선호 하나를 저장하고 검색합니다.
+**경험할 기능:** Memory Preview의 연결·보존·대화 간 회상 구분.
 
-**무엇이며 왜 중요한가요?** Memory는 대화가 끝난 뒤에도 다시 찾을 사용자 맥락입니다. Store는 보관소, item은 한 항목, scope는 사용자 범위, TTL은 보존 시간입니다. A의 기억을 B에게 보여 주면 안 됩니다.
+**무엇이며 왜 중요한가요?** Conversation 안의 문맥은 장기 Memory와 다릅니다. 자연어로 “기억했다”고 답한 것만으로 저장 성공·사용자 격리를 증명할 수 없습니다.
 
-**어떻게 사용하나요?** 저장한 항목 ID를 A와 B로 각각 검색합니다. 삭제 승인 후에는 같은 항목의 부재를 확인합니다. “잊었습니다”라는 답만으로는 부족합니다.
+**어떻게 사용하나요?** 포털에 노출된 store·도구·scope·TTL을 읽고, 별도 승인된 경우만 합성 선호를 새 Chat에서 비교합니다.
 
-**어디서 실행하나요?** 터미널의 [memory_lab.py](../samples/memory_lab.py)와 포털 **Memory**를 사용합니다. 자동 기억 추출 전체가 아닌 한 항목의 저장·검색·격리·삭제 실습입니다.
+**어디서 실행하나요?** Microsoft Foundry의 내 프로젝트 → Build → Memory와 내 agent Details/Tools. 조건부 비교만 Chat을 사용하며 코드·직접 API는 사용하지 않습니다.
 
 ## 준비
 
-Memory는 **Preview**이며 [지원 지역](https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-memory)(2026-10-09 확인: East US 2는 목록에 있고 East US는 없음), chat·embedding 배포, 프로젝트 역할이 필요합니다.
-현재 VNet 통합 제한이 있으므로 private 환경의 보안 설정을 바꾸어 실습하지 않습니다.
-Python 기본 SDK 환경과 `.env`의 `FOUNDRY_EMBEDDING_DEPLOYMENT_NAME`을 준비합니다.
+서버 Memory는 chat·embedding 배포와 **프로젝트 managed identity**의 권한이 필요합니다. 녹화에서는 `Setup incomplete`가 프로젝트의 **Foundry User** 역할을 요구했고, 역할 부여에는 Owner 또는 User Access Administrator가 필요하다고 안내했습니다. 개인의 Contributor 권한과 runtime identity의 권한은 다릅니다. **Resolve를 누르거나 역할을 추가하지 않습니다.**
 
-Hosted·Agent Framework를 앞서 진행했다면 [L01 새 터미널](#l01-new-terminal)에서 **기본 `.venv`**를 다시 선택합니다. 심화용 Python에 패키지를 섞어 설치하지 않습니다.
-
-허용 내용은 가상 사용자 A의 “표 형식 답변 선호”뿐입니다.
-실제 개인정보·급여·비밀번호·직원 정보는 저장하지 않습니다.
-
-### 먼저 경로 정하기
-
-| 준비할 것 | 어디서 확인하나요? | 없으면 |
-| --- | --- | --- |
-| 프로젝트·chat·embedding 배포 이름 | L01·L02에서 준비한 자기 `.env`와 모델 배포 목록 | 이름·지역·권한 확인 전 `create` 계획만 읽기 |
-| 새 실습인지 여부 | 자기 폴더의 `results/memory.json` 존재 여부 | 기존 기록이 있으면 새 `create`를 반복하지 않기 |
-| 실제 항목 삭제 승인 | 내 소유 기록의 정확한 `memory_id`와 그 항목의 삭제 허용 범위 확인 | 승인 전에는 1–3단계까지만. 4단계는 미실행 |
-
-흐름은 **store 생성 → item 1개 저장 → A/B 검색 비교 → 승인된 경우만 item 삭제**입니다. Search나 Hosted는 필요하지 않습니다. 편집기로 `results/memory.json`을 열어 값을 읽으며 원본을 수정하지 않습니다.
+L00의 수동 모델 2개 범위에는 새 embedding·Memory 생성이 없습니다. 목록에 이미 보인 자동 `text-embedding-ada-002` 배포는 새로 만든 Memory나 회상 성공의 증거가 아닙니다. 실제 생성 폼과 TTL 필드는 아래처럼 관찰할 수 있지만 저장·item CRUD·격리 검증은 별개입니다.
 
 ## 실행
 
-### 1. 전용 store 만들기
+### 1. 개수와 runtime 권한 경고 읽기
 
-![Memory store 설정 예시. Details에 chat·embedding 모델, TTL 3600초, User profile 활성과 Chat summary·Procedural memory 비활성이 표시된다.](../assets/portal/10-memory.png)
+<div class="screen-step" markdown="1">
 
-**화면 따라 읽기:** **Build → Memory → 자신의 store → Details**에서 모델·TTL·기억 종류를 확인합니다. 사진은 profile만 사용하는 설정 예시입니다. 저장 항목은 **Memories** 탭에서 확인하며, 아래 2–4단계에서 항목 저장·사용자별 검색·승인된 삭제를 각각 확인합니다.
+**Memory 목록: 0개와 runtime 경고를 따로 읽기**
 
-```bash
-python samples/memory_lab.py create
-python samples/memory_lab.py create --live
-```
+![Memory stores 0개와 프로젝트 managed identity 권한의 Setup incomplete 경고.](../assets/portal/steps/memory-warning.png)
 
-<div class="command-explanation" markdown="1">
+**1 개수:** `Memory stores (0)`. **2 경고:** 내 로그인 권한과 프로젝트 runtime 권한은 다릅니다. 이 경고를 보고 `Resolve`나 역할 부여를 누르지 않습니다.
 
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `memory_lab.py create` | 생성할 Memory store의 계획을 출력합니다. | Microsoft Azure 요청 없음. 지원 모델·지역을 먼저 확인합니다. |
-| 2. `create --live` | 고유 store와 A/B scope를 준비하고 기본 TTL 3600초 등을 설정합니다. | 원격 store 및 `results/memory.json` 생성. 저장·모델/embedding 이용 조건과 비용을 확인합니다. |
+[자막 영상 05 · 01:58](../downloads/portal/index.html?clip=05-inspection-retention&t=118&lang=ko#05-inspection-retention)
 
 </div>
 
-고유 store 이름과 A/B scope는 `results/memory.json`에 기록합니다.
-profile만 켜고 summary/procedural 추출은 끕니다. 새 item의 기본 TTL은 **3,600초**입니다.
-기존 receipt는 덮어쓰지 않습니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `Build → Memory`를 엽니다. | Preview의 `Memory stores` 목록과 실제 개수입니다. 녹화는 `Memory stores (0)`였습니다. | 메뉴가 없으면 미지원으로 기록하고 CLI로 우회하지 않습니다. |
+| 2 | `Setup incomplete`가 있으면 runtime identity·요구 역할을 읽습니다. | 프로젝트 managed identity의 Foundry User 요구입니다. | `Resolve`·역할 부여·개인 token 우회를 하지 않습니다. |
 
-생성 후 receipt의 `name`, `endpoint`, `scope_a`, `scope_b`, `ttl_seconds`를 확인합니다. `memory_id`는 **다음 remember 성공 뒤**에 추가됩니다. store 이름과 item ID를 혼동해 `--confirm`에 넣지 않습니다.
+### 2. 기본 모델과 보존 폼 관찰
 
-### 2. 저장하고 실제 검색하기
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `Create memory store`를 열되 제출하지 않습니다. | Name·Chat completions model·Embedding model·Description입니다. | 모델 선택을 새 배포 승인으로 해석하지 않습니다. |
+| 2 | 기존 모델만 읽고 `Advanced settings`를 펼칩니다. | Chat Summary·Procedural Memory·User Profile의 Enabled 설정, User profile details, **Default time-to-live (seconds)**입니다. | 실제 표시가 다르면 그 값을 적습니다. 임의 TTL·설정을 저장하지 않습니다. |
 
-```bash
-python samples/memory_lab.py remember --live
-python samples/memory_lab.py verify --live
-```
+<div class="screen-step" markdown="1">
 
-<div class="command-explanation" markdown="1">
+**기본 폼: Chat과 embedding은 서로 다른 의존성**
 
-**명령 해설**
+![Memory 생성 폼의 Chat completions model, Embedding model과 Cancel.](../assets/portal/steps/memory-form.png)
 
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `remember --live` | receipt의 A scope에 “표 형식 답변 선호” 합성 item을 실제 생성하고 ID를 기록합니다. | 원격 데이터 쓰기입니다. 개인 정보나 새로운 사용자 scope를 임의로 넣지 않습니다. |
-| 2. `verify --live` | A/B scope로 실제 Memory 검색을 수행하고 저장한 ID의 존재·격리를 검사합니다. | 서비스 조회·검색 비용 가능. 로컬 사전(dict) 조회가 아니며 A에는 있음, B에는 없음이 필요합니다. |
+**1 Chat 모델 / 2 Embedding 모델:** 녹화에는 기존 `contoso-chat`과 `text-embedding-ada-002`가 보입니다. 이름이 보여도 store가 생긴 것은 아닙니다. Name·Description도 읽기만 합니다. **3 Cancel:** 생성 버튼이 아니라 취소로 마칩니다.
 
-</div>
-
-저수준 `create_memory`를 사용하므로 저장 작업과 item ID가 명확합니다.
-검색은 실제 Memory API이며, 결과의 `memory_id`가 저장한 ID와 일치해야 합니다.
-eventual consistency는 최대 6회/3초 간격으로만 기다립니다.
-이 직접 CRUD 경로는 대화에서 자동 기억 추출까지 검증한 것은 아닙니다.
-
-### 3. 격리 검사 읽기
-
-앞의 `remember`는 저장 후 검색까지 수행하며, `verify`는 같은 항목을 새 요청으로 재확인합니다. **여기서는 그 출력의 `Evidence:` 파일을 읽습니다.** 새 검색 명령을 추가할 필요는 없습니다.
-A에는 해당 item이 있고, B는 비어 있어야 합니다. 결과 원문을 각각 보존합니다.
-scope는 receipt에서만 가져오며 임의 사용자 입력으로 바꾸지 않습니다.
-실제 서비스에서는 인증된 주체로부터 서버가 scope를 결정해야 합니다.
-
-| 원본의 이벤트·값 | 저장 후 기대하는 관계 |
-| --- | --- |
-| `memory_created`의 ID / receipt의 `memory_id` | 같은 실제 항목 |
-| `memory_search`의 `scope_label=scope_a` | 그 항목 ID가 검색됨 |
-| `memory_search`의 `scope_label=scope_b` | 결과가 비어 있음 |
-| `verified` | 저장·격리 판정. 삭제하지 않았다면 `deleted_item_absent`를 삭제 성공으로 읽지 않음 |
-
-### 4. item 하나만 삭제하고 다시 검색하기
-
-**내 실습 item 하나의 삭제를 명시적으로 허용한 경우에만** 실행합니다.
-Microsoft Azure store/RG 삭제와 item 삭제는 별개입니다. 이번 환경에 삭제 금지 정책이 있으면
-이 단계는 미실행으로 기록하고 저장·격리 결과만 보고합니다.
-
-```bash
-python samples/memory_lab.py forget --confirm 실제-memory-id --live
-python samples/memory_lab.py verify --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설 — item 삭제를 별도로 승인받은 경우에만 수행합니다.**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `forget --confirm ... --live` | `--confirm`에 receipt와 일치하는 실제 item ID를 넣습니다. endpoint·store 소유 정보·scope를 대조한 뒤 그 item만 삭제합니다. | 원격 데이터 삭제. store/RG 삭제는 아니며 비용 허용과 삭제 승인은 서로 다릅니다. |
-| 2. `verify --live` | 삭제가 기록된 상태에서 새로운 API 검색으로 해당 item의 부재와 scope 경계를 확인합니다. | 실제 조회. 이전 검색 결과나 자연어 답변을 재사용하지 않습니다. |
+[자막 영상 05 · 02:05](../downloads/portal/index.html?clip=05-inspection-retention&t=125&lang=ko#05-inspection-retention)
 
 </div>
 
-endpoint·store 소유 metadata·item scope를 확인한 후 해당 item만 삭제합니다.
-삭제 후 새로운 API 검색에서 ID가 반환되지 않아야 성공입니다.
-“잊었습니다”라는 답변, 기존 conversation, TTL 설정만으로 삭제 성공을 주장하지 않습니다.
+<div class="screen-step" markdown="1">
 
-<details class="implementation-detail" markdown="1">
-<summary>구현 참고: Memory의 store·scope·항목 ID를 API에 전달하기 — 읽기용</summary>
+**Advanced settings: 보존 필드를 읽은 뒤 Cancel**
 
-#### 포털 Memory와 실제 item API
+![Memory 생성 폼의 Advanced settings, Default time-to-live seconds와 Cancel.](../assets/portal/steps/memory-ttl.png)
 
-포털 **Memory**는 store와 item을 보여 주지만, 저장·검색·삭제의 실제 대상은 API 인수의 `name`·`scope`·`memory_id`입니다.
+**1 펼치기:** 기본 활성 기능과 User profile도 읽습니다. **2 TTL:** 녹화의 입력 전 값은 `0`입니다. 저장·만료·삭제 성공으로 해석하지 않습니다. **3 Cancel:** Create 없이 나갑니다. 쓰기·회상은 0회입니다.
 
-```python
-store = project.beta.memory_stores
-item = store.create_memory(
-    name=state["name"],
-    scope=state["scope_a"],
-    content=PREFERENCE,
-    kind="user_profile",
-)
-state["memory_id"] = item.memory_id
+[자막 영상 05 · 02:10.4](../downloads/portal/index.html?clip=05-inspection-retention&t=130.4&lang=ko#05-inspection-retention)
 
-result = store.search_memories(
-    name=state["name"],
-    scope=state["scope_a"],
-    items=[{"role": "user", "type": "message", "content": "이 실습의 답변 형식 선호는?"}],
-    options=MemorySearchOptions(max_memories=5),
-)
+</div>
+
+### 3. 취소 후 agent 연결 확인
+
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `Create`를 누르지 말고 `Cancel`을 누릅니다. | store 0개·쓰기/회상 0회가 유지됩니다. | 폼 관찰을 Memory 생성·TTL 만료 성공으로 쓰지 않습니다. |
+| 2 | `Build → Agents → 내 agent → Details/Tools`의 연결을 읽습니다. | 현재 정책 agent는 File search만 있으며 Memory는 없습니다. | File search·같은 대화의 문맥을 Memory로 부르지 않습니다. |
+
+<div class="screen-step" markdown="1">
+
+**agent로 돌아오기: File search와 Memory를 구분**
+
+![실제 정책 agent에 연결된 File search와 별도의 Memory 영역.](../assets/portal/steps/policy-final.png)
+
+**1 모델 / 2 File search:** 저장된 정책 검색 구성입니다. 아래 `Memory` 영역과 별개이며 store 생성·연결·회상의 증거가 아닙니다. 관찰을 마치면 기본 경로는 여기서 끝납니다.
+
+[자막 영상 05 · 01:36](../downloads/portal/index.html?clip=05-inspection-retention&t=96&lang=ko#05-inspection-retention)
+
+</div>
+
+### 4. 별도 승인 후: 같은 사용자 새 Chat 비교 — 미실행
+
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 별도 승인된 기존 store·연결·허용 쓰기·시험 UI가 모두 있을 때만 아래 비교를 합니다. | 합성 데이터, 최대 4회 전송입니다. | 하나라도 없으면 Chat 비교는 미실행입니다. |
+| 2 | 설정 관찰·자연어 회상·item 확인·격리 검증을 구분해 적습니다. | scope·update delay·항목 등 보이지 않은 필드는 `포털 미노출/미검증`입니다. | 회상 답변을 item CRUD·A/B 격리 성공으로 올리지 않습니다. |
+
+기존 store가 준비되어 있고 **Memory 쓰기가 별도 승인됐을 때만** 내 agent의 새 Chat에 다음 합성 선호를 1회 보냅니다.
+
+```prompt
+Contoso 실습 가상 사용자 A의 데모 선호입니다. 이 실습에서는 키보드 색상을 파란색으로 선호한다고 기억해주세요. 실제 사람의 선호나 구매 승인이 아닙니다.
 ```
 
-| 포털 Memory 화면 | Python 코드 |
-| --- | --- |
-| 선택한 Memory store | `state["name"]` |
-| 사용자 A/B 범위 | `state["scope_a"]` / `state["scope_b"]` |
-| Memories item ID | `item.memory_id`와 소유 receipt |
-| Search item | `store.search_memories(...)` 결과 ID |
-| 항목 삭제 | exact ID·scope를 확인한 뒤 `store.delete_memory(...)`; store는 유지 |
+설정된 update delay가 지나고 새 Chat을 연 뒤 “실습 가상 사용자 A의 키보드 색상 선호가 무엇인가요?”를 1회 묻습니다. 같은 모델·Instructions의 **Memory 없는 별도 agent**에도 위 두 질문을 각기 새 Chat으로 1회씩 보내 비교합니다. 새 Chat에서 첫 선호를 다시 붙이지 않습니다.
 
-코드는 A/B의 **scope별 검색 결과**를 비교합니다. 같은 API caller가 두 scope를 지정하므로, 인증된 A가 B의 scope를 요청할 수 없는지까지 시험한 것은 아닙니다. 실제 앱은 서버가 인증 identity에서 scope를 결정해야 합니다. Delete/`forget --confirm`은 item 하나만 지우며 store/RG 삭제는 별도입니다.
+회상 여부와 실제 Memory tool/item 표시가 있는지 따로 적습니다. 두 agent에 다른 Instructions나 정책 문맥이 있으면 이 비교는 통제되지 않았습니다. 다른 사용자 계정으로 로그인하거나 임의 scope를 바꿔 교차 접근을 시도하지 않습니다.
 
-</details>
+<div class="screen-step" markdown="1">
+
+**조건부 입력 위치: 선호와 회상 질문은 서로 다른 새 Chat**
+
+![Memory 없는 기본 agent의 Chat 입력창과 전송 버튼 위치.](../assets/portal/steps/agent-chat-controls.png)
+
+**1 입력 / 2 전송:** 별도 승인이 있을 때만 사용합니다. 회상 질문의 새 Chat에 앞 선호를 다시 붙이지 않습니다. 이 그림은 입력 위치이며 Memory 쓰기·회상 결과가 아닙니다. 녹화의 Memory 호출은 0회입니다.
+
+[자막 영상 02 · 02:43](../downloads/portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
+
+</div>
 
 ## 성공 기준
 
-- store/item ID, A 검색 결과, B 격리 결과가 있습니다.
-- 삭제를 수행했다면 삭제 후 검색까지 확인했습니다.
-- 삭제가 허용되지 않았다면 **구현 완료 / 저장·격리 실행 완료 / 삭제 미실행**으로 분리했습니다.
-- 자동 remember/forget prompt, procedural memory 등 실행하지 않은 기능은 별도로 표시했습니다.
+Memory 없는 같은 대화·새 대화·서버 store를 구분했습니다. 포털에서 직접 확인하지 못한 저장·update·list·delete·A/B 사용자 격리·TTL 만료는 미검증으로 남겼습니다.
 
 ## 막혔을 때
 
-| 증상 | 먼저 확인할 것 | 다음 행동 |
-| --- | --- | --- |
-| API 호출이 실패 | 모델/embedding 지원, store 설정, 사용자 scope, API Preview 접근 | 원본 오류를 보존합니다. 로컬 dict로 대체한 것을 Memory in Foundry Agent Service 성공으로 표시하지 않습니다. |
-| `memory.json`이 있는데 생성이 실패 | 자신의 포털과 원본 오류 | 원격 생성 여부를 대조합니다. 기록을 지워 반복하거나 미확인 소유 정보를 수정하지 않습니다. |
-| item이 1시간 뒤 사라짐 | 1시간 TTL | TTL로 사라진 것은 승인된 삭제 실행 증거가 아닙니다. 새 실습은 별도 소유 기록으로 준비합니다. |
+연결 없음, 미지원 UI, embedding 없음, scope 미노출, runtime 권한 부족을 나눠 기록합니다. `Setup incomplete`는 권한 변경을 자동 승인하지 않습니다. Key·개인 token·shared scope로 우회하지 않습니다. Recall 실패를 성공할 때까지 반복하지 않습니다.
 
 ## 정리
 
-기본값은 store 보존입니다. TTL은 item 수명이며 store·trace·conversation 전체 삭제를 뜻하지 않습니다.
-보존 정책과 확인 시점을 기록하고, 자원 삭제는 별도 승인을 받습니다.
+합성 선호가 저장됐다면 store·시각·보존 조건을 L19에 적습니다. “잊어줘”도 실제 삭제를 유발할 수 있으므로 승인 없이 보내지 않습니다. TTL 설정은 즉시 삭제 증거가 아니며, 변경·삭제에는 별도 승인이 필요합니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** `results/memory.json`, store/item ID·A/B 검색 결과·삭제 수행 여부·TTL/보존 기한. 항목이 만료된 것과 삭제를 실행한 것은 다릅니다.
+**이 장에서 남길 것:** 관찰 가능한 Memory 설정, 조건부 회상 결과, item CRUD·격리·삭제 미검증과 보존 상태.
 
-**다음:** 예약을 선택하면 [L16](#l17), 선택 실습을 마쳤다면 [L19](#l12). Memory 실습은 예약의 선행 조건이 아닙니다.
+**다음:** [L16 Routines 실행 전 점검](#l17).
 
 </div>

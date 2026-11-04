@@ -1,0 +1,65 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:18.000
+File search is disabled for this model. Read the actual incompatibility notice; do not invent an upload success.
+
+2
+00:00:18.000 --> 00:00:30.000
+gpt-4.1 Global Standard reports Unsupported region in the same approved region. Do not switch regions or subscriptions to bypass it.
+
+3
+00:00:30.000 --> 00:00:48.000
+Second and final manual deployment: contoso-judge / gpt-4.1 2025-04-14 / regional Standard, with dynamic quota disabled.
+
+4
+00:00:48.000 --> 00:01:04.000
+Preserve baseline version 2 and use gpt-4.1 only for the separate policy RAG experiment. Comparison targets remain on contoso-chat.
+
+5
+00:01:04.000 --> 00:01:29.000
+Upload only the three synthetic Korean policy files. No real company documents, evaluator answers, or entire ZIP.
+
+6
+00:01:29.000 --> 00:01:41.000
+Verify Success for all three files, then select Attach once. Upload success alone is not retrieval evidence.
+
+7
+00:01:41.000 --> 00:02:01.000
+Send the first policy question once from saved version 4 with File search. Compare retrieved documents with the answer.
+
+8
+00:02:01.000 --> 00:02:19.000
+Actual answer on cap, VAT, and 36-month replacement. Citation controls rendered, but clicking did not open a preview.
+
+9
+00:02:19.000 --> 00:02:35.000
+Open the same RAG trace: actual Execute Tool file_search.msearch and gpt-4.1 Chat spans. Identifiers are redacted.
+
+10
+00:02:35.000 --> 00:02:53.000
+Distinguish undocumented policy from unavailable business tools. No stock, draft, approval, or order was executed.
+
+11
+00:02:53.000 --> 00:03:13.000
+A business-boundary answer omitted complete policy evidence. Neither that answer nor a refusal establishes backend enforcement.
+
+12
+00:03:13.000 --> 00:03:39.000
+Actual results of three benign safety questions. The last promised search without a tool call. This is not ACL or red-team validation.
+
+13
+00:03:39.000 --> 00:03:57.000
+Inspect existing DefaultV2 protections without changes. Do not lower filters, evaluation thresholds, or business approval rules.
+
+14
+00:03:57.000 --> 00:04:15.000
+Traces lists ten policy-agent requests. Match time/version; do not substitute an unrelated successful trace.
+
+15
+00:04:15.000 --> 00:04:21.000
+Input + Output of file_search.msearch shows the returned procurement-policy.md text. This trace—not a fictional preview—established retrieval.
+
+16
+00:04:21.000 --> 00:04:45.000
+Pre-evaluation Monitor shows about 19K tokens / $0.04 for this policy agent only, not total Azure billing, evaluation cost, or a spending cap.

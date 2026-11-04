@@ -1,0 +1,41 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:27.000
+Azure portal → Resource groups → Create. Check the approved subscription, a new owned group, and North Central US.
+
+2
+00:00:27.000 --> 00:00:42.000
+Add this run's validationRun tag. Do not reuse another owner's group or a historical run.
+
+3
+00:00:42.000 --> 00:00:56.000
+Review the name, region, and tag, then select Create once. The subscription display is redacted.
+
+4
+00:00:56.000 --> 00:01:12.000
+Verify Resource group created and the owned group. Subscription ID is redacted; resources are retained.
+
+5
+00:01:12.000 --> 00:01:39.000
+Foundry → Create a project → Advanced options. Select the new project/resource, owned group, and region; create once.
+
+6
+00:01:39.000 --> 00:02:04.000
+Review the owned Log Analytics workspace in Azure portal. Inspect Pay-as-you-go, ingestion, and retention costs.
+
+7
+00:02:04.000 --> 00:02:19.000
+Verify actual Log Analytics deployment completion. This is native portal footage, not a reconstruction.
+
+8
+00:02:19.000 --> 00:02:39.000
+Application Insights uses the same owned group/region and the new workspace. Its actual deployment was submitted once.
+
+9
+00:02:39.000 --> 00:02:55.000
+Verify Your deployment is complete. The subsequent connection used Project Managed Identity / No key available; no key was copied.
+
+10
+00:02:55.000 --> 00:03:09.000
+After connecting logging, inspect the Agents tracing notice. Closing the browser does not stop logging or retention costs.

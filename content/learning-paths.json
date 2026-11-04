@@ -1,10 +1,10 @@
 {
-  "l13": {"mode": "independent", "label": "독립 선택", "requires": "기본 L01 프로젝트·모델. 이 장에서 Search/embedding/index를 준비하며 L12의 기반이 됩니다."},
-  "l14": {"mode": "sequence", "label": "선행 실습 필요", "requires": "자신이 L11에서 만든 Search/index와 L01 모델·소유 기록을 재사용해 로컬 호출·배포를 진행합니다. L18의 실제 Hosted 분기를 선택할 때만 필요합니다."},
-  "l15": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·모델, 소유권 기록, 별도 .venv-advanced 환경이 필요합니다. L02에서 선택한 패턴의 TPM과 호출 상한을 먼저 확인합니다. L12 Hosted 배포와 A2A 연결은 필요하지 않습니다."},
-  "l15-collaboration": {"mode": "sequence", "label": "환경 준비 후 선택", "requires": "L13의 .venv-advanced·모델 처리량 확인을 재사용합니다. 순차·동시 패턴의 유료 실행은 선행 조건이 아니며, 그룹 채팅·핸드오프 각각의 호출 상한을 승인받습니다."},
-  "l16": {"mode": "independent", "label": "독립 선택", "requires": "기본 프로젝트·chat/embedding 배포 및 Memory 지원 조건. 다른 심화 장 완료는 필요하지 않습니다."},
-  "l17": {"mode": "mixed", "label": "기능별 분기", "requires": "Routine은 기본 L05의 서버 Prompt Agent로 독립 실행할 수 있습니다. Hosted 장기 실행 분기는 L12가 필요합니다."},
-  "l21": {"mode": "independent", "label": "독립 선택", "requires": "로컬 캐시/권한 검사를 고치고 자신의 통제 설계를 작성합니다. 실제 관찰·변경은 해당 자원의 읽기·변경 권한과 승인 범위를 확인한 뒤 별도 진행합니다."},
-  "l22": {"mode": "sequence", "label": "배포·복구 기능 선택", "requires": "L01의 환경·소스로 CI 실패/수정과 릴리스·복구를 설계합니다. L12는 선택형 실제 Hosted 배포 분기에서만 필요합니다. 게시에는 지원 protocol·서버 도구·조직 권한과 별도 승인이 필요하며 기본 완주 조건은 아닙니다."}
+  "l13": {"mode": "independent", "label": "관찰 / 추가 자원 조건부", "requires": "L01 프로젝트·L05 합성 3정책. 기본은 Knowledge 관찰이며 실제 Search·Storage·embedding·데이터 권한은 별도 범위·비용 승인이 필요합니다."},
+  "l14": {"mode": "independent", "label": "포털 관찰", "requires": "L04 Prompt Agent. 기존 내 Hosted가 있으면 상세만 읽습니다. 코드·컨테이너·개발 환경·SDK 배포는 이번 경로 밖입니다."},
+  "l15": {"mode": "independent", "label": "수동 역할 비교", "requires": "L04 agent 생성·L08 v2 합성 문맥·같은 모델. 기본 4회, 최대 6회 Chat. 실제 framework·병렬 runtime은 실행하지 않습니다."},
+  "l15-collaboration": {"mode": "sequence", "label": "L13 역할 재사용", "requires": "L13의 두 역할과 별도 router Prompt Agent. 기본 5회, 최대 7회 Chat. 사람의 복사 전달이며 자동 handoff·A2A·HITL이 아닙니다."},
+  "l16": {"mode": "independent", "label": "관찰 / 기존 Memory 조건부", "requires": "내 agent의 포털 설정. 조건부 회상에는 승인된 기존 store·embedding·Memory 쓰기·시험 UI가 필요합니다. CRUD·격리·삭제는 미검증입니다."},
+  "l17": {"mode": "mixed", "label": "기본은 제출 전 취소", "requires": "지원 지역·구독의 Routines UI와 내 Prompt Agent. 기본 생성/dispatch 0개. 실제 일정·Test run·Pause는 각각 별도 승인이 필요합니다."},
+  "l21": {"mode": "independent", "label": "읽기 전용 점검", "requires": "내 프로젝트·그룹의 읽기 권한과 L09/L10 관찰. 역할·네트워크 변경 없이 cache/ACL 결정표를 검토하며 실제 교차 사용자 시험은 하지 않습니다."},
+  "l22": {"mode": "sequence", "label": "평가·버전 점검", "requires": "L08 실제 평가와 후보 version·비용/보존 기록. Hosted는 필요 없습니다. CI·Publish·Active version 전환·rollback은 수행하지 않습니다."}
 }

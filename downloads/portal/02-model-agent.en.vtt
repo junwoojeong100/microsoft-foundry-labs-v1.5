@@ -1,0 +1,37 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:18.000
+Inspect the actual gpt-6-sol version, deployment type, and quota. Product name differs from your deployment name.
+
+2
+00:00:18.000 --> 00:00:38.000
+contoso-chat / 2026-09-22 / Global Standard. Retain NoAutoUpgrade and DefaultV2; select Deploy once.
+
+3
+00:00:38.000 --> 00:00:54.000
+Detach the automatic default Web search if present. A tool-free first model request is not retrieval.
+
+4
+00:00:54.000 --> 00:01:30.000
+One actual synthetic model question and answer. No company documents have been supplied, so policy caps are not verified.
+
+5
+00:01:30.000 --> 00:01:50.000
+Save as agent creates contoso-policy, a Prompt Agent—not a Hosted runtime or purchasing backend.
+
+6
+00:01:50.000 --> 00:02:10.000
+Save canonical v2 Instructions and detach the default toolbox. Baseline numeric version 2 uses 2048 output / low reasoning, no tools or Memory.
+
+7
+00:02:10.000 --> 00:02:35.000
+Ask the baseline agent once without policies. Natural-language output is not evidence of retrieval, stock lookup, or ordering.
+
+8
+00:02:35.000 --> 00:02:55.000
+Follow up in the same conversation. Using recent context is not evidence of server Memory persistence.
+
+9
+00:02:55.000 --> 00:03:15.000
+Ask about the prior context in a new conversation. Distinguish conversation state, agent version, and long-term Memory.

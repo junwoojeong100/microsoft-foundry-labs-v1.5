@@ -15,6 +15,9 @@ from urllib.parse import unquote, urlparse, urlunparse
 
 import markdown
 from markdown.extensions.toc import slugify_unicode
+import portal_inputs
+import portal_recordings
+import portal_steps
 
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = json.loads((ROOT / "content/release.json").read_text(encoding="utf-8"))
@@ -84,6 +87,12 @@ def load_portal_captures(language, *, include_archived=False):
     return all_captures if include_archived else captures
 
 
+def load_guide_captures(language, *, include_archived=False):
+    archived = load_portal_captures(language, include_archived=True)
+    frames = portal_steps.load_steps()
+    return [*archived, *frames] if include_archived else frames
+
+
 def load_content(language):
     if language not in RELEASE["languages"]:
         raise ValueError(f"Unsupported guide language: {language}")
@@ -132,9 +141,9 @@ def coverage_markdown(capabilities, chapters, sources, language="ko"):
     counts = Counter(c["mode"] for c in capabilities)
     if language == "en":
         modes = {
-            "직접 실습": ("Direct lab", "Run the main capability through code, the portal, or a local example and inspect the result."),
+            "직접 실습": ("Direct portal lab", "Follow supported portal actions and inspect actual screens/results. This mapping is not evidence that a particular run succeeded."),
             "조건부 실습": ("Conditional lab", "Follow the steps only when the required resources, permissions, licenses, and Preview access are available."),
-            "설계": ("Design", "Plan configuration, permissions, and failure handling. Actual resource changes require separate approval."),
+            "설계": ("Inspection / design", "Read configuration or complete a manual decision table. No automatic orchestration, access changes, or publishing is implied."),
             "참고": ("Reference", "Read about the capability and its official implementation path."),
         }
         lines = [
@@ -168,9 +177,9 @@ def coverage_markdown(capabilities, chapters, sources, language="ko"):
         "| 깊이 | 의미 | 항목 수 |", "| --- | --- | ---: |",
     ]
     descriptions = {
-        "직접 실습": "주요 기능을 코드·포털 또는 로컬 예제로 실행하고 결과 확인.",
+        "직접 실습": "지원되는 포털 단계와 실제 화면·결과 확인. 이 매핑 자체가 특정 실행의 성공 증거는 아님.",
         "조건부 실습": "추가 자원·권한·라이선스·Preview가 준비된 경우 단계에 따라 수행.",
-        "설계": "구성·권한·실패 대응을 설계. 실제 자원 변경은 별도 승인 필요.",
+        "설계": "설정 읽기·수동 결정표. 자동 orchestration·권한 변경·게시 실행을 뜻하지 않음.",
         "참고": "기능의 개념과 공식 구현 경로 읽기.",
     }
     for mode, description in descriptions.items():
@@ -249,12 +258,15 @@ def render_chapter(chapter, body, source_map, previous, following, captures, ui)
         capture = captures.get(source)
         if source.startswith("assets/portal/") and capture is None:
             raise ValueError(f"Portal image has no capture in this language's manifest: {source}")
-        note = (
-            f'<span class="capture-note">{escape(ui["capture"].format(date=capture["captured_at"][:10]))}</span>'
-            if capture else ""
-        )
-        kind = ' class="portal-capture"' if capture else ""
+        recorded = capture and capture.get("kind") == "video-frame"
+        note = f'<span class="capture-note">{escape(ui["recorded_capture"] if recorded else ui["capture"])}</span>' if capture else ""
+        kind = ' class="portal-capture recorded-capture"' if recorded else ' class="portal-capture"' if capture else ""
         image = deferred_image(image, source)
+        if recorded:
+            image = (
+                f'<a class="screen-image" href="{source}" target="_blank" rel="noopener noreferrer" '
+                f'aria-label="{escape(ui["original"])}">{image}</a>'
+            )
         return (
             f'<figure{kind}>{image}<figcaption><span>{description}</span>{note}'
             f'<a href="{source}" target="_blank" rel="noopener noreferrer">{ui["original"]}</a></figcaption></figure>'
@@ -312,7 +324,7 @@ def portable_book_links(text, output_path):
         address = urlparse(match[1])
         if address.scheme or address.netloc or not address.path:
             return match[0]
-        if address.path.endswith(".html"):
+        if address.path.endswith(".html") and not address.path.startswith("downloads/portal/"):
             target = RELEASE["site_url"] + match[1]
         else:
             target = urlunparse(address._replace(
@@ -333,7 +345,7 @@ def build_language(language):
     core_path_count = core_count + wrapup_count
     lab_count = core_count + advanced_count + wrapup_count
     sources = {s["id"]: s for s in source_data["sources"]}
-    captures = {item["path"]: item for item in load_portal_captures(language)}
+    captures = {item["path"]: item for item in load_guide_captures(language)}
     bodies = {c["id"]: source_body(c, chapters, capabilities, source_data, language) for c in chapters}
     pages = []
     search_data = []
@@ -426,7 +438,7 @@ def build_language(language):
     <div class="hero-kicker">{ui['hero_kicker']}</div>
     <h2 id="hero-title">{ui['hero_title']}</h2>
     <p>{ui['hero_description']}</p>
-    <div class="hero-actions"><a href="#l00-first-steps" class="primary-link">{ui['start']} <span aria-hidden="true">→</span></a><a href="#l01" class="secondary-link">{ui['ready']}</a><details class="environment-options"><summary>{ui['environment_options']}</summary><a href="#l01-pc" class="secondary-link">{ui['local_setup']}</a><a href="{RELEASE['archive']}" class="secondary-link">{ui['download_kit']}</a></details></div>
+    <div class="hero-actions"><a href="#l00-first-steps" class="primary-link">{ui['start']} <span aria-hidden="true">→</span></a><a href="#l01" class="secondary-link">{ui['ready']}</a><details class="environment-options"><summary>{ui['environment_options']}</summary><a href="downloads/Contoso-Portal-Inputs.zip" class="secondary-link">{ui['local_setup']}</a><a href="downloads/portal/index.html" class="secondary-link">{ui['portal_video']}</a><a href="{RELEASE['archive']}" class="secondary-link">{ui['download_kit']}</a></details></div>
     <div class="hero-stats"><div><strong>{core_count}</strong><span>{ui['stat_core']}</span></div><div><strong>{advanced_count}</strong><span>{ui['stat_electives']}</span></div><div><strong>1</strong><span>{ui['stat_scenario']}</span></div></div>
     <div class="hero-orbit" aria-hidden="true"><span></span><i></i><b>f</b></div>
   </section>
@@ -482,6 +494,8 @@ def build_language(language):
 
 
 def build():
+    portal_inputs.build()
+    portal_recordings.build()
     for language in RELEASE["languages"]:
         build_language(language)
 

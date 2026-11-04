@@ -1,205 +1,146 @@
-> **What you will build:** Distinguish a drafter revising after review from transferring control to a specialist.
+## Objectives
+
+Manually compare writer → reviewer → revision with role routing in portal Chat. Do not report automated handoff, A2A, or human-approval workflow execution.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Advanced elective · reuse L13's environment and run two patterns one at a time.
+**Format:** Manual Chat experiment: five baseline sends, at most seven with the optional change.
 
-**Start here:** Read both plans below and predict whether the task needs revision or a change of owner.
+**Start here:** Reuse L13's two roles and identical synthetic context.
 
-**What to check:** Find group chat's three contributions and handoff's actual tool call and specialist answer. Distinguish a termination message from the business answer.
+**What to check:** Three draft/review/revision originals and two classification/manual-transfer originals.
 
 </div>
-
-## Objectives
-
-**“Discuss together” and “change the responsible agent” are different.** Group chat returns a review to the same drafter; handoff lets a specialist take over. Neither replaces human purchasing approval.
 
 ## Concepts and lab map
 
-**What you will try:** Message and control transfer with `GroupChatBuilder` and `HandoffBuilder`.
+**What you will try:** Repeated review versus selecting a next role.
 
-**What is it, and why does it matter?** Group chat supports iterative team review; handoff changes ownership. Saying “I delegated” does not prove control transferred.
+**What is it, and why does it matter?** Group chat supports review and revision; handoff changes who acts next. A sentence claiming delegation is not actual control transfer.
 
-**How do you use it?** Run both patterns against the same policy and question. Inspect intermediate answers and actual delegation calls without increasing iteration or cost limits.
+**How do you use it?** Copy and transfer answers manually, recording that fact and a bounded stopping condition.
 
-**Where do you run it?** Run [multi_agent.py](../../samples/multi_agent.py) in `.venv-advanced`. Only the model is in Microsoft Azure; no Hosted or remote A2A server is created.
+**Where do you run it?** Microsoft Foundry role Chat and private comparison notes, without automatic orchestration.
 
 ## Prerequisites
 
-Reuse [L13's setup](#l15): `.venv-advanced`, `.env`, **your own** `results/azure-environment.json`, and the chat **100,000 TPM / 60 RPM** check. L13's paid patterns are not prerequisites. Keep the English profile selected.
-
-<details class="environment-option" markdown="1">
-<summary>Only when using Windows PowerShell on your PC</summary>
-
-Use `.venv-advanced\Scripts\python.exe`. In Codespaces, use the Bash commands below unchanged.
-
-</details>
-
-### Choose your starting path
-
-| Current state | Steps to follow | What to retain |
-| --- | --- | --- |
-| No Microsoft Azure approval | Read both plans in step 1 | Explain differences and call limits; actual execution remains not performed |
-| Model, receipt, and cost approval ready | Plan → group chat → inspect → handoff → compare | Two original files and a revision/delegation comparison |
-
-No additional resources need deployment. Both patterns together use **at most seven model calls**. Preserve **180 seconds per run, 2,048 output tokens per response, and zero retries**. Start the next pattern **at least one minute** after the previous start.
+Reuse `contoso-policy-review` and `contoso-budget-review`. Create `contoso-router` using L04 with the same model and no tools. Save Instructions: “Classify input as policy or budget and explain why. Do not claim actual delegation, approval, or ordering.”
 
 ## Steps
 
-### 1. Predict both flows before execution
+These are **control-location examples** from existing Prompt Agent footage, not recorded router, review-loop, or handoff execution. Inspect creation, input, and copy controls rather than another exercise's answer bodies.
 
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode group-chat
-.venv-advanced/bin/python samples/multi_agent.py --mode handoff
-```
+### 1. Prepare a classification-only router
 
-<div class="command-explanation" markdown="1">
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Create a Prompt Agent as in L04 with Name `contoso-router` and `Text` mode. | A separate target from L13's two review roles. | Do not overwrite an existing role. |
+| 2 | Use the same `contoso-chat`; save the classification-only Instructions from Prerequisites without tools/Memory. | Only policy/budget classification and reason are requested. | Do not instruct actual execution or invented approval. |
 
-**Command walkthrough**
+<div class="screen-step" markdown="1">
 
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--mode group-chat` | Read the drafter → reviewer → revised draft plan. | No SDK initialization, Microsoft Azure call, or execution evidence. Plans at most three calls. |
-| 2. `--mode handoff` | Read the coordinator → policy or budget specialist plan. | No actual delegation. Plans at most four calls. |
+**Router name: separate it from review roles**
 
-</div>
+![Prompt creation form showing name, Text mode, and creation control locations.](../../assets/portal/steps/agent-create-form.png)
 
-Predict group chat for “review and improve advice on a KRW 2,900,000 purchase,” and handoff for “choose the policy or budget specialist.” **A prediction is not a result.** Inspect actual transfer in the next steps.
+**1 Name:** Enter `contoso-router`, not the pictured generated name. **2 Text / 3 Create:** Create the Prompt target, then save its classification Instructions. Creation alone does not implement routing or handoff.
 
-### 2. Group chat: read the final revision
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode group-chat --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--mode group-chat --live` | Run three contributions, returning the review to the drafter. Code chooses speakers round-robin; no model moderator is added. | At most three actual model calls. Inspect output and the original `Evidence:` file. |
+[Captioned video 04 · 00:01.5](../../downloads/portal/index.html?clip=04-native-evaluation&t=1.5&lang=en#04-native-evaluation)
 
 </div>
 
-Open the `Evidence:` file in an editor and find `paths.group-chat.stages`. Read first draft → review → final draft side by side. Use `payload.input` from `model_call_completed` events and `input_authors` to verify that the review was passed into the next request.
+<div class="screen-step" markdown="1">
 
-| What to inspect | Decision |
-| --- | --- |
-| Each of the three stages' `role` | Are they drafter, reviewer, drafter in order? |
-| First and last `answer` | Were identified omissions addressed? Record unchanged output honestly |
-| `final_messages`, `workflow_state` | Did execution terminate? An orchestrator's termination notice is not purchasing advice |
+**Instructions: save only the router's intended task**
 
-### 3. Handoff: find actual control transfer
+![Baseline Prompt Agent Model and Instructions editing locations.](../../assets/portal/steps/agent-instructions.png)
 
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode handoff --live
-```
+**1 Model:** The same `contoso-chat` as L13. **2 Instructions:** Save Prerequisites' classification-only sentence. The pictured policy Instructions are not the router's actual saved content.
 
-<div class="command-explanation" markdown="1">
-
-**Command walkthrough**
-
-| Order and command | Details and options | Result, cost, or change |
-| --- | --- | --- |
-| 1. `--mode handoff --live` | Transfer control to an allowed policy or budget specialist. The specialist answers and terminates without delegating again. | At most four model calls. Missing tool/specialist evidence fails. No order or human approval. |
+[Captioned video 02 · 02:04.5](../../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
 
 </div>
-
-Under `paths.handoff.stages`, find the coordinator's `handoff_calls` followed by the specialist's response. Check that a `handoff_to_…` tool was recorded and the chosen specialist actually answered. A natural-language delegation claim without a tool call does not pass.
-
-The sample sets `require_per_service_call_history_persistence=True` to retain conversation history across control changes. Do not remove it and hide the resulting error behind retries.
-
-### 4. Change one condition and compare
 
 <div class="practice-block" markdown="1">
 
-**Try it:** Record `role order / input transfer / revised sentence / delegation tool / termination / total_tokens / elapsed_seconds` from both files. Missing usage (`null`) is not zero.
+### 2. Write, review, revise: stop after three sends
 
-**Change one thing:** If additional calls are approved, add only `--case boundary` to one chosen pattern. Compare exactly KRW 2,000,000 with KRW 2,000,001, leaving the model, policy, and role instructions unchanged. If you only read plans, mark the actual comparison not performed.
+**Try it:** Keep this original request fixed and perform the five sends below.
 
-**Explain the result:** Choose “group chat because revision is needed” or “handoff because ownership must change” for your task, citing actual inputs and responses. Extra calls alone do not prove better quality.
+```prompt
+Synthetic review data: two NB-14 units, supplied total KRW 2,900,000. Briefly review policy caps, approvers, and unverified inventory/execution. Do not place an actual order.
+```
+
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Send the original request once in a new policy-role Chat. | An initial draft appears. | Do not edit the answer before review. |
+| 2 | Send original request plus draft to a new budget-role Chat, asking only for errors and missing evidence. | A review original appears. | Preserve any treatment of draft instructions as authority as a failure. |
+| 3 | Paste the review into the writer's conversation and request one final revision. | You can compare which review points were incorporated. | Stop after three sends; no additional loop. |
+
+<div class="screen-step" markdown="1">
+
+**Copy drafts and reviews without rewriting the originals**
+
+![Enlarged Traces and Copy controls beneath an answer.](../../assets/portal/steps/agent-answer-actions.png)
+
+**1 Traces / 2 Copy:** Copy your draft to the reviewer and your review back to the writer. Request revision in the **original writer's same conversation**. The reviewer uses a new conversation; nothing transfers automatically.
+
+[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
 
 </div>
 
-### 5. Identify what this exercise does not implement
+### 3. Classify, then manually select a role: stop after two sends
 
-Handoff between local roles is **not a remote Agent2Agent (A2A) connection**. Human-in-the-loop approval, incoming A2A endpoints, and organizational delegation are also outside this implementation. Start with separate authentication, protocol, and user-permission design before connecting external agents.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Send the original request once to a new router Chat. | Only policy/budget classification and reason. | Claims of completed specialist execution lack tool evidence. |
+| 2 | **Manually** open the selected role and send original request plus routing reason in a new Chat. | The selected role responds after human transfer. | Do not call this automatic handoff. |
 
-Compare the Builder responsibilities using the official [group-chat](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python) and [handoff](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python) documentation.
+<div class="screen-step" markdown="1">
 
-<details class="implementation-detail" markdown="1">
-<summary>Implementation reference: group-chat termination and handoff configuration — read only</summary>
+**Type into the selected role: prior context is not inherited**
 
-#### Portal model deployment and Group chat/Handoff code
+![Control-location example showing only the Chat input and Send button.](../../assets/portal/steps/agent-chat-controls.png)
 
-L14 has no Group chat/Handoff editor in the Microsoft Foundry portal. The portal supplies the model deployment; Python Agent Framework code selects participants, routes messages, and defines termination.
+**1 Input / 2 Send:** In the selected role's new conversation, label the original request separately from the router's reason. Do not send classification alone or assume earlier context transferred. This is not a recorded handoff result.
 
-```python
-from agent_framework.orchestrations import GroupChatBuilder, HandoffBuilder
+[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
 
-def select_speaker(state):
-    names = list(state.participants)
-    return names[state.current_round % len(names)]
+</div>
 
-group_workflow = GroupChatBuilder(
-    participants=[drafter, reviewer],
-    selection_func=select_speaker,
-    max_rounds=3,
-    termination_condition=lambda messages: sum(message.role == "assistant" for message in messages) >= 3,
-    intermediate_output_from=[drafter, reviewer],
-).build()
+**Change one thing:** If scope remains, ask the router about the regular laptop replacement interval and manually transfer once to the chosen role. Add only two sends.
 
-handoff_workflow = (
-    HandoffBuilder(
-        participants=[coordinator, policy_agent, budget_agent],
-        termination_condition=lambda messages: any(
-            message.role == "assistant"
-            and message.author_name in {"policy", "budget"}
-            and message.text.strip()
-            for message in messages
-        ),
-    )
-    .with_start_agent(coordinator)
-    .add_handoff(coordinator, [policy_agent, budget_agent])
-    .build()
-)
-```
+**Explain the result:** Record original errors, review findings, actual revision, and routing reasons. A role emitting `approved` is not a real approval record.
 
-| Code setting | Actual result to inspect in Evidence |
+</div>
+
+### What automatic execution evidence is missing?
+
+| Manual artifact | Additional evidence needed for actual execution |
 | --- | --- |
-| `participants` | Agent author for each stage |
-| `selection_func`, `max_rounds` | Who spoke in group chat and where it stopped |
-| `with_start_agent`, `add_handoff` | Whether a real control transfer appears in `handoff_calls` |
-| Portal model deployment | Approved Microsoft Foundry model called by each participant |
+| Copied writer/reviewer messages | One run's `GroupChatBuilder` routing and termination |
+| Router classification text | `HandoffBuilder` control/tool call and next agent response |
+| “Human review required” text | Authorized approver, event, wait/resume state in a HITL system |
+| Two role names | Authenticated remote A2A endpoints and actual call results |
 
-Participants are SDK agents from `build_role()`. Group chat stops after three assistant turns; handoff stops after a specialist answer. `multi_agent.py` executes only the chosen workflow, without storing this graph in the portal.
-
-</details>
+These code-first features are references only. No handoff tool, remote A2A server, or SDK execution exists in this path. Portal Workflows retire on 2026-12-01; do not use that designer as a workaround.
 
 ## Success criteria
 
-- Within the patterns you ran, you identified group chat's three contributions and final revision.
-- You identified handoff's actual delegation call, specialist answer, and terminal state.
-- You did not report review/delegation as human approval or remote A2A success.
+Explain five actual messages and their manual transfer path. Explicitly mark automatic group chat, handoff, A2A, and business approval not run. Preserve missing or incorrectly routed results.
 
 ## Troubleshooting
 
-| Symptom | Inspect first | Next action |
-| --- | --- | --- |
-| SDK import fails | L13's Python environment and `pip check` | Return to the dedicated environment instead of mixing core SDKs |
-| Group chat ends with only a termination notice | Whether `final_messages` was mistaken for `stages` | Read `answer` from the last drafter stage |
-| No delegation tool or specialist response | `handoff_calls`, actual inputs, termination reason | Preserve the failure; do not repeat until a preferred result appears |
-| 429, truncated response, or timeout | L02 throughput, request times, and bounds | Stop new calls, inspect the original error, and rerun only with approval |
+Inspect Instructions and new-conversation state. Record nonclassification router actions as failures. Do not raise output/call bounds or repeat until success.
 
 ## Cleanup
 
-These executions call the owned model without creating Hosted deployments or recurring schedules. Keep originals under `results/`; after all selected labs, go to [L19 shared wrap-up](#l12).
+No recursion, infinite conversation, or persistent execution was created. Keep drafts and final answers separately; include agents in L19's inventory.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** First draft/review/revision and actual handoff tool/specialist response/termination. Keep the two patterns' `Evidence:` files separate.
+**Keep:** Three draft/review/revision originals, two classification/manual-transfer originals, and automatic handoff not run.
 
-**Continue:** If you select [L15 Memory](#l16), return to **the core SDK environment**. Otherwise, go to [L19](#l12).
+**Continue:** [L15: inspect Memory and conditionally compare conversations](#l16).
 
 </div>

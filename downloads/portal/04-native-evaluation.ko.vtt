@@ -1,0 +1,65 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:20.000
+평가 전용 contoso-compare-v1을 새로 만듭니다. File search 정책 agent와 섞지 않고 기본 Web search toolbox도 해제합니다.
+
+2
+00:00:20.000 --> 00:00:38.000
+v1 원문+동일 13절 합성 문맥 전체를 저장하고 다시 읽습니다. 모델·출력 설정·도구 없음 조건을 고정합니다.
+
+3
+00:00:38.000 --> 00:00:56.000
+v2도 같은 문맥과 설정입니다. 지시문 이름 v1/v2와 별개로 두 agent 모두 실제 숫자 version 2였습니다.
+
+4
+00:00:56.000 --> 00:01:12.000
+Agent 하나·Pin v2·Individual turns·One time을 선택합니다. 기본 Synthetic generation 대신 Existing dataset입니다.
+
+5
+00:01:12.000 --> 00:01:30.000
+고정 한국어 JSONL 12행을 한 번 업로드합니다. Top 5 rows는 미리 보기이며 전체 12행을 뜻하지 않습니다. 작성자 영역은 가렸습니다.
+
+6
+00:01:30.000 --> 00:01:48.000
+Configure agent의 Add custom prompt: User prompt는 정확히 {{item.query}}입니다. ground_truth를 agent에게 정답으로 주지 않습니다.
+
+7
+00:01:48.000 --> 00:02:02.000
+Relevance의 Query·Response 매핑, judge contoso-judge, 기본 threshold 3을 읽습니다. 통과를 위해 수정하지 않습니다.
+
+8
+00:02:02.000 --> 00:02:14.000
+Response completeness Preview는 ground_truth와 실제 sample.output_text를 비교합니다. 응답을 JSONL에 만들어 넣지 않습니다.
+
+9
+00:02:14.000 --> 00:02:26.000
+Groundedness는 동일 context·query와 실제 생성 응답을 사용합니다. 평가자는 정확히 세 개, threshold는 모두 3 그대로입니다.
+
+10
+00:02:26.000 --> 00:02:42.000
+기존 contoso-chat만 기존 quota 안에서 100,000 TPM으로 조정합니다. 버전·Global Standard·NoAutoUpgrade·DefaultV2는 유지합니다.
+
+11
+00:02:42.000 --> 00:02:56.000
+기존 contoso-judge는 300,000 TPM입니다. 새 모델·지역·구독 quota 증액이 아니며 TPM은 비용 상한이 아닙니다.
+
+12
+00:02:56.000 --> 00:03:12.000
+저장 뒤 실제 Details를 다시 열어 Succeeded·TPM·RPM·버전을 확인합니다. UI 설정과 export에서 확인된 값은 구분합니다.
+
+13
+00:03:12.000 --> 00:03:30.000
+Review에서 고정 대상·dataset v1·세 평가자를 읽고 v1 Submit을 한 번만 누릅니다. 대기 중 다시 제출하지 않습니다.
+
+14
+00:03:30.000 --> 00:03:48.000
+v1은 Completed이며 세 native 평가자 모두 12/12입니다. 이 작은 dev 표본의 점수는 운영 출시·실제 함수·ACL 통과가 아닙니다.
+
+15
+00:03:48.000 --> 00:04:04.000
+동일 dataset·judge·매핑·threshold로 v2를 한 번 제출합니다. 승인된 제출 2회를 모두 사용했으며 이후 재실행하지 않았습니다.
+
+16
+00:04:04.000 --> 00:04:26.000
+v2도 Completed지만 Relevance는 100%·11/11입니다. 한 행 Error를 분모에서 빼거나 12/12로 바꾸지 않습니다. 두 결과 원본도 내려받았습니다.

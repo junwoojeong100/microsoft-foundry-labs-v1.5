@@ -12,7 +12,7 @@ import zipfile
 import zlib
 
 from check_guide import GuideParser
-from build_guide import load_portal_captures
+from build_guide import load_guide_captures
 
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = json.loads((ROOT / "content/release.json").read_text())
@@ -45,11 +45,12 @@ ROOT_FILES = (
     "LICENSE",
 )
 DIRECTORIES = ("assets", "content", "data", "docs", "samples", "scripts", "tests", "hosted", "infra",
-               "downloads/replay", ".github", ".devcontainer")
+               "downloads/replay", "downloads/portal", "downloads/portal-inputs", ".github", ".devcontainer")
 
 
 def collect_files(report_dir: Path) -> list[Path]:
     files = [ROOT / name for name in ROOT_FILES]
+    files.append(ROOT / "downloads/Contoso-Portal-Inputs.zip")
     for edition in RELEASE["languages"].values():
         files.extend(ROOT / edition[key] for key in ("readme", "html", "markdown", "receipt_html"))
         files.append(ROOT / "content" / edition["portal_manifest"])
@@ -182,9 +183,9 @@ def main():
             )
         print(f"The committed ZIP matches the current sources ({len(files)} files).")
         return
-    captures = {language: load_portal_captures(language) for language in RELEASE["languages"]}
+    captures = {language: load_guide_captures(language) for language in RELEASE["languages"]}
     all_captures = {
-        language: load_portal_captures(language, include_archived=True)
+        language: load_guide_captures(language, include_archived=True)
         for language in RELEASE["languages"]
     }
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -203,9 +204,16 @@ def main():
         "languages": list(RELEASE["languages"]), "default_language": RELEASE["default_language"],
         "integrity": "passed", "credential_and_virtualenv_exclusion": "passed",
         "portable_local_paths_checked": len(local_paths),
-        "portal_screenshots": sum(len(items) for items in captures.values()),
+        "portal_screenshots": len({item["path"] for items in captures.values() for item in items}),
         "portal_screenshots_by_language": {language: len(items) for language, items in captures.items()},
-        "archived_portal_screenshots": sum(len(all_captures[language]) - len(items) for language, items in captures.items()),
+        "archived_portal_screenshots": sum(
+            sum(item.get("kind") != "video-frame" for item in items)
+            for items in all_captures.values()
+        ),
+        "recorded_step_images": len({
+            item["path"] for items in all_captures.values() for item in items
+            if item.get("kind") == "video-frame"
+        }),
         "note": "This archive hash is kept outside the archive to avoid a self-referential checksum.",
     }
     report_dir.mkdir(parents=True, exist_ok=True)

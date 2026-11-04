@@ -1,10 +1,10 @@
 {
-  "l13": {"label":"Independent elective","requires":"An L01 project and model. This module prepares Search, embeddings, and an index, which also provide the foundation for L12."},
-  "l14": {"label":"Prerequisites required","requires":"Reuse your L11 Search/index and L01 models/receipt for local invocation and deployment. Needed only for L18's actual Hosted branch."},
-  "l15": {"label":"Independent elective","requires":"A basic project/model, ownership receipt, and separate .venv-advanced environment. Check the chosen pattern's TPM and request limit in L02 first. Neither L12 Hosted deployment nor an A2A connection is required."},
-  "l15-collaboration": {"label":"Choose after environment setup","requires":"Reuse L13's .venv-advanced environment and model-capacity check. Paid sequential/concurrent runs are not prerequisites; approve group-chat and handoff call limits separately."},
-  "l16": {"label":"Independent elective","requires":"A basic project, chat and embedding deployments, and access to supported Memory features. No other advanced module is required."},
-  "l17": {"label":"Separate feature paths","requires":"A routine can run independently with the server-side prompt agent from L05. The long-running Hosted path requires L12."},
-  "l21": {"label":"Independent elective","requires":"Repair local cache/access checks and write your control design. Actual inspection/changes separately require resource-level permissions and approved scope."},
-  "l22": {"label":"Choose deployment/recovery capabilities","requires":"Use L01's environment/sources for CI failure/repair and release/recovery design. L12 is needed only for the actual Hosted branch. Publishing requires protocol/server tools/organizational access and separate approval; it is not a core requirement."}
+  "l13": {"label": "Inspection / conditional extra resources", "requires": "L01 project and L05's three synthetic policies. Inspect Knowledge by default; Search, Storage, embeddings, and data access require separate scope/cost approval."},
+  "l14": {"label": "Portal inspection", "requires": "L04 Prompt Agent. Read existing owned Hosted details only. Code, containers, development environments, and SDK deployment are outside this path."},
+  "l15": {"label": "Manual role comparison", "requires": "L04 agent creation, L08 v2 synthetic context, identical model. Four baseline sends, at most six. No framework or concurrent runtime execution."},
+  "l15-collaboration": {"label": "Reuse L13 roles", "requires": "L13's two roles and a separate router Prompt Agent. Five baseline sends, at most seven. Human copying, not automatic handoff, A2A, or HITL."},
+  "l16": {"label": "Inspection / conditional existing Memory", "requires": "Owned agent settings. Conditional recall needs an approved existing store, embeddings, Memory writes, and test UI. CRUD, isolation, and deletion remain unverified."},
+  "l17": {"label": "Cancel before submission by default", "requires": "Routines UI in a supported subscription/region and an owned Prompt Agent. Default: zero creations/dispatches. Schedules, Test run, and Pause need separate approval."},
+  "l21": {"label": "Read-only inspection", "requires": "Read access to owned group/project and L09/L10 observations. No role/network changes; synthetic cache/ACL decisions, not live cross-user tests."},
+  "l22": {"label": "Inspect evaluations and versions", "requires": "Actual L08 runs, candidate version, costs, and retention. No Hosted prerequisite. No CI, Publish, Active version switching, or rollback execution."}
 }

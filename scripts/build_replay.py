@@ -109,7 +109,7 @@ def build(language, source, work, destination):
 
 
 def player(source, destination):
-    title = "Contoso Foundry · 실습 요약 / Lab walkthrough"
+    title = "보관 영상 · 과거 CLI 재구성 / Archived CLI reconstruction"
     links = []
     for language in ("ko", "en"):
         chapters = json.loads((destination / f"chapters.{language}.json").read_text())
@@ -127,7 +127,9 @@ def player(source, destination):
     (destination / "index.html").write_text(f"""<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title><style>body{{font:16px/1.6 system-ui,sans-serif;max-width:1160px;margin:32px auto;padding:0 20px;background:#081925;color:#e8f3f8}}a{{color:#66e0cb}}video{{width:100%;background:#000}}section{{margin:40px 0 70px}}nav{{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}}button{{background:#143344;border:1px solid #406170;color:#e8f3f8;padding:12px;text-align:left;cursor:pointer;border-radius:8px}}button:focus-visible{{outline:3px solid #66e0cb}}</style></head>
-<body><h1>{title}</h1><p>20개 모듈 · 음성 내레이션 · 자막 · 장별 이동 / 20 modules · narration · captions · chapter navigation</p>
+<body><h1>{title}</h1><p><a href="../portal/index.html">현재 실제 포털 녹화 / Current actual portal recordings</a>
+ · <a href="../../index.ko.html">현재 한국어 가이드</a> · <a href="../../index.html">Current English guide</a></p>
+<p>과거 20모듈 재구성 · 현재 실행 지침 아님 / Historical twenty-module reconstruction, not current execution instructions</p>
 {''.join(links)}
 <script>document.querySelectorAll('button[data-time]').forEach(button=>button.addEventListener('click',()=>{{const video=document.getElementById(button.dataset.language);video.currentTime=Number(button.dataset.time);video.scrollIntoView({{block:'center'}});video.play().catch(error=>{{if(error.name!=='NotAllowedError')console.error(error);}});}}));</script></body></html>""", encoding="utf-8")
 

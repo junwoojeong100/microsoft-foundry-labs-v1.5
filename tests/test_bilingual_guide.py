@@ -1,4 +1,3 @@
-from collections import Counter
 from copy import deepcopy
 import json
 from pathlib import Path
@@ -7,14 +6,14 @@ import shlex
 import sys
 import unittest
 from unittest.mock import patch
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_guide
 import check_pages
 import package_guide
-from check_guide import CONCEPT_LABELS, GuideParser, LAB_HEADINGS, command_coverage
+from check_guide import CONCEPT_LABELS, GuideParser, LAB_HEADINGS, command_coverage, portal_coverage
 from maintainer_only import requires_maintainer_assets
 
 
@@ -28,24 +27,6 @@ def shell_commands(text):
         for line in body.replace("\\\n", " ").splitlines()
         if line.strip() and not line.lstrip().startswith("#")
     ]
-
-
-def command_boundaries(commands):
-    contracts = []
-    for command in commands:
-        for index, token in enumerate(command):
-            if not re.fullmatch(r"(?:samples|scripts)/[\w.-]+\.py", token):
-                continue
-            if token == "scripts/setup_oidc.py":
-                continue
-            action = command[index + 1] if index + 1 < len(command) and not command[index + 1].startswith("-") else ""
-            flags = tuple(flag for flag in ("--live", "--local", "--approve-tool", "--confirm", "--require-oidc", "--resume") if flag in command)
-            bounds = tuple(
-                (flag, command[command.index(flag) + 1])
-                for flag in ("--max-seconds", "--delay-seconds", "--wait-seconds", "--capacity") if flag in command
-            )
-            contracts.append((token, action, flags, bounds))
-    return Counter(contracts)
 
 
 REPOSITORY = "https://github.com/junwoojeong100/microsoft-foundry-labs-v1.5"
@@ -162,7 +143,7 @@ class BilingualGuideTests(unittest.TestCase):
             _, _, capabilities = build_guide.load_content(language)
             rows = {row["source"]: row for row in capabilities if row["lab"] in {"l15", "l15-collaboration"}}
             with self.subTest(language=language):
-                self.assertEqual(rows["maf"]["mode"], "직접 실습")
+                self.assertEqual(rows["maf"]["mode"], "참고")
                 for pattern in ("sequential", "concurrent", "group-chat", "handoff"):
                     self.assertIn(pattern, rows["maf"]["name"])
                 self.assertEqual(rows["a2a"]["mode"], "참고")
@@ -240,46 +221,29 @@ class BilingualGuideTests(unittest.TestCase):
                             self.assertTrue(path.startswith("data/en/"), path)
                         self.assertTrue((ROOT / path).is_file(), path)
         setup = (ROOT / "docs/en/01-setup.md").read_text(encoding="utf-8")
-        self.assertIn("export FOUNDRY_LAB_LANGUAGE=en", setup)
-        self.assertIn('$env:FOUNDRY_LAB_LANGUAGE = "en"', setup)
+        self.assertIn("https://portal.azure.com/", setup)
+        self.assertIn("https://ai.azure.com/", setup)
+        self.assertNotIn("FOUNDRY_LAB_LANGUAGE", setup)
+        rag = (ROOT / "docs/en/05-rag.md").read_text(encoding="utf-8")
+        self.assertIn("en/policies", rag)
+        self.assertIn("Contoso-Portal-Inputs.zip", rag)
 
-    def test_english_commands_preserve_live_approval_confirmation_and_request_bounds(self):
+    def test_translations_preserve_ordered_portal_actions_without_shell_commands(self):
         chapters, _, _ = build_guide.load_content("en")
         for chapter in chapters:
-            if "file" not in chapter:
+            if chapter["track"] == "reference":
                 continue
             translated_path = ROOT / chapter["file"]
             english = translated_path.read_text(encoding="utf-8")
             korean = (ROOT / "docs" / translated_path.name).read_text(encoding="utf-8")
             with self.subTest(chapter=chapter["id"]):
-                korean_commands, english_commands = shell_commands(korean), shell_commands(english)
-                self.assertEqual(command_boundaries(korean_commands), command_boundaries(english_commands))
-                for command in english_commands:
-                    if "samples/toolbox_lab.py" in command and "call" in command:
-                        if "--approve-tool" in command:
-                            self.assertEqual(command[command.index("--approve-tool") + 1], command[command.index("--tool") + 1])
-                        else:
-                            self.assertEqual(chapter["id"], "l07")
-                            self.assertIn("--local", command)
-                            self.assertNotIn("--live", command)
-                            self.assertEqual(command[command.index("--tool") + 1], "get_stock")
-                            self.assertEqual(json.loads(command[command.index("--arguments") + 1]), {"sku": "NB-14"})
-                    if "samples/memory_lab.py" in command and "forget" in command:
-                        self.assertIn("--live", command)
-                        self.assertEqual(command[command.index("--confirm") + 1], "ACTUAL_MEMORY_ID")
-                    if "samples/optimizer_lab.py" in command and "--require-oidc" in command:
-                        self.assertIn("--live", command)
-                        self.assertNotIn("holdout", command)
-                        if "--suite" in command:
-                            self.assertEqual(
-                                command[command.index("--suite") + 1],
-                                "automated-v3" if "--resume" in command else "automated-v5",
-                            )
-                unapproved = [
-                    command for command in english_commands
-                    if "samples/toolbox_lab.py" in command and "call" in command and "--approve-tool" not in command
-                ]
-                self.assertEqual(len(unapproved), 1 if chapter["id"] == "l07" else 0)
+                self.assertEqual(shell_commands(korean), [])
+                self.assertEqual(shell_commands(english), [])
+                self.assertEqual(
+                    portal_coverage(korean, "docs/" + translated_path.name, "ko"),
+                    portal_coverage(english, chapter["file"], "en"),
+                )
+                self.assertEqual(len(executable_blocks(korean)), len(executable_blocks(english)))
 
 
     @requires_maintainer_assets
@@ -308,12 +272,11 @@ class BilingualGuideTests(unittest.TestCase):
             self.assertEqual(rubric["human_review"]["status"], "optional_guidance_only")
         self.assertEqual({key: profile["v3_gate"][key] for key in gates}, gates)
         self.assertEqual(profile["v3_gate"]["calibration_controls"], 8)
-        action_examples = dict(executable_blocks((ROOT / "docs/en/06-actions.md").read_text(encoding="utf-8")))
-        self.assertEqual(json.loads(action_examples["json"]), {
-            "sku": "NB-14", "quantity": 2, "total_krw": 2900000,
-            "status": "draft_requires_human_approval", "required_approvals": ["team_lead", "procurement"],
-            "order_submitted": False,
-        })
+        actions = (ROOT / "docs/en/06-actions.md").read_text(encoding="utf-8")
+        for value in ("NB-14", "1,450,000", "2,900,000", "2,000,000",
+                      "draft_requires_human_approval", "order_submitted=false", "1–10"):
+            self.assertIn(value, actions)
+        self.assertNotIn("```json", actions)
 
     def test_official_and_historical_urls_survive_profile_specific_workflow_links(self):
         chapters, _, _ = build_guide.load_content("en")
@@ -336,22 +299,106 @@ class BilingualGuideTests(unittest.TestCase):
         for address in links:
             self.assertRegex(address, rf"^{re.escape(REPOSITORY)}/blob/[0-9a-f]{{40}}/\.github/workflows/")
 
-    def test_source_image_sets_are_english_16_and_korean_15(self):
+    def test_historical_image_sets_are_preserved_but_excluded_from_learner_sources(self):
         paths = {}
         for language, edition in build_guide.RELEASE["languages"].items():
             chapters, sources, capabilities = build_guide.load_content(language)
             images = set()
             for chapter in chapters:
                 body = build_guide.source_body(chapter, chapters, capabilities, sources, language)
-                images.update(re.findall(r"!\[[^\]]*\]\((assets/portal/[^)]+)\)", body))
-            self.assertEqual(len(images), edition["portal_screenshots"])
-            self.assertEqual(images, {capture["path"] for capture in build_guide.load_portal_captures(language)})
+                images.update(
+                    path for path in re.findall(r"!\[[^\]]*\]\((assets/portal/[^)]+)\)", body)
+                    if not path.startswith("assets/portal/steps/")
+                )
+            self.assertFalse(images, "Old portal/settings/response screens no longer belong in the learner guide.")
+            preserved = {capture["path"] for capture in build_guide.load_portal_captures(language)}
+            self.assertEqual(len(preserved), edition["portal_screenshots"])
             archived = build_guide.read_json(edition["portal_manifest"])["archived_captures"]
-            self.assertTrue(images.isdisjoint(capture["path"] for capture in archived))
+            self.assertTrue(preserved.isdisjoint(capture["path"] for capture in archived))
             directory = "assets/portal/en" if language == "en" else "assets/portal"
-            self.assertTrue(all(Path(path).parent == Path(directory) for path in images))
-            paths[language] = {Path(path).name for path in images}
+            self.assertTrue(all(Path(path).parent == Path(directory) for path in preserved))
+            paths[language] = {Path(path).name for path in preserved}
         self.assertEqual(paths["en"], paths["ko"] | {"18-resource-group.png"})
+
+    def test_all_modules_have_matching_numbered_screens_and_exact_captioned_video_links(self):
+        frames = {frame["path"]: frame for frame in build_guide.portal_steps.load_steps()}
+        sequences = {}
+        for language in build_guide.RELEASE["languages"]:
+            chapters, sources, capabilities = build_guide.load_content(language)
+            sequences[language] = {}
+            for chapter in chapters:
+                if chapter["track"] == "reference":
+                    continue
+                body = build_guide.source_body(chapter, chapters, capabilities, sources, language)
+                cards = re.findall(r'<div class="screen-step" markdown="1">(.*?)</div>', body, re.S)
+                sequence = []
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    self.assertGreaterEqual(len(cards), 2, "Every module needs contextual visual guidance.")
+                    for card in cards:
+                        images = re.findall(r"!\[[^\]]+\]\((assets/portal/steps/[^)]+)\)", card)
+                        self.assertEqual(len(images), 1)
+                        frame = frames[images[0]]
+                        links = re.findall(r"\]\((downloads/portal/index\.html[^)]+)\)", card)
+                        self.assertEqual(len(links), 1)
+                        address = urlparse(links[0])
+                        query = parse_qs(address.query)
+                        self.assertEqual(set(query), {"clip", "t", "lang"})
+                        self.assertEqual(query["clip"], [frame["clip"]])
+                        self.assertEqual(query["lang"], [language])
+                        self.assertEqual(len(query["t"]), 1)
+                        self.assertEqual(float(query["t"][0]), frame["seconds"])
+                        self.assertEqual(address.fragment, frame["clip"])
+                        sequence.append(images[0])
+                sequences[language][chapter["id"]] = sequence
+            self.assertEqual(
+                {path for sequence in sequences[language].values() for path in sequence}, set(frames),
+            )
+        self.assertEqual(sequences["en"], sequences["ko"])
+
+    def test_priority_labs_place_relevant_screens_in_each_recorded_phase(self):
+        phases = {
+            "l09": [
+                ["guardrails", "guardrail-targets"], ["safety-missing-policy"],
+                ["safety-false-approval"], ["safety-no-order"], [],
+            ],
+            "l10": [
+                ["trace-filters", "trace-list"], ["trace-span-tree", "trace-input-output"],
+                ["monitor-period", "monitor-overview"],
+            ],
+            "l13": [["files-success"], ["iq-navigation", "iq-connect", "policy-final"], [], []],
+            "l14": [["agents-type-list"], ["policy-final", "policy-version-bar"], ["hosted-dialog"]],
+            "l15": [
+                ["agent-create-form", "agent-instructions", "agent-version-bar"],
+                ["agent-chat-controls"], ["agent-answer-actions"],
+            ],
+            "l15-collaboration": [
+                ["agent-create-form", "agent-instructions"], ["agent-answer-actions"], ["agent-chat-controls"],
+            ],
+            "l16": [["memory-warning"], ["memory-form", "memory-ttl"], ["policy-final"], ["agent-chat-controls"]],
+            "l17": [
+                ["routine-list", "routine-form"], ["routine-entered", "routine-identity"],
+                ["routine-trigger", "routine-time", "routine-cancelled"],
+            ],
+            "l21": [
+                ["rg-created", "memory-warning"], ["iq-connect", "policy-final", "guardrail-targets", "trace-input-output"], [],
+            ],
+            "l22": [
+                ["eval-run-target", "eval-v2-result", "eval-detail-rows"], ["eval-v2-candidate", "agents-type-list"], [],
+            ],
+        }
+        for language in build_guide.RELEASE["languages"]:
+            chapters, sources, capabilities = build_guide.load_content(language)
+            for chapter in chapters:
+                if chapter["id"] not in phases:
+                    continue
+                body = build_guide.source_body(chapter, chapters, capabilities, sources, language)
+                sections = re.split(r"(?m)^### \d+\. .*\n", body)[1:]
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    self.assertEqual(len(sections), len(phases[chapter["id"]]))
+                    self.assertEqual([
+                        re.findall(r"!\[[^\]]+\]\(assets/portal/steps/([a-z0-9-]+)\.png\)", section)
+                        for section in sections
+                    ], phases[chapter["id"]], "Control and result images must match the actions beside them.")
 
     def test_archived_captures_keep_original_fingerprints_and_capture_times(self):
         expected = {
@@ -408,14 +455,15 @@ class BilingualGuideTests(unittest.TestCase):
 
     def test_both_readers_keep_execution_records_outside_the_guide(self):
         labels = build_guide.read_json("reader-labels.json")
-        for language, reading in (("en", "Read → do one step"), ("ko", "읽기 → 한 단계 실행")):
+        for language, reading in (("en", "Read → one portal action"), ("ko", "읽기 → 포털 한 단계")):
             self.assertIn(reading, labels[language]["reader_note"])
             self.assertNotIn("validation/current", labels[language]["book_boundary"])
             directory = "docs/en" if language == "en" else "docs"
             text = (ROOT / directory / "08-evaluation.md").read_text()
             self.assertNotIn("validation/current", text)
             self.assertNotIn("4.9167", text)
-            self.assertIn("results/azure-environment.json", text)
+            self.assertIn("review-checklist.csv", text)
+            self.assertNotIn("instruction_evaluation.py --input", text)
 
     def test_missing_translation_fails_instead_of_falling_back_to_korean(self):
         read_json = build_guide.read_json
@@ -485,7 +533,13 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertFalse(any(link.startswith(("validation/", "results/")) for link in parser.links))
         self.assertIn("data/receipt.html", parser.links)
         self.assertNotIn("data/en/receipt.html", parser.links)
-        self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/")}), 15)
+        self.assertEqual({
+            image["src"] for image in parser.images
+            if image["src"].startswith("assets/portal/") and not image["src"].startswith("assets/portal/steps/")
+        }, set())
+        self.assertEqual({
+            image["src"] for image in parser.images if image["src"].startswith("assets/portal/steps/")
+        }, {item["path"] for item in build_guide.portal_steps.load_steps()})
         self.assertIn("](" + build_guide.RELEASE["site_url"] + "data/receipt.html)", artifacts["GUIDE.ko.md"])
         self.assertIn("[English](GUIDE.en.md)", artifacts["GUIDE.ko.md"])
 
@@ -526,18 +580,21 @@ class BilingualGuideArtifactTests(unittest.TestCase):
             self.assertIn(release["site_url"] + relative, readme)
         self.assertIn(release["site_url"], readme)
 
-    def test_english_render_requires_actual_english_capture_assets(self):
+    def test_english_render_uses_current_frames_and_preserves_its_localized_receipt(self):
         artifacts = render_without_writing("en")
         parser = GuideParser()
         parser.feed(artifacts["index.html"])
         self.assertEqual(parser.language, "en")
-        self.assertEqual(len({image["src"] for image in parser.images if image["src"].startswith("assets/portal/en/")}), 16)
+        self.assertFalse(any(image["src"].startswith("assets/portal/en/") for image in parser.images))
+        self.assertEqual({
+            image["src"] for image in parser.images if image["src"].startswith("assets/portal/steps/")
+        }, {item["path"] for item in build_guide.portal_steps.load_steps()})
         self.assertFalse(any(link.startswith(("validation/", "results/")) for link in parser.links))
         self.assertIn("data/en/receipt.html", parser.links)
         reader_note = re.search(
             r'<div class="reader-note" id="reader-note">(.*?)</div>', artifacts["index.html"], re.S,
         )[1]
-        self.assertIn("Read → do one step → check the result", reader_note)
+        self.assertIn("Read → one portal action → inspect the result", reader_note)
         self.assertIn("approve live costs", reader_note)
         note_links = GuideParser()
         note_links.feed(reader_note)
@@ -564,12 +621,19 @@ class BilingualGuideArtifactTests(unittest.TestCase):
                         self.assertTrue(path.is_relative_to(ROOT))
                         self.assertTrue(path.is_file(), f"Missing required source asset/evidence: {local}")
 
-    def test_markdown_html_links_use_pages(self):
+    def test_markdown_html_links_use_pages_except_the_bundled_recording_player(self):
         for edition in build_guide.RELEASE["languages"].values():
             text = (ROOT / edition["markdown"]).read_text(encoding="utf-8")
-            html_links = re.findall(r"\]\(([^)]+\.html(?:#[^)]*)?)\)", text)
+            html_links = [
+                link for link in re.findall(r"\]\(([^)\s]+)\)", text)
+                if urlparse(link).path.endswith(".html")
+            ]
             self.assertTrue(html_links)
-            self.assertTrue(all(link.startswith(build_guide.RELEASE["site_url"]) for link in html_links))
+            self.assertIn("portal/index.html", html_links)
+            self.assertTrue(all(
+                link.startswith(build_guide.RELEASE["site_url"]) or urlparse(link).path == "portal/index.html"
+                for link in html_links
+            ))
             boundary = text.split("## ", 1)[0]
             self.assertNotIn("../validation/", boundary)
             self.assertIn(f"]({build_guide.RELEASE['site_url']}{edition['receipt_html']})", boundary)
@@ -603,7 +667,8 @@ class BilingualGuideArtifactTests(unittest.TestCase):
         source = (
             "[file](data/policy.md#rule) ![image](assets/portal/a%20b.png) "
             "[English](downloads/GUIDE.en.md) [section](#l08) "
-            "[web](index.ko.html?print=1#l08) [external](https://example.invalid/a)"
+            "[web](index.ko.html?print=1#l08) [external](https://example.invalid/a) "
+            "[scene](downloads/portal/index.html?clip=native-clip&t=130.4&lang=en#native-clip)"
         )
         converted = build_guide.portable_book_links(source, "downloads/GUIDE.ko.md")
         self.assertIn("](../data/policy.md#rule)", converted)
@@ -612,6 +677,7 @@ class BilingualGuideArtifactTests(unittest.TestCase):
         self.assertIn("[section](#l08)", converted)
         self.assertIn(f"]({build_guide.RELEASE['site_url']}index.ko.html?print=1#l08)", converted)
         self.assertIn("[external](https://example.invalid/a)", converted)
+        self.assertIn("[scene](portal/index.html?clip=native-clip&t=130.4&lang=en#native-clip)", converted)
 
     def test_pages_checker_compares_both_editions_and_both_receipts(self):
         base = build_guide.RELEASE["site_url"]
@@ -625,6 +691,7 @@ class BilingualGuideArtifactTests(unittest.TestCase):
             report = check_pages.check()
         self.assertEqual({row["url"] for row in report["html"]}, {
             base + "index.html", base + "index.ko.html", base + "data/receipt.html", base + "data/en/receipt.html",
+            base + build_guide.RELEASE["portal_recordings"],
         })
         self.assertGreater(report["linked_files_checked"], 50)
 
@@ -632,6 +699,20 @@ class BilingualGuideArtifactTests(unittest.TestCase):
         with patch.object(check_pages, "fetch", return_value=b"outdated HTML"):
             with self.assertRaisesRegex(ValueError, "differs from the generated source"):
                 check_pages.check()
+
+    def test_pages_checker_rejects_stale_portal_video_captions_and_upload_archive(self):
+        source = json.loads((ROOT / "content/portal-recordings.json").read_text())
+        clip = source["clips"][0]["id"]
+        for stale in (f"downloads/portal/{clip}.mp4", f"downloads/portal/{clip}.en.vtt",
+                      build_guide.RELEASE["portal_inputs"]):
+            def local_response(address):
+                relative = unquote(address.removeprefix(build_guide.RELEASE["site_url"])) or "index.html"
+                payload = (ROOT / relative).read_bytes()
+                return payload + b"stale" if relative == stale else payload
+
+            with self.subTest(asset=stale), patch.object(check_pages, "fetch", side_effect=local_response):
+                with self.assertRaisesRegex(ValueError, "Published asset differs"):
+                    check_pages.check()
 
 
 if __name__ == "__main__":

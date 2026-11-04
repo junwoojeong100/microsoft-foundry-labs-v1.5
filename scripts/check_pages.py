@@ -43,6 +43,7 @@ def check():
     html_files = {
         edition["html"] for edition in RELEASE["languages"].values()
     } | {path.relative_to(ROOT).as_posix() for path in (ROOT / "data").rglob("*.html")}
+    html_files.add(RELEASE["portal_recordings"])
     local_files = set()
     rows = []
     for relative in sorted(html_files):
@@ -56,8 +57,10 @@ def check():
         for link in [*parser.links, *(image["src"] for image in parser.images)]:
             parsed = urlparse(link)
             if not parsed.scheme and not parsed.netloc and parsed.path:
-                path = (Path(relative).parent / unquote(parsed.path)).as_posix()
-                local_files.add(path)
+                path = (ROOT / Path(relative).parent / unquote(parsed.path)).resolve()
+                if not path.is_relative_to(ROOT):
+                    raise ValueError(f"Linked public file escapes the site: {link}")
+                local_files.add(path.relative_to(ROOT).as_posix())
         rows.append({
             "url": address, "http_status": 200, "language": parser.language,
             "sections": len(parser.articles), "sha256": hashlib.sha256(published).hexdigest(),
@@ -66,7 +69,7 @@ def check():
     default = fetch(base)
     if default != (ROOT / RELEASE["languages"][RELEASE["default_language"]]["html"]).read_bytes():
         raise ValueError("The public site root does not serve the default English reader.")
-    assets = sorted(path for path in local_files if path not in html_files and not path.endswith(".zip"))
+    assets = sorted(path for path in local_files if path not in html_files and path != RELEASE["archive"])
     for relative in assets:
         path = (ROOT / relative).resolve()
         if not path.is_relative_to(ROOT) or not path.is_file():

@@ -1,0 +1,41 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:27.000
+Azure portal → Resource groups → Create. 허용 구독·새 전용 RG·North Central US를 확인합니다.
+
+2
+00:00:27.000 --> 00:00:42.000
+Tags에 이번 실행의 validationRun을 넣습니다. 다른 사람의 그룹이나 과거 실행을 재사용하지 않습니다.
+
+3
+00:00:42.000 --> 00:00:56.000
+Review + create에서 이름·지역·태그를 읽고 Create를 한 번만 누릅니다. 구독 표시 영역은 가렸습니다.
+
+4
+00:00:56.000 --> 00:01:12.000
+Resource group created 알림과 전용 그룹을 확인합니다. 구독 ID는 가렸고 자원은 삭제하지 않습니다.
+
+5
+00:01:12.000 --> 00:01:39.000
+Foundry → Create a project → Advanced options. 새 프로젝트·Foundry resource·같은 전용 RG·지역을 지정하고 한 번 생성합니다.
+
+6
+00:01:39.000 --> 00:02:04.000
+Azure portal에서 전용 Log Analytics workspace를 검토합니다. Pay-as-you-go와 저장·보존 비용을 확인합니다.
+
+7
+00:02:04.000 --> 00:02:19.000
+Log Analytics 배포가 실제 완료됐는지 확인합니다. 성공 알림과 배포 상태는 모의 화면이 아닙니다.
+
+8
+00:02:19.000 --> 00:02:39.000
+Application Insights는 같은 전용 RG·지역과 방금 만든 workspace를 선택합니다. 실제 배포를 한 번 제출했습니다.
+
+9
+00:02:39.000 --> 00:02:55.000
+Your deployment is complete를 확인합니다. 연결은 이후 Project Managed Identity·No key available로 확인했으며 키를 복사하지 않았습니다.
+
+10
+00:02:55.000 --> 00:03:09.000
+로그 연결 뒤 Agents의 프로젝트 tracing 안내를 확인합니다. 브라우저를 닫아도 로그·보존 비용은 남습니다.

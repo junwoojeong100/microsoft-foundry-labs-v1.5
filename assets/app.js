@@ -13,7 +13,7 @@
   const list = document.getElementById("search-list");
   const hero = document.getElementById("hero");
   const quick = new Set(["l00", "l01", "l04", "l05", "l08", "l12", "instructor"]);
-  const offline = new Set(["l00", "l01", "l06", "l07", "l08", "l12", "l15", "l15-collaboration", "l21", "l22", "instructor", "troubleshooting"]);
+  const offline = new Set(data.map(page => page.id));
   let activeId = "l00";
   let lastLabId = "l00";
   let lastLabHash = "#l00";

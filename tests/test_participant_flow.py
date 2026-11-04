@@ -1,28 +1,14 @@
-import ast
 from html import unescape
 import json
 from pathlib import Path
 import re
-import shlex
 import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_guide
-
-
-def python_blocks(text):
-    return re.findall(r"^```python\n(.*?)^```[^\S\n]*$", text, re.M | re.S)
-
-
-def shell_commands(text):
-    return [
-        shlex.split(line)
-        for body in re.findall(r"^```bash\n(.*?)^```[^\S\n]*$", text, re.M | re.S)
-        for line in body.replace("\\\n", " ").splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    ]
+from check_guide import portal_coverage
 
 
 def source(language, filename):
@@ -47,7 +33,7 @@ class ParticipantFlowTests(unittest.TestCase):
                 self.assertNotIn(legacy, path.read_text(encoding="utf-8"))
 
     def test_learner_copy_and_navigation_do_not_split_participant_personas(self):
-        forbidden = r"(?i)강사|관리자|\b(?:instructors?|administrators?|deployment operators?)\b"
+        forbidden = r"(?i)강사용|관리자용|강사 전용|\b(?:instructor|administrator|deployment operator)(?:-only| route| path)\b"
         for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)
             checklist = next(chapter for chapter in chapters if chapter["id"] == "instructor")
@@ -85,122 +71,99 @@ class ParticipantFlowTests(unittest.TestCase):
             with self.subTest(language=language):
                 self.assertEqual(len(re.findall(r"^```prompt$", text, re.M)), edition["prompt_blocks"])
                 self.assertEqual(len(re.findall(r"^```env$", text, re.M)), edition["settings_blocks"])
+                self.assertEqual(edition["shell_blocks"], 0)
+                self.assertEqual(edition["commands"], 0)
+                self.assertEqual(edition["settings_blocks"], 0)
+            for chapter in chapters:
+                if chapter["track"] != "reference":
+                    with self.subTest(language=language, chapter=chapter["id"]):
+                        coverage = portal_coverage(
+                            (ROOT / chapter["file"]).read_text(), chapter["file"], language,
+                        )
+                        self.assertGreater(coverage["steps"], 0)
 
     def test_owned_setup_precedes_execution_and_connects_logs_before_agents(self):
         for language in ("ko", "en"):
             text = source(language, "01-setup.md")
-            commands = shell_commands(text)
-            live_steps = [
-                command[command.index("scripts/azure_environment.py") + 1]
-                for command in commands
-                if "scripts/azure_environment.py" in command and "--live" in command
-            ]
             with self.subTest(language=language):
-                self.assertEqual(live_steps, ["create", "foundation", "roles", "monitoring"])
-                creation = next(command for command in commands
-                                if "scripts/azure_environment.py" in command and "create" in command and "--live" in command)
-                for option in ("--subscription", "--location", "--cost-authorization"):
-                    self.assertIn(option, creation)
+                for marker in (
+                    "https://portal.azure.com/", "https://ai.azure.com/", "Resource groups",
+                    "Microsoft Foundry resource (Recommended)", "Advanced options",
+                    "validationRun", "View my access", "Log Analytics workspaces",
+                    "Project Managed Identity", "Auth Type", "Connect",
+                ):
+                    self.assertIn(marker, text)
+                self.assertLess(text.index("law-contoso-portal-"), text.index("appi-contoso-portal-"))
                 self.assertIn("roleAssignments/write", text)
                 self.assertIn("Contributor", text)
                 self.assertIn("Log Analytics Reader", text)
-                self.assertIn("results/azure-environment.json", text)
+                self.assertNotIn("scripts/azure_environment.py", text)
 
-    def test_tool_preparation_has_install_checks_and_a_matching_editor_environment(self):
+    def test_old_setup_bookmarks_lead_to_portal_resumption_not_installation(self):
         for language in ("ko", "en"):
             text = source(language, "01-setup.md")
             with self.subTest(language=language):
                 anchors = ("l01-python", "l01-azure-cli", "l01-vscode", "l01-local", "l01-interpreter")
                 positions = [text.index(f'<a id="{anchor}"></a>') for anchor in anchors]
                 self.assertEqual(positions, sorted(positions))
-                for marker in (
-                    "Add python.exe to PATH", "pip", "Python launcher",
-                    "py -3.13 --version", "python3.13 --version",
-                    "sudo apt install python3.13 python3.13-venv",
-                    "Install Certificates.command", "Microsoft Installer (MSI)", "Specific version",
-                    "brew install azure-cli", "sudo apt install azure-cli", "az version",
-                    "User Installer", "ms-python.python", "Python: Select Interpreter",
-                    "Enter interpreter path", ".venv/bin/python", r".venv\Scripts\python.exe",
-                ):
-                    self.assertIn(marker, text)
-                self.assertLess(text.index("az version"), text.index("az login"))
-                self.assertLess(text.index("py -3.13 -m venv"), positions[-1])
-                self.assertIn("python3.13 samples/workshop.py doctor", text)
-                self.assertNotIn("python3 samples/workshop.py doctor", text)
-                self.assertNotRegex(text, r"curl\b[^\n]*\|\s*(?:sudo\s+)?(?:ba)?sh\b")
+                reentry = text.split('<a id="l01-new-terminal"></a>', 1)[1]
+                self.assertIn("portal" if language == "en" else "포털", reentry)
+                self.assertNotRegex(text, r"^```(?:bash|powershell|python|env)$")
+                self.assertNotRegex(text, r"az login|pip install|python -m venv|brew install")
 
     def test_self_created_search_and_evaluation_inputs_are_explicit(self):
         for language in ("ko", "en"):
             search = source(language, "13-iq.md")
-            commands = shell_commands(search)
-            create_at = next(index for index, command in enumerate(commands)
-                             if "scripts/azure_environment.py" in command and "search" in command and "--live" in command)
-            initialize_at = next(index for index, command in enumerate(commands)
-                                 if "samples/search_lab.py" in command and "initialize" in command and "--live" in command)
             evaluation = source(language, "08-evaluation.md")
             with self.subTest(language=language):
-                self.assertLess(create_at, initialize_at)
-                self.assertIn("FOUNDRY_JUDGE_DEPLOYMENT_NAME=contoso-judge", evaluation)
-                self.assertIn("results/azure-environment.json", evaluation)
-                self.assertIn("instruction_prompt_agent_lab.py --live", evaluation)
-                self.assertIn("instruction_evaluation.py --input", evaluation)
+                for marker in ("Search explorer", "1536", "3072"):
+                    self.assertIn(marker, search)
+                for marker in (
+                    "contoso-judge", "evaluation-12.csv", "{{item.query}}", "ground_truth",
+                    "review-checklist.csv", "Partial/Failed", "compound-request-no-tools",
+                ):
+                    self.assertIn(marker, evaluation)
                 self.assertIn("90%", evaluation)
                 self.assertIn("safety/access", evaluation)
 
-    def test_every_python_example_compiles_without_executing_live_calls(self):
+    def test_active_labs_do_not_execute_code_or_local_purchase_functions(self):
         for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)
             for chapter in chapters:
                 if "file" not in chapter:
                     continue
-                for index, block in enumerate(python_blocks((ROOT / chapter["file"]).read_text(encoding="utf-8"))):
-                    with self.subTest(language=language, chapter=chapter["id"], block=index):
-                        compile(block, chapter["file"], "exec")
+                text = (ROOT / chapter["file"]).read_text(encoding="utf-8")
+                with self.subTest(language=language, chapter=chapter["id"]):
+                    self.assertNotRegex(text, r"(?m)^```(?:bash|powershell|python|env|javascript|yaml)$")
+                    self.assertNotRegex(text, r"python (?:samples|scripts)/|azd deploy|az login")
 
-    def test_purchase_function_example_matches_the_actual_business_logic(self):
-        implementation = ast.parse((ROOT / "samples/workshop.py").read_text(encoding="utf-8"))
-        actual = next(node for node in implementation.body
-                      if isinstance(node, ast.FunctionDef) and node.name == "prepare_purchase_request")
-        expected = ast.dump(ast.Module(body=actual.body, type_ignores=[]))
+    def test_purchase_boundary_is_explicit_instead_of_a_fabricated_execution(self):
         for language in ("ko", "en"):
-            examples = [
-                node for block in python_blocks(source(language, "06-actions.md"))
-                for node in ast.parse(block).body
-                if isinstance(node, ast.FunctionDef) and node.name == actual.name
-            ]
+            text = source(language, "06-actions.md")
             with self.subTest(language=language):
-                self.assertEqual(len(examples), 1)
-                self.assertEqual(ast.dump(ast.Module(body=examples[0].body, type_ignores=[])), expected)
+                for marker in ("Function", "order_submitted", "draft_requires_human_approval", "2,900,000"):
+                    self.assertIn(marker, text)
+                self.assertNotIn("workshop.py capstone --live", text)
 
-    def test_first_request_has_one_matching_budget_and_no_portal_python_execution_claim(self):
+    def test_first_request_removes_unapproved_tools_and_sets_a_visible_budget(self):
         for language in ("ko", "en"):
             text = source(language, "03-responses.md")
-            calls = [
-                node for block in python_blocks(text) for node in ast.walk(ast.parse(block))
-                if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-                and ast.unparse(node.func) == "client.responses.create"
-            ]
             with self.subTest(language=language):
-                self.assertEqual(len(calls), 1)
-                options = {keyword.arg: keyword.value for keyword in calls[0].keywords}
-                self.assertEqual(ast.literal_eval(options["max_output_tokens"]), 512)
-                self.assertIs(ast.literal_eval(options["store"]), False)
-                self.assertIn("512", text)
-                self.assertIn("first_response.py --live", text)
-                self.assertNotIn("Send runs", text)
-                self.assertNotIn("Send**가 Python", text)
+                for marker in ("512", "Max Completion Tokens", "Web search", "Remove", "Send"):
+                    self.assertIn(marker, text)
+                self.assertEqual(len(re.findall(r"^```prompt$", text, re.M)), 1)
+                self.assertNotIn("first_response.py --live", text)
+                self.assertNotIn("client.responses.create", text)
 
-    def test_core_and_hosted_authorization_and_memory_scope_are_not_conflated(self):
+    def test_memory_scope_is_not_replaced_by_conversation_history(self):
         for language in ("ko", "en"):
-            safety = source(language, "09-safety.md")
             memory = source(language, "16-memory.md")
             with self.subTest(language=language):
-                self.assertIn("L12 Hosted", safety)
-                self.assertIn("request_contract.py", safety)
-                self.assertNotIn("used by L06 has this shape", safety)
-                self.assertNotIn("L06에서 호출하는 실제 계약 검사", safety)
-                self.assertIn("scope", memory)
-                self.assertIn("API caller", memory)
+                for marker in ("scope", "TTL", "CRUD", "Setup incomplete", "Resolve", "Cancel",
+                               "Chat completions model", "Embedding model"):
+                    self.assertIn(marker, memory)
+                self.assertIn("Do not select Resolve" if language == "en" else "Resolve를 누르거나", memory)
+                self.assertNotIn("memory_lab.py", memory)
 
 
 if __name__ == "__main__":

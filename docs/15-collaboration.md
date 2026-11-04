@@ -1,205 +1,146 @@
-> **완성할 결과:** 검토를 받은 작성자가 답을 고치는 흐름과, 전문 담당자에게 제어를 넘기는 흐름을 구분합니다.
+## 목표
+
+작성자→검토자→작성자 수정과 담당 역할 선택을 포털에서 **수동으로** 비교합니다. 실제 자동 핸드오프·A2A·사람 승인 workflow를 실행한 것으로 표시하지 않습니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 선택 심화 · L13의 환경을 재사용하고 두 패턴을 하나씩 실행합니다.
+**진행 방식:** 수동 Chat 실험, 기본 5회·선택 변경 포함 최대 7회 전송.
 
-**먼저 할 일:** 아래 두 계획을 읽고, 수정이 필요한 일인지 담당자 전환이 필요한 일인지 먼저 예측합니다.
+**먼저 할 일:** L13의 두 역할과 같은 합성 문맥을 재사용합니다.
 
-**확인할 결과:** 그룹 채팅의 세 발언과 핸드오프의 실제 도구 호출·전문가 응답을 찾습니다. 종료 메시지와 업무 답변은 구분합니다.
+**확인할 결과:** 초안·검토·수정 3개 원문과 분류·사용자 전달 2개 원문.
 
 </div>
-
-## 목표
-
-**“같이 대화한다”와 “담당자를 바꾼다”는 다릅니다.** 그룹 채팅은 검토를 받아 같은 작성자가 수정하고, 핸드오프는 다른 전문가가 다음 작업을 맡습니다. 어느 쪽도 사람의 구매 승인을 대신하지 않습니다.
 
 ## 개념과 실습 지도
 
-**경험할 기능:** `GroupChatBuilder`와 `HandoffBuilder`의 메시지·제어 전달입니다.
+**경험할 기능:** 반복 검토와 담당자 전환의 개념 비교.
 
-**무엇이며 왜 중요한가요?** Group chat은 같은 팀의 반복 검토, handoff는 담당자 전환입니다. “위임했습니다”라는 말만으로 실제 제어가 넘어간 것은 아닙니다.
+**무엇이며 왜 중요한가요?** Group chat은 검토 후 수정, handoff는 다음 담당자 선택입니다. “위임했다”는 문장과 실제 제어 전달은 다릅니다.
 
-**어떻게 사용하나요?** 같은 정책·질문으로 두 패턴을 실행하고, 중간 답과 실제 핸드오프 도구 호출을 읽습니다. 반복 수와 비용 상한은 바꾸지 않습니다.
+**어떻게 사용하나요?** 사람이 답을 복사해 전달하고 그 사실을 기록합니다. 최대 왕복 수와 종료 조건을 미리 정합니다.
 
-**어디서 실행하나요?** [multi_agent.py](../samples/multi_agent.py)를 `.venv-advanced`에서 실행합니다. 모델만 Microsoft Azure에 있으며 Hosted·원격 A2A 서버는 만들지 않습니다.
+**어디서 실행하나요?** Microsoft Foundry의 역할별 Chat과 개인 비교표. 자동 orchestration은 사용하지 않습니다.
 
 ## 준비
 
-[L13 환경 준비](#l15)의 `.venv-advanced`, `.env`, **내 소유 기록** `results/azure-environment.json`, chat 배포의 **100,000 TPM / 60 RPM** 확인을 재사용합니다. L13의 유료 패턴 실행은 선행 조건이 아닙니다.
-
-<details class="environment-option" markdown="1">
-<summary>내 PC의 Windows PowerShell에서 진행할 때만</summary>
-
-`.venv-advanced\Scripts\python.exe`를 사용합니다. Codespaces에서는 아래 Bash 명령을 그대로 사용합니다.
-
-</details>
-
-### 먼저 경로 정하기
-
-| 지금 상태 | 진행할 단계 | 남길 결과 |
-| --- | --- | --- |
-| Microsoft Azure 승인 없음 | 1단계의 두 계획만 읽기 | 차이·호출 상한 설명, 실제 실행 미실행 |
-| 모델·소유 기록·비용 승인 있음 | 계획 → 그룹 채팅 → 결과 읽기 → 핸드오프 → 비교 | 두 원본 파일과 수정/위임 비교표 |
-
-추가 자원을 배포할 필요는 없습니다. 두 패턴을 모두 선택하면 **최대 7회 모델 호출**입니다. 실행당 **180초·응답당 2,048토큰·재시도 0회**를 유지하며, 다음 패턴은 이전 시작부터 **1분 이상** 지난 뒤 시작합니다.
+L13의 `contoso-policy-review`, `contoso-budget-review`를 사용합니다. L04 방식으로 별도 `contoso-router`를 만들고 같은 모델·도구 없음으로 저장합니다. Instructions는 “입력을 policy 또는 budget으로 분류하고 이유만 설명한다. 직접 위임·승인·주문했다고 말하지 않는다.”로 합니다.
 
 ## 실행
 
-### 1. 실행 전에 두 흐름 예측하기
+아래는 기존 Prompt Agent의 **조작 위치 예시**이며 router·검토 왕복·handoff의 실행 화면은 아닙니다. 다른 실습의 응답 본문 대신 필요한 생성·입력·복사 컨트롤만 봅니다.
 
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode group-chat
-.venv-advanced/bin/python samples/multi_agent.py --mode handoff
-```
+### 1. router를 분류 전용으로 준비
 
-<div class="command-explanation" markdown="1">
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | L04 방식으로 Prompt Agent를 만들고 Name에 `contoso-router`, 모드에 `Text`를 사용합니다. | L13의 두 검토 역할과 다른 대상입니다. | 기존 역할을 덮어쓰지 않습니다. |
+| 2 | 같은 `contoso-chat`과 준비 절의 분류 전용 Instructions를 설정하고 도구·Memory 없이 저장합니다. | policy/budget과 이유만 답하는 설정입니다. | 도구로 직접 실행하거나 승인했다고 주장하는 지시를 넣지 않습니다. |
 
-**명령 해설**
+<div class="screen-step" markdown="1">
 
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `--mode group-chat` | 작성자 → 검토자 → 작성자 수정의 계획을 읽습니다. | SDK 초기화·Microsoft Azure 호출·실행 증거 생성 없음. 최대 3회 호출 계획. |
-| 2. `--mode handoff` | 분류 담당자 → 정책 또는 금액 담당자의 계획을 읽습니다. | 실제 위임 없음. 최대 4회 호출 계획. |
+**router 이름 입력: 검토 역할과 분리**
 
-</div>
+![Prompt 생성 폼의 이름·Text 모드·생성 버튼 위치.](../assets/portal/steps/agent-create-form.png)
 
-먼저 “290만 원 구매 안내를 검토받아 고치기”에는 그룹 채팅, “정책/금액 중 담당자를 선택하기”에는 핸드오프라고 적어 봅니다. **예측은 결과가 아닙니다.** 다음 단계에서 실제 전달을 확인합니다.
+**1 Name:** 사진의 자동 이름 대신 `contoso-router`입니다. **2 Text / 3 생성:** Prompt를 만든 뒤 분류 지시문을 저장합니다. 생성 자체가 자동 역할 선택·handoff 구현은 아닙니다.
 
-### 2. 그룹 채팅: 마지막 수정 답까지 읽기
-
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode group-chat --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `--mode group-chat --live` | 검토 내용을 작성자에게 돌려주는 세 차례 대화입니다. 발언자는 코드의 round-robin으로 정하며 모델 사회자는 추가하지 않습니다. | 실제 모델 호출 최대 3회. 출력과 `Evidence:` 원본 파일을 확인합니다. |
+[자막 영상 04 · 00:01.5](../downloads/portal/index.html?clip=04-native-evaluation&t=1.5&lang=ko#04-native-evaluation)
 
 </div>
 
-편집기로 `Evidence:` 파일을 열어 `paths.group-chat.stages`를 찾습니다. 첫 작성자 답 → 검토자 답 → 마지막 작성자 답을 나란히 읽습니다. `model_call_completed` 이벤트의 `payload.input`과 `input_authors`로 검토가 실제 입력에 전달됐는지 대조합니다.
+<div class="screen-step" markdown="1">
 
-| 확인할 것 | 판단 |
-| --- | --- |
-| 세 stage의 `role` | 작성자·검토자·작성자 순서인가 |
-| 첫 답과 마지막 `answer` | 검토에서 지적한 누락이 보완됐는가. 그대로라면 그대로 기록 |
-| `final_messages`, `workflow_state` | 종료 상태인가. “대화가 종료됐다”는 orchestrator 문장은 구매 안내 답이 아님 |
+**Instructions: router에 줄 지시만 저장**
 
-### 3. 핸드오프: 말이 아닌 실제 제어 이전 찾기
+![Model과 Instructions 편집 위치를 보여 주는 기본 Prompt Agent 설정 예시.](../assets/portal/steps/agent-instructions.png)
 
-```bash
-.venv-advanced/bin/python samples/multi_agent.py --mode handoff --live
-```
+**1 모델:** L13과 같은 `contoso-chat`입니다. **2 Instructions:** 준비 절의 분류 전용 문장으로 저장합니다. 사진의 정책 지시문을 router의 실제 저장 내용으로 간주하지 않습니다.
 
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `--mode handoff --live` | 허용된 정책·금액 담당자 중 하나로 제어를 넘깁니다. 전문가는 답한 뒤 종료하며 다시 위임하지 않습니다. | 최대 4회 모델 호출. 실제 위임 도구와 전문가 응답이 없으면 실패. 주문·사람 승인 없음. |
+[자막 영상 02 · 02:04.5](../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=ko#02-model-agent)
 
 </div>
-
-`paths.handoff.stages`에서 분류 담당자의 `handoff_calls`와 뒤따르는 전문가 응답을 찾습니다. `handoff_to_…` 도구 이름이 기록되고 선택된 전문가가 실제 답했는지 확인합니다. 도구 호출 없이 자연어로 “위임했다”고만 말하면 통과가 아닙니다.
-
-샘플은 `require_per_service_call_history_persistence=True`로 제어 전환 뒤에도 대화 기록을 유지합니다. 이를 제거해 생긴 오류를 추가 재시도로 덮지 않습니다.
-
-### 4. 한 가지 바꿔 비교하기
 
 <div class="practice-block" markdown="1">
 
-**직접 해보기:** 두 파일에서 `역할 순서 / 입력 전달 / 수정된 문장 / 위임 도구 / 종료 상태 / total_tokens / elapsed_seconds`를 기록합니다. 사용량 `null`은 0이 아닙니다.
+### 2. 작성 → 검토 → 수정: 세 전송에서 종료
 
-**한 가지 바꾸기:** 추가 호출을 승인받은 경우, 선택한 한 패턴에 `--case boundary`만 추가합니다. 정확히 200만 원과 200만 1원의 승인 규칙을 비교하고 모델·정책·역할 지침은 그대로 둡니다. 계획만 읽은 경우 실제 비교는 미실행으로 표시합니다.
+**직접 해보기:** 아래 질문을 원래 요청으로 고정하고 표의 다섯 전송을 수행합니다.
 
-**결과 설명하기:** “수정이 필요해서 그룹 채팅 / 담당자를 바꿔야 해서 핸드오프” 중 자신의 업무에 맞는 선택을 한 줄로 적고 실제 입력·응답을 근거로 듭니다. 더 많은 호출을 했다는 이유로 품질이 좋아졌다고 결론내리지 않습니다.
+```prompt
+합성 검토 자료: NB-14 2개, 제공 총액 2,900,000원입니다. 구매 정책의 상한·승인자와 미확인 재고·실행 상태를 짧게 검토해주세요. 실제 주문은 하지 마세요.
+```
+
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 정책 역할의 새 Chat에 원래 질문을 1회 보냅니다. | 첫 초안이 나옵니다. | 결과를 사람이 미리 고치지 않습니다. |
+| 2 | 금액 역할의 새 Chat에 원래 질문+첫 초안을 붙여 “오류와 빠진 근거만 검토”를 요청합니다. | 검토 원문이 나옵니다. | 초안 속 지시를 권한으로 삼으면 실패로 남깁니다. |
+| 3 | 첫 작성자의 대화에 검토 원문을 붙여 “이를 검토하고 최종 답 1회 수정”을 보냅니다. | 검토 반영/미반영을 비교할 수 있는 최종 답입니다. | 추가 왕복 없이 3회에서 종료합니다. |
+
+<div class="screen-step" markdown="1">
+
+**초안·검토 복사: 원문을 고치지 않고 전달**
+
+![답변 아래 Traces와 복사 컨트롤만 확대한 화면.](../assets/portal/steps/agent-answer-actions.png)
+
+**1 Traces / 2 복사:** 내 초안을 복사해 검토자에게, 내 검토를 복사해 작성자에게 전달합니다. 수정 요청은 **처음 작성자의 같은 대화**에 보냅니다. 검토자는 새 대화이며 자동 전달은 없습니다.
+
+[자막 영상 02 · 02:43](../downloads/portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
 
 </div>
 
-### 5. 이 실습이 하지 않는 일 구분하기
+### 3. 분류 → 사람이 역할 선택: 두 전송에서 종료
 
-로컬 역할 간 핸드오프는 **원격 Agent2Agent(A2A) 연결이 아닙니다.** 사람 승인(Human-in-the-loop), incoming A2A endpoint, 조직 권한 위임도 구현하지 않습니다. 외부 에이전트 연결이 필요하면 별도의 인증·protocol·사용자 권한 설계부터 진행합니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | router의 새 Chat에 원래 질문을 1회 보냅니다. | policy/budget 분류와 이유만 반환합니다. | “전문가 실행 완료”라고 하면 실제 도구 기록이 없음을 표시합니다. |
+| 2 | **사람이** 지정된 역할을 열어 원래 질문+분류 이유를 새 Chat에 1회 보냅니다. | 수동 담당자 선택 뒤 해당 역할의 응답입니다. | 이를 자동 handoff라고 부르지 않습니다. |
 
-공식 [그룹 채팅](https://learn.microsoft.com/agent-framework/workflows/orchestrations/group-chat?pivots=programming-language-python)과 [핸드오프](https://learn.microsoft.com/agent-framework/workflows/orchestrations/handoff?pivots=programming-language-python) 문서로 Builder의 역할을 비교합니다.
+<div class="screen-step" markdown="1">
 
-<details class="implementation-detail" markdown="1">
-<summary>구현 참고: 그룹 채팅의 종료 조건과 핸드오프 설정 — 읽기용</summary>
+**선택된 역할에 직접 입력: 앞 대화를 자동 상속하지 않음**
 
-#### 포털 모델 배포와 Group chat/Handoff 코드
+![Chat 입력창과 전송 버튼의 위치만 보여 주는 조작 예시.](../assets/portal/steps/agent-chat-controls.png)
 
-L14에는 Microsoft Foundry 포털에서 설정하는 Group chat/Handoff 편집기가 없습니다. 포털은 모델 배포를 제공하고, 실제 참여자 선택·메시지 전달·종료 조건은 아래 Agent Framework 코드가 정합니다.
+**1 입력 / 2 전송:** 선택된 역할의 새 대화에 원래 요청과 router의 분류 이유를 구분해 붙입니다. 분류 문장만 보내거나 이전 대화를 자동으로 안다고 가정하지 않습니다. 이 화면은 실제 handoff 결과가 아닙니다.
 
-```python
-from agent_framework.orchestrations import GroupChatBuilder, HandoffBuilder
+[자막 영상 02 · 02:43](../downloads/portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
 
-def select_speaker(state):
-    names = list(state.participants)
-    return names[state.current_round % len(names)]
+</div>
 
-group_workflow = GroupChatBuilder(
-    participants=[drafter, reviewer],
-    selection_func=select_speaker,
-    max_rounds=3,
-    termination_condition=lambda messages: sum(message.role == "assistant" for message in messages) >= 3,
-    intermediate_output_from=[drafter, reviewer],
-).build()
+**한 가지 바꾸기:** 여유 범위가 있으면 router에 “노트북 정기 교체 주기”를 물어 다른 역할이 선택되는지 확인하고 사람이 한 번 전달합니다. 새 분류·전달 합계 2회만 추가합니다.
 
-handoff_workflow = (
-    HandoffBuilder(
-        participants=[coordinator, policy_agent, budget_agent],
-        termination_condition=lambda messages: any(
-            message.role == "assistant"
-            and message.author_name in {"policy", "budget"}
-            and message.text.strip()
-            for message in messages
-        ),
-    )
-    .with_start_agent(coordinator)
-    .add_handoff(coordinator, [policy_agent, budget_agent])
-    .build()
-)
-```
+**결과 설명하기:** 첫 초안의 오류, 검토가 지적한 것, 최종 수정 반영, 담당 역할 선택 이유를 적습니다. 역할이 말한 `approved`와 실제 승인 기록은 다르다고 설명합니다.
 
-| 코드 설정 | Evidence에서 확인할 실제 결과 |
+</div>
+
+### 자동 실행 증거가 없는 부분
+
+| 수동 실험에서 얻은 것 | 실제 실행이라고 하려면 추가로 필요한 것 |
 | --- | --- |
-| `participants` | 각 stage의 agent author |
-| `selection_func`, `max_rounds` | Group chat에서 누가 말했고 어디서 멈췄는지 |
-| `with_start_agent`, `add_handoff` | `handoff_calls`에 실제 제어 이전이 기록됐는지 |
-| Portal의 model deployment | 각 participant가 호출한 승인된 Microsoft Foundry model |
+| 복사한 작성자·검토자 메시지 | 한 run의 `GroupChatBuilder` 전달·종료 기록 |
+| router의 분류 텍스트 | `HandoffBuilder`의 실제 제어/도구 호출과 다음 agent 응답 |
+| “사람 확인 필요” 문장 | 승인 주체·권한·이벤트·대기/재개 상태가 있는 HITL 시스템 |
+| 역할 이름 두 개 | 실제 원격 A2A endpoint·인증·호출 결과 |
 
-참여자 변수는 `build_role()`이 만든 SDK agent입니다. 그룹 채팅은 세 발언, 핸드오프는 전문가 답변을 종료 조건으로 사용합니다. `multi_agent.py`는 선택한 workflow만 실행하며 포털에 이 그래프를 저장하지 않습니다.
-
-</details>
+위 코드 기반 기능은 참고입니다. 이 가이드에는 실제 handoff tool, 원격 A2A 서버, SDK 실행이 없습니다. 포털 Workflows는 2026-12-01 종료 예정이므로 그 디자이너로 우회하지 않습니다.
 
 ## 성공 기준
 
-- 선택한 실행 범위에서 그룹 채팅의 세 발언과 최종 수정 답을 확인했습니다.
-- 핸드오프의 실제 도구 호출·전문가 응답·종료 상태를 확인했습니다.
-- 역할의 검토·위임을 사람의 승인이나 원격 A2A 성공으로 표시하지 않았습니다.
+5개 실제 메시지와 수동 복사 경로를 설명했습니다. 자동 그룹 채팅·핸드오프·A2A·업무 승인 미실행을 명시했습니다. 결과가 없거나 분류가 잘못됐으면 해당 실패를 보존했습니다.
 
 ## 막혔을 때
 
-| 증상 | 먼저 확인할 것 | 다음 행동 |
-| --- | --- | --- |
-| SDK import 실패 | L13의 Python 환경과 `pip check` | 기본 SDK와 섞지 말고 전용 환경으로 복귀 |
-| 그룹 채팅의 끝이 종료 안내뿐 | `final_messages`와 `stages`를 혼동했는가 | 마지막 작성자 stage의 `answer`를 읽기 |
-| 위임 도구/전문가 응답 없음 | `handoff_calls`, 실제 입력, 종료 이유 | 실패로 보존. 성공할 때까지 반복하지 않기 |
-| 429·잘린 응답·시간 초과 | L02 처리량과 호출 시각·상한 | 새 호출 중지, 원본 오류 확인 후 승인된 재실행만 수행 |
+Instructions와 새 대화 여부를 확인합니다. router가 분류 외 작업을 하면 실패로 남깁니다. 응답 길이·호출 상한을 높여 성공할 때까지 반복하지 않습니다.
 
 ## 정리
 
-두 실행은 소유 모델을 호출할 뿐 Hosted 배포나 반복 예약을 만들지 않습니다. 원본은 `results/`에 보존하고, 전체 학습이 끝나면 [L19 공통 마무리](#l12)로 이동합니다.
+자동 재귀·무한 대화·지속 실행을 만들지 않았습니다. 원문과 최종 답을 나누어 보관하고 모든 agent 자원은 L19 기록에 포함합니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** 그룹 채팅의 첫 답·검토·수정 답과 핸드오프 도구/전문가 응답·종료 상태. 두 패턴의 `Evidence:` 파일을 구분합니다.
+**이 장에서 남길 것:** 작성/검토/수정 3원문, 분류/수동 전달 2원문과 자동 핸드오프 미실행.
 
-**다음:** Memory를 선택하면 [L15](#l16)에서 **기본 SDK 환경**으로 돌아갑니다. 선택 실습을 마쳤다면 [L19](#l12).
+**다음:** [L15 Memory 관찰과 조건부 대화 비교](#l16).
 
 </div>

@@ -286,20 +286,20 @@ class FoundationCapacityTests(unittest.TestCase):
                     self.assertRaisesRegex(ValueError, "region"):
                 environment.owned(verify_location=True)
 
-    def test_both_guides_configure_recommendations_during_creation(self):
+    def test_both_guides_review_portal_capacity_without_automatic_cli_deployment(self):
         for directory in ("docs", "docs/en"):
             setup = (ROOT / directory / "01-setup.md").read_text()
             model = (ROOT / directory / "02-models.md").read_text()
-            examples = [line for line in setup.splitlines() if "scripts/azure_environment.py foundation " in line]
-            commands = [line for line in examples if "--live" in line]
             with self.subTest(directory=directory):
-                self.assertEqual(len(commands), 1)
-                self.assertEqual(len([line for line in examples if "--live" not in line]), 1)
-                self.assertNotIn("--capacity ", commands[0])
-                self.assertIn("--learners 1 --max-capacity 100", commands[0])
-                self.assertIn("100,000", model)
+                self.assertNotIn("scripts/azure_environment.py foundation", setup)
+                self.assertNotIn("model_capacity.py test", model)
                 self.assertIn("Custom settings", model)
-                self.assertIn("model_capacity.py test", model)
+                self.assertIn("Model version settings", model)
+                self.assertIn("TPM", model)
+                self.assertIn("quota", model)
+                for value in ("contoso-chat", "gpt-6-sol", "2026-09-22",
+                              "contoso-judge", "gpt-4.1", "2025-04-14"):
+                    self.assertIn(value, model)
 
 
 if __name__ == "__main__":

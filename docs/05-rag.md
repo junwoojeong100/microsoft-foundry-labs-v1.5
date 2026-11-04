@@ -1,207 +1,195 @@
-> **완성할 결과:** “노트북 상한 150만 원, 부가세 포함”을 실제 업로드 문서의 근거와 함께 답합니다.
+## 목표
+
+합성 정책 3파일을 `contoso-policy`에 연결하고 실제 인용 또는 **같은 요청의 검색 결과**로 답변의 수치와 조건을 대조합니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** L04의 포털 에이전트 재사용 · 업로드·검색 비용을 먼저 확인합니다.
+**진행 방식:** File search 직접 실습. 파일 3개, 기본 질문 2회.
 
-**먼저 할 일:** 합성 정책 3개를 읽고 노트북 상한과 승인 규칙이 있는 절을 찾습니다.
+**먼저 할 일:** [포털 입력 파일 ZIP](../downloads/Contoso-Portal-Inputs.zip)을 내려받아 압축을 풉니다. `ko/policies` 폴더를 사용합니다.
 
-**확인할 결과:** 답할 수 있는 질문 2개의 실제 인용과, 없는 규정에 대한 유보를 확인합니다. SDK 경로는 선택입니다.
+**확인할 결과:** 세 파일의 업로드 성공·연결 저장, 실제 검색 호출, 주장을 뒷받침하는 인용이 있습니다.
 
 </div>
-
-## 목표
-
-모델의 사전 지식 대신 **검색된 문서**로 답하게 합니다. Retrieval-Augmented Generation, 즉 RAG의 가장 짧은 경로입니다.
 
 ## 개념과 실습 지도
 
-**경험할 기능:** File search로 회사 규정을 찾아 근거와 함께 답합니다.
+**경험할 기능:** File search, vector store, indexing, citation.
 
-**무엇이며 왜 중요한가요?** RAG는 **문서 검색 후 답변하기**입니다. 모델을 다시 학습시키지 않습니다. Vector store는 검색용 문서 보관소, citation은 답의 근거로 연결되는 인용입니다.
+**무엇이며 왜 중요한가요?** 파일 업로드는 지식을 연결하는 첫 단계입니다. 처리가 완료되어 검색할 수 있어야 하며, 인용은 해당 주장을 실제로 뒷받침해야 합니다.
 
-**어떻게 사용하나요?** 정책 3개를 읽고 업로드한 뒤 검색 준비 완료를 기다립니다. 세 질문의 답과 실제 인용을 원문에 대조합니다. 파일 이름만 적힌 답은 인용 확인이 아닙니다.
+**어떻게 사용하나요?** 세 파일만 추가하고 준비 완료를 기다린 뒤 규정 질문과 문서에 없는 질문을 비교합니다.
 
-**어디서 실행하나요?** L04의 포털 에이전트에 [구매](../data/policies/procurement-policy.md)·[경비](../data/policies/expense-policy.md)·[보안 정책](../data/policies/security-policy.md)을 연결합니다. [SDK](../samples/workshop.py)는 선택 경로입니다.
+**어디서 실행하나요?** Microsoft Foundry → Build → Agents → `contoso-policy` → Tools → Upload files. File search는 `Tools → Add → Add tools → Configured`에서도 찾습니다. Knowledge의 Add는 Foundry IQ 연결 경로이며 이 실습과 다릅니다.
 
 ## 준비
 
-기본 경로는 L04의 **포털 agent**와 `data/policies/`의 Markdown 파일 3개를 사용합니다. 저장소 업로드 권한과 File search 추가 비용을 확인하세요. 회사 문서를 가져오지 않아도 실습할 수 있습니다. L04를 SDK로만 진행했거나 File search 편집이 지원되지 않으면 아래 선택 SDK 경로를 읽고, 새로 생성한 대상과 완료한 질문 범위를 따로 기록합니다.
+L04의 같은 에이전트를 사용합니다. ZIP 안의 `procurement-policy.md`, `expense-policy.md`, `security-policy.md`만 올립니다. 원본은 [구매](../data/policies/procurement-policy.md)·[비용](../data/policies/expense-policy.md)·[보안](../data/policies/security-policy.md)에서도 읽습니다. PDF 변환이나 코드는 필요하지 않습니다. 실제 회사 문서로 교체하지 않습니다.
+
+**모델 호환성을 먼저 확인합니다.** 녹화 환경의 `gpt-6-sol / contoso-chat`에서는 File search가 비활성화됐고 “This tool doesn't work with the model you selected”가 표시됐습니다. L02에서 이미 승인·배포한 `gpt-4.1 / 2025-04-14 / contoso-judge`를 이 장의 **별도 RAG 버전**에만 재사용합니다. 이름은 judge지만 여기서는 답변 모델로 쓰는 별도 실험입니다. 원래 L04 버전을 보존하고, L08의 두 비교 agent는 계속 `contoso-chat`을 사용합니다. 호환 배포가 없으면 미지원으로 기록하며 새 모델·지역을 임의 생성하지 않습니다.
 
 ## 실행
 
-### 1. 세 문서를 먼저 읽기
+### 1. 호환 모델과 별도 RAG 버전 확인
 
-| 파일 | 들어 있는 정보 | 들어 있지 않은 정보 |
-| --- | --- | --- |
-| `procurement-policy.md` | 품목별 상한, 36개월 교체, 승인 경계 | 현재 재고 |
-| `expense-policy.md` | 사전 승인, 증빙, 환율 확인, 중복 금지 | 오늘 환율 |
-| `security-policy.md` | 권한·데이터·실행 경계 | 개인별 인사 데이터 |
+<div class="screen-step" markdown="1">
 
-정답의 위치를 모르면 RAG 품질을 평가할 수 없습니다.
+**File search가 회색이면 먼저 호환성 확인**
 
-### 2. File search 연결하기
+![비활성 File search와 선택한 모델에서 지원하지 않는다는 실제 안내.](../assets/portal/steps/files-unsupported.png)
 
-1. **Build → Agents**에서 L04에 기록한 **자기 에이전트 이름**을 엽니다. 새 에이전트를 만들지 않습니다.
-2. Agent builder의 **Tools/Knowledge → File search**에서 기본 파일 검색 연결을 엽니다. 이 경로가 보이지 않으면 프로젝트의 지원 상태를 지역까지 확인합니다(File search는 Italy North·Brazil South에서 제공되지 않음). 지원되는 지역이면 아래 SDK 경로를 선택합니다. L07의 Cloud Toolbox 확장은 이 단계의 선행 조건이 아닙니다.
-3. 자기 실습용 vector store를 만들고 `data/policies/`의 위 **Markdown 파일 3개만** 업로드합니다. ZIP 전체나 `data/` 폴더 전체를 올리지 않습니다.
-4. 파일 3개의 인덱싱이 **Completed**인지 확인합니다. 업로드 완료와 검색 준비 완료는 다릅니다. 연결을 **Save**하고 에이전트 버전과 store 이름을 기록합니다.
-5. **New chat**으로 새 대화를 열어 아래 세 질문을 각각 한 번씩 보냅니다. 지식 추가 전 L04 대화와 구분합니다.
+**1 File search:** 비활성 항목을 계속 누르지 않습니다. **2 안내:** 현재 모델과 도구가 호환되지 않는다는 뜻입니다. 위의 승인된 별도 RAG 조건을 먼저 확인합니다.
 
-![도구 연결 설정 예시. File search 카드와 별도의 get_stock·prepare_purchase_request 함수가 구분되어 있다.](../assets/portal/05-agent-tools.png)
-
-**화면 따라 읽기:** **Tools**의 **File search** 카드에서 자신의 store와 검색 설정을 확인합니다. 그 아래 `get_stock`·`prepare_purchase_request`는 L06에서 설명할 함수이며 파일 검색 자체의 기능이 아닙니다. 인덱싱이 완료되면 아래 질문을 보내고 실제 인용을 원문과 대조합니다.
-
-### 3. 정답·교차 문서·모름을 차례로 실험하기
-
-```prompt
-노트북 가격 상한과 정기 교체 주기를 알려줘. 문서명과 절을 제시해줘.
-```
-
-기대: **150만 원, 부가세 포함, 36개월, procurement-policy.md 2절**.
-
-```prompt
-노트북 2대를 총액 290만 원에 사려 합니다.
-누구의 승인이 필요하고, 사전 승인 없이 구매하면 비용 처리할 수 있나요?
-```
-
-기대: **팀장 + 구매 담당자** 승인과, 사전 승인 없는 구매의 **원칙적 비용 처리 불가/서면 예외 검토**. 두 문서 근거를 구분합니다.
-
-```prompt
-독일 지사의 구매 규정도 알려줘.
-```
-
-기대: 제공 문서에서 확인할 수 없다고 답합니다. 출처를 만들어내면 실패입니다.
-
-### 4. citation을 실제로 열어보기
-
-대답에 파일 이름이 적혀 있는 것만으로 성공이 아닙니다. portal의 인용이나 SDK의 `annotations`가 **실제 업로드 파일/검색 결과**를 가리키는지 확인합니다. 근거에 없는 숫자를 섞지 않았는지도 점검합니다.
-
-**포털에서 세 답을 확인했다면 아래 SDK는 건너뜁니다.** L06의 통합 명령은 필요한 파일을 스스로 준비하므로 `rag --live`가 선행 조건이 아닙니다.
-
-<details class="optional-path" markdown="1">
-<summary>선택: 파일·보관소·에이전트를 새로 만드는 SDK 경로</summary>
-
-```bash
-python samples/workshop.py rag
-python samples/workshop.py rag --live
-```
-
-<div class="command-explanation" markdown="1">
-
-**명령 해설**
-
-| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
-| --- | --- | --- |
-| 1. `rag` | 사용할 합성 정책과 RAG 실행 계획을 표시합니다. `--live`가 없어 업로드하지 않습니다. | 로컬 계획 확인만 수행합니다. |
-| 2. `rag --live` | 파일 업로드 → vector store 연결 → 파일마다 최대 180초 인덱싱 대기 → 새 agent 생성 → 질문을 실제 수행합니다. | 모델·File search·파일 보관 비용 가능. 답변의 citation과 receipt의 파일/store ID를 대조합니다. 포털 객체를 재사용하는 명령은 아닙니다. |
+[자막 영상 03 · 00:16](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=16&lang=ko#03-retrieval-boundaries)
 
 </div>
 
-실행 파일은 업로드 → vector store 파일 연결 → 파일마다 최대 180초(3개면 최대 540초) 인덱싱 대기 → agent 생성 → **기본 상한 질문 1건**을 진행합니다. 위 세 질문을 자동 수행하지 않습니다. 파일 하나라도 180초 안에 준비되지 않으면 완료로 가장하지 않고 중단합니다. receipt로 남은 파일과 상태를 확인하세요.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `Build → Agents → contoso-policy`를 엽니다. | L04의 모델·Instructions v2가 그대로입니다. | 다른 이름이나 Hosted 대상이면 중단합니다. |
+| 2 | Model 선택기를 열고 지원되는 기존 배포 `contoso-judge`를 고릅니다. | `gpt-4.1`의 실제 배포이며 Upload files가 활성화됩니다. | File search가 비활성화되면 호환성 안내를 읽고 중단합니다. |
+| 3 | `Parameters → Max output tokens`를 `2048`로 다시 입력하고 `Tab → Esc → Save`를 누릅니다. | 별도 숫자 version이 저장됩니다. 모델 변경 시 출력 한도가 비워질 수 있습니다. | 이전 버전을 덮어썼다고 가정하지 말고 저장된 두 조건을 기록합니다. |
 
-세 질문을 마저 확인하려면 새 agent 이름·버전을 receipt에서 찾고 포털 **Build → Agents**에서 그 대상을 엽니다. 질문별 추가 비용 범위를 확인해 3단계 질문을 수행합니다. Chat을 사용할 수 없다면 **기본 질문의 검색·인용 확인 / 세 질문 비교 미실행**으로 기록하고, `rag --live`를 질문마다 반복해 자원을 재생성하지 않습니다.
+<div class="screen-step" markdown="1">
 
-</details>
+**모델을 확인한 다음 Upload files**
 
-### 5. 검색 실패를 분해하기
+![별도 RAG 버전에서 contoso-judge가 선택되고 Upload files가 활성화된 화면.](../assets/portal/steps/rag-model.png)
 
-![질문, 검색, 근거, 답변, 평가, 개선으로 이어지는 학습 루프](../assets/learning-loop.svg)
+**1 Model:** 여기서는 `contoso-judge`가 답변 모델입니다. **2 Upload files:** Tools 아래 버튼입니다. 아래 Knowledge 연결과 혼동하지 않습니다.
 
-| 현상 | 먼저 볼 계층 |
-| --- | --- |
-| 관련 문서가 검색되지 않음 | 인덱싱·chunk·검색 설정 |
-| 문서는 맞는데 답이 틀림 | instructions·질문·모델 |
-| 답은 맞지만 출처가 없음 | citation 처리·화면 렌더링 |
-| 다른 사용자의 자료가 보임 | 데이터 권한·검색 필터·호출자 ID |
+[자막 영상 03 · 01:01.5](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=61.5&lang=ko#03-retrieval-boundaries)
 
-<details class="implementation-detail" markdown="1">
-<summary>구현 참고: 업로드·인덱싱·검색이 SDK에서 이어지는 방식 — 읽기용</summary>
+</div>
 
-### 포털 동작과 실제 File search 코드
+### 2. 정책 세 파일만 업로드
 
-포털에서는 **store 생성·파일 업로드 → 인덱싱 완료 → File search 연결 → 질문** 순서입니다. 아래는 `create_lab_agent()`와 `run_turn()`의 호출을 연결한 학습용 발췌입니다. `project`·`client`는 L03의 연결 객체, `receipt`는 SDK 실행이 먼저 만드는 소유 기록입니다. 블록을 따로 실행해 자원을 중복 생성하지 않습니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `Tools → Upload files`를 누릅니다. | `Attach files` 창이 열립니다. | Knowledge에서 새 Search 서비스를 만들지 않습니다. |
+| 2 | Index option을 `Create a new index`로 두고 Vector index name에 `contoso-policy-files-<내접미사>`를 입력합니다. | 내 실습용 저장소 이름입니다. | 공유 저장소에 추가하지 않습니다. 이미 내 저장소가 있으면 중복 생성하지 않습니다. |
+| 3 | `browse for files`를 누르고 `ko/policies`의 **3파일만** 선택합니다. | 세 파일 이름·크기가 보이고 업로드가 시작됩니다. | 폴더 전체·평가 파일·실제 문서는 올리지 않습니다. |
 
-```python
-from pathlib import Path
-from azure.ai.projects.models import FileSearchTool, PromptAgentDefinition
-from lab_profile import DATA
+<div class="screen-step" markdown="1">
 
-instructions = Path("data/prompts/agent-v2.txt").read_text(encoding="utf-8")
-store = client.vector_stores.create(
-    name=receipt.data["run_id"],
-    expires_after={"anchor": "last_active_at", "days": 1},
-)
-receipt.add("vector_store", store.id)
-for path in sorted((DATA / "policies").glob("*.md")):
-    with path.open("rb") as handle:
-        uploaded = client.files.create(file=handle, purpose="assistants")
-    receipt.add("file", uploaded.id)
-    index_file(client, uploaded.id, store.id)
+**Uploading과 Success는 다른 상태**
 
-file_search = FileSearchTool(vector_store_ids=[store.id], max_num_results=4)
-agent = project.agents.create_version(
-    agent_name=receipt.data["run_id"],
-    definition=PromptAgentDefinition(
-        model=deployment_name,
-        instructions=instructions,
-        tools=[file_search],
-    ),
-    description="Synthetic workshop agent; never submit real orders.",
-)
-receipt.add("agent", agent.name, version=agent.version)
-conversation = client.conversations.create()
-receipt.add("conversation", conversation.id)
-response = client.responses.create(
-    conversation=conversation.id,
-    input=question,
-    extra_body={"agent_reference": {"name": agent.name, "type": "agent_reference", "version": agent.version}},
-    include=["file_search_call.results"],
-    max_output_tokens=2048,
-)
+![새 index 선택, browse for files, 세 정책 파일의 Uploading 상태.](../assets/portal/steps/files-upload.png)
+
+**1 Index option:** 내 새 저장소입니다. **2 Uploading:** 아직 기다립니다. **3 browse for files:** 선택은 세 파일까지만이며 대기 중 다시 올리지 않습니다.
+
+[자막 영상 03 · 01:07](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=67&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**세 줄 모두 Success인 뒤 Attach**
+
+![procurement, expense, security 세 파일의 Success와 활성화된 Attach.](../assets/portal/steps/files-success.png)
+
+**1 이름:** 세 정책 파일을 대조합니다. **2 Status:** 세 줄 모두 `Success`여야 합니다. **3 Attach:** 한 번 누른 뒤 agent에서 Save까지 해야 연결이 유지됩니다.
+
+[자막 영상 03 · 01:17](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=77&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 세 파일의 Status가 모두 `Success`가 될 때까지 기다립니다. | `Uploading/Not started/Failed`가 없고 Attach가 활성화됩니다. | 업로드 성공을 검색 성공으로 간주하지 않습니다. 오류를 보존하고 중복 업로드하지 않습니다. |
+| 2 | `Attach`를 한 번 누르고 창이 닫힐 때까지 기다립니다. | Tools에 `File search`가 추가됩니다. | Attaching 중 재클릭하지 않습니다. |
+| 3 | `Save`를 한 번 누르고 새 숫자 version을 확인합니다. | 모델·File search 연결이 저장되어 있습니다. | 저장 실패면 질문을 보내지 않습니다. |
+
+<div class="screen-step" markdown="1">
+
+**에이전트에 File search가 붙었는지 확인**
+
+![contoso-judge 모델과 Tools 아래 File search 연결이 보이는 실제 편집 화면.](../assets/portal/steps/files-attached.png)
+
+**1 모델 / 2 File search:** 둘 다 맞아야 합니다. 이 장면은 Attach 뒤 편집 화면입니다. 연결이 보이는 것만으로 저장·검색까지 성공했다고 하지 않습니다.
+
+[자막 영상 03 · 01:35](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=95&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+### 3. 답변, 인용, 같은 요청의 검색 결과 확인
+
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | `New chat`에서 첫 질문을 한 번 보냅니다. | 실제 File search 호출과 정책 답변·인용이 나옵니다. | 검색이 실패했으면 처리·연결 오류를 남깁니다. 도구 기록이 없으면 모델만의 답변입니다. |
+| 2 | 인용 번호/파일 링크를 클릭합니다. 미리 보기가 열리지 않으면 응답의 `Traces → Execute Tool execute_tool file_search.msearch → Input + Output`에서 실제 반환 문서를 읽습니다. | 노트북 1,500,000원, VAT 포함, 교체 36개월이 검색 결과의 구매 정책 §2와 맞습니다. | 파일 이름만 맞거나 원문·검색 결과를 확인하지 못했으면 근거 확인 완료로 세지 않습니다. |
+| 3 | `New chat`에서 두 번째 질문을 한 번 보냅니다. | 정보 부재와 담당 부서 확인 필요를 설명합니다. | 해외 규정을 창작하면 실패로 남깁니다. |
+
+```prompt
+Contoso 표준 노트북의 1개당 구매 상한, 부가세 포함 여부, 정기 교체 주기를 알려줘. 각각 어느 문서의 어느 절인지 인용해줘.
 ```
 
-| 포털 조작 | 코드에서 실제로 일어나는 일 |
-| --- | --- |
-| 정책 파일 업로드·인덱싱 상태 확인 | `client.files.create(...)` 후 `index_file(...)` 완료 확인 |
-| File search와 store 연결 | `FileSearchTool(vector_store_ids=[store.id], ...)` |
-| agent 설정 저장 | `project.agents.create_version(...PromptAgentDefinition(...))` |
-| Chat에 질문 전송·citation 확인 | `responses.create(...)`와 `include=["file_search_call.results"]` |
+```prompt
+Contoso 해외 지사의 노트북 구매 상한과 내 개인별 급여를 알려줘. 문서에 없는 내용은 추측하지 마.
+```
 
-이 코드는 SDK 경로의 원본 흐름을 읽기 위한 것입니다. 실제 SDK 실행은 별도 store·agent·파일을 만들므로 receipt가 있는 `workshop.py rag --live` 경로를 선택하고 포털과 중복 실행하지 마세요.
+<div class="screen-step" markdown="1">
 
-</details>
+**정책 답변: 숫자와 인용을 한 쌍으로 읽기**
+
+![실제 정책 답변의 150만원·VAT·36개월과 procurement-policy 인용 및 Traces.](../assets/portal/steps/policy-answer.png)
+
+**1 주장:** 상한·VAT·주기를 원문과 대조합니다. **2 인용:** 해당 파일/절을 엽니다. **3 Traces:** preview가 안 열리면 같은 요청의 검색 결과로 확인합니다.
+
+[자막 영상 03 · 02:09](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=129&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Trace: 에이전트 아래 실제 검색 span 선택**
+
+![Invoke Agent 아래 Execute Tool file_search.msearch와 Chat이 있는 실제 timeline.](../assets/portal/steps/policy-trace.png)
+
+**1 Invoke Agent:** 부모 요청입니다. **2 Execute Tool:** 이 행을 눌러야 검색 상세가 열립니다. 그림은 부모가 선택된 상태이며 아직 반환 본문 화면은 아닙니다.
+
+[자막 영상 03 · 02:30](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=150&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Input + Output: 실제 반환 정책 본문까지 읽기**
+
+![file_search.msearch 상세의 입력 queries와 실제 procurement-policy 반환 본문.](../assets/portal/steps/trace-input-output.png)
+
+**1 Input + Output:** 검색어와 반환 결과를 함께 봅니다. **2 Content source:** `procurement-policy.md` 본문에서 §2 수치·조건을 읽고 업로드 원본과 맞춥니다.
+
+[자막 영상 03 · 04:18](../downloads/portal/index.html?clip=03-retrieval-boundaries&t=258&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+### 인용 확인 기록
+
+녹화 환경에서는 인용 버튼을 눌러도 미리 보기가 열리지 않았습니다. 대신 같은 요청의 실제 검색 span에서 반환된 정책 원문을 읽었습니다. 버튼을 눌렀다는 사실과 원문을 확인했다는 결과를 구분합니다.
+
+| 주장 | 실제로 열어 확인할 원문 | 판정 |
+| --- | --- | --- |
+| 노트북 상한·VAT·36개월 | 구매 정책 §2 | 수치·통화·포함 조건 모두 맞아야 통과 |
+| 2,000,000원 이하 팀장, 초과 팀장+구매 | 구매 정책 §3 | 정확히 같은 경계값을 초과로 처리하면 실패 |
+| 해외 정책·개인별 급여 미확인 | 구매 정책 §5 및 보안 정책의 접근 경계 | 미확인과 권한 부족을 무조건 같은 이유로 쓰지 않음 |
 
 ## 성공 기준
 
-- 파일 3개의 인덱싱이 **Completed**임을 확인했습니다.
-- 정답이 있는 질문 2개에 실제 근거가 있고, 응답의 사실을 원문과 대조했습니다.
-- 문서에 없는 질문은 유보했습니다.
+3파일 모두 준비 완료이며, 실제 검색 기록과 원문 인용을 확인했습니다. 문서의 가격 **상한**을 현재 판매가나 재고로 바꾸지 않았습니다. Citation이 있어도 관련 없는 절이면 실패입니다.
 
 ## 막혔을 때
 
-“문서를 다시 올려보자”부터 시작하지 않습니다. 먼저 다음을 확인합니다.
-
-- 연결한 vector store ID와 인덱싱 실패 사유
-- 지원 파일 형식과 모델/tool 지원
-- 올바른 agent 버전
-- 실제 파일에 이미지로만 들어 있는 표라면 검색 가능한 텍스트가 있는지. File search만으로 읽었다고 가정하지 않습니다.
+빈 답변이면 파일 처리 상태 → agent 연결 → 질문의 언어·표현 순으로 확인합니다. 동일 파일 중복 업로드나 무제한 재전송으로 해결하지 않습니다. 계정·네트워크 오류는 [문제 해결](#troubleshooting)을 따릅니다.
 
 ## 정리
 
-다음 실습을 위해 지식 연결을 유지합니다. SDK store의 **마지막 활동 후 1일** 만료는 업로드 파일까지 삭제하지 않습니다. L19에서 남은 자원을 확인하고 승인된 대상만 삭제하거나 보존 기한을 기록합니다.
-
-<details markdown="1">
-<summary>File search와 Foundry IQ는 언제 나누나요?</summary>
-
-파일 몇 개로 빠르게 검증하려면 File search. 직접 인덱스·hybrid 검색·필터를 제어하려면 Azure AI Search. 여러 지식 소스와 agentic retrieval을 공유하려면 Foundry IQ를 검토합니다. 어느 경로도 연결만으로 사용자별 문서 권한이 자동 완성되지는 않습니다.
-
-</details>
+연결한 저장소와 파일을 다음 장에서 재사용합니다. 창을 닫아도 파일 저장 요금이 남을 수 있습니다. 삭제는 별도 승인 후에만 수행합니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** 정책 agent 이름·저장한 버전·store와 세 질문의 답/실제 인용. 이 **정책 agent는 L09에서 다시** 사용합니다.
+**이 장에서 남길 것:** 3파일 처리 상태, 연결 저장소, 질문·실제 답변, 주장을 확인한 문서·절.
 
-**다음:** [L06 재고와 초안](#l06). L06 통합 명령은 별도 agent를 만들므로 지금 agent에 함수를 추가하거나 SDK 업로드를 반복하지 않습니다.
+**다음:** [L06 구매 도구의 실행 경계 확인](#l06).
 
 </div>
