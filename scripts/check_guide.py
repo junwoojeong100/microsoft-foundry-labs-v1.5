@@ -61,13 +61,17 @@ def command_coverage(text: str, source: str, language: str = "ko") -> dict:
     return {"blocks": blocks, "commands": commands}
 
 
-def portal_coverage(text: str, source: str, language: str = "ko") -> dict:
+def portal_coverage(text: str, source: str, language: str = "ko", *, chapter_id: str | None = None) -> dict:
     allowed = {"prompt", "instructions", "json", "output", "text"}
+    terminal = chapter_id in RELEASE["terminal_labs"]
+    if terminal:
+        allowed.update({"bash", "powershell", "python", "env", "yaml"})
     for block in re.finditer(r"^```([^\n]*)\n(.*?)^```[^\S\n]*(?:\n|$)", text, re.M | re.S):
         if block[1].strip() not in allowed:
             raise ValueError(f"{source}: portal-only labs cannot require executable code or environment files")
-    if re.search(r"^\s*(?:python(?:3(?:\.\d+)?)?|azd?|pip3?|npm|npx|curl|pwsh|sudo)\s+", text, re.M):
-        raise ValueError(f"{source}: portal-only labs cannot require terminal commands")
+    prose = re.sub(r"^```[^\n]*\n.*?^```[^\S\n]*(?:\n|$)", "", text, flags=re.M | re.S) if terminal else text
+    if re.search(r"^\s*(?:python(?:3(?:\.\d+)?)?|azd?|pip3?|npm|npx|curl|pwsh|sudo)\s+", prose, re.M):
+        raise ValueError(f"{source}: terminal commands must be fenced in an authorized hybrid lab")
     heading = LAB_HEADINGS[language][3]
     section = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", text, re.M | re.S)
     if not section:
@@ -93,7 +97,7 @@ def portal_coverage(text: str, source: str, language: str = "ko") -> dict:
             raise ValueError(f"{source}: portal steps must be individually ordered from 1 without gaps")
         tables += 1
         steps += len(actions)
-    if not tables:
+    if not tables and not terminal:
         raise ValueError(f"{source}: portal-only labs need an ordered click/input walkthrough")
     return {"tables": tables, "steps": steps}
 
@@ -200,9 +204,11 @@ def check_language(language) -> dict:
             ):
                 raise ValueError(f"{chapter['id']}: needs a result/next-step handoff after cleanup")
             coverage = command_coverage(text, chapter["file"], language)
+            if chapter["id"] in RELEASE["terminal_labs"] and not coverage["blocks"]:
+                raise ValueError(f"{chapter['id']}: hybrid labs need an actual, explained terminal path")
             shell_blocks += coverage["blocks"]
             shell_commands += coverage["commands"]
-            portal = portal_coverage(text, chapter["file"], language)
+            portal = portal_coverage(text, chapter["file"], language, chapter_id=chapter["id"])
             portal_tables += portal["tables"]
             portal_steps += portal["steps"]
     if shell_blocks != edition["shell_blocks"] or shell_commands != edition["commands"]:
@@ -280,7 +286,7 @@ def check_language(language) -> dict:
             raise ValueError("Markdown book missing an anchor.")
     result = {
         "checked_at": datetime.now(timezone.utc).isoformat(),
-        "scope": "Offline guide structure, portal-only action coverage and screenshot provenance; no Azure execution.",
+        "scope": "Offline portal-first guide structure, scoped hybrid commands and screenshot provenance; no Azure execution.",
         "guide_sha256": hashlib.sha256(html.encode("utf-8")).hexdigest(),
         "language": language, "html": edition["html"], "markdown": edition["markdown"],
         "pages": len(chapters), "labs": len(labs),

@@ -75,6 +75,18 @@ Have the L02 deployment ready. Open [instructions v2](../../data/en/prompts/agen
 
 </div>
 
+<div class="screen-step" markdown="1">
+
+**After Save: verify the saved numeric version**
+
+![Saved contoso-policy Version 2 with Save and Publish controls.](../../assets/portal/steps/agent-version-bar.png)
+
+**1 Version:** This recording saved `2`; record your own actual number. **2 Save:** Save changed Instructions/output settings. **3 Publish:** Not part of this Chat exercise.
+
+[Captioned video 02 · 02:04.5](../../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
+
+</div>
+
 ### 2. Compare the same conversation with a new one
 
 | Step | Click or enter | Expected screen or value | If it fails |
@@ -102,6 +114,18 @@ What budget did I just mention? Distinguish your evidence from what you still ca
 ![Actual Korean follow-up answer referring to the user's earlier KRW 1,500,000 budget.](../../assets/portal/steps/conversation-followup.png)
 
 **1 Follow-up:** Same conversation as the budget statement. **2 Answer:** Check that the source is the user statement, not verified policy, stock, or purchasing approval.
+
+[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Below the response: Traces and Copy**
+
+![Enlarged Traces and Copy controls below this executed response, without its body.](../../assets/portal/steps/agent-answer-actions.png)
+
+**1 Traces:** Open this response's execution record. **2 Copy:** Preserve your own actual answer. Pictured model/token values belong to this recording, not your measurements.
 
 [Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
 

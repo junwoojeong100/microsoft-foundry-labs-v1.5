@@ -8,7 +8,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import build_guide
-from check_guide import portal_coverage
+from check_guide import command_coverage, portal_coverage
 
 
 def source(language, filename):
@@ -71,16 +71,22 @@ class ParticipantFlowTests(unittest.TestCase):
             with self.subTest(language=language):
                 self.assertEqual(len(re.findall(r"^```prompt$", text, re.M)), edition["prompt_blocks"])
                 self.assertEqual(len(re.findall(r"^```env$", text, re.M)), edition["settings_blocks"])
-                self.assertEqual(edition["shell_blocks"], 0)
-                self.assertEqual(edition["commands"], 0)
-                self.assertEqual(edition["settings_blocks"], 0)
+                self.assertEqual(
+                    command_coverage(text, "combined labs", language),
+                    {"blocks": edition["shell_blocks"], "commands": edition["commands"]},
+                )
             for chapter in chapters:
                 if chapter["track"] != "reference":
                     with self.subTest(language=language, chapter=chapter["id"]):
                         coverage = portal_coverage(
-                            (ROOT / chapter["file"]).read_text(), chapter["file"], language,
+                            (ROOT / chapter["file"]).read_text(), chapter["file"], language, chapter_id=chapter["id"],
                         )
-                        self.assertGreater(coverage["steps"], 0)
+                        if chapter["id"] in build_guide.RELEASE["terminal_labs"]:
+                            self.assertGreater(command_coverage(
+                                (ROOT / chapter["file"]).read_text(), chapter["file"], language,
+                            )["commands"], 0)
+                        else:
+                            self.assertGreater(coverage["steps"], 0)
 
     def test_owned_setup_precedes_execution_and_connects_logs_before_agents(self):
         for language in ("ko", "en"):
@@ -126,7 +132,7 @@ class ParticipantFlowTests(unittest.TestCase):
                 self.assertIn("90%", evaluation)
                 self.assertIn("safety/access", evaluation)
 
-    def test_active_labs_do_not_execute_code_or_local_purchase_functions(self):
+    def test_only_code_required_hosted_and_maf_labs_expose_terminal_execution(self):
         for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)
             for chapter in chapters:
@@ -134,8 +140,13 @@ class ParticipantFlowTests(unittest.TestCase):
                     continue
                 text = (ROOT / chapter["file"]).read_text(encoding="utf-8")
                 with self.subTest(language=language, chapter=chapter["id"]):
-                    self.assertNotRegex(text, r"(?m)^```(?:bash|powershell|python|env|javascript|yaml)$")
-                    self.assertNotRegex(text, r"python (?:samples|scripts)/|azd deploy|az login")
+                    if chapter["id"] in build_guide.RELEASE["terminal_labs"]:
+                        self.assertIn("```bash", text)
+                        self.assertIn("command-explanation", text)
+                        self.assertNotIn("workshop.py tools", text)
+                    else:
+                        self.assertNotRegex(text, r"(?m)^```(?:bash|powershell|python|env|javascript|yaml)$")
+                        self.assertNotRegex(text, r"python (?:samples|scripts)/|azd deploy|az login")
 
     def test_purchase_boundary_is_explicit_instead_of_a_fabricated_execution(self):
         for language in ("ko", "en"):

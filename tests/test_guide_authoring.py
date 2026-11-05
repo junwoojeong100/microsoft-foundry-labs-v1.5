@@ -127,6 +127,24 @@ class GuideAuthoringTests(unittest.TestCase):
             with self.subTest(command=command), self.assertRaisesRegex(ValueError, "terminal commands"):
                 portal_coverage(steps + "\n" + command, "fixture", "en")
 
+    def test_only_the_three_explicit_hybrid_labs_allow_fenced_terminal_and_source_blocks(self):
+        terminal_labs = {"l14", "l15", "l15-collaboration"}
+        self.assertEqual(set(build_guide.RELEASE["terminal_labs"]), terminal_labs)
+        text = "## Steps\n```bash\npython samples/multi_agent.py --offline\n```\n"
+        for chapter_id in terminal_labs:
+            with self.subTest(chapter=chapter_id):
+                self.assertEqual(
+                    portal_coverage(text, "fixture", "en", chapter_id=chapter_id),
+                    {"tables": 0, "steps": 0},
+                )
+                with self.assertRaisesRegex(ValueError, "terminal commands"):
+                    portal_coverage("## Steps\naz login\n", "fixture", "en", chapter_id=chapter_id)
+                with self.assertRaisesRegex(ValueError, "executable code"):
+                    portal_coverage("## Steps\n```javascript\nrun();\n```\n", "fixture", "en", chapter_id=chapter_id)
+        for chapter_id in ("l00", "l13", "l22", None):
+            with self.subTest(chapter=chapter_id), self.assertRaisesRegex(ValueError, "executable code"):
+                portal_coverage(text, "fixture", "en", chapter_id=chapter_id)
+
     def test_portal_guard_rejects_missing_outcomes_failure_guidance_and_order_gaps(self):
         header = "## Steps\n| Step | Click or enter | Expected screen or value | If it fails |\n| --- | --- | --- | --- |\n"
         for rows in (
@@ -161,7 +179,7 @@ class GuideAuthoringTests(unittest.TestCase):
                         self.assertIn("**" + label, handoff[1])
                     self.assertRegex(handoff[1], r"\]\(#[\w-]+\)")
 
-    def test_python_references_are_expandable_without_hiding_execution_commands(self):
+    def test_hybrid_source_and_commands_are_visible_without_leaking_code_into_portal_labs(self):
         for language in ("ko", "en"):
             chapters, sources, capabilities = build_guide.load_content(language)
             captures = {item["path"]: item for item in build_guide.load_guide_captures(language)}
@@ -177,7 +195,14 @@ class GuideAuthoringTests(unittest.TestCase):
                 parser = ReadingSurfaceParser()
                 parser.feed(html)
                 with self.subTest(language=language, chapter=chapter["id"]):
-                    self.assertFalse(parser.exposed_python)
+                    if chapter["id"] in {"l15", "l15-collaboration"}:
+                        self.assertTrue(parser.exposed_python)
+                    else:
+                        self.assertFalse(parser.exposed_python)
+                    if chapter["id"] in build_guide.RELEASE["terminal_labs"]:
+                        self.assertIn("language-bash", html)
+                        self.assertIn("command-explanation", html)
+                        self.assertIn("language-yaml" if chapter["id"] == "l14" else "language-python", html)
                     self.assertFalse(parser.hidden_commands)
                     self.assertFalse(parser.details)
 
@@ -211,7 +236,10 @@ class GuideAuthoringTests(unittest.TestCase):
                 self.assertIn("3072", search)
                 self.assertIn("1536", search)
                 self.assertIn('<a id="l12-azd"></a>', hosted)
-                self.assertNotIn("azd deploy", hosted)
+                self.assertIn("azd deploy contoso-purchasing --timeout 1200", hosted)
+                self.assertNotRegex(hosted, r"(?m)^azd (?:up\b|deploy\s*$)")
+                self.assertIn("python scripts/build_hosted.py", hosted)
+                self.assertIn("separate approval" if directory.endswith("en") else "별도 승인", hosted)
                 self.assertIn("Create & start", routine)
                 self.assertRegex(routine, r"(?i)browser|브라우저")
                 self.assertIn("Cancel", routine)
@@ -232,20 +260,26 @@ class GuideAuthoringTests(unittest.TestCase):
                     else:
                         self.assertLessEqual(len(plain.split()), 150, "Keep the opening definition/method short.")
 
-    def test_blocks_target_portal_chat_and_do_not_create_environment_files(self):
+    def test_input_labels_cover_the_stated_portal_and_hybrid_destinations(self):
         labels = build_guide.read_json("reader-labels.json")
         for language in ("ko", "en"):
             chapters, _, _ = build_guide.load_content(language)
             kinds = set()
+            portal_kinds = set()
             for chapter in chapters:
                 if chapter["track"] == "reference":
                     continue
                 text = (ROOT / chapter["file"]).read_text()
                 kinds.update(re.findall(r"^```([a-z]+)\s*$", text, re.M))
+                if chapter["id"] not in build_guide.RELEASE["terminal_labs"]:
+                    portal_kinds.update(re.findall(r"^```([a-z]+)\s*$", text, re.M))
             directory = ROOT / "docs" / ("en" if language == "en" else "")
             with self.subTest(language=language):
                 self.assertLessEqual(kinds, set(labels[language]["js"]["code_labels"]))
-                self.assertEqual(kinds, {"prompt"})
+                self.assertEqual(portal_kinds, {"prompt"})
+                self.assertTrue({"bash", "powershell", "python", "env", "yaml", "output"} <= kinds)
+                for kind in ("bash", "powershell", "env", "yaml"):
+                    self.assertIn(kind, labels[language]["js"]["copy_messages"])
                 self.assertNotEqual(
                     labels[language]["js"]["code_labels"]["prompt"],
                     labels[language]["js"]["code_labels"]["instructions"],
@@ -376,7 +410,7 @@ class GuideAuthoringTests(unittest.TestCase):
                 for source in sources["sources"]:
                     self.assertIn(f"[{source['title']}]({source['url']})", text)
 
-    def test_all_active_labs_have_concepts_and_ordered_portal_actions(self):
+    def test_all_active_labs_have_concepts_and_surface_appropriate_ordered_actions(self):
         chapters = json.loads((ROOT / "content/chapters.json").read_text())
         labs = [chapter for chapter in chapters if chapter["track"] != "reference"]
         self.assertEqual(len(labs), 20)
@@ -388,7 +422,11 @@ class GuideAuthoringTests(unittest.TestCase):
                 for label in ("경험할 기능", "무엇이며 왜 중요한가요?", "어떻게 사용하나요?", "어디서 실행하나요?"):
                     self.assertIn("**" + label, text)
                 coverage = command_coverage(text, chapter["file"])
-                self.assertGreater(portal_coverage(text, chapter["file"])["steps"], 0)
+                portal = portal_coverage(text, chapter["file"], chapter_id=chapter["id"])
+                if chapter["id"] in build_guide.RELEASE["terminal_labs"]:
+                    self.assertGreater(coverage["commands"], 0)
+                else:
+                    self.assertGreater(portal["steps"], 0)
                 for key in total:
                     total[key] += coverage[key]
                 for source in re.findall(r"\b(?:samples|scripts)/[\w.-]+\.py\b", text):

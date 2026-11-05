@@ -22,9 +22,9 @@
 - [09. 없는 정보·허위 승인 막기 (Safety·Guardrails)](#l09)
 - [10. 답변의 실행 과정 살펴보기 (Tracing)](#l10)
 - [11. Azure AI Search·Foundry IQ 포털 비교](#l13)
-- [12. Hosted Agent의 포털 관찰과 실행 경계](#l14)
-- [13. 수동 역할 비교: 순차 전달·독립 검토](#l15)
-- [14. 수동 협업 비교: 검토·수정·역할 선택](#l15-collaboration)
+- [12. Hosted Agent 코드·패키징·배포 (Terminal·azd)](#l14)
+- [13. 실제 MAF 실행: 순차 전달·동시 분기](#l15)
+- [14. 실제 MAF 협업: 그룹 채팅·핸드오프](#l15-collaboration)
 - [15. Memory 설정 관찰·조건부 회상 비교](#l16)
 - [16. Routines 폼·시간대·Identity 점검](#l17)
 - [17. 권한·연결·거버넌스 읽기 전용 점검](#l21)
@@ -46,7 +46,7 @@
 
 ## 목표
 
-브라우저 두 창에서 **문서를 근거로 답하는 Contoso 구매 안내 에이전트**를 만듭니다. 설치, 터미널, Cloud Shell, Codespaces, API key는 필요하지 않습니다.
+기본 코스는 브라우저 두 창에서 **문서를 근거로 답하는 Contoso 구매 안내 에이전트**를 만듭니다. 설치·터미널·Cloud Shell·Codespaces·API key는 필요 없습니다. 선택 **L12–L14만** 코드가 필요한 Hosted·MAF를 별도 Python 환경과 설명된 터미널 명령으로 진행합니다.
 
 <div class="lab-brief" markdown="1">
 
@@ -66,7 +66,7 @@
 
 **어떻게 사용하나요?** 각 장의 표를 위에서 아래로 한 줄씩 수행합니다. 오른쪽의 확인값이 맞아야 다음 줄로 갑니다.
 
-**어디서 실행하나요?** 두 포털만 사용합니다. 파일 내려받기·압축 해제·업로드는 브라우저/파일 선택 창에서 합니다. 코드 실행은 학습 경로에 없습니다.
+**어디서 실행하나요?** 기본은 두 포털이며 파일은 브라우저/파일 선택 창에서 다룹니다. L12–L14는 전체 ZIP의 소스·흐름도·명령 해설을 사용합니다. 포털에서 못 하는 작업을 수동 Chat으로 가장하지 않습니다.
 
 ### 화면과 영상을 읽는 순서
 
@@ -128,12 +128,16 @@
 | L07 | 허용된 읽기 전용 원격 MCP 도구를 조건부로 연결 | 실제 도구 호출 기록이 있을 때만 도구 실행 |
 | L08 | 별도 비교용 v1/v2 에이전트를 같은 12개 dev 질문으로 평가 | 학습용 비교. 운영 출시·과거 검증을 대체하지 않음 |
 | L09–L10 | L05 정책 에이전트의 안전 응답과 같은 요청의 Trace 확인 | 응답·필터·권한·도구 결과를 분리 |
-| L11–L18 | 지원되는 포털 설정을 관찰하거나 명시된 수동 비교 | Hosted 코드 배포·실제 병렬 실행·자동 핸드오프를 했다는 뜻 아님 |
+| L11·L15–L18 | 명시된 포털 설정 관찰·조건부 시험·판단 | 미지원·미실행을 성공으로 세지 않음 |
+| L12 | Hosted 소스·오프라인 패키징, 별도 승인 배포·1회 호출 | 패키지 생성과 실제 Microsoft Azure 배포를 구분 |
+| L13–L14 | 실제 MAF SDK의 전달·분기·그룹 채팅·핸드오프 | 기본 fixture는 Microsoft Azure 모델·품질 증거가 아님 |
 | L19 | 내가 만든 자원과 남는 비용 기록 | 창을 닫는 것과 자원 중지·삭제는 다름 |
 
 ### 3. 비용·실행 경계 정하기
 
 개인 실습 예산을 먼저 정합니다. 예를 들어 환경 1개, 모델 2개, 정책 3파일, Chat 전송 48회 이하, 평가 2회×12행 이하, 자동 실행·학습·PTU·주문 0회로 제한할 수 있습니다. **이는 요청 수 상한의 예이며 금액 상한이 아닙니다.** 평가 내부 judge 호출과 로그·저장소 요금도 발생할 수 있습니다.
+
+위는 기본 코스의 예입니다. L12의 Search 데이터·embedding·Hosted 배포·권한과 L13–L14의 live 모델 호출은 각각 추가 승인·예산입니다. 오프라인 패키징·SDK fixture는 자원 생성·모델 청구가 없지만 실제 코드 실행이며 **실행 없이 읽기**와는 다릅니다.
 
 원하는 모델·버전·지역이 없으면 **진행 차단**으로 기록합니다. 대체 모델을 썼다면 별도 실험이며 기존 기준 모델의 성공으로 합산하지 않습니다. 읽기 경로에서는 화면 예시·정책·판단표만 읽고 생성·저장·전송을 누르지 않습니다.
 
@@ -764,6 +768,18 @@ L02의 모델이 준비되어 있어야 합니다. [기본 지시문 v2](../data
 
 </div>
 
+<div class="screen-step" markdown="1">
+
+**Save 다음: 저장된 숫자 version 확인**
+
+![contoso-policy의 저장된 Version 2, Save와 Publish 위치.](../assets/portal/steps/agent-version-bar.png)
+
+**1 Version:** 이번 녹화의 저장 결과는 `2`입니다. 내 화면의 실제 숫자를 적습니다. **2 Save:** Instructions·출력 설정을 바꾼 뒤 저장합니다. **3 Publish:** 이번 Chat 실습에는 누르지 않습니다.
+
+[자막 영상 02 · 02:04.5](portal/index.html?clip=02-model-agent&t=124.5&lang=ko#02-model-agent)
+
+</div>
+
 ### 2. 같은 대화와 새 대화 비교
 
 | 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
@@ -791,6 +807,18 @@ L02의 모델이 준비되어 있어야 합니다. [기본 지시문 v2](../data
 ![같은 Chat에서 예산 150만원을 앞선 사용자 메시지에 근거해 답한 실제 결과.](../assets/portal/steps/conversation-followup.png)
 
 **1 후속 질문:** 첫 예산 메시지와 같은 대화입니다. **2 답변:** 150만원의 근거는 사용자 진술이며 정책·재고·구매 승인은 아직 없다고 구분했는지 읽습니다.
+
+[자막 영상 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**응답 아래: Traces와 복사 위치**
+
+![방금 실행한 응답 아래 Traces와 복사 아이콘을 본문 없이 확대한 화면.](../assets/portal/steps/agent-answer-actions.png)
+
+**1 Traces:** 이 응답의 실행 기록을 엽니다. **2 복사:** 내 실제 답변 원문을 보관할 때 씁니다. 사진 속 모델·토큰은 이 녹화의 값이며 내 측정값으로 옮기지 않습니다.
 
 [자막 영상 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
 
@@ -959,6 +987,18 @@ L04의 같은 에이전트를 사용합니다. ZIP 안의 `procurement-policy.md
 **1 모델 / 2 File search:** 둘 다 맞아야 합니다. 이 장면은 Attach 뒤 편집 화면입니다. 연결이 보이는 것만으로 저장·검색까지 성공했다고 하지 않습니다.
 
 [자막 영상 03 · 01:35](portal/index.html?clip=03-retrieval-boundaries&t=95&lang=ko#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Save 뒤 다시 열기: RAG 버전과 연결 보존 확인**
+
+![정책 agent의 Version 4와 Save·Publish 위치.](../assets/portal/steps/policy-version-bar.png)
+
+**1 Version:** 녹화의 별도 RAG 버전은 `4`입니다. 내 저장 숫자와 모델·File search를 함께 확인합니다. **2 Save / 3 Publish:** 저장은 필요하지만 게시는 이번 실습이 아닙니다. 버전 숫자만으로 검색 성공을 판단하지 않습니다.
+
+[자막 영상 05 · 01:36](portal/index.html?clip=05-inspection-retention&t=96&lang=ko#05-inspection-retention)
 
 </div>
 
@@ -1363,6 +1403,18 @@ ZIP의 `agent-v1-with-context.txt`, `agent-v2-with-context.txt`, `evaluation-12.
 | 5 | `Build → Models`에서 기존 두 배포의 `Actions → Edit`를 엽니다. 승인된 기존 quota 안에서만 평가 용량을 검토합니다. | 이번 녹화에서는 `contoso-chat` 100,000 TPM, `contoso-judge` 300,000 TPM으로 조정하고 Details의 Succeeded·실제 TPM을 다시 확인했습니다. | quota가 부족하면 보류합니다. 새 모델·지역·구독 quota 증액을 자동 요청하지 않습니다. |
 
 `v1`·`v2`는 **지시문 이름**입니다. 녹화에서는 두 agent 모두 저장된 **숫자 version 2**였으므로 평가 대상은 각각 `contoso-compare-v1: v2`, `contoso-compare-v2: v2`입니다. 자신의 실제 숫자 버전을 적고 **Pin**으로 고정합니다. `Latest available`을 비교 조건으로 쓰지 않습니다.
+
+<div class="screen-step" markdown="1">
+
+**비교 대상 생성: 자동 이름 대신 명확한 v1/v2 이름**
+
+![평가용 Prompt Agent 생성 폼의 Agent name, Text 모드와 생성 버튼.](../assets/portal/steps/agent-create-form.png)
+
+**1 Agent name:** `contoso-compare-v1` 또는 `contoso-compare-v2`로 바꿉니다. **2 Text:** 두 대상 모두 같습니다. **3 생성:** 각각 한 번 생성한 뒤 위 표의 지시문·모델·도구 없음·출력 설정을 맞춥니다. 이 폼은 아직 저장된 평가 대상이 아닙니다.
+
+[자막 영상 04 · 00:01.5](portal/index.html?clip=04-native-evaluation&t=1.5&lang=ko#04-native-evaluation)
+
+</div>
 
 <div class="screen-step" markdown="1">
 
@@ -2109,141 +2161,327 @@ File search와 Azure AI Search·Foundry IQ의 차이를 포털에서 확인합�
 
 <a id="l14"></a>
 
-# 12. Hosted Agent의 포털 관찰과 실행 경계
+# 12. Hosted Agent 코드·패키징·배포 (Terminal·azd)
 
-**심화 코스 · 관찰 / Hosted 배포 미실행** · 약 45분
+**심화 코스 · 기본 오프라인 / 유료 배포 별도 승인** · 약 45분
 
-> **학습 순서: 포털 관찰** — L04 Prompt Agent. 기존 내 Hosted가 있으면 상세만 읽습니다. 코드·컨테이너·개발 환경·SDK 배포는 이번 경로 밖입니다.
+> **학습 순서: 터미널 / 기본 오프라인** — 전체 ZIP·Python 3.13·별도 Hosted 환경. 선택 live는 L01/L02의 기존 scope와 승인된 Search·embedding·azd·권한이 필요합니다. MAF 환경과 섞지 않습니다.
 
 ## 목표
 
-Prompt Agent와 Hosted Agent를 포털에서 구분하고, 코드가 없는 현재 경로에서 무엇을 할 수 없는지 확인합니다.
+포털에서 Hosted가 필요한 경계를 확인한 뒤 **소스 → 로컬 패키지 → 승인된 단일 서비스 배포 → 정확한 버전 1회 호출**을 따라갑니다. 포털로 할 수 없는 코드 작업을 수동 Chat으로 대신하지 않습니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 포털 관찰 실습. Hosted 코드 패키징·배포·원격 실행은 하지 않습니다.
+**진행 방식:** 포털 + 터미널. 기본은 오프라인 빌드·SDK 검사이며 유료 배포·권한 변경·호출은 각각 승인된 선택 단계입니다.
 
-**먼저 할 일:** `Build → Agents`에서 내가 만든 Prompt Agent를 엽니다.
+**먼저 할 일:** 전체 실습 ZIP을 풀고 `azure.yaml`, `hosted/`, `samples/`, `scripts/`가 함께 있는 **저장소 루트**에서 터미널을 엽니다. 가벼운 포털 입력 ZIP에는 코드가 없습니다.
 
-**확인할 결과:** 에이전트 종류·모델·버전·지원 protocol·도구 실행 위치를 구분한 표.
+**확인할 결과:** 패키지 manifest와 검사 결과. 실제 실행을 선택했다면 원격 version·응답·세션 중지 기록까지 확인합니다.
 
 </div>
 
 ## 개념과 실습 지도
 
-**경험할 기능:** Managed Prompt Agent와 custom-code Hosted runtime의 구분.
+**경험할 기능:** Hosted 코드 배포와 Invocations 요청.
 
-**무엇이며 왜 중요한가요?** Hosted는 내가 작성한 코드/컨테이너를 실행합니다. 포털에서 Instructions를 저장하는 것만으로 구매 함수 서버가 배포되지 않습니다.
+**무엇이며 왜 중요한가요?** Prompt는 지시문·모델 설정, Hosted는 내 서버 코드입니다. 포털의 Save는 코드 배포가 아닙니다.
 
-**어떻게 사용하나요?** 현재 에이전트 상세와 생성 옵션을 읽고 코드·실행 이미지가 필요한 경계에서 멈춥니다.
+**어떻게 사용하나요?** 먼저 로컬 패키지를 확인하고, 승인된 기존 자원에만 한 서비스를 배포합니다.
 
-**어디서 실행하나요?** Microsoft Foundry → Build → Agents의 목록·상세·생성 화면. 개발 도구 설치는 하지 않습니다.
+**어디서 실행하나요?** 종류·자원은 포털, Python 코드·패키징·azd 배포는 터미널입니다. SDK 설치는 이 선택 심화에서만 필요합니다.
+
+[![Hosted 소스·오프라인 패키지·승인된 배포·호출 흐름도. 로컬 서버도 Microsoft Azure를 호출합니다.](../assets/hosted-lifecycle.svg)](../assets/hosted-lifecycle.svg)
+
+흐름도를 선택하면 원본 크기로 볼 수 있습니다. **기존 영상에는 Hosted 배포·호출이 없습니다.** 아래 포털 사진은 개발 경계만 보여 주며 터미널 절차를 촬영한 화면이 아닙니다.
 
 ## 준비
 
-내 프로젝트의 자원만 관찰합니다. 이미 **별도로 승인·배포된 내 Hosted Agent**가 있을 때만 그 상세를 읽습니다. 다른 사람의 Hosted agent를 시험 호출하지 않습니다.
+Python **3.13**이 필요합니다. 실제 연결에는 Azure CLI, Azure Developer CLI(azd)와 `azure.ai.agents` extension, 기존 L01 프로젝트·L02 모델, 승인된 전용 Search 서비스와 **1536차원으로 호출 가능한 embedding 배포**가 추가로 필요합니다. 개발 skill·Docker·ACR 설치는 이 코드 배포의 학습자 전제 조건이 아닙니다.
+
+Hosted는 `requirements-hosted.txt`의 `azure-ai-projects==2.7.0`, MAF는 `requirements-advanced.txt`의 **2.6.0**을 씁니다. **두 requirements를 한 환경에 설치하지 않습니다.** 이 장은 `.venv-hosted`, L13은 별도 `.venv-maf`입니다.
 
 ## 실행
 
-### 1. 목록의 Type·Version부터 확인
+### 1. 포털에서 코드가 필요한 지점 확인
+
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | 내 프로젝트의 `Build → Agents`에서 `Type`을 읽습니다. | 현재 `contoso-policy`는 Prompt입니다. | Running을 Hosted 배포로 해석하지 않습니다. |
+| 2 | `New agent → Code an agent`를 열어 framework·hosting 안내를 읽고 `Cancel`로 돌아옵니다. | 여기서부터 개발 코드가 필요합니다. 아래 2절로 이동합니다. | 새 Prompt Agent를 만들어 Hosted를 실행했다고 하지 않습니다. |
 
 <div class="screen-step" markdown="1">
 
-**Agents 목록: Running과 Hosted는 같은 뜻이 아님**
+**목록: 이름보다 Type부터**
 
-![실제 Agents 목록의 Version, Type Prompt 및 New agent 버튼.](../assets/portal/steps/agents-type-list.png)
+![실제 목록의 Version, Prompt Type, New agent 버튼.](../assets/portal/steps/agents-type-list.png)
 
-**1 Version:** 비교 agent 둘은 `2`, 정책 agent는 `4`입니다. **2 Type:** 세 대상 모두 `Prompt`입니다. `Running`만 보고 Hosted 배포라고 판단하지 않습니다. **3 New agent:** 3절에서 생성 경로만 관찰합니다.
+**1 Version / 2 Type:** 사진의 세 대상은 모두 Prompt입니다. **3 New agent:** Code an agent 경로를 찾는 위치이며 Hosted 실행 결과는 아닙니다.
 
 [자막 영상 05 · 02:23](portal/index.html?clip=05-inspection-retention&t=143&lang=ko#05-inspection-retention)
 
 </div>
 
-| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
-| --- | --- | --- | --- |
-| 1 | `Build → Agents`에서 `contoso-policy`를 엽니다. | Instructions·model·File search로 구성된 Prompt Agent입니다. | Hosted라고 잘못 표기하지 않습니다. |
-| 2 | `Details/Versions`에서 현재 표시된 종류·버전을 적습니다. | 실제 저장된 버전과 대화 ID가 구분됩니다. | 없는 protocol·runtime 값을 추정하지 않습니다. |
-
-### 2. Prompt 설정과 저장된 버전 대조
-
 <div class="screen-step" markdown="1">
 
-**현재 대상 읽기: 모델·지시문·도구의 Prompt 구성**
+**Code agent: 이다음은 터미널**
 
-![기존 정책 Prompt Agent의 모델, Instructions, File search 구성.](../assets/portal/steps/policy-final.png)
+![Code agent의 framework·hosting 안내와 Cancel.](../assets/portal/steps/hosted-dialog.png)
 
-**1 모델 / 2 File search:** 지금 쓰는 Prompt Agent의 설정입니다. 이 편집 화면을 Hosted 코드·컨테이너 배포 증거로 사용하지 않습니다.
-
-[자막 영상 05 · 01:36](portal/index.html?clip=05-inspection-retention&t=96&lang=ko#05-inspection-retention)
-
-</div>
-
-<div class="screen-step" markdown="1">
-
-**상단 버전: 현재 정책 agent는 4**
-
-![현재 정책 agent 상단의 Version 4, Save, Publish 위치.](../assets/portal/steps/policy-version-bar.png)
-
-**1 Version:** 위 목록의 정책 agent `4`와 맞춥니다. **2 Save:** Instructions 저장과 배포를 혼동하지 않습니다. **3 Publish:** 이번 관찰에서는 누르지 않습니다. 이 화면에는 Hosted protocol·container 상태가 없습니다.
-
-[자막 영상 05 · 01:36](portal/index.html?clip=05-inspection-retention&t=96&lang=ko#05-inspection-retention)
-
-</div>
-
-### 3. Code agent를 열고 개발 시작 전에 취소
-
-| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
-| --- | --- | --- | --- |
-| 1 | 목록으로 돌아가 `New agent → Code an agent`를 엽니다. | **Code agent** 대화상자의 framework·Microsoft Foundry hosting·SDK 링크를 읽습니다. | Get started로 개발 환경을 설치하거나 새 코드를 실행하지 않습니다. |
-| 2 | `Cancel`을 누릅니다. | Hosted 코드/런타임을 만들거나 배포하지 않았습니다. | Prompt 생성 성공을 Hosted 성공으로 바꾸지 않습니다. |
-| 3 | 내 기존 Hosted가 있으면 그 상세의 version·protocol·상태·연결을 읽습니다. | 실제 배포된 대상만 관찰합니다. | 없다면 `Hosted 미배포`로 적습니다. |
-| 4 | 아래 비교표를 내 실제 상태로 채웁니다. | 실행한 것과 읽은 것이 나뉩니다. | Playgrounds 답변만으로 runtime 상태를 보완하지 않습니다. |
-
-<div class="screen-step" markdown="1">
-
-**Code agent: 개발 경계에서 Cancel**
-
-![Code agent의 코드 framework·hosting 안내와 Cancel 버튼.](../assets/portal/steps/hosted-dialog.png)
-
-**1 Code agent:** 여기서부터 코드/실행 이미지가 필요한 별도 경로입니다. **2 Cancel:** 개발 링크를 실행하지 않고 돌아갑니다. 녹화에서는 Hosted 배포·호출이 모두 0회입니다.
+**1 개발 경로:** 이번에는 관찰에서 끝내지 않고 체크인 소스로 이어갑니다. **2 Cancel:** 포털 창만 닫고 2절로 이동합니다. 이 녹화 자체의 배포·호출은 여전히 0회입니다.
 
 [자막 영상 05 · 02:19](portal/index.html?clip=05-inspection-retention&t=139&lang=ko#05-inspection-retention)
 
 </div>
 
-| 항목 | 현재 Prompt Agent | Hosted에 추가로 필요한 것 |
+### 2. 터미널에서 전용 환경과 패키지 확인 — 오프라인
+
+macOS/Linux의 Bash·zsh에서는:
+
+```bash
+python3.13 -m venv .venv-hosted
+source .venv-hosted/bin/activate
+python -m pip install -r requirements-hosted.txt
+export FOUNDRY_LAB_LANGUAGE=ko
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
 | --- | --- | --- |
-| 실행 정의 | 모델·Instructions·서비스 도구 | 코드/컨테이너·entrypoint·의존성 |
-| 업무 함수 | 연결된 서버 도구가 있을 때만 | 런타임에 구현된 함수·권한·검사 |
-| 버전 확인 | 포털에 저장된 agent version | 배포 코드/이미지와 정확한 원격 version |
-| 통신 규약 | 대상이 지원하는 요청 경로 | Responses·Invocations·activity 등 실제 지원 protocol |
-| 비용·종료 | 모델·파일·로그 비용 확인 | 추가 compute·세션·scale·중지 상태 확인 |
+| 1. `python3.13 -m venv` | 루트에 Hosted 전용 환경을 한 번 만듭니다. | 로컬 폴더만 생성. 기존 환경이 있으면 재생성하지 않습니다. |
+| 2. `source` | 현재 터미널의 Python을 해당 환경으로 선택합니다. | Microsoft Azure 로그인 아님. |
+| 3. `pip install -r` | 체크인한 Hosted SDK 버전을 설치합니다. | 패키지 다운로드이며 자원 배포·모델 호출 없음. |
+| 4. `export` | 이번 터미널의 합성 자료 언어를 선택합니다. | 한국어·영어 실습 폴더와 receipt를 섞지 않습니다. |
+
+</div>
+
+Windows PowerShell에서는 **위 블록 대신**:
+
+```powershell
+py -3.13 -m venv .venv-hosted
+.\.venv-hosted\Scripts\Activate.ps1
+python -m pip install -r requirements-hosted.txt
+$env:FOUNDRY_LAB_LANGUAGE = "ko"
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `py -3.13 -m venv` | Python 3.13으로 전용 환경을 만듭니다. | 한 번만 실행하는 로컬 준비. |
+| 2. `Activate.ps1` | 현재 터미널에서 환경을 선택합니다. | 실행 정책이 차단하면 보안을 바꾸지 말고 이후 `python` 대신 `.venv-hosted\Scripts\python.exe`를 사용합니다. |
+| 3. `pip install -r` | Hosted 의존성만 설치합니다. | MAF requirements는 추가하지 않습니다. |
+| 4. `$env:` | 현재 터미널의 자료 언어를 선택합니다. | 다른 터미널에는 자동 적용되지 않습니다. |
+
+</div>
+
+이후 `python`·`az`·`azd` 한 줄 명령은 두 셸에서 공통입니다. 새 터미널에서는 해당 환경·언어만 다시 선택하며 설치를 반복하지 않습니다.
+
+| 먼저 열어 볼 원본 | 무엇을 확인하나요? |
+| --- | --- |
+| [hosted/main.py](../hosted/main.py) | `InvocationAgentServerHost`, `/invocations`, 입력 검사·동시 1건 처리·실패 HTTP 응답 |
+| [samples/hosted_runtime.py](../samples/hosted_runtime.py) | 실제 Search 근거, 합성 재고·초안 함수, 요청별 도구 권한 검사. 주문·결제·승인 없음 |
+| [azure.yaml](../azure.yaml) | 아래 서비스의 코드 entrypoint·protocol·0.5 CPU/1Gi. Responses 서비스는 별도 |
+
+원본에서 읽을 핵심 설정입니다. 새 YAML로 덮어쓰거나 이 발췌만 배포하지 않습니다.
+
+```yaml
+codeConfiguration:
+  runtime: python_3_13
+  entryPoint: main.py
+  dependencyResolution: remote_build
+protocols:
+  - protocol: invocations
+    version: 1.0.0
+```
+
+```bash
+python scripts/build_hosted.py
+python -m scripts.check_sdk
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `build_hosted.py` | 합성 원본·허용 파일·고정 의존성을 두 protocol 패키지로 묶습니다. | `.build/contoso/package-manifest.json`과 Responses 패키지. **둘 다 로컬 파일이며 배포 아님.** |
+| 2. `scripts.check_sdk` | credential·네트워크를 사용하지 않고 설치된 SDK 계약을 검사합니다. | `sdk_contracts: passed`, `azure_calls: 0`. 실제 Microsoft Azure 성공이나 품질 통과 아님. |
+
+</div>
+
+`.env`가 아직 없으면 패키지의 모델 설정은 `CONFIGURE-MODEL-BEFORE-DEPLOY`입니다. 오프라인 빌드는 가능하지만 **그대로 배포·호출하지 않습니다.** 여기까지만 선택했다면 5절과 성공 기준으로 갑니다.
 
 <a id="l12-azd"></a>
 
-### 개발 경로는 이번 실습 밖
+### 3. 기존 포털 환경 연결 — 승인된 선택 경로
 
-Hosted source/container 배포와 Microsoft Agent Framework 실행은 코드 기반 작업입니다. 이 포털 전용 가이드에서는 해당 개발 경로를 **참고**로만 분류합니다. Canvas·Visual Studio Code·DevPack·개발 skill을 설치하거나 실행할 필요가 없습니다.
+**새 그룹·프로젝트를 만들지 않습니다.** 포털의 개인 메모는 CLI receipt가 아닙니다. 기존 `results/azure-environment.json`이 같은 범위·언어와 일치하면 재사용하고 아래 adoption을 반복하지 않습니다.
 
-Invocations 성공은 Responses·Voice·Teams의 `activity` 경로 성공을 뜻하지 않습니다. Agent Inspector와 브라우저 Chat도 같은 실행면이라고 가정하지 않습니다. 포털에서 지원되지 않는 필드를 임의 YAML이나 함수 schema로 채워 성공처럼 만들지 않습니다.
+| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
+| --- | --- | --- | --- |
+| 1 | Azure portal에서 내 전용 RG의 Overview·Tags를 엽니다. | L01의 `validationRun`과 `repository=microsoft-foundry-labs-v1.5`입니다. | repository 태그가 없으면 **내 그룹의 태그 변경이 승인된 경우만** 추가·저장합니다. 다른 그룹에 소유 태그를 붙이지 않습니다. |
+| 2 | Microsoft Foundry의 프로젝트 endpoint와 Models의 실제 배포 이름을 대조합니다. | `contoso-chat`, 승인된 embedding, 같은 account·구독입니다. | 자동으로 관찰된 ada-002를 호환 embedding이라고 가정하지 않습니다. |
+| 3 | 파일 탐색기/편집기에서 `.env.example`을 `.env`로 복사하고 아래 자리표시자를 내 값으로 바꿉니다. 기존 `.env`는 덮어쓰지 않습니다. | 비밀 없이 endpoint·이름만 있습니다. | API key·토큰·비밀번호를 넣지 않습니다. |
+
+```env
+FOUNDRY_PROJECT_ENDPOINT=https://YOUR_RESOURCE.services.ai.azure.com/api/projects/YOUR_PROJECT
+FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat
+FOUNDRY_SEARCH_ENDPOINT=https://YOUR_SEARCH_SERVICE.search.windows.net
+FOUNDRY_SEARCH_INDEX=
+FOUNDRY_KNOWLEDGE_BASE=
+FOUNDRY_EMBEDDING_DEPLOYMENT_NAME=YOUR_EMBEDDING_DEPLOYMENT
+FOUNDRY_EMBEDDING_ENDPOINT=https://YOUR_RESOURCE.openai.azure.com
+FOUNDRY_AUTH_MODE=cli
+```
+
+Search는 L11에서 승인한 **기존 전용 서비스**입니다. 이 Hosted 구현은 임의의 포털 index가 아니라 체크인 정책 절·hash·1536차원 schema를 요구합니다. 처음 초기화할 때 index·knowledge base 값은 비워 두며, 이미 같은 코드로 만든 `results/search.json`이 있으면 재사용합니다. 내 사용자에게 해당 서비스의 Search Service Contributor·Search Index Data Contributor와 모델 호출 권한이 있어야 합니다. 부족하면 최소 scope의 별도 권한 승인을 받고, 키나 공유 서비스로 우회하지 않습니다.
+
+로그인이 없으면 아래 명령이 브라우저 창을 엽니다. 로그인·인증 코드는 녹화하지 않습니다.
+
+```bash
+az login --tenant YOUR_TENANT_ID
+python scripts/adopt_portal.py --subscription YOUR_SUBSCRIPTION_ID --resource-group YOUR_RESOURCE_GROUP --run-id YOUR_VALIDATION_RUN --search-service YOUR_SEARCH_SERVICE --embedding-deployment YOUR_EMBEDDING_DEPLOYMENT --live
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `az login --tenant` | 자리표시자를 승인 조직 ID로 바꾸고 브라우저에서 인증합니다. 이미 맞는 계정이면 생략합니다. | CLI 인증 캐시. 다른 조직·구독 기본값을 임의 변경하지 않습니다. |
+| 2. `adopt_portal.py ... --live` | 모든 `YOUR_...`를 내 값으로 바꿉니다. 기존 RG 태그·account·project·chat·Search·embedding을 최대 7개 읽기 명령으로 확인합니다. | 비공개 소유 receipt 생성. 자원 생성·권한 부여·모델 호출 **0**. 기존 receipt는 덮어쓰지 않습니다. |
+
+</div>
+
+**다음은 읽기 전용이 아닙니다.** 정책 index·knowledge source·knowledge base 생성과 embedding 1배치 비용을 승인한 경우에만 첫 줄을 한 번 실행합니다. 이미 이 코드의 정상 `search.json`이 있으면 첫 줄은 생략합니다.
+
+```bash
+python samples/search_lab.py initialize --live
+python scripts/build_hosted.py
+python scripts/configure_hosted.py
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `search_lab.py initialize --live` | 기존 Search에 합성 3정책의 절·벡터·knowledge source/base를 만듭니다. 요청 상한 15, 300초입니다. | Microsoft Azure 데이터 쓰기·embedding 과금. 별도 Search 서비스를 만들지는 않습니다. |
+| 2. `build_hosted.py` | 수정한 `.env`의 실제 모델 이름으로 **다시** 패키징합니다. | `.agent_configs/baseline/metadata.yaml`의 실제 모델과 manifest의 파일 hash를 확인합니다. |
+| 3. `configure_hosted.py` | 검증된 receipt와 `.env`·Search 설정을 일치시켜 로컬 azd 환경을 연결합니다. | `.azure/`만 구성. provision·배포·권한 변경 아님. |
+
+</div>
+
+### 4. 한 서비스만 배포하고 정확한 버전 호출 — 별도 승인
+
+배포·runtime 최소 권한·invocation **각 범위가 승인되어야** 진행합니다. 대상은 `contoso-purchasing` 하나입니다. 서비스 이름 없는 `azd deploy`·`azd up`은 두 서비스를 함께 배포할 수 있으므로 사용하지 않습니다.
+
+```bash
+azd deploy contoso-purchasing --timeout 1200
+azd ai agent show contoso-purchasing --output json
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `azd deploy contoso-purchasing` | `azure.yaml`의 Invocations 코드 서비스 하나만 배포합니다. 최대 대기 1200초입니다. | 유료 Hosted compute 생성/변경. timeout은 Microsoft Azure 작업 취소가 아니므로 재배포하지 말고 상태를 확인합니다. |
+| 2. `azd ai agent show` | 같은 서비스의 실제 version·endpoint·상태를 읽습니다. | 정확한 숫자 version을 개인 기록에 보관. Prompt 저장 버전이나 `latest`를 쓰지 않습니다. |
+
+</div>
+
+runtime identity의 프로젝트 역할·Search Index Data Reader·account의 Cognitive Services OpenAI User가 **각 최소 scope에서 별도로 승인된 경우만** 다음을 실행합니다. 이미 같은 할당이 있으면 반복하지 않습니다.
+
+```bash
+python scripts/runtime_roles.py --agent contoso-purchasing --live
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `runtime_roles.py ... --live` | 소유 receipt의 agent identity에 프로젝트·Search·모델 scope의 최소 역할 3개를 설정합니다. | **접근 권한 변경**입니다. 승인·roleAssignments/write가 없으면 중단하며 구독 전체 역할을 주지 않습니다. |
+
+</div>
+
+`YOUR_DEPLOYED_VERSION`을 위에서 확인한 **숫자**로 바꾸고 한 번만 호출합니다.
+
+```bash
+python samples/hosted_client.py invoke --version YOUR_DEPLOYED_VERSION --live
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `hosted_client.py invoke` | 고정 version의 내 세션에서 NB-14 2개를 조회하고 합성 구매 초안만 요청합니다. | 유료 호출 **1건**이며 내부 모델·검색 요청도 과금됩니다. runtime 예산은 요청 12·토큰 60,000·300초, 도구 최대 8개입니다. 원문·오류를 보존하고 자신의 세션만 중지·확인합니다. |
+
+</div>
+
+`results/contoso-hosted-client-...-responses.jsonl`의 `status`, `response_id`, `citations`, `tool_calls`, `contract.sha256`를 읽고 `...jsonl` 실행 로그의 `stopped_session`을 확인합니다. 초안은 `draft_requires_human_approval`, 실제 주문은 `order_submitted=false`여야 합니다. `evaluate`나 holdout 수집은 이 실습에서 실행하지 않습니다.
+
+### 5. 로컬 서버를 시험한다면 — 오프라인 아님
+
+원격 invocation **대신** 선택할 수 있습니다. 3절의 실제 Search·모델·권한과 `.env`가 필요합니다. **터미널 A**에서 Hosted 환경·언어를 선택한 뒤:
+
+```bash
+python scripts/run_hosted_local.py --protocol invocations --port 8088
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `run_hosted_local.py` | 생성 패키지의 실제 서버를 `127.0.0.1:8088`에 실행합니다. | 서버를 계속 켜 둡니다. 터널·공개 바인딩을 만들지 않습니다. |
+
+</div>
+
+**터미널 B**에서도 같은 Hosted 환경·언어를 선택하고, 유료 호출 1건을 승인한 뒤:
+
+```bash
+python samples/hosted_client.py invoke --local --live
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `invoke --local --live` | 로컬 `/invocations`에 1건을 보냅니다. 서버 내부는 Azure AI Search와 Microsoft Azure 모델을 호출합니다. | **로컬 실행 + Microsoft Azure backend**이며 원격 Hosted 배포 성공은 아닙니다. 완료 후 터미널 A에서 Ctrl+C로 서버를 멈춥니다. |
+
+</div>
+
+Invocations 성공은 별도 `contoso-purchasing-responses`의 **Responses 2.0.0**, Voice, Teams `activity` 성공을 뜻하지 않습니다. 이 장의 코드 배포와 포털 Chat 화면을 같은 실행면으로 취급하지 않습니다.
 
 ## 성공 기준
 
-현재 대상의 종류를 실제 설정으로 확인했습니다. Hosted가 없다면 미배포라고 적었습니다. 코드 없이 실제 구매 함수를 배포·실행했다고 주장하지 않았습니다.
+| 실제로 마친 경로 | 남겨야 할 결과 | 주장하지 않을 것 |
+| --- | --- | --- |
+| 오프라인 빌드·SDK 검사 | manifest·설치 버전·`azure_calls: 0` | Microsoft Azure 배포·도구 실행·품질 통과 |
+| 선택 로컬 서버 호출 | 실제 응답·계약·검색/도구 원문, 로컬 실행 표시 | 원격 Hosted 배포 성공 |
+| 선택 원격 배포·호출 | 정확한 서비스/version·응답 원문·세션 중지 확인 | 주문·결제·업무 승인·다른 protocol 성공 |
 
 ## 막혔을 때
 
-Hosted 항목·상세가 없으면 지원 지역·권한·실제 배포 존재를 확인합니다. 기본 코스는 Prompt Agent만으로 이어갑니다. 브라우저 접근 문제 때문에 public access·identity·다른 프로젝트를 변경하지 않습니다.
+의존성 충돌은 Hosted와 MAF 환경을 분리했는지 확인합니다. receipt가 없으면 기존 포털 scope를 검증하며 `create`·`foundation`으로 중복 생성하지 않습니다. 검색 hash/schema 불일치는 임의 포털 index를 재사용했는지 확인합니다. 403은 사용자와 runtime의 권한을 나누어 확인하고 키·public access로 우회하지 않습니다. 실패·429·timeout에는 원문을 남기고 자동 재시도하지 않습니다.
 
 ## 정리
 
-새 runtime·컨테이너·개발 환경을 만들지 않았습니다. 기존 Hosted가 있다면 관찰만 했고 임의 중지·삭제하지 않습니다. 세션·compute 비용은 소유 담당자와 L19에서 확인합니다.
+로컬 서버는 Ctrl+C, 원격 세션은 호출기가 **자기 세션만** 중지하며 삭제하지 않습니다. 중지 확인 실패는 종료 성공이 아닙니다. 중지되지 않은 자신의 세션은 [stop_sessions.py](../scripts/stop_sessions.py)의 소유 기록 검증 절차로 담당자와 처리합니다. 세션 중지와 agent/compute·Search·파일·로그의 전체 과금 종료는 다르므로 L19에 인계합니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** Prompt/Hosted 비교표와 실제 Hosted 배포·호출 **미실행** 표시.
+**이 장에서 남길 것:** 소스·패키지 contract와 실행 경로 구분. 선택 live는 scope·버전·원문·권한·세션 종료 상태까지 비공개 보관합니다.
 
-**다음:** [L13 순차·독립 검토를 수동 비교](#l15).
+**다음:** [L13 실제 MAF 순차·동시 실행](#l15). Hosted 배포 없이 별도 MAF 환경에서 시작할 수 있습니다.
 
 </div>
 
@@ -2260,169 +2498,255 @@ Hosted 항목·상세가 없으면 지원 지역·권한·실제 배포 존재�
 
 <a id="l15"></a>
 
-# 13. 수동 역할 비교: 순차 전달·독립 검토
+# 13. 실제 MAF 실행: 순차 전달·동시 분기
 
-**심화 코스 · 수동 실험 / 실제 orchestration 미실행** · 약 40분
+**심화 코스 · 실제 SDK / 기본 오프라인** · 약 40분
 
-> **학습 순서: 수동 역할 비교** — L04 agent 생성·L08 v2 합성 문맥·같은 모델. 기본 4회, 최대 6회 Chat. 실제 framework·병렬 runtime은 실행하지 않습니다.
+> **학습 순서: SDK 실행 / 기본 오프라인** — 전체 ZIP·Python 3.13·별도 MAF 환경. Hosted·Search·별도 Prompt Agent 없이 실제 builder를 실행합니다. live는 기존 L01/L02 모델·소유 receipt·TPM/RPM·비용 승인이 필요합니다.
 
 ## 목표
 
-두 역할의 검토를 포털 Chat에서 직접 비교합니다. **사람이 복사·전달하는 수동 실험**이며 SDK의 순차·동시 orchestration 실행은 아닙니다.
+Microsoft Agent Framework(MAF)의 **SequentialBuilder·ConcurrentBuilder를 실제 실행**하고 전달·분기·종료 기록을 읽습니다. 사람이 답변을 복사하는 실험으로 대체하지 않습니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 역할별 Prompt Agent의 수동 비교, 기본 4회·선택 변경 포함 최대 6회 전송.
+**진행 방식:** 터미널의 실제 SDK + 기본 오프라인 fixture. 별도 승인하면 같은 코드에 기존 Microsoft Azure 모델을 연결합니다.
 
-**먼저 할 일:** 같은 모델·합성 문맥·질문을 쓰는 두 검토 역할을 준비합니다.
+**먼저 할 일:** 전체 실습 ZIP의 저장소 루트에서 MAF 전용 환경을 만듭니다. **Hosted 배포·Search·judge·별도 Prompt Agent 생성은 필요 없습니다.**
 
-**확인할 결과:** 독립 입력과 앞 답변을 전달한 입력의 실제 차이, 호출 수, 결과와 한계.
+**확인할 결과:** 순차 전달 2회, 독립 분기 3회의 실제 SDK 기록. fixture와 유료 모델 결과를 따로 보관합니다.
 
 </div>
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 순차 전달과 독립 분담의 차이를 관찰하는 Chat 비교.
+**경험할 기능:** 순차 검토와 동시 분기.
 
-**무엇이며 왜 중요한가요?** 앞 답을 넘기면 검토가 연결되지만 오류도 전파될 수 있습니다. 독립 검토는 입력을 분리합니다. 사람이 창 두 개를 연다고 런타임 병렬 실행이 되는 것은 아닙니다.
+**무엇이며 왜 중요한가요?** Sequential은 초안을 다음 역할로 전달합니다. Concurrent는 같은 질문을 독립 분담하고 원문 3개를 남깁니다.
 
-**어떻게 사용하나요?** 같은 질문을 두 역할에 따로 보낸 뒤, 첫 답을 명시적으로 복사해 두 번째 역할의 검토와 비교합니다.
+**어떻게 사용하나요?** 실제 builder를 오프라인으로 실행한 뒤 같은 역할·정책·질문을 승인된 모델로 비교합니다.
 
-**어디서 실행하나요?** Microsoft Foundry → Build → Agents → 각 역할의 Chat. framework·개발 환경은 사용하지 않습니다.
+**어디서 실행하나요?** workflow와 Agent 객체는 **내 Python 프로세스**, 선택한 모델만 Microsoft Foundry입니다. 포털 Chat 두 창은 runtime 동시 실행이 아닙니다.
+
+[![MAF 순차 2단계와 정책·금액·위험 3갈래 동시 실행 흐름도.](../assets/maf-patterns.svg)](../assets/maf-patterns.svg)
+
+흐름도를 선택하면 원본 크기로 볼 수 있습니다. **기존 포털 영상에는 MAF 실행이 없습니다.** 관련 없는 Prompt 생성·복사 화면을 실행 증거로 붙이지 않습니다.
 
 ## 준비
 
-두 역할은 같은 `contoso-chat`, 도구·Memory 없음, L08의 [공통 Instructions 전체](portal-inputs/ko/agent-v2-with-context.txt)를 사용합니다. 아래 이름과 역할 문장만 다르게 합니다.
+Python **3.13**, 전체 ZIP의 `samples/`, `scripts/`, `data/`, `requirements-advanced.txt`가 필요합니다. 인터넷은 패키지 설치에만 필요하고 기본 fixture 실행에는 Microsoft Azure 로그인·`.env`·소유 receipt가 필요 없습니다.
 
-| Name | 공통 Instructions 맨 앞에 덧붙일 문장 |
-| --- | --- |
-| `contoso-policy-review` | 정책 근거와 미확인 정보를 검토한다. |
-| `contoso-budget-review` | 금액·상한·승인 경계를 검토한다. |
+L12의 `.venv-hosted`는 재사용하지 않습니다. Hosted의 `azure-ai-projects==2.7.0`과 이 장의 **2.6.0**은 충돌합니다. 두 requirements를 섞지 않고 `.venv-maf`를 사용합니다.
 
 ## 실행
 
-사진은 기존 Prompt Agent 녹화의 **조작 위치 예시**입니다. 두 검토 역할의 생성·비교 결과는 촬영하지 않았습니다. 화면 속 기본 이름·답변 대신 위 역할명과 내 실제 결과를 사용합니다.
+### 1. MAF 환경을 선택하고 실제 builder 코드 읽기
 
-### 1. 두 역할을 만들고 같은 조건으로 저장
+macOS/Linux Bash·zsh:
 
-| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
-| --- | --- | --- | --- |
-| 1 | `Build → Agents → New agent`에서 Prompt 생성 폼을 열고 위 역할명 하나를 입력합니다. `Text`로 생성하고 다른 역할도 같은 방식으로 준비합니다. | 서로 다른 Name의 Prompt Agent 두 개입니다. | 기존 대상을 덮어쓰거나 Copilot harness·Voice·Code agent로 바꾸지 않습니다. |
-| 2 | 두 대상 모두 `contoso-chat`을 고르고 공통 Instructions 전체 앞에 각 역할 문장만 붙입니다. | 문맥은 동일하고 역할 문장만 다릅니다. | 한쪽에 정책 문맥이 빠졌으면 비교를 시작하지 않습니다. |
-| 3 | L04처럼 자동 도구를 분리하고 Memory 없이 L08과 같은 출력 설정을 저장합니다. | 두 대상의 실제 저장 version과 같은 설정을 기록했습니다. | `Save` 전후 버전을 혼동하거나 `Publish`하지 않습니다. |
+```bash
+python3.13 -m venv .venv-maf
+source .venv-maf/bin/activate
+python -m pip install -r requirements-advanced.txt
+export FOUNDRY_LAB_LANGUAGE=ko
+```
+<div class="command-explanation" markdown="1">
 
-<div class="screen-step" markdown="1">
+**명령 해설**
 
-**생성 폼: 자동 이름을 내 역할명으로 교체**
-
-![Prompt Agent 생성 폼의 Agent name, Text 모드와 생성 버튼 위치.](../assets/portal/steps/agent-create-form.png)
-
-**1 Agent name:** 위 표의 역할명으로 바꿉니다. 사진의 자동 이름을 복사하지 않습니다. **2 Text:** 두 역할 모두 같은 모드입니다. **3 생성:** 각각 한 번 생성한 뒤 설정합니다. 사진은 비교 agent 준비 당시의 폼이며 검토 역할의 생성 증거는 아닙니다.
-
-[자막 영상 04 · 00:01.5](portal/index.html?clip=04-native-evaluation&t=1.5&lang=ko#04-native-evaluation)
-
-</div>
-
-<div class="screen-step" markdown="1">
-
-**탐색 예시: 역할별 모델과 Instructions를 넣는 위치**
-
-![기본 정책 agent의 Model과 Instructions 위치를 재사용한 탐색 예시.](../assets/portal/steps/agent-instructions.png)
-
-**1 모델:** 두 역할에서 같게 맞춥니다. **2 Instructions:** 준비 절의 공통 문맥과 각 역할 지시를 넣습니다. 그림은 **기본 agent 녹화의 재사용**이며 두 역할 생성·비교의 실제 결과가 아닙니다.
-
-[자막 영상 02 · 02:04.5](portal/index.html?clip=02-model-agent&t=124.5&lang=ko#02-model-agent)
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `python3.13 -m venv` | 루트에 MAF 전용 환경을 한 번 만듭니다. | 로컬 폴더. 기존 환경을 재생성하지 않습니다. |
+| 2. `source` | 현재 터미널에서 MAF Python을 선택합니다. | Hosted 환경과 분리합니다. |
+| 3. `pip install -r` | 고정 MAF 패키지와 SDK를 설치합니다. | 패키지 다운로드만 하며 모델을 호출하지 않습니다. |
+| 4. `export` | 한국어 합성 정책·질문을 선택합니다. | 새 터미널에서는 다시 선택합니다. |
 
 </div>
 
-<div class="screen-step" markdown="1">
+Windows PowerShell은 위 블록 **대신**:
 
-**저장 후: 내 역할의 version을 각각 적기**
+```powershell
+py -3.13 -m venv .venv-maf
+.\.venv-maf\Scripts\Activate.ps1
+python -m pip install -r requirements-advanced.txt
+$env:FOUNDRY_LAB_LANGUAGE = "ko"
+```
+<div class="command-explanation" markdown="1">
 
-![Prompt Agent 상단의 Version, Save와 Publish 위치를 보여 주는 설정 예시.](../assets/portal/steps/agent-version-bar.png)
+**명령 해설**
 
-**1 Version / 2 Save:** 내 역할의 실제 저장 숫자를 확인합니다. 사진의 기본 agent `2`를 그대로 적지 않습니다. **3 Publish:** 이번 수동 비교에는 필요하지 않습니다.
-
-[자막 영상 02 · 02:04.5](portal/index.html?clip=02-model-agent&t=124.5&lang=ko#02-model-agent)
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `py -3.13 -m venv` | Python 3.13의 별도 환경을 만듭니다. | 로컬 준비만 수행합니다. |
+| 2. `Activate.ps1` | MAF 환경을 선택합니다. | 실행 정책이 차단하면 보안을 바꾸지 말고 이후 `python` 대신 `.venv-maf\Scripts\python.exe`를 사용합니다. |
+| 3. `pip install -r` | 이 환경에 advanced requirements만 설치합니다. | Hosted requirements를 추가하지 않습니다. |
+| 4. `$env:` | 현재 터미널의 합성 자료 언어를 선택합니다. | 두 언어의 live 폴더·receipt는 별개입니다. |
 
 </div>
+
+이후 한 줄 `python` 명령은 두 셸에서 공통입니다. 새 터미널은 환경·언어만 다시 선택하며 설치를 반복하지 않습니다.
+
+[multi_agent.py의 `build_workflow`](../samples/multi_agent.py)를 엽니다. 아래는 이미 정의된 역할을 연결하는 **읽기용 발췌**입니다. 이 블록만 따로 실행하지 않습니다.
+
+```python
+from agent_framework.orchestrations import ConcurrentBuilder, SequentialBuilder
+
+sequential = SequentialBuilder(
+    participants=[drafter, reviewer], intermediate_output_from=[drafter],
+).build()
+concurrent = ConcurrentBuilder(
+    participants=[policy_agent, budget_agent, risk],
+    intermediate_output_from=[policy_agent, budget_agent, risk],
+).build()
+```
+
+`build_role`이 같은 합성 구매 정책을 각 역할에 넣고, `CallAudit` middleware가 실제 호출 ID·입력 hash·역할·시간·사용량을 남깁니다. 이 역할들은 로컬 SDK 객체이며 포털의 Prompt Agent 두 개를 만드는 과정이 아닙니다.
 
 <div class="practice-block" markdown="1">
 
-### 2. 독립 검토: 같은 질문만 각각 입력
+### 2. 먼저 순차 전달을 오프라인으로 실행
 
-**직접 해보기:** 아래 질문을 두 역할의 **새 Chat에 각각 1회** 보냅니다. 두 번째 역할에는 첫 번째 답을 아직 전달하지 않습니다.
+**직접 해보기:** SDK 검사와 실행 계획을 읽은 뒤 `--offline`으로 실제 workflow를 실행합니다.
 
-```prompt
-수동 검토용 합성 자료입니다. NB-14 2개, 제공 단가 1,450,000원, 제공 총액 2,900,000원입니다. 실제 재고 조회·초안 저장 결과가 아닙니다. 가격 상한과 필요한 승인을 검토하고, 미확인 정보와 실행하지 않은 것을 구분해주세요.
+```bash
+python -m scripts.check_sdk --advanced
+python samples/multi_agent.py --mode sequential
+python samples/multi_agent.py --mode sequential --offline
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `scripts.check_sdk --advanced` | 실제 설치 SDK의 workflow·전달·비교 계약을 네트워크 차단 상태로 검사합니다. | `sdk_contracts: passed`, `azure_calls: 0`. 실제 모델 사용 아님. |
+| 2. `--mode sequential` | 옵션과 호출 상한만 출력합니다. | `PLAN ONLY`이며 SDK workflow를 실행한 결과가 아닙니다. |
+| 3. `--mode sequential --offline` | 진짜 `SequentialBuilder`에 고정 응답 client를 연결해 drafter → reviewer를 실행합니다. | 합성 응답 2회, 네트워크·DNS 차단, 비공개 `results/contoso-maf-fixture-....jsonl`. |
+
+</div>
+
+기본 `--case purchase`의 실제 질문은 다음입니다. 코드의 `QUESTIONS`와 비교하되 포털 Chat에 따로 보내지 않습니다.
+
+```text
+단가 145만 원인 노트북 2대를 구매하려 한다. 정책과 승인 절차를 안내해줘.
 ```
 
+출력에서 확인할 필드의 발췌입니다. 응답 문장은 `Synthetic fixture from ...`이며 **정책 답변 품질·실제 토큰 청구의 측정값이 아닙니다.**
+
+```output
+"execution": "local_sdk_fixture"
+"azure_calls": 0
+"fixture_calls": 2
+"usage_source": "synthetic_fixture_not_billing"
+"quality_release": false
+```
+
+실행 로그의 reviewer `model_call_completed` 입력에 **drafter의 실제 fixture 응답**이 있는지 봅니다. 결과만 두 개 있다고 전달이 증명되는 것은 아닙니다.
+
+### 3. 같은 질문을 동시 분기하고 기준선과 비교
+
+```bash
+python samples/multi_agent.py --mode concurrent --offline
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--mode concurrent --offline` | 같은 질문을 policy·budget·risk에 분기하고 각 원문을 보존합니다. | `fixture_calls: 3`, 역할 3개, `maximum_active_fixture_calls`로 로컬 중첩 확인. 요약 모델을 추가 호출하지 않습니다. |
+
+</div>
+
+**한 가지 바꾸기:** 질문·정책은 그대로 두고 단일 agent와 순차 경로의 비교 모드만 바꿉니다.
+
+```bash
+python samples/multi_agent.py --mode compare --offline
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--mode compare --offline` | single 1회와 sequential 2회를 같은 입력으로 실행합니다. | fixture 총 3회와 `sequential_minus_single`. 합성 usage 차이를 비용 절감이나 품질 개선이라고 하지 않습니다. |
+
+</div>
+
+**결과 설명하기:** 순차는 reviewer가 받은 초안, 동시는 독립 입력과 세 원문을 제시합니다. 호출 수·중첩·원문 전달과 답변 품질은 다른 검사입니다. fixture는 질문을 해석하는 모델이 아니므로 정책 정답률을 계산하지 않습니다.
+
+</div>
+
+<a id="maf-live-setup"></a>
+
+### 4. 기존 Microsoft Foundry 모델로 실행 — 별도 승인
+
+오프라인 결과와 분리된 선택 경로입니다. **새 프로젝트·agent·Hosted·Search를 만들지 않습니다.** L01/L02의 기존 chat 배포와 승인된 모델 호출만 필요합니다.
+
 | 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
 | --- | --- | --- | --- |
-| 1 | 정책 검토 agent의 새 Chat에 공통 질문을 보냅니다. | 정책 §2·§3과 미확인 실행을 구분합니다. | 원문과 실제 인용 ID를 보존합니다. |
-| 2 | 금액 검토 agent의 새 Chat에 **같은 질문만** 보냅니다. | 2,900,000원과 팀장+구매 담당자를 검토합니다. | 첫 응답을 몰래 입력에 넣지 않습니다. |
+| 1 | Azure portal에서 내 전용 RG의 Overview·Tags를 읽습니다. | L01의 정확한 구독·`validationRun`, `repository=microsoft-foundry-labs-v1.5`입니다. | repository 태그가 없으면 내 그룹의 태그 변경 승인 후에만 추가·저장합니다. 다른 그룹을 내 것으로 표시하지 않습니다. |
+| 2 | Microsoft Foundry의 프로젝트 endpoint와 `Models → contoso-chat → Details`를 읽습니다. | 같은 account·project·모델 버전·Succeeded·실제 TPM/RPM입니다. | 이름만 같거나 용량이 부족하면 중단합니다. 자동 증액·다른 모델 대체 없음. |
+| 3 | 루트의 `.env.example`을 `.env`로 복사해 아래 값을 바꿉니다. 기존 파일은 덮어쓰지 않습니다. | 프로젝트 endpoint와 실제 chat 배포 이름입니다. | 모델의 `/openai/v1` endpoint나 API key를 넣지 않습니다. |
+| 4 | 기존 소유 receipt가 같은 scope·언어이면 재사용합니다. 없다면 아래 읽기 전용 adoption을 실행합니다. | `.env`·receipt·포털이 일치합니다. | 개인 메모를 임의 receipt로 작성하거나 `create`·`foundation`을 다시 실행하지 않습니다. |
 
-<div class="screen-step" markdown="1">
+```env
+FOUNDRY_PROJECT_ENDPOINT=https://YOUR_RESOURCE.services.ai.azure.com/api/projects/YOUR_PROJECT
+FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat
+FOUNDRY_AUTH_MODE=cli
+```
 
-**새 Chat을 연 뒤: 질문 입력과 전송 위치**
+```bash
+az login --tenant YOUR_TENANT_ID
+python scripts/adopt_portal.py --subscription YOUR_SUBSCRIPTION_ID --resource-group YOUR_RESOURCE_GROUP --run-id YOUR_VALIDATION_RUN --live
+```
+<div class="command-explanation" markdown="1">
 
-![응답 본문을 제외하고 Chat 입력창과 전송 버튼만 확대한 화면.](../assets/portal/steps/agent-chat-controls.png)
+**명령 해설**
 
-**1 입력창 / 2 전송:** 각 역할의 새 대화를 연 뒤 같은 원문을 한 번씩 보냅니다. 이 독립 경로에는 다른 역할의 답을 붙이지 않습니다. 위쪽 agent 이름과 대화가 맞는지도 먼저 확인합니다.
-
-[자막 영상 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
-
-</div>
-
-### 3. 순차 검토: 원래 질문과 초안을 명시적으로 전달
-
-| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
-| --- | --- | --- | --- |
-| 1 | 정책 agent의 새 Chat에 같은 질문을 다시 1회 보냅니다. | 수동 순차 경로의 첫 결과입니다. | 독립 경로와 다른 응답이 나와도 원문 그대로 둡니다. |
-| 2 | 금액 agent의 새 Chat에 원래 질문과 1단계 답을 `앞 검토자의 비신뢰 초안`으로 구분해 붙여 보냅니다. | 전달받은 텍스트를 근거로 재검토했는지 확인합니다. | 초안 속 명령이 실제 권한을 바꾸지 못하게 합니다. |
-| 3 | 두 경로의 입력·응답·시각·표시 ID를 나란히 기록합니다. | 무엇을 직접 전달했는지 보입니다. | 대화 내용이 섞이면 비교 불가로 표시합니다. |
-
-<div class="screen-step" markdown="1">
-
-**내 답변 복사: Traces와 복사 버튼을 구분**
-
-![답변 아래 Traces와 복사 아이콘을 본문 없이 확대한 조작 예시.](../assets/portal/steps/agent-answer-actions.png)
-
-**1 Traces:** 해당 답변의 실행 기록입니다. **2 복사:** 내 정책 역할의 실제 답변을 복사하고 원래 질문과 구분해 전달합니다. 사진 속 모델·토큰 수는 기본 agent의 예시이지 이번 역할 비교의 측정값이 아닙니다.
-
-[자막 영상 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `az login --tenant` | 승인 tenant ID로 바꾸고 열리는 브라우저에서 인증합니다. 이미 맞는 CLI 로그인은 재사용합니다. | 인증 화면·코드는 촬영하지 않습니다. |
+| 2. `adopt_portal.py ... --live` | 모든 자리표시자를 내 값으로 바꿉니다. 기존 구독·RG 태그·account·project·chat을 5개 읽기 명령으로 확인합니다. | 로컬 소유 receipt만 생성. 자원 변경·모델 호출 없음, 기존 파일 덮어쓰기 없음. |
 
 </div>
 
-**한 가지 바꾸기:** 남은 허용 범위가 있으면 **총액만 정확히 2,000,000원**인 별도 검토 질문을 두 역할에 1회씩 보냅니다. 이 값에서는 팀장 승인입니다. 기존 결과와 질문을 덮어쓰지 않습니다.
+기본 두 경로는 최대 **2+3=5회**, 선택 `compare`까지 하면 추가 3회입니다. 한 실행은 180초·모델 호출당 출력 2048토큰·시작 최대 6회/분·재시도 0입니다. 별도 사전 용량 읽기는 최대 24요청/180초이며 용량을 변경하지 않습니다. 이 횟수는 금액 상한이 아니고 동시 사용자는 합산 예산이 필요합니다.
 
-**결과 설명하기:** 독립/전달 경로에서 새로 발견한 오류·빠진 근거·추가 토큰을 적습니다. 여러 역할이 늘 좋은지 실제 결과로 설명하고, 사람의 복사 시간을 runtime latency로 보고하지 않습니다.
+```bash
+python samples/multi_agent.py --mode sequential --live
+python samples/multi_agent.py --mode concurrent --live
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--mode sequential --live` | receipt·실제 TPM/RPM 확인 후 기존 모델로 drafter → reviewer를 실행합니다. | 유료 모델 최대 2회. 실제 ID·usage·전달 입력을 보존합니다. |
+| 2. `--mode concurrent --live` | 같은 모델·정책·질문을 policy·budget·risk에 분기합니다. | 유료 모델 최대 3회. 시작 간격 제한 때문에 모든 호출이 같은 순간 시작한다고 가정하지 않습니다. |
 
 </div>
 
-### 실제 orchestration과 구분
-
-`SequentialBuilder`와 `ConcurrentBuilder`는 Microsoft Agent Framework의 코드 기반 실행 경로입니다. 이 장은 이를 실행하지 않습니다. 포털 Workflows와 in-portal execution은 **2026-12-01 종료 예정**이므로 새 학습 경로를 그 디자이너에 의존시키지 않습니다.
-
-실제 동시 실행 검증에는 같은 run의 동시 구간·전달 데이터·실패 취소·호출 상한 기록이 필요합니다. 이 수동 실험에는 그 증거가 없습니다.
+live의 `execution`은 `local_maf_with_azure_model`입니다. **workflow는 로컬, 모델 호출은 Microsoft Azure**이며 Foundry-hosted orchestration은 아닙니다. 로그의 `started_after_seconds`·`elapsed_seconds`로 실제 겹친 구간을 확인합니다. 누락된 usage의 `null`을 0으로 바꾸지 않습니다. 포털 Workflows·in-portal execution은 **2026-12-01 종료 예정**이므로 그 디자이너에 의존하지 않습니다.
 
 ## 성공 기준
 
-같은 질문의 독립 검토와 명시적 복사 전달을 실제 원문으로 비교했습니다. 도구 없음·수동 전달·업무 승인 아님을 표시했습니다. 결과를 SDK 순차/병렬 성공으로 합산하지 않았습니다.
+실제 SDK의 순차 전달·동시 분기를 실행하고 역할별 원문을 찾았습니다. 오프라인은 `local_sdk_fixture`, live는 `local_maf_with_azure_model`로 구분했습니다. `PLAN ONLY`, fixture 사용량, 화면 예시를 Microsoft Azure 모델·품질 검증으로 세지 않았습니다. `quality_release`는 여전히 false입니다.
 
 ## 막혔을 때
 
-새 Chat이 아닌 기존 문맥이 끼었으면 그 비교는 무효로 남깁니다. 비용 상한에 도달하면 남은 비교를 미실행으로 둡니다. 429가 나면 요청을 멈추며 quota를 임의 확장하지 않습니다.
+SDK가 없으면 `.venv-maf`와 `requirements-advanced.txt`를 확인합니다. 출력이 `PLAN ONLY`이면 아직 실행하지 않은 것입니다. receipt·태그·TPM/RPM이 부족하면 live는 차단으로 남기고 offline으로 돌아옵니다. 429·부분 결과·중복 ID·시간 초과는 실패 원문을 보존하며 호출·토큰 상한을 늘려 통과시키지 않습니다.
 
 ## 정리
 
-두 역할은 다음 장에서 재사용할 수 있습니다. 자동 반복·대화 무한 루프·원격 A2A 연결은 만들지 않았습니다.
+이 코드는 영구 agent·서버·원격 A2A를 만들지 않습니다. 실행 프로세스가 끝나도 기존 모델 배포·로그 자원은 남습니다. fixture와 live의 개인 `.jsonl`을 구분해 보관하고 커밋하지 않습니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** 두 경로의 실제 입력/응답, 전달한 텍스트, 호출 수, 차이와 실제 orchestration 미실행.
+**이 장에서 남길 것:** 실행 종류, mode·case·정책 hash, 원문 전달·역할·호출 수·시간·usage의 근거와 미검증 한계.
 
-**다음:** [L14 검토·담당자 전환 수동 비교](#l15-collaboration).
+**다음:** [L14 실제 MAF 그룹 채팅·핸드오프](#l15-collaboration). 같은 MAF 환경을 재사용합니다.
 
 </div>
 
@@ -2436,154 +2760,203 @@ Hosted 항목·상세가 없으면 지원 지역·권한·실제 배포 존재�
 
 <a id="l15-collaboration"></a>
 
-# 14. 수동 협업 비교: 검토·수정·역할 선택
+# 14. 실제 MAF 협업: 그룹 채팅·핸드오프
 
-**심화 코스 · 수동 실험 / 자동 handoff 미실행** · 약 35분
+**심화 코스 · SDK handoff / A2A·HITL 별도** · 약 35분
 
-> **학습 순서: L13 역할 재사용** — L13의 두 역할과 별도 router Prompt Agent. 기본 5회, 최대 7회 Chat. 사람의 복사 전달이며 자동 handoff·A2A·HITL이 아닙니다.
+> **학습 순서: L13 MAF 환경 재사용** — L13의 MAF 환경·합성 정책·같은 질문. 그룹 3턴과 실제 handoff tool을 실행하며 live는 최대 3+4회 별도 승인입니다. 원격 A2A·HITL·업무 승인은 수행하지 않습니다.
 
 ## 목표
 
-작성자→검토자→작성자 수정과 담당 역할 선택을 포털에서 **수동으로** 비교합니다. 실제 자동 핸드오프·A2A·사람 승인 workflow를 실행한 것으로 표시하지 않습니다.
+실제 MAF의 **GroupChatBuilder·HandoffBuilder**를 실행합니다. 작성→검토→수정의 메시지 전달과 실제 handoff tool·다음 역할 응답을 찾아 종료 조건을 설명합니다.
 
 <div class="lab-brief" markdown="1">
 
-**진행 방식:** 수동 Chat 실험, 기본 5회·선택 변경 포함 최대 7회 전송.
+**진행 방식:** 터미널 SDK 실습. 기본 오프라인은 그룹 3회·핸드오프 2회 fixture 응답이며, 선택 live는 각각 최대 3회·4회입니다.
 
-**먼저 할 일:** L13의 두 역할과 같은 합성 문맥을 재사용합니다.
+**먼저 할 일:** L13의 `.venv-maf`와 언어를 다시 선택합니다. 새 포털 agent·router·Hosted 배포는 만들지 않습니다.
 
-**확인할 결과:** 초안·검토·수정 3개 원문과 분류·사용자 전달 2개 원문.
+**확인할 결과:** 작성/검토/수정 3원문과 `handoff_to_policy` 또는 `handoff_to_budget` 호출 뒤 실제 specialist 응답.
 
 </div>
 
 ## 개념과 실습 지도
 
-**경험할 기능:** 반복 검토와 담당자 전환의 개념 비교.
+**경험할 기능:** bounded group chat, tool 기반 담당자 전환.
 
-**무엇이며 왜 중요한가요?** Group chat은 검토 후 수정, handoff는 다음 담당자 선택입니다. “위임했다”는 문장과 실제 제어 전달은 다릅니다.
+**무엇이며 왜 중요한가요?** Group chat은 검토를 작성자에게 돌려보내고, handoff는 제어를 다른 역할에 넘깁니다. “위임했습니다”라는 문장만으로는 전환 증거가 아닙니다.
 
-**어떻게 사용하나요?** 사람이 답을 복사해 전달하고 그 사실을 기록합니다. 최대 왕복 수와 종료 조건을 미리 정합니다.
+**어떻게 사용하나요?** 같은 질문·정책으로 두 builder를 실행하고 역할 순서·도구 호출·다음 응답·종료를 로그에서 확인합니다.
 
-**어디서 실행하나요?** Microsoft Foundry의 역할별 Chat과 개인 비교표. 자동 orchestration은 사용하지 않습니다.
+**어디서 실행하나요?** 로컬 Python SDK. 별도 승인한 `--live`일 때만 기존 Microsoft Foundry 모델을 호출합니다.
+
+[![MAF 그룹 채팅의 3턴 종료와 coordinator에서 specialist로 이동하는 실제 handoff 흐름도.](../assets/maf-collaboration.svg)](../assets/maf-collaboration.svg)
+
+흐름도를 선택하면 원본 크기로 볼 수 있습니다. 기존 영상에는 이 SDK 실행이 없으므로 다른 agent의 답변·복사 버튼을 실행 예시로 재사용하지 않습니다.
 
 ## 준비
 
-L13의 `contoso-policy-review`, `contoso-budget-review`를 사용합니다. L04 방식으로 별도 `contoso-router`를 만들고 같은 모델·도구 없음으로 저장합니다. Instructions는 “입력을 policy 또는 budget으로 분류하고 이유만 설명한다. 직접 위임·승인·주문했다고 말하지 않는다.”로 합니다.
+[L13 환경 준비](#l15)를 완료합니다. 새 터미널에서는 `.venv-maf` 활성화와 언어 선택만 반복합니다. 오프라인은 로그인·`.env`·소유 receipt가 필요 없습니다. live는 [L13의 기존 모델·scope 검증](#maf-live-setup)을 그대로 사용하며 Hosted·Search·judge가 필요 없습니다.
 
 ## 실행
 
-아래는 기존 Prompt Agent의 **조작 위치 예시**이며 router·검토 왕복·handoff의 실행 화면은 아닙니다. 다른 실습의 응답 본문 대신 필요한 생성·입력·복사 컨트롤만 봅니다.
+### 1. 실행·종료 코드를 먼저 대조
 
-### 1. router를 분류 전용으로 준비
+[multi_agent.py의 `build_workflow`](../samples/multi_agent.py)를 엽니다. 아래는 **읽기용 발췌**입니다. 역할 정의를 생략한 코드 조각을 따로 실행하지 않습니다.
 
-| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
-| --- | --- | --- | --- |
-| 1 | L04 방식으로 Prompt Agent를 만들고 Name에 `contoso-router`, 모드에 `Text`를 사용합니다. | L13의 두 검토 역할과 다른 대상입니다. | 기존 역할을 덮어쓰지 않습니다. |
-| 2 | 같은 `contoso-chat`과 준비 절의 분류 전용 Instructions를 설정하고 도구·Memory 없이 저장합니다. | policy/budget과 이유만 답하는 설정입니다. | 도구로 직접 실행하거나 승인했다고 주장하는 지시를 넣지 않습니다. |
+```python
+def select_speaker(state):
+    names = list(state.participants)
+    return names[state.current_round % len(names)]
 
-<div class="screen-step" markdown="1">
+group_chat = GroupChatBuilder(
+    participants=[drafter, reviewer], selection_func=select_speaker, max_rounds=3,
+    termination_condition=lambda messages: sum(message.role == "assistant" for message in messages) >= 3,
+    intermediate_output_from=[drafter, reviewer],
+).build()
+```
 
-**router 이름 입력: 검토 역할과 분리**
+speaker는 drafter → reviewer → drafter이며 assistant 메시지 3개에서 종료합니다. handoff의 핵심은 분류 문장이 아닌 아래 실제 SDK 연결입니다.
 
-![Prompt 생성 폼의 이름·Text 모드·생성 버튼 위치.](../assets/portal/steps/agent-create-form.png)
+```python
+handoff = (
+    HandoffBuilder(
+        participants=[coordinator, policy_agent, budget_agent],
+        termination_condition=lambda messages: any(
+            message.role == "assistant" and message.author_name in {"policy", "budget"} and message.text.strip()
+            for message in messages
+        ),
+    )
+    .with_start_agent(coordinator)
+    .add_handoff(coordinator, [policy_agent, budget_agent])
+    .build()
+)
+```
 
-**1 Name:** 사진의 자동 이름 대신 `contoso-router`입니다. **2 Text / 3 생성:** Prompt를 만든 뒤 분류 지시문을 저장합니다. 생성 자체가 자동 역할 선택·handoff 구현은 아닙니다.
-
-[자막 영상 04 · 00:01.5](portal/index.html?clip=04-native-evaluation&t=1.5&lang=ko#04-native-evaluation)
-
-</div>
-
-<div class="screen-step" markdown="1">
-
-**Instructions: router에 줄 지시만 저장**
-
-![Model과 Instructions 편집 위치를 보여 주는 기본 Prompt Agent 설정 예시.](../assets/portal/steps/agent-instructions.png)
-
-**1 모델:** L13과 같은 `contoso-chat`입니다. **2 Instructions:** 준비 절의 분류 전용 문장으로 저장합니다. 사진의 정책 지시문을 router의 실제 저장 내용으로 간주하지 않습니다.
-
-[자막 영상 02 · 02:04.5](portal/index.html?clip=02-model-agent&t=124.5&lang=ko#02-model-agent)
-
-</div>
+`CallAudit`가 전체 모델 호출 상한을 지키고, specialist의 비어 있지 않은 응답에서 종료합니다. handoff tool 없이 coordinator가 직접 답한 결과는 성공으로 대체하지 않습니다.
 
 <div class="practice-block" markdown="1">
 
-### 2. 작성 → 검토 → 수정: 세 전송에서 종료
+### 2. 작성 → 검토 → 수정을 실제 SDK로 실행
 
-**직접 해보기:** 아래 질문을 원래 요청으로 고정하고 표의 다섯 전송을 수행합니다.
+**직접 해보기:** L13과 같은 기본 purchase 질문을 유지하고 실행합니다.
 
-```prompt
-합성 검토 자료: NB-14 2개, 제공 총액 2,900,000원입니다. 구매 정책의 상한·승인자와 미확인 재고·실행 상태를 짧게 검토해주세요. 실제 주문은 하지 마세요.
+```bash
+python samples/multi_agent.py --mode group-chat --offline
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--mode group-chat --offline` | 진짜 `GroupChatBuilder`에 고정 응답 client를 연결해 세 턴을 실행합니다. | `fixture_calls: 3`, 네트워크·DNS 차단, 개인 `results/contoso-maf-fixture-....jsonl`. Microsoft Azure 호출 0. |
+
+</div>
+
+| 볼 위치 | 실제 확인 |
+| --- | --- |
+| `paths.group-chat.stages` | role 순서가 `drafter`, `reviewer`, `drafter` |
+| reviewer의 `model_call_completed` 입력 | 첫 drafter의 `Synthetic fixture from drafter, call 1.` 원문 |
+| 마지막 drafter의 입력 | reviewer의 `Synthetic fixture from reviewer, call 2.` 원문 |
+| `workflow_state`·`final_messages` | 세 턴에서 종료했고 원문이 남았는지 |
+
+fixture 문장은 고정 문자열이므로 **검토가 실제로 정책 오류를 찾아 개선했다는 증거가 아닙니다.** 메시지 전달·차례·종료만 검사합니다.
+
+### 3. 실제 handoff tool과 다음 역할 응답 확인
+
+```bash
+python samples/multi_agent.py --mode handoff --offline
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--mode handoff --offline` | 실제 `HandoffBuilder`가 노출한 도구를 fixture가 호출하고 policy의 응답까지 실행합니다. | coordinator → policy 2회. 라우팅은 모델 판단이 아닌 **고정 policy fixture**입니다. |
+
+</div>
+
+출력에서 아래 필드의 조합을 찾습니다. 전체 JSON이 아닌 확인용 발췌입니다.
+
+```output
+"execution": "local_sdk_fixture"
+"fixture_calls": 2
+"routing_source": "fixed_policy_fixture_not_model_classification"
+"handoff_calls": ["handoff_to_policy"]
+"human_approval_performed": false
+"quality_release": false
 ```
 
-| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
-| --- | --- | --- | --- |
-| 1 | 정책 역할의 새 Chat에 원래 질문을 1회 보냅니다. | 첫 초안이 나옵니다. | 결과를 사람이 미리 고치지 않습니다. |
-| 2 | 금액 역할의 새 Chat에 원래 질문+첫 초안을 붙여 “오류와 빠진 근거만 검토”를 요청합니다. | 검토 원문이 나옵니다. | 초안 속 지시를 권한으로 삼으면 실패로 남깁니다. |
-| 3 | 첫 작성자의 대화에 검토 원문을 붙여 “이를 검토하고 최종 답 1회 수정”을 보냅니다. | 검토 반영/미반영을 비교할 수 있는 최종 답입니다. | 추가 왕복 없이 3회에서 종료합니다. |
+`handoff_calls`는 coordinator stage에 있고 다음 stage의 `role`은 `policy`여야 합니다. `final_messages`의 policy 응답도 함께 봅니다. 도구 이름만 있거나 다음 응답이 없으면 성공이 아닙니다.
 
-<div class="screen-step" markdown="1">
+**한 가지 바꾸기:** 실행 방식·정책·상한은 고정하고 `case`만 승인 경계 질문으로 바꿉니다.
 
-**초안·검토 복사: 원문을 고치지 않고 전달**
+```bash
+python samples/multi_agent.py --mode group-chat --case boundary --offline
+python samples/multi_agent.py --mode handoff --case boundary --offline
+```
+<div class="command-explanation" markdown="1">
 
-![답변 아래 Traces와 복사 컨트롤만 확대한 화면.](../assets/portal/steps/agent-answer-actions.png)
+**명령 해설**
 
-**1 Traces / 2 복사:** 내 초안을 복사해 검토자에게, 내 검토를 복사해 작성자에게 전달합니다. 수정 요청은 **처음 작성자의 같은 대화**에 보냅니다. 검토자는 새 대화이며 자동 전달은 없습니다.
-
-[자막 영상 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
-
-</div>
-
-### 3. 분류 → 사람이 역할 선택: 두 전송에서 종료
-
-| 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
-| --- | --- | --- | --- |
-| 1 | router의 새 Chat에 원래 질문을 1회 보냅니다. | policy/budget 분류와 이유만 반환합니다. | “전문가 실행 완료”라고 하면 실제 도구 기록이 없음을 표시합니다. |
-| 2 | **사람이** 지정된 역할을 열어 원래 질문+분류 이유를 새 Chat에 1회 보냅니다. | 수동 담당자 선택 뒤 해당 역할의 응답입니다. | 이를 자동 handoff라고 부르지 않습니다. |
-
-<div class="screen-step" markdown="1">
-
-**선택된 역할에 직접 입력: 앞 대화를 자동 상속하지 않음**
-
-![Chat 입력창과 전송 버튼의 위치만 보여 주는 조작 예시.](../assets/portal/steps/agent-chat-controls.png)
-
-**1 입력 / 2 전송:** 선택된 역할의 새 대화에 원래 요청과 router의 분류 이유를 구분해 붙입니다. 분류 문장만 보내거나 이전 대화를 자동으로 안다고 가정하지 않습니다. 이 화면은 실제 handoff 결과가 아닙니다.
-
-[자막 영상 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `group-chat --case boundary --offline` | 정확히 2,000,000원과 2,000,001원의 질문이 세 역할 입력에 전달되는지 봅니다. | fixture 3회. 질문 변경이 고정 응답을 정책 추론으로 바꾸지는 않습니다. |
+| 2. `handoff --case boundary --offline` | 같은 경계 질문이 specialist까지 전달되는지 확인합니다. | fixture 2회. 이 모드의 고정 policy 라우팅은 그대로이며 분류 정확도 시험이 아닙니다. |
 
 </div>
 
-**한 가지 바꾸기:** 여유 범위가 있으면 router에 “노트북 정기 교체 주기”를 물어 다른 역할이 선택되는지 확인하고 사람이 한 번 전달합니다. 새 분류·전달 합계 2회만 추가합니다.
-
-**결과 설명하기:** 첫 초안의 오류, 검토가 지적한 것, 최종 수정 반영, 담당 역할 선택 이유를 적습니다. 역할이 말한 `approved`와 실제 승인 기록은 다르다고 설명합니다.
+**결과 설명하기:** 어느 원문이 다음 역할에 갔는지, 어떤 도구가 제어를 넘겼는지, 무엇이 종료시켰는지를 제시합니다. 업무 승인·원격 A2A·HITL을 수행했다고 주장하지 않습니다.
 
 </div>
 
-### 자동 실행 증거가 없는 부분
+### 4. 실제 모델로 비교 — 별도 승인
 
-| 수동 실험에서 얻은 것 | 실제 실행이라고 하려면 추가로 필요한 것 |
+L13의 동일한 live 설정·소유·용량 검증을 재사용합니다. 두 기본 명령은 합계 **최대 7회**의 유료 모델 호출이며 각 실행 180초·출력 2048토큰/호출·최대 시작 6회/분·재시도 0입니다. 경계 질문까지 live로 반복하려면 추가 예산 승인이 필요합니다.
+
+```bash
+python samples/multi_agent.py --mode group-chat --live
+python samples/multi_agent.py --mode handoff --live
+```
+<div class="command-explanation" markdown="1">
+
+**명령 해설**
+
+| 순서·명령 | 세부 동작과 옵션 | 결과·비용/변경 |
+| --- | --- | --- |
+| 1. `--mode group-chat --live` | 기존 모델로 drafter → reviewer → drafter를 실행합니다. | 유료 최대 3회. 실제 지적·수정·미반영을 원문으로 비교합니다. |
+| 2. `--mode handoff --live` | 모델이 실제 handoff tool로 policy 또는 budget을 선택해야 합니다. | 유료 최대 4회. 도구·다음 응답이 없거나 상한에 도달하면 실패로 보존합니다. |
+
+</div>
+
+`execution=local_maf_with_azure_model`인지 확인합니다. `response_id`·`handoff_calls`·specialist 원문·시간·실제 usage가 같은 run에 있어야 합니다. 모델의 역할 선택 결과를 fixture의 고정 라우팅과 혼동하지 않습니다.
+
+| 여기서 실행한 기능 | 여전히 실행하지 않은 기능 |
 | --- | --- |
-| 복사한 작성자·검토자 메시지 | 한 run의 `GroupChatBuilder` 전달·종료 기록 |
-| router의 분류 텍스트 | `HandoffBuilder`의 실제 제어/도구 호출과 다음 agent 응답 |
-| “사람 확인 필요” 문장 | 승인 주체·권한·이벤트·대기/재개 상태가 있는 HITL 시스템 |
-| 역할 이름 두 개 | 실제 원격 A2A endpoint·인증·호출 결과 |
+| 실제 SDK의 그룹 메시지 전달·종료 | 영구 서비스·포털-hosted workflow |
+| 실제 SDK handoff tool과 specialist 응답 | 인증된 원격 A2A endpoint·원격 agent 호출 |
+| `human_approval_performed: false` | 승인 주체·권한·이벤트·대기/재개가 있는 HITL |
+| 합성 정책의 구매 안내 | 실제 주문·결제·업무 승인 |
 
-위 코드 기반 기능은 참고입니다. 이 가이드에는 실제 handoff tool, 원격 A2A 서버, SDK 실행이 없습니다. 포털 Workflows는 2026-12-01 종료 예정이므로 그 디자이너로 우회하지 않습니다.
+포털 Workflows는 **2026-12-01 종료 예정**이므로 그 디자이너로 우회하지 않습니다.
 
 ## 성공 기준
 
-5개 실제 메시지와 수동 복사 경로를 설명했습니다. 자동 그룹 채팅·핸드오프·A2A·업무 승인 미실행을 명시했습니다. 결과가 없거나 분류가 잘못됐으면 해당 실패를 보존했습니다.
+그룹의 세 원문과 전달된 검토, handoff tool과 실제 specialist 응답을 찾았습니다. 오프라인/실제 모델 실행을 구분하고 종료·호출 상한을 지켰습니다. 품질 gate·업무 승인·원격 A2A·HITL 성공으로 합산하지 않았습니다.
 
 ## 막혔을 때
 
-Instructions와 새 대화 여부를 확인합니다. router가 분류 외 작업을 하면 실패로 남깁니다. 응답 길이·호출 상한을 높여 성공할 때까지 반복하지 않습니다.
+`PLAN ONLY`이면 아직 실행하지 않은 것입니다. SDK 누락은 L13 환경을 확인합니다. 모델이 handoff 대신 직접 답하면 실패이며 자동 대체하지 않습니다. 빈 specialist 응답·부분 결과·429·상한 초과는 원문을 보존하고 재귀·재시도·출력 상한을 늘려 통과시키지 않습니다.
 
 ## 정리
 
-자동 재귀·무한 대화·지속 실행을 만들지 않았습니다. 원문과 최종 답을 나누어 보관하고 모든 agent 자원은 L19 기록에 포함합니다.
+일회성 로컬 프로세스만 끝납니다. 자동 재귀·원격 서버·영구 router는 만들지 않습니다. 개인 증거와 모델/로그 잔여 비용은 L19에 넘깁니다.
 
 <div class="lab-handoff" markdown="1">
 
-**이 장에서 남길 것:** 작성/검토/수정 3원문, 분류/수동 전달 2원문과 자동 핸드오프 미실행.
+**이 장에서 남길 것:** 작성/검토/수정 원문, tool·specialist·종료 기록, execution 종류와 미실행 A2A·HITL·업무 승인.
 
 **다음:** [L15 Memory 관찰과 조건부 대화 비교](#l16).
 
@@ -3510,6 +3883,11 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 | 평가 입력 mapping 없음 | 대상 유형·CSV header·제공된 필드 | query는 agent 입력, context/ground_truth는 evaluator용. 예상 답을 response로 입력 금지 |
 | 평가 Partial/Failed·행 누락 | 실제 12행·run 상세·오류 | 실패를 보존. 성공 행만으로 평균·gate를 만들지 않음 |
 | Traces가 비어 있음 | 요청 전 로그 연결·기간·agent/version·로그 읽기 역할 | 같은 요청의 시각/ID로 확인. 예전 요청 소급 수집을 기대하지 않음 |
+| L12/L13 SDK 의존성 충돌 | 현재 Python 환경·설치한 requirements | Hosted 2.7.0과 MAF 2.6.0의 project SDK를 별도 환경에 설치. 기존 공용 환경을 덮어쓰지 않음 |
+| MAF가 `PLAN ONLY`만 출력 | 실행 명령의 `--offline` 또는 승인된 `--live` | 기본 계획은 실행이 아님. 먼저 네트워크 차단 fixture 사용 |
+| CLI 소유 receipt 없음 | L01의 기존 scope·태그·프로젝트·언어 | L12/L13의 읽기 전용 `adopt_portal.py`로 검증. 수작업 소유 주장·중복 `create`/`foundation` 금지 |
+| Hosted Search schema/hash 오류 | 코드의 정책 절·1536차원 schema와 기존 Search 결과 | 임의 포털 index를 호환으로 가장하지 않음. 승인 범위에서만 L12 초기화 |
+| MAF handoff 결과 없음 | 실제 tool 호출·specialist 응답·호출 상한 | 분류 문장·직접 답변으로 대체하지 않고 실패 보존. 원격 A2A·업무 승인과 구분 |
 | Memory UI 없음 | 실제 연결·store·scope 노출·지원 조건 | CRUD/격리 미실행. “기억했다”를 item 저장 증거로 삼지 않음 |
 | Routines 메뉴 없음 | 지역·구독 기능 활성·agent 종류 | 미활성 기록. CLI·다른 지역 생성으로 우회하지 않음 |
 | Routine 시간이 다름 | 브라우저 현지 시간대·One-time/Recurring | 기본은 생성 전 취소. 시간대 고정 API 기능을 UI로 가장하지 않음 |
@@ -3521,7 +3899,7 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 
 ## 읽기와 실제 실행
 
-회색 설정 화면·과거 screenshot·영상·진도 체크는 내 실행 증거가 아닙니다. 포털에 없는 Function backend·Hosted 배포·framework orchestration·Memory CRUD·실제 승인·게시를 성공으로 추정하지 않습니다. [진행표](#instructor)에서 수행 범위를 나눕니다.
+회색 설정 화면·과거 screenshot·영상·진도 체크는 내 실행 증거가 아닙니다. L12–L14의 실제 코드 실행은 각 장의 로그로 확인하며 offline fixture를 Microsoft Azure 증거로 바꾸지 않습니다. 포털에 없는 Function backend·Memory CRUD·실제 승인·게시는 성공으로 추정하지 않습니다. [진행표](#instructor)에서 수행 범위를 나눕니다.
 
 
 ### 공식 근거
@@ -3540,7 +3918,7 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 
 **참고 자료 · 실습 기록**
 
-> **진행 원칙:** 한 번 클릭 → 실제 화면 확인 → 다음 단계. 실행·설정 관찰·수동 비교·미실행을 구분합니다.
+> **진행 원칙:** 한 단계 → 실제 결과 확인 → 다음 단계. 기본은 포털, 코드가 필요한 L12–L14는 터미널입니다. 오프라인 SDK·Microsoft Azure 실행·관찰·수동 판단·미실행을 구분합니다.
 
 ## 시작 체크리스트
 
@@ -3572,9 +3950,9 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 | 모듈 | 범위·선행 조건 |
 | --- | --- |
 | L11 | Knowledge 관찰. 추가 Search·Storage·embedding·데이터 권한이 따로 승인됐을 때만 import·검색 |
-| L12 | Prompt/Hosted 종류·상세 관찰. Hosted 코드/컨테이너 배포 미실행 |
-| L13 | 같은 모델·문맥으로 수동 독립/복사 전달 비교, 기본 4회·최대 6회 Chat |
-| L14 | 초안/검토/수정 3회, 분류/수동 전달 2회. 자동 handoff·A2A·승인 없음 |
+| L12 | 별도 Hosted 환경의 소스·오프라인 패키지/SDK 검사. 기존 scope의 Search 데이터·단일 서비스 배포·권한·1회 호출은 각각 추가 승인 |
+| L13 | 별도 MAF 환경의 실제 Sequential/Concurrent SDK. 기본 fixture 2회/3회, 선택 live 최대 2+3회. Hosted·별도 Prompt Agent 필요 없음 |
+| L14 | 같은 MAF 환경에서 그룹 3턴·실제 handoff tool/specialist. 기본 offline 3+2회, 선택 live 최대 3+4회. 원격 A2A·HITL·업무 승인 없음 |
 | L15 | 포털 Memory 설정. 기존 store·UI·쓰기 승인 시 최대 4회 합성 회상 비교. CRUD/격리 미검증 |
 | L16 | Routines 폼 관찰 후 취소. 기본 생성/dispatch 0 |
 | L17 | 내 권한·연결 읽기와 cache/ACL 결정표. 권한 확대·실제 공격 시험 없음 |
@@ -3598,6 +3976,8 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 | 마무리 | 직접 기록 | 자원별 상태·보존·비용 | 보존/승인된 정리 | 다음 비용 확인 |
 
 포털 사용만으로 SDK 결과 JSON은 자동 생성되지 않습니다. 개인 화면·구독·원본 영상은 비공개로 보관합니다. 공유 영상의 [수행 범위](portal/index.html)는 학습 진도와 별개입니다.
+
+L12–L14는 소스·흐름도·예상 필드와 내 실행 로그를 대조합니다. Hosted와 MAF의 프로젝트 SDK 고정 버전이 달라 환경을 분리합니다. fixture의 고정 응답·usage·policy 라우팅은 모델 품질·청구·분류 정확도의 측정값이 아니며, 기존 포털 영상에도 SDK·Hosted 실행은 없습니다.
 
 ## 완료 전 확인
 
@@ -3681,10 +4061,10 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 
 | 깊이 | 의미 | 항목 수 |
 | --- | --- | ---: |
-| 직접 실습 | 지원되는 포털 단계와 실제 화면·결과 확인. 이 매핑 자체가 특정 실행의 성공 증거는 아님. | 16 |
-| 조건부 실습 | 추가 자원·권한·라이선스·Preview가 준비된 경우 단계에 따라 수행. | 4 |
+| 직접 실습 | 지원되는 포털 단계와 실제 화면·결과 확인. 이 매핑 자체가 특정 실행의 성공 증거는 아님. | 17 |
+| 조건부 실습 | 추가 자원·권한·라이선스·Preview가 준비된 경우 단계에 따라 수행. | 6 |
 | 설계 | 설정 읽기·수동 결정표. 자동 orchestration·권한 변경·게시 실행을 뜻하지 않음. | 25 |
-| 참고 | 기능의 개념과 공식 구현 경로 읽기. | 23 |
+| 참고 | 기능의 개념과 공식 구현 경로 읽기. | 20 |
 
 **실행 전 사용 조건을 확인하세요.** 지원 API·SDK·포털·모델·지역은 연결된 공식 문서에서 확인합니다. 권한이나 quota가 준비되지 않았으면 해당 장의 읽기·설계 경로를 선택합니다.
 
@@ -3695,7 +4075,7 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 | 개발 표면 | 새 Microsoft Foundry 포털 / Discover·Build·Operate·Manage | [L00](#l00) | 직접 실습 | GA / 일부 Preview | [공식 문서](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | 개발 표면 | Model·Agent playground / Image·Video는 참고 | [L02](#l02) | 직접 실습 | 실제 Chat UI / 생성 미디어 미실행 | [공식 문서](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | 개발 표면 | Python·.NET·JavaScript·Java SDK / 포털 실행과 별도 | [L03](#l03) | 참고 | SDK 직접 실행 없음 | [공식 문서](https://learn.microsoft.com/azure/foundry/quickstarts/get-started-code) |
-| 개발 표면 | Azure Developer CLI / Foundry DevPack / templates | [L12](#l14) | 참고 | 개발 경로 / 학습자 설치 없음 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
+| 개발 표면 | Azure Developer CLI / DevPack·templates 참고 | [L12](#l14) | 조건부 실습 | 승인된 azd 단일 서비스 배포 / 나머지 개발 도구 선택 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
 | 개발 표면 | Microsoft Foundry Toolkit for Visual Studio Code / Agent Inspector / 로컬 tracing | [L12](#l14) | 참고 | 개발 경로 / 학습자 설치 없음 | [공식 문서](https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code) |
 | 개발 표면 | Foundry Agent Canvas | [L12](#l14) | 참고 | 현재 배포/접근 확인 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) |
 | 개발 표면 | Microsoft Foundry Skill / coding agent / Foundry MCP Server | [L12](#l14) | 참고 | 도구별 확인 | [공식 문서](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
@@ -3712,9 +4092,9 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 | 모델 | 모델 버전·자동 업데이트·retirement·migration | [L18](#l22) | 설계 | 정책·모델별 확인 | [공식 문서](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/model-versions) |
 | 에이전트 | Prompt Agent / instructions / model / tools | [L04](#l04) | 직접 실습 | GA 핵심 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-agent) |
 | 에이전트 | Agent versions / Conversations / Responses | [L04](#l04) | 직접 실습 | GA 핵심 | [공식 문서](https://learn.microsoft.com/azure/foundry/what-is-foundry) |
-| 에이전트 | Hosted Agent / source-code·container deployment | [L12](#l14) | 참고 | 종류·상세 관찰 / 배포 미실행 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/quickstarts/quickstart-hosted-agent) |
+| 에이전트 | Hosted Agent / source-code deployment·container 참고 | [L12](#l14) | 조건부 실습 | 로컬 패키징·SDK 검사 / Microsoft Azure 배포 별도 승인 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/quickstarts/quickstart-hosted-agent) |
 | 에이전트 | Runtime protocols / Responses·Invocations·WebSocket | [L12](#l14) | 설계 | protocol별 확인 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) |
-| 에이전트 | Microsoft Agent Framework / sequential·concurrent·group-chat·handoff | [L13](#l15) | 참고 | 포털 수동 역할 비교만 / 실제 framework 미실행 | [공식 문서](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) |
+| 에이전트 | Microsoft Agent Framework / sequential·concurrent·group-chat·handoff | [L13](#l15) | 직접 실습 | 실제 SDK·오프라인 fixture / Microsoft Azure 모델 별도 승인 | [공식 문서](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) |
 | 에이전트 | A2A / SDK 오케스트레이션과 원격 프로토콜 구분 | [L14](#l15-collaboration) | 참고 | 1.0 GA / 0.3 Preview와 구분 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/agent-to-agent) |
 | 에이전트 | Human-in-the-loop / 핸드오프와 업무 승인 구분 | [L14](#l15-collaboration) | 참고 | Microsoft Foundry 장기 실행 HITL Preview | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) |
 | 에이전트 | Routines / timer·schedule 폼 관찰 / event·reminder 참고 | [L16](#l17) | 설계 | 기본은 제출 전 취소 / 실제 호출 별도 승인 | [공식 문서](https://learn.microsoft.com/azure/foundry/agents/concepts/routines) |
@@ -3780,7 +4160,7 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 ## 공식 문서 활용하기
 
 개념은 Microsoft Learn의 개요와 capability reference에서, 사용 조건은 해당 기능 문서와 GA 표에서 확인합니다.
-이 학습 경로는 Azure portal·Foundry portal만 사용합니다. 공식 문서의 SDK/API 지원이 포털 버튼·필드 지원을 뜻하지 않습니다. 새 포털의 GA와 개별 기능의 GA도 다를 수 있습니다.
+기본은 Azure portal·Foundry portal이며 코드가 필요한 L12–L14만 터미널·SDK를 사용합니다. 공식 문서의 SDK/API 지원이 포털 버튼·필드 지원을 뜻하지 않습니다. 새 포털의 GA와 개별 기능의 GA도 다를 수 있습니다.
 
 ## 기능별로 확인할 조건
 
@@ -3792,7 +4172,7 @@ L00에서 기록한 이름·생성 범위·상한을 준비합니다. Resource I
 | Memory·Voice·Agent guardrails | 해당 API의 Preview·접근 조건 구분 |
 | Agent optimizer | Limited preview, 선택 실습 |
 | Azure Content Understanding in Foundry Tools | 2025-11-01 GA와 2026-06-01-preview 구분 |
-| SDK 개발 참고 | 과거 기본 `azure-ai-projects 2.7.0`과 advanced `agent-framework-foundry 1.13.1` 조합은 별도. 학습자 설치·실행 요구 아님 |
+| 심화 SDK 환경 | L12 Hosted는 `azure-ai-projects 2.7.0`, L13–L14 MAF는 `azure-ai-projects 2.6.0`·`agent-framework-foundry 1.13.1`. 별도 환경이며 기본 포털 코스는 설치 없음 |
 
 ## 공식 문서 목록
 

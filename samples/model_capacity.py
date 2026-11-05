@@ -71,7 +71,10 @@ def estimate_tokens(text: str) -> int:
 
 
 def load_scope(receipt: Path, language: str = LANGUAGE, roles: tuple[str, ...] | list[str] = ROLES) -> dict:
-    state = json.loads(receipt.read_text(encoding="utf-8"))
+    return validate_scope(json.loads(receipt.read_text(encoding="utf-8")), language, roles)
+
+
+def validate_scope(state: dict, language: str = LANGUAGE, roles: tuple[str, ...] | list[str] = ROLES) -> dict:
     required = {
         "repository_id", "language", "subscription", "resource_group", "resource_group_id",
         "account_name", "project_name", "project_endpoint", "run_id", "model_deployments", "location",

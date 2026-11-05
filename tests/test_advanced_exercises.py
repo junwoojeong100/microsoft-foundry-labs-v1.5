@@ -255,11 +255,10 @@ class PracticeWalkthroughTests(unittest.TestCase):
                     for label in labels:
                         self.assertIn("**" + label, text)
 
-    def test_manual_comparisons_do_not_claim_framework_execution(self):
+    def test_real_sdk_exercises_keep_fixture_and_live_execution_distinct(self):
         for directory in ("docs", "docs/en"):
             first = (ROOT / directory / "15-multiagent.md").read_text()
             second = (ROOT / directory / "15-collaboration.md").read_text()
-            text = first + second
             with self.subTest(directory=directory):
                 for builder in ("SequentialBuilder", "ConcurrentBuilder"):
                     self.assertIn(builder, first)
@@ -268,13 +267,17 @@ class PracticeWalkthroughTests(unittest.TestCase):
                     self.assertIn(builder, second)
                     self.assertNotIn(builder, first)
                 self.assertIn("contoso-chat", first)
-                self.assertIn("agent-v2-with-context.txt", first)
-                self.assertIn("contoso-router", second)
-                self.assertIn("manual" if directory.endswith("en") else "수동", text)
-                self.assertNotIn("--live", text)
-                self.assertNotIn("```python", text)
-                self.assertIn("2026-12-01", first)
-                self.assertIn("2026-12-01", second)
+                self.assertNotIn("agent-v2-with-context.txt", first)
+                self.assertNotIn("contoso-router", second)
+                for source in (first, second):
+                    for marker in ("--offline", "--live", "```python", "local_sdk_fixture",
+                                   "quality_release", "2026-12-01"):
+                        self.assertIn(marker, source)
+                for mode in ("sequential", "concurrent"):
+                    self.assertIn(f"multi_agent.py --mode {mode} --offline", first)
+                for mode in ("group-chat", "handoff"):
+                    self.assertIn(f"multi_agent.py --mode {mode} --offline", second)
+                self.assertIn('"routing_source": "fixed_policy_fixture_not_model_classification"', second)
 
     def test_cu_configuration_uses_supported_types_and_preserves_expected_fields(self):
         for data in ("data", "data/en"):

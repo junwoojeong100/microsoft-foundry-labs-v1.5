@@ -1,4 +1,4 @@
-"""Run bounded Agent Framework orchestrations; plan-only without --live."""
+"""Run bounded MAF orchestrations: plan by default, --offline fixtures, or approved --live calls."""
 
 from __future__ import annotations
 
@@ -328,17 +328,34 @@ async def run(mode: str, case: str, evidence: Evidence, endpoint: str, model: st
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--live", action="store_true")
+    execution = parser.add_mutually_exclusive_group()
+    execution.add_argument("--live", action="store_true")
+    execution.add_argument("--offline", action="store_true", help="Run real SDK builders with a network-blocked fixture.")
     parser.add_argument("--mode", choices=CALLS, default="sequential")
     parser.add_argument("--case", choices=QUESTIONS["en"], default="purchase")
     parser.add_argument("--receipt", type=Path, default=RESULTS / "azure-environment.json")
     parser.add_argument("--learners", type=int, default=1)
     args = parser.parse_args(argv)
-    if not args.live:
+    if not args.live and not args.offline:
         print(f"PLAN ONLY: {args.mode}; at most {CALLS[args.mode]} model calls if approved. No Azure requests.")
         print(json.dumps({"mode": args.mode, "case": args.case, "language": LANGUAGE,
                           "model_calls_if_approved": CALLS[args.mode], "max_seconds": MAX_SECONDS,
                           "max_output_tokens": MAX_OUTPUT_TOKENS, "retries": 0}, ensure_ascii=False))
+        return 0
+    if args.offline:
+        from agent_framework import AgentFrameworkException
+        from maf_fixture import run_fixture
+
+        evidence = Evidence("maf-fixture")
+        try:
+            report = asyncio.run(run_fixture(args.mode, args.case, evidence))
+            evidence.append("completed", report)
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+        except (AgentFrameworkException, RuntimeError, ValueError, OSError, TimeoutError) as error:
+            evidence.failure(error)
+            raise
+        finally:
+            print(f"Evidence: {evidence.path}")
         return 0
     endpoint, model = read_config()
     verify_scope(endpoint, args.receipt)

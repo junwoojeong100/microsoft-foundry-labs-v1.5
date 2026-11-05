@@ -1,145 +1,194 @@
 ## Objectives
 
-Manually compare writer → reviewer → revision with role routing in portal Chat. Do not report automated handoff, A2A, or human-approval workflow execution.
+Execute real MAF **GroupChatBuilder and HandoffBuilder**. Locate draft → review → revision transfer, the actual handoff tool, the specialist response, and termination.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Manual Chat experiment: five baseline sends, at most seven with the optional change.
+**Format:** Terminal SDK exercise. Offline defaults use three group-chat and two handoff fixture responses; optional live ceilings are three and four calls respectively.
 
-**Start here:** Reuse L13's two roles and identical synthetic context.
+**Start here:** Reselect L13's `.venv-maf` and language. Do not create another portal agent, router, or Hosted deployment.
 
-**What to check:** Three draft/review/revision originals and two classification/manual-transfer originals.
+**What to check:** Three draft/review/revision originals, plus `handoff_to_policy` or `handoff_to_budget` followed by an actual specialist response.
 
 </div>
 
 ## Concepts and lab map
 
-**What you will try:** Repeated review versus selecting a next role.
+**What you will try:** Bounded group chat and tool-based control transfer.
 
-**What is it, and why does it matter?** Group chat supports review and revision; handoff changes who acts next. A sentence claiming delegation is not actual control transfer.
+**What is it, and why does it matter?** Group chat returns review to the writer; handoff transfers control to another role. A sentence saying “delegated” is not transfer evidence.
 
-**How do you use it?** Copy and transfer answers manually, recording that fact and a bounded stopping condition.
+**How do you use it?** Run both builders with the same question/policy, then inspect roles, tool calls, the next response, and termination.
 
-**Where do you run it?** Microsoft Foundry role Chat and private comparison notes, without automatic orchestration.
+**Where do you run it?** Local Python SDK; only separately approved `--live` runs call the existing Microsoft Foundry model.
+
+[![MAF three-turn group-chat termination and actual coordinator-to-specialist handoff flow.](../../assets/maf-collaboration.svg)](../../assets/maf-collaboration.svg)
+
+Select the flow diagram to enlarge it. Existing footage contains no SDK execution; another agent's answer/Copy control is not reused as an execution example.
 
 ## Prerequisites
 
-Reuse `contoso-policy-review` and `contoso-budget-review`. Create `contoso-router` using L04 with the same model and no tools. Save Instructions: “Classify input as policy or budget and explain why. Do not claim actual delegation, approval, or ordering.”
+Complete [L13 environment setup](#l15). In a new terminal, repeat only MAF activation/language selection. Offline execution needs no login, `.env`, or ownership receipt. Live execution reuses [L13's model/scope checks](#maf-live-setup), without Hosted, Search, or a judge.
 
 ## Steps
 
-These are **control-location examples** from existing Prompt Agent footage, not recorded router, review-loop, or handoff execution. Inspect creation, input, and copy controls rather than another exercise's answer bodies.
+### 1. Read execution and termination first
 
-### 1. Prepare a classification-only router
+Open [`build_workflow` in multi_agent.py](../../samples/multi_agent.py). These are **read-only excerpts** with role definitions omitted; do not run the fragments independently.
 
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Create a Prompt Agent as in L04 with Name `contoso-router` and `Text` mode. | A separate target from L13's two review roles. | Do not overwrite an existing role. |
-| 2 | Use the same `contoso-chat`; save the classification-only Instructions from Prerequisites without tools/Memory. | Only policy/budget classification and reason are requested. | Do not instruct actual execution or invented approval. |
+```python
+def select_speaker(state):
+    names = list(state.participants)
+    return names[state.current_round % len(names)]
 
-<div class="screen-step" markdown="1">
+group_chat = GroupChatBuilder(
+    participants=[drafter, reviewer], selection_func=select_speaker, max_rounds=3,
+    termination_condition=lambda messages: sum(message.role == "assistant" for message in messages) >= 3,
+    intermediate_output_from=[drafter, reviewer],
+).build()
+```
 
-**Router name: separate it from review roles**
+Speakers are drafter → reviewer → drafter, stopping after three assistant messages. Handoff depends on this actual SDK connection, not classification prose:
 
-![Prompt creation form showing name, Text mode, and creation control locations.](../../assets/portal/steps/agent-create-form.png)
+```python
+handoff = (
+    HandoffBuilder(
+        participants=[coordinator, policy_agent, budget_agent],
+        termination_condition=lambda messages: any(
+            message.role == "assistant" and message.author_name in {"policy", "budget"} and message.text.strip()
+            for message in messages
+        ),
+    )
+    .with_start_agent(coordinator)
+    .add_handoff(coordinator, [policy_agent, budget_agent])
+    .build()
+)
+```
 
-**1 Name:** Enter `contoso-router`, not the pictured generated name. **2 Text / 3 Create:** Create the Prompt target, then save its classification Instructions. Creation alone does not implement routing or handoff.
-
-[Captioned video 04 · 00:01.5](../../downloads/portal/index.html?clip=04-native-evaluation&t=1.5&lang=en#04-native-evaluation)
-
-</div>
-
-<div class="screen-step" markdown="1">
-
-**Instructions: save only the router's intended task**
-
-![Baseline Prompt Agent Model and Instructions editing locations.](../../assets/portal/steps/agent-instructions.png)
-
-**1 Model:** The same `contoso-chat` as L13. **2 Instructions:** Save Prerequisites' classification-only sentence. The pictured policy Instructions are not the router's actual saved content.
-
-[Captioned video 02 · 02:04.5](../../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
-
-</div>
+`CallAudit` enforces the overall call ceiling; the specialist's nonempty answer terminates handoff. A direct coordinator answer without a handoff tool is not substituted for success.
 
 <div class="practice-block" markdown="1">
 
-### 2. Write, review, revise: stop after three sends
+### 2. Execute draft, review, and revision through the SDK
 
-**Try it:** Keep this original request fixed and perform the five sends below.
+**Try it:** Keep L13's default purchase question and run:
 
-```prompt
-Synthetic review data: two NB-14 units, supplied total KRW 2,900,000. Briefly review policy caps, approvers, and unverified inventory/execution. Do not place an actual order.
+```bash
+python samples/multi_agent.py --mode group-chat --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode group-chat --offline` | Connect a fixed-response client to the real `GroupChatBuilder` for three turns. | `fixture_calls: 3`, blocked network/DNS, private `results/contoso-maf-fixture-....jsonl`, zero Microsoft Azure calls. |
+
+</div>
+
+| Inspect | Actual check |
+| --- | --- |
+| `paths.group-chat.stages` | Role order: `drafter`, `reviewer`, `drafter` |
+| Reviewer's `model_call_completed` input | Original `Synthetic fixture from drafter, call 1.` |
+| Final drafter's input | Original `Synthetic fixture from reviewer, call 2.` |
+| `workflow_state` and `final_messages` | Termination after three turns, with originals retained |
+
+Fixed fixture strings **do not establish that review found or corrected policy mistakes**. This checks message transfer, turn-taking, and termination.
+
+### 3. Verify the actual handoff tool and next role's response
+
+```bash
+python samples/multi_agent.py --mode handoff --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode handoff --offline` | The fixture calls the tool exposed by the real `HandoffBuilder`, then executes the policy response. | Two calls, coordinator → policy. Routing is a **fixed policy fixture**, not model classification. |
+
+</div>
+
+Find this combination of fields. This is an inspection excerpt, not the complete JSON:
+
+```output
+"execution": "local_sdk_fixture"
+"fixture_calls": 2
+"routing_source": "fixed_policy_fixture_not_model_classification"
+"handoff_calls": ["handoff_to_policy"]
+"human_approval_performed": false
+"quality_release": false
 ```
 
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Send the original request once in a new policy-role Chat. | An initial draft appears. | Do not edit the answer before review. |
-| 2 | Send original request plus draft to a new budget-role Chat, asking only for errors and missing evidence. | A review original appears. | Preserve any treatment of draft instructions as authority as a failure. |
-| 3 | Paste the review into the writer's conversation and request one final revision. | You can compare which review points were incorporated. | Stop after three sends; no additional loop. |
+`handoff_calls` belongs to the coordinator stage; the next stage's `role` must be `policy`. Also locate the policy answer in `final_messages`. A tool name without the subsequent response is not success.
 
-<div class="screen-step" markdown="1">
+**Change one thing:** Keep execution mode, policy, and bounds fixed; change only `case` to the approval-boundary question.
 
-**Copy drafts and reviews without rewriting the originals**
+```bash
+python samples/multi_agent.py --mode group-chat --case boundary --offline
+python samples/multi_agent.py --mode handoff --case boundary --offline
+```
+<div class="command-explanation" markdown="1">
 
-![Enlarged Traces and Copy controls beneath an answer.](../../assets/portal/steps/agent-answer-actions.png)
+**Command walkthrough**
 
-**1 Traces / 2 Copy:** Copy your draft to the reviewer and your review back to the writer. Request revision in the **original writer's same conversation**. The reviewer uses a new conversation; nothing transfers automatically.
-
-[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
-
-</div>
-
-### 3. Classify, then manually select a role: stop after two sends
-
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Send the original request once to a new router Chat. | Only policy/budget classification and reason. | Claims of completed specialist execution lack tool evidence. |
-| 2 | **Manually** open the selected role and send original request plus routing reason in a new Chat. | The selected role responds after human transfer. | Do not call this automatic handoff. |
-
-<div class="screen-step" markdown="1">
-
-**Type into the selected role: prior context is not inherited**
-
-![Control-location example showing only the Chat input and Send button.](../../assets/portal/steps/agent-chat-controls.png)
-
-**1 Input / 2 Send:** In the selected role's new conversation, label the original request separately from the router's reason. Do not send classification alone or assume earlier context transferred. This is not a recorded handoff result.
-
-[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `group-chat --case boundary --offline` | Inspect transfer of the exactly KRW 2,000,000 versus KRW 2,000,001 question across three turns. | Three fixture calls. A changed question does not make the fixed responses policy reasoning. |
+| 2. `handoff --case boundary --offline` | Inspect transfer of that boundary question to the specialist. | Two fixture calls; fixed policy routing remains unchanged, not a classification-accuracy test. |
 
 </div>
 
-**Change one thing:** If scope remains, ask the router about the regular laptop replacement interval and manually transfer once to the chosen role. Add only two sends.
-
-**Explain the result:** Record original errors, review findings, actual revision, and routing reasons. A role emitting `approved` is not a real approval record.
+**Explain the result:** Identify which original reached the next role, which tool transferred control, and what ended execution. Do not claim business approval, remote A2A, or HITL execution.
 
 </div>
 
-### What automatic execution evidence is missing?
+### 4. Compare with a real model — separate approval
 
-| Manual artifact | Additional evidence needed for actual execution |
+Reuse L13's live configuration, ownership, and capacity checks. These two baseline commands permit **at most seven paid model calls**: 180 seconds/execution, 2048 output tokens/call, six starts/minute, and zero retries. Live boundary-case repetitions need an additional approved budget.
+
+```bash
+python samples/multi_agent.py --mode group-chat --live
+python samples/multi_agent.py --mode handoff --live
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode group-chat --live` | Execute drafter → reviewer → drafter on the existing model. | At most three paid calls; compare actual findings, revisions, and unaddressed review points. |
+| 2. `--mode handoff --live` | Require the model to select policy or budget using a real handoff tool. | At most four paid calls; preserve absent tool/next responses or exhausted bounds as failures. |
+
+</div>
+
+Check `execution=local_maf_with_azure_model`. Actual `response_id`, `handoff_calls`, specialist original, times, and usage must belong to the same run. Do not confuse model-selected routing with the fixture's fixed path.
+
+| Executed here | Still not executed |
 | --- | --- |
-| Copied writer/reviewer messages | One run's `GroupChatBuilder` routing and termination |
-| Router classification text | `HandoffBuilder` control/tool call and next agent response |
-| “Human review required” text | Authorized approver, event, wait/resume state in a HITL system |
-| Two role names | Authenticated remote A2A endpoints and actual call results |
+| Actual SDK group message transfer/termination | Persistent service or portal-hosted workflow |
+| Actual SDK handoff tool and specialist response | Authenticated remote A2A endpoint/agent invocation |
+| `human_approval_performed: false` | Authorized approver, events, and wait/resume in a HITL system |
+| Synthetic-policy purchasing guidance | Real ordering, payment, or business approval |
 
-These code-first features are references only. No handoff tool, remote A2A server, or SDK execution exists in this path. Portal Workflows retire on 2026-12-01; do not use that designer as a workaround.
+Portal Workflows retire on **2026-12-01**; do not use that designer as a workaround.
 
 ## Success criteria
 
-Explain five actual messages and their manual transfer path. Explicitly mark automatic group chat, handoff, A2A, and business approval not run. Preserve missing or incorrectly routed results.
+Locate the three group originals/transferred review, handoff tool, and actual specialist response. Separate offline from real-model execution and respect termination/call ceilings. Do not count this as passing a quality gate, business approval, remote A2A, or HITL.
 
 ## Troubleshooting
 
-Inspect Instructions and new-conversation state. Record nonclassification router actions as failures. Do not raise output/call bounds or repeat until success.
+`PLAN ONLY` means not executed. Missing SDKs require L13's environment. A direct model answer instead of handoff is a failure, not an automatic fallback. Preserve empty specialist output, partial results, 429s, and exhausted bounds without raising recursion, retry, or output limits to pass.
 
 ## Cleanup
 
-No recursion, infinite conversation, or persistent execution was created. Keep drafts and final answers separately; include agents in L19's inventory.
+Only the one-shot local process ends. No recursion, remote server, or persistent router is created. Hand private evidence and remaining model/logging costs to L19.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Three draft/review/revision originals, two classification/manual-transfer originals, and automatic handoff not run.
+**Keep:** Draft/review/revision originals, tool/specialist/termination records, execution kind, and unexecuted A2A, HITL, and business approval.
 
 **Continue:** [L15: inspect Memory and conditionally compare conversations](#l16).
 

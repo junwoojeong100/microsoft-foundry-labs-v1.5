@@ -4,7 +4,7 @@
 
 **[한국어 온라인 가이드](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)** · [English](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)
 
-**Azure portal·Foundry portal에서 한 단계씩 진행하는 20개 모듈과 5개 참고 절**입니다. 학습자에게 CLI·Python·SDK·Codespaces·개발 skill 설치를 요구하지 않습니다. 합성 Contoso 정책과 구매 사례만 사용합니다.
+**포털 중심 20개 모듈과 5개 참고 절**입니다. 기본 코스는 CLI·Python·SDK 설치 없이 진행합니다. 선택 **L12–L14는 포털로 실행할 수 없는 Hosted·MAF 코드를 실제 터미널 명령·해설로 따라갑니다.** 개발 skill·Codespaces는 필요 없으며 합성 Contoso 구매 데이터만 사용합니다.
 
 ## 처음 시작하기
 
@@ -17,15 +17,18 @@
 | 정책·지침·평가 입력 | [포털 업로드 전용 ZIP](downloads/Contoso-Portal-Inputs.zip)을 풀어 `ko/`를 사용합니다. 정책 3파일, v1/v2 Instructions, 고정 12행 JSONL·열람용 CSV, 수동 checklist입니다. |
 | 화면 실습 | Azure portal에서 자원·비용, Foundry portal에서 모델·agent·파일·평가·trace를 다룹니다. 입력 위치는 버튼·필드 이름으로 안내합니다. |
 | 실제 영상 | [실제 포털 녹화·수행 범위](downloads/portal/index.html). 영상에 없는 단계는 실행 성공으로 간주하지 않습니다. |
+| Hosted·MAF 코드 실습 | 가벼운 입력 ZIP이 아닌 **전체 ZIP**을 풉니다. L12·L13에서 별도의 Python 3.13 환경, 실제 소스, 오프라인 검사와 별도 승인 live 절차를 안내합니다. |
 | 설치·로그인 없이 읽기 | 웹 목차의 **실행 없이 읽기** 또는 전체 ZIP의 HTML/Markdown을 사용합니다. 읽기는 Microsoft Azure 실행 증거가 아닙니다. |
 
 기본 대상은 포털 정책 agent와 **도구 없는 평가용 v1/v2 Prompt Agent**입니다. L06은 함수 backend가 없는 포털에서 재고 조회·초안 저장·승인을 실행했다고 가장하지 않습니다. L07의 읽기 전용 MCP는 포털·권한 지원 시에만 시험합니다.
 
 L08의 새 포털 평가는 기존 SDK 실험과 별개입니다. 동일한 합성 문맥·모델, 고정 12문항, v1/v2 지침만 다른 조건을 유지합니다. 실제 생성 응답을 평가하며 예상 답을 만들어 넣지 않습니다. **품질 ≥90%, 안전/access 실패 0** 기준과 오류·누락은 그대로 보존합니다. Holdout이 없어 운영 release의 일반화 증거는 아닙니다.
 
-심화 L11–L18은 조건을 먼저 읽습니다. 추가 Search는 별도 자원·비용 승인, Hosted는 관찰, L13–L14는 **사람의 수동 역할 전달 비교**입니다. Memory는 생성 폼·runtime 권한 경고를 관찰하고 취소합니다. 기존 승인 store의 조건부 회상도 CRUD/격리 검증은 아닙니다. Routines는 제출 전 취소, 거버넌스·배포 판단은 읽기 전용입니다. 실제 SDK 병렬·자동 handoff·게시·rollback으로 표시하지 않습니다.
+심화 조건을 먼저 읽습니다. L12는 소스 → 오프라인 패키징 → 선택한 단일 서비스의 azd 배포·정확한 버전 호출 순서입니다. L13–L14는 실제 SDK의 순차·동시·그룹 채팅·핸드오프 builder를 기본 **네트워크 차단 합성 fixture**로 실행합니다. live 모델은 소유·용량·비용 승인이 필요하며 fixture 응답·usage는 Microsoft Azure·품질 증거가 아닙니다. Hosted·MAF는 **별도 환경**입니다. 기존 영상에는 Hosted 배포·MAF 실행이 없습니다.
 
-**이번 실제 실행:** 전용 RG·Microsoft Foundry account/project·로그 자원, 수동 모델 2개와 관찰된 자동 embedding, 정책 파일 3개를 만들었습니다. 직접 Chat 11회와 한국어 12행 평가 2회를 녹화했습니다. 두 평가 모두 응답 12개를 생성했지만 **v2 Relevance 1행은 APIConnectionError**이므로 native 비교 미완료·출시 보류입니다. [식별자를 제거한 실제 응답·오류](downloads/portal/evaluation-summary.json)와 영상의 20모듈 수행 범위를 함께 읽습니다. 기본 화면 예시나 로컬 검사를 새 Microsoft Azure 성공으로 세지 않습니다.
+추가 Search는 별도 승인입니다. Memory는 생성 폼·runtime 권한 경고를 관찰하고 취소하며 기존 store의 조건부 회상도 CRUD/격리 검증은 아닙니다. Routines는 제출 전 취소, 거버넌스·배포 판단은 읽기 전용입니다. 원격 A2A·HITL·업무 승인은 수행하지 않습니다.
+
+**기존 포털 녹화의 실제 실행:** 전용 RG·Microsoft Foundry account/project·로그 자원, 수동 모델 2개와 관찰된 자동 embedding, 정책 파일 3개를 만들었습니다. 직접 Chat 11회와 한국어 12행 평가 2회를 녹화했습니다. 두 평가 모두 응답 12개를 생성했지만 **v2 Relevance 1행은 APIConnectionError**이므로 native 비교 미완료·출시 보류입니다. [식별자를 제거한 실제 응답·오류](downloads/portal/evaluation-summary.json)와 영상의 당시 20모듈 수행 범위를 함께 읽습니다. 기본 화면 예시나 로컬 검사를 새 Microsoft Azure 성공으로 세지 않습니다.
 
 ## 자료
 
@@ -53,7 +56,7 @@ L08의 새 포털 평가는 기존 SDK 실험과 별개입니다. 동일한 합�
 
 ## 저장소를 수정하는 분
 
-학습자에게 아래 개발 명령은 필요 없습니다.
+아래 생성·검증 명령은 유지보수용입니다. 학습자 터미널 절차는 L12–L14 본문에만 있습니다.
 
 <details>
 <summary>소스·생성·검증·GitHub Pages</summary>
@@ -77,7 +80,7 @@ python scripts/package_guide.py --check
 
 기존 screenshot 원본·해시·촬영 이력과 `validation/`의 과거 증거는 변경하지 않습니다. 새 실제 영상은 별도 provenance와 수행/미실행 범위를 갖습니다. 로그인·계정·키·구독·사람 목록이 있는 raw 영상은 패키지에 넣지 않습니다.
 
-유지보수 전용 평가 v2–v5, 저작/라이브 CI 스크립트와 관련 테스트는 `content/maintainer-only.json`에 따라 ZIP에서 제외합니다. 동결 데이터·기준·과거 결과를 고쳐 통과시키지 않습니다. 학습용 포털 입력은 `instruction-comparison.json`의 12문항을 사용합니다. 기존 SDK/Hosted 샘플과 [코드 참고](samples/README.ko.md)는 개발자용이며 새 학습 경로의 실행 요구가 아닙니다.
+유지보수 전용 평가 v2–v5, 저작/라이브 CI 스크립트와 관련 테스트는 `content/maintainer-only.json`에 따라 ZIP에서 제외합니다. 동결 데이터·기준·과거 결과를 고쳐 통과시키지 않습니다. 학습용 포털 입력은 `instruction-comparison.json`의 12문항을 사용합니다. [샘플 안내](samples/README.ko.md)는 현재 L12–L14 코드와 보존된 개발 참고를 구분하며 기본 포털 실습은 과거 스크립트를 실행하지 않습니다.
 
 기존 재구성 영상은 macOS의 FFmpeg·음성·선언된 Playwright로 `python scripts/build_replay.py`에서 생성합니다. `content/replay.json`의 과거 장면을 실제 포털 footage로 재분류하지 않습니다.
 

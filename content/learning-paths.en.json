@@ -1,8 +1,8 @@
 {
   "l13": {"label": "Inspection / conditional extra resources", "requires": "L01 project and L05's three synthetic policies. Inspect Knowledge by default; Search, Storage, embeddings, and data access require separate scope/cost approval."},
-  "l14": {"label": "Portal inspection", "requires": "L04 Prompt Agent. Read existing owned Hosted details only. Code, containers, development environments, and SDK deployment are outside this path."},
-  "l15": {"label": "Manual role comparison", "requires": "L04 agent creation, L08 v2 synthetic context, identical model. Four baseline sends, at most six. No framework or concurrent runtime execution."},
-  "l15-collaboration": {"label": "Reuse L13 roles", "requires": "L13's two roles and a separate router Prompt Agent. Five baseline sends, at most seven. Human copying, not automatic handoff, A2A, or HITL."},
+  "l14": {"label": "Terminal / offline default", "requires": "Complete ZIP, Python 3.13, separate Hosted environment. Optional live work needs existing L01/L02 scope, approved Search/embeddings, azd, and access. Never mix with MAF dependencies."},
+  "l15": {"label": "SDK execution / offline default", "requires": "Complete ZIP, Python 3.13, separate MAF environment. Run real builders without Hosted, Search, or extra Prompt Agents. Live requires existing L01/L02 model, ownership receipt, TPM/RPM, and cost approval."},
+  "l15-collaboration": {"label": "Reuse L13 MAF environment", "requires": "L13 MAF environment, synthetic policy, same question. Execute three-turn group chat and actual handoff tools; live ceilings 3+4 need separate approval. No remote A2A, HITL, or business approval."},
   "l16": {"label": "Inspection / conditional existing Memory", "requires": "Owned agent settings. Conditional recall needs an approved existing store, embeddings, Memory writes, and test UI. CRUD, isolation, and deletion remain unverified."},
   "l17": {"label": "Cancel before submission by default", "requires": "Routines UI in a supported subscription/region and an owned Prompt Agent. Default: zero creations/dispatches. Schedules, Test run, and Pause need separate approval."},
   "l21": {"label": "Read-only inspection", "requires": "Read access to owned group/project and L09/L10 observations. No role/network changes; synthetic cache/ACL decisions, not live cross-user tests."},

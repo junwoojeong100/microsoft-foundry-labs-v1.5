@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="410" viewBox="0 0 1080 410" role="img" aria-labelledby="title desc">
+  <title id="title">MAF sequential and concurrent message paths</title>
+  <desc id="desc">Sequential sends the actual drafter output to the reviewer in two calls. Concurrent sends the same question independently to policy, budget and risk roles in three calls and preserves all three originals. A diagram is not execution evidence.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#487488" stroke-width="1.3"/></marker>
+    <style>text{font-family:Arial,sans-serif;fill:#15364b}.title{font-weight:700;font-size:18px}.sub{font-size:14px}.line{stroke:#487488;stroke-width:2;fill:none;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1080" height="410" rx="18" fill="#f8fbfc"/>
+  <text x="28" y="35" class="title">SEQUENTIAL / 2 CALLS</text>
+  <rect x="28" y="57" width="170" height="64" rx="10" fill="#e8f4ee" stroke="#afd8c2"/><text x="48" y="96" class="title">Question</text>
+  <path d="M198 89H272" class="line"/>
+  <rect x="274" y="57" width="200" height="64" rx="10" fill="#fff" stroke="#c3d8e0"/><text x="296" y="96" class="title">1. Drafter</text>
+  <path d="M474 89H584" class="line"/><text x="480" y="76" class="sub">actual draft</text>
+  <rect x="586" y="57" width="200" height="64" rx="10" fill="#fff" stroke="#c3d8e0"/><text x="606" y="96" class="title">2. Reviewer</text>
+  <path d="M786 89H860" class="line"/>
+  <rect x="862" y="57" width="190" height="64" rx="10" fill="#e8f4ee" stroke="#afd8c2"/><text x="882" y="96" class="title">Final review</text>
+  <text x="28" y="174" class="title">CONCURRENT / 3 CALLS</text>
+  <rect x="28" y="250" width="170" height="64" rx="10" fill="#e8f4ee" stroke="#afd8c2"/><text x="48" y="289" class="title">Same question</text>
+  <path d="M198 282H240V218H294" class="line"/><path d="M240 282H294" class="line"/><path d="M240 282V346H294" class="line"/>
+  <rect x="296" y="194" width="260" height="48" rx="10" fill="#fff" stroke="#c3d8e0"/><text x="316" y="225" class="title">Policy</text>
+  <rect x="296" y="258" width="260" height="48" rx="10" fill="#fff" stroke="#c3d8e0"/><text x="316" y="289" class="title">Budget</text>
+  <rect x="296" y="322" width="260" height="48" rx="10" fill="#fff" stroke="#c3d8e0"/><text x="316" y="353" class="title">Risk</text>
+  <path d="M556 218H680V282H754" class="line"/><path d="M556 282H754" class="line"/><path d="M556 346H680V282" fill="none" stroke="#487488" stroke-width="2"/>
+  <rect x="756" y="236" width="296" height="92" rx="10" fill="#e8f4ee" stroke="#afd8c2"/>
+  <text x="776" y="270" class="title">3 original outputs</text><text x="776" y="300" class="sub">No extra summarizer model call</text>
+  <text x="28" y="396" class="sub">--offline: real SDK, fixed responses, blocked network. --live: approved Microsoft Azure model and verified scope.</text>
+</svg>

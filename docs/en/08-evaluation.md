@@ -44,6 +44,18 @@ Upload **JSONL** in the portal. The identical twelve-row `evaluation-12.csv` is 
 
 <div class="screen-step" markdown="1">
 
+**Create comparison targets: replace the generated name**
+
+![Evaluation Prompt Agent creation form showing Agent name, Text, and Create.](../../assets/portal/steps/agent-create-form.png)
+
+**1 Agent name:** Enter `contoso-compare-v1` or `contoso-compare-v2`. **2 Text:** Match both targets. **3 Create:** Create each once, then apply the table's instructions, model, no-tools, and output settings. This form is not yet a saved evaluation target.
+
+[Captioned video 04 · 00:01.5](../../downloads/portal/index.html?clip=04-native-evaluation&t=1.5&lang=en#04-native-evaluation)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
 **Comparison agent: name v1 is not numeric version 2**
 
 ![contoso-compare-v1 with contoso-chat and saved numeric Version 2.](../../assets/portal/steps/eval-agent.png)

@@ -75,6 +75,18 @@ L02의 모델이 준비되어 있어야 합니다. [기본 지시문 v2](../data
 
 </div>
 
+<div class="screen-step" markdown="1">
+
+**Save 다음: 저장된 숫자 version 확인**
+
+![contoso-policy의 저장된 Version 2, Save와 Publish 위치.](../assets/portal/steps/agent-version-bar.png)
+
+**1 Version:** 이번 녹화의 저장 결과는 `2`입니다. 내 화면의 실제 숫자를 적습니다. **2 Save:** Instructions·출력 설정을 바꾼 뒤 저장합니다. **3 Publish:** 이번 Chat 실습에는 누르지 않습니다.
+
+[자막 영상 02 · 02:04.5](../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=ko#02-model-agent)
+
+</div>
+
 ### 2. 같은 대화와 새 대화 비교
 
 | 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |
@@ -102,6 +114,18 @@ L02의 모델이 준비되어 있어야 합니다. [기본 지시문 v2](../data
 ![같은 Chat에서 예산 150만원을 앞선 사용자 메시지에 근거해 답한 실제 결과.](../assets/portal/steps/conversation-followup.png)
 
 **1 후속 질문:** 첫 예산 메시지와 같은 대화입니다. **2 답변:** 150만원의 근거는 사용자 진술이며 정책·재고·구매 승인은 아직 없다고 구분했는지 읽습니다.
+
+[자막 영상 02 · 02:43](../downloads/portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**응답 아래: Traces와 복사 위치**
+
+![방금 실행한 응답 아래 Traces와 복사 아이콘을 본문 없이 확대한 화면.](../assets/portal/steps/agent-answer-actions.png)
+
+**1 Traces:** 이 응답의 실행 기록을 엽니다. **2 복사:** 내 실제 답변 원문을 보관할 때 씁니다. 사진 속 모델·토큰은 이 녹화의 값이며 내 측정값으로 옮기지 않습니다.
 
 [자막 영상 02 · 02:43](../downloads/portal/index.html?clip=02-model-agent&t=163&lang=ko#02-model-agent)
 

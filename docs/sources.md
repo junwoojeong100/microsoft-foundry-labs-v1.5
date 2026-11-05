@@ -3,7 +3,7 @@
 ## 공식 문서 활용하기
 
 개념은 Microsoft Learn의 개요와 capability reference에서, 사용 조건은 해당 기능 문서와 GA 표에서 확인합니다.
-이 학습 경로는 Azure portal·Foundry portal만 사용합니다. 공식 문서의 SDK/API 지원이 포털 버튼·필드 지원을 뜻하지 않습니다. 새 포털의 GA와 개별 기능의 GA도 다를 수 있습니다.
+기본은 Azure portal·Foundry portal이며 코드가 필요한 L12–L14만 터미널·SDK를 사용합니다. 공식 문서의 SDK/API 지원이 포털 버튼·필드 지원을 뜻하지 않습니다. 새 포털의 GA와 개별 기능의 GA도 다를 수 있습니다.
 
 ## 기능별로 확인할 조건
 
@@ -15,7 +15,7 @@
 | Memory·Voice·Agent guardrails | 해당 API의 Preview·접근 조건 구분 |
 | Agent optimizer | Limited preview, 선택 실습 |
 | Azure Content Understanding in Foundry Tools | 2025-11-01 GA와 2026-06-01-preview 구분 |
-| SDK 개발 참고 | 과거 기본 `azure-ai-projects 2.7.0`과 advanced `agent-framework-foundry 1.13.1` 조합은 별도. 학습자 설치·실행 요구 아님 |
+| 심화 SDK 환경 | L12 Hosted는 `azure-ai-projects 2.7.0`, L13–L14 MAF는 `azure-ai-projects 2.6.0`·`agent-framework-foundry 1.13.1`. 별도 환경이며 기본 포털 코스는 설치 없음 |
 
 ## 공식 문서 목록
 
