@@ -73,10 +73,14 @@ def build():
         identifier = clip["id"]
         scenes = []
         for edit in clip["edits"]:
-            seconds = int(edit["start_seconds"])
+            seconds = edit["start_seconds"]
+            stamp = f"{int(seconds // 60):02}:{seconds % 60:06.3f}".rstrip("0").rstrip(".")
             scenes.append(
-                f'<li><a href="{identifier}.mp4#t={seconds}">{seconds // 60:02}:{seconds % 60:02}</a> '
-                f'{escape(edit["caption"]["ko"])}<br><span lang="en">{escape(edit["caption"]["en"])}</span></li>'
+                f'<li><a lang="ko" href="index.html?clip={identifier}&amp;t={seconds}&amp;lang=ko#{identifier}">'
+                f'{stamp} · 한국어 자막</a> · '
+                f'<a lang="en" href="index.html?clip={identifier}&amp;t={seconds}&amp;lang=en#{identifier}">'
+                f'{stamp} · English captions</a><br>{escape(edit["caption"]["ko"])}'
+                f'<br><span lang="en">{escape(edit["caption"]["en"])}</span></li>'
             )
         videos.append(
             f'<section id="{identifier}"><h2>{escape(clip["title"]["ko"])}'
@@ -136,6 +140,10 @@ the unchanged business/safety gates. Displayed estimates are not total Azure bil
  · <a href="evaluation-summary.json">실제 12쌍 응답·native 판정 / Actual twelve-pair evaluation</a>
  · <a href="../replay/index.html">과거 CLI 재구성 영상 — 현재 실습 아님 / Archived reconstruction</a></p>
 <section id="portal-coverage"><h2>20모듈 수행 범위 / Coverage of all twenty modules</h2>
+<p>아래 표는 <strong>포털 촬영 당시</strong>의 범위입니다. 현재 L12–L14의 터미널·SDK 절차는 영상에 없습니다.
+명령은 현재 가이드를 따르고, 로컬 fixture 검사를 Microsoft Azure 실행으로 바꾸어 읽지 마세요.<br>
+<span lang="en">This table records the <strong>original portal filming</strong>, not current L12–L14 terminal/SDK procedures.
+Follow the current guide for commands; local fixture checks are not Microsoft Azure execution.</span></p>
 <div class="table-scroll"><table><thead><tr><th>모듈 / Module</th><th>수행 / Status</th><th>실제 범위·제한 / Scope and limits</th><th>영상 / Clip</th></tr></thead>
 <tbody>{''.join(rows)}</tbody></table></div></section>{''.join(videos)}</main>
 <script type="application/json" id="portal-captions">{captions}</script>

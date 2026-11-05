@@ -2,11 +2,14 @@
 
 import asyncio
 import importlib.util
+import contextlib
+import io
+import json
 from pathlib import Path
-import re
 import sys
+import tempfile
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "samples"))
@@ -15,50 +18,9 @@ import multi_agent
 SDK_AVAILABLE = importlib.util.find_spec("agent_framework_orchestrations") is not None
 if SDK_AVAILABLE:
     from agent_framework import (
-        AgentFrameworkException, BaseChatClient, ChatMiddlewareLayer, ChatResponse,
-        Content, FunctionInvocationLayer, Message,
+        AgentFrameworkException,
     )
-
-    class RecordingClient(FunctionInvocationLayer, ChatMiddlewareLayer, BaseChatClient):
-        def __init__(self):
-            super().__init__()
-            self.calls = []
-            self.active = 0
-            self.maximum_active = 0
-
-        async def _inner_get_response(self, *, messages, stream, options, **kwargs):
-            if stream:
-                raise ValueError("This test client does not simulate streaming.")
-            instruction = str(options.get("instructions", "")) + "\n" + "\n".join(message.text for message in messages)
-            roles = re.findall(r"Role: ([a-z-]+)\.", instruction)
-            if not roles:
-                raise ValueError("Test request has no role label.")
-            role = roles[0]
-            index = len(self.calls) + 1
-            self.calls.append({"role": role, "messages": [message.to_dict() for message in messages],
-                               "instructions": options.get("instructions")})
-            self.active += 1
-            self.maximum_active = max(self.maximum_active, self.active)
-            try:
-                await asyncio.sleep(0.01)
-                if role == "coordinator":
-                    tools = [tool.name for tool in options.get("tools", [])]
-                    if "handoff_to_policy" not in tools:
-                        raise ValueError("The real HandoffBuilder did not expose its routing tool.")
-                    contents = [Content.from_function_call(
-                        call_id=f"fixture-call-{index}", name="handoff_to_policy", arguments={},
-                    )]
-                    finish = "tool_calls"
-                else:
-                    contents = [Content.from_text(f"Synthetic fixture from {role}, call {index}.")]
-                    finish = "stop"
-                return ChatResponse(
-                    messages=[Message(role="assistant", contents=contents, author_name=role)],
-                    response_id=f"fixture-response-{index}", finish_reason=finish,
-                    usage_details={"input_token_count": 10, "output_token_count": 5},
-                )
-            finally:
-                self.active -= 1
+    from maf_fixture import FixtureChatClient as RecordingClient, run_fixture
 
 
 @unittest.skipUnless(SDK_AVAILABLE, "Install requirements-advanced.txt to run the real SDK checks.")
@@ -134,6 +96,40 @@ class OrchestrationSDKTests(unittest.TestCase):
                 )
             self.assertEqual(client.calls, [])
         asyncio.run(exercise())
+
+    def test_offline_cli_runs_all_patterns_without_cloud_configuration(self):
+        for mode, calls in (("sequential", 2), ("concurrent", 3), ("group-chat", 3), ("handoff", 2)):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as temporary, patch.dict(
+                "os.environ", {"CONTOSO_EVIDENCE_DIRECTORY": temporary},
+            ), patch.object(multi_agent, "read_config") as config, patch.object(
+                multi_agent, "check_ready",
+            ) as readiness, contextlib.redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(multi_agent.main(["--mode", mode, "--offline"]), 0)
+                report = json.loads(output.getvalue().split("\nEvidence: ", 1)[0])
+                self.assertEqual(report["fixture_calls"], calls)
+                self.assertEqual(report["execution"], "local_sdk_fixture")
+                self.assertEqual(report["azure_calls"], 0)
+                self.assertEqual(report["usage_source"], "synthetic_fixture_not_billing")
+                self.assertFalse(report["quality_release"])
+                records = [json.loads(line) for path in Path(temporary).glob("*.jsonl") for line in path.read_text().splitlines()]
+                self.assertEqual(records[-1]["event"], "completed")
+                self.assertEqual(records[-1]["payload"]["execution"], "local_sdk_fixture")
+                config.assert_not_called()
+                readiness.assert_not_called()
+
+    def test_offline_and_live_cannot_be_combined(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            multi_agent.main(["--offline", "--live"])
+
+    def test_offline_network_guard_is_active_during_real_workflow_execution(self):
+        import socket
+
+        async def attempt(*args, **kwargs):
+            socket.getaddrinfo("contract.invalid", 443)
+        with patch.object(multi_agent, "compare_paths", side_effect=attempt), self.assertRaisesRegex(
+            RuntimeError, "forbid DNS",
+        ):
+            asyncio.run(run_fixture("sequential", "purchase", Mock()))
 
 
 if __name__ == "__main__":

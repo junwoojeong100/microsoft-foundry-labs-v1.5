@@ -4,7 +4,7 @@
 
 **[index.html · online guide](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/)** · [한국어](https://junwoojeong100.github.io/microsoft-foundry-labs-v1.5/index.ko.html)
 
-**Twenty step-by-step Azure portal/Foundry portal modules and five references.** Learners need no CLI, Python, SDK, Codespaces, or development skill installation. Use synthetic Contoso policies and purchasing scenarios only.
+**Twenty portal-first modules and five references.** The core course needs no CLI, Python, or SDK. Optional **L12–L14 use real Hosted/MAF code and explained terminal commands** where portals cannot execute the task. No development skill or Codespaces is required. Use synthetic Contoso purchasing data only.
 
 ## Start here
 
@@ -17,15 +17,18 @@
 | Policies/instructions/evaluation input | Extract the [small portal-input ZIP](downloads/Contoso-Portal-Inputs.zip) and use `en/`: three policies, v1/v2 Instructions, fixed twelve-row JSONL and review CSV, manual checklist. |
 | Practice screens | Azure portal for resources/costs; Foundry portal for models, agents, files, evaluations, traces. Buttons/fields identify every input destination. |
 | Actual footage | [Live portal recordings and coverage](downloads/portal/index.html). Missing video stages are not successful executions. |
+| Hosted/MAF code practice | Extract the **complete kit**, not the portal-input ZIP. L12 and L13 explain separate Python 3.13 environments, real source, offline checks, and separately approved live steps. |
 | Read without installation/sign-in | Choose **Read without executing**, or use offline HTML/Markdown. Reading is not Microsoft Azure execution. |
 
 The core targets are a portal policy agent and **two tool-free v1/v2 evaluation Prompt Agents**. L06 does not pretend the portal executes unimplemented inventory/persistence/approval functions. L07's read-only MCP requires supported UI and permissions.
 
 L08 is a new portal experiment, separate from historical SDK collections. Keep identical synthetic context/model, twelve fixed questions, and only v1/v2 Instructions different. Evaluate actual generated answers, not invented responses. Preserve **quality ≥90%, zero safety/access failures**, errors, and missing rows. There is no holdout or production-generalization claim.
 
-Read advanced L11–L18 prerequisites first. Additional Search needs separate resources/cost approval; Hosted is inspection. L13–L14 compare **human manual role transfers**, not concurrency/handoff execution. Inspect Memory's creation form/runtime warning and cancel; conditional recall with an approved existing store is not CRUD/isolation validation. Routines cancel before submission; governance/release decisions are read-only.
+Read advanced prerequisites first. L12 follows source → offline packaging → optional single-service azd deployment/exact-version invocation. L13–L14 execute actual SDK sequential, concurrent, group-chat, and handoff builders with **network-blocked synthetic fixtures** by default; live model calls require ownership, capacity, and cost approval. Fixture responses/usage are not Microsoft Azure or quality evidence. Hosted and MAF require **separate environments**. Existing footage contains neither Hosted deployment nor MAF execution.
 
-**This actual execution:** Created the owned group, Microsoft Foundry account/project, logging, two manual model deployments plus an observed automatic embedding dependency, and three policy files. Recorded eleven direct Chat sends and two twelve-row Korean evaluations. Both generated twelve answers, but **one v2 Relevance row returned APIConnectionError**: native comparison incomplete, release held. Read the [identifier-redacted actual answers/error](downloads/portal/evaluation-summary.json) with the video's twenty-module coverage. Historical examples and local checks are not new Microsoft Azure successes.
+Additional Search requires separate approval. Inspect Memory's creation form/runtime warning and cancel; conditional recall with an approved existing store is not CRUD/isolation validation. Routines cancel before submission; governance/release decisions remain read-only. Remote A2A, HITL, and business approval are not executed.
+
+**Recorded portal execution:** Created the owned group, Microsoft Foundry account/project, logging, two manual model deployments plus an observed automatic embedding dependency, and three policy files. Recorded eleven direct Chat sends and two twelve-row Korean evaluations. Both generated twelve answers, but **one v2 Relevance row returned APIConnectionError**: native comparison incomplete, release held. Read the [identifier-redacted actual answers/error](downloads/portal/evaluation-summary.json) with the video's original twenty-module coverage. Historical examples and local checks are not new Microsoft Azure successes.
 
 ## Materials
 
@@ -53,7 +56,7 @@ Use dedicated scope, private ownership records, and explicit resource/request li
 
 ## Repository maintainers
 
-Learners do not need the development commands below.
+The generation/validation commands below are maintainer-only. Learner terminal steps belong only to L12–L14.
 
 <details>
 <summary>Sources, generation, validation, and GitHub Pages</summary>
@@ -77,7 +80,7 @@ The builder creates portal inputs, both HTML/Markdown editions, and a reviewed-f
 
 Preserve screenshot originals/hashes/provenance and historical `validation/` evidence. New actual footage has separate provenance and executed/not-run coverage. Never package raw footage with authentication, identities, keys, subscriptions, or people lists.
 
-Maintainer-only evaluation v2–v5, authoring/live-CI scripts, and dependent tests stay out of the kit through `content/maintainer-only.json`. Never alter frozen data/gates/history to pass a run. Portal input uses twelve questions from `instruction-comparison.json`. Existing SDK/Hosted samples and [code reference](samples/README.md) are developer references, not learner prerequisites.
+Maintainer-only evaluation v2–v5, authoring/live-CI scripts, and dependent tests stay out of the kit through `content/maintainer-only.json`. Never alter frozen data/gates/history to pass a run. Portal input uses twelve questions from `instruction-comparison.json`. The [sample map](samples/README.md) distinguishes current L12–L14 code from preserved developer references; core portal labs do not run those legacy scripts.
 
 Legacy reconstructions rebuild on macOS with FFmpeg, voices, and declared Playwright via `python scripts/build_replay.py`. Never reclassify `content/replay.json` scenes as real footage.
 

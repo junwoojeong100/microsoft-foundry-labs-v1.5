@@ -97,6 +97,8 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertEqual(release["artifact"], "Contoso-Foundry-Hands-on-2026-10-15")
         self.assertEqual(release["default_language"], "en")
         self.assertEqual(release["pages_branch"], "main")
+        self.assertEqual(release["learner_workflow"], "portal-first")
+        self.assertEqual(release["terminal_labs"], ["l14", "l15", "l15-collaboration"])
         expected = {
             "en": ("index.html", "downloads/GUIDE.en.md",
                    "portal-screenshots.en.json", 16, "data/en/receipt.html"),
@@ -143,7 +145,7 @@ class BilingualGuideTests(unittest.TestCase):
             _, _, capabilities = build_guide.load_content(language)
             rows = {row["source"]: row for row in capabilities if row["lab"] in {"l15", "l15-collaboration"}}
             with self.subTest(language=language):
-                self.assertEqual(rows["maf"]["mode"], "참고")
+                self.assertEqual(rows["maf"]["mode"], "직접 실습")
                 for pattern in ("sequential", "concurrent", "group-chat", "handoff"):
                     self.assertIn(pattern, rows["maf"]["name"])
                 self.assertEqual(rows["a2a"]["mode"], "참고")
@@ -228,7 +230,7 @@ class BilingualGuideTests(unittest.TestCase):
         self.assertIn("en/policies", rag)
         self.assertIn("Contoso-Portal-Inputs.zip", rag)
 
-    def test_translations_preserve_ordered_portal_actions_without_shell_commands(self):
+    def test_translations_preserve_portal_actions_and_identical_scoped_hybrid_commands(self):
         chapters, _, _ = build_guide.load_content("en")
         for chapter in chapters:
             if chapter["track"] == "reference":
@@ -237,11 +239,20 @@ class BilingualGuideTests(unittest.TestCase):
             english = translated_path.read_text(encoding="utf-8")
             korean = (ROOT / "docs" / translated_path.name).read_text(encoding="utf-8")
             with self.subTest(chapter=chapter["id"]):
-                self.assertEqual(shell_commands(korean), [])
-                self.assertEqual(shell_commands(english), [])
+                if chapter["id"] in build_guide.RELEASE["terminal_labs"]:
+                    normalize = lambda text: re.sub(r'(FOUNDRY_LAB_LANGUAGE\s*=\s*)"?(?:ko|en)"?', r"\1LANGUAGE", text)
+                    self.assertEqual(shell_commands(normalize(korean)), shell_commands(normalize(english)))
+                    for kind in ("powershell", "python", "yaml", "env"):
+                        self.assertEqual(
+                            [normalize(body) for language, body in executable_blocks(korean) if language == kind],
+                            [normalize(body) for language, body in executable_blocks(english) if language == kind],
+                        )
+                else:
+                    self.assertEqual(shell_commands(korean), [])
+                    self.assertEqual(shell_commands(english), [])
                 self.assertEqual(
-                    portal_coverage(korean, "docs/" + translated_path.name, "ko"),
-                    portal_coverage(english, chapter["file"], "en"),
+                    portal_coverage(korean, "docs/" + translated_path.name, "ko", chapter_id=chapter["id"]),
+                    portal_coverage(english, chapter["file"], "en", chapter_id=chapter["id"]),
                 )
                 self.assertEqual(len(executable_blocks(korean)), len(executable_blocks(english)))
 
@@ -320,7 +331,7 @@ class BilingualGuideTests(unittest.TestCase):
             paths[language] = {Path(path).name for path in preserved}
         self.assertEqual(paths["en"], paths["ko"] | {"18-resource-group.png"})
 
-    def test_all_modules_have_matching_numbered_screens_and_exact_captioned_video_links(self):
+    def test_portal_screens_match_video_links_and_code_labs_use_relevant_diagrams(self):
         frames = {frame["path"]: frame for frame in build_guide.portal_steps.load_steps()}
         sequences = {}
         for language in build_guide.RELEASE["languages"]:
@@ -333,7 +344,15 @@ class BilingualGuideTests(unittest.TestCase):
                 cards = re.findall(r'<div class="screen-step" markdown="1">(.*?)</div>', body, re.S)
                 sequence = []
                 with self.subTest(language=language, chapter=chapter["id"]):
-                    self.assertGreaterEqual(len(cards), 2, "Every module needs contextual visual guidance.")
+                    if chapter["id"] in {"l15", "l15-collaboration"}:
+                        self.assertEqual(cards, [], "Do not pad SDK labs with unrelated portal controls.")
+                        diagram = "maf-patterns" if chapter["id"] == "l15" else "maf-collaboration"
+                        self.assertIn(f"](assets/{diagram}.svg)", body)
+                        self.assertIn("```python", body)
+                        self.assertIn("--offline", body)
+                        self.assertIn("```output", body)
+                    else:
+                        self.assertGreaterEqual(len(cards), 2, "Portal modules need contextual visual guidance.")
                     for card in cards:
                         images = re.findall(r"!\[[^\]]+\]\((assets/portal/steps/[^)]+)\)", card)
                         self.assertEqual(len(images), 1)
@@ -357,6 +376,15 @@ class BilingualGuideTests(unittest.TestCase):
 
     def test_priority_labs_place_relevant_screens_in_each_recorded_phase(self):
         phases = {
+            "l04": [
+                ["save-agent", "agent-instructions", "agent-parameters", "agent-version-bar"],
+                ["conversation-followup", "agent-answer-actions", "conversation-new"],
+            ],
+            "l05": [
+                ["files-unsupported", "rag-model"],
+                ["files-upload", "files-success", "files-attached", "policy-version-bar"],
+                ["policy-answer", "policy-trace", "trace-input-output"],
+            ],
             "l09": [
                 ["guardrails", "guardrail-targets"], ["safety-missing-policy"],
                 ["safety-false-approval"], ["safety-no-order"], [],
@@ -366,14 +394,9 @@ class BilingualGuideTests(unittest.TestCase):
                 ["monitor-period", "monitor-overview"],
             ],
             "l13": [["files-success"], ["iq-navigation", "iq-connect", "policy-final"], [], []],
-            "l14": [["agents-type-list"], ["policy-final", "policy-version-bar"], ["hosted-dialog"]],
-            "l15": [
-                ["agent-create-form", "agent-instructions", "agent-version-bar"],
-                ["agent-chat-controls"], ["agent-answer-actions"],
-            ],
-            "l15-collaboration": [
-                ["agent-create-form", "agent-instructions"], ["agent-answer-actions"], ["agent-chat-controls"],
-            ],
+            "l14": [["agents-type-list", "hosted-dialog"], [], [], [], []],
+            "l15": [[], [], [], []],
+            "l15-collaboration": [[], [], [], []],
             "l16": [["memory-warning"], ["memory-form", "memory-ttl"], ["policy-final"], ["agent-chat-controls"]],
             "l17": [
                 ["routine-list", "routine-form"], ["routine-entered", "routine-identity"],
@@ -455,7 +478,7 @@ class BilingualGuideTests(unittest.TestCase):
 
     def test_both_readers_keep_execution_records_outside_the_guide(self):
         labels = build_guide.read_json("reader-labels.json")
-        for language, reading in (("en", "Read → one portal action"), ("ko", "읽기 → 포털 한 단계")):
+        for language, reading in (("en", "Read → one action"), ("ko", "읽기 → 한 단계")):
             self.assertIn(reading, labels[language]["reader_note"])
             self.assertNotIn("validation/current", labels[language]["book_boundary"])
             directory = "docs/en" if language == "en" else "docs"
@@ -594,8 +617,9 @@ class BilingualGuideArtifactTests(unittest.TestCase):
         reader_note = re.search(
             r'<div class="reader-note" id="reader-note">(.*?)</div>', artifacts["index.html"], re.S,
         )[1]
-        self.assertIn("Read → one portal action → inspect the result", reader_note)
-        self.assertIn("approve live costs", reader_note)
+        self.assertIn("Read → one action → inspect the result", reader_note)
+        self.assertIn("Use approved names and costs", reader_note)
+        self.assertIn("offline SDK fixtures are not Microsoft Azure evidence", reader_note)
         note_links = GuideParser()
         note_links.feed(reader_note)
         self.assertIn("#sources", note_links.links)

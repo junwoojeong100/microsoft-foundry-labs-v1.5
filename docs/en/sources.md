@@ -3,7 +3,7 @@
 ## Use the official documentation
 
 Use Microsoft Learn overviews and the capability reference for concepts, and feature documentation and GA tables for availability.
-This learner path uses Azure portal/Foundry portal only. SDK/API support does not establish portal controls. A GA portal does not mean every individual feature is GA.
+Core work uses Azure portal/Foundry portal; only code-required L12–L14 use terminals/SDKs. SDK/API support does not establish portal controls. A GA portal does not mean every individual feature is GA.
 
 ## Feature-specific conditions
 
@@ -15,7 +15,7 @@ This learner path uses Azure portal/Foundry portal only. SDK/API support does no
 | Memory, Voice, Agent guardrails | Keep API-specific Preview/access conditions explicit |
 | Agent optimizer | Limited preview, optional exercise |
 | Azure Content Understanding in Foundry Tools | Distinguish 2025-11-01 GA and 2026-06-01-preview |
-| SDK developer references | Historical core `azure-ai-projects 2.7.0` and advanced `agent-framework-foundry 1.13.1` combinations are separate, not learner installation requirements |
+| Advanced SDK environments | L12 Hosted pins `azure-ai-projects 2.7.0`; L13–L14 MAF pin `azure-ai-projects 2.6.0` and `agent-framework-foundry 1.13.1`. Separate environments; core portal work needs neither |
 
 ## Official document list
 

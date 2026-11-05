@@ -1,6 +1,6 @@
 ## Objectives
 
-Build a **Contoso purchasing-policy assistant grounded in documents**, using two browser windows. No installation, terminal, Cloud Shell, Codespaces, or API key is required.
+The core course builds a **Contoso purchasing-policy assistant grounded in documents** in two browser windows, without installation, terminal, Cloud Shell, Codespaces, or API keys. Only optional **L12–L14** use separate Python environments and explained terminal commands for code-required Hosted/MAF work.
 
 <div class="lab-brief" markdown="1">
 
@@ -20,7 +20,7 @@ Build a **Contoso purchasing-policy assistant grounded in documents**, using two
 
 **How do you use it?** Follow each table one row at a time. Continue only when the expected screen or value matches.
 
-**Where do you run it?** Only in the two portals. Downloads, extraction, and uploads use the browser and file picker. Running code is not part of this learning path.
+**Where do you run it?** Core work uses the two portals, browser, and file picker. L12–L14 instead use the complete ZIP's source, diagrams, and command walkthroughs. Manual Chat does not substitute for code-required execution.
 
 ### Read each screen in order
 
@@ -82,12 +82,16 @@ Numbered images come from the corresponding scene in the [actual portal recordin
 | L07 | Conditionally connect an approved read-only remote MCP tool | Execution only when a real tool-call record exists |
 | L08 | Evaluate separate v1/v2 agents with the same twelve dev questions | Learning comparison, not production release or replacement of historical validation |
 | L09–L10 | Inspect safety and the same request's trace on the L05 policy agent | Separate answer, filtering, authorization, and tool results |
-| L11–L18 | Inspect supported portal controls or perform explicitly manual comparisons | Not Hosted code deployment, real concurrency, or automatic handoff |
+| L11, L15–L18 | Stated portal inspection, conditional tests, and decisions | Unsupported/not-run work is not success |
+| L12 | Hosted source/offline packaging, separately approved deployment/one invocation | Packaging is distinct from Microsoft Azure deployment |
+| L13–L14 | Actual MAF SDK transfer, fan-out, group chat, and handoff | Default fixtures are not Microsoft Azure model/quality evidence |
 | L19 | Inventory your resources and remaining charges | Closing a browser does not stop or delete resources |
 
 ### 3. Set cost and execution boundaries
 
 Agree on a personal budget first. An example action scope is one environment, two model deployments, three policy files, at most 48 Chat sends, two evaluations of twelve rows each, and zero automated dispatches, training jobs, PTU deployments, or orders. **These are example request bounds, not a monetary cap.** Evaluation judge calls, logging, and storage can incur additional charges.
+
+That example covers the core course. L12 Search data, embeddings, Hosted deployment/access and L13–L14 live model calls each need additional approval/budget. Offline packaging/SDK fixtures create no cloud resources or billed model calls, but are still code execution, distinct from **Read without executing**.
 
 If a model, version, or region is unavailable, record **blocked**. A substitute is a separate experiment, not evidence for the baseline model. Reading-only means reading screenshots, policies, and decision tables without selecting Create, Save, or Send.
 

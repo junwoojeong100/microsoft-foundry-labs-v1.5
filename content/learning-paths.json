@@ -1,8 +1,8 @@
 {
   "l13": {"mode": "independent", "label": "관찰 / 추가 자원 조건부", "requires": "L01 프로젝트·L05 합성 3정책. 기본은 Knowledge 관찰이며 실제 Search·Storage·embedding·데이터 권한은 별도 범위·비용 승인이 필요합니다."},
-  "l14": {"mode": "independent", "label": "포털 관찰", "requires": "L04 Prompt Agent. 기존 내 Hosted가 있으면 상세만 읽습니다. 코드·컨테이너·개발 환경·SDK 배포는 이번 경로 밖입니다."},
-  "l15": {"mode": "independent", "label": "수동 역할 비교", "requires": "L04 agent 생성·L08 v2 합성 문맥·같은 모델. 기본 4회, 최대 6회 Chat. 실제 framework·병렬 runtime은 실행하지 않습니다."},
-  "l15-collaboration": {"mode": "sequence", "label": "L13 역할 재사용", "requires": "L13의 두 역할과 별도 router Prompt Agent. 기본 5회, 최대 7회 Chat. 사람의 복사 전달이며 자동 handoff·A2A·HITL이 아닙니다."},
+  "l14": {"mode": "independent", "label": "터미널 / 기본 오프라인", "requires": "전체 ZIP·Python 3.13·별도 Hosted 환경. 선택 live는 L01/L02의 기존 scope와 승인된 Search·embedding·azd·권한이 필요합니다. MAF 환경과 섞지 않습니다."},
+  "l15": {"mode": "independent", "label": "SDK 실행 / 기본 오프라인", "requires": "전체 ZIP·Python 3.13·별도 MAF 환경. Hosted·Search·별도 Prompt Agent 없이 실제 builder를 실행합니다. live는 기존 L01/L02 모델·소유 receipt·TPM/RPM·비용 승인이 필요합니다."},
+  "l15-collaboration": {"mode": "sequence", "label": "L13 MAF 환경 재사용", "requires": "L13의 MAF 환경·합성 정책·같은 질문. 그룹 3턴과 실제 handoff tool을 실행하며 live는 최대 3+4회 별도 승인입니다. 원격 A2A·HITL·업무 승인은 수행하지 않습니다."},
   "l16": {"mode": "independent", "label": "관찰 / 기존 Memory 조건부", "requires": "내 agent의 포털 설정. 조건부 회상에는 승인된 기존 store·embedding·Memory 쓰기·시험 UI가 필요합니다. CRUD·격리·삭제는 미검증입니다."},
   "l17": {"mode": "mixed", "label": "기본은 제출 전 취소", "requires": "지원 지역·구독의 Routines UI와 내 Prompt Agent. 기본 생성/dispatch 0개. 실제 일정·Test run·Pause는 각각 별도 승인이 필요합니다."},
   "l21": {"mode": "independent", "label": "읽기 전용 점검", "requires": "내 프로젝트·그룹의 읽기 권한과 L09/L10 관찰. 역할·네트워크 변경 없이 cache/ACL 결정표를 검토하며 실제 교차 사용자 시험은 하지 않습니다."},

@@ -22,6 +22,11 @@
 | 평가 입력 mapping 없음 | 대상 유형·CSV header·제공된 필드 | query는 agent 입력, context/ground_truth는 evaluator용. 예상 답을 response로 입력 금지 |
 | 평가 Partial/Failed·행 누락 | 실제 12행·run 상세·오류 | 실패를 보존. 성공 행만으로 평균·gate를 만들지 않음 |
 | Traces가 비어 있음 | 요청 전 로그 연결·기간·agent/version·로그 읽기 역할 | 같은 요청의 시각/ID로 확인. 예전 요청 소급 수집을 기대하지 않음 |
+| L12/L13 SDK 의존성 충돌 | 현재 Python 환경·설치한 requirements | Hosted 2.7.0과 MAF 2.6.0의 project SDK를 별도 환경에 설치. 기존 공용 환경을 덮어쓰지 않음 |
+| MAF가 `PLAN ONLY`만 출력 | 실행 명령의 `--offline` 또는 승인된 `--live` | 기본 계획은 실행이 아님. 먼저 네트워크 차단 fixture 사용 |
+| CLI 소유 receipt 없음 | L01의 기존 scope·태그·프로젝트·언어 | L12/L13의 읽기 전용 `adopt_portal.py`로 검증. 수작업 소유 주장·중복 `create`/`foundation` 금지 |
+| Hosted Search schema/hash 오류 | 코드의 정책 절·1536차원 schema와 기존 Search 결과 | 임의 포털 index를 호환으로 가장하지 않음. 승인 범위에서만 L12 초기화 |
+| MAF handoff 결과 없음 | 실제 tool 호출·specialist 응답·호출 상한 | 분류 문장·직접 답변으로 대체하지 않고 실패 보존. 원격 A2A·업무 승인과 구분 |
 | Memory UI 없음 | 실제 연결·store·scope 노출·지원 조건 | CRUD/격리 미실행. “기억했다”를 item 저장 증거로 삼지 않음 |
 | Routines 메뉴 없음 | 지역·구독 기능 활성·agent 종류 | 미활성 기록. CLI·다른 지역 생성으로 우회하지 않음 |
 | Routine 시간이 다름 | 브라우저 현지 시간대·One-time/Recurring | 기본은 생성 전 취소. 시간대 고정 API 기능을 UI로 가장하지 않음 |
@@ -33,4 +38,4 @@
 
 ## 읽기와 실제 실행
 
-회색 설정 화면·과거 screenshot·영상·진도 체크는 내 실행 증거가 아닙니다. 포털에 없는 Function backend·Hosted 배포·framework orchestration·Memory CRUD·실제 승인·게시를 성공으로 추정하지 않습니다. [진행표](#instructor)에서 수행 범위를 나눕니다.
+회색 설정 화면·과거 screenshot·영상·진도 체크는 내 실행 증거가 아닙니다. L12–L14의 실제 코드 실행은 각 장의 로그로 확인하며 offline fixture를 Microsoft Azure 증거로 바꾸지 않습니다. 포털에 없는 Function backend·Memory CRUD·실제 승인·게시는 성공으로 추정하지 않습니다. [진행표](#instructor)에서 수행 범위를 나눕니다.

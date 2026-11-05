@@ -43,8 +43,9 @@ def shown(path: Path) -> str:
 def load_ledger() -> dict:
     if not LEDGER.exists():
         raise LocalError(
-            f"{shown(LEDGER)} was not found. L01 step 3 creates it (python scripts/azure_environment.py create ... --live). "
-            "If you created no Microsoft Azure resources, skip this command."
+            f"{shown(LEDGER)} was not found. Portal setup does not create a CLI receipt automatically. "
+            "Follow L12/L13 to verify an existing owned scope with scripts/adopt_portal.py; "
+            "do not recreate the portal resources. Without an approved scope, use the offline path."
         )
     return json.loads(LEDGER.read_text(encoding="utf-8"))
 

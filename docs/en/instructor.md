@@ -1,4 +1,4 @@
-> **Working rule:** One click → inspect the actual screen → proceed. Separate execution, settings inspection, manual comparison, and not run.
+> **Working rule:** One action → inspect the actual result → proceed. Core work uses portals; code-required L12–L14 use terminals. Separate offline SDK, Microsoft Azure execution, inspection, manual decisions, and not run.
 
 ## Starting checklist
 
@@ -30,9 +30,9 @@
 | Module | Scope/prerequisites |
 | --- | --- |
 | L11 | Knowledge inspection; import/search only with separately approved Search/Storage/embedding/data access |
-| L12 | Prompt/Hosted kind/details; no code/container deployment |
-| L13 | Identical model/context; manual independent/copy-transfer review, four baseline/max six sends |
-| L14 | Three draft/review/revision and two routing/manual-transfer sends; no automated handoff/A2A/approval |
+| L12 | Separate Hosted environment: source, offline package/SDK checks. Search data, single-service deployment, access, and one invocation in existing scope each need approval |
+| L13 | Separate MAF environment: actual Sequential/Concurrent SDK, default two/three fixture calls; optional live ceilings 2+3. No Hosted/extra Prompt Agents |
+| L14 | Same MAF environment: three-turn group chat and actual handoff tool/specialist. Default offline 3+2; optional live ceilings 3+4. No remote A2A, HITL, or business approval |
 | L15 | Memory settings; approved existing store/UI/writes allow max four synthetic recall sends; CRUD/isolation unverified |
 | L16 | Inspect Routines form and cancel; zero default creations/dispatches |
 | L17 | Read owned access/connections and review cache/ACL decisions; no escalation/live attack test |
@@ -56,6 +56,8 @@ The ninety-minute path requires **your existing L01/L02 environment**: review L0
 | Wrap-up | Record | Resource state/retention/costs | Retain/approved cleanup | Next cost review |
 
 Portal usage does not automatically produce SDK result JSON. Keep personal screens/subscriptions/raw footage private. [Recorded coverage](../../downloads/portal/index.html) is separate from browser learning progress.
+
+In L12–L14, compare source, diagrams, expected fields, and your own execution log. Hosted/MAF pin incompatible project SDK versions and need separate environments. Fixed fixture answers, usage, and policy routing do not measure model quality, billing, or classification accuracy. Existing portal footage contains no SDK/Hosted execution.
 
 ## Before finishing
 

@@ -154,8 +154,12 @@ class CreateRecoveryTests(EnvironmentTestCase):
         self.assertEqual(self.ledger.read_text(encoding="utf-8"), before)
 
     def test_missing_ledger_is_explained_instead_of_a_traceback(self):
-        with self.assertRaisesRegex(environment.LocalError, "L01 step 3 creates it"):
+        with patch.object(environment, "az") as azure, self.assertRaises(environment.LocalError) as missing:
             environment.load_ledger()
+        azure.assert_not_called()
+        self.assertIn("Portal setup does not create a CLI receipt automatically", str(missing.exception))
+        self.assertIn("scripts/adopt_portal.py", str(missing.exception))
+        self.assertIn("do not recreate the portal resources", str(missing.exception))
 
 
 class SearchOrderTests(EnvironmentTestCase):

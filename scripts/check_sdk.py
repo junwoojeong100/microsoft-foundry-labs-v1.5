@@ -19,43 +19,24 @@ class OfflineCredential:
 
 
 async def check_workflow_execution():
-    from agent_framework import BaseChatClient, ChatResponse, ChatResponseUpdate, Content, Message, ResponseStream
-    from multi_agent import build_workflow, compare_paths
+    from maf_fixture import FixtureChatClient
+    from multi_agent import CallAudit, build_workflow, compare_paths
 
-    class FixtureClient(BaseChatClient):
-        def __init__(self):
-            super().__init__()
-            self.inputs = []
-
-        def _inner_get_response(self, *, messages, stream, options, **kwargs):
-            messages = list(messages)
-            self.inputs.append([message.text for message in messages])
-            reviewing = any(message.text == "fixture-draft" for message in messages)
-            text = "fixture-reviewed" if reviewing else "fixture-draft"
-            final = ChatResponse(
-                messages=[Message("assistant", [text])], response_id=f"fixture-{len(self.inputs)}",
-                finish_reason="stop",
-                usage_details={"input_token_count": 10, "output_token_count": 5, "total_token_count": 15},
-            )
-
-            async def complete():
-                return final
-
-            async def updates():
-                yield ChatResponseUpdate(contents=[Content.from_text(text)], role="assistant", response_id=final.response_id)
-
-            return ResponseStream(updates(), finalizer=lambda _: final) if stream else complete()
-
-    client = FixtureClient()
+    client = FixtureChatClient()
     events = await build_workflow(client).run("Offline synthetic workflow contract check.")
     outputs = events.get_outputs()
-    assert len(client.inputs) == 2, "Both agent executors must run exactly once."
-    assert any("fixture-draft" in message for message in client.inputs[1]), "Reviewer must receive the draft."
-    assert any(getattr(output, "text", "") == "fixture-reviewed" for output in outputs), "Workflow must yield the reviewer's output."
-    assert [item.text for item in events.get_intermediate_outputs()] == ["fixture-draft"]
-    comparison_client = FixtureClient()
-    report = await compare_paths(comparison_client, "compare", "Synthetic local fixture only.", Mock())
-    assert len(comparison_client.inputs) == 3
+    assert len(client.calls) == 2, "Both agent executors must run exactly once."
+    assert "Synthetic fixture from drafter" in str(client.calls[1]["messages"]), "Reviewer must receive the draft."
+    assert any("Synthetic fixture from reviewer" in getattr(output, "text", "") for output in outputs)
+    assert len(events.get_intermediate_outputs()) == 1
+    assert "Synthetic fixture from drafter" in events.get_intermediate_outputs()[0].text
+    comparison_client = FixtureChatClient()
+    evidence = Mock()
+    audit = CallAudit(evidence, 3, interval=0)
+    report = await compare_paths(
+        comparison_client, "compare", "Synthetic local fixture only.", evidence, audit=audit,
+    )
+    assert len(comparison_client.calls) == 3
     assert report["paths"]["single"]["total_tokens"] == 15
     assert report["paths"]["sequential"]["total_tokens"] == 30
     assert report["sequential_minus_single"]["total_tokens"] == 15

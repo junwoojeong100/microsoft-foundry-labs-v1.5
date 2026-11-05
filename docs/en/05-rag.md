@@ -114,6 +114,18 @@ These are Korean-run frames. For your English exercise, use the English instruct
 
 </div>
 
+<div class="screen-step" markdown="1">
+
+**Reopen after Save: retain the RAG version and attachment**
+
+![Policy agent Version 4 and Save/Publish control locations.](../../assets/portal/steps/policy-version-bar.png)
+
+**1 Version:** The recorded separate RAG version is `4`. Verify your own saved number, model, and File search together. **2 Save / 3 Publish:** Saving is required; publishing is not this exercise. A version number alone does not establish retrieval success.
+
+[Captioned video 05 · 01:36](../../downloads/portal/index.html?clip=05-inspection-retention&t=96&lang=en#05-inspection-retention)
+
+</div>
+
 ### 3. Verify answer, citations, and the same request's retrieval
 
 | Step | Click or enter | Expected screen or value | If it fails |

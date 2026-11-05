@@ -82,8 +82,9 @@ jobs:
             requirements-local.txt
       - run: python -m pip install -r requirements-advanced.txt
       - run: python -m pip check
-      # `python scripts/check_sdk.py --advanced` is not run yet: on a clean install it fails in
-      # samples/multi_agent.py (one_response, fixture path without an audit) and needs a separate fix.
+      - run: python -m scripts.check_sdk --advanced
+      - name: Real MAF builders with network-blocked synthetic responses
+        run: python -m unittest discover -s tests -p test_maf_orchestration_sdk.py -v
       - name: The local-model environment installs cleanly
         run: |
           python -m venv .venv-local-check

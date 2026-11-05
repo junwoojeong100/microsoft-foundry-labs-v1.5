@@ -112,6 +112,18 @@ L04의 같은 에이전트를 사용합니다. ZIP 안의 `procurement-policy.md
 
 </div>
 
+<div class="screen-step" markdown="1">
+
+**Save 뒤 다시 열기: RAG 버전과 연결 보존 확인**
+
+![정책 agent의 Version 4와 Save·Publish 위치.](../assets/portal/steps/policy-version-bar.png)
+
+**1 Version:** 녹화의 별도 RAG 버전은 `4`입니다. 내 저장 숫자와 모델·File search를 함께 확인합니다. **2 Save / 3 Publish:** 저장은 필요하지만 게시는 이번 실습이 아닙니다. 버전 숫자만으로 검색 성공을 판단하지 않습니다.
+
+[자막 영상 05 · 01:36](../downloads/portal/index.html?clip=05-inspection-retention&t=96&lang=ko#05-inspection-retention)
+
+</div>
+
 ### 3. 답변, 인용, 같은 요청의 검색 결과 확인
 
 | 단계 | 클릭·입력 | 확인할 화면·값 | 실패하면 |

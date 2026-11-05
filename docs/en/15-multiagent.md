@@ -1,159 +1,245 @@
 ## Objectives
 
-Compare two review roles in portal Chat. This is a **human copy-and-transfer experiment**, not SDK sequential or concurrent orchestration.
+**Execute SequentialBuilder and ConcurrentBuilder** in Microsoft Agent Framework (MAF), then inspect transfer, fan-out, and termination. Do not replace SDK execution with human copying.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Manual role comparison: four baseline sends, at most six including the optional change.
+**Format:** Real SDK in the terminal, using an offline fixture by default. Separately approve the same code's connection to an existing Microsoft Azure model.
 
-**Start here:** Prepare two review agents with identical model, synthetic context, and question.
+**Start here:** Create a dedicated MAF environment at the complete ZIP's repository root. **No Hosted deployment, Search, judge, or extra Prompt Agents are required.**
 
-**What to check:** Actual differences between independent input and transferred prior output, with call counts and limitations.
+**What to check:** Actual SDK records for two sequential calls and three independent branches. Keep fixture and paid-model outcomes separate.
 
 </div>
 
 ## Concepts and lab map
 
-**What you will try:** Chat experiments illustrating sequential transfer versus independent review.
+**What you will try:** Sequential review and concurrent fan-out.
 
-**What is it, and why does it matter?** Passing an earlier answer links reviews but can propagate errors. Independent review separates inputs. Two browser windows do not establish runtime concurrency.
+**What is it, and why does it matter?** Sequential passes the draft to the next role. Concurrent distributes the same question independently and preserves three originals.
 
-**How do you use it?** Send an identical question independently, then explicitly copy the first answer into a second-role review.
+**How do you use it?** Execute real builders offline, then optionally compare the same roles, policy, and question with an approved model.
 
-**Where do you run it?** Microsoft Foundry → Build → Agents → role Chat, without a framework/development environment.
+**Where do you run it?** Workflows and Agent objects run in **your Python process**; only the optional model runs in Microsoft Foundry. Two portal Chat windows are not runtime concurrency.
+
+[![MAF two-stage sequential transfer and concurrent policy, budget, and risk branches.](../../assets/maf-patterns.svg)](../../assets/maf-patterns.svg)
+
+Select the flow diagram to enlarge it. **The existing portal footage contains no MAF execution.** Unrelated Prompt creation/copy controls are not execution evidence.
 
 ## Prerequisites
 
-Both roles use `contoso-chat`, no tools/Memory, and L08's [complete common Instructions](../../downloads/portal-inputs/en/agent-v2-with-context.txt). Change only the name and role prefix below.
+Use Python **3.13** and the complete ZIP's `samples/`, `scripts/`, `data/`, and `requirements-advanced.txt`. Package installation needs internet access; the default fixture needs no Microsoft Azure login, `.env`, or ownership receipt.
 
-| Name | Prefix before the common Instructions |
-| --- | --- |
-| `contoso-policy-review` | Review policy evidence and unknowns. |
-| `contoso-budget-review` | Review totals, caps, and approval boundaries. |
+Do not reuse L12's `.venv-hosted`. Its `azure-ai-projects==2.7.0` conflicts with this profile's **2.6.0**. Keep requirements separate in `.venv-maf`.
 
 ## Steps
 
-Images are **control-location examples** from existing Prompt Agent footage. Creation and comparison of these review roles were not recorded. Use the role names above and your actual results, not pictured default names or answers.
+### 1. Select the MAF environment and read the actual builders
 
-### 1. Create and save both roles under matching conditions
+macOS/Linux Bash or zsh:
 
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Open the Prompt creation form from `Build → Agents → New agent`, enter one role name above, and create in `Text` mode. Repeat for the other role. | Two distinct named Prompt Agents. | Do not overwrite existing targets or choose Copilot harness, Voice, or Code agent. |
-| 2 | Select `contoso-chat` for both and prepend only the role-specific sentence to the complete common Instructions. | Identical context, different role prefixes. | Do not compare if one target lacks policy context. |
-| 3 | Detach automatic tools as in L04; save without Memory using L08's matching output settings. | Record actual saved versions and matching settings. | Do not confuse pre/post-Save versions or Publish. |
+```bash
+python3.13 -m venv .venv-maf
+source .venv-maf/bin/activate
+python -m pip install -r requirements-advanced.txt
+export FOUNDRY_LAB_LANGUAGE=en
+```
+<div class="command-explanation" markdown="1">
 
-<div class="screen-step" markdown="1">
+**Command walkthrough**
 
-**Creation form: replace the generated name**
-
-![Prompt Agent creation form showing Agent name, Text mode, and creation button.](../../assets/portal/steps/agent-create-form.png)
-
-**1 Agent name:** Use the role name in the table, not the pictured generated name. **2 Text:** Match both roles. **3 Create:** Create each once, then configure it. This form was recorded while preparing a comparison agent, not these review roles.
-
-[Captioned video 04 · 00:01.5](../../downloads/portal/index.html?clip=04-native-evaluation&t=1.5&lang=en#04-native-evaluation)
-
-</div>
-
-<div class="screen-step" markdown="1">
-
-**Navigation example: where to set each role's model and Instructions**
-
-![Reused baseline policy-agent Model and Instructions locations.](../../assets/portal/steps/agent-instructions.png)
-
-**1 Model:** Match across roles. **2 Instructions:** Use the shared context and role prefix from Prerequisites. This is **reused baseline footage**, not evidence that these two review roles were created or compared.
-
-[Captioned video 02 · 02:04.5](../../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `python3.13 -m venv` | Create the dedicated MAF environment at the root once. | Local files; do not recreate an existing environment. |
+| 2. `source` | Select MAF Python in this terminal. | Separate from Hosted. |
+| 3. `pip install -r` | Install pinned MAF packages and SDKs. | Package downloads only; no model invocation. |
+| 4. `export` | Select English synthetic policies/questions. | Reselect in a new terminal. |
 
 </div>
 
-<div class="screen-step" markdown="1">
+In Windows PowerShell, use this **instead**:
 
-**After saving: record each role's actual version**
+```powershell
+py -3.13 -m venv .venv-maf
+.\.venv-maf\Scripts\Activate.ps1
+python -m pip install -r requirements-advanced.txt
+$env:FOUNDRY_LAB_LANGUAGE = "en"
+```
+<div class="command-explanation" markdown="1">
 
-![Prompt Agent Version, Save, and Publish control locations.](../../assets/portal/steps/agent-version-bar.png)
+**Command walkthrough**
 
-**1 Version / 2 Save:** Read your role's saved number; do not copy this baseline agent's `2`. **3 Publish:** Not required for this manual comparison.
-
-[Captioned video 02 · 02:04.5](../../downloads/portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `py -3.13 -m venv` | Create a separate Python 3.13 environment. | Local preparation only. |
+| 2. `Activate.ps1` | Select MAF Python. | If policy blocks it, do not weaken security; replace later `python` with `.venv-maf\Scripts\python.exe`. |
+| 3. `pip install -r` | Install advanced requirements only. | Do not add Hosted requirements. |
+| 4. `$env:` | Select the terminal's synthetic-data language. | Keep live folders/receipts separate by language. |
 
 </div>
+
+Subsequent single-line `python` commands work in both shells. In a new terminal, reselect the environment/language without reinstalling.
+
+Open [`build_workflow` in multi_agent.py](../../samples/multi_agent.py). This **read-only excerpt** connects roles defined elsewhere in that file; do not run the fragment by itself.
+
+```python
+from agent_framework.orchestrations import ConcurrentBuilder, SequentialBuilder
+
+sequential = SequentialBuilder(
+    participants=[drafter, reviewer], intermediate_output_from=[drafter],
+).build()
+concurrent = ConcurrentBuilder(
+    participants=[policy_agent, budget_agent, risk],
+    intermediate_output_from=[policy_agent, budget_agent, risk],
+).build()
+```
+
+`build_role` supplies the same synthetic purchasing policy to each role. `CallAudit` middleware records actual call IDs, input hashes, roles, times, and usage. These are local SDK objects, not two newly created portal Prompt Agents.
 
 <div class="practice-block" markdown="1">
 
-### 2. Independent review: send only the same question
+### 2. Execute sequential transfer offline first
 
-**Try it:** Send this question once to **a new Chat in each role**. Do not yet transfer the first answer to the second.
+**Try it:** Check SDK contracts and the plan, then execute the workflow using `--offline`.
 
-```prompt
-Synthetic manual-review data: two NB-14 units, supplied unit price KRW 1,450,000, supplied total KRW 2,900,000. These are not inventory-lookup or persisted-draft results. Review the price cap and required approvals, separating unknown facts and unexecuted actions.
+```bash
+python -m scripts.check_sdk --advanced
+python samples/multi_agent.py --mode sequential
+python samples/multi_agent.py --mode sequential --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `scripts.check_sdk --advanced` | Check installed SDK workflow, transfer, and comparison contracts with networking blocked. | `sdk_contracts: passed`, `azure_calls: 0`; not a real-model measurement. |
+| 2. `--mode sequential` | Print options and the call ceiling only. | `PLAN ONLY` is not executed SDK workflow evidence. |
+| 3. `--mode sequential --offline` | Connect a fixed-response client to the real `SequentialBuilder`: drafter → reviewer. | Two synthetic responses, blocked network/DNS, private `results/contoso-maf-fixture-....jsonl`. |
+
+</div>
+
+The default `--case purchase` sends this actual question. Compare it with `QUESTIONS` in the source; do not send another portal Chat request.
+
+```text
+I need two laptops at KRW 1,450,000 each. Explain the purchasing policy and approval process.
 ```
 
+Inspect these output fields. Answers say `Synthetic fixture from ...`; **they do not measure policy-answer quality or billed tokens**.
+
+```output
+"execution": "local_sdk_fixture"
+"azure_calls": 0
+"fixture_calls": 2
+"usage_source": "synthetic_fixture_not_billing"
+"quality_release": false
+```
+
+The reviewer's `model_call_completed` input must contain the **actual drafter fixture response**. Two outputs alone do not prove transfer.
+
+### 3. Fan out the same question and compare a baseline
+
+```bash
+python samples/multi_agent.py --mode concurrent --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode concurrent --offline` | Fan out the same question to policy, budget, and risk; retain every original. | `fixture_calls: 3`, three roles, and `maximum_active_fixture_calls` for local overlap. No extra summarizer call. |
+
+</div>
+
+**Change one thing:** Keep the question/policy fixed and select the single-versus-sequential comparison mode.
+
+```bash
+python samples/multi_agent.py --mode compare --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode compare --offline` | Run single once plus sequential twice with the same input. | Three fixture calls and `sequential_minus_single`. Synthetic usage differences do not establish savings or quality improvement. |
+
+</div>
+
+**Explain the result:** Show the draft received by the reviewer versus independent inputs/three originals. Calls, overlap, transfer, and answer quality are separate checks. The fixture does not interpret questions as a model; do not calculate policy accuracy from it.
+
+</div>
+
+<a id="maf-live-setup"></a>
+
+### 4. Execute with an existing Microsoft Foundry model — separate approval
+
+This optional path is separate from offline evidence. **Do not create another project, agent, Hosted runtime, or Search service.** Reuse L01/L02's chat deployment with approved inference access.
+
 | Step | Click or enter | Expected screen or value | If it fails |
 | --- | --- | --- | --- |
-| 1 | Send the common question to a new policy-review Chat. | Procurement §2/§3 and unverified execution are distinguished. | Preserve actual text and citation IDs. |
-| 2 | Send **only the identical question** to a new budget-review Chat. | KRW 2,900,000 and team lead plus procurement are reviewed. | Do not silently include the first answer. |
+| 1 | Inspect your dedicated RG's Overview and Tags in Azure portal. | Exact L01 subscription/`validationRun`, plus `repository=microsoft-foundry-labs-v1.5`. | Add/save a missing repository tag only after approval to change your own group's tags. Never label another group as owned. |
+| 2 | Read the project endpoint and `Models → contoso-chat → Details` in Microsoft Foundry. | Same account/project, model version, Succeeded, actual TPM/RPM. | Stop on mismatches/insufficient capacity; no automatic increase or silent model replacement. |
+| 3 | Copy `.env.example` to `.env` at the root and edit the fields below without overwriting an existing file. | Project endpoint and actual chat deployment name. | Do not use the model's `/openai/v1` endpoint or paste API keys. |
+| 4 | Reuse a matching ownership receipt; otherwise run read-only adoption below. | `.env`, receipt, and portal agree on scope/language. | Do not hand-author an ownership claim or rerun `create`/`foundation`. |
 
-<div class="screen-step" markdown="1">
+```env
+FOUNDRY_PROJECT_ENDPOINT=https://YOUR_RESOURCE.services.ai.azure.com/api/projects/YOUR_PROJECT
+FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat
+FOUNDRY_AUTH_MODE=cli
+```
 
-**After opening a new Chat: input and Send**
+```bash
+az login --tenant YOUR_TENANT_ID
+python scripts/adopt_portal.py --subscription YOUR_SUBSCRIPTION_ID --resource-group YOUR_RESOURCE_GROUP --run-id YOUR_VALIDATION_RUN --live
+```
+<div class="command-explanation" markdown="1">
 
-![Enlarged Chat input and Send controls with response bodies excluded.](../../assets/portal/steps/agent-chat-controls.png)
+**Command walkthrough**
 
-**1 Input / 2 Send:** Open a new conversation in each role, then send the identical original once. Do not include another role's answer in this independent path. Check the agent name and conversation first.
-
-[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
-
-</div>
-
-### 3. Sequential review: explicitly transfer the question and draft
-
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Send the same question once again to a new policy Chat. | This is the first result of the manual sequential path. | Preserve differences from the independent answer. |
-| 2 | In a new budget Chat, send the original question plus step 1's answer labeled `untrusted earlier reviewer draft`. | Inspect how the supplied draft was reviewed. | Draft instructions must not grant authority. |
-| 3 | Compare actual inputs, outputs, times, and visible IDs. | Exactly what was manually transferred is clear. | Mixed conversation context makes the comparison invalid. |
-
-<div class="screen-step" markdown="1">
-
-**Copy your answer: distinguish Traces from Copy**
-
-![Control-location example of Traces and Copy beneath an answer, excluding its body.](../../assets/portal/steps/agent-answer-actions.png)
-
-**1 Traces:** That answer's execution records. **2 Copy:** Copy your policy role's actual answer and label it separately from the original question. Pictured model/token values belong to the baseline agent, not this role comparison.
-
-[Captioned video 02 · 02:43](../../downloads/portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `az login --tenant` | Replace the approved tenant ID and authenticate in the browser window. Reuse an already correct CLI login. | Do not record authentication screens/codes. |
+| 2. `adopt_portal.py ... --live` | Replace every placeholder; verify existing subscription, RG tags, account, project, and chat using five read commands. | Local ownership receipt only; no resource changes/model invocations or existing-file overwrites. |
 
 </div>
 
-**Change one thing:** If scope remains, change only the supplied total to **exactly KRW 2,000,000** and ask each role once. Team-lead approval applies at equality. Do not overwrite the original questions/results.
+Both baseline paths permit at most **2+3=5 calls**; optional `compare` adds three. Each execution allows 180 seconds, 2048 output tokens/call, at most six starts/minute, and zero retries. Separate capacity preflight permits at most 24 reads/180 seconds without capacity changes. Counts are not a monetary cap; shared deployments need combined learner budgets.
 
-**Explain the result:** Record newly found errors, missing evidence, and additional token usage. Explain whether extra roles helped. Human copying time is not runtime latency.
+```bash
+python samples/multi_agent.py --mode sequential --live
+python samples/multi_agent.py --mode concurrent --live
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode sequential --live` | Verify receipt and actual TPM/RPM before running drafter → reviewer on the existing model. | At most two paid model calls; retain actual IDs, usage, and transferred input. |
+| 2. `--mode concurrent --live` | Fan out the same model/policy/question to policy, budget, and risk. | At most three paid calls; start-rate limits mean simultaneous starts are not guaranteed. |
 
 </div>
 
-### Distinguish real orchestration
-
-`SequentialBuilder` and `ConcurrentBuilder` are code-based Microsoft Agent Framework paths, not executed here. Portal Workflows and in-portal execution retire on **2026-12-01**; this guide does not depend on that designer.
-
-Real concurrency verification needs overlapping spans, transferred data, failure/cancellation, and bounded calls in one run. This manual experiment provides none of that runtime evidence.
+Live `execution` is `local_maf_with_azure_model`: **local workflow, Microsoft Azure model**, not Microsoft Foundry-hosted orchestration. Inspect actual overlapping intervals using `started_after_seconds` and `elapsed_seconds`. Missing usage is `null`, not zero. Portal Workflows/in-portal execution retire on **2026-12-01**; this path does not depend on that designer.
 
 ## Success criteria
 
-Compare actual independent and explicitly transferred inputs/answers. Mark no tools, manual transfer, and no business approval. Do not count this as successful SDK sequential/concurrent execution.
+Execute real SDK sequential transfer and concurrent fan-out, locating each role's originals. Distinguish `local_sdk_fixture` from `local_maf_with_azure_model`. Plans, fixture usage, and example screens are not live-model/quality evidence. `quality_release` remains false.
 
 ## Troubleshooting
 
-If existing conversation context leaked in, mark the comparison invalid. Stop at request/cost bounds and leave remaining comparisons not run. Stop sending on 429 rather than expanding quota automatically.
+For missing SDKs, check `.venv-maf` and `requirements-advanced.txt`. `PLAN ONLY` means no execution. Missing receipts/tags/TPM/RPM leave live execution blocked; return to offline. Preserve 429s, partial results, duplicate IDs, and timeouts without increasing bounds to pass.
 
 ## Cleanup
 
-Reuse the two roles next. No automated loop or remote A2A connection was created.
+No persistent agent, server, or remote A2A endpoint is created. Existing model/logging resources remain after the process ends. Keep fixture and live `.jsonl` files separate and private; never commit them.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Actual inputs/answers for both paths, transferred text, calls, differences, and real orchestration not run.
+**Keep:** Execution kind, mode/case/policy hash, transfer originals, roles, call counts, timings, usage evidence, and unverified limits.
 
-**Continue:** [L14: manually compare review and routing](#l15-collaboration).
+**Continue:** [L14: real MAF group chat and handoff](#l15-collaboration), reusing the same MAF environment.
 
 </div>

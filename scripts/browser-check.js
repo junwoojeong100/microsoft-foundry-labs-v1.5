@@ -1,4 +1,5 @@
 async (page) => {
+  page.setDefaultTimeout(30000);
   const origin = page.contosoGuideOrigin || "http://127.0.0.1:8765";
   const edition = page.contosoGuideEdition;
   const entry = `${origin}/${edition.html}`;
@@ -45,6 +46,13 @@ async (page) => {
   const advancedCount = chapters.filter(chapter => chapter.track === "advanced").length;
   const advancedPathCount = chapters.filter(chapter => ["advanced", "wrapup"].includes(chapter.track)).length;
   const practiceIds = ["l15", "l15-collaboration", "l21", "l22"];
+  const terminalIds = ["l14", "l15", "l15-collaboration"];
+  const diagrams = {
+    l14: "assets/hosted-lifecycle.svg", l15: "assets/maf-patterns.svg",
+    "l15-collaboration": "assets/maf-collaboration.svg",
+  };
+  check(JSON.stringify(page.contosoGuideRelease.terminal_labs) === JSON.stringify(terminalIds),
+    "only Hosted and the two MAF modules authorize terminal execution");
   check(JSON.stringify(labIds) === JSON.stringify(expectedLabIds), "the 20-lab curriculum consolidates capstone and ends with shared wrap-up");
   check(JSON.stringify(chapters.filter(chapter => chapter.track !== "reference").map(chapter => chapter.number)) === JSON.stringify(expectedNumbers),
     "learner-facing module numbers are continuous from 00 through 19");
@@ -87,8 +95,15 @@ async (page) => {
     check(await page.locator("[data-complete]").count() === labIds.length, "all active labs are trackable");
     check(await page.locator(".lab-brief").count() === labIds.length, "all active modules have beginner start cards");
     check(await page.locator(".lab-handoff").count() === labIds.length, "all active modules identify saved results and the next step");
-    check(await page.locator('.chapter:not([data-track="reference"]) pre code:not(.language-prompt)').count() === 0,
-      "learner modules contain portal questions, never executable code or environment files");
+    const portalOnly = '.chapter:not([data-track="reference"])' + terminalIds.map(id => `:not(#${id})`).join("");
+    check(await page.locator(`${portalOnly} pre code:not(.language-prompt)`).count() === 0,
+      "all seventeen portal modules remain free of executable code and environment files");
+    for (const id of terminalIds) {
+      check(await page.locator(`#${id} pre code.language-bash`).count() > 0
+        && await page.locator(`#${id} .command-explanation`).count() > 0
+        && await page.locator(`#${id} pre code.language-${id === "l14" ? "yaml" : "python"}`).count() > 0,
+      `${id} exposes actual source and explained terminal commands rather than hidden references`);
+    }
     check(await page.locator("pre code.language-prompt").count() === edition.prompt_blocks,
       `all ${edition.prompt_blocks} portal question blocks identify their input destination`);
     check(await page.locator("pre code.language-env").count() === edition.settings_blocks, "settings blocks are distinguished from terminal commands");
@@ -135,6 +150,7 @@ async (page) => {
         return [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, "0")).join("") === item.sha256;
       }));
       const images = [...document.querySelectorAll('img[src^="assets/portal/"]')];
+      const diagrams = [...document.querySelectorAll('img[src^="assets/maf-"], img[src="assets/hosted-lifecycle.svg"]')];
       const historical = images.filter(image => !image.getAttribute("src").startsWith("assets/portal/steps/"));
       const numbered = images.filter(image => image.getAttribute("src").startsWith("assets/portal/steps/"));
       const deferred = images.every(image =>
@@ -143,6 +159,7 @@ async (page) => {
       );
       // Figures load lazily in the reader; force them to load so offline availability is still verified.
       await Promise.all(images.map(image => { image.loading = "eager"; return image.decode().catch(() => {}); }));
+      await Promise.all(diagrams.map(image => image.decode()));
       return {
         deferred,
         declared: manifest.captures.map(item => item.path).sort(),
@@ -163,6 +180,11 @@ async (page) => {
         }),
         visualModules: [...document.querySelectorAll('article.chapter:not([data-track="reference"])')].map(chapter => ({
           id: chapter.id, cards: chapter.querySelectorAll(".screen-step").length,
+          diagrams: [...chapter.querySelectorAll('img[src$=".svg"]')].filter(image =>
+            image.complete && image.naturalWidth > 0 && image.alt
+          ).map(image => image.getAttribute("src")),
+          sourceBlocks: chapter.querySelectorAll("pre code.language-python, pre code.language-yaml").length,
+          commandBlocks: chapter.querySelectorAll("pre code.language-bash").length,
           complete: [...chapter.querySelectorAll(".screen-step")].every(card => {
             const image = card.querySelector("img");
             const frame = steps.frames.find(item => item.path === image?.getAttribute("src"));
@@ -201,8 +223,13 @@ async (page) => {
     "every reviewed numbered screen appears in this language edition");
     check(captures.reviewedFrames && captures.nativeSizes, "numbered screens keep reviewed source-video hashes and native crop dimensions");
     check(JSON.stringify(captures.visualModules.map(module => module.id)) === JSON.stringify(labIds)
-      && captures.visualModules.every(module => module.cards >= 2 && module.complete),
-    "all twenty modules provide contextual numbered images and exact language/timestamp video links");
+      && captures.visualModules.every(module => module.complete && (terminalIds.includes(module.id)
+        ? module.diagrams.includes(diagrams[module.id]) && module.sourceBlocks > 0 && module.commandBlocks > 0
+        : module.cards >= 2)),
+    "portal modules use exact numbered scenes; code-required modules use loaded flow diagrams, source, and commands");
+    check(captures.visualModules.filter(module => ["l15", "l15-collaboration"].includes(module.id))
+      .every(module => module.cards === 0),
+    "MAF workflows are not illustrated with unrelated Prompt Agent screenshots");
     await page.goto(`${entry}#l04`);
     const fullSize = page.locator("#l04 a.screen-image").first();
     await fullSize.focus();
@@ -215,6 +242,16 @@ async (page) => {
       "Enter opens the original full-size local image");
     } finally {
       await enlarged.close();
+    }
+    for (const id of terminalIds) {
+      await page.goto(`${entry}#${id}`);
+      const diagram = page.locator(`#${id} a`).filter({has: page.locator(`img[src="${diagrams[id]}"]`)});
+      await diagram.focus();
+      check(await diagram.evaluate(node => node === document.activeElement),
+        `${id} full-size flow diagram is keyboard accessible`);
+      const address = new URL(diagrams[id], entry).href;
+      await Promise.all([page.waitForURL(address), diagram.press("Enter")]);
+      check(await page.locator("svg").isVisible(), `${id} opens its genuine local SVG at full size`);
     }
     await page.goto(`${entry}#l00`);
     check(await page.locator('.provenance-note, a[href^="content/portal-screenshots"]').count() === 0,
@@ -481,6 +518,24 @@ async (page) => {
     const question = page.locator("#l04 pre").filter({has: page.locator("code.language-prompt")}).first();
     await question.locator(".copy-button").click();
     check((await page.locator("#toast").innerText()).includes("Chat"), "question copy directs the learner to portal Chat");
+    for (const [id, kind, destination] of [
+      ["l14", "bash", english ? "Terminal" : "터미널"],
+      ["l14", "powershell", "PowerShell"],
+      ["l14", "yaml", english ? "Configuration" : "설정"],
+      ["l14", "env", ".env"],
+      ["l15", "python", english ? "Python excerpt" : "Python"],
+      ["l15", "output", english ? "Example output" : "예시"],
+    ]) {
+      await page.goto(`${entry}#${id}`);
+      const block = page.locator(`#${id} pre`).filter({has: page.locator(`code.language-${kind}`)}).first();
+      const expected = await block.locator("code").textContent();
+      await block.locator(".copy-button").click();
+      check(await page.evaluate(() => window.__workshopCopiedText) === expected,
+        `${id} ${kind} copy preserves exact source without executing it`);
+      check((await page.locator("#toast").innerText()).includes(destination)
+        && !(await page.locator("#toast").innerText()).includes("Chat"),
+      `${id} ${kind} copy identifies its actual destination, not portal Chat`);
+    }
     await page.goto(`${entry}#l06`);
     await page.evaluate(() => {
       Object.defineProperty(navigator, "clipboard", {
@@ -574,6 +629,9 @@ async (page) => {
             walkthroughsFit: [...chapter.querySelectorAll(".table-wrap")].every(node =>
               node.getBoundingClientRect().width <= chapter.querySelector(".prose").getBoundingClientRect().width + 1
             ),
+            imagesFit: [...chapter.querySelectorAll(".prose img")].every(image =>
+              image.getBoundingClientRect().width <= chapter.querySelector(".prose").getBoundingClientRect().width + 1
+            ),
             labelsFit: [...chapter.querySelectorAll(".code-label")].every(label => {
               if (!label.getClientRects().length) return true;
               const pre = label.closest("pre");
@@ -587,6 +645,7 @@ async (page) => {
           check(layout.briefWidth > 0 && layout.briefWidth <= layout.proseWidth + 1, `${id} beginner card fits at ${width}px`);
           check(layout.handoffWidth > 0 && layout.handoffWidth <= layout.proseWidth + 1, `${id} result handoff fits at ${width}px`);
           check(layout.walkthroughsFit, `${id} portal action tables stay within the reading surface at ${width}px`);
+          check(layout.imagesFit, `${id} screenshots and flow diagrams fit the reading surface at ${width}px`);
           check(layout.labelsFit, `${id} input labels do not overlap copy controls or code at ${width}px`);
           if (practiceIds.includes(id)) {
             check(await page.locator(`#${id} .practice-block`).isVisible(), `${id} concrete practice remains readable at ${width}px`);
@@ -682,19 +741,41 @@ async (page) => {
     if (english) {
       const verifySceneLinks = async (mediaPage, base, surface) => {
         check(captures.timedFrames.length === 3, `${surface}: scene tests include both fractional inspection frames`);
+        const waitForScene = async (clip, seconds, language) => {
+          await mediaPage.waitForFunction(({clip, seconds, language}) => {
+            const video = [...document.querySelectorAll("video")].find(item => item.dataset.recording === clip);
+            return document.getElementById("recording-link-status").dataset.state === "ready"
+              && video.readyState >= 2 && !video.seeking && Math.abs(video.currentTime - seconds) < .15
+              && [...video.textTracks].some(track =>
+                track.language === language && track.mode === "showing" && track.cues?.length > 0);
+          }, {clip, seconds, language}, {timeout: 15000});
+        };
+        const clip = recordings.clips[0];
+        const sceneIndex = clip.edits.findIndex(edit => edit.start_seconds > 0);
+        check(sceneIndex >= 0, `${surface}: an actual nonzero scene is available for link-click regression`);
+        for (const language of ["ko", "en"]) {
+          await mediaPage.goto(base);
+          const scenes = mediaPage.locator(`[id="${clip.id}"] details`);
+          await scenes.locator("summary").click();
+          const link = scenes.locator(`a[lang="${language}"]`).nth(sceneIndex);
+          const address = new URL(await link.getAttribute("href"), base);
+          const seconds = clip.edits[sceneIndex].start_seconds;
+          check(address.pathname === new URL(base).pathname && address.searchParams.get("clip") === clip.id
+            && Number(address.searchParams.get("t")) === seconds && address.searchParams.get("lang") === language,
+          `${surface}: ${language} scene links open the captioned player, not a bare MP4`);
+          await Promise.all([mediaPage.waitForURL(address.href), link.click()]);
+          await waitForScene(clip.id, seconds, language);
+          check(await mediaPage.locator("video").evaluateAll((videos, clip) => videos.every(video =>
+            video.paused && !video.autoplay && (video.dataset.recording === clip || video.readyState === 0)
+          ), clip.id), `${surface}: clicking a ${language} scene selects captions and time without autoplay or other clips`);
+        }
         for (const frame of captures.timedFrames) {
           for (const language of ["ko", "en"]) {
             const address = new URL(base);
             address.search = new URLSearchParams({clip: frame.clip, t: frame.seconds, lang: language}).toString();
             address.hash = frame.clip;
             await mediaPage.goto(address.href);
-            await mediaPage.waitForFunction(({clip, seconds, language}) => {
-              const video = [...document.querySelectorAll("video")].find(item => item.dataset.recording === clip);
-              return document.getElementById("recording-link-status").dataset.state === "ready"
-                && video.readyState >= 2 && !video.seeking && Math.abs(video.currentTime - seconds) < .15
-                && [...video.textTracks].some(track =>
-                  track.language === language && track.mode === "showing" && track.cues?.length > 0);
-            }, {clip: frame.clip, seconds: frame.seconds, language});
+            await waitForScene(frame.clip, frame.seconds, language);
             check(await mediaPage.locator("video").evaluateAll((videos, clip) =>
               videos.every(video => video.paused && !video.autoplay && video.playbackRate === 1
                 && (video.dataset.recording === clip || video.readyState === 0))
@@ -703,7 +784,6 @@ async (page) => {
             `${surface}: ${frame.clip} seeks to ${frame.seconds}s with ${language} captions, without autoplay or loading other clips`);
           }
         }
-        const clip = recordings.clips[0];
         for (const query of [
           `clip=missing&t=0&lang=en`, `clip=${clip.id}&t=-1&lang=en`,
           `clip=${clip.id}&t=NaN&lang=en`, `clip=${clip.id}&t=${clip.seconds}&lang=en`,
@@ -720,6 +800,7 @@ async (page) => {
       await verifySceneLinks(page, `${origin}/${page.contosoGuideRelease.portal_recordings}`, "HTTP");
       const offlineContext = await page.context().browser().newContext();
       const offline = await offlineContext.newPage();
+      offline.setDefaultTimeout(30000);
       offline.on("pageerror", onError);
       offline.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
       await offline.route("**/*", async route => {

@@ -44,6 +44,18 @@ ZIP의 `agent-v1-with-context.txt`, `agent-v2-with-context.txt`, `evaluation-12.
 
 <div class="screen-step" markdown="1">
 
+**비교 대상 생성: 자동 이름 대신 명확한 v1/v2 이름**
+
+![평가용 Prompt Agent 생성 폼의 Agent name, Text 모드와 생성 버튼.](../assets/portal/steps/agent-create-form.png)
+
+**1 Agent name:** `contoso-compare-v1` 또는 `contoso-compare-v2`로 바꿉니다. **2 Text:** 두 대상 모두 같습니다. **3 생성:** 각각 한 번 생성한 뒤 위 표의 지시문·모델·도구 없음·출력 설정을 맞춥니다. 이 폼은 아직 저장된 평가 대상이 아닙니다.
+
+[자막 영상 04 · 00:01.5](../downloads/portal/index.html?clip=04-native-evaluation&t=1.5&lang=ko#04-native-evaluation)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
 **비교 agent: 이름의 v1과 숫자 version 2 구분**
 
 ![contoso-compare-v1의 contoso-chat 모델과 저장된 Version 2.](../assets/portal/steps/eval-agent.png)

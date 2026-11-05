@@ -22,9 +22,9 @@
 - [09. Reject missing facts and false approval (Safety / Guardrails)](#l09)
 - [10. Follow an answer's execution path (Tracing)](#l10)
 - [11. Compare Azure AI Search and Foundry IQ in the portal](#l13)
-- [12. Inspect Hosted Agent portal boundaries](#l14)
-- [13. Manual role comparison: sequential transfer and independent review](#l15)
-- [14. Manual collaboration: review, revision, and role selection](#l15-collaboration)
+- [12. Hosted Agent source, packaging, and deployment (Terminal / azd)](#l14)
+- [13. Run real MAF: sequential transfer and concurrent fan-out](#l15)
+- [14. Real MAF collaboration: group chat and handoff](#l15-collaboration)
 - [15. Inspect Memory and conditionally compare recall](#l16)
 - [16. Inspect Routines forms, timezones, and identity](#l17)
 - [17. Read-only access, connections, and governance inspection](#l21)
@@ -46,7 +46,7 @@
 
 ## Objectives
 
-Build a **Contoso purchasing-policy assistant grounded in documents**, using two browser windows. No installation, terminal, Cloud Shell, Codespaces, or API key is required.
+The core course builds a **Contoso purchasing-policy assistant grounded in documents** in two browser windows, without installation, terminal, Cloud Shell, Codespaces, or API keys. Only optional **L12–L14** use separate Python environments and explained terminal commands for code-required Hosted/MAF work.
 
 <div class="lab-brief" markdown="1">
 
@@ -66,7 +66,7 @@ Build a **Contoso purchasing-policy assistant grounded in documents**, using two
 
 **How do you use it?** Follow each table one row at a time. Continue only when the expected screen or value matches.
 
-**Where do you run it?** Only in the two portals. Downloads, extraction, and uploads use the browser and file picker. Running code is not part of this learning path.
+**Where do you run it?** Core work uses the two portals, browser, and file picker. L12–L14 instead use the complete ZIP's source, diagrams, and command walkthroughs. Manual Chat does not substitute for code-required execution.
 
 ### Read each screen in order
 
@@ -128,12 +128,16 @@ Numbered images come from the corresponding scene in the [actual portal recordin
 | L07 | Conditionally connect an approved read-only remote MCP tool | Execution only when a real tool-call record exists |
 | L08 | Evaluate separate v1/v2 agents with the same twelve dev questions | Learning comparison, not production release or replacement of historical validation |
 | L09–L10 | Inspect safety and the same request's trace on the L05 policy agent | Separate answer, filtering, authorization, and tool results |
-| L11–L18 | Inspect supported portal controls or perform explicitly manual comparisons | Not Hosted code deployment, real concurrency, or automatic handoff |
+| L11, L15–L18 | Stated portal inspection, conditional tests, and decisions | Unsupported/not-run work is not success |
+| L12 | Hosted source/offline packaging, separately approved deployment/one invocation | Packaging is distinct from Microsoft Azure deployment |
+| L13–L14 | Actual MAF SDK transfer, fan-out, group chat, and handoff | Default fixtures are not Microsoft Azure model/quality evidence |
 | L19 | Inventory your resources and remaining charges | Closing a browser does not stop or delete resources |
 
 ### 3. Set cost and execution boundaries
 
 Agree on a personal budget first. An example action scope is one environment, two model deployments, three policy files, at most 48 Chat sends, two evaluations of twelve rows each, and zero automated dispatches, training jobs, PTU deployments, or orders. **These are example request bounds, not a monetary cap.** Evaluation judge calls, logging, and storage can incur additional charges.
+
+That example covers the core course. L12 Search data, embeddings, Hosted deployment/access and L13–L14 live model calls each need additional approval/budget. Offline packaging/SDK fixtures create no cloud resources or billed model calls, but are still code execution, distinct from **Read without executing**.
 
 If a model, version, or region is unavailable, record **blocked**. A substitute is a separate experiment, not evidence for the baseline model. Reading-only means reading screenshots, policies, and decision tables without selecting Create, Save, or Send.
 
@@ -764,6 +768,18 @@ Have the L02 deployment ready. Open [instructions v2](../data/en/prompts/agent-v
 
 </div>
 
+<div class="screen-step" markdown="1">
+
+**After Save: verify the saved numeric version**
+
+![Saved contoso-policy Version 2 with Save and Publish controls.](../assets/portal/steps/agent-version-bar.png)
+
+**1 Version:** This recording saved `2`; record your own actual number. **2 Save:** Save changed Instructions/output settings. **3 Publish:** Not part of this Chat exercise.
+
+[Captioned video 02 · 02:04.5](portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
+
+</div>
+
 ### 2. Compare the same conversation with a new one
 
 | Step | Click or enter | Expected screen or value | If it fails |
@@ -791,6 +807,18 @@ What budget did I just mention? Distinguish your evidence from what you still ca
 ![Actual Korean follow-up answer referring to the user's earlier KRW 1,500,000 budget.](../assets/portal/steps/conversation-followup.png)
 
 **1 Follow-up:** Same conversation as the budget statement. **2 Answer:** Check that the source is the user statement, not verified policy, stock, or purchasing approval.
+
+[Captioned video 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Below the response: Traces and Copy**
+
+![Enlarged Traces and Copy controls below this executed response, without its body.](../assets/portal/steps/agent-answer-actions.png)
+
+**1 Traces:** Open this response's execution record. **2 Copy:** Preserve your own actual answer. Pictured model/token values belong to this recording, not your measurements.
 
 [Captioned video 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
 
@@ -961,6 +989,18 @@ These are Korean-run frames. For your English exercise, use the English instruct
 **1 Model / 2 File search:** Both must match. This frame is after Attach; a visible attachment alone does not establish saved configuration or successful retrieval.
 
 [Captioned video 03 · 01:35](portal/index.html?clip=03-retrieval-boundaries&t=95&lang=en#03-retrieval-boundaries)
+
+</div>
+
+<div class="screen-step" markdown="1">
+
+**Reopen after Save: retain the RAG version and attachment**
+
+![Policy agent Version 4 and Save/Publish control locations.](../assets/portal/steps/policy-version-bar.png)
+
+**1 Version:** The recorded separate RAG version is `4`. Verify your own saved number, model, and File search together. **2 Save / 3 Publish:** Saving is required; publishing is not this exercise. A version number alone does not establish retrieval success.
+
+[Captioned video 05 · 01:36](portal/index.html?clip=05-inspection-retention&t=96&lang=en#05-inspection-retention)
 
 </div>
 
@@ -1365,6 +1405,18 @@ Upload **JSONL** in the portal. The identical twelve-row `evaluation-12.csv` is 
 | 5 | Under `Build → Models`, open each existing deployment's `Actions → Edit`. Inspect capacity only within approved existing quota. | This recording assigned 100,000 TPM to `contoso-chat` and 300,000 TPM to `contoso-judge`, then reopened Details to verify Succeeded and actual TPM. | Defer if quota is insufficient. Do not automatically request another model, region, or subscription quota increase. |
 
 `v1` and `v2` identify **instruction variants**. Both recorded agents had saved **numeric version 2**, so the targets were `contoso-compare-v1: v2` and `contoso-compare-v2: v2`. Record your actual numeric versions and **Pin** them; do not compare moving `Latest available` targets.
+
+<div class="screen-step" markdown="1">
+
+**Create comparison targets: replace the generated name**
+
+![Evaluation Prompt Agent creation form showing Agent name, Text, and Create.](../assets/portal/steps/agent-create-form.png)
+
+**1 Agent name:** Enter `contoso-compare-v1` or `contoso-compare-v2`. **2 Text:** Match both targets. **3 Create:** Create each once, then apply the table's instructions, model, no-tools, and output settings. This form is not yet a saved evaluation target.
+
+[Captioned video 04 · 00:01.5](portal/index.html?clip=04-native-evaluation&t=1.5&lang=en#04-native-evaluation)
+
+</div>
 
 <div class="screen-step" markdown="1">
 
@@ -2111,141 +2163,327 @@ Add Search, Storage, embeddings, and connections to L19. Inspect indexer schedul
 
 <a id="l14"></a>
 
-# 12. Inspect Hosted Agent portal boundaries
+# 12. Hosted Agent source, packaging, and deployment (Terminal / azd)
 
-**Advanced course · Inspection / Hosted deployment not run** · about 45 min
+**Advanced course · Offline default / paid deployment separately approved** · about 45 min
 
-> **Learning order: Portal inspection** — L04 Prompt Agent. Read existing owned Hosted details only. Code, containers, development environments, and SDK deployment are outside this path.
+> **Learning order: Terminal / offline default** — Complete ZIP, Python 3.13, separate Hosted environment. Optional live work needs existing L01/L02 scope, approved Search/embeddings, azd, and access. Never mix with MAF dependencies.
 
 ## Objectives
 
-Distinguish Prompt and Hosted Agents in the portal and identify what this no-code path cannot execute.
+Find the portal's Hosted boundary, then follow **source → local package → one approved service deployment → one exact-version invocation**. Do not substitute manual Chat for code execution.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Portal inspection only. No Hosted packaging, deployment, or remote invocation.
+**Format:** Portal plus terminal. Start with offline packaging and SDK checks; paid deployment, access changes, and invocation each require separate approval.
 
-**Start here:** Open your Prompt Agent under `Build → Agents`.
+**Start here:** Extract the complete workshop ZIP and open a terminal at the **repository root**, containing `azure.yaml`, `hosted/`, `samples/`, and `scripts/`. The small portal-input ZIP contains no code.
 
-**What to check:** A table distinguishing kind, model, version, supported protocol, and where tools execute.
+**What to check:** Package manifest and SDK results. If you choose live execution, also verify the remote version, actual response, and owned-session stop record.
 
 </div>
 
 ## Concepts and lab map
 
-**What you will try:** Managed Prompt Agent versus custom-code Hosted runtime.
+**What you will try:** Hosted code deployment and Invocations requests.
 
-**What is it, and why does it matter?** Hosted runs your code/container. Saving Instructions does not deploy a purchasing-function server.
+**What is it, and why does it matter?** Prompt uses instructions/model settings; Hosted runs your server code. Portal Save does not deploy code.
 
-**How do you use it?** Inspect existing details and creation options, stopping where code or an executable image is required.
+**How do you use it?** Inspect a local package first, then deploy one service only to an approved existing scope.
 
-**Where do you run it?** Microsoft Foundry → Build → Agents list, details, and creation screens, without installing development tools.
+**Where do you run it?** Inspect resources/kinds in the portal; use the terminal for Python, packaging, and azd deployment. SDK installation is limited to this elective.
+
+[![Hosted source, offline packaging, approved deployment and invocation; the local server also calls Microsoft Azure.](../assets/hosted-lifecycle.svg)](../assets/hosted-lifecycle.svg)
+
+Select the diagram to enlarge it. **The existing footage contains no Hosted deployment or invocation.** Portal images show only the development boundary, not recorded terminal execution.
 
 ## Prerequisites
 
-Inspect only owned project resources. Read Hosted details only if **your own separately approved deployment already exists**. Never invoke another person's agent for this exercise.
+Use Python **3.13**. Live execution additionally needs Azure CLI, Azure Developer CLI (azd) with the `azure.ai.agents` extension, the existing L01 project/L02 model, an approved dedicated Search service, and an **embedding deployment callable with 1536 dimensions**. A development skill, Docker, and ACR are not learner prerequisites for this code deployment.
+
+Hosted pins `azure-ai-projects==2.7.0` in `requirements-hosted.txt`; MAF pins **2.6.0** in `requirements-advanced.txt`. **Never install both profiles into one environment.** Use `.venv-hosted` here and a separate `.venv-maf` in L13.
 
 ## Steps
 
-### 1. Start with Type and Version in the list
+### 1. Find the point where the portal requires code
+
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Read `Type` under your project's `Build → Agents`. | The existing `contoso-policy` is Prompt. | Running does not establish Hosted deployment. |
+| 2 | Open `New agent → Code an agent`, read framework/hosting information, and return with `Cancel`. | Continue with source code in section 2. | Creating another Prompt Agent is not Hosted execution. |
 
 <div class="screen-step" markdown="1">
 
-**Agents list: Running does not mean Hosted**
+**List: inspect Type before names**
 
-![Actual Agents list showing Version, Prompt Type, and New agent.](../assets/portal/steps/agents-type-list.png)
+![Actual list with Version, Prompt Type, and New agent.](../assets/portal/steps/agents-type-list.png)
 
-**1 Version:** Both comparison agents show `2`; the policy agent shows `4`. **2 Type:** All three are `Prompt`. Running alone does not establish Hosted deployment. **3 New agent:** Inspect that creation path only in section 3.
+**1 Version / 2 Type:** All three pictured targets are Prompt. **3 New agent:** Locate Code an agent here; this is not a Hosted execution result.
 
 [Captioned video 05 · 02:23](portal/index.html?clip=05-inspection-retention&t=143&lang=en#05-inspection-retention)
 
 </div>
 
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Open `Build → Agents → contoso-policy`. | A Prompt Agent defined by Instructions, model, and File search. | Do not label it Hosted. |
-| 2 | Inspect `Details/Versions` and record displayed kind/version. | Agent version differs from conversation ID. | Do not infer missing protocol/runtime fields. |
-
-### 2. Reconcile Prompt settings and saved version
-
 <div class="screen-step" markdown="1">
 
-**Read the current target: Prompt configuration**
-
-![Existing policy Prompt Agent's model, Instructions, and File search.](../assets/portal/steps/policy-final.png)
-
-**1 Model / 2 File search:** The current Prompt Agent configuration. This editor is not evidence of Hosted code/container deployment.
-
-[Captioned video 05 · 01:36](portal/index.html?clip=05-inspection-retention&t=96&lang=en#05-inspection-retention)
-
-</div>
-
-<div class="screen-step" markdown="1">
-
-**Version bar: the current policy agent is 4**
-
-![Current policy agent's Version 4, Save, and Publish controls.](../assets/portal/steps/policy-version-bar.png)
-
-**1 Version:** Match the policy agent's `4` in the list above. **2 Save:** Saving Instructions differs from deployment. **3 Publish:** Do not select it in this inspection. This screen exposes no Hosted protocol or container state.
-
-[Captioned video 05 · 01:36](portal/index.html?clip=05-inspection-retention&t=96&lang=en#05-inspection-retention)
-
-</div>
-
-### 3. Open Code agent, then cancel before developer setup
-
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Return to the list and select `New agent → Code an agent`. | The `Code agent` dialog describes frameworks, Microsoft Foundry hosting, and SDK/Get started links. | Record absent options; do not download, install, or deploy development tools. |
-| 2 | Select `Cancel` without opening developer setup or SDK links. | No Hosted runtime, container, or deployment was created. | Inspecting this dialog or saving a Prompt Agent does not establish Hosted deployment. |
-| 3 | If you own an existing Hosted agent, read its version, protocol, state, and connections. | An actually deployed target is inspected. | Otherwise record `Hosted not deployed`. |
-| 4 | Complete the table below using actual state. | Execution and reading are distinguished. | Do not substitute Chat output for runtime state. |
-
-<div class="screen-step" markdown="1">
-
-**Code agent: cancel at the development boundary**
+**Code agent: continue in the terminal**
 
 ![Code agent framework/hosting information and Cancel.](../assets/portal/steps/hosted-dialog.png)
 
-**1 Code agent:** A separate path requiring code or an executable image. **2 Cancel:** Return without running developer setup. The recording performed zero Hosted deployments/invocations.
+**1 Developer path:** Continue with checked-in source instead of stopping at inspection. **2 Cancel:** Close this portal dialog and go to section 2. The footage itself still contains zero deployments/invocations.
 
 [Captioned video 05 · 02:19](portal/index.html?clip=05-inspection-retention&t=139&lang=en#05-inspection-retention)
 
 </div>
 
-| Item | Current Prompt Agent | Additional Hosted requirement |
+### 2. Prepare the dedicated environment and package — offline
+
+In macOS/Linux Bash or zsh:
+
+```bash
+python3.13 -m venv .venv-hosted
+source .venv-hosted/bin/activate
+python -m pip install -r requirements-hosted.txt
+export FOUNDRY_LAB_LANGUAGE=en
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
 | --- | --- | --- |
-| Definition | Model, Instructions, service tools | Code/container, entrypoint, dependencies |
-| Business functions | Only connected server tools | Runtime implementation, authorization, validation |
-| Version | Saved agent version | Deployed source/image and exact remote version |
-| Protocol | Supported target request path | Actual Responses, Invocations, activity, or other protocol |
-| Cost/end state | Model, files, logs | Additional compute, sessions, scaling, and stop state |
+| 1. `python3.13 -m venv` | Create the dedicated Hosted environment at the root once. | Local files only; do not recreate an existing environment. |
+| 2. `source` | Select that environment's Python for this terminal. | Not a Microsoft Azure login. |
+| 3. `pip install -r` | Install the checked-in Hosted SDK pins. | Package downloads, not resource deployment/model requests. |
+| 4. `export` | Select this terminal's synthetic-data language. | Keep Korean/English live folders and receipts separate. |
+
+</div>
+
+In Windows PowerShell, use this **instead**:
+
+```powershell
+py -3.13 -m venv .venv-hosted
+.\.venv-hosted\Scripts\Activate.ps1
+python -m pip install -r requirements-hosted.txt
+$env:FOUNDRY_LAB_LANGUAGE = "en"
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `py -3.13 -m venv` | Create a dedicated Python 3.13 environment. | One-time local preparation. |
+| 2. `Activate.ps1` | Select it in this terminal. | If policy blocks activation, do not weaken security; replace later `python` commands with `.venv-hosted\Scripts\python.exe`. |
+| 3. `pip install -r` | Install only Hosted dependencies. | Do not add the MAF requirements. |
+| 4. `$env:` | Select the language for this terminal. | Other terminals do not inherit this selection automatically. |
+
+</div>
+
+Subsequent single-line `python`, `az`, and `azd` commands work in both shells. In a new terminal, reselect the environment/language without reinstalling.
+
+| Source to open first | What to inspect |
+| --- | --- |
+| [hosted/main.py](../hosted/main.py) | `InvocationAgentServerHost`, `/invocations`, input validation, one request at a time, and failed HTTP responses |
+| [samples/hosted_runtime.py](../samples/hosted_runtime.py) | Actual Search grounding, synthetic inventory/draft functions, and per-request authorization. No ordering, payment, or approval |
+| [azure.yaml](../azure.yaml) | This service's entrypoint/protocol and 0.5 CPU/1Gi. Responses is a separate service |
+
+Read this configuration excerpt in the source; do not overwrite the YAML or deploy only this fragment.
+
+```yaml
+codeConfiguration:
+  runtime: python_3_13
+  entryPoint: main.py
+  dependencyResolution: remote_build
+protocols:
+  - protocol: invocations
+    version: 1.0.0
+```
+
+```bash
+python scripts/build_hosted.py
+python -m scripts.check_sdk
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `build_hosted.py` | Package synthetic sources, allowlisted files, and pinned dependencies for both protocols. | `.build/contoso/package-manifest.json` and the Responses package. **Both are local files, not deployments.** |
+| 2. `scripts.check_sdk` | Check installed SDK contracts without credentials/network access. | `sdk_contracts: passed`, `azure_calls: 0`. Neither live Microsoft Azure nor quality evidence. |
+
+</div>
+
+Without a configured `.env`, the package model is `CONFIGURE-MODEL-BEFORE-DEPLOY`. Offline packaging works, but **do not deploy/invoke that package**. If you stop offline, continue to section 5 and the success criteria.
 
 <a id="l12-azd"></a>
 
-### Development paths are outside this exercise
+### 3. Connect the existing portal environment — approved optional path
 
-Hosted source/container deployment and Microsoft Agent Framework execution are code-first. This portal-only guide classifies them as **reference**, not execution. No Canvas, Visual Studio Code, DevPack, or development skill installation is required.
+**Do not create another group/project.** Portal notes are not a CLI receipt. Reuse an existing `results/azure-environment.json` only if scope/language match; do not repeat adoption.
 
-Successful Invocations does not validate Responses, Voice, or Teams `activity`. Agent Inspector and browser Chat are not automatically the same execution surface. Do not fill unsupported fields with invented YAML or function schemas to imply deployment.
+| Step | Click or enter | Expected screen or value | If it fails |
+| --- | --- | --- | --- |
+| 1 | Open your dedicated RG's Overview and Tags in Azure portal. | L01's `validationRun` and `repository=microsoft-foundry-labs-v1.5`. | Add/save a missing repository tag **only with approval to change your own group's tags**. Never label someone else's group as owned. |
+| 2 | Compare the project endpoint and actual deployment names in Microsoft Foundry. | `contoso-chat`, approved embedding, same account/subscription. | An automatically observed ada-002 deployment is not presumed compatible. |
+| 3 | In the file explorer/editor, copy `.env.example` to `.env` and replace the placeholders below. Do not overwrite an existing `.env`. | Endpoints/names only, no secrets. | Never paste keys, tokens, or passwords. |
+
+```env
+FOUNDRY_PROJECT_ENDPOINT=https://YOUR_RESOURCE.services.ai.azure.com/api/projects/YOUR_PROJECT
+FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat
+FOUNDRY_SEARCH_ENDPOINT=https://YOUR_SEARCH_SERVICE.search.windows.net
+FOUNDRY_SEARCH_INDEX=
+FOUNDRY_KNOWLEDGE_BASE=
+FOUNDRY_EMBEDDING_DEPLOYMENT_NAME=YOUR_EMBEDDING_DEPLOYMENT
+FOUNDRY_EMBEDDING_ENDPOINT=https://YOUR_RESOURCE.openai.azure.com
+FOUNDRY_AUTH_MODE=cli
+```
+
+Search is the **existing dedicated service** approved in L11. This Hosted implementation requires canonical policy sections/hashes and a 1536-dimensional schema, not an arbitrary portal index. Leave index/knowledge-base values empty for first initialization; reuse an existing matching `results/search.json`. Your user needs Search Service Contributor, Search Index Data Contributor, and model inference access at the appropriate scopes. Missing access requires separate least-scope approval, not keys or a shared-service workaround.
+
+If needed, the login command opens a browser window. Exclude credentials/authentication codes from recordings.
+
+```bash
+az login --tenant YOUR_TENANT_ID
+python scripts/adopt_portal.py --subscription YOUR_SUBSCRIPTION_ID --resource-group YOUR_RESOURCE_GROUP --run-id YOUR_VALIDATION_RUN --search-service YOUR_SEARCH_SERVICE --embedding-deployment YOUR_EMBEDDING_DEPLOYMENT --live
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `az login --tenant` | Replace the tenant placeholder and authenticate in the browser. Skip if already correctly signed in. | CLI authentication cache; do not arbitrarily change organization/subscription defaults. |
+| 2. `adopt_portal.py ... --live` | Replace every `YOUR_...`. Verify existing RG tags, account, project, chat, Search, and embedding with at most seven read commands. | Private ownership receipt; **zero** resource creations, role grants, or model invocations. Existing receipts are never overwritten. |
+
+</div>
+
+**The next step is not read-only.** Run the first command once only with approval for a policy index, knowledge source/base, and one embedding batch. Skip it when a healthy matching `search.json` already exists.
+
+```bash
+python samples/search_lab.py initialize --live
+python scripts/build_hosted.py
+python scripts/configure_hosted.py
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `search_lab.py initialize --live` | Create the three synthetic policies' sections/vectors and knowledge source/base in existing Search; budget: 15 requests, 300 seconds. | Microsoft Azure data writes and embedding charges, not another Search service. |
+| 2. `build_hosted.py` | **Rebuild** with the actual deployment name from the edited `.env`. | Verify the actual model in `.agent_configs/baseline/metadata.yaml` and the manifest's file hashes. |
+| 3. `configure_hosted.py` | Match the verified receipt, `.env`, and Search settings to bind the local azd environment. | Local `.azure/` configuration only; no provisioning, deployment, or role changes. |
+
+</div>
+
+### 4. Deploy one service and invoke its exact version — separate approval
+
+Deployment, runtime least-privilege roles, and the invocation **each need approval**. Target only `contoso-purchasing`. Do not use service-less `azd deploy` or `azd up`: both services might be deployed.
+
+```bash
+azd deploy contoso-purchasing --timeout 1200
+azd ai agent show contoso-purchasing --output json
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `azd deploy contoso-purchasing` | Deploy only the Invocations code service in `azure.yaml`, waiting at most 1200 seconds. | Creates/changes paid Hosted compute. Timeout does not cancel the Microsoft Azure deployment; inspect state instead of redeploying. |
+| 2. `azd ai agent show` | Read the same service's actual version, endpoint, and state. | Retain the exact numeric version, not a Prompt save version or `latest`. |
+
+</div>
+
+Run this only after separately approving the runtime identity's project role, Search Index Data Reader, and account-level Cognitive Services OpenAI User at their **minimum scopes**. Skip existing matching assignments.
+
+```bash
+python scripts/runtime_roles.py --agent contoso-purchasing --live
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `runtime_roles.py ... --live` | Assign three minimum project/Search/model roles to the agent identity in the ownership receipt. | **Changes access.** Stop without approval/roleAssignments/write; never grant a subscription-wide role. |
+
+</div>
+
+Replace `YOUR_DEPLOYED_VERSION` with the verified **number** and invoke once.
+
+```bash
+python samples/hosted_client.py invoke --version YOUR_DEPLOYED_VERSION --live
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `hosted_client.py invoke` | Request policy/stock for two NB-14 units and a synthetic draft in your exact-version session. | **One** paid invocation; internal model/Search operations also incur charges. Runtime budget: 12 requests, 60,000 tokens, 300 seconds, at most eight tools. Preserve originals/errors; stop and verify only its own session. |
+
+</div>
+
+Inspect `status`, `response_id`, `citations`, `tool_calls`, and `contract.sha256` in `results/contoso-hosted-client-...-responses.jsonl`, plus `stopped_session` in the execution log. Drafts must remain `draft_requires_human_approval` with `order_submitted=false`. Do not run `evaluate` or collect holdout data.
+
+### 5. Optional local server — not offline
+
+Choose this **instead of** the remote invocation. Section 3's real Search/model/access and `.env` are still required. Select the Hosted environment/language in **terminal A**, then:
+
+```bash
+python scripts/run_hosted_local.py --protocol invocations --port 8088
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `run_hosted_local.py` | Run the generated package's actual server at `127.0.0.1:8088`. | Leave this terminal running. Do not create a tunnel or public binding. |
+
+</div>
+
+Select the same Hosted environment/language in **terminal B**; after approving one paid request:
+
+```bash
+python samples/hosted_client.py invoke --local --live
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `invoke --local --live` | Send once to local `/invocations`; the server calls Azure AI Search and a Microsoft Azure model. | **Local execution with a Microsoft Azure backend**, not remote Hosted deployment evidence. Stop terminal A with Ctrl+C afterward. |
+
+</div>
+
+Invocations does not validate the separate `contoso-purchasing-responses` **Responses 2.0.0** service, Voice, or Teams `activity`. Code deployment and portal Chat are different execution surfaces.
 
 ## Success criteria
 
-Identify your target kind from actual configuration. Record missing Hosted deployments as absent. Do not claim real purchasing-function deployment or execution without code/backend evidence.
+| Path actually completed | Required result | Do not claim |
+| --- | --- | --- |
+| Offline package/SDK checks | Manifest, installed versions, `azure_calls: 0` | Microsoft Azure deployment, tool execution, or quality approval |
+| Optional local invocation | Actual response/contract/Search/tool originals, labeled local | Successful remote Hosted deployment |
+| Optional remote deployment/invocation | Exact service/version, original response, confirmed session stop | Ordering, payment, business approval, or other protocols |
 
 ## Troubleshooting
 
-For missing Hosted options/details, inspect region, access, and actual deployment existence. The core path continues with Prompt Agents. Do not change public access, identities, or projects to bypass browser errors.
+Separate Hosted/MAF environments on dependency conflicts. Missing receipts require verification of the existing portal scope, not duplicate `create`/`foundation`. Search hash/schema mismatch may mean an arbitrary portal index was reused. Separate user/runtime access when investigating 403; never bypass with keys/public access. Preserve failures, 429s, and timeouts without automatic retries.
 
 ## Cleanup
 
-No runtime, container, or development environment was created. Existing Hosted resources were inspected only, not stopped/deleted. Review their session/compute costs with the owner in L19.
+Stop local servers with Ctrl+C. The remote client stops **only its own session**, without deletion; an unconfirmed stop is not cleanup success. Coordinate remaining owned sessions using [stop_sessions.py](../scripts/stop_sessions.py) and its receipt checks. A stopped session does not prove all agent/compute, Search, file, or logging charges ended. Hand these to L19.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Prompt/Hosted comparison and explicit Hosted deployment/invocation **not run** status.
+**Keep:** Source/package contract and execution-path labels. For optional live work, privately retain scope, version, originals, role changes, and session end state.
 
-**Continue:** [L13: manually compare sequential and independent review](#l15).
+**Continue:** [L13: real MAF sequential/concurrent execution](#l15). A separate MAF environment needs no Hosted deployment.
 
 </div>
 
@@ -2262,169 +2500,255 @@ No runtime, container, or development environment was created. Existing Hosted r
 
 <a id="l15"></a>
 
-# 13. Manual role comparison: sequential transfer and independent review
+# 13. Run real MAF: sequential transfer and concurrent fan-out
 
-**Advanced course · Manual experiment / real orchestration not run** · about 40 min
+**Advanced course · Real SDK / offline default** · about 40 min
 
-> **Learning order: Manual role comparison** — L04 agent creation, L08 v2 synthetic context, identical model. Four baseline sends, at most six. No framework or concurrent runtime execution.
+> **Learning order: SDK execution / offline default** — Complete ZIP, Python 3.13, separate MAF environment. Run real builders without Hosted, Search, or extra Prompt Agents. Live requires existing L01/L02 model, ownership receipt, TPM/RPM, and cost approval.
 
 ## Objectives
 
-Compare two review roles in portal Chat. This is a **human copy-and-transfer experiment**, not SDK sequential or concurrent orchestration.
+**Execute SequentialBuilder and ConcurrentBuilder** in Microsoft Agent Framework (MAF), then inspect transfer, fan-out, and termination. Do not replace SDK execution with human copying.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Manual role comparison: four baseline sends, at most six including the optional change.
+**Format:** Real SDK in the terminal, using an offline fixture by default. Separately approve the same code's connection to an existing Microsoft Azure model.
 
-**Start here:** Prepare two review agents with identical model, synthetic context, and question.
+**Start here:** Create a dedicated MAF environment at the complete ZIP's repository root. **No Hosted deployment, Search, judge, or extra Prompt Agents are required.**
 
-**What to check:** Actual differences between independent input and transferred prior output, with call counts and limitations.
+**What to check:** Actual SDK records for two sequential calls and three independent branches. Keep fixture and paid-model outcomes separate.
 
 </div>
 
 ## Concepts and lab map
 
-**What you will try:** Chat experiments illustrating sequential transfer versus independent review.
+**What you will try:** Sequential review and concurrent fan-out.
 
-**What is it, and why does it matter?** Passing an earlier answer links reviews but can propagate errors. Independent review separates inputs. Two browser windows do not establish runtime concurrency.
+**What is it, and why does it matter?** Sequential passes the draft to the next role. Concurrent distributes the same question independently and preserves three originals.
 
-**How do you use it?** Send an identical question independently, then explicitly copy the first answer into a second-role review.
+**How do you use it?** Execute real builders offline, then optionally compare the same roles, policy, and question with an approved model.
 
-**Where do you run it?** Microsoft Foundry → Build → Agents → role Chat, without a framework/development environment.
+**Where do you run it?** Workflows and Agent objects run in **your Python process**; only the optional model runs in Microsoft Foundry. Two portal Chat windows are not runtime concurrency.
+
+[![MAF two-stage sequential transfer and concurrent policy, budget, and risk branches.](../assets/maf-patterns.svg)](../assets/maf-patterns.svg)
+
+Select the flow diagram to enlarge it. **The existing portal footage contains no MAF execution.** Unrelated Prompt creation/copy controls are not execution evidence.
 
 ## Prerequisites
 
-Both roles use `contoso-chat`, no tools/Memory, and L08's [complete common Instructions](portal-inputs/en/agent-v2-with-context.txt). Change only the name and role prefix below.
+Use Python **3.13** and the complete ZIP's `samples/`, `scripts/`, `data/`, and `requirements-advanced.txt`. Package installation needs internet access; the default fixture needs no Microsoft Azure login, `.env`, or ownership receipt.
 
-| Name | Prefix before the common Instructions |
-| --- | --- |
-| `contoso-policy-review` | Review policy evidence and unknowns. |
-| `contoso-budget-review` | Review totals, caps, and approval boundaries. |
+Do not reuse L12's `.venv-hosted`. Its `azure-ai-projects==2.7.0` conflicts with this profile's **2.6.0**. Keep requirements separate in `.venv-maf`.
 
 ## Steps
 
-Images are **control-location examples** from existing Prompt Agent footage. Creation and comparison of these review roles were not recorded. Use the role names above and your actual results, not pictured default names or answers.
+### 1. Select the MAF environment and read the actual builders
 
-### 1. Create and save both roles under matching conditions
+macOS/Linux Bash or zsh:
 
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Open the Prompt creation form from `Build → Agents → New agent`, enter one role name above, and create in `Text` mode. Repeat for the other role. | Two distinct named Prompt Agents. | Do not overwrite existing targets or choose Copilot harness, Voice, or Code agent. |
-| 2 | Select `contoso-chat` for both and prepend only the role-specific sentence to the complete common Instructions. | Identical context, different role prefixes. | Do not compare if one target lacks policy context. |
-| 3 | Detach automatic tools as in L04; save without Memory using L08's matching output settings. | Record actual saved versions and matching settings. | Do not confuse pre/post-Save versions or Publish. |
+```bash
+python3.13 -m venv .venv-maf
+source .venv-maf/bin/activate
+python -m pip install -r requirements-advanced.txt
+export FOUNDRY_LAB_LANGUAGE=en
+```
+<div class="command-explanation" markdown="1">
 
-<div class="screen-step" markdown="1">
+**Command walkthrough**
 
-**Creation form: replace the generated name**
-
-![Prompt Agent creation form showing Agent name, Text mode, and creation button.](../assets/portal/steps/agent-create-form.png)
-
-**1 Agent name:** Use the role name in the table, not the pictured generated name. **2 Text:** Match both roles. **3 Create:** Create each once, then configure it. This form was recorded while preparing a comparison agent, not these review roles.
-
-[Captioned video 04 · 00:01.5](portal/index.html?clip=04-native-evaluation&t=1.5&lang=en#04-native-evaluation)
-
-</div>
-
-<div class="screen-step" markdown="1">
-
-**Navigation example: where to set each role's model and Instructions**
-
-![Reused baseline policy-agent Model and Instructions locations.](../assets/portal/steps/agent-instructions.png)
-
-**1 Model:** Match across roles. **2 Instructions:** Use the shared context and role prefix from Prerequisites. This is **reused baseline footage**, not evidence that these two review roles were created or compared.
-
-[Captioned video 02 · 02:04.5](portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `python3.13 -m venv` | Create the dedicated MAF environment at the root once. | Local files; do not recreate an existing environment. |
+| 2. `source` | Select MAF Python in this terminal. | Separate from Hosted. |
+| 3. `pip install -r` | Install pinned MAF packages and SDKs. | Package downloads only; no model invocation. |
+| 4. `export` | Select English synthetic policies/questions. | Reselect in a new terminal. |
 
 </div>
 
-<div class="screen-step" markdown="1">
+In Windows PowerShell, use this **instead**:
 
-**After saving: record each role's actual version**
+```powershell
+py -3.13 -m venv .venv-maf
+.\.venv-maf\Scripts\Activate.ps1
+python -m pip install -r requirements-advanced.txt
+$env:FOUNDRY_LAB_LANGUAGE = "en"
+```
+<div class="command-explanation" markdown="1">
 
-![Prompt Agent Version, Save, and Publish control locations.](../assets/portal/steps/agent-version-bar.png)
+**Command walkthrough**
 
-**1 Version / 2 Save:** Read your role's saved number; do not copy this baseline agent's `2`. **3 Publish:** Not required for this manual comparison.
-
-[Captioned video 02 · 02:04.5](portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `py -3.13 -m venv` | Create a separate Python 3.13 environment. | Local preparation only. |
+| 2. `Activate.ps1` | Select MAF Python. | If policy blocks it, do not weaken security; replace later `python` with `.venv-maf\Scripts\python.exe`. |
+| 3. `pip install -r` | Install advanced requirements only. | Do not add Hosted requirements. |
+| 4. `$env:` | Select the terminal's synthetic-data language. | Keep live folders/receipts separate by language. |
 
 </div>
+
+Subsequent single-line `python` commands work in both shells. In a new terminal, reselect the environment/language without reinstalling.
+
+Open [`build_workflow` in multi_agent.py](../samples/multi_agent.py). This **read-only excerpt** connects roles defined elsewhere in that file; do not run the fragment by itself.
+
+```python
+from agent_framework.orchestrations import ConcurrentBuilder, SequentialBuilder
+
+sequential = SequentialBuilder(
+    participants=[drafter, reviewer], intermediate_output_from=[drafter],
+).build()
+concurrent = ConcurrentBuilder(
+    participants=[policy_agent, budget_agent, risk],
+    intermediate_output_from=[policy_agent, budget_agent, risk],
+).build()
+```
+
+`build_role` supplies the same synthetic purchasing policy to each role. `CallAudit` middleware records actual call IDs, input hashes, roles, times, and usage. These are local SDK objects, not two newly created portal Prompt Agents.
 
 <div class="practice-block" markdown="1">
 
-### 2. Independent review: send only the same question
+### 2. Execute sequential transfer offline first
 
-**Try it:** Send this question once to **a new Chat in each role**. Do not yet transfer the first answer to the second.
+**Try it:** Check SDK contracts and the plan, then execute the workflow using `--offline`.
 
-```prompt
-Synthetic manual-review data: two NB-14 units, supplied unit price KRW 1,450,000, supplied total KRW 2,900,000. These are not inventory-lookup or persisted-draft results. Review the price cap and required approvals, separating unknown facts and unexecuted actions.
+```bash
+python -m scripts.check_sdk --advanced
+python samples/multi_agent.py --mode sequential
+python samples/multi_agent.py --mode sequential --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `scripts.check_sdk --advanced` | Check installed SDK workflow, transfer, and comparison contracts with networking blocked. | `sdk_contracts: passed`, `azure_calls: 0`; not a real-model measurement. |
+| 2. `--mode sequential` | Print options and the call ceiling only. | `PLAN ONLY` is not executed SDK workflow evidence. |
+| 3. `--mode sequential --offline` | Connect a fixed-response client to the real `SequentialBuilder`: drafter → reviewer. | Two synthetic responses, blocked network/DNS, private `results/contoso-maf-fixture-....jsonl`. |
+
+</div>
+
+The default `--case purchase` sends this actual question. Compare it with `QUESTIONS` in the source; do not send another portal Chat request.
+
+```text
+I need two laptops at KRW 1,450,000 each. Explain the purchasing policy and approval process.
 ```
 
+Inspect these output fields. Answers say `Synthetic fixture from ...`; **they do not measure policy-answer quality or billed tokens**.
+
+```output
+"execution": "local_sdk_fixture"
+"azure_calls": 0
+"fixture_calls": 2
+"usage_source": "synthetic_fixture_not_billing"
+"quality_release": false
+```
+
+The reviewer's `model_call_completed` input must contain the **actual drafter fixture response**. Two outputs alone do not prove transfer.
+
+### 3. Fan out the same question and compare a baseline
+
+```bash
+python samples/multi_agent.py --mode concurrent --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode concurrent --offline` | Fan out the same question to policy, budget, and risk; retain every original. | `fixture_calls: 3`, three roles, and `maximum_active_fixture_calls` for local overlap. No extra summarizer call. |
+
+</div>
+
+**Change one thing:** Keep the question/policy fixed and select the single-versus-sequential comparison mode.
+
+```bash
+python samples/multi_agent.py --mode compare --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode compare --offline` | Run single once plus sequential twice with the same input. | Three fixture calls and `sequential_minus_single`. Synthetic usage differences do not establish savings or quality improvement. |
+
+</div>
+
+**Explain the result:** Show the draft received by the reviewer versus independent inputs/three originals. Calls, overlap, transfer, and answer quality are separate checks. The fixture does not interpret questions as a model; do not calculate policy accuracy from it.
+
+</div>
+
+<a id="maf-live-setup"></a>
+
+### 4. Execute with an existing Microsoft Foundry model — separate approval
+
+This optional path is separate from offline evidence. **Do not create another project, agent, Hosted runtime, or Search service.** Reuse L01/L02's chat deployment with approved inference access.
+
 | Step | Click or enter | Expected screen or value | If it fails |
 | --- | --- | --- | --- |
-| 1 | Send the common question to a new policy-review Chat. | Procurement §2/§3 and unverified execution are distinguished. | Preserve actual text and citation IDs. |
-| 2 | Send **only the identical question** to a new budget-review Chat. | KRW 2,900,000 and team lead plus procurement are reviewed. | Do not silently include the first answer. |
+| 1 | Inspect your dedicated RG's Overview and Tags in Azure portal. | Exact L01 subscription/`validationRun`, plus `repository=microsoft-foundry-labs-v1.5`. | Add/save a missing repository tag only after approval to change your own group's tags. Never label another group as owned. |
+| 2 | Read the project endpoint and `Models → contoso-chat → Details` in Microsoft Foundry. | Same account/project, model version, Succeeded, actual TPM/RPM. | Stop on mismatches/insufficient capacity; no automatic increase or silent model replacement. |
+| 3 | Copy `.env.example` to `.env` at the root and edit the fields below without overwriting an existing file. | Project endpoint and actual chat deployment name. | Do not use the model's `/openai/v1` endpoint or paste API keys. |
+| 4 | Reuse a matching ownership receipt; otherwise run read-only adoption below. | `.env`, receipt, and portal agree on scope/language. | Do not hand-author an ownership claim or rerun `create`/`foundation`. |
 
-<div class="screen-step" markdown="1">
+```env
+FOUNDRY_PROJECT_ENDPOINT=https://YOUR_RESOURCE.services.ai.azure.com/api/projects/YOUR_PROJECT
+FOUNDRY_MODEL_DEPLOYMENT_NAME=contoso-chat
+FOUNDRY_AUTH_MODE=cli
+```
 
-**After opening a new Chat: input and Send**
+```bash
+az login --tenant YOUR_TENANT_ID
+python scripts/adopt_portal.py --subscription YOUR_SUBSCRIPTION_ID --resource-group YOUR_RESOURCE_GROUP --run-id YOUR_VALIDATION_RUN --live
+```
+<div class="command-explanation" markdown="1">
 
-![Enlarged Chat input and Send controls with response bodies excluded.](../assets/portal/steps/agent-chat-controls.png)
+**Command walkthrough**
 
-**1 Input / 2 Send:** Open a new conversation in each role, then send the identical original once. Do not include another role's answer in this independent path. Check the agent name and conversation first.
-
-[Captioned video 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
-
-</div>
-
-### 3. Sequential review: explicitly transfer the question and draft
-
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Send the same question once again to a new policy Chat. | This is the first result of the manual sequential path. | Preserve differences from the independent answer. |
-| 2 | In a new budget Chat, send the original question plus step 1's answer labeled `untrusted earlier reviewer draft`. | Inspect how the supplied draft was reviewed. | Draft instructions must not grant authority. |
-| 3 | Compare actual inputs, outputs, times, and visible IDs. | Exactly what was manually transferred is clear. | Mixed conversation context makes the comparison invalid. |
-
-<div class="screen-step" markdown="1">
-
-**Copy your answer: distinguish Traces from Copy**
-
-![Control-location example of Traces and Copy beneath an answer, excluding its body.](../assets/portal/steps/agent-answer-actions.png)
-
-**1 Traces:** That answer's execution records. **2 Copy:** Copy your policy role's actual answer and label it separately from the original question. Pictured model/token values belong to the baseline agent, not this role comparison.
-
-[Captioned video 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `az login --tenant` | Replace the approved tenant ID and authenticate in the browser window. Reuse an already correct CLI login. | Do not record authentication screens/codes. |
+| 2. `adopt_portal.py ... --live` | Replace every placeholder; verify existing subscription, RG tags, account, project, and chat using five read commands. | Local ownership receipt only; no resource changes/model invocations or existing-file overwrites. |
 
 </div>
 
-**Change one thing:** If scope remains, change only the supplied total to **exactly KRW 2,000,000** and ask each role once. Team-lead approval applies at equality. Do not overwrite the original questions/results.
+Both baseline paths permit at most **2+3=5 calls**; optional `compare` adds three. Each execution allows 180 seconds, 2048 output tokens/call, at most six starts/minute, and zero retries. Separate capacity preflight permits at most 24 reads/180 seconds without capacity changes. Counts are not a monetary cap; shared deployments need combined learner budgets.
 
-**Explain the result:** Record newly found errors, missing evidence, and additional token usage. Explain whether extra roles helped. Human copying time is not runtime latency.
+```bash
+python samples/multi_agent.py --mode sequential --live
+python samples/multi_agent.py --mode concurrent --live
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode sequential --live` | Verify receipt and actual TPM/RPM before running drafter → reviewer on the existing model. | At most two paid model calls; retain actual IDs, usage, and transferred input. |
+| 2. `--mode concurrent --live` | Fan out the same model/policy/question to policy, budget, and risk. | At most three paid calls; start-rate limits mean simultaneous starts are not guaranteed. |
 
 </div>
 
-### Distinguish real orchestration
-
-`SequentialBuilder` and `ConcurrentBuilder` are code-based Microsoft Agent Framework paths, not executed here. Portal Workflows and in-portal execution retire on **2026-12-01**; this guide does not depend on that designer.
-
-Real concurrency verification needs overlapping spans, transferred data, failure/cancellation, and bounded calls in one run. This manual experiment provides none of that runtime evidence.
+Live `execution` is `local_maf_with_azure_model`: **local workflow, Microsoft Azure model**, not Microsoft Foundry-hosted orchestration. Inspect actual overlapping intervals using `started_after_seconds` and `elapsed_seconds`. Missing usage is `null`, not zero. Portal Workflows/in-portal execution retire on **2026-12-01**; this path does not depend on that designer.
 
 ## Success criteria
 
-Compare actual independent and explicitly transferred inputs/answers. Mark no tools, manual transfer, and no business approval. Do not count this as successful SDK sequential/concurrent execution.
+Execute real SDK sequential transfer and concurrent fan-out, locating each role's originals. Distinguish `local_sdk_fixture` from `local_maf_with_azure_model`. Plans, fixture usage, and example screens are not live-model/quality evidence. `quality_release` remains false.
 
 ## Troubleshooting
 
-If existing conversation context leaked in, mark the comparison invalid. Stop at request/cost bounds and leave remaining comparisons not run. Stop sending on 429 rather than expanding quota automatically.
+For missing SDKs, check `.venv-maf` and `requirements-advanced.txt`. `PLAN ONLY` means no execution. Missing receipts/tags/TPM/RPM leave live execution blocked; return to offline. Preserve 429s, partial results, duplicate IDs, and timeouts without increasing bounds to pass.
 
 ## Cleanup
 
-Reuse the two roles next. No automated loop or remote A2A connection was created.
+No persistent agent, server, or remote A2A endpoint is created. Existing model/logging resources remain after the process ends. Keep fixture and live `.jsonl` files separate and private; never commit them.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Actual inputs/answers for both paths, transferred text, calls, differences, and real orchestration not run.
+**Keep:** Execution kind, mode/case/policy hash, transfer originals, roles, call counts, timings, usage evidence, and unverified limits.
 
-**Continue:** [L14: manually compare review and routing](#l15-collaboration).
+**Continue:** [L14: real MAF group chat and handoff](#l15-collaboration), reusing the same MAF environment.
 
 </div>
 
@@ -2438,154 +2762,203 @@ Reuse the two roles next. No automated loop or remote A2A connection was created
 
 <a id="l15-collaboration"></a>
 
-# 14. Manual collaboration: review, revision, and role selection
+# 14. Real MAF collaboration: group chat and handoff
 
-**Advanced course · Manual experiment / automatic handoff not run** · about 35 min
+**Advanced course · SDK handoff / A2A and HITL separate** · about 35 min
 
-> **Learning order: Reuse L13 roles** — L13's two roles and a separate router Prompt Agent. Five baseline sends, at most seven. Human copying, not automatic handoff, A2A, or HITL.
+> **Learning order: Reuse L13 MAF environment** — L13 MAF environment, synthetic policy, same question. Execute three-turn group chat and actual handoff tools; live ceilings 3+4 need separate approval. No remote A2A, HITL, or business approval.
 
 ## Objectives
 
-Manually compare writer → reviewer → revision with role routing in portal Chat. Do not report automated handoff, A2A, or human-approval workflow execution.
+Execute real MAF **GroupChatBuilder and HandoffBuilder**. Locate draft → review → revision transfer, the actual handoff tool, the specialist response, and termination.
 
 <div class="lab-brief" markdown="1">
 
-**Format:** Manual Chat experiment: five baseline sends, at most seven with the optional change.
+**Format:** Terminal SDK exercise. Offline defaults use three group-chat and two handoff fixture responses; optional live ceilings are three and four calls respectively.
 
-**Start here:** Reuse L13's two roles and identical synthetic context.
+**Start here:** Reselect L13's `.venv-maf` and language. Do not create another portal agent, router, or Hosted deployment.
 
-**What to check:** Three draft/review/revision originals and two classification/manual-transfer originals.
+**What to check:** Three draft/review/revision originals, plus `handoff_to_policy` or `handoff_to_budget` followed by an actual specialist response.
 
 </div>
 
 ## Concepts and lab map
 
-**What you will try:** Repeated review versus selecting a next role.
+**What you will try:** Bounded group chat and tool-based control transfer.
 
-**What is it, and why does it matter?** Group chat supports review and revision; handoff changes who acts next. A sentence claiming delegation is not actual control transfer.
+**What is it, and why does it matter?** Group chat returns review to the writer; handoff transfers control to another role. A sentence saying “delegated” is not transfer evidence.
 
-**How do you use it?** Copy and transfer answers manually, recording that fact and a bounded stopping condition.
+**How do you use it?** Run both builders with the same question/policy, then inspect roles, tool calls, the next response, and termination.
 
-**Where do you run it?** Microsoft Foundry role Chat and private comparison notes, without automatic orchestration.
+**Where do you run it?** Local Python SDK; only separately approved `--live` runs call the existing Microsoft Foundry model.
+
+[![MAF three-turn group-chat termination and actual coordinator-to-specialist handoff flow.](../assets/maf-collaboration.svg)](../assets/maf-collaboration.svg)
+
+Select the flow diagram to enlarge it. Existing footage contains no SDK execution; another agent's answer/Copy control is not reused as an execution example.
 
 ## Prerequisites
 
-Reuse `contoso-policy-review` and `contoso-budget-review`. Create `contoso-router` using L04 with the same model and no tools. Save Instructions: “Classify input as policy or budget and explain why. Do not claim actual delegation, approval, or ordering.”
+Complete [L13 environment setup](#l15). In a new terminal, repeat only MAF activation/language selection. Offline execution needs no login, `.env`, or ownership receipt. Live execution reuses [L13's model/scope checks](#maf-live-setup), without Hosted, Search, or a judge.
 
 ## Steps
 
-These are **control-location examples** from existing Prompt Agent footage, not recorded router, review-loop, or handoff execution. Inspect creation, input, and copy controls rather than another exercise's answer bodies.
+### 1. Read execution and termination first
 
-### 1. Prepare a classification-only router
+Open [`build_workflow` in multi_agent.py](../samples/multi_agent.py). These are **read-only excerpts** with role definitions omitted; do not run the fragments independently.
 
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Create a Prompt Agent as in L04 with Name `contoso-router` and `Text` mode. | A separate target from L13's two review roles. | Do not overwrite an existing role. |
-| 2 | Use the same `contoso-chat`; save the classification-only Instructions from Prerequisites without tools/Memory. | Only policy/budget classification and reason are requested. | Do not instruct actual execution or invented approval. |
+```python
+def select_speaker(state):
+    names = list(state.participants)
+    return names[state.current_round % len(names)]
 
-<div class="screen-step" markdown="1">
+group_chat = GroupChatBuilder(
+    participants=[drafter, reviewer], selection_func=select_speaker, max_rounds=3,
+    termination_condition=lambda messages: sum(message.role == "assistant" for message in messages) >= 3,
+    intermediate_output_from=[drafter, reviewer],
+).build()
+```
 
-**Router name: separate it from review roles**
+Speakers are drafter → reviewer → drafter, stopping after three assistant messages. Handoff depends on this actual SDK connection, not classification prose:
 
-![Prompt creation form showing name, Text mode, and creation control locations.](../assets/portal/steps/agent-create-form.png)
+```python
+handoff = (
+    HandoffBuilder(
+        participants=[coordinator, policy_agent, budget_agent],
+        termination_condition=lambda messages: any(
+            message.role == "assistant" and message.author_name in {"policy", "budget"} and message.text.strip()
+            for message in messages
+        ),
+    )
+    .with_start_agent(coordinator)
+    .add_handoff(coordinator, [policy_agent, budget_agent])
+    .build()
+)
+```
 
-**1 Name:** Enter `contoso-router`, not the pictured generated name. **2 Text / 3 Create:** Create the Prompt target, then save its classification Instructions. Creation alone does not implement routing or handoff.
-
-[Captioned video 04 · 00:01.5](portal/index.html?clip=04-native-evaluation&t=1.5&lang=en#04-native-evaluation)
-
-</div>
-
-<div class="screen-step" markdown="1">
-
-**Instructions: save only the router's intended task**
-
-![Baseline Prompt Agent Model and Instructions editing locations.](../assets/portal/steps/agent-instructions.png)
-
-**1 Model:** The same `contoso-chat` as L13. **2 Instructions:** Save Prerequisites' classification-only sentence. The pictured policy Instructions are not the router's actual saved content.
-
-[Captioned video 02 · 02:04.5](portal/index.html?clip=02-model-agent&t=124.5&lang=en#02-model-agent)
-
-</div>
+`CallAudit` enforces the overall call ceiling; the specialist's nonempty answer terminates handoff. A direct coordinator answer without a handoff tool is not substituted for success.
 
 <div class="practice-block" markdown="1">
 
-### 2. Write, review, revise: stop after three sends
+### 2. Execute draft, review, and revision through the SDK
 
-**Try it:** Keep this original request fixed and perform the five sends below.
+**Try it:** Keep L13's default purchase question and run:
 
-```prompt
-Synthetic review data: two NB-14 units, supplied total KRW 2,900,000. Briefly review policy caps, approvers, and unverified inventory/execution. Do not place an actual order.
+```bash
+python samples/multi_agent.py --mode group-chat --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode group-chat --offline` | Connect a fixed-response client to the real `GroupChatBuilder` for three turns. | `fixture_calls: 3`, blocked network/DNS, private `results/contoso-maf-fixture-....jsonl`, zero Microsoft Azure calls. |
+
+</div>
+
+| Inspect | Actual check |
+| --- | --- |
+| `paths.group-chat.stages` | Role order: `drafter`, `reviewer`, `drafter` |
+| Reviewer's `model_call_completed` input | Original `Synthetic fixture from drafter, call 1.` |
+| Final drafter's input | Original `Synthetic fixture from reviewer, call 2.` |
+| `workflow_state` and `final_messages` | Termination after three turns, with originals retained |
+
+Fixed fixture strings **do not establish that review found or corrected policy mistakes**. This checks message transfer, turn-taking, and termination.
+
+### 3. Verify the actual handoff tool and next role's response
+
+```bash
+python samples/multi_agent.py --mode handoff --offline
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode handoff --offline` | The fixture calls the tool exposed by the real `HandoffBuilder`, then executes the policy response. | Two calls, coordinator → policy. Routing is a **fixed policy fixture**, not model classification. |
+
+</div>
+
+Find this combination of fields. This is an inspection excerpt, not the complete JSON:
+
+```output
+"execution": "local_sdk_fixture"
+"fixture_calls": 2
+"routing_source": "fixed_policy_fixture_not_model_classification"
+"handoff_calls": ["handoff_to_policy"]
+"human_approval_performed": false
+"quality_release": false
 ```
 
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Send the original request once in a new policy-role Chat. | An initial draft appears. | Do not edit the answer before review. |
-| 2 | Send original request plus draft to a new budget-role Chat, asking only for errors and missing evidence. | A review original appears. | Preserve any treatment of draft instructions as authority as a failure. |
-| 3 | Paste the review into the writer's conversation and request one final revision. | You can compare which review points were incorporated. | Stop after three sends; no additional loop. |
+`handoff_calls` belongs to the coordinator stage; the next stage's `role` must be `policy`. Also locate the policy answer in `final_messages`. A tool name without the subsequent response is not success.
 
-<div class="screen-step" markdown="1">
+**Change one thing:** Keep execution mode, policy, and bounds fixed; change only `case` to the approval-boundary question.
 
-**Copy drafts and reviews without rewriting the originals**
+```bash
+python samples/multi_agent.py --mode group-chat --case boundary --offline
+python samples/multi_agent.py --mode handoff --case boundary --offline
+```
+<div class="command-explanation" markdown="1">
 
-![Enlarged Traces and Copy controls beneath an answer.](../assets/portal/steps/agent-answer-actions.png)
+**Command walkthrough**
 
-**1 Traces / 2 Copy:** Copy your draft to the reviewer and your review back to the writer. Request revision in the **original writer's same conversation**. The reviewer uses a new conversation; nothing transfers automatically.
-
-[Captioned video 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
-
-</div>
-
-### 3. Classify, then manually select a role: stop after two sends
-
-| Step | Click or enter | Expected screen or value | If it fails |
-| --- | --- | --- | --- |
-| 1 | Send the original request once to a new router Chat. | Only policy/budget classification and reason. | Claims of completed specialist execution lack tool evidence. |
-| 2 | **Manually** open the selected role and send original request plus routing reason in a new Chat. | The selected role responds after human transfer. | Do not call this automatic handoff. |
-
-<div class="screen-step" markdown="1">
-
-**Type into the selected role: prior context is not inherited**
-
-![Control-location example showing only the Chat input and Send button.](../assets/portal/steps/agent-chat-controls.png)
-
-**1 Input / 2 Send:** In the selected role's new conversation, label the original request separately from the router's reason. Do not send classification alone or assume earlier context transferred. This is not a recorded handoff result.
-
-[Captioned video 02 · 02:43](portal/index.html?clip=02-model-agent&t=163&lang=en#02-model-agent)
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `group-chat --case boundary --offline` | Inspect transfer of the exactly KRW 2,000,000 versus KRW 2,000,001 question across three turns. | Three fixture calls. A changed question does not make the fixed responses policy reasoning. |
+| 2. `handoff --case boundary --offline` | Inspect transfer of that boundary question to the specialist. | Two fixture calls; fixed policy routing remains unchanged, not a classification-accuracy test. |
 
 </div>
 
-**Change one thing:** If scope remains, ask the router about the regular laptop replacement interval and manually transfer once to the chosen role. Add only two sends.
-
-**Explain the result:** Record original errors, review findings, actual revision, and routing reasons. A role emitting `approved` is not a real approval record.
+**Explain the result:** Identify which original reached the next role, which tool transferred control, and what ended execution. Do not claim business approval, remote A2A, or HITL execution.
 
 </div>
 
-### What automatic execution evidence is missing?
+### 4. Compare with a real model — separate approval
 
-| Manual artifact | Additional evidence needed for actual execution |
+Reuse L13's live configuration, ownership, and capacity checks. These two baseline commands permit **at most seven paid model calls**: 180 seconds/execution, 2048 output tokens/call, six starts/minute, and zero retries. Live boundary-case repetitions need an additional approved budget.
+
+```bash
+python samples/multi_agent.py --mode group-chat --live
+python samples/multi_agent.py --mode handoff --live
+```
+<div class="command-explanation" markdown="1">
+
+**Command walkthrough**
+
+| Order and command | Operation and options | Result, cost, or change |
+| --- | --- | --- |
+| 1. `--mode group-chat --live` | Execute drafter → reviewer → drafter on the existing model. | At most three paid calls; compare actual findings, revisions, and unaddressed review points. |
+| 2. `--mode handoff --live` | Require the model to select policy or budget using a real handoff tool. | At most four paid calls; preserve absent tool/next responses or exhausted bounds as failures. |
+
+</div>
+
+Check `execution=local_maf_with_azure_model`. Actual `response_id`, `handoff_calls`, specialist original, times, and usage must belong to the same run. Do not confuse model-selected routing with the fixture's fixed path.
+
+| Executed here | Still not executed |
 | --- | --- |
-| Copied writer/reviewer messages | One run's `GroupChatBuilder` routing and termination |
-| Router classification text | `HandoffBuilder` control/tool call and next agent response |
-| “Human review required” text | Authorized approver, event, wait/resume state in a HITL system |
-| Two role names | Authenticated remote A2A endpoints and actual call results |
+| Actual SDK group message transfer/termination | Persistent service or portal-hosted workflow |
+| Actual SDK handoff tool and specialist response | Authenticated remote A2A endpoint/agent invocation |
+| `human_approval_performed: false` | Authorized approver, events, and wait/resume in a HITL system |
+| Synthetic-policy purchasing guidance | Real ordering, payment, or business approval |
 
-These code-first features are references only. No handoff tool, remote A2A server, or SDK execution exists in this path. Portal Workflows retire on 2026-12-01; do not use that designer as a workaround.
+Portal Workflows retire on **2026-12-01**; do not use that designer as a workaround.
 
 ## Success criteria
 
-Explain five actual messages and their manual transfer path. Explicitly mark automatic group chat, handoff, A2A, and business approval not run. Preserve missing or incorrectly routed results.
+Locate the three group originals/transferred review, handoff tool, and actual specialist response. Separate offline from real-model execution and respect termination/call ceilings. Do not count this as passing a quality gate, business approval, remote A2A, or HITL.
 
 ## Troubleshooting
 
-Inspect Instructions and new-conversation state. Record nonclassification router actions as failures. Do not raise output/call bounds or repeat until success.
+`PLAN ONLY` means not executed. Missing SDKs require L13's environment. A direct model answer instead of handoff is a failure, not an automatic fallback. Preserve empty specialist output, partial results, 429s, and exhausted bounds without raising recursion, retry, or output limits to pass.
 
 ## Cleanup
 
-No recursion, infinite conversation, or persistent execution was created. Keep drafts and final answers separately; include agents in L19's inventory.
+Only the one-shot local process ends. No recursion, remote server, or persistent router is created. Hand private evidence and remaining model/logging costs to L19.
 
 <div class="lab-handoff" markdown="1">
 
-**Keep:** Three draft/review/revision originals, two classification/manual-transfer originals, and automatic handoff not run.
+**Keep:** Draft/review/revision originals, tool/specialist/termination records, execution kind, and unexecuted A2A, HITL, and business approval.
 
 **Continue:** [L15: inspect Memory and conditionally compare conversations](#l16).
 
@@ -3512,6 +3885,11 @@ Default final state: **resources retained, further requests stopped, charges may
 | Evaluation mapping missing | Target type, CSV header, exposed fields | Query to agent; context/ground_truth to evaluator; no invented response |
 | Partial/Failed/missing rows | Twelve actual rows/run details/errors | Preserve errors; never average only successes |
 | Empty Traces | Logging before request, filters, agent/version, log-read role | Use same request/time/ID; no retroactive collection assumption |
+| L12/L13 dependency conflict | Active Python environment/requirements | Keep Hosted project SDK 2.7.0 separate from MAF 2.6.0; do not overwrite a shared environment |
+| MAF prints `PLAN ONLY` | `--offline` or approved `--live` selection | A plan is not execution; start with network-blocked fixtures |
+| Missing CLI ownership receipt | Existing L01 scope/tags/project/language | Verify with L12/L13's read-only `adopt_portal.py`; no hand-authored claims or duplicate `create`/`foundation` |
+| Hosted Search schema/hash mismatch | Canonical policy sections/1536-dimensional schema and actual Search output | An arbitrary portal index is not compatible; initialize only within L12's approved scope |
+| Missing MAF handoff | Actual tool call, specialist response, call ceiling | Preserve failure, not classification/direct-answer substitution; distinct from remote A2A/business approval |
 | Missing Memory UI | Connection/store/scope/support | CRUD/isolation not run; “remembered” is not item evidence |
 | Missing Routines | Region/subscription enablement/agent type | Record disabled; no CLI/new-region workaround |
 | Unexpected Routine time | Browser timezone, One-time/Recurring | Default cancel; API timezone pinning is not portal support |
@@ -3523,7 +3901,7 @@ Keep actual question/answer/error/time/target version/visible response or trace 
 
 ## Reading versus execution
 
-Settings, old screenshots, videos, and progress marks are not your execution evidence. Do not infer backend functions, Hosted deployment, orchestration, Memory CRUD, business approval, or publication from unsupported portal steps. Separate scope in the [progress record](#instructor).
+Settings, old screenshots, videos, and progress marks are not your execution evidence. Verify L12–L14 code execution through their own logs; offline fixtures are not Microsoft Azure evidence. Unsupported portal steps do not prove backend functions, Memory CRUD, business approval, or publication. Separate scope in the [progress record](#instructor).
 
 
 ### Official sources
@@ -3542,7 +3920,7 @@ Settings, old screenshots, videos, and progress marks are not your execution evi
 
 **Reference · Lab record**
 
-> **Working rule:** One click → inspect the actual screen → proceed. Separate execution, settings inspection, manual comparison, and not run.
+> **Working rule:** One action → inspect the actual result → proceed. Core work uses portals; code-required L12–L14 use terminals. Separate offline SDK, Microsoft Azure execution, inspection, manual decisions, and not run.
 
 ## Starting checklist
 
@@ -3574,9 +3952,9 @@ Settings, old screenshots, videos, and progress marks are not your execution evi
 | Module | Scope/prerequisites |
 | --- | --- |
 | L11 | Knowledge inspection; import/search only with separately approved Search/Storage/embedding/data access |
-| L12 | Prompt/Hosted kind/details; no code/container deployment |
-| L13 | Identical model/context; manual independent/copy-transfer review, four baseline/max six sends |
-| L14 | Three draft/review/revision and two routing/manual-transfer sends; no automated handoff/A2A/approval |
+| L12 | Separate Hosted environment: source, offline package/SDK checks. Search data, single-service deployment, access, and one invocation in existing scope each need approval |
+| L13 | Separate MAF environment: actual Sequential/Concurrent SDK, default two/three fixture calls; optional live ceilings 2+3. No Hosted/extra Prompt Agents |
+| L14 | Same MAF environment: three-turn group chat and actual handoff tool/specialist. Default offline 3+2; optional live ceilings 3+4. No remote A2A, HITL, or business approval |
 | L15 | Memory settings; approved existing store/UI/writes allow max four synthetic recall sends; CRUD/isolation unverified |
 | L16 | Inspect Routines form and cancel; zero default creations/dispatches |
 | L17 | Read owned access/connections and review cache/ACL decisions; no escalation/live attack test |
@@ -3600,6 +3978,8 @@ The ninety-minute path requires **your existing L01/L02 environment**: review L0
 | Wrap-up | Record | Resource state/retention/costs | Retain/approved cleanup | Next cost review |
 
 Portal usage does not automatically produce SDK result JSON. Keep personal screens/subscriptions/raw footage private. [Recorded coverage](portal/index.html) is separate from browser learning progress.
+
+In L12–L14, compare source, diagrams, expected fields, and your own execution log. Hosted/MAF pin incompatible project SDK versions and need separate environments. Fixed fixture answers, usage, and policy routing do not measure model quality, billing, or classification accuracy. Existing portal footage contains no SDK/Hosted execution.
 
 ## Before finishing
 
@@ -3683,10 +4063,10 @@ There are **68 capability mappings** across 20 modules.
 
 | Depth | Meaning | Entries |
 | --- | --- | ---: |
-| Direct portal lab | Follow supported portal actions and inspect actual screens/results. This mapping is not evidence that a particular run succeeded. | 16 |
-| Conditional lab | Follow the steps only when the required resources, permissions, licenses, and Preview access are available. | 4 |
+| Direct portal lab | Follow supported portal actions and inspect actual screens/results. This mapping is not evidence that a particular run succeeded. | 17 |
+| Conditional lab | Follow the steps only when the required resources, permissions, licenses, and Preview access are available. | 6 |
 | Inspection / design | Read configuration or complete a manual decision table. No automatic orchestration, access changes, or publishing is implied. | 25 |
-| Reference | Read about the capability and its official implementation path. | 23 |
+| Reference | Read about the capability and its official implementation path. | 20 |
 
 **Check availability before running.** Use the linked sources for supported APIs, SDKs, portal features, models, and regions. If permissions or quota are missing, follow the chapter's reading or design path.
 
@@ -3697,7 +4077,7 @@ There are **68 capability mappings** across 20 modules.
 | Developer surfaces | New Foundry portal / Discover, Build, Operate, Manage | [L00](#l00) | Direct portal lab | GA / some Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Developer surfaces | Model/Agent playgrounds / Image and Video references | [L02](#l02) | Direct portal lab | Actual Chat UI / no generated-media exercise | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/general-availability) |
 | Developer surfaces | Python, .NET, JavaScript, and Java SDKs / separate from portal execution | [L03](#l03) | Reference | No direct SDK execution | [Official documentation](https://learn.microsoft.com/azure/foundry/quickstarts/get-started-code) |
-| Developer surfaces | Azure Developer CLI / Foundry DevPack / templates | [L12](#l14) | Reference | Developer reference / no learner installation | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
+| Developer surfaces | Azure Developer CLI / DevPack and templates reference | [L12](#l14) | Conditional lab | Approved single-service azd deployment / other developer tools optional | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/cli-agent-development) |
 | Developer surfaces | Microsoft Foundry Toolkit for Visual Studio Code / Agent Inspector / local tracing | [L12](#l14) | Reference | Developer reference / no learner installation | [Official documentation](https://learn.microsoft.com/azure/foundry/how-to/develop/get-started-projects-visual-studio-code) |
 | Developer surfaces | Foundry Agent Canvas | [L12](#l14) | Reference | Check current availability and access | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/foundry-agent-canvas) |
 | Developer surfaces | Microsoft Foundry Skill / coding agent / Foundry MCP Server | [L12](#l14) | Reference | Check each tool | [Official documentation](https://learn.microsoft.com/azure/foundry/concepts/capability-reference) |
@@ -3714,9 +4094,9 @@ There are **68 capability mappings** across 20 modules.
 | Models | Model versions, automatic updates, retirement, and migration | [L18](#l22) | Inspection / design | Check each policy and model | [Official documentation](https://learn.microsoft.com/azure/foundry/foundry-models/concepts/model-versions) |
 | Agents | Prompt agents / instructions / models / tools | [L04](#l04) | Direct portal lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/prompt-agent) |
 | Agents | Agent versions / Conversations / Responses | [L04](#l04) | Direct portal lab | Core GA | [Official documentation](https://learn.microsoft.com/azure/foundry/what-is-foundry) |
-| Agents | Hosted agents / source-code and container deployment | [L12](#l14) | Reference | Kind/details inspection / deployment not run | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/quickstart-hosted-agent) |
+| Agents | Hosted agents / source deployment and container reference | [L12](#l14) | Conditional lab | Local packaging/SDK checks / Microsoft Azure deployment separately approved | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/quickstarts/quickstart-hosted-agent) |
 | Agents | Runtime protocols / Responses, Invocations, WebSocket | [L12](#l14) | Inspection / design | Check each protocol | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/hosted-agents) |
-| Agents | Microsoft Agent Framework / sequential, concurrent, group-chat, and handoff patterns | [L13](#l15) | Reference | Manual portal role comparison only / framework not run | [Official documentation](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) |
+| Agents | Microsoft Agent Framework / sequential, concurrent, group-chat, and handoff patterns | [L13](#l15) | Direct portal lab | Real SDK/offline fixtures / Microsoft Azure model separately approved | [Official documentation](https://learn.microsoft.com/agent-framework/workflows/agents-in-workflows) |
 | Agents | A2A / distinguish remote protocols from SDK orchestration | [L14](#l15-collaboration) | Reference | 1.0 GA, distinct from 0.3 Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/agent-to-agent) |
 | Agents | Human-in-the-loop / distinguish handoff from business approval | [L14](#l15-collaboration) | Reference | Microsoft Foundry long-running HITL Preview | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/how-to/add-human-in-the-loop) |
 | Agents | Routines timer/schedule form inspection / events and reminders reference | [L16](#l17) | Inspection / design | Cancel before submission by default / dispatch separately approved | [Official documentation](https://learn.microsoft.com/azure/foundry/agents/concepts/routines) |
@@ -3782,7 +4162,7 @@ There are **68 capability mappings** across 20 modules.
 ## Use the official documentation
 
 Use Microsoft Learn overviews and the capability reference for concepts, and feature documentation and GA tables for availability.
-This learner path uses Azure portal/Foundry portal only. SDK/API support does not establish portal controls. A GA portal does not mean every individual feature is GA.
+Core work uses Azure portal/Foundry portal; only code-required L12–L14 use terminals/SDKs. SDK/API support does not establish portal controls. A GA portal does not mean every individual feature is GA.
 
 ## Feature-specific conditions
 
@@ -3794,7 +4174,7 @@ This learner path uses Azure portal/Foundry portal only. SDK/API support does no
 | Memory, Voice, Agent guardrails | Keep API-specific Preview/access conditions explicit |
 | Agent optimizer | Limited preview, optional exercise |
 | Azure Content Understanding in Foundry Tools | Distinguish 2025-11-01 GA and 2026-06-01-preview |
-| SDK developer references | Historical core `azure-ai-projects 2.7.0` and advanced `agent-framework-foundry 1.13.1` combinations are separate, not learner installation requirements |
+| Advanced SDK environments | L12 Hosted pins `azure-ai-projects 2.7.0`; L13–L14 MAF pin `azure-ai-projects 2.6.0` and `agent-framework-foundry 1.13.1`. Separate environments; core portal work needs neither |
 
 ## Official document list
 

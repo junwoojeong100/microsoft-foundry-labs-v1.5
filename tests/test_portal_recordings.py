@@ -68,7 +68,21 @@ class PortalRecordingTests(unittest.TestCase):
         self.assertIn('data-src="native-clip.ko.vtt" srclang="ko"', html)
         self.assertIn('data-src="native-clip.en.vtt" srclang="en"', html)
         self.assertIn("Not run", html)
-        self.assertIn('native-clip.mp4#t=0', html)
+        self.assertIn('index.html?clip=native-clip&amp;t=0&amp;lang=en#native-clip', html)
+
+    def test_scene_links_keep_fractional_times_and_open_the_captioned_language_player(self):
+        self.source["clips"][0]["edits"][0]["start_seconds"] = 1.5
+        self.save()
+        portal_recordings.build()
+        html = (self.destination / "index.html").read_text()
+        for language in ("ko", "en"):
+            self.assertIn(
+                f'<a lang="{language}" href="index.html?clip=native-clip&amp;t=1.5&amp;lang={language}#native-clip">',
+                html,
+            )
+        self.assertIn("00:01.5 · English captions", html)
+        self.assertNotIn(".mp4#t=", html)
+        self.assertIn("original portal filming", html)
 
     def test_embedded_offline_captions_preserve_timing_and_cannot_close_the_data_script(self):
         caption = "Inspect </script><script>unexpected</script>"
